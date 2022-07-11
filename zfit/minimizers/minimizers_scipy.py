@@ -65,7 +65,7 @@ class ScipyBaseMinimizerV1(BaseMinimizer):
                    been found. Defaults to 1e-3. |@docend:minimizer.tol|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
-                   evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
+                   evaluations of the ``value``, 'gradient`` or ``hessian``. |@docend:minimizer.maxiter|
             minimizer_options:
             verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10.
               The verbosity has the meaning:
@@ -80,7 +80,7 @@ class ScipyBaseMinimizerV1(BaseMinimizer):
 
                Some minimizers offer additional output which is also
                distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
-            strategy: |@doc:minimizer.strategy| A class of type `ZfitStrategy` that takes no
+            strategy: |@doc:minimizer.strategy| A class of type ``ZfitStrategy`` that takes no
                    input arguments in the init. Determines the behavior of the minimizer in
                    certain situations, most notably when encountering
                    NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
@@ -478,7 +478,7 @@ class ScipyLBFGSBV1(ScipyBaseMinimizerV1):
                    estimate the gradient. |@docend:minimizer.scipy.gradient.internal|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
-                   evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
+                   evaluations of the ``value``, 'gradient`` or ``hessian``. |@docend:minimizer.maxiter|
             criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
                    estimated measure for the distance to the
                    minimum and can include the relative
@@ -488,7 +488,7 @@ class ScipyLBFGSBV1(ScipyBaseMinimizerV1):
                    than ``loss.errordef * tol``, the algorithm
                    stopps and it is assumed that the minimum
                    has been found. |@docend:minimizer.criterion|
-            strategy: |@doc:minimizer.strategy| A class of type `ZfitStrategy` that takes no
+            strategy: |@doc:minimizer.strategy| A class of type ``ZfitStrategy`` that takes no
                    input arguments in the init. Determines the behavior of the minimizer in
                    certain situations, most notably when encountering
                    NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
@@ -629,7 +629,7 @@ class ScipyTrustKrylovV1(ScipyBaseMinimizerV1):
                distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
-                   evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
+                   evaluations of the ``value``, 'gradient`` or ``hessian``. |@docend:minimizer.maxiter|
             criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
                    estimated measure for the distance to the
                    minimum and can include the relative
@@ -639,7 +639,7 @@ class ScipyTrustKrylovV1(ScipyBaseMinimizerV1):
                    than ``loss.errordef * tol``, the algorithm
                    stopps and it is assumed that the minimum
                    has been found. |@docend:minimizer.criterion|
-            strategy: |@doc:minimizer.strategy| A class of type `ZfitStrategy` that takes no
+            strategy: |@doc:minimizer.strategy| A class of type ``ZfitStrategy`` that takes no
                    input arguments in the init. Determines the behavior of the minimizer in
                    certain situations, most notably when encountering
                    NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
@@ -778,7 +778,7 @@ class ScipyTrustNCGV1(ScipyBaseMinimizerV1):
                distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
-                   evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
+                   evaluations of the ``value``, 'gradient`` or ``hessian``. |@docend:minimizer.maxiter|
             criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
                    estimated measure for the distance to the
                    minimum and can include the relative
@@ -788,7 +788,7 @@ class ScipyTrustNCGV1(ScipyBaseMinimizerV1):
                    than ``loss.errordef * tol``, the algorithm
                    stopps and it is assumed that the minimum
                    has been found. |@docend:minimizer.criterion|
-            strategy: |@doc:minimizer.strategy| A class of type `ZfitStrategy` that takes no
+            strategy: |@doc:minimizer.strategy| A class of type ``ZfitStrategy`` that takes no
                    input arguments in the init. Determines the behavior of the minimizer in
                    certain situations, most notably when encountering
                    NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
@@ -957,7 +957,7 @@ class ScipyTrustConstrV1(ScipyBaseMinimizerV1):
 
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
-                   evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
+                   evaluations of the ``value``, 'gradient`` or ``hessian``. |@docend:minimizer.maxiter|
             criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
                    estimated measure for the distance to the
                    minimum and can include the relative
@@ -967,7 +967,7 @@ class ScipyTrustConstrV1(ScipyBaseMinimizerV1):
                    than ``loss.errordef * tol``, the algorithm
                    stopps and it is assumed that the minimum
                    has been found. |@docend:minimizer.criterion|
-            strategy: |@doc:minimizer.strategy| A class of type `ZfitStrategy` that takes no
+            strategy: |@doc:minimizer.strategy| A class of type ``ZfitStrategy`` that takes no
                    input arguments in the init. Determines the behavior of the minimizer in
                    certain situations, most notably when encountering
                    NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
@@ -1148,7 +1148,7 @@ class ScipyNewtonCGV1(ScipyBaseMinimizerV1):
                distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
-                   evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
+                   evaluations of the ``value``, 'gradient`` or ``hessian``. |@docend:minimizer.maxiter|
             criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
                    estimated measure for the distance to the
                    minimum and can include the relative
@@ -1158,7 +1158,7 @@ class ScipyNewtonCGV1(ScipyBaseMinimizerV1):
                    than ``loss.errordef * tol``, the algorithm
                    stopps and it is assumed that the minimum
                    has been found. |@docend:minimizer.criterion|
-            strategy: |@doc:minimizer.strategy| A class of type `ZfitStrategy` that takes no
+            strategy: |@doc:minimizer.strategy| A class of type ``ZfitStrategy`` that takes no
                    input arguments in the init. Determines the behavior of the minimizer in
                    certain situations, most notably when encountering
                    NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
@@ -1287,7 +1287,7 @@ class ScipyTruncNCV1(ScipyBaseMinimizerV1):
                distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
-                   evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
+                   evaluations of the ``value``, 'gradient`` or ``hessian``. |@docend:minimizer.maxiter|
             criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
                    estimated measure for the distance to the
                    minimum and can include the relative
@@ -1297,7 +1297,7 @@ class ScipyTruncNCV1(ScipyBaseMinimizerV1):
                    than ``loss.errordef * tol``, the algorithm
                    stopps and it is assumed that the minimum
                    has been found. |@docend:minimizer.criterion|
-            strategy: |@doc:minimizer.strategy| A class of type `ZfitStrategy` that takes no
+            strategy: |@doc:minimizer.strategy| A class of type ``ZfitStrategy`` that takes no
                    input arguments in the init. Determines the behavior of the minimizer in
                    certain situations, most notably when encountering
                    NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
@@ -1394,7 +1394,7 @@ class ScipyDoglegV1(ScipyBaseMinimizerV1):
                distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
-                   evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
+                   evaluations of the ``value``, 'gradient`` or ``hessian``. |@docend:minimizer.maxiter|
             criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
                    estimated measure for the distance to the
                    minimum and can include the relative
@@ -1404,7 +1404,7 @@ class ScipyDoglegV1(ScipyBaseMinimizerV1):
                    than ``loss.errordef * tol``, the algorithm
                    stopps and it is assumed that the minimum
                    has been found. |@docend:minimizer.criterion|
-            strategy: |@doc:minimizer.strategy| A class of type `ZfitStrategy` that takes no
+            strategy: |@doc:minimizer.strategy| A class of type ``ZfitStrategy`` that takes no
                    input arguments in the init. Determines the behavior of the minimizer in
                    certain situations, most notably when encountering
                    NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
@@ -1477,7 +1477,7 @@ class ScipyPowellV1(ScipyBaseMinimizerV1):
                distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
-                   evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
+                   evaluations of the ``value``, 'gradient`` or ``hessian``. |@docend:minimizer.maxiter|
             criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
                    estimated measure for the distance to the
                    minimum and can include the relative
@@ -1487,7 +1487,7 @@ class ScipyPowellV1(ScipyBaseMinimizerV1):
                    than ``loss.errordef * tol``, the algorithm
                    stopps and it is assumed that the minimum
                    has been found. |@docend:minimizer.criterion|
-            strategy: |@doc:minimizer.strategy| A class of type `ZfitStrategy` that takes no
+            strategy: |@doc:minimizer.strategy| A class of type ``ZfitStrategy`` that takes no
                    input arguments in the init. Determines the behavior of the minimizer in
                    certain situations, most notably when encountering
                    NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
@@ -1584,7 +1584,7 @@ class ScipySLSQPV1(ScipyBaseMinimizerV1):
                distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
-                   evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
+                   evaluations of the ``value``, 'gradient`` or ``hessian``. |@docend:minimizer.maxiter|
             criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
                    estimated measure for the distance to the
                    minimum and can include the relative
@@ -1594,7 +1594,7 @@ class ScipySLSQPV1(ScipyBaseMinimizerV1):
                    than ``loss.errordef * tol``, the algorithm
                    stopps and it is assumed that the minimum
                    has been found. |@docend:minimizer.criterion|
-            strategy: |@doc:minimizer.strategy| A class of type `ZfitStrategy` that takes no
+            strategy: |@doc:minimizer.strategy| A class of type ``ZfitStrategy`` that takes no
                    input arguments in the init. Determines the behavior of the minimizer in
                    certain situations, most notably when encountering
                    NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
@@ -1677,7 +1677,7 @@ class ScipyCOBYLAV1(ScipyBaseMinimizerV1):
                distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
-                   evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
+                   evaluations of the ``value``, 'gradient`` or ``hessian``. |@docend:minimizer.maxiter|
             criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
                    estimated measure for the distance to the
                    minimum and can include the relative
@@ -1687,7 +1687,7 @@ class ScipyCOBYLAV1(ScipyBaseMinimizerV1):
                    than ``loss.errordef * tol``, the algorithm
                    stopps and it is assumed that the minimum
                    has been found. |@docend:minimizer.criterion|
-            strategy: |@doc:minimizer.strategy| A class of type `ZfitStrategy` that takes no
+            strategy: |@doc:minimizer.strategy| A class of type ``ZfitStrategy`` that takes no
                    input arguments in the init. Determines the behavior of the minimizer in
                    certain situations, most notably when encountering
                    NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
@@ -1756,7 +1756,7 @@ class ScipyNelderMeadV1(ScipyBaseMinimizerV1):
                distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
-                   evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
+                   evaluations of the ``value``, 'gradient`` or ``hessian``. |@docend:minimizer.maxiter|
             criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
                    estimated measure for the distance to the
                    minimum and can include the relative
@@ -1766,7 +1766,7 @@ class ScipyNelderMeadV1(ScipyBaseMinimizerV1):
                    than ``loss.errordef * tol``, the algorithm
                    stopps and it is assumed that the minimum
                    has been found. |@docend:minimizer.criterion|
-            strategy: |@doc:minimizer.strategy| A class of type `ZfitStrategy` that takes no
+            strategy: |@doc:minimizer.strategy| A class of type ``ZfitStrategy`` that takes no
                    input arguments in the init. Determines the behavior of the minimizer in
                    certain situations, most notably when encountering
                    NaNs. It can also implement a callback function. |@docend:minimizer.strategy|

@@ -1,5 +1,5 @@
 #  Copyright (c) 2022 zfit
-"""Baseclass for `Function`. Inherits from Model.
+"""Baseclass for ``Function``. Inherits from Model.
 
 TODO(Mayou36): subclassing?
 """
@@ -57,7 +57,7 @@ class BaseFuncV1(BaseModel, ZfitFunc):
         raise SpecificFunctionNotImplemented
 
     def func(self, x: ztyping.XType, name: str = "value") -> ztyping.XType:
-        """The function evaluated at `x`.
+        """The function evaluated at ``x``.
 
         Args:
             x:

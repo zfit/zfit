@@ -44,11 +44,11 @@ def poly_complex(*args, real_x=False):
 
 
 def numerical_gradient(func: Callable, params: Iterable[zfit.Parameter]) -> tf.Tensor:
-    """Calculate numerically the gradient of func() with respect to `params`.
+    """Calculate numerically the gradient of func() with respect to ``params``.
 
     Args:
-        func: Function without arguments that depends on `params`
-        params: Parameters that `func` implicitly depends on and with respect to which the
+        func: Function without arguments that depends on ``params``
+        params: Parameters that ``func`` implicitly depends on and with respect to which the
             derivatives will be taken.
 
     Returns:
@@ -83,11 +83,12 @@ def numerical_gradient(func: Callable, params: Iterable[zfit.Parameter]) -> tf.T
 def numerical_value_gradient(
     func: Callable, params: Iterable[zfit.Parameter]
 ) -> [tf.Tensor, tf.Tensor]:
-    """Calculate numerically the gradients of `func()` with respect to `params`, also returns the value of `func()`.
+    """Calculate numerically the gradients of ``func()`` with respect to ``params``, also returns the value of
+    ``func()``.
 
     Args:
-        func: Function without arguments that depends on `params`
-        params: Parameters that `func` implicitly depends on and with respect to which the
+        func: Function without arguments that depends on ``params``
+        params: Parameters that ``func`` implicitly depends on and with respect to which the
             derivatives will be taken.
 
     Returns:
@@ -106,11 +107,11 @@ def numerical_value_gradients(*args, **kwargs):
 def numerical_hessian(
     func: Callable | None, params: Iterable[zfit.Parameter], hessian=None
 ) -> tf.Tensor:
-    """Calculate numerically the hessian matrix of func with respect to `params`.
+    """Calculate numerically the hessian matrix of func with respect to ``params``.
 
     Args:
-        func: Function without arguments that depends on `params`
-        params: Parameters that `func` implicitly depends on and with respect to which the
+        func: Function without arguments that depends on ``params``
+        params: Parameters that ``func`` implicitly depends on and with respect to which the
             derivatives will be taken.
 
     Returns:
@@ -165,11 +166,11 @@ def numerical_value_gradient_hessian(
     gradient: Callable | None = None,
     hessian: str | None = None,
 ) -> [tf.Tensor, tf.Tensor, tf.Tensor]:
-    """Calculate numerically the gradients and hessian matrix of `func()` wrt `params`; also return `func()`.
+    """Calculate numerically the gradients and hessian matrix of ``func()`` wrt ``params``; also return ``func()``.
 
     Args:
-        func: Function without arguments that depends on `params`
-        params: Parameters that `func` implicitly depends on and with respect to which the
+        func: Function without arguments that depends on ``params``
+        params: Parameters that ``func`` implicitly depends on and with respect to which the
             derivatives will be taken.
 
     Returns:
@@ -191,15 +192,15 @@ def numerical_value_gradients_hessian(*args, **kwargs):
 
 
 def autodiff_gradient(func: Callable, params: Iterable[zfit.Parameter]) -> tf.Tensor:
-    """Calculate using autodiff the gradients of `func()` wrt `params`.
+    """Calculate using autodiff the gradients of ``func()`` wrt ``params``.
 
     Automatic differentiation (autodiff) is a way of retreiving the derivative of x wrt y. It works by consecutively
     applying the chain rule. All that is needed is that every operation knows its own derivative.
-    TensorFlow implements this and anything using `tf.*` operations only can use this technique.
+    TensorFlow implements this and anything using ``tf.*`` operations only can use this technique.
 
         Args:
-            func: Function without arguments that depends on `params`
-            params: Parameters that `func` implicitly depends on and with respect to which the
+            func: Function without arguments that depends on ``params``
+            params: Parameters that ``func`` implicitly depends on and with respect to which the
                 derivatives will be taken.
 
         Returns:
@@ -211,15 +212,15 @@ def autodiff_gradient(func: Callable, params: Iterable[zfit.Parameter]) -> tf.Te
 def autodiff_value_gradient(
     func: Callable, params: Iterable[zfit.Parameter]
 ) -> [tf.Tensor, tf.Tensor]:
-    """Calculate using autodiff the gradients of `func()` wrt `params`; also return `func()`.
+    """Calculate using autodiff the gradients of ``func()`` wrt ``params``; also return ``func()``.
 
     Automatic differentiation (autodiff) is a way of retreiving the derivative of x wrt y. It works by consecutively
     applying the chain rule. All that is needed is that every operation knows its own derivative.
-    TensorFlow implements this and anything using `tf.*` operations only can use this technique.
+    TensorFlow implements this and anything using ``tf.*`` operations only can use this technique.
 
         Args:
-            func: Function without arguments that depends on `params`
-            params: Parameters that `func` implicitly depends on and with respect to which the
+            func: Function without arguments that depends on ``params``
+            params: Parameters that ``func`` implicitly depends on and with respect to which the
                 derivatives will be taken.
 
         Returns:
@@ -243,15 +244,15 @@ def autodiff_value_gradients(*args, **kwargs):
 def autodiff_hessian(
     func: Callable, params: Iterable[zfit.Parameter], hessian=None
 ) -> tf.Tensor:
-    """Calculate using autodiff the hessian matrix of `func()` wrt `params`.
+    """Calculate using autodiff the hessian matrix of ``func()`` wrt ``params``.
 
     Automatic differentiation (autodiff) is a way of retrieving the derivative of x wrt y. It works by consecutively
     applying the chain rule. All that is needed is that every operation knows its own derivative.
-    TensorFlow implements this and anything using `tf.*` operations only can use this technique.
+    TensorFlow implements this and anything using ``tf.*`` operations only can use this technique.
 
         Args:
-            func: Function without arguments that depends on `params`
-            params: Parameters that `func` implicitly depends on and with respect to which the
+            func: Function without arguments that depends on ``params``
+            params: Parameters that ``func`` implicitly depends on and with respect to which the
                 derivatives will be taken.
 
         Returns:
@@ -267,15 +268,15 @@ def automatic_value_gradient_hessian(
     value_grad_func=None,
     hessian=None,
 ) -> [tf.Tensor, tf.Tensor, tf.Tensor]:
-    """Calculate using autodiff the gradients and hessian matrix of `func()` wrt `params`; also return `func()`.
+    """Calculate using autodiff the gradients and hessian matrix of ``func()`` wrt ``params``; also return ``func()``.
 
     Automatic differentiation (autodiff) is a way of retreiving the derivative of x wrt y. It works by consecutively
     applying the chain rule. All that is needed is that every operation knows its own derivative.
-    TensorFlow implements this and anything using `tf.*` operations only can use this technique.
+    TensorFlow implements this and anything using ``tf.*`` operations only can use this technique.
 
         Args:
-            func: Function without arguments that depends on `params`
-            params: Parameters that `func` implicitly depends on and with respect to which the
+            func: Function without arguments that depends on ``params``
+            params: Parameters that ``func`` implicitly depends on and with respect to which the
                 derivatives will be taken.
 
         Returns:
@@ -346,7 +347,7 @@ def weighted_quantile(x, quantiles, weights=None, side="middle"):
     NOTE: quantiles should be in [0, 1]!
     :param x: tensor with data
     :param quantiles: array-like with many quantiles needed
-    :param weights: array-like of the same length as `x`
+    :param weights: array-like of the same length as ``x``
     :return: numpy.array with computed quantiles.
     """
     if weights is None:

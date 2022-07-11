@@ -160,7 +160,7 @@ class IpyoptV1(BaseMinimizer):
 
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
-                   evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
+                   evaluations of the ``value``, 'gradient`` or ``hessian``. |@docend:minimizer.maxiter|
             criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
                    estimated measure for the distance to the
                    minimum and can include the relative
@@ -170,7 +170,7 @@ class IpyoptV1(BaseMinimizer):
                    than ``loss.errordef * tol``, the algorithm
                    stopps and it is assumed that the minimum
                    has been found. |@docend:minimizer.criterion|
-            strategy: |@doc:minimizer.strategy| A class of type `ZfitStrategy` that takes no
+            strategy: |@doc:minimizer.strategy| A class of type ``ZfitStrategy`` that takes no
                    input arguments in the init. Determines the behavior of the minimizer in
                    certain situations, most notably when encountering
                    NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
