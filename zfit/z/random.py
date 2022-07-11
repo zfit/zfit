@@ -20,7 +20,7 @@ from ..z import numpy as znp
 def sample_with_replacement(
     a: tf.Tensor, axis: int, sample_shape: tuple[int]
 ) -> tf.Tensor:
-    """Sample from `a` with replacement to return a Tensor with `sample_shape`.
+    """Sample from ``a`` with replacement to return a Tensor with ``sample_shape``.
 
     Args:
         a (): Tensor to sample from

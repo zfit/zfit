@@ -86,7 +86,7 @@ def auto_integrate(
 
 # TODO implement numerical integration method
 def numeric_integrate():
-    """Integrate `func` using numerical methods."""
+    """Integrate ``func`` using numerical methods."""
     return None
 
 
@@ -135,7 +135,7 @@ def mc_integrate(
     importance_sampling: Callable | None = None,
     vectorizable=None,
 ) -> tf.Tensor:
-    """Monte Carlo integration of `func` over `limits`.
+    """Monte Carlo integration of ``func`` over ``limits``.
 
     Args:
         vectorizable ():
@@ -147,7 +147,7 @@ def mc_integrate(
         draws_per_dim: How many random points to draw per dimensions
         method: Which integration method to use
         dtype: |dtype_arg_descr|
-        mc_sampler: A function that takes one argument (`n_draws` or similar) and returns
+        mc_sampler: A function that takes one argument (``n_draws`` or similar) and returns
             random value between 0 and 1.
         importance_sampling:
 
@@ -653,7 +653,7 @@ class AnalyticIntegral:
     def get_max_integral(
         self, limits: ztyping.LimitsType, axes: ztyping.AxesTypeInput = None
     ) -> None | Integral:
-        """Return the integral over the `limits` with `axes` (or a subset of them).
+        """Return the integral over the ``limits`` with ``axes`` (or a subset of them).
 
         Args:
             limits:
@@ -683,12 +683,12 @@ class AnalyticIntegral:
         Args:
             func: The integral function. Takes 1 argument.
             axes: |dims_arg_descr|
-            limits: |limits_arg_descr| `Limits` can be None if `func` works for any
+            limits: |limits_arg_descr| ``Limits`` can be None if ``func`` works for any
             possible limits
             priority: If two or more integrals can integrate over certain limits, the one with the higher
                 priority is taken (usually around 0-100).
-            supports_norm: If True, norm_range will (if needed) be given to `func` as an argument.
-            supports_multiple_limits: If True, multiple limits may be given as an argument to `func`.
+            supports_norm: If True, norm_range will (if needed) be given to ``func`` as an argument.
+            supports_multiple_limits: If True, multiple limits may be given as an argument to ``func``.
         """
 
         # if limits is False:

@@ -74,7 +74,7 @@ class OverloadableMixin:
 
     @staticmethod
     def _OverloadOperator(cls, operator):  # pylint: disable=invalid-name
-        """Defer an operator overload to `ops.Tensor`.
+        """Defer an operator overload to ``ops.Tensor``.
 
         We pull the operator out of ops.Tensor dynamically to avoid ordering issues.
         Args:
@@ -146,7 +146,7 @@ class OverloadableMixinValues:
 
     @staticmethod
     def _OverloadOperator(cls, operator):  # pylint: disable=invalid-name
-        """Defer an operator overload to `ops.Tensor`.
+        """Defer an operator overload to ``ops.Tensor``.
 
         We pull the operator out of ops.Tensor dynamically to avoid ordering issues.
         Args:

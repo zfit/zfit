@@ -42,7 +42,7 @@ with or without limits.
 
 **Limit** The range on a certain axis. Typically defines an interval. In fact, there are two times of limits:
  * **rectangular**: This type is the usual limit as e.g. ``(-2, 5)`` for a simple, 1 dimensional interval. It is
-   rectangular. This can either be given as ``limits`` of a :py:class:`~zfit.Space` or as `rect_limits``.
+   rectangular. This can either be given as ``limits`` of a :py:class:`~zfit.Space` or as ``rect_limits``.
  * **functional**: In order to define arbitrary limits, a function can be used that receives a tensor-like
    object ``x`` and returns ``True`` on every position that is inside the limits, ``False`` for every value outside.
    When a functional limit is given, rectangular limits that contain the functional limit as a subset **must** be
@@ -80,7 +80,7 @@ to be combined with ``product`` has to be specified in the same space.
 
     data = zfit.Data.from_numpy(obs=combined_obs, ...)
 
-Now we have a :py:class:`~zfit.Data` object that is defined in the same domain as `product``
+Now we have a :py:class:`~zfit.Data` object that is defined in the same domain as ``product``
 and can be used to build a loss function.
 
 Limits
@@ -99,9 +99,9 @@ two intervals) or combination (increase the dimensionality) are also possible.
 
     added_limits = simple_limit1 + simple_limit2
 
-In this case, ``added_limits`` is now a :py:class:`zfit.Space` with observable `'obs1'`` defined in the intervals
+In this case, ``added_limits`` is now a :py:class:`zfit.Space` with observable ``obs1'`` defined in the intervals
 (-5, 1) and (3, 7.5). This can be useful, *e.g.*, when fitting in two regions.
-An example of the product of different :py:class:`zfit.Space` instances has been shown before as `combined_obs``.
+An example of the product of different :py:class:`zfit.Space` instances has been shown before as ``combined_obs``.
 
 Functional limits
 '''''''''''''''''

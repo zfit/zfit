@@ -127,7 +127,7 @@ class OverloadableMixin(ZfitParameter):
 
     @classmethod
     def _OverloadOperator(cls, operator):  # pylint: disable=invalid-name
-        """Defer an operator overload to `ops.Tensor`.
+        """Defer an operator overload to ``ops.Tensor``.
 
         We pull the operator out of ops.Tensor dynamically to avoid ordering issues.
         Args:
@@ -219,7 +219,7 @@ class WrappedVariable(metaclass=MetaBaseParameter):
 
     @staticmethod
     def _OverloadOperator(operator):  # pylint: disable=invalid-name
-        """Defer an operator overload to `ops.Tensor`.
+        """Defer an operator overload to ``ops.Tensor``.
 
         We pull the operator out of ops.Tensor dynamically to avoid ordering issues.
         Args:
@@ -459,7 +459,7 @@ class Parameter(
         """If the value is at the limit (or over it).
 
         Returns:
-            Boolean `tf.Tensor` that tells whether the value is at the limits.
+            Boolean ``tf.Tensor`` that tells whether the value is at the limits.
         """
         return self._check_at_limit(self.value())
 
@@ -531,10 +531,10 @@ class Parameter(
     def step_size(self) -> tf.Tensor:  # TODO: improve default step_size?
         """Step size of the parameter, the estimated order of magnitude of the uncertainty.
 
-        This can be crucial to tune for the minimization. A too large `step_size` can produce NaNs, a too small won't
+        This can be crucial to tune for the minimization. A too large ``step_size`` can produce NaNs, a too small won't
         converge.
 
-        If the step size is not set, the `DEFAULT_STEP_SIZE` is used.
+        If the step size is not set, the ``DEFAULT_STEP_SIZE`` is used.
 
         Returns:
             The step size
@@ -611,7 +611,7 @@ class Parameter(
     def assign(self, value, use_locking=None, name=None, read_value=False):
         """Set the :py:class:`~zfit.Parameter` to `value` without any checks.
 
-        Compared to `set_value`, this method cannot be used with a context manager and won't raise an
+        Compared to ``set_value``, this method cannot be used with a context manager and won't raise an
         error
 
         Args:
@@ -631,9 +631,9 @@ class Parameter(
         """Update the parameter with a randomised value between minval and maxval and return it.
 
         Args:
-            minval: The lower bound of the sampler. If not given, `lower_limit` is used.
-            maxval: The upper bound of the sampler. If not given, `upper_limit` is used.
-            sampler: A sampler with the same interface as `np.random.uniform`
+            minval: The lower bound of the sampler. If not given, ``lower_limit`` is used.
+            maxval: The upper bound of the sampler. If not given, ``upper_limit`` is used.
+            sampler: A sampler with the same interface as ``np.random.uniform``
 
         Returns:
             The sampled value
