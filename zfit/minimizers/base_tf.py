@@ -31,8 +31,8 @@ class WrapOptimizer(BaseStepMinimizer):
 
         .. note:: Different behavior of minimize
 
-          While the `minimize` method in TensorFlow optimizers executes a single step of the minimization,
-          the `minimize` method of a :class:`ZfitMinimizer` fully minimizes a function until convergence
+          While the ``minimize`` method in TensorFlow optimizers executes a single step of the minimization,
+          the ``minimize`` method of a :class:`ZfitMinimizer` fully minimizes a function until convergence
           is reached. In order to execute a single step, use the :meth:`~WrapOptimizer.step` method (however,
           this is in general not necessary to do and rather inefficient).
 

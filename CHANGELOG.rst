@@ -9,10 +9,10 @@ Develop
 
 Major Features and Improvements
 -------------------------------
-- improved data handling in constructors `from_pandas` (which allows now to
+- improved data handling in constructors ``from_pandas`` (which allows now to
   have weights as columns, dataframes that are a superset of the obs) and
-  `from_root` (obs can now be spaces and therefore cuts can be direcly applied)
-- add hashing of unbinned datasets with a `hashint` attribute. None if no hash was possible.
+  ``from_root`` (obs can now be spaces and therefore cuts can be direcly applied)
+- add hashing of unbinned datasets with a ``hashint`` attribute. None if no hash was possible.
 
 Breaking changes
 ------------------
@@ -47,14 +47,14 @@ Thanks
 
 Major Features and Improvements
 -------------------------------
-- Save results by pickling, unpickling a frozen (`FitResult.freeze()`) result and using
-  `zfit.param.set_values(params, result)` to set the values of `params`.
+- Save results by pickling, unpickling a frozen (``FitResult.freeze()``) result and using
+  ``zfit.param.set_values(params, result)`` to set the values of ``params``.
 
 
 
 Deprecations
 -------------
-- the default name of the uncertainty methods `hesse` and `errors` depended on
+- the default name of the uncertainty methods ``hesse`` and ``errors`` depended on
   the method used (such as 'minuit_hesse', 'zfit_errors' etc.) and would be the exact method name.
   New names are now 'hesse' and 'errors', independent of the method used. This reflects better that the
   methods, while internally different, produce the same result.
@@ -86,14 +86,14 @@ Major Features and Improvements
   binned losses. TODO: extend to include changes/point to binned introduction.
 - new Poisson PDF
 - added Poisson constraint, LogNormal Constraint
-- Save results by pickling, unpickling a frozen (`FitResult.freeze()`) result and using
-  `zfit.param.set_values(params, result)` to set the values of `params`.
+- Save results by pickling, unpickling a frozen (``FitResult.freeze()``) result and using
+  ``zfit.param.set_values(params, result)`` to set the values of ``params``.
 
 Breaking changes
 ------------------
 
 - params given in ComposedParameters are not sorted anymore. Rely on their name instead.
-- `norm_range` is now called `norm` and should be replaced everywhere if possible. This will break in
+- ``norm_range`` is now called ``norm`` and should be replaced everywhere if possible. This will break in
   the future.
 
 Deprecation
@@ -101,7 +101,7 @@ Deprecation
 
 Bug fixes and small changes
 ---------------------------
-- remove warning when using `rect_limits` or similar.
+- remove warning when using ``rect_limits`` or similar.
 - gauss integral accepts now also tensor inputs in limits
 - parameters at limits is now shown correctly
 
@@ -134,7 +134,7 @@ Bug fixes and small changes
 Major Features and Improvements
 -------------------------------
 
-- allow `FitResult` to `freeze()`, making it pickleable. The parameters
+- allow ``FitResult`` to ``freeze()``, making it pickleable. The parameters
   are replaced by their name, the objects such as loss and minimizer as well.
 - improve the numerical integration by adding a one dimensional efficient integrator, testing for the accuracy of
   multidimensional integrals. If there is a sharp peak, this maybe fails to integrate and the number of points
@@ -156,7 +156,7 @@ Breaking changes
 ------------------
 - the numerical integration improved with more sensible values for tolerance. This means however that some fits will
   greatly increase the runtime. To restore the old behavior globally, do
-  for each instance `pdf.update_integration_options(draws_per_dim=40_000, max_draws=40_000, tol=1)`
+  for each instance ``pdf.update_integration_options(draws_per_dim=40_000, max_draws=40_000, tol=1)``
   This will integrate regardless of the chosen precision and it may be non-optimal.
   However, the precision estimate in the integrator is also not perfect and maybe overestimates the error, so that
   the integration by default takes longer than necessary. Feel free to play around with the parameters and report back.
@@ -187,7 +187,7 @@ Thanks
 
 Bug fixes and small changes
 ---------------------------
-- fix wrong arguments to `minimize`
+- fix wrong arguments to ``minimize``
 - make BaseMinimizer arguments optional
 
 0.7.1 (6. July 2021)
@@ -210,7 +210,7 @@ Major Features and Improvements
 
 Bug fixes and small changes
 ---------------------------
-- Scipy minimizers with hessian arguments use now `BFGS` as default
+- Scipy minimizers with hessian arguments use now ``BFGS`` as default
 
 
 Requirement changes
@@ -230,8 +230,8 @@ Update ipyopt requirement < 0.12 to allow numpy compatible with TensorFlow
 ==================
 
 - hotfix for wrong argument in exponential PDF
-- removed requirement ipyopt, can be installed with `pip install zfit[ipyopt]`
-  or by manually installing `pip install ipyopt`
+- removed requirement ipyopt, can be installed with ``pip install zfit[ipyopt]``
+  or by manually installing ``pip install ipyopt``
 
 
 
@@ -306,7 +306,7 @@ Major Features and Improvements
 - Completely new and overhauled minimizers design, including:
 
   - minimizers can now be used with arbitrary Python functions and an initial array independent of zfit
-  - a minimization can be 'continued' by passing `init` to `minimize`
+  - a minimization can be 'continued' by passing ``init`` to ``minimize``
   - more streamlined arguments for minimizers, harmonized names and behavior.
   - Adding a flexible criterion (currently EDM) that will terminate the minimization.
   - Making the minimizer fully stateless.
@@ -315,10 +315,10 @@ Major Features and Improvements
 
 - Major overhaul of the ``FitResult``, including:
 
-  - improved `zfit_error` (equivalent of `MINOS`)
-  - `minuit_hesse` and `minuit_minos` are now available with all minimizers as well thanks to an great
+  - improved ``zfit_error`` (equivalent of ``MINOS``)
+  - ``minuit_hesse`` and ``minuit_minos`` are now available with all minimizers as well thanks to an great
     improvement in iminuit.
-  - Added an `approx` hesse that returns the approximate hessian (if available, otherwise empty)
+  - Added an ``approx`` hesse that returns the approximate hessian (if available, otherwise empty)
 
 - upgrade to iminuit v2 changes the way it works and also the Minuit minimizer in zfit,
   including a new step size heuristic.
@@ -330,11 +330,11 @@ Major Features and Improvements
 
 Breaking changes
 ------------------
-- NLL (and extended) subtracts now by default a constant value. This can be changed with a new `options` argument.
+- NLL (and extended) subtracts now by default a constant value. This can be changed with a new ``options`` argument.
   COMPARISON OF DIFFEREN NLLs (their absolute values) fails now! (flag can be deactivated)
 - BFGS (from TensorFlow Probability) has been removed as it is not working properly. There are many alternatives
   such as ScipyLBFGSV1 or NLoptLBFGSV1
-- Scipy (the minimizer) has been removed. Use specialized `Scipy*` minimizers instead.
+- Scipy (the minimizer) has been removed. Use specialized ``Scipy*`` minimizers instead.
 - Creating a ``zfit.Parameter``, usign ``set_value`` or ``set_values`` now raises a ``ValueError``
   if the value is outside the limits. Use ``assign`` to suppress it.
 
@@ -348,7 +348,7 @@ Bug fixes and small changes
 - FFTconv was shifted if the kernel limits were not symetrical, now properly taken into account.
 - circumvent overflow error in sampling
 - shuffle samples from sum pdfs to ensure uniformity and remove conv sampling bias
-- `create_sampler` now samples immediately to allow for precompile, a new hook that will allow objects to optimize
+- ``create_sampler`` now samples immediately to allow for precompile, a new hook that will allow objects to optimize
   themselves.
 
 
