@@ -11,7 +11,6 @@ if TYPE_CHECKING:
 import abc
 from abc import ABCMeta, abstractmethod
 
-import boost_histogram as bh
 import numpy as np
 import tensorflow as tf
 from uhi.typing.plottable import PlottableHistogram
@@ -1001,7 +1000,7 @@ class ZfitMinimalHist(PlottableHistogram):
         raise NotImplementedError
 
 
-class ZfitBinnedData(ZfitDimensional, ZfitMinimalHist):
+class ZfitBinnedData(ZfitDimensional, ZfitMinimalHist, metaclass=ABCMeta):
     @abstractmethod
     def variances(self):
         raise NotImplementedError
@@ -1016,6 +1015,14 @@ class ZfitBinnedData(ZfitDimensional, ZfitMinimalHist):
     # @abstractmethod
     # def binning(self):
     #     return self.space.binning
+    @abstractmethod
+    def to_hist(self):
+        """Convert the binned data to a :py:class:`~hist.NamedHist`.
+
+        While a binned data object can be used inside zfit (PDFs,...), it lacks many convenience features that the `hist
+        library <https://hist.readthedocs.io/>`_ offers, such as plots.
+        """
+        pass
 
 
 class ZfitBinnedPDF(ZfitPDF, metaclass=ABCMeta):
