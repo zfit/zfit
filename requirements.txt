@@ -6,6 +6,7 @@ deprecated
 dotmap
 hist
 iminuit>=2.3
+importlib-metadata; python_version <"3.8.0"
 numdifftools
 numpy>=1.16
 ordered-set
@@ -20,4 +21,5 @@ texttable
 tf_quant_finance>=v0.0.1-dev24
 uhi
 uproot>=4,<5
+xxhash
 zfit_interface

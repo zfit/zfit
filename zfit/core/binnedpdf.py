@@ -57,17 +57,17 @@ _BaseModel_USER_IMPL_METHODS_TO_CHECK = {}
 
 
 def _BinnedPDF_register_check_support(has_support: bool):
-    """Marks a method that the subclass either *has* to or *can't* use the `@supports` decorator.
+    """Marks a method that the subclass either *has* to or *can't* use the ``@supports`` decorator.
 
     Args:
-        has_support (bool): If True, flags that it **requires** the `@supports` decorator. If False,
-            flags that the `@supports` decorator is **not allowed**.
+        has_support (bool): If True, flags that it **requires** the ``@supports`` decorator. If False,
+            flags that the ``@supports`` decorator is **not allowed**.
     """
     if not isinstance(has_support, bool):
         raise TypeError("Has to be boolean.")
 
     def register(func):
-        """Register a method to be checked to (if True) *has* `support` or (if False) has *no* `support`.
+        """Register a method to be checked to (if True) *has* ``support`` or (if False) has *no* ``support``.
 
         Args:
             func (function):
@@ -158,10 +158,10 @@ class BaseBinnedPDFV1(
         return self.space.binning
 
     def to_binneddata(self, **kwargs) -> zfit.data.BinnedData:
-        """Create an Asimov dataset as `BinnedData` using either `counts` (for extended) or `rel_counts`
+        """Create an Asimov dataset as ``BinnedData`` using either ``counts`` (for extended) or ``rel_counts``
 
         Args:
-            **kwargs (): arguments to `counts` or `rel_counts`.
+            **kwargs (): arguments to ``counts`` or ``rel_counts``.
 
         Returns:
             BinnedData: Binned data representing the Asimov dataset of this PDF.
@@ -171,10 +171,10 @@ class BaseBinnedPDFV1(
         return data
 
     def to_hist(self, **kwargs):
-        """Create an Asimov histogram as `Hist` using either `counts` (for extended) or `rel_counts`.
+        """Create an Asimov histogram as ``Hist`` using either ``counts`` (for extended) or ``rel_counts``.
 
         Args:
-            **kwargs (): arguments to `counts` or `rel_counts`.
+            **kwargs (): arguments to ``counts`` or ``rel_counts``.
 
         Returns:
             ``hist.Hist``: Histogram representing the Asimov dataset of this PDF.
@@ -271,18 +271,18 @@ class BaseBinnedPDFV1(
     def pdf(
         self, x: ztyping.XType, norm: ztyping.LimitsType = None, *, norm_range=None
     ) -> ztyping.XType:
-        """Probability density function, evaluated at `x` or in the bins of `x`
+        """Probability density function, evaluated at ``x`` or in the bins of ``x``
 
         Args:
-            x: values to evaluate the PDF at. If this is a `ZfitBinnedData`-like object, a histogram of *densities*
-                will be returned. If x is a `ZfitUnbinnedData`-like object, the densities will be evaluated at the
-                points of `x`.
+            x: values to evaluate the PDF at. If this is a ``ZfitBinnedData``-like object, a histogram of *densities*
+                will be returned. If x is a ``ZfitUnbinnedData``-like object, the densities will be evaluated at the
+                points of ``x``.
             norm: |@doc:pdf.pdf.norm| Normalization of the function.
-               By default, this is the `norm` of the PDF (which by default is the same as
+               By default, this is the ``norm`` of the PDF (which by default is the same as
                the space of the PDF). |@docend:pdf.pdf.norm|
 
         Returns:
-            `Array-like`: probability density
+            ``Array-like``: probability density
         """
         if norm_range is not None:
             norm = norm_range
@@ -498,10 +498,10 @@ class BaseBinnedPDFV1(
             limits: |@doc:pdf.integrate.limits| Limits of the integration. |@docend:pdf.integrate.limits|
             norm: |@doc:pdf.integrate.norm| Normalization of the integration.
                By default, this is the same as the default space of the PDF.
-               `False` means no normalization and returns the unnormed integral. |@docend:pdf.integrate.norm|
+               ``False`` means no normalization and returns the unnormed integral. |@docend:pdf.integrate.norm|
             options: |@doc:pdf.integrate.options| Options for the integration.
                Additional options for the integration. Currently supported options are:
-               - type: one of (`bins`)
+               - type: one of (``bins``)
                  This hints that bins are integrated. A method that is vectorizable, non-dynamic and
                  therefore less suitable for complicated functions is chosen. |@docend:pdf.integrate.options|
 
@@ -702,8 +702,8 @@ class BaseBinnedPDFV1(
         axes: ztyping.AxesTypeInput = None,
         limits: ztyping.LimitsTypeInput = None,
     ) -> ZfitSpace | None:
-        """Convert the inputs (using eventually `obs`, `axes`) to :py:class:`~zfit.ZfitSpace` and sort them according to
-        own `obs`.
+        """Convert the inputs (using eventually ``obs``, ``axes``) to :py:class:`~zfit.ZfitSpace` and sort them
+        according to own ``obs``.
 
         Args:
             obs:
@@ -737,7 +737,7 @@ class BaseBinnedPDFV1(
 
         Args:
             x: |@doc:pdf.binned.counts.x| Data for the binned PDF.
-               The returned counts correspond to the binned axis in `x`. |@docend:pdf.binned.counts.x|
+               The returned counts correspond to the binned axis in ``x``. |@docend:pdf.binned.counts.x|
             norm: |@doc:pdf.binned.counts.norm| Normalization of the counts.
                This normalizes the counts so that the actual sum of all counts is
                equal to the yield. |@docend:pdf.binned.counts.norm|
@@ -806,7 +806,7 @@ class BaseBinnedPDFV1(
 
         Args:
             x: |@doc:pdf.binned.counts.x| Data for the binned PDF.
-               The returned counts correspond to the binned axis in `x`. |@docend:pdf.binned.counts.x|
+               The returned counts correspond to the binned axis in ``x``. |@docend:pdf.binned.counts.x|
             norm: |@doc:pdf.binned.counts.norm| Normalization of the counts.
                This normalizes the counts so that the actual sum of all counts is
                equal to the yield. |@docend:pdf.binned.counts.norm|
@@ -867,8 +867,8 @@ def binned_rect_integration(
 
     Args:
         limits: Limits to integrate over. A possible binning is ignored.
-        edges: The edges per axis. They should have the shape `(1,..., 1, n, 1, ..., 1)`, where n is the *ith* axis.
-            `ZfitBinning` provides this format on the `edges` attribute.
+        edges: The edges per axis. They should have the shape ``(1,..., 1, n, 1, ..., 1)``, where n is the *ith* axis.
+            ``ZfitBinning`` provides this format on the ``edges` attribute.
         counts: Counts of the histogram. This is what most histograms have and is equal to the density multiplied by
             the binwidth.
             Exactly one of counts or density has to be provided.

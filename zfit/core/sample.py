@@ -154,7 +154,7 @@ def accept_reject_sample(
         n: Number of samples to produce
         limits: The limits to sample from
         sample_and_weights_factory: An (immutable!) factory function that returns the following function:
-            A function that returns the sample to insert into `prob` and the weights
+            A function that returns the sample to insert into ``prob`` and the weights
             (probability density) of each sample together with the random thresholds. The API looks as follows:
 
             - Parameters:
@@ -166,7 +166,7 @@ def accept_reject_sample(
             - Return:
                 A tuple of length 5:
                 - proposed sample (tf.Tensor with shape=(n_to_produce, n_obs)): The new (proposed) sample
-                    whose values are inside `limits`.
+                    whose values are inside ``limits``.
                 - thresholds_unscaled (tf.Tensor with shape=(n_to_produce,): Uniformly distributed
                     random values **between 0 and 1**.
                 - weights (tf.Tensor with shape=(n_to_produce)): (Proportional to the) probability
