@@ -54,7 +54,7 @@ class ValueHolder(tfp.experimental.AutoCompositeTensor):
                 ), "We missed something somewhere. Please report this, it's a bug."
 
     def _check_input_variables(self, variables):
-        if not isinstance(variables, collections.Mapping):
+        if not isinstance(variables, collections.abc.Mapping):
             raise TypeError(f"variables has to be a Mapping, not {variables}")
         not_var = {var for var in variables.values() if not isinstance(var, ZfitVar)}
         if not_var:

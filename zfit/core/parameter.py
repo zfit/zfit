@@ -922,10 +922,10 @@ class ComposedParameter(BaseComposedParameter):
             params = dependents
         elif params is NotSpecified:
             raise ValueError
-        if not isinstance(params, collections.Mapping):
-            self._composed_param_original_order = convert_to_container(params)
-        else:
+        if isinstance(params, collections.abc.Mapping):
             self._composed_param_original_order = None
+        else:
+            self._composed_param_original_order = convert_to_container(params)
         if isinstance(params, dict):
             params_dict = params
         else:
@@ -1073,7 +1073,7 @@ def convert_to_parameters(
 ):
     if prefer_constant is None:
         prefer_constant = True
-    if isinstance(value, collections.Mapping):
+    if isinstance(value, collections.abc.Mapping):
         return convert_to_parameters(**value, prefer_constant=False)
     value = convert_to_container(value)
     is_param_already = [isinstance(val, ZfitIndependentParameter) for val in value]

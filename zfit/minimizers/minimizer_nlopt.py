@@ -1425,7 +1425,7 @@ class NLoptMLSLV1(NLoptBaseMinimizerV1):
             algorithm = nlopt.GD_MLSL_LDS
 
         local_minimizer = nlopt.LD_LBFGS if local_minimizer is None else local_minimizer
-        if not isinstance(local_minimizer, collections.Mapping):
+        if not isinstance(local_minimizer, collections.abc.Mapping):
             local_minimizer = {"algorithm": local_minimizer}
         if "algorithm" not in local_minimizer:
             raise ValueError("algorithm needs to be specified in local_minimizer")

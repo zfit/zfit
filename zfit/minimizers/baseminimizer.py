@@ -290,7 +290,7 @@ class BaseMinimizer(ZfitMinimizer):
                 params_init = init.loss.get_params()
                 to_set_param_values = {p: val for p, val in zip(params_init, params)}
 
-        if isinstance(params, collections.Mapping):
+        if isinstance(params, collections.abc.Mapping):
             if all(isinstance(p, ZfitParameter) for p in params):
                 to_set_param_values = {
                     p: val for p, val in params.items() if val is not None

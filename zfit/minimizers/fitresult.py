@@ -460,7 +460,7 @@ class FitResult(ZfitResult):
             The created approximation.
         """
         approx = {} if approx is None else approx
-        if isinstance(approx, collections.Mapping):
+        if isinstance(approx, collections.abc.Mapping):
             if "params" not in approx:
                 approx["params"] = params
 

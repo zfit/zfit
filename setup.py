@@ -19,11 +19,11 @@ with open(
 
 extras_require = {}
 extras_require["ipyopt"] = ["ipyopt>=0.12"]
-extras_require["nlopt"] = ["nlopt<=2.7.0"]
+extras_require["nlopt"] = ["nlopt>=2.7.1"]
 allreq = sum(extras_require.values(), [])
 
 tests_require = [
-    "pytest>=3.4.2,<5.4",  # breaks unittests
+    "pytest>=3.4.2",  # breaks unittests
     "pytest-runner>=2.11.1",
     "pytest-rerunfailures>=6",
     "pytest-xdist",
