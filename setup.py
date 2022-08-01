@@ -18,7 +18,7 @@ with open(
     requirements_dev = requirements_dev_file.read().splitlines()
 
 extras_require = {}
-extras_require["ipyopt"] = ["ipyopt<0.12"]
+extras_require["ipyopt"] = ["ipyopt>=0.12"]
 extras_require["nlopt"] = ["nlopt<=2.7.0"]
 allreq = sum(extras_require.values(), [])
 
