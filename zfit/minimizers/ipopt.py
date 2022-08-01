@@ -281,11 +281,11 @@ class IpyoptV1(BaseMinimizer):
 
         minimizer_kwargs = dict(
             n=nparams,
-            xL=lower,
-            xU=upper,
+            x_l=lower,
+            x_u=upper,
             m=nconstraints,
-            gL=empty_array,
-            gU=empty_array,  # no constraints
+            g_l=empty_array,
+            g_u=empty_array,  # no constraints
             sparsity_indices_jac_g=(empty_array, empty_array),
             sparsity_indices_hess=hessian_sparsity_indices,
             eval_f=evaluator.value,
