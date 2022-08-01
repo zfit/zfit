@@ -320,8 +320,8 @@ def test_gradients(chunksize):
     param1.set_value(initial1)
     param2.set_value(initial2)
     gradient3 = nll.gradient()
-    assert frozenset(g.numpy() for g in gradient3) == pytest.approx(
-        frozenset(both_gradients_true)
+    assert np.testing.assert_allclose(
+        frozenset(both_gradients_true), frozenset(g.numpy() for g in gradient3)
     )
 
 

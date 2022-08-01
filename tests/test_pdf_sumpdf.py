@@ -61,8 +61,9 @@ def test_frac_behavior(yields):
         assert len(sumpdf2.params) == 3
         assert sumpdf2.params["frac_0"] == frac1
         assert sumpdf2.params["frac_1"] == frac2
-        assert pytest.approx(
-            frac3.value().numpy(), sumpdf2.params["frac_2"].value().numpy()
+        assert (
+            pytest.approx(frac3.value().numpy())
+            == sumpdf2.params["frac_2"].value().numpy()
         )
         assert not sumpdf1.is_extended
 
@@ -162,4 +163,4 @@ def test_integrate():
 
     integral = np.sum(integrals)
     integral_full = zfit.run(sumpdf.integrate((lower, upper), norm=False))
-    assert pytest.approx(integral_full) == integral
+    assert pytest.approx(float(integral_full)) == float(integral)

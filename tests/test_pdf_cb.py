@@ -72,7 +72,7 @@ def test_cb_integral():
 
     integral = np.sum(integrals)
     integral_full = zfit.run(cbl.integrate(bounds, norm=False))
-    assert pytest.approx(integral_full, integral)
+    assert pytest.approx(float(integral_full)) == float(integral)
 
 
 def test_cb_dcb():
@@ -149,4 +149,4 @@ def test_cb_dcb():
 
         integral = np.sum(integrals)
         integral_full = zfit.run(dcb.integrate((bounds[0], up), norm=False))
-        assert pytest.approx(integral_full) == integral
+        assert pytest.approx(float(integral_full)) == float(integral)

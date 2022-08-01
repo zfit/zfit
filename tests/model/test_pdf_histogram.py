@@ -96,5 +96,5 @@ def test_pdf_formhist():
     # test integral
     limits = ext_pdf.space
     assert pytest.approx(ntot) == ext_pdf.ext_integrate(limits)
-    assert pytest.approx(1.0, ext_pdf.integrate(limits))
-    assert pytest.approx(1.0, pdf.integrate(limits))
+    assert pytest.approx(1.0) == float(ext_pdf.integrate(limits))
+    assert pytest.approx(1.0) == float(pdf.integrate(limits))
