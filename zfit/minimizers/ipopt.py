@@ -287,7 +287,7 @@ class IpyoptV1(BaseMinimizer):
             g_l=empty_array,
             g_u=empty_array,  # no constraints
             sparsity_indices_jac_g=(empty_array, empty_array),
-            sparsity_indices_hess=hessian_sparsity_indices,
+            sparsity_indices_h=hessian_sparsity_indices,
             eval_f=evaluator.value,
             eval_grad_f=gradient_inplace,
             eval_g=lambda x, out: None,
