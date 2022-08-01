@@ -89,9 +89,9 @@ def test_set_values_fitresult(do_pickle):
     lower1 = 0.0
     param1 = zfit.Parameter("param1", 2.0, lower1, upper1)
     param1.set_value(lower1)
-    assert pytest.approx(zfit.run(param1.value()), lower1)
+    assert pytest.approx(zfit.run(param1.value())) == lower1
     param1.set_value(upper1)
-    assert pytest.approx(zfit.run(param1.value()), upper1)
+    assert pytest.approx(zfit.run(param1.value())) == upper1
     with pytest.raises(ValueError):
         param1.set_value(lower1 - 0.001)
     with pytest.raises(ValueError):

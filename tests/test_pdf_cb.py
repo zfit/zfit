@@ -63,7 +63,7 @@ def test_cb_integral():
     integral_numeric = zfit.run(integral_numeric)
     integral = zfit.run(integral)
 
-    assert pytest.approx(integral_numeric, integral, 1e-5)
+    assert pytest.approx(integral_numeric, 1e-5) == integral
 
     rnd_limits = sorted(np.random.uniform(*bounds, 13))
     integrals = []
@@ -149,4 +149,4 @@ def test_cb_dcb():
 
         integral = np.sum(integrals)
         integral_full = zfit.run(dcb.integrate((bounds[0], up), norm=False))
-        assert pytest.approx(integral_full, integral)
+        assert pytest.approx(integral_full) == integral

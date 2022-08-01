@@ -315,4 +315,4 @@ def test_binned_loss_hist(weights, Loss):
     loss = Loss(model=binned_gauss, data=h)
     loss2 = Loss(model=binned_gauss, data=test_values_binned)
 
-    assert pytest.approx(float(loss.value()), float(loss2.value()))
+    assert pytest.approx(float(loss.value())) == float(loss2.value())
