@@ -417,6 +417,7 @@ error_scales = {None: 1, 1: 1, 2: 2}
 # @pytest.mark.parametrize("cl_scale", [(0.683, 1), (0.9548, 2), (0.99747, 3)])  # cl and expected scale of error
 @pytest.mark.parametrize("minimizer_class_and_kwargs", minimizers)
 @pytest.mark.flaky(reruns=3)
+@pytest.mark.timeout(180)
 # @pytest.mark.skip
 def test_minimizers(
     minimizer_class_and_kwargs, chunksize, numgrad, spaces, pytestconfig
