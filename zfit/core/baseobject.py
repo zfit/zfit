@@ -70,8 +70,6 @@ class BaseObject(ZfitObject):
 
 class BaseParametrized(BaseObject, ZfitParametrized):
     def __init__(self, params, **kwargs) -> None:
-        # print(f"DEBUG: {kwargs}")  # TODO REMOVE!
-        # raise RuntimeError("DEBUG needs to be removed")
         super().__init__(**kwargs)
         from zfit.core.parameter import convert_to_parameter
 

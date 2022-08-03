@@ -482,15 +482,16 @@ class BaseLoss(ZfitLoss, BaseNumeric):
     def gradient(self, params: ztyping.ParamTypeInput = None) -> list[tf.Tensor]:
         params = self._input_check_params(params)
         numgrad = self._options["numgrad"]
-
+        params = {p.name: p for p in params}
         return self._gradient(params=params, numgrad=numgrad)
 
     @deprecated(None, "Use `gradient` instead.")
     def gradients(self, *args, **kwargs):
         return self.gradient(*args, **kwargs)
 
-    # @z.function(wraps='loss')
+    @z.function(wraps="loss")
     def _gradient(self, params, numgrad):
+        params = tuple(params.values())
         if numgrad:
             return numerical_gradient(self.value, params=params)
 
@@ -502,6 +503,8 @@ class BaseLoss(ZfitLoss, BaseNumeric):
     ) -> tuple[tf.Tensor, tf.Tensor]:
         params = self._input_check_params(params)
         numgrad = self._options["numgrad"]
+        params = {p.name: p for p in params}
+
         return self._value_gradient(params=params, numgrad=numgrad)
 
     @deprecated(None, "Use `value_gradient` instead.")
@@ -510,6 +513,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
 
     @z.function(wraps="loss")
     def _value_gradient(self, params, numgrad=False):
+        params = tuple(params.values())
         if numgrad:
             value, gradient = numerical_value_gradient(self.value, params=params)
         else:
@@ -524,6 +528,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
     ) -> tuple[tf.Tensor, tf.Tensor, tf.Tensor]:
         params = self._input_check_params(params)
         numgrad = self._options["numhess"] if numgrad is None else numgrad
+        params = {p.name: p for p in params}
         vals = self._value_gradient_hessian(
             params=params, hessian=hessian, numerical=numgrad
         )
@@ -537,6 +542,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
 
     @z.function(wraps="loss")
     def _value_gradient_hessian(self, params, hessian, numerical=False):
+        params = tuple(params.values())
         if numerical:
             return numerical_value_gradients_hessian(
                 func=self.value, gradient=self.gradient, params=params, hessian=hessian

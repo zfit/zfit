@@ -46,7 +46,7 @@ from .space import Space, convert_to_space
 
 # TODO: make cut only once, then remember
 class Data(
-    GraphCachable, ZfitUnbinnedData, BaseDimensional, BaseObject, OverloadableMixin
+    ZfitUnbinnedData, BaseDimensional, BaseObject, OverloadableMixin, GraphCachable
 ):
     BATCH_SIZE = 1000000  # 1 mio
 

@@ -35,9 +35,8 @@ class RunManager:
         self.set_n_cpu(n_cpu=n_cpu)
         self._hashing_enabled = True
 
-        # HACK
+        # TODO: keep this?
         self._enable_parameter_autoconversion = True
-        # HACK END
 
         # set default values
         self.chunking.active = False  # not yet implemented the chunking...
@@ -242,6 +241,9 @@ class RunManager:
                 "Cannot change the execution mode of graph inside a `z.function`"
                 " decorated function. Only possible in an eager context."
             )
+        return self._force_set_graph_mode(graph)
+
+    def _force_set_graph_mode(self, graph):
         if graph is None:
             graph = "auto"
         return TemporarilySet(
@@ -307,6 +309,8 @@ class RunManager:
             self._mode["autograd"] = autograd
 
     def _set_graph_mode(self, graph):
+        if graph is None:
+            graph = "auto"
         from .graph import jit as jit_obj
 
         # only run eagerly if no graph

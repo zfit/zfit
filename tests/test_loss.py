@@ -320,9 +320,13 @@ def test_gradients(chunksize):
     param1.set_value(initial1)
     param2.set_value(initial2)
     gradient3 = nll.gradient()
-    assert np.testing.assert_allclose(
-        frozenset(both_gradients_true), frozenset(g.numpy() for g in gradient3)
-    )
+    gradients_true3 = []
+    for param_o in nll.get_params():
+        for param, grad in zip(params, gradient2):
+            if param_o is param:
+                gradients_true3.append(grad)
+                break
+    assert [g.numpy() for g in gradient3] == pytest.approx(gradients_true3)
 
 
 def test_simple_loss():

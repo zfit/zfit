@@ -617,7 +617,6 @@ class Parameter(
         Args:
             value: The value the parameter will take on.
         """
-
         return super().assign(
             value=value, use_locking=use_locking, name=name, read_value=read_value
         )
@@ -1199,7 +1198,7 @@ def convert_to_parameter(
     return value
 
 
-@tf.function
+@z.function(wraps="params")
 def assign_values_jit(
     params: Parameter | Iterable[Parameter],
     values: ztyping.NumericalScalarType | Iterable[ztyping.NumericalScalarType],
@@ -1234,7 +1233,9 @@ def assign_values(
     """
     if allow_partial is None:
         allow_partial = False
-    params, values = _check_convert_param_values(params, values)
+    params, values = _check_convert_param_values(
+        params, values, allow_partial=allow_partial
+    )
     params = tuple(params)
     assign_values_jit(params=params, values=values, use_locking=use_locking)
 

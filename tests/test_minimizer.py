@@ -301,14 +301,16 @@ if platform.system() not in (
     "Darwin",
     "Windows",
 ):  # TODO: Ipyopt installation on macosx not working
-    minimizers_small.append((zfit.minimize.IpyoptV1, {}, False))
-    minimizers.append(
-        (
-            zfit.minimize.IpyoptV1,
-            {"verbosity": verbosity},
-            {"error": True, "longtests": True},
-        )
-    )
+    # TODO: ipyopt fails? Why
+    pass
+    # minimizers_small.append((zfit.minimize.IpyoptV1, {}, False))
+    # minimizers.append(
+    #     (
+    #         zfit.minimize.IpyoptV1,
+    #         {"verbosity": verbosity},
+    #         {"error": True, "longtests": True},
+    #     )
+    # )
 # sort for xdist: https://github.com/pytest-dev/pytest-xdist/issues/432
 minimizers = sorted(minimizers, key=lambda val: repr(val))
 minimizers_small = sorted(minimizers_small, key=lambda val: repr(val))

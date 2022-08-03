@@ -8,7 +8,7 @@ from zfit import z
 
 @pytest.mark.skipif(
     zfit.run.get_graph_mode() is False,
-    reason="If not using graph mode, we cannot test if graphs work" " or not.",
+    reason="If not using graph mode, we cannot test if graphs work or not.",
 )
 def test_modes():
     counts = 0

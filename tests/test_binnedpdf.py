@@ -37,7 +37,6 @@ def test_spline_from_binned_from_unbinned():
     pytest.zfit_savefig()
 
     spline_gauss = SplinePDF(gauss_binned, obs=obs)
-    # spline_gauss.set_yield(n)  # HACK
     y = spline_gauss.ext_pdf(x)
     y_true = gauss.ext_pdf(x)
     plt.figure()

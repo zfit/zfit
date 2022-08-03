@@ -188,7 +188,7 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
         minimizer = nlopt.opt(nlopt.LD_LBFGS, len(params))
 
         # initial values as array
-        xvalues = np.array(run(params))
+        xvalues = np.asarray(run(params))
 
         # get and set the limits
         lower = np.array([p.lower for p in params])
@@ -201,11 +201,11 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
         def obj_func(x, grad):
             if grad.size > 0:
                 value, gradients = evaluator.value_gradient(x)
-                grad[:] = np.array(run(gradients))
+                grad[:] = np.asarray(gradients)
             else:
                 value = evaluator.value(x)
 
-            return value
+            return float(value)
 
         minimizer.set_min_objective(obj_func)
 

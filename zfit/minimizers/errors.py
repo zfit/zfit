@@ -112,7 +112,6 @@ def compute_errors(
             logging.info(f"profiling the parameter {param}")
             param_error = param_errors[param]
             param_value = result.params[param]["value"]
-            other_params = [p for p in all_params if p != param]
 
             initial_values = {"lower": [], "upper": []}
             direction = {"lower": -sigma, "upper": sigma}
@@ -126,6 +125,19 @@ def compute_errors(
                     ap_value_init = ap_value + direction[d] * error_factor
                     initial_values[d].append(ap_value_init)
 
+            index_poi = all_params.index(param)  # remember the index
+
+            @z.function(wraps="gradient")
+            def optimized_loss_gradient(index):
+                assert isinstance(index, int)
+                loss_value, gradient = loss.value_gradient(params=all_params)
+                if isinstance(gradient, (tuple, list)):
+                    gradient = znp.asarray(gradient)
+                gradient = znp.concatenate(
+                    [gradient[:index_poi], gradient[index_poi + 1 :]]
+                )
+                return loss_value, gradient
+
             # TODO: improvement, use jacobian?
             # @np_cache(maxsize=25)
             def func(values, args):
@@ -135,7 +147,7 @@ def compute_errors(
 
                 assign_values(all_params, values)
                 try:
-                    loss_value, gradient = loss.value_gradient(params=other_params)
+                    loss_value, gradient = optimized_loss_gradient(index_poi)
                 except tf.errors.InvalidArgumentError:
                     msg = (
                         f"The evaluation of the errors of {param.name} failed due to too many NaNs"
@@ -143,7 +155,6 @@ def compute_errors(
                         " caused by negative values returned from the PDF."
                     )
                     raise FailEvalLossNaN(msg)
-
                 zeroed_loss = loss_value.numpy() - fmin
 
                 gradient = np.array(gradient)

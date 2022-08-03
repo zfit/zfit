@@ -9,9 +9,10 @@ import numpy as np
 import tensorflow as tf
 import texttable as tt
 
+from ..z import numpy as znp
 from .strategy import ZfitStrategy
 from ..core.interfaces import ZfitLoss
-from ..core.parameter import assign_values
+from ..core.parameter import assign_values, assign_values_jit
 from ..settings import run
 from ..util import ztyping
 from ..util.exception import DerivativeCalculationError, MaximumIterationReached
@@ -159,13 +160,13 @@ class LossEval:
             self.ngrad_eval += 1
 
         params = self.params
-        assign_values(params, values=values)
+        assign_values_jit(params, values=values)
         is_nan = False
 
         try:
             loss_value, gradient = self.value_gradients_fn(params=params)
-            loss_value = run(loss_value)
-            gradient_values = np.array(run(gradient))
+            loss_value = znp.asarray(loss_value)
+            gradient_values = znp.asarray(gradient)
             loss_value, gradient_values, _ = self.strategy.callback(
                 value=loss_value,
                 gradient=gradient_values,
@@ -210,7 +211,7 @@ class LossEval:
             self.nan_counter = 0
             self.last_value = loss_value
             self.last_gradient = gradient_values
-        return loss_value, gradient_values
+        return np.asarray(loss_value), np.asarray(gradient_values)
 
     def value(self, values: np.ndarray) -> np.float64:
         """Calculate the value like :py:meth:`~ZfitLoss.value`.
@@ -227,7 +228,7 @@ class LossEval:
         if not self._ignoring_maxiter:
             self.nfunc_eval += 1
         params = self.params
-        assign_values(params, values=values)
+        assign_values_jit(params, values=values)
         is_nan = False
 
         try:
@@ -269,7 +270,7 @@ class LossEval:
         else:
             self.nan_counter = 0
             self.last_value = loss_value
-        return loss_value
+        return znp.asarray(loss_value)
 
     def gradient(self, values: np.ndarray) -> np.ndarray:
         """Calculate the gradient like :py:meth:`~ZfitLoss.gradient`.
@@ -286,12 +287,12 @@ class LossEval:
         if not self._ignoring_maxiter:
             self.ngrad_eval += 1
         params = self.params
-        assign_values(params, values=values)
+        assign_values_jit(params, values=values)
         is_nan = False
 
         try:
             gradient = self.gradients_fn(params=params)
-            gradient_values = np.array(run(gradient))
+            gradient_values = znp.asarray(gradient)
             _, gradient_values, _ = self.strategy.callback(
                 value=None,
                 gradient=gradient_values,
@@ -332,7 +333,7 @@ class LossEval:
         else:
             self.nan_counter = 0
             self.last_gradient = gradient_values
-        return gradient_values
+        return np.asarray(gradient_values)
 
     def hessian(self, values) -> np.ndarray:
         """Calculate the hessian like :py:meth:`~ZfitLoss.hessian`.
@@ -349,12 +350,12 @@ class LossEval:
         if not self._ignoring_maxiter:
             self.nhess_eval += 1
         params = self.params
-        assign_values(params, values=values)
+        assign_values_jit(params, values=values)
         is_nan = False
 
         try:
             hessian = self.hesse_fn(params=params)
-            hessian_values = np.array(run(hessian))
+            hessian_values = znp.asarray(hessian)
             _, _, hessian = self.strategy.callback(
                 value=None,
                 gradient=None,
@@ -393,7 +394,7 @@ class LossEval:
         else:
             self.nan_counter = 0
             self.last_hessian = hessian_values
-        return hessian_values
+        return np.asarray(hessian_values)
 
 
 def print_params(params, values, loss=None):

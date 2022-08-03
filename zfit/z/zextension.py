@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import functools
+import logging
 import math as _mt
 from collections import defaultdict
 from collections.abc import Callable
@@ -205,7 +206,7 @@ class FunctionWrapperRegistry:
     def reset(self, **kwargs_user):
         kwargs = dict(
             autograph=False,
-            experimental_relax_shapes=False,
+            reduce_retracing=False,
         )
         kwargs.update(self._initial_user_kwargs)
         kwargs.update(kwargs_user)

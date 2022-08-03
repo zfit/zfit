@@ -1284,7 +1284,7 @@ class FitResult(ZfitResult):
         Returns:
             A `OrderedDict` containing as keys the parameter and as value a `dict` which
                 contains (next to often more things) two keys 'lower' and 'upper',
-                holding the calculated errors. Furthermore it has `cl` to indicate the convidence level
+                holding the calculated errors. Furthermore, it has `cl` to indicate the convidence level
                 the uncertainty was calculated with.
                 Example: result[par1]['upper'] -> the asymmetric upper error of 'par1'
 

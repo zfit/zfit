@@ -49,6 +49,7 @@ Example with a pdf that caches the normalization:
 
 from __future__ import annotations
 
+import collections.abc
 import functools
 import weakref
 from abc import abstractmethod
@@ -191,9 +192,7 @@ class FunctionCacheHolder(GraphCachable):
         self,
         func,
         wrapped_func,
-        cachables: (
-            ZfitGraphCachable | object | Iterable[ZfitGraphCachable | object]
-        ) = None,
+        cachables: (ZfitGraphCachable | object | Iterable[ZfitGraphCachable]) = None,
         cachables_mapping=None,
     ):
         """`tf.function` decorated function holder with caching dependencies on inputs.
@@ -261,31 +260,41 @@ class FunctionCacheHolder(GraphCachable):
         Returns:
         """
         # is initialized before the core
-        from ..core.interfaces import ZfitData, ZfitParameter, ZfitSpace
 
         args = list(args)
         kwargs = list(kwargs.keys()) + list(kwargs.values())
-        combined = []
-        if args != []:
-            combined += args
-        if kwargs != []:
-            combined += args
+        combined = args + kwargs
         combined_cleaned = []
         for obj in combined:
-            if isinstance(obj, ZfitData):
-                obj = (id(obj),)
-
-            elif isinstance(obj, ZfitParameter):
-                obj = (ZfitParameter, obj.name)
-            elif isinstance(obj, ZfitSpace):
-                obj = (id(obj),)
-            elif tf.is_tensor(obj):
-                obj = self.IS_TENSOR
-            elif isinstance(obj, np.ndarray):
-                obj = (obj,) if sum(obj.shape) < 20 else id(obj)
-            combined_cleaned.append(obj)
+            obj = self.get_immutable_repr_obj(obj)
+            combined_cleaned.extend(obj)
 
         return tuple(combined_cleaned)
+
+    def get_immutable_repr_obj(self, obj):
+        from ..core.interfaces import ZfitData, ZfitParameter, ZfitSpace
+
+        if isinstance(obj, ZfitData):
+            obj = (id(obj),)
+
+        elif isinstance(obj, ZfitParameter):
+            obj = (ZfitParameter, obj.name)
+        elif isinstance(obj, ZfitSpace):
+            obj = (id(obj),)
+        elif tf.is_tensor(obj):
+            obj = (self.IS_TENSOR,)
+        elif isinstance(obj, np.ndarray):
+            obj = (obj,) if sum(obj.shape) < 20 else (id(obj),)
+        elif isinstance(obj, str):
+            obj = (obj,)
+        elif isinstance(obj, collections.abc.Iterable):
+            obj_new = []
+            for obj_i in obj:
+                obj_new.extend(self.get_immutable_repr_obj(obj_i))
+            obj = tuple(obj_new)
+        if not isinstance(obj, tuple):
+            obj = (obj,)
+        return obj
 
     def __hash__(self) -> int:
         return self._hash_value
@@ -297,7 +306,11 @@ class FunctionCacheHolder(GraphCachable):
         array_repr_self = np.array(self.immutable_representation, dtype=object)
         array_repr_other = np.array(other.immutable_representation, dtype=object)
         try:
-            return all(np.equal(array_repr_self, array_repr_other))
+            # all_ids = all(id(obj1) == id(obj2) for obj1, obj2 in zip(array_repr_self, array_repr_other))
+            all_values = all(np.equal(array_repr_self, array_repr_other))
+            # if all_ids != all_values:
+            #     raise ValueError("Ids and values are not equal")
+            return all_values  # TODO: this isn't optimal...
         except ValueError:  # broadcasting does not work
             return False
         except TypeError:  # OperatorNotAllowedError inherits from this

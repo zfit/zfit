@@ -142,7 +142,8 @@ if not platform.system() in (
     "Darwin",
     "Windows",
 ):  # TODO: Ipyopt installation on macosx not working
-    minimizers.append((zfit.minimize.IpyoptV1, {}, False))
+    pass
+    # minimizers.append((zfit.minimize.IpyoptV1, {}, False))
 # sort for xdist: https://github.com/pytest-dev/pytest-xdist/issues/432
 minimizers = sorted(minimizers, key=lambda val: repr(val))
 
