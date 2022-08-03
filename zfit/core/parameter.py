@@ -1198,7 +1198,7 @@ def convert_to_parameter(
     return value
 
 
-@z.function(wraps="params")
+# @z.function(wraps="params")
 def assign_values_jit(
     params: Parameter | Iterable[Parameter],
     values: ztyping.NumericalScalarType | Iterable[ztyping.NumericalScalarType],

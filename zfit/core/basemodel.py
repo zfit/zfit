@@ -424,6 +424,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             integral = self._single_hook_integrate(
                 limits=limits, norm=norm, x=var, options=options
             )
+        integral = znp.reshape(integral, -1)
         return integral
 
     def _single_hook_integrate(self, limits, norm, x, options):

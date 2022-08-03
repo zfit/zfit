@@ -4,9 +4,20 @@
 # Copyright (c) 2022 zfit
 #
 
-mkdir -p ~/test_zfit_tutorials && cd ~/test_zfit_tutorials || exit 1
+cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
+
+
+python -m venv test_tutorials_env
+source test_tutorials_env/bin/activate
+pip install -U pip
+pip install ../../
+
+mkdir -p tmp_test_zfit_tutorials && cd tmp_test_zfit_tutorials || exit 1
 git clone https://github.com/zfit/zfit-tutorials.git
 pip install nbval
 pip install -r zfit-tutorials/requirements.txt 2>&1 | tail -n 11 &&
   pytest --nbval-lax zfit-tutorials --ignore=zfit-tutorials/experimental || exit 1
 cd -
+rm -rf tmp_test_zfit_tutorials
+deactivate
+rm -rf test_tutorials_env
