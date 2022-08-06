@@ -200,7 +200,7 @@ def test_binned_loss(weights, Loss, simultaneous):
 
     result.hesse(name="hesse")
     result.errors(name="asymerr")
-    print(result)
+    str(result)  # check if no error
     rel_tol_errors = 0.1
     mu_error = 0.03 if not simultaneous else 0.021
     sigma_error = 0.0156 if simultaneous else 0.022

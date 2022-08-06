@@ -147,7 +147,7 @@ class Minuit(BaseMinimizer, GraphCachable):
         options = {} if options is None else options
         options["ncall"] = 0 if maxiter is None else maxiter
         if mode is None:
-            mode = 2 if not gradient else 1
+            mode = 1 if not gradient else 1
         else:
             mode = mode
         if mode not in range(3):

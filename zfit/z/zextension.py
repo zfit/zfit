@@ -232,6 +232,7 @@ class FunctionWrapperRegistry:
             function_holder = FunctionCacheHolder(func, wrapped_func, args, kwargs)
 
             if function_holder in cache:
+                # print("DEBUG: using cached function")
                 func_holder_index = cache.index(function_holder)
                 func_holder_cached = cache[func_holder_index]
                 if func_holder_cached.is_valid:
@@ -245,6 +246,7 @@ class FunctionWrapperRegistry:
                     )
                     cache[func_holder_index] = function_holder
             else:
+                # print(f"DEBUG: caching function {func} with args {args} and kwargs {kwargs}")
                 cache.append(function_holder)
             func_to_run = function_holder.wrapped_func
             try:

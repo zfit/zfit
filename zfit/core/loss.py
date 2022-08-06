@@ -104,7 +104,7 @@ def _unbinned_nll_tf(
     return nll_finished
 
 
-@z.function(wraps="tensor")
+@z.function(wraps="tensor", jit_compile=True)
 def _nll_calc_unbinned_tf(log_probs, weights=None, log_offset=None):
     if weights is not None:
         log_probs *= weights  # because it's prob ** weights
@@ -494,7 +494,6 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         params = tuple(params.values())
         if numgrad:
             return numerical_gradient(self.value, params=params)
-
         else:
             return autodiff_gradient(self.value, params=params)
 

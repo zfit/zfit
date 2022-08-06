@@ -234,19 +234,19 @@ def _covariance_approx(result, params):
             "Approximate covariance/hesse estimation with weights is not supported, returning None",
             RuntimeWarning,
         )
-    covariance_dict = {}
+
     inv_hessian = result.approx.inv_hessian(invert=True)
     if inv_hessian is None:
-        return covariance_dict
+        return {}
 
     params_approx = list(result.params)
-    for p1 in params:
-        p1_index = params_approx.index(p1)
-        for p2 in params:
-            p2_index = params_approx.index(p2)
-            index = (p1_index, p2_index)
-            key = (p1, p2)
-            covariance_dict[key] = inv_hessian[index]
+    param_indices = [params_approx.index(p) for p in params]
+    covariance_dict = {
+        (p1, p2): inv_hessian[(p1_index, p2_index)]
+        for (p1, p1_index), (p2, p2_index) in itertools.product(
+            zip(params, param_indices), zip(params, param_indices)
+        )
+    }
     return covariance_dict
 
 

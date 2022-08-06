@@ -1198,14 +1198,17 @@ def convert_to_parameter(
     return value
 
 
-# @z.function(wraps="params")
+@z.function(wraps="params")
 def assign_values_jit(
     params: Parameter | Iterable[Parameter],
     values: ztyping.NumericalScalarType | Iterable[ztyping.NumericalScalarType],
     use_locking=False,
 ):
     for i, param in enumerate(params):
-        param.assign(values[i], read_value=False, use_locking=use_locking)
+        value = values[i]
+        if value.dtype != param.dtype:
+            value = znp.cast(value, param.dtype)
+        param.assign(value, read_value=False, use_locking=use_locking)
 
 
 def assign_values(
@@ -1233,10 +1236,10 @@ def assign_values(
     """
     if allow_partial is None:
         allow_partial = False
-    params, values = _check_convert_param_values(
+    params, values = check_convert_param_values_assign(
         params, values, allow_partial=allow_partial
     )
-    params = tuple(params)
+    # params = tuple(params)
     assign_values_jit(params=params, values=values, use_locking=use_locking)
 
 
@@ -1265,7 +1268,7 @@ def set_values(
     """
     if allow_partial is None:
         allow_partial = False
-    params, values = _check_convert_param_values(params, values, allow_partial)
+    params, values = check_convert_param_values_assign(params, values, allow_partial)
 
     def setter(values):
         for i, param in enumerate(params):
@@ -1277,7 +1280,17 @@ def set_values(
     return TemporarilySet(values, setter=setter, getter=getter)
 
 
-def _check_convert_param_values(params, values, allow_partial=False):
+def check_convert_param_values_assign(params, values, allow_partial=False):
+    """Check if params are valid and convert them if necessary to be used with assign_values.
+
+    Args:
+        params: Parameters to set the values.
+        values: List-like object that supports indexing or a `ZfitResult`.
+        allow_partial: Allow to set only parts of the parameters in case values is a `ZfitResult`
+
+    Returns:
+        A tuple of (params, values)
+    """
     params = convert_to_container(params)
     if isinstance(values, ZfitResult):
         result = values
@@ -1317,4 +1330,5 @@ def _check_convert_param_values(params, values, allow_partial=False):
             f"trying to set value of parameters that are not independent "
             f"{non_independent_params}"
         )
+    values = znp.asarray(values, dtype=znp.float64)
     return params, values

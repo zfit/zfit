@@ -161,25 +161,39 @@ def hypotest_zfit(minimizer, nll):
 
 
 bins = [
-    # 1,
-    # 10,
+    1,
+    10,
     # 50,
     100,
     # 200,
-    # 400,
+    400,
+    1000,
 ]
 bin_ids = [f"{n_bins}_bins" for n_bins in bins]
 
 
+@pytest.mark.benchmark(
+    # group="group-name",
+    # min_time=0.1,
+    max_time=100,
+    min_rounds=1,
+    # timer=time.time,
+    disable_gc=True,
+    warmup=True,
+    warmup_iterations=1,
+)
 @pytest.mark.parametrize("n_bins", bins, ids=bin_ids)
 @pytest.mark.parametrize(
     "hypotest",
+    ["pyhf", "zfit"],
+)
+@pytest.mark.parametrize(
+    "eager",
     [
-        # 'pyhf',
-        "zfit"
+        False,
+        # True
     ],
 )
-@pytest.mark.parametrize("eager", [False, True])
 def test_hypotest(benchmark, n_bins, hypotest, eager):
     """Benchmark the performance of pyhf.utils.hypotest() for various numbers of bins and different backends.
 
@@ -207,6 +221,11 @@ def test_hypotest(benchmark, n_bins, hypotest, eager):
 
         pdf = uncorrelated_background(signp, bkgnp, uncnp)
         data = datanp + pdf.config.auxdata
+
+        # warmup
+        pyhf.infer.mle.fit(
+            data, pdf, pdf.config.suggested_init(), pdf.config.suggested_bounds()
+        )
         benchmark(hypotest, pdf, data)
     elif hypotest == "zfit":
 
@@ -242,13 +261,21 @@ def test_hypotest(benchmark, n_bins, hypotest, eager):
             constraint = zfit.constraint.GaussianConstraint(
                 list(shapesys.values()), np.ones_like(unc).tolist(), unc
             )
-            nll = zfit.loss.ExtendedBinnedNLL(zmodel, zdata, constraints=constraint)
+            nll = zfit.loss.ExtendedBinnedNLL(
+                zmodel, zdata, constraints=constraint, options={"numhess": False}
+            )
 
-            minimizer = zfit.minimize.Minuit(tol=1e-3, gradient=False)
+            # minimizer = zfit.minimize.Minuit(tol=1e-3, gradient=True, mode=0, verbosity=8)
+            # minimizer = zfit.minimize.NLoptMMAV1(tol=1e-3, verbosity=8)
+            # minimizer = zfit.minimize.NLoptLBFGSV1()
+            # minimizer = zfit.minimize.ScipyLBFGSBV1()
+            # minimizer = zfit.minimize.ScipyTrustConstrV1(verbosity=7)
+            minimizer = zfit.minimize.IpyoptV1()
 
             nll.value()
             nll.value()
             nll.gradient()
             nll.gradient()
+            nll.value_gradient_hessian(params=nll.get_params())
             benchmark(hypotest, minimizer, nll)
     assert True

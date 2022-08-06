@@ -225,7 +225,7 @@ class FunctionCacheHolder(GraphCachable):
         self.wrapped_func = wrapped_func
         # self.parent_cache = cache
         self.python_func = func
-        self._hash_value = hash(self.python_func)
+
         if cachables is None and cachables_mapping is None:
             raise ValueError(
                 "Both `cachables and `cachables_mapping` are None. One needs to be different from None."
@@ -242,6 +242,7 @@ class FunctionCacheHolder(GraphCachable):
         self.immutable_representation = self.create_immutable(
             cachables, cachables_mapping
         )
+        self._hash_value = hash((self.python_func, self.immutable_representation))
         # self._hash_value = hash(self.immutable_representation)
         super().__init__()  # resets the cache
         self.add_cache_deps(cachables_all)
@@ -268,7 +269,6 @@ class FunctionCacheHolder(GraphCachable):
         for obj in combined:
             obj = self.get_immutable_repr_obj(obj)
             combined_cleaned.extend(obj)
-
         return tuple(combined_cleaned)
 
     def get_immutable_repr_obj(self, obj):
@@ -276,7 +276,6 @@ class FunctionCacheHolder(GraphCachable):
 
         if isinstance(obj, ZfitData):
             obj = (id(obj),)
-
         elif isinstance(obj, ZfitParameter):
             obj = (ZfitParameter, obj.name)
         elif isinstance(obj, ZfitSpace):
@@ -284,7 +283,7 @@ class FunctionCacheHolder(GraphCachable):
         elif tf.is_tensor(obj):
             obj = (self.IS_TENSOR,)
         elif isinstance(obj, np.ndarray):
-            obj = (obj,) if sum(obj.shape) < 20 else (id(obj),)
+            obj = id(obj)
         elif isinstance(obj, str):
             obj = (obj,)
         elif isinstance(obj, collections.abc.Iterable):
@@ -302,15 +301,19 @@ class FunctionCacheHolder(GraphCachable):
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, FunctionCacheHolder):
             return False
+        return self.__hash__() == other.__hash__()  # HACK TODO
         # return all(obj1 == obj2 for obj1, obj2 in zip(self.immutable_representation, other.immutable_representation))
-        array_repr_self = np.array(self.immutable_representation, dtype=object)
-        array_repr_other = np.array(other.immutable_representation, dtype=object)
+        array_repr_self = np.asarray(self.immutable_representation, dtype=object)
+        array_repr_other = np.asarray(other.immutable_representation, dtype=object)
         try:
-            # all_ids = all(id(obj1) == id(obj2) for obj1, obj2 in zip(array_repr_self, array_repr_other))
-            all_values = all(np.equal(array_repr_self, array_repr_other))
+            all_ids = all(
+                (obj1 is obj2) or (obj1 == obj2)
+                for obj1, obj2 in zip(array_repr_self, array_repr_other)
+            )
+            # all_values = all(np.equal(array_repr_self, array_repr_other))
             # if all_ids != all_values:
             #     raise ValueError("Ids and values are not equal")
-            return all_values  # TODO: this isn't optimal...
+            return all_ids  # TODO: this isn't optimal...
         except ValueError:  # broadcasting does not work
             return False
         except TypeError:  # OperatorNotAllowedError inherits from this

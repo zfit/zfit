@@ -9,6 +9,7 @@ import numpy as np
 import tensorflow as tf
 import texttable as tt
 
+from ..util.container import convert_to_container
 from ..z import numpy as znp
 from .strategy import ZfitStrategy
 from ..core.interfaces import ZfitLoss
@@ -16,6 +17,10 @@ from ..core.parameter import assign_values, assign_values_jit
 from ..settings import run
 from ..util import ztyping
 from ..util.exception import DerivativeCalculationError, MaximumIterationReached
+
+assign_values_func = lambda params, values: assign_values_jit(
+    params, znp.asarray(values)
+)
 
 
 def check_derivative_none_raise(values, params) -> None:
@@ -88,7 +93,7 @@ class LossEval:
         self.last_gradient = None
         self.last_hessian = None
         self.nan_counter = 0
-        self.params = params
+        self.params = convert_to_container(params)
         self.strategy = strategy
         self.do_print = do_print
 
@@ -160,7 +165,7 @@ class LossEval:
             self.ngrad_eval += 1
 
         params = self.params
-        assign_values_jit(params, values=values)
+        assign_values_func(params, values=values)
         is_nan = False
 
         try:
@@ -228,7 +233,7 @@ class LossEval:
         if not self._ignoring_maxiter:
             self.nfunc_eval += 1
         params = self.params
-        assign_values_jit(params, values=values)
+        assign_values_func(params, values=values)
         is_nan = False
 
         try:
@@ -287,7 +292,7 @@ class LossEval:
         if not self._ignoring_maxiter:
             self.ngrad_eval += 1
         params = self.params
-        assign_values_jit(params, values=values)
+        assign_values_func(params, values=values)
         is_nan = False
 
         try:
@@ -350,7 +355,7 @@ class LossEval:
         if not self._ignoring_maxiter:
             self.nhess_eval += 1
         params = self.params
-        assign_values_jit(params, values=values)
+        assign_values_func(params, values=values)
         is_nan = False
 
         try:
