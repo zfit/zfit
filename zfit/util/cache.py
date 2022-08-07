@@ -303,8 +303,8 @@ class FunctionCacheHolder(GraphCachable):
             return False
         return self.__hash__() == other.__hash__()  # HACK TODO
         # return all(obj1 == obj2 for obj1, obj2 in zip(self.immutable_representation, other.immutable_representation))
-        array_repr_self = np.asarray(self.immutable_representation, dtype=object)
-        array_repr_other = np.asarray(other.immutable_representation, dtype=object)
+        array_repr_self = self.immutable_representation
+        array_repr_other = other.immutable_representation
         try:
             all_ids = all(
                 (obj1 is obj2) or (obj1 == obj2)

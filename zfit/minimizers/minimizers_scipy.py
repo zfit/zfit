@@ -212,7 +212,7 @@ class ScipyBaseMinimizerV1(BaseMinimizer):
             assign_values(params=params, values=init)
         result_prelim = init
 
-        evaluator = self.create_evaluator(loss=loss, params=params)
+        evaluator = self.create_evaluator(loss=loss, params=params, force_numpy=True)
 
         limits = [(run(p.lower), run(p.upper)) for p in params]
         init_values = np.array(run(params))

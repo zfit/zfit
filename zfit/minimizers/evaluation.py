@@ -50,6 +50,7 @@ class LossEval:
         maxiter: int,
         grad_fn: Callable | None = None,
         hesse_fn: Callable | None = None,
+        force_numpy: bool | None = None,
     ):
         r"""Convenience wrapper for the evaluation of a loss with given parameters and strategy.
 
@@ -64,6 +65,9 @@ class LossEval:
             maxiter: Maximum number of evaluations of the ``value``, 'gradient`` or ``hessian``.
             grad_fn: Function that returns the gradient.
             hesse_fn: Function that returns the hessian matrix.
+            force_numpy: If the return values should be numpy arrays (and not "numpy-like" objects). This is useful
+                if the function expects something *writeable* like a numpy array as other (JAX, TensorFlow) arrays
+                are not writeable.
         """
         super().__init__()
         self.maxiter = maxiter
@@ -96,6 +100,7 @@ class LossEval:
         self.params = convert_to_container(params)
         self.strategy = strategy
         self.do_print = do_print
+        self.force_numpy = True if force_numpy is None else force_numpy
 
     @property
     def niter(self):
@@ -170,11 +175,9 @@ class LossEval:
 
         try:
             loss_value, gradient = self.value_gradients_fn(params=params)
-            loss_value = znp.asarray(loss_value)
-            gradient_values = znp.asarray(gradient)
             loss_value, gradient_values, _ = self.strategy.callback(
                 value=loss_value,
-                gradient=gradient_values,
+                gradient=gradient,
                 hessian=None,
                 params=params,
                 loss=self.loss,
@@ -191,32 +194,33 @@ class LossEval:
 
             if self.do_print:
                 try:
-                    print_gradient(
-                        params, values, gradient=gradient_values, loss=loss_value
-                    )
+                    print_gradient(params, values, gradient=gradient, loss=loss_value)
                 except:
                     print("Cannot print loss value or gradient values.")
 
-        check_derivative_none_raise(gradient_values, params)
-        is_nan = is_nan or any(np.isnan(gradient_values)) or np.isnan(loss_value)
+        check_derivative_none_raise(gradient, params)
+        is_nan = is_nan or any(znp.isnan(gradient)) or znp.isnan(loss_value)
         if is_nan:
             self.nan_counter += 1
             info_values = {
                 "loss": loss_value,
-                "grad": gradient_values,
+                "grad": gradient,
                 "old_loss": self.last_value,
                 "old_grad": self.last_gradient,
                 "nan_counter": self.nan_counter,
             }
 
-            loss_value, gradient_values = self.strategy.minimize_nan(
+            loss_value, gradient = self.strategy.minimize_nan(
                 loss=self.loss, params=params, values=info_values
             )
         else:
             self.nan_counter = 0
             self.last_value = loss_value
-            self.last_gradient = gradient_values
-        return np.asarray(loss_value), np.asarray(gradient_values)
+            self.last_gradient = gradient
+        if self.force_numpy:
+            loss_value = float(loss_value)
+            gradient = znp.asarray(gradient)
+        return loss_value, gradient
 
     def value(self, values: np.ndarray) -> np.float64:
         """Calculate the value like :py:meth:`~ZfitLoss.value`.
@@ -238,7 +242,6 @@ class LossEval:
 
         try:
             loss_value = self.loss.value()
-            loss_value = run(loss_value)
             loss_value, _, _ = self.strategy.callback(
                 value=loss_value,
                 gradient=None,
@@ -275,7 +278,9 @@ class LossEval:
         else:
             self.nan_counter = 0
             self.last_value = loss_value
-        return znp.asarray(loss_value)
+        if self.force_numpy:
+            loss_value = float(loss_value)
+        return loss_value
 
     def gradient(self, values: np.ndarray) -> np.ndarray:
         """Calculate the gradient like :py:meth:`~ZfitLoss.gradient`.
@@ -297,16 +302,15 @@ class LossEval:
 
         try:
             gradient = self.gradients_fn(params=params)
-            gradient_values = znp.asarray(gradient)
-            _, gradient_values, _ = self.strategy.callback(
+            _, gradient, _ = self.strategy.callback(
                 value=None,
-                gradient=gradient_values,
+                gradient=gradient,
                 hessian=None,
                 params=params,
                 loss=self.loss,
             )
         except Exception as error:
-            gradient_values = ["invalid"] * len(params)
+            gradient = ["invalid"] * len(params)
             if isinstance(error, tf.errors.InvalidArgumentError):
                 is_nan = True
             else:
@@ -315,32 +319,34 @@ class LossEval:
         finally:
             if self.do_print:
                 try:
-                    print_gradient(params, values, gradient=gradient_values, loss=-999)
+                    print_gradient(params, values, gradient=gradient, loss=-999)
                 except:
                     print("Cannot print loss value or gradient values.")
 
-        check_derivative_none_raise(gradient_values, params)
+        check_derivative_none_raise(gradient, params)
 
-        is_nan = is_nan or any(np.isnan(gradient_values))
+        is_nan = is_nan or znp.any(znp.isnan(gradient))
         if is_nan:
             self.nan_counter += 1
             info_values = {
                 "loss": -999,
-                "grad": gradient_values,
+                "grad": gradient,
                 "old_loss": self.last_value,
                 "old_grad": self.last_gradient,
                 "nan_counter": self.nan_counter,
             }
 
-            _, gradient_values = self.strategy.minimize_nan(
+            _, gradient = self.strategy.minimize_nan(
                 loss=self.loss, params=params, values=info_values
             )
         else:
             self.nan_counter = 0
-            self.last_gradient = gradient_values
-        return np.asarray(gradient_values)
+            self.last_gradient = gradient
+        if self.force_numpy:
+            gradient = znp.asarray(gradient)
+        return gradient
 
-    def hessian(self, values) -> np.ndarray:
+    def hessian(self, values) -> znp.array:
         """Calculate the hessian like :py:meth:`~ZfitLoss.hessian`.
 
         Args:
@@ -360,7 +366,6 @@ class LossEval:
 
         try:
             hessian = self.hesse_fn(params=params)
-            hessian_values = znp.asarray(hessian)
             _, _, hessian = self.strategy.callback(
                 value=None,
                 gradient=None,
@@ -369,7 +374,7 @@ class LossEval:
                 loss=self.loss,
             )
         except Exception as error:
-            hessian_values = ["invalid"] * len(params)
+            hessian = ["invalid"] * len(params)
             if isinstance(error, tf.errors.InvalidArgumentError):
                 is_nan = True
             else:
@@ -381,9 +386,9 @@ class LossEval:
                     print_params(params, values, loss=-999)
                 except:
                     print("Cannot print loss value or gradient values.")
-        check_derivative_none_raise(hessian_values, params)
+        check_derivative_none_raise(hessian, params)
 
-        is_nan = is_nan or np.any(np.isnan(hessian_values))
+        is_nan = is_nan or znp.any(znp.isnan(hessian))
         if is_nan:
             self.nan_counter += 1
             info_values = {
@@ -398,8 +403,10 @@ class LossEval:
             )
         else:
             self.nan_counter = 0
-            self.last_hessian = hessian_values
-        return np.asarray(hessian_values)
+            self.last_hessian = hessian
+        if self.force_numpy:
+            hessian = znp.asarray(hessian)
+        return hessian
 
 
 def print_params(params, values, loss=None):

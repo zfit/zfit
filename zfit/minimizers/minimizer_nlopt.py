@@ -301,10 +301,11 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
                     )
                 if nrandom < self._nrandom_max:  # in order not to start too close
                     init_scale = np.where(
-                        init_scale != None, init_scale, np.ones_like(init_scale)
+                        np.asarray([scale is not None for scale in init_scale]),
+                        init_scale,
+                        np.ones_like(init_scale),
                     )
                     init_scale_no_nan = np.nan_to_num(init_scale, nan=1.0)
-
                     xvalues += (
                         np.random.uniform(
                             low=-init_scale_no_nan, high=init_scale_no_nan

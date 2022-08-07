@@ -233,6 +233,7 @@ def autodiff_value_gradient(
         tape.watch(params)
         value = func()
     gradients = tape.gradient(value, sources=params)
+    gradients = znp.asarray(gradients)
     return value, gradients
 
 
@@ -298,8 +299,9 @@ def automatic_value_gradient_hessian(
             loss, gradients = value_grad_func(params)
         else:
             loss, gradients = autodiff_value_gradients(func=func, params=params)
-        if hessian != "diag":
-            gradients_tf = znp.stack(gradients)
+        if hessian == "diag":
+            gradients = tf.unstack(gradients)
+            # gradients_tf = znp.stack(gradients)
     if hessian == "diag":
         computed_hessian = znp.stack(
             [
@@ -312,7 +314,7 @@ def automatic_value_gradient_hessian(
     else:
         computed_hessian = z.convert_to_tensor(
             tape.jacobian(
-                gradients_tf,
+                gradients,
                 sources=params,
                 experimental_use_pfor=True,  # causes TF bug? Slow..
             )

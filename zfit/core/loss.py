@@ -493,9 +493,10 @@ class BaseLoss(ZfitLoss, BaseNumeric):
     def _gradient(self, params, numgrad):
         params = tuple(params.values())
         if numgrad:
-            return numerical_gradient(self.value, params=params)
+            gradient = numerical_gradient(self.value, params=params)
         else:
-            return autodiff_gradient(self.value, params=params)
+            gradient = autodiff_gradient(self.value, params=params)
+        return gradient
 
     def value_gradient(
         self, params: ztyping.ParamTypeInput

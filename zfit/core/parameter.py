@@ -555,14 +555,15 @@ class Parameter(
             #     # step_size = z.to_real(step_size)
             #     self.step_size = step_size
             step_size = self.DEFAULT_STEP_SIZE
-        step_size = z.convert_to_tensor(step_size)
+        # step_size = z.convert_to_tensor(step_size)
         return step_size
 
     @step_size.setter
     def step_size(self, value):
         if value is not None:
-            value = z.convert_to_tensor(value, preferred_dtype=ztypes.float)
-            value = tf.cast(value, dtype=ztypes.float)
+            value = float(value)
+            # value = z.convert_to_tensor(value, preferred_dtype=ztypes.float)
+            # value = tf.cast(value, dtype=ztypes.float)
         self._step_size = value
 
     def set_value(self, value: ztyping.NumericalScalarType):

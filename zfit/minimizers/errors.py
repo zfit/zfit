@@ -94,9 +94,8 @@ def compute_errors(
     fmin = result.fmin
     rtol *= errordef
     minimizer = result.minimizer
-    from zfit import run
 
-    old_values = run(result)
+    old_values = np.asarray(result.params)
 
     covariance = result.covariance(method=covariance_method, as_dict=True)
     param_errors = {param: covariance[(param, param)] ** 0.5 for param in params}

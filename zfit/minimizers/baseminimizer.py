@@ -602,6 +602,7 @@ class BaseMinimizer(ZfitMinimizer):
         self,
         loss: ZfitLoss | None = None,
         params: ztyping.ParametersType | None = None,
+        force_numpy: bool | None = None,
         strategy: ZfitStrategy | None = None,
     ) -> LossEval:
         """Make a loss evaluator using the strategy and more from the minimizer.
@@ -630,6 +631,9 @@ class BaseMinimizer(ZfitMinimizer):
                 params = self._state["params"]
             else:
                 raise ValueError(f"params cannot be None if not called within minimize")
+
+        if force_numpy is None:
+            force_numpy = False
         if strategy is None:
             try:
                 strategy = self._strategy()
@@ -647,6 +651,7 @@ class BaseMinimizer(ZfitMinimizer):
             strategy=strategy,
             do_print=self.verbosity > 9,
             maxiter=self.get_maxiter(len(params)),
+            force_numpy=force_numpy,
         )
         if self._is_stateful:
             self._state["evaluator"] = evaluator

@@ -35,6 +35,7 @@ from .errors import (
     dict_to_matrix,
     matrix_to_dict,
 )
+from ..z import numpy as znp
 from .interface import ZfitMinimizer, ZfitResult
 from .termination import ConvergenceCriterion
 from ..core.interfaces import (
@@ -211,16 +212,8 @@ def _covariance_np(result, params):
             ExperimentalFeatureWarning,
         )
 
-    # TODO: maybe activate again? currently fails due to numerical problems
-    # numgrad_was_none = settings.options.numerical_grad is None
-    # if numgrad_was_none:
-    #     settings.options.numerical_grad = True
-
     _, gradient, hessian = result.loss.value_gradient_hessian(params)
-    covariance = np.linalg.inv(hessian)
-
-    # if numgrad_was_none:
-    #     settings.options.numerical_grad = None
+    covariance = znp.linalg.inv(hessian)
 
     return matrix_to_dict(params, covariance)
 
@@ -1205,7 +1198,7 @@ class FitResult(ZfitResult):
         covariance_dict = self.covariance(params, method, as_dict=True)
         return {
             p: {
-                "error": covariance_dict[(p, p)] ** 0.5 * pseudo_sigma
+                "error": float(covariance_dict[(p, p)]) ** 0.5 * pseudo_sigma
                 if covariance_dict[(p, p)] is not None
                 else None
             }
