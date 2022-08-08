@@ -10,7 +10,7 @@ MAKE_DOCS_PATH="$(
   cd "$(dirname "$0")" || exit
   pwd -P
 )"
-#MAKE_DOCS_PATH=$(pwd -P)
+MAKE_DOCS_PATH=$(pwd -P)
 popd >/dev/null || exit
 
 # generate the ReST files
@@ -18,6 +18,6 @@ popd >/dev/null || exit
 #echo ${MAKE_DOCS_PATH}/../zfit
 #ls ${MAKE_DOCS_PATH}
 make clean
-bash prepare_apidocs.sh
+bash "${MAKE_DOCS_PATH}/prepare_apidocs.sh"
 make -C "${MAKE_DOCS_PATH}" clean && make -C "${MAKE_DOCS_PATH}" html -j8 &&
   echo "Documentation successfully built!" || echo "FAILED to build Documentation"
