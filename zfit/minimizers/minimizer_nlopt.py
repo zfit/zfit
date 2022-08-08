@@ -268,7 +268,6 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
                 if step_size is None and param.has_step_size:
                     step_size = param.step_size
                 init_scale.append(step_size)
-
             minimizer.set_initial_step(init_scale)
 
             self._set_tols_inplace(
@@ -300,10 +299,13 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
                         "Minimization in NLopt failed, restarting with slightly varied parameters."
                     )
                 if nrandom < self._nrandom_max:  # in order not to start too close
+                    init_scale_isnot_none = np.asarray(
+                        [scale is not None for scale in init_scale], dtype=np.bool
+                    )
                     init_scale = np.where(
-                        np.asarray([scale is not None for scale in init_scale]),
+                        init_scale_isnot_none,
                         init_scale,
-                        np.ones_like(init_scale),
+                        np.ones_like(init_scale, dtype=np.float64),
                     )
                     init_scale_no_nan = np.nan_to_num(init_scale, nan=1.0)
                     xvalues += (

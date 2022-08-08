@@ -411,12 +411,20 @@ error_scales = {None: 1, 1: 1, 2: 2}
 
 
 @pytest.mark.parametrize("chunksize", chunksizes)
-@pytest.mark.parametrize("numgrad", numgrads)
+@pytest.mark.parametrize(
+    "numgrad", numgrads, ids=lambda x: "numgrad" if x else "autograd"
+)
 @pytest.mark.parametrize("spaces", spaces_all)
 # @pytest.mark.parametrize("errordef", [0.5, 1.0, 2.25, 4.])
 # @pytest.mark.parametrize("cl_scale", [(0.683, 1), (0.9548, 2), (0.99747, 3)])  # cl and expected scale of error
-@pytest.mark.parametrize("minimizer_class_and_kwargs", minimizers)
-@pytest.mark.flaky(reruns=3)
+@pytest.mark.parametrize(
+    "minimizer_class_and_kwargs",
+    minimizers,
+    ids=lambda minimizer_class_and_kwargs: minimizer_class_and_kwargs[0].__name__.split(
+        "."
+    )[-1],
+)
+# @pytest.mark.flaky(reruns=3)
 @pytest.mark.timeout(180)
 # @pytest.mark.skip
 def test_minimizers(
