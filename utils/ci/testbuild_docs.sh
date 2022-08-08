@@ -6,7 +6,7 @@
 #    test build docs
 cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
 
-python -m venv test_docs_env
+python -m venv .test_docs_env
 source .test_docs_env/bin/activate
 pip install -U pip
 pip install ../../[dev]

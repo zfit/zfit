@@ -7,8 +7,8 @@
 cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
 
 
-python -m venv test_tutorials_env
-source test_tutorials_env/bin/activate
+python -m venv .test_tutorials_env
+source .test_tutorials_env/bin/activate
 pip install -U pip
 pip install ../../[all]
 
@@ -20,4 +20,4 @@ pytest --nbval-lax zfit-tutorials --ignore=zfit-tutorials/experimental --ignore=
 cd -
 rm -rf tmp_test_zfit_tutorials
 deactivate
-rm -rf test_tutorials_env
+rm -rf .test_tutorials_env
