@@ -4,18 +4,24 @@
 #
 
 #    test build docs
-cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
+pushd "$(dirname "$0")" >/dev/null || exit
+MAKE_DOCS_PATH="$(
+  cd "$(dirname "$0")" || exit
+  pwd -P
+)"
+MAKE_DOCS_PATH=$(pwd -P)
+popd >/dev/null || exit
 
-python -m venv .test_docs_env
-source .test_docs_env/bin/activate
+python -m venv "${MAKE_DOCS_PATH}/.test_docs_env"
+source "${MAKE_DOCS_PATH}/.test_docs_env/bin/activate"
 pip install -U pip
-pip install ../../[dev]
+pip install "${MAKE_DOCS_PATH}/../../[dev]"
 
 echo "============================ Building docs for test ============================"
 pip install sphinx sphinx_bootstrap_theme > tmp.txt && echo 'doc utils installed'
-bash ../../docs/make_docs.sh
+bash "${MAKE_DOCS_PATH}/../../docs/make_docs.sh"
 echo "======================= Finished building docs for test ========================"
 
 deactivate
-rm -rf .test_docs_env
+rm -rf "${MAKE_DOCS_PATH}/.test_docs_env"
 cd -

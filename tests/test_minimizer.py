@@ -351,7 +351,13 @@ def test_floating_flag():
         },
     ],
 )
-@pytest.mark.parametrize("minimizer_class_and_kwargs", minimizers_small)
+@pytest.mark.parametrize(
+    "minimizer_class_and_kwargs",
+    minimizers_small,
+    ids=lambda minimizer_class_and_kwargs: minimizer_class_and_kwargs[0].__name__.split(
+        "."
+    )[-1],
+)
 @pytest.mark.flaky(reruns=1)
 def test_minimize_pure_func(params, minimizer_class_and_kwargs):
     zfit.run.set_autograd_mode(False)
@@ -425,7 +431,7 @@ error_scales = {None: 1, 1: 1, 2: 2}
     )[-1],
 )
 # @pytest.mark.flaky(reruns=3)
-@pytest.mark.timeout(180)
+@pytest.mark.timeout(280)
 # @pytest.mark.skip
 def test_minimizers(
     minimizer_class_and_kwargs, chunksize, numgrad, spaces, pytestconfig

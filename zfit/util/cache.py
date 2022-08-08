@@ -275,11 +275,11 @@ class FunctionCacheHolder(GraphCachable):
         from ..core.interfaces import ZfitData, ZfitParameter, ZfitSpace
 
         if isinstance(obj, ZfitData):
-            obj = (id(obj),)
+            obj = id(obj)
         elif isinstance(obj, ZfitParameter):
             obj = (ZfitParameter, obj.name)
         elif isinstance(obj, ZfitSpace):
-            obj = (id(obj),)
+            obj = id(obj)
         elif tf.is_tensor(obj):
             obj = (self.IS_TENSOR,)
         elif isinstance(obj, np.ndarray):
@@ -301,7 +301,7 @@ class FunctionCacheHolder(GraphCachable):
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, FunctionCacheHolder):
             return False
-        return self.__hash__() == other.__hash__()  # HACK TODO
+        # return self.__hash__() == other.__hash__()  # HACK TODO
         # return all(obj1 == obj2 for obj1, obj2 in zip(self.immutable_representation, other.immutable_representation))
         array_repr_self = self.immutable_representation
         array_repr_other = other.immutable_representation

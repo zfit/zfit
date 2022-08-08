@@ -307,7 +307,9 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
                         init_scale,
                         np.ones_like(init_scale, dtype=np.float64),
                     )
+
                     init_scale_no_nan = np.nan_to_num(init_scale, nan=1.0)
+                    init_scale_no_nan = init_scale_no_nan.astype(np.float64)
                     xvalues += (
                         np.random.uniform(
                             low=-init_scale_no_nan, high=init_scale_no_nan

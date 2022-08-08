@@ -198,7 +198,6 @@ def _binned_template_composed_factory(data, sysshape):
     "TemplateLikePDF", [BinnedTemplatePDFV1, _binned_template_composed_factory]
 )
 def test_binned_template_pdf_bbfull(TemplateLikePDF):
-    zfit.run.set_graph_mode(False)
     bins1 = 15
     bins2 = 10
 
@@ -265,7 +264,7 @@ def test_binned_template_pdf_bbfull(TemplateLikePDF):
     loss.value()
     loss.gradients()
     print("start minimization")
-    minimizer = zfit.minimize.Minuit(verbosity=8, gradient=True)
+    minimizer = zfit.minimize.NLoptLBFGSV1()
     minimizer.minimize(loss)
 
     counts = pdf_sum.counts()

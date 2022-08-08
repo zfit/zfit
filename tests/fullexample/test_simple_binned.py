@@ -167,7 +167,7 @@ bins = [
     100,
     # 200,
     400,
-    1000,
+    # 1000,
 ]
 bin_ids = [f"{n_bins}_bins" for n_bins in bins]
 
@@ -189,10 +189,7 @@ bin_ids = [f"{n_bins}_bins" for n_bins in bins]
 )
 @pytest.mark.parametrize(
     "eager",
-    [
-        False,
-        # True
-    ],
+    [False, True],
 )
 def test_hypotest(benchmark, n_bins, hypotest, eager):
     """Benchmark the performance of pyhf.utils.hypotest() for various numbers of bins and different backends.
