@@ -17,7 +17,7 @@ true_sigma = 2
 true_lambda = -0.03
 
 parameter_tol = 0.1
-max_distance_to_min = 2.5
+max_distance_to_min = 0.5
 
 
 def create_loss(obs1):

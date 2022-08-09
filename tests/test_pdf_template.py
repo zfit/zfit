@@ -198,8 +198,8 @@ def _binned_template_composed_factory(data, sysshape):
     "TemplateLikePDF", [BinnedTemplatePDFV1, _binned_template_composed_factory]
 )
 def test_binned_template_pdf_bbfull(TemplateLikePDF):
-    bins1 = 15
-    bins2 = 10
+    bins1 = 7
+    bins2 = 5
 
     counts1 = np.random.uniform(high=150, size=(bins1, bins2))  # generate counts
     counts2 = np.random.normal(loc=50, size=(bins1, bins2))
@@ -263,8 +263,8 @@ def test_binned_template_pdf_bbfull(TemplateLikePDF):
     # for i in progressbar.progressbar(range(1000000)):
     loss.value()
     loss.gradients()
-    print("start minimization")
-    minimizer = zfit.minimize.Minuit(gradient=False)
+    minimizer = zfit.minimize.Minuit(gradient=False, verbosity=8)
+    # minimizer = zfit.minimize.ScipyTrustConstrV1(verbosity=8)
     minimizer.minimize(loss)
 
     counts = pdf_sum.counts()

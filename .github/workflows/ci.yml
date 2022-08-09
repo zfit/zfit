@@ -156,7 +156,7 @@ jobs:
           pip install -U .[all]
           pip install nbval
           pip install -r zfit-tutorials/requirements.txt
-#           pip install -U --force-reinstall .
+          pip install -U --force-reinstall .[all]  # yep. Needed. Otherwise i.e. numpy needs to be upgraded
 
       - name: Run notebooks
         run: |
