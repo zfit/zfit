@@ -264,13 +264,13 @@ def test_binned_template_pdf_bbfull(TemplateLikePDF):
     loss.value()
     loss.gradients()
     print("start minimization")
-    minimizer = zfit.minimize.NLoptLBFGSV1()
+    minimizer = zfit.minimize.Minuit(gradient=False)
     minimizer.minimize(loss)
 
     counts = pdf_sum.counts()
     np.testing.assert_array_less(
         counts_mc, counts_data
-    )  # this is an assumption, if that is wrong, the test is flawed
+    )  # this is an assumption, if it's is wrong, the test is flawed
     np.testing.assert_array_less(counts, counts_data)
     np.testing.assert_array_less(counts_mc, counts)
     # np.testing.assert_allclose(counts_data, probs, rtol=0.01)

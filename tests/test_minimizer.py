@@ -21,10 +21,10 @@ max_distance_to_min = 2.5
 
 
 def create_loss(obs1):
-    mu_param = zfit.Parameter("mu", true_mu - 2.5, -5.0, 9.0, step_size=0.03)
-    sigma_param = zfit.Parameter("sigma", true_sigma * 0.3, 0.01, 10, step_size=0.03)
+    mu_param = zfit.Parameter("mu", true_mu - 1.5, -15.0, 15, step_size=0.03)
+    sigma_param = zfit.Parameter("sigma", true_sigma * 0.42, 0.01, 50, step_size=0.03)
     lambda_param = zfit.Parameter(
-        "lambda", true_lambda * 0.3, -0.5, -0.0003, step_size=0.001
+        "lambda", true_lambda * 0.6, -0.51, -0.0003, step_size=0.001
     )
 
     gauss1 = zfit.pdf.Gauss(mu=mu_param, sigma=sigma_param, obs=obs1)
@@ -107,6 +107,11 @@ def test_scipy_derivative_options(minimizer_gradient_hessian):
 
 
 do_errors_most = False
+
+
+def minimizer_ids(minimizer_class_and_kwargs):
+    return minimizer_class_and_kwargs[0].__name__.split(".")[-1]
+
 
 minimizers = [
     # minimizers, minimizer_kwargs, do error estimation
@@ -258,11 +263,8 @@ minimizers = [
         },
         {"error": do_errors_most},
     ),
-    # (zfit.minimize.Scipy, {'tol': 1e-8, 'algorithm': 'CG'}, False),
-    # (zfit.minimize.Scipy, {'tol': 1e-8, 'algorithm': 'BFGS'}, False),  # too bad
-    # (zfit.minimize.NLopt, {'tol': 1e-8, 'algorithm': nlopt.LN_NELDERMEAD}, True),  # performs too bad
 ]
-
+# To run individual minimizers
 # minimizers = [(zfit.minimize.Minuit, {"verbosity": verbosity, 'gradient': True}, {'error': True, 'longtests': True})]
 # minimizers = [(zfit.minimize.IpyoptV1, {'verbosity': 7}, True)]
 # minimizers = [(zfit.minimize.ScipyLBFGSBV1, {'verbosity': 7}, True)]
@@ -354,9 +356,7 @@ def test_floating_flag():
 @pytest.mark.parametrize(
     "minimizer_class_and_kwargs",
     minimizers_small,
-    ids=lambda minimizer_class_and_kwargs: minimizer_class_and_kwargs[0].__name__.split(
-        "."
-    )[-1],
+    ids=minimizer_ids,
 )
 @pytest.mark.flaky(reruns=1)
 def test_minimize_pure_func(params, minimizer_class_and_kwargs):
@@ -477,28 +477,24 @@ def test_minimizers(
 
     minimizer = minimizer_class(**minimizer_kwargs)
 
-    # Currently not working, stop the test here. Memory leak?
-    from zfit.minimizers.minimizer_tfp import BFGS
-
-    if isinstance(minimizer, (BFGS, WrapOptimizer)) and numgrad:
-        return
+    # run 3 times: once fully (as normal, once with a high tol first, then with a low restarting from the previous one)
     init_vals = zfit.run(params)
     result = minimizer.minimize(loss=loss)
     zfit.param.set_values(params, init_vals)
-    result_lowtol = minimizer_hightol.minimize(loss=loss)
+    result_hightol = minimizer_hightol.minimize(loss=loss)
     zfit.param.set_values(params, init_vals)
-    result_lowtol2 = minimizer.minimize(loss=result_lowtol)
+    result_lowtol = minimizer.minimize(loss=result_hightol)
 
     assert result.valid
+    assert result_hightol.valid
     assert result_lowtol.valid
-    assert result_lowtol2.valid
     found_min = loss.value().numpy()
     assert true_min + max_distance_to_min >= found_min
 
-    assert result_lowtol2.fmin == pytest.approx(result.fmin, abs=2.0)
+    assert result_lowtol.fmin == pytest.approx(result.fmin, abs=2.0)
     if not isinstance(minimizer, zfit.minimize.IpyoptV1):
         assert (
-            result_lowtol2.info["n_eval"] < 1.2 * result.info["n_eval"]
+            result_lowtol.info["n_eval"] < 1.2 * result.info["n_eval"]
         )  # should not be more, surely not a lot
 
     aval, bval, cval = (zfit.run(v) for v in (mu_param, sigma_param, lambda_param))

@@ -33,7 +33,9 @@ def holder2():
     )
 
 
-@pytest.mark.skip("Currently not a composite tensor")
+@pytest.mark.skip(
+    "Currently not a composite tensor, test when we can pass it through again"
+)
 def test_composite(holder1, holder2):
     from zfit.z import numpy as znp
 

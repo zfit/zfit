@@ -162,9 +162,9 @@ def hypotest_zfit(minimizer, nll):
 
 bins = [
     1,
-    10,
+    # 10,
     # 50,
-    100,
+    # 100,
     # 200,
     400,
     # 1000,
@@ -175,7 +175,7 @@ bin_ids = [f"{n_bins}_bins" for n_bins in bins]
 @pytest.mark.benchmark(
     # group="group-name",
     # min_time=0.1,
-    max_time=100,
+    max_time=40,
     min_rounds=1,
     # timer=time.time,
     disable_gc=True,
@@ -187,10 +187,7 @@ bin_ids = [f"{n_bins}_bins" for n_bins in bins]
     "hypotest",
     ["pyhf", "zfit"],
 )
-@pytest.mark.parametrize(
-    "eager",
-    [False, True],
-)
+@pytest.mark.parametrize("eager", [False, True], ids=["eager", "graph"])
 def test_hypotest(benchmark, n_bins, hypotest, eager):
     """Benchmark the performance of pyhf.utils.hypotest() for various numbers of bins and different backends.
 
@@ -259,15 +256,18 @@ def test_hypotest(benchmark, n_bins, hypotest, eager):
                 list(shapesys.values()), np.ones_like(unc).tolist(), unc
             )
             nll = zfit.loss.ExtendedBinnedNLL(
-                zmodel, zdata, constraints=constraint, options={"numhess": False}
+                zmodel,
+                zdata,
+                constraints=constraint,
+                # options={"numhess": False}
             )
 
             # minimizer = zfit.minimize.Minuit(tol=1e-3, gradient=True, mode=0, verbosity=8)
             # minimizer = zfit.minimize.NLoptMMAV1(tol=1e-3, verbosity=8)
             # minimizer = zfit.minimize.NLoptLBFGSV1()
             # minimizer = zfit.minimize.ScipyLBFGSBV1()
-            # minimizer = zfit.minimize.ScipyTrustConstrV1(verbosity=7)
-            minimizer = zfit.minimize.IpyoptV1()
+            minimizer = zfit.minimize.ScipyTrustConstrV1()
+            # minimizer = zfit.minimize.IpyoptV1()
 
             nll.value()
             nll.value()
