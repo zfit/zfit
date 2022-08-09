@@ -122,7 +122,7 @@ jobs:
       fail-fast: False
       matrix:
         use-graph: [ 0, 1 ]
-        python-version: [ [ "3.7", "3.8", "3.9", "3.10" ] ]
+        python-version: [ "3.7", "3.8", "3.9", "3.10" ]
     name: Run examples, Python ${{ matrix.python-version }}, compiled = ${{ matrix.use-graph }}
     env:
       ZFIT_DO_JIT: ${{ matrix.use-graph }}
