@@ -27,7 +27,7 @@ jobs:
         os: [ ubuntu-latest ]
         extras: [ alldev ]
         include:
-#          - os: macos-latest
+          #- os: macos-latest
           #            python-version: 3.9
           #            use-graph: 0
           - os: macos-latest
@@ -47,6 +47,10 @@ jobs:
     #      ZFIT_DO_JIT: ${{ matrix.use-graph }}
     steps:
       - uses: actions/checkout@v3
+      - name: Get history and tags for SCM versioning to work
+        run: |
+          git fetch --prune --unshallow
+          git fetch --depth=1 origin +refs/tags/*:refs/tags/*
       - uses: actions/setup-python@v3
         name: Set up Python ${{ matrix.python-version }}
         with:
@@ -90,6 +94,10 @@ jobs:
     name: Testbuild docs
     steps:
       - uses: actions/checkout@v3
+      - name: Get history and tags for SCM versioning to work
+        run: |
+          git fetch --prune --unshallow
+          git fetch --depth=1 origin +refs/tags/*:refs/tags/*
       - uses: actions/setup-python@v3
         name: Set up Python ${{ matrix.python-version }}
         with:
@@ -128,6 +136,10 @@ jobs:
       ZFIT_DO_JIT: ${{ matrix.use-graph }}
     steps:
       - uses: actions/checkout@v3
+      - name: Get history and tags for SCM versioning to work
+        run: |
+          git fetch --prune --unshallow
+          git fetch --depth=1 origin +refs/tags/*:refs/tags/*
       - uses: actions/setup-python@v3
         name: Set up Python ${{ matrix.python-version }}
 
