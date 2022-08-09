@@ -19,7 +19,7 @@ from ..util.ztyping import OptionsInputType, ConstraintsInputType
 from ..z import numpy as znp
 
 
-@z.function(wraps="tensor", jit_compile=True, reduce_retracing=False)
+@z.function(wraps="tensor", jit_compile=True)
 def _spd_transform(values, probs, variances):
     """Transform the data to the SPD form.
 

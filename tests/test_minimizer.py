@@ -430,7 +430,7 @@ error_scales = {None: 1, 1: 1, 2: 2}
         "."
     )[-1],
 )
-# @pytest.mark.flaky(reruns=3)
+@pytest.mark.flaky(reruns=3)
 @pytest.mark.timeout(280)
 # @pytest.mark.skip
 def test_minimizers(

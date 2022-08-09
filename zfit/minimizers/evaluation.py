@@ -219,7 +219,7 @@ class LossEval:
             self.last_gradient = gradient
         if self.force_numpy:
             loss_value = float(loss_value)
-            gradient = znp.asarray(gradient)
+            gradient = np.asarray(gradient)
         return loss_value, gradient
 
     def value(self, values: np.ndarray) -> np.float64:

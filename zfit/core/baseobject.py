@@ -61,8 +61,9 @@ class BaseObject(ZfitObject):
                 if not own_element == other._repr.get(key):  # TODO: make repr better
                     return False
         except AttributeError:
-            return self is other
-        return True  # no break occurred
+            pass
+        return self is other
+        # return True  # no break occurred
 
     def __hash__(self):
         return object.__hash__(self)

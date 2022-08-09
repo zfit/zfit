@@ -54,6 +54,8 @@ import functools
 import weakref
 from abc import abstractmethod
 from collections.abc import Iterable
+from itertools import zip_longest
+
 
 import numpy as np
 import tensorflow as tf
@@ -274,6 +276,8 @@ class FunctionCacheHolder(GraphCachable):
     def get_immutable_repr_obj(self, obj):
         from ..core.interfaces import ZfitData, ZfitParameter, ZfitSpace
 
+        if isinstance(obj, collections.abc.Mapping):
+            obj = obj.items()
         if isinstance(obj, ZfitData):
             obj = id(obj)
         elif isinstance(obj, ZfitParameter):
@@ -301,6 +305,7 @@ class FunctionCacheHolder(GraphCachable):
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, FunctionCacheHolder):
             return False
+        # return False  # HACK
         # return self.__hash__() == other.__hash__()  # HACK TODO
         # return all(obj1 == obj2 for obj1, obj2 in zip(self.immutable_representation, other.immutable_representation))
         array_repr_self = self.immutable_representation
@@ -308,7 +313,7 @@ class FunctionCacheHolder(GraphCachable):
         try:
             all_ids = all(
                 (obj1 is obj2) or (obj1 == obj2)
-                for obj1, obj2 in zip(array_repr_self, array_repr_other)
+                for obj1, obj2 in zip_longest(array_repr_self, array_repr_other)
             )
             # all_values = all(np.equal(array_repr_self, array_repr_other))
             # if all_ids != all_values:
