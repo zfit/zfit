@@ -3,15 +3,15 @@
 #
 # Copyright (c) 2022 zfit
 #
-cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
 
-python -m venv .test_examples_env
-source .test_examples_env/bin/activate
+BASEDIR=$( dirname -- "$0"; )
+python -m venv "${BASEDIR}/.test_examples_env"
+source "${BASEDIR}/.test_examples_env/bin/activate"
 pip install -U pip
-pip install ../../[all]
-pip install -r "../../examples/example_requirements.txt"
+pip install -U "${BASEDIR}/../../[all]"
+pip install -r "${BASEDIR}/../../examples/example_requirements.txt"
 #set -e
-for file in ../../examples/*.py; do
+for file in ${BASEDIR}/../../examples/*.py; do
   sucess=0
   python "$file" && sucess=1 || break
   #    below needed?
@@ -25,6 +25,5 @@ else
 fi
 echo "========================================="
 deactivate
-rm -rf .test_examples_env
-cd -
+rm -rf "${BASEDIR}/.test_examples_env"
 echo "Cleaned up, finished"
