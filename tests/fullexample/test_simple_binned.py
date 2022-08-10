@@ -161,12 +161,13 @@ def hypotest_zfit(minimizer, nll):
 
 
 bins = [
-    1,
+    # 1,
+    3,
     # 10,
     # 50,
     # 100,
     # 200,
-    400,
+    # 400,
     # 1000,
 ]
 bin_ids = [f"{n_bins}_bins" for n_bins in bins]
@@ -175,7 +176,7 @@ bin_ids = [f"{n_bins}_bins" for n_bins in bins]
 @pytest.mark.benchmark(
     # group="group-name",
     # min_time=0.1,
-    max_time=40,
+    max_time=20,
     min_rounds=1,
     # timer=time.time,
     disable_gc=True,

@@ -263,7 +263,7 @@ def test_binned_template_pdf_bbfull(TemplateLikePDF):
     # for i in progressbar.progressbar(range(1000000)):
     loss.value()
     loss.gradients()
-    minimizer = zfit.minimize.Minuit(gradient=False, verbosity=8)
+    minimizer = zfit.minimize.Minuit(gradient=False, verbosity=8, mode=0)
     # minimizer = zfit.minimize.ScipyTrustConstrV1(verbosity=8)
     minimizer.minimize(loss)
 

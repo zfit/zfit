@@ -97,7 +97,7 @@ def test_yield_bias(exact_nsample, ntoys=100):
     # print(f'nsig: {nsigs_mean :.2f} +- {std_nsigs_mean :.2f}')
     # print(f'nbkg: {nbkg_mean :.2f} +- {std_nbkg_mean :.2f}')
 
-    plt.figure()
+    plt.figure("yield_bias_toys")
     plt.title(
         f'{"Exact" if exact_nsample else "Binomial sum"} sampled. Fit with {minimizer.name}. Signal yield: {nsigs_mean :.2f} +- {std_nsigs_mean:.2f}'
     )
@@ -106,10 +106,9 @@ def test_yield_bias(exact_nsample, ntoys=100):
     plt.plot(
         np.ones(npoints) * true_nsig, np.linspace(0, np.max(counts)), "gx", label="true"
     )
-    # plt.plot(np.ones(npoints) * init_vals[-1], np.linspace(0, np.max(counts)), 'yo', label='init', alpha=0.5)
     plt.plot(
         np.ones(npoints) * nsigs_mean,
-        np.linspace(0, np.max(counts) * 0.666),
+        np.linspace(0, np.max(counts) * 2 / 3),
         "bo",
         label="mean",
     )
