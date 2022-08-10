@@ -239,6 +239,8 @@ class ScipyBaseMinimizerV1(BaseMinimizer):
 
             init_scale = "auto"
             # get possible initial step size from previous minimizer
+
+        approx_step_sizes = None
         if init:
             approx_init_hesse = result_prelim.hesse(
                 params=params, method="approx", name="approx"
@@ -247,10 +249,10 @@ class ScipyBaseMinimizerV1(BaseMinimizer):
                 approx_step_sizes = [
                     val["error"] for val in approx_init_hesse.values()
                 ] or None
-            else:
-                approx_step_sizes = None
-        else:
-            approx_step_sizes = None
+        if approx_step_sizes is None:
+            approx_step_sizes = np.array(
+                [0.1 if p.step_size is None else p.step_size for p in params]
+            )
 
         maxiter = self.get_maxiter(len(params))
         if maxiter is not None:
@@ -282,6 +284,7 @@ class ScipyBaseMinimizerV1(BaseMinimizer):
         nrandom = 0
         old_edm = -1
         n_paramatlim = 0
+        hessian_updater = None
         for i in range(self._internal_maxiter):
             minimizer_options["options"] = self._scipy_initializer(
                 minimizer_options["options"],
@@ -292,9 +295,14 @@ class ScipyBaseMinimizerV1(BaseMinimizer):
             # update from previous run/result
             if use_hessian and is_update_strat:
                 if not isinstance(init_scale, str):
-                    init_scale = np.mean(approx_step_sizes)
-                minimizer_options["hess"] = hessian(init_scale=init_scale)
-
+                    init_scale = np.mean(
+                        [approx for approx in approx_step_sizes if approx is not None]
+                    )
+                if i == 0:
+                    hessian_updater = hessian(init_scale=init_scale)
+                    minimizer_options["hess"] = hessian_updater
+                else:
+                    minimizer_options["hess"] = hessian_updater
             for tol, val in internal_tol.items():
                 minimizer_options["options"][tol] = val
 
