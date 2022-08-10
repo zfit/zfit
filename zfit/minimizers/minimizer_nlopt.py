@@ -188,7 +188,7 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
         minimizer = nlopt.opt(nlopt.LD_LBFGS, len(params))
 
         # initial values as array
-        xvalues = np.asarray(run(params))
+        xvalues = initial_xvalues = np.asarray(run(params))
 
         # get and set the limits
         lower = np.array([p.lower for p in params])
@@ -310,12 +310,16 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
 
                     init_scale_no_nan = np.nan_to_num(init_scale, nan=1.0)
                     init_scale_no_nan = init_scale_no_nan.astype(np.float64)
-                    xvalues += (
-                        np.random.uniform(
-                            low=-init_scale_no_nan, high=init_scale_no_nan
-                        )
-                        / 2
+                    upper_random = np.minimum(
+                        initial_xvalues + init_scale_no_nan / 2, upper
                     )
+                    lower_random = np.maximum(
+                        initial_xvalues - init_scale_no_nan / 2, lower
+                    )
+                    initial_xvalues = np.random.uniform(
+                        low=lower_random, high=upper_random
+                    )
+
                     nrandom += 1
             else:
                 maxiter_reached = evaluator.niter > evaluator.maxiter

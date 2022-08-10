@@ -336,8 +336,8 @@ class IpyoptV1(BaseMinimizer):
         )
         # minimizer.set_intermediate_callback(lambda *a, **k: print(a, k) or True)
 
-        fmin = -999
-        status = -999
+        fmin = None
+        status = None
         converged = False
         for i in range(self._internal_maxiter):
 

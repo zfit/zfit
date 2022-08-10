@@ -659,7 +659,7 @@ class BaseMinimizer(ZfitMinimizer):
 
     def _update_tol_inplace(self, criterion_value, internal_tol):
         tol_factor = min(
-            math.sqrt(min([max([self.tol / criterion_value * 0.3, 1e-4]), 0.04])), 0.3
+            math.sqrt(min([max([self.tol / criterion_value * 0.3, 1e-4]), 0.04])), 0.21
         )
         for tol in internal_tol:
             if tol in ("gtol", "xtol"):

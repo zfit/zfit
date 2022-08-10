@@ -812,9 +812,7 @@ class FitResult(ZfitResult):
 
         converged = result.get("success", valid)
         status = result["status"]
-        inv_hesse = result.get("hess_inv")
-        if isinstance(inv_hesse, LbfgsInvHessProduct):
-            inv_hesse = inv_hesse.todense()
+
         if message is None and (not converged or not valid):
             message = result.get("message")
         grad = result.get("grad")
@@ -823,8 +821,6 @@ class FitResult(ZfitResult):
             "n_iter": niter,
             "niter": niter,
             "grad": result.get("jac") if grad is None else grad,
-            "inv_hesse": inv_hesse,
-            "hesse": result.get("hesse"),
             "message": message,
             "evaluator": evaluator,
             "original": result,
@@ -832,9 +828,16 @@ class FitResult(ZfitResult):
         approx = dict(
             params=params,
             gradient=info.get("grad"),
-            hessian=info.get("hesse"),
-            inv_hessian=info.get("inv_hesse"),
         )
+        if info.get("niter", 0) > 25:  # unreliable if too few iterations, fails for EDM
+            inv_hesse = result.get("hess_inv")
+            if isinstance(inv_hesse, LbfgsInvHessProduct):
+                inv_hesse = inv_hesse.todense()
+            hesse = info.get("hesse")
+            info["inv_hesse"] = inv_hesse
+            info["hesse"] = hesse
+            approx["hessian"] = hesse
+            approx["inv_hessian"] = inv_hesse
 
         fmin = result["fun"]
         params = dict(zip(params, result_values))

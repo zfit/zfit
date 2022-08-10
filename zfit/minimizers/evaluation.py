@@ -18,9 +18,9 @@ from ..settings import run
 from ..util import ztyping
 from ..util.exception import DerivativeCalculationError, MaximumIterationReached
 
-assign_values_func = lambda params, values: assign_values_jit(
-    params, znp.asarray(values)
-)
+
+def assign_values_func(params, values):
+    return assign_values_jit(params, znp.asarray(values))
 
 
 def check_derivative_none_raise(values, params) -> None:
@@ -319,7 +319,7 @@ class LossEval:
         finally:
             if self.do_print:
                 try:
-                    print_gradient(params, values, gradient=gradient, loss=-999)
+                    print_gradient(params, values, gradient=gradient, loss=None)
                 except:
                     print("Cannot print loss value or gradient values.")
 
@@ -329,7 +329,7 @@ class LossEval:
         if is_nan:
             self.nan_counter += 1
             info_values = {
-                "loss": -999,
+                "loss": None,
                 "grad": gradient,
                 "old_loss": self.last_value,
                 "old_grad": self.last_gradient,
@@ -383,7 +383,7 @@ class LossEval:
         finally:
             if self.do_print:
                 try:
-                    print_params(params, values, loss=-999)
+                    print_params(params, values, loss=None)
                 except:
                     print("Cannot print loss value or gradient values.")
         check_derivative_none_raise(hessian, params)
@@ -392,7 +392,7 @@ class LossEval:
         if is_nan:
             self.nan_counter += 1
             info_values = {
-                "loss": -999,
+                "loss": None,
                 "old_loss": self.last_value,
                 "old_grad": self.last_gradient,
                 "nan_counter": self.nan_counter,
