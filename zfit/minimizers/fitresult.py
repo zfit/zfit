@@ -986,8 +986,8 @@ class FitResult(ZfitResult):
         if inv_hessian is None:
             if hessian is None and evaluator is not None:
                 hessian = evaluator.last_hessian
-            if hessian is not None:
-                inv_hessian = np.linalg.inv(hessian)
+            # if hessian is not None:  # TODO: remove?
+            #     inv_hessian = np.linalg.inv(hessian)
 
         if inv_hessian is not None:
             info["inv_hesse"] = inv_hessian
@@ -1112,7 +1112,22 @@ class FitResult(ZfitResult):
         # DEPRECATED
         error_name: str | None = None,
     ) -> dict[ZfitIndependentParameter, dict]:
-        """Calculate for `params` the symmetric error using the Hessian/covariance matrix.
+        r"""Calculate for `params` the symmetric error using the Hessian/covariance matrix.
+
+        This method estimates the covariance matric using the inverse of the Hessian matrix. The assumption is
+        that the loss profile - usually a likelihood or a :math:\chi^2 - is hyperbolic. This is usually the case for
+        fits with many observations, i.e. it is exact in the asymptotic limit. If the loss profile is not hyperbolic,
+        another method, "zfit_error" or "minuit_minos" should be used.
+
+        **Weights**
+        Weighted likelihoods are a special class of likelihoods as they are not an actual likelihood. However, the
+        minimum is still valid, however the profile is not a proper likelihood. Therefore, corrections
+        will be automatically applied to the Hessian uncertainty estimation in order to correct for the effects
+        in the weights. The corrections used are "asymptotically correct" and are described in
+        `Parameter uncertainties in weighted unbinned maximum likelihood fits`<https://doi.org/10.1140/epjc/s10052-022-10254-8>`
+        by Christoph Langenbruch.
+        Since this method uses the jacobian matrix, it takes significantly longer to calculate than witout weights.
+
 
         Args:
             params: The parameters to calculate the

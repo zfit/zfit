@@ -55,7 +55,7 @@ def compute_errors(
     This method finds the value for a given parameter where the loss function is ``cl`` away: for example
     for a cl of 68.3%, this is one (multiplied by the errordef). The other parameters are also minimized and
     not fixed. This method is comparably computationally intensive and, if possible, ``hesse`` should be used.
-    However, since ``hesse`` does not capture asymetric or non-parabolic shaped profiles well, this method is
+    However, since ``hesse`` does not capture asymmetric or non-parabolic shaped profiles well, this method is
     preferable.
 
     Args:
@@ -102,6 +102,7 @@ def compute_errors(
     # param_scale = np.array(list(param_errors.values()))  # TODO: can be used for root finding initialization?
 
     ncalls = 0
+    loss_min_tol = minimizer.tol * errordef * 2  # 2 is just to be tolerant
     try:
         # start = time.time()
         to_return = {}
@@ -157,12 +158,13 @@ def compute_errors(
                 zeroed_loss = loss_value.numpy() - fmin
 
                 gradient = np.array(gradient)
+
                 if swap_sign(param):  # mirror at x-axis to remove second zero
                     zeroed_loss = -zeroed_loss
                     gradient = -gradient
                     logging.info("Swapping sign in error calculation 'zfit_error'")
 
-                elif zeroed_loss < -minimizer.tol:
+                elif zeroed_loss < -loss_min_tol:
                     assign_values(all_params, values)  # set values to the new minimum
                     raise NewMinimum("A new minimum is found.")
 
@@ -203,7 +205,7 @@ def compute_errors(
         loss = result.loss
         new_found_fmin = loss.value()
         new_result = minimizer.minimize(loss=loss)
-        if new_result.fmin >= new_found_fmin:
+        if new_result.fmin >= new_found_fmin + loss_min_tol:
             raise RuntimeError(
                 "A new minimum was discovered but the minimizer was not able to find this on himself. "
                 "This behavior is currently an exception but will most likely change in the future."
