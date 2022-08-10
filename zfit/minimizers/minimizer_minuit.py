@@ -73,7 +73,7 @@ class Minuit(BaseMinimizer, GraphCachable):
                     scales quadratically with the number of fitted parameters. The different scales comes from the fact
                      that the Hesse matrix is explicitly computed in a Newton step,
                      if Minuit detects significant correlations between parameters.
-                - 2 (default with zfit gradient): same quadratic scaling as strategy 1 but is even slower. The Hesse matrix is
+                - 2 same quadratic scaling as strategy 1 but is even slower. The Hesse matrix is
                     always explicitly computed in each Newton step.
             gradient: If True, iminuit uses its internal numerical gradient calculation instead of the
                 (analytic/numerical) gradient provided by TensorFlow/zfit. If False or ``'zfit'``, the latter
@@ -147,9 +147,7 @@ class Minuit(BaseMinimizer, GraphCachable):
         options = {} if options is None else options
         options["ncall"] = 0 if maxiter is None else maxiter
         if mode is None:
-            mode = 1 if not gradient else 1
-        else:
-            mode = mode
+            mode = 1
         if mode not in range(3):
             raise ValueError(f"mode has to be 0, 1 or 2, not {mode}.")
         options["strategy"] = mode
