@@ -50,7 +50,7 @@ class LossEval:
         maxiter: int,
         grad_fn: Callable | None = None,
         hesse_fn: Callable | None = None,
-        force_numpy: bool | None = None,
+        numpy_converter: Callable | None = None,
     ):
         r"""Convenience wrapper for the evaluation of a loss with given parameters and strategy.
 
@@ -65,9 +65,11 @@ class LossEval:
             maxiter: Maximum number of evaluations of the ``value``, 'gradient`` or ``hessian``.
             grad_fn: Function that returns the gradient.
             hesse_fn: Function that returns the hessian matrix.
-            force_numpy: If the return values should be numpy arrays (and not "numpy-like" objects). This is useful
+            numpy_converter: Converter to a numpy-like format. For example, ``np.array`` will create
+                a *writable* numpy array, whereas ``np.asarray`` will create a *read-only* numpy array.
+                Useful if the return values should be numpy arrays (and not "numpy-like" objects). This is needed
                 if the function expects something *writeable* like a numpy array as other (JAX, TensorFlow) arrays
-                are not writeable.
+                are not writeable. If None, no conversion is done and a "nmupy-like" object is returned.
         """
         super().__init__()
         self.maxiter = maxiter
@@ -100,7 +102,7 @@ class LossEval:
         self.params = convert_to_container(params)
         self.strategy = strategy
         self.do_print = do_print
-        self.force_numpy = True if force_numpy is None else force_numpy
+        self.numpy_converter = False if numpy_converter is None else numpy_converter
 
     @property
     def niter(self):
@@ -217,9 +219,9 @@ class LossEval:
             self.nan_counter = 0
             self.last_value = loss_value
             self.last_gradient = gradient
-        if self.force_numpy:
-            loss_value = np.asarray(loss_value)
-            gradient = np.asarray(gradient)
+        if self.numpy_converter:
+            loss_value = float(loss_value)
+            gradient = self.numpy_converter(gradient)
         return loss_value, gradient
 
     def value(self, values: np.ndarray) -> np.float64:
@@ -278,8 +280,8 @@ class LossEval:
         else:
             self.nan_counter = 0
             self.last_value = loss_value
-        if self.force_numpy:
-            loss_value = np.asarray(loss_value)
+        if self.numpy_converter:
+            loss_value = float(loss_value)
         return loss_value
 
     def gradient(self, values: np.ndarray) -> np.ndarray:
@@ -342,8 +344,8 @@ class LossEval:
         else:
             self.nan_counter = 0
             self.last_gradient = gradient
-        if self.force_numpy:
-            gradient = np.asarray(gradient)
+        if self.numpy_converter:
+            gradient = self.numpy_converter(gradient)
         return gradient
 
     def hessian(self, values) -> znp.array:
@@ -404,8 +406,8 @@ class LossEval:
         else:
             self.nan_counter = 0
             self.last_hessian = hessian
-        if self.force_numpy:
-            hessian = np.asarray(hessian)
+        if self.numpy_converter:
+            hessian = self.numpy_converter(hessian)
         return hessian
 
 
