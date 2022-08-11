@@ -31,14 +31,14 @@ jobs:
           #            python-version: 3.9
           #            use-graph: 0
           - os: macos-latest
-            python-version: "3.9"
+            python-version: "3.10"
             use-graph: 1
             extras: alldev-nonlinux
           #          - os: windows-latest
           #            python-version: 3.9
           #            use-graph: 0
           - os: windows-latest
-            python-version: "3.9"
+            python-version: "3.10"
             use-graph: 1
             extras: alldev-nonlinux
 
@@ -209,7 +209,7 @@ jobs:
 
       - name: Run examples
         run: |
-          . utils/ci/install_test_examples.sh
+          bash utils/ci/install_test_examples.sh
 
   finish:
     needs: unittests
