@@ -188,7 +188,9 @@ bin_ids = [f"{n_bins}_bins" for n_bins in bins]
     "hypotest",
     ["pyhf", "zfit"],
 )
-@pytest.mark.parametrize("eager", [False, True], ids=["eager", "graph"])
+@pytest.mark.parametrize(
+    "eager", [False, True], ids=lambda x: "eager" if x else "graph"
+)
 def test_hypotest(benchmark, n_bins, hypotest, eager):
     """Benchmark the performance of pyhf.utils.hypotest() for various numbers of bins and different backends.
 
@@ -212,7 +214,12 @@ def test_hypotest(benchmark, n_bins, hypotest, eager):
         if eager:
             pyhf.set_backend("numpy")
         else:
-            pyhf.set_backend("jax")
+            try:
+                import jax
+            except ImportError:
+                return
+            else:
+                pyhf.set_backend("jax")
 
         pdf = uncorrelated_background(signp, bkgnp, uncnp)
         data = datanp + pdf.config.auxdata

@@ -40,7 +40,7 @@ jobs:
           - os: windows-latest
             python-version: "3.10"
             use-graph: 1
-            extras: alldev-nonlinux
+            extras: alldev-windows
 
     name: tests on ${{ matrix.os }} with ${{ matrix.python-version }} compiled = ${{ matrix.use-graph }}
     #    env:
@@ -72,7 +72,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install .[${{ matrix.extras }}]
       - name: Test with pytest
-#        TODO: how to run below on windows?
+#        TODO: how to run below on windows?if [ "$RUNNER_OS" == "Linux" ]; then
+#              apt install important_linux_software
+#         elif [ "$RUNNER_OS" == "Windows" ]; then
+#              choco install important_windows_software
 #          if [[ $GITHUB_REF == 'refs/heads/develop' ]]; then
 #          echo "PYTEST_ADDOPTS=--longtests-kde" >> "$GITHUB_ENV"
 #          fi

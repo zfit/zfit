@@ -324,7 +324,7 @@ def test_gradients(chunksize):
     for param_o in nll.get_params():
         for param, grad in zip(params, gradient2):
             if param_o is param:
-                gradients_true3.append(grad)
+                gradients_true3.append(float(grad))
                 break
     assert [g.numpy() for g in gradient3] == pytest.approx(gradients_true3)
 

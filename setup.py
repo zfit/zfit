@@ -44,6 +44,11 @@ alldev_nonlinux.pop(
     alldev_nonlinux.index(extras_require["ipyopt"][0])
 )  # ipyopt is not available on non linux systems
 extras_require["alldev-nonlinux"] = alldev_nonlinux
+alldev_windows = alldev_nonlinux.copy()
+alldev_windows.pop(
+    alldev_windows.index("jaxlib")
+)  # not available on Windows: https://github.com/google/jax/issues/438#issuecomment-939866186
+extras_require["alldev-windows"] = alldev_windows
 
 setup(
     install_requires=requirements,
