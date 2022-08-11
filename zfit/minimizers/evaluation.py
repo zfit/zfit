@@ -218,7 +218,7 @@ class LossEval:
             self.last_value = loss_value
             self.last_gradient = gradient
         if self.force_numpy:
-            loss_value = float(loss_value)
+            loss_value = np.asarray(loss_value)
             gradient = np.asarray(gradient)
         return loss_value, gradient
 
@@ -279,7 +279,7 @@ class LossEval:
             self.nan_counter = 0
             self.last_value = loss_value
         if self.force_numpy:
-            loss_value = float(loss_value)
+            loss_value = np.asarray(loss_value)
         return loss_value
 
     def gradient(self, values: np.ndarray) -> np.ndarray:
@@ -343,7 +343,7 @@ class LossEval:
             self.nan_counter = 0
             self.last_gradient = gradient
         if self.force_numpy:
-            gradient = znp.asarray(gradient)
+            gradient = np.asarray(gradient)
         return gradient
 
     def hessian(self, values) -> znp.array:
@@ -405,7 +405,7 @@ class LossEval:
             self.nan_counter = 0
             self.last_hessian = hessian
         if self.force_numpy:
-            hessian = znp.asarray(hessian)
+            hessian = np.asarray(hessian)
         return hessian
 
 

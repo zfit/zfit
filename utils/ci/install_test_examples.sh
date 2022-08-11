@@ -8,7 +8,7 @@ BASEDIR=$( dirname -- "$0"; )
 python -m venv "${BASEDIR}/.test_examples_env"
 source "${BASEDIR}/.test_examples_env/bin/activate"
 pip install -U pip
-pip install -U "${BASEDIR}/../../[all]"
+pip install "${BASEDIR}/../../[all]"
 pip install -r "${BASEDIR}/../../examples/example_requirements.txt"
 #set -e
 for file in ${BASEDIR}/../../examples/*.py; do
