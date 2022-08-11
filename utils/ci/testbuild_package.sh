@@ -4,9 +4,10 @@
 #
 
 #    test build package
+BASEDIR=$( dirname -- "$0"; )
 echo "============================ Building package for test ============================"
-python setup.py sdist bdist_wheel  2>&1 | tail -n 15
-twine check dist/*
-python setup.py clean --dist --eggs # cleanup
-rm -r build
+python "${BASEDIR}/../../setup.py" sdist bdist_wheel  2>&1 | tail -n 15
+twine check "${BASEDIR}/../../dist/*"
+python "${BASEDIR}/../../setup.py" clean --dist --eggs # cleanup
+rm -r "${BASEDIR}/../../build"
 echo "======================= Finished building package for test ========================"
