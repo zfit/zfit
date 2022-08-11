@@ -267,7 +267,6 @@ def create_gauss2d_binned(n, nbins=130):
 
 
 def test_binned_from_unbinned_2D():
-    zfit.run.set_graph_mode(True)
     n = 100000
 
     mu = zfit.Parameter("mu", 1, 0, 19)
@@ -300,7 +299,7 @@ def test_binned_from_unbinned_2D():
     ntrial = 10
     for _ in range(ntrial):
         values = gauss_binned.rel_counts(obs_binned)
-    print(f"Time taken {(time.time() - start) / ntrial}")
+    # print(f"Time taken {(time.time() - start) / ntrial}")
     hist2d = hist.Hist(axisxhist, axisyhist)
     nruns = 5
     npoints = 5_000_000
@@ -313,7 +312,6 @@ def test_binned_from_unbinned_2D():
     diff = np.abs(values * hist2d.sum() - hist2d.counts()) - 6.5 * np.sqrt(
         hist2d.counts()
     )  # 5 sigma for 1000 bins
-    print(diff)
     np.testing.assert_array_less(diff, 0)
 
     sample = gauss_binned.sample(n, limits=obs_binned)

@@ -46,7 +46,7 @@ def create_loss(obs1):
     return loss, minimum, (mu_param, sigma_param, lambda_param)
 
 
-verbosity = None  # HACK
+verbosity = None
 
 
 def make_min_grad_hesse():
