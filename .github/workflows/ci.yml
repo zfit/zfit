@@ -51,7 +51,7 @@ jobs:
         run: |
           git fetch --prune --unshallow
           git fetch --depth=1 origin +refs/tags/*:refs/tags/*
-      - uses: actions/setup-python@v3
+      - uses: actions/setup-python@v4
         name: Set up Python ${{ matrix.python-version }}
         with:
           python-version: ${{ matrix.python-version }}
@@ -101,7 +101,7 @@ jobs:
         run: |
           git fetch --prune --unshallow
           git fetch --depth=1 origin +refs/tags/*:refs/tags/*
-      - uses: actions/setup-python@v3
+      - uses: actions/setup-python@v4
         name: Set up Python ${{ matrix.python-version }}
         with:
           python-version: ${{ matrix.python-version }}
@@ -143,7 +143,7 @@ jobs:
         run: |
           git fetch --prune --unshallow
           git fetch --depth=1 origin +refs/tags/*:refs/tags/*
-      - uses: actions/setup-python@v3
+      - uses: actions/setup-python@v4
         name: Set up Python ${{ matrix.python-version }}
 
         with:
