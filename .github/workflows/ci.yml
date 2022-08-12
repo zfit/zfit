@@ -17,7 +17,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       ZFIT_DO_JIT: ${{ matrix.use-graph }}
-    timeout-minutes: 240
+    timeout-minutes: 120
     strategy:
       max-parallel: 15
       fail-fast: False
@@ -27,6 +27,13 @@ jobs:
         os: [ ubuntu-latest ]
         extras: [ alldev ]
         include:
+          - os: ubuntu-latest
+            extras: all
+            python-version: 3.10
+            timeout-minutes: 240
+            use-graph: 0
+          #            python-version: 3.9
+          #            use-graph: 0
           #- os: macos-latest
           #            python-version: 3.9
           #            use-graph: 0
