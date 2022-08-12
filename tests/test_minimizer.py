@@ -305,14 +305,15 @@ if platform.system() not in (
 ):  # TODO: Ipyopt installation on macosx not working
     # TODO: ipyopt fails? Why
     pass
-    # minimizers_small.append((zfit.minimize.IpyoptV1, {}, False))
-    # minimizers.append(
-    #     (
-    #         zfit.minimize.IpyoptV1,
-    #         {"verbosity": verbosity},
-    #         {"error": True, "longtests": True},
-    #     )
-    # )
+    minimizers_small.append((zfit.minimize.IpyoptV1, {}, False))
+    minimizers.append(
+        (
+            zfit.minimize.IpyoptV1,
+            {"verbosity": verbosity},
+            {"error": True, "longtests": True},
+        )
+    )
+
 # sort for xdist: https://github.com/pytest-dev/pytest-xdist/issues/432
 minimizers = sorted(minimizers, key=lambda val: repr(val))
 minimizers_small = sorted(minimizers_small, key=lambda val: repr(val))
@@ -405,8 +406,6 @@ def test_dependent_param_extraction():
 # @pytest.mark.run(order=4)
 # chunksizes = [100000, 3000]
 chunksizes = [100000]
-# skip the numerical gradient due to memory leak bug, TF2.3 fix: https://github.com/tensorflow/tensorflow/issues/35010
-# num_grads = [bo for bo in [False, True] if not bo or zfit.run.get_graph_mode()]
 numgrads = [False, True]
 # num_grads = [True]
 # num_grads = [False]
@@ -441,8 +440,6 @@ def test_minimizers(
     # zfit.run.chunking.active = True
     # zfit.run.chunking.max_n_points = chunksize
     zfit.run.set_autograd_mode(not numgrad)
-
-    # minimize_func(minimizer_class_and_kwargs, obs=spaces)
 
     minimizer_class, minimizer_kwargs, test_error = minimizer_class_and_kwargs
 

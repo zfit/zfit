@@ -128,7 +128,7 @@ class FFTConvPDFV1(BaseFunctor):
             )
 
         if interpolation is None:
-            interpolation = "spline" if self.n_obs == 1 else "linear"
+            interpolation = "linear"  # "spline" if self.n_obs == 1 else "linear"  # TODO: spline is very inefficient, why?
 
         spline_order = 3  # default
         if ":" in interpolation:

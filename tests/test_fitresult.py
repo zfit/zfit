@@ -138,22 +138,21 @@ def test_set_values_fitresult(do_pickle):
 
 
 minimizers = [
-    (zfit.minimize.NLoptLBFGSV1, {}, True),
-    (zfit.minimize.ScipyTrustConstrV1, {}, True),
-    (zfit.minimize.Minuit, {}, True),
+    # (zfit.minimize.NLoptLBFGSV1, {}, True),
+    # (zfit.minimize.ScipyTrustConstrV1, {}, True),
+    # (zfit.minimize.Minuit, {}, True),
 ]
 if not platform.system() in (
     "Darwin",
     "Windows",
 ):  # TODO: Ipyopt installation on macosx not working
-    pass
-    # minimizers.append((zfit.minimize.IpyoptV1, {}, False))
+    minimizers.append((zfit.minimize.IpyoptV1, {}, False))
 # sort for xdist: https://github.com/pytest-dev/pytest-xdist/issues/432
 minimizers = sorted(minimizers, key=lambda val: repr(val))
 
 
 def test_freeze():
-    result = create_fitresult(minimizers[1])["result"]
+    result = create_fitresult(minimizers[0])["result"]
     try:
         pickle.dumps(result)
     except Exception:

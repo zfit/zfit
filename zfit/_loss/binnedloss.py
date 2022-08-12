@@ -19,7 +19,7 @@ from ..util.ztyping import OptionsInputType, ConstraintsInputType
 from ..z import numpy as znp
 
 
-@z.function(wraps="tensor", jit_compile=True)
+@z.function(wraps="tensor")
 def _spd_transform(values, probs, variances):
     """Transform the data to the SPD form.
 
@@ -38,7 +38,7 @@ def _spd_transform(values, probs, variances):
     return values * scale, probs * scale
 
 
-@z.function(wraps="tensor", jit_compile=True)
+@z.function(wraps="tensor")
 def poisson_loss_calc(probs, values, log_offset=None, variances=None):
     """Calculate the Poisson log probability for a given set of data.
 
@@ -466,7 +466,7 @@ class BinnedNLL(BaseBinned):
         return super()._get_params(floating, is_yield, extract_independent)
 
 
-@z.function(wraps="tensor", jit_compile=True)
+@z.function(wraps="tensor")
 def chi2_loss_calc(probs, values, variances, log_offset=None, ignore_empty=None):
     if ignore_empty is None:
         ignore_empty = True

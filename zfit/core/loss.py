@@ -104,7 +104,7 @@ def _unbinned_nll_tf(
     return nll_finished
 
 
-@z.function(wraps="tensor", jit_compile=True)
+@z.function(wraps="tensor")
 def _nll_calc_unbinned_tf(log_probs, weights=None, log_offset=None):
     if weights is not None:
         log_probs *= weights  # because it's prob ** weights

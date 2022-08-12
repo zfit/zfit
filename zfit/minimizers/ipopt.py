@@ -86,7 +86,7 @@ class IpyoptV1(BaseMinimizer):
 
             .. code-block:: bash
 
-                `ipopt --print_options`
+                `ipopt --print-options`
 
                 A selection of parameters is presented here:
 
@@ -244,7 +244,7 @@ class IpyoptV1(BaseMinimizer):
 
         if init:
             assign_values(params=params, values=init)
-        evaluator = self.create_evaluator()
+        evaluator = self.create_evaluator(numpy_converter=np.array)
         criterion = self.create_criterion()
 
         # initial values as array
@@ -307,7 +307,6 @@ class IpyoptV1(BaseMinimizer):
             else:
                 ipopt_options["hessian_approximation"] = "limited-memory"
                 ipopt_options["limited_memory_update_type"] = hessian
-
         # ipopt_options['dual_inf_tol'] = TODO?
 
         minimizer = ipyopt.Problem(**minimizer_kwargs)
@@ -329,8 +328,8 @@ class IpyoptV1(BaseMinimizer):
         criterion_value = None
         valid_message = ""
 
-        warm_start_options = (
-            "warm_start_init_point",
+        warm_start_options = (  # TODO: what exactly here?
+            # "warm_start_init_point",
             # 'warm_start_same_structure',
             "warm_start_entire_iterate",
         )
