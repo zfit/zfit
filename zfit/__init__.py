@@ -50,12 +50,8 @@ __all__ = [
     "settings",
 ]
 
+
 #  Copyright (c) 2019 zfit
-warnings.warn(
-    "This is an ALPHA version of zfit for feature testing, do NOT use it in production! "
-    "It is NOT stable and contains bugs and untested features. "
-    "For production use, please use the last beta stable version of zfit."
-)
 
 
 def _maybe_disable_warnings():
