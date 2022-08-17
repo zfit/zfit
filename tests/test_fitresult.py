@@ -138,9 +138,9 @@ def test_set_values_fitresult(do_pickle):
 
 
 minimizers = [
-    # (zfit.minimize.NLoptLBFGSV1, {}, True),
-    # (zfit.minimize.ScipyTrustConstrV1, {}, True),
-    # (zfit.minimize.Minuit, {}, True),
+    (zfit.minimize.NLoptLBFGSV1, {}, True),
+    (zfit.minimize.ScipyTrustConstrV1, {}, True),
+    (zfit.minimize.Minuit, {}, True),
 ]
 if not platform.system() in (
     "Darwin",
@@ -151,8 +151,10 @@ if not platform.system() in (
 minimizers = sorted(minimizers, key=lambda val: repr(val))
 
 
-def test_freeze():
-    result = create_fitresult(minimizers[0])["result"]
+@pytest.mark.parametrize("minimizer_class_and_kwargs", minimizers)
+def test_freeze(minimizer_class_and_kwargs):
+    result = create_fitresult(minimizer_class_and_kwargs)["result"]
+
     try:
         pickle.dumps(result)
     except Exception:

@@ -1507,6 +1507,15 @@ class FitResult(ZfitResult):
 
         if "minuit" in self.info:
             self.info["minuit"] = "Minuit_frozen"
+        if "problem" in self.info:
+            try:
+                import ipyopt
+            except ImportError:
+                pass
+            else:
+                if isinstance(self.info["problem"], ipyopt.Problem):
+                    self.info["problem"] = "ipyopt_frozen"
+
         if "evaluator" in self.info:
             self.info["evaluator"] = "evaluator_frozen"
         self._cache_minuit = None

@@ -34,6 +34,7 @@ Bug fixes and small changes
 - Speedup Parameter value assignement in fits, which is most notably when the parameter update time is
   comparably large to the fit evaluation time, such as is the case for binned fits with many nuisance
   parameters.
+- fix ipyopt was not pickleable in a fitresult
 
 
 Experimental
