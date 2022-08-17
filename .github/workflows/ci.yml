@@ -22,13 +22,13 @@ jobs:
       max-parallel: 15
       fail-fast: False
       matrix:
-        use-graph: [ 1 ]  # TODO: reactivate eager, this was weirdly slow
+        use-graph: [ 1 ]
         python-version: [ "3.7", "3.8", "3.9", "3.10" ]
         os: [ ubuntu-latest ]
         extras: [ alldev ]
         include:
           - os: ubuntu-latest
-            extras: all
+            extras: alldev
             python-version: "3.10"
             timeout-minutes: 240
             use-graph: 0
@@ -79,12 +79,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install .[${{ matrix.extras }}]
       - name: Test with pytest
-#        TODO: how to run below on windows?if [ "$RUNNER_OS" == "Linux" ]; then
-#              apt install important_linux_software
-#         elif [ "$RUNNER_OS" == "Windows" ]; then
-#              choco install important_windows_software
-#          if [[ $GITHUB_REF == 'refs/heads/develop' ]]; then
-#          echo "PYTEST_ADDOPTS=--longtests-kde" >> "$GITHUB_ENV"
+        # TODO: maybe reactivate long tests?
+#          if [ "$GITHUB_REF" == 'refs/heads/develop' ]; then
+#            echo "PYTEST_ADDOPTS=--longtests-kde" >> "$GITHUB_ENV"
 #          fi
         run: |
           coverage run --source=. --omit=".tox/*,*/test*,*/minimizers/interface.py,*/core/testing.py" --branch -m pytest .
