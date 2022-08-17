@@ -555,14 +555,15 @@ class Parameter(
             #     # step_size = z.to_real(step_size)
             #     self.step_size = step_size
             step_size = self.DEFAULT_STEP_SIZE
-        step_size = z.convert_to_tensor(step_size)
+        # step_size = z.convert_to_tensor(step_size)
         return step_size
 
     @step_size.setter
     def step_size(self, value):
         if value is not None:
-            value = z.convert_to_tensor(value, preferred_dtype=ztypes.float)
-            value = tf.cast(value, dtype=ztypes.float)
+            value = float(value)
+            # value = z.convert_to_tensor(value, preferred_dtype=ztypes.float)
+            # value = tf.cast(value, dtype=ztypes.float)
         self._step_size = value
 
     def set_value(self, value: ztyping.NumericalScalarType):
@@ -617,7 +618,6 @@ class Parameter(
         Args:
             value: The value the parameter will take on.
         """
-
         return super().assign(
             value=value, use_locking=use_locking, name=name, read_value=read_value
         )
@@ -922,10 +922,10 @@ class ComposedParameter(BaseComposedParameter):
             params = dependents
         elif params is NotSpecified:
             raise ValueError
-        if not isinstance(params, collections.Mapping):
-            self._composed_param_original_order = convert_to_container(params)
-        else:
+        if isinstance(params, collections.abc.Mapping):
             self._composed_param_original_order = None
+        else:
+            self._composed_param_original_order = convert_to_container(params)
         if isinstance(params, dict):
             params_dict = params
         else:
@@ -1073,7 +1073,7 @@ def convert_to_parameters(
 ):
     if prefer_constant is None:
         prefer_constant = True
-    if isinstance(value, collections.Mapping):
+    if isinstance(value, collections.abc.Mapping):
         return convert_to_parameters(**value, prefer_constant=False)
     value = convert_to_container(value)
     is_param_already = [isinstance(val, ZfitIndependentParameter) for val in value]
@@ -1199,14 +1199,17 @@ def convert_to_parameter(
     return value
 
 
-@tf.function
+@z.function(wraps="params")
 def assign_values_jit(
     params: Parameter | Iterable[Parameter],
     values: ztyping.NumericalScalarType | Iterable[ztyping.NumericalScalarType],
     use_locking=False,
 ):
     for i, param in enumerate(params):
-        param.assign(values[i], read_value=False, use_locking=use_locking)
+        value = values[i]
+        if value.dtype != param.dtype:
+            value = znp.cast(value, param.dtype)
+        param.assign(value, read_value=False, use_locking=use_locking)
 
 
 def assign_values(
@@ -1234,8 +1237,10 @@ def assign_values(
     """
     if allow_partial is None:
         allow_partial = False
-    params, values = _check_convert_param_values(params, values)
-    params = tuple(params)
+    params, values = check_convert_param_values_assign(
+        params, values, allow_partial=allow_partial
+    )
+    # params = tuple(params)
     assign_values_jit(params=params, values=values, use_locking=use_locking)
 
 
@@ -1264,7 +1269,7 @@ def set_values(
     """
     if allow_partial is None:
         allow_partial = False
-    params, values = _check_convert_param_values(params, values, allow_partial)
+    params, values = check_convert_param_values_assign(params, values, allow_partial)
 
     def setter(values):
         for i, param in enumerate(params):
@@ -1276,7 +1281,17 @@ def set_values(
     return TemporarilySet(values, setter=setter, getter=getter)
 
 
-def _check_convert_param_values(params, values, allow_partial=False):
+def check_convert_param_values_assign(params, values, allow_partial=False):
+    """Check if params are valid and convert them if necessary to be used with assign_values.
+
+    Args:
+        params: Parameters to set the values.
+        values: List-like object that supports indexing or a `ZfitResult`.
+        allow_partial: Allow to set only parts of the parameters in case values is a `ZfitResult`
+
+    Returns:
+        A tuple of (params, values)
+    """
     params = convert_to_container(params)
     if isinstance(values, ZfitResult):
         result = values
@@ -1299,14 +1314,22 @@ def _check_convert_param_values(params, values, allow_partial=False):
                 raise ValueError(
                     f"Incompatible length of parameters and values: {params}, {values}"
                 )
-    not_param = [param for param in params if not isinstance(param, ZfitParameter)]
+    not_param = [
+        param for param in params if not isinstance(param, (ZfitParameter, tf.Variable))
+    ]
     if not_param:
         raise TypeError(
             f"The following are not parameters (but should be): {not_param}"
         )
-    if not all(param.independent for param in params):
+    non_independent_params = [
+        param
+        for param in params
+        if not (isinstance(param, tf.Variable) or param.independent)
+    ]
+    if non_independent_params:
         raise ParameterNotIndependentError(
             f"trying to set value of parameters that are not independent "
-            f"{[param for param in params if not param.independent]}"
+            f"{non_independent_params}"
         )
+    values = znp.asarray(values, dtype=znp.float64)
     return params, values

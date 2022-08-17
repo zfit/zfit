@@ -27,8 +27,8 @@ def test_fail_on_nan_strategy():
     sigma.set_value(math.inf)
     fitresult2 = minimizer.minimize(nll)
     assert not fitresult2.converged
-    assert fitresult2.edm == -999
-    assert fitresult2.fmin == -999
+    assert fitresult2.edm is None
+    assert fitresult2.fmin is None
 
 
 def minimizers():

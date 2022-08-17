@@ -135,7 +135,7 @@ def fail_not_rect(func):
     return wrapped_func
 
 
-@z.function(wraps="tensor", experimental_relax_shapes=True)
+@z.function(wraps="tensor")
 def calculate_rect_area(rect_limits):
     lower, upper = rect_limits
     diff = upper - lower
@@ -143,9 +143,9 @@ def calculate_rect_area(rect_limits):
     return area
 
 
-@z.function(wraps="tensor", experimental_relax_shapes=True)
+@z.function(wraps="tensor")
 def inside_rect_limits(x, rect_limits):
-    if not x.shape.ndims > 1:
+    if not x.get_shape().ndims > 1:
         raise ValueError(
             "x has ndims <= 1, which is most probably not wanted. The default shape for array-like"
             " structures is (nevents, n_obs)."
@@ -159,7 +159,7 @@ def inside_rect_limits(x, rect_limits):
     return inside
 
 
-@z.function(wraps="tensor", experimental_relax_shapes=True)
+@z.function(wraps="tensor")
 def filter_rect_limits(x, rect_limits, axis=None):
     return tf.boolean_mask(
         tensor=x, mask=inside_rect_limits(x, rect_limits=rect_limits, axis=axis)

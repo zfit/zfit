@@ -4,6 +4,8 @@ coverage>=4.5.1
 coverage-lcov
 docformatter
 flake8>=3.5.0
+jax
+jaxlib
 Jinja2
 jupyter-sphinx
 matplotlib  # docs, tests

@@ -69,9 +69,9 @@ class ToyStrategyFail(BaseStrategy):
         super().__init__()
         self.fit_result = FitResult(
             params={},
-            edm=-999,
-            fmin=-999,
-            status=-999,
+            edm=None,
+            fmin=None,
+            status=None,
             converged=False,
             info={},
             valid=False,
@@ -91,8 +91,8 @@ class ToyStrategyFail(BaseStrategy):
         )
         self.fit_result = FitResult(
             params=param_vals,
-            edm=-999,
-            fmin=-999,
+            edm=None,
+            fmin=None,
             status=9,
             converged=False,
             info={},

@@ -22,10 +22,10 @@ rbounds = (mu, bounds[1])
 
 
 def _cb_params_factory(name_add=""):
-    mu_ = zfit.Parameter("mu_cb" + name_add, mu)
-    sigma_ = zfit.Parameter("sigma_cb" + name_add, sigma)
-    alphal_ = zfit.Parameter("alphal_cb" + name_add, alphal)
-    nl_ = zfit.Parameter("nl_cb" + name_add, nl)
+    mu_ = zfit.Parameter(f"mu_cb{name_add}", mu)
+    sigma_ = zfit.Parameter(f"sigma_cb{name_add}", sigma)
+    alphal_ = zfit.Parameter(f"alphal_cb{name_add}", alphal)
+    nl_ = zfit.Parameter(f"nl_cb{name_add}", nl)
     return {"mu": mu_, "sigma": sigma_, "alpha": alphal_, "n": nl_}
 
 
@@ -63,16 +63,17 @@ def test_cb_integral():
     integral_numeric = zfit.run(integral_numeric)
     integral = zfit.run(integral)
 
-    assert pytest.approx(integral_numeric, integral, 1e-5)
+    assert pytest.approx(integral_numeric, 1e-5) == integral
 
-    rnd_limits = sorted(np.random.uniform(*bounds, 13))
-    integrals = []
-    for low, up in zip(rnd_limits[:-1], rnd_limits[1:]):
-        integrals.append(cbl.integrate((low, up), norm=False))
+    rnd_limits = sorted(list(np.random.uniform(*bounds, 13)) + list(bounds))
+    integrals = [
+        cbl.integrate((low, up), norm=False)
+        for low, up in zip(rnd_limits[:-1], rnd_limits[1:])
+    ]
 
     integral = np.sum(integrals)
     integral_full = zfit.run(cbl.integrate(bounds, norm=False))
-    assert pytest.approx(integral_full, integral)
+    assert pytest.approx(float(integral_full)) == float(integral)
 
 
 def test_cb_dcb():
@@ -142,11 +143,11 @@ def test_cb_dcb():
     assert np.allclose(ratio_l, ratio_l[0])
     assert np.allclose(ratio_r, ratio_r[0])
 
-    rnd_limits = sorted(np.random.uniform(*bounds, 130))
+    rnd_limits = sorted(list(np.random.uniform(*bounds, 130)) + list(bounds))
     integrals = []
     for low, up in zip(rnd_limits[:-1], rnd_limits[1:]):
         integrals.append(dcb.integrate((low, up), norm=False))
 
-        integral = np.sum(integrals)
-        integral_full = zfit.run(dcb.integrate((bounds[0], up), norm=False))
-        assert pytest.approx(integral_full, integral)
+    integral = np.sum(integrals)
+    integral_full = zfit.run(dcb.integrate((bounds[0], up), norm=False))
+    assert pytest.approx(float(integral_full)) == float(integral)

@@ -156,8 +156,7 @@ class SumPDF(BaseFunctor):
             )  # do NOT propagate the norm_range!
             for pdf, frac in zip(pdfs, fracs)
         ]
-        integral = sum(integrals)
-        return z.convert_to_tensor(integral)
+        return znp.sum(integrals, axis=0)
 
     @supports(multiple_limits=True)
     def _analytic_integrate(self, limits, norm):

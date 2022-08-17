@@ -29,6 +29,13 @@ Bug fixes and small changes
 - ``ConstantParameter`` errored when converted to numpy.
 - Simultaneous binned fits could error with different binning due to a missing sum over
   a dimension.
+- improved stability in loss evaluation of constraints and poisson/chi2 loss.
+- reduce gradient evaluation time in ``errors`` for many parameters.
+- Speedup Parameter value assignement in fits, which is most notably when the parameter update time is
+  comparably large to the fit evaluation time, such as is the case for binned fits with many nuisance
+  parameters.
+- fix ipyopt was not pickleable in a fitresult
+
 
 Experimental
 ------------
@@ -36,6 +43,8 @@ Experimental
 Requirement changes
 -------------------
 - nlopt and ipyopt are now optional dependencies.
+- Python 3.10 added
+- TensorFlow >= 2.9 is now required and the corresponding TensorFlow-Probability version >= 0.17.
 
 Thanks
 ------
@@ -110,6 +119,7 @@ Experimental
 
 Requirement changes
 -------------------
+- add TensorFlow 2.7 support
 
 Thanks
 ------

@@ -290,7 +290,7 @@ class BaseMinimizer(ZfitMinimizer):
                 params_init = init.loss.get_params()
                 to_set_param_values = {p: val for p, val in zip(params_init, params)}
 
-        if isinstance(params, collections.Mapping):
+        if isinstance(params, collections.abc.Mapping):
             if all(isinstance(p, ZfitParameter) for p in params):
                 to_set_param_values = {
                     p: val for p, val in params.items() if val is not None
@@ -602,6 +602,7 @@ class BaseMinimizer(ZfitMinimizer):
         self,
         loss: ZfitLoss | None = None,
         params: ztyping.ParametersType | None = None,
+        numpy_converter: Callable | None = None,
         strategy: ZfitStrategy | None = None,
     ) -> LossEval:
         """Make a loss evaluator using the strategy and more from the minimizer.
@@ -630,6 +631,9 @@ class BaseMinimizer(ZfitMinimizer):
                 params = self._state["params"]
             else:
                 raise ValueError(f"params cannot be None if not called within minimize")
+
+        if numpy_converter is None:
+            numpy_converter = False
         if strategy is None:
             try:
                 strategy = self._strategy()
@@ -647,6 +651,7 @@ class BaseMinimizer(ZfitMinimizer):
             strategy=strategy,
             do_print=self.verbosity > 9,
             maxiter=self.get_maxiter(len(params)),
+            numpy_converter=numpy_converter,
         )
         if self._is_stateful:
             self._state["evaluator"] = evaluator
@@ -654,7 +659,7 @@ class BaseMinimizer(ZfitMinimizer):
 
     def _update_tol_inplace(self, criterion_value, internal_tol):
         tol_factor = min(
-            math.sqrt(min([max([self.tol / criterion_value * 0.3, 1e-4]), 0.04])), 0.3
+            math.sqrt(min([max([self.tol / criterion_value * 0.3, 1e-4]), 0.04])), 0.21
         )
         for tol in internal_tol:
             if tol in ("gtol", "xtol"):

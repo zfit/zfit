@@ -57,7 +57,7 @@ def poisson_loss_calc(probs, values, log_offset=None, variances=None):
     values += znp.asarray(1e-307, dtype=znp.float64)
     probs += znp.asarray(1e-307, dtype=znp.float64)
     poisson_term = tf.nn.log_poisson_loss(
-        values, znp.log(probs), compute_full_loss=False  # TODO: correct offset
+        values, znp.log(probs), compute_full_loss=True  # TODO: correct offset
     )  # TODO: optimization?
     if log_offset is not None:
         poisson_term += log_offset
@@ -300,7 +300,9 @@ class ExtendedBinnedNLL(BaseBinned):
         nll = znp.sum(poisson_terms)
 
         if constraints:
-            constraints = z.reduce_sum([c.value() for c in constraints])
+            constraints = z.reduce_sum(
+                [c.value() - log_offset * len(c.get_params()) for c in constraints]
+            )
             nll += constraints
 
         return nll
@@ -442,7 +444,9 @@ class BinnedNLL(BaseBinned):
         nll = znp.sum(poisson_terms)
 
         if constraints:
-            constraints = z.reduce_sum([c.value() for c in constraints])
+            constraints = z.reduce_sum(
+                [c.value() - log_offset * len(c.get_params()) for c in constraints]
+            )
             nll += constraints
 
         return nll
@@ -472,9 +476,9 @@ def chi2_loss_calc(probs, values, variances, log_offset=None, ignore_empty=None)
     else:
         one_over_var = tf.math.reciprocal(variances)
     chi2_term *= one_over_var
-    chi2_term = znp.sum(chi2_term)
     if log_offset is not None:
         chi2_term += log_offset
+    chi2_term = znp.sum(chi2_term)
     return chi2_term
 
 

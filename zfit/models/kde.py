@@ -510,7 +510,7 @@ class KDEHelper:
             "adaptive_std",
             "adaptive_geom",
         ):
-            bandwidth_param = -999
+            bandwidth_param = -999999  # dummy value, not needed. Better solution?
         else:
             bandwidth_param = bandwidth
         return bandwidth, bandwidth_param
