@@ -15,7 +15,13 @@ html[data-theme="light"] {
     --pst-color-navbar-link-hover: 203, 86, 40;
     --pst-color-navbar-link-active: 203, 86, 40;
 }
+html[data-theme="dark"] {
+    --pst-color-primary: #080c80 !important;
 
+    --pst-color-navbar-link: 255, 255, 255;
+    --pst-color-navbar-link-hover: 203, 86, 40;
+    --pst-color-navbar-link-active: 203, 86, 40;
+}
 
 i.fa-github-square:before {
     color: #ffffffff !important;
