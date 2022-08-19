@@ -65,7 +65,7 @@ class Minuit(BaseMinimizer, GraphCachable):
             mode: A number used by minuit to define the internal minimization strategy, either 0, 1 or 2.
                 As `explained in the iminuit docs <https://iminuit.readthedocs.io/en/stable/faq.html#what-happens-when-i-change-the-strategy>`_
                 , they mean:
-                - 0 (default with zfit gradient): the fastest and the number of function calls required to minimise
+                - 0 The fastest and the number of function calls required to minimise
                     scales linearly with the number of fitted parameters. The Hesse matrix is not computed during the
                     minimisation (only an approximation that is continuously updated).
                     When the number of fitted parameters > 10, you should prefer this strategy.
@@ -73,7 +73,7 @@ class Minuit(BaseMinimizer, GraphCachable):
                     scales quadratically with the number of fitted parameters. The different scales comes from the fact
                      that the Hesse matrix is explicitly computed in a Newton step,
                      if Minuit detects significant correlations between parameters.
-                - 2: same quadratic scaling as strategy 1 but is even slower. The Hesse matrix is
+                - 2 same quadratic scaling as strategy 1 but is even slower. The Hesse matrix is
                     always explicitly computed in each Newton step.
             gradient: If True, iminuit uses its internal numerical gradient calculation instead of the
                 (analytic/numerical) gradient provided by TensorFlow/zfit. If False or ``'zfit'``, the latter
@@ -147,9 +147,7 @@ class Minuit(BaseMinimizer, GraphCachable):
         options = {} if options is None else options
         options["ncall"] = 0 if maxiter is None else maxiter
         if mode is None:
-            mode = 0 if not gradient else 1
-        else:
-            mode = mode
+            mode = 1
         if mode not in range(3):
             raise ValueError(f"mode has to be 0, 1 or 2, not {mode}.")
         options["strategy"] = mode

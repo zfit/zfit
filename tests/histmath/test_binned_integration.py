@@ -217,7 +217,7 @@ def test_partial_binned_rect_integration(edges_bins1):
     full_integral = binned_rect_integration(
         density=values, edges=edges, limits=limits_full
     )
-    assert pytest.approx(np.sum(integral), float(full_integral))
+    assert pytest.approx(np.sum(integral)) == float(full_integral)
 
 
 @pytest.fixture()

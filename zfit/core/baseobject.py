@@ -61,8 +61,9 @@ class BaseObject(ZfitObject):
                 if not own_element == other._repr.get(key):  # TODO: make repr better
                     return False
         except AttributeError:
-            return self is other
-        return True  # no break occurred
+            pass
+        return self is other
+        # return True  # no break occurred
 
     def __hash__(self):
         return object.__hash__(self)
@@ -70,8 +71,6 @@ class BaseObject(ZfitObject):
 
 class BaseParametrized(BaseObject, ZfitParametrized):
     def __init__(self, params, **kwargs) -> None:
-        # print(f"DEBUG: {kwargs}")  # TODO REMOVE!
-        # raise RuntimeError("DEBUG needs to be removed")
         super().__init__(**kwargs)
         from zfit.core.parameter import convert_to_parameter
 

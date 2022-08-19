@@ -46,7 +46,7 @@ from .space import Space, convert_to_space
 
 # TODO: make cut only once, then remember
 class Data(
-    GraphCachable, ZfitUnbinnedData, BaseDimensional, BaseObject, OverloadableMixin
+    ZfitUnbinnedData, BaseDimensional, BaseObject, OverloadableMixin, GraphCachable
 ):
     BATCH_SIZE = 1000000  # 1 mio
 
@@ -757,7 +757,7 @@ class Sampler(Data):
         sample_holder = tf.Variable(
             initial_value=sample_func(),
             dtype=dtype,
-            trainable=False,  # HACK: sample_func
+            trainable=False,
             # validate_shape=False,
             shape=(None, obs.n_obs),
             name=f"sample_data_holder_{cls.get_cache_counting()}",

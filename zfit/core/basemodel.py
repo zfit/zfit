@@ -190,10 +190,16 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
                     continue  # not wrapped, no support, need no
 
             # if we reach this points, somethings was implemented wrongly
-            raise BasePDFSubclassingError(
-                "Method {} has not been correctly wrapped with @supports "
-                "OR has been wrapped but it should not be".format(method_name)
-            )
+            if method_name not in ["_pdf"]:
+                raise BasePDFSubclassingError(
+                    "Method {} has not been correctly wrapped with @supports "
+                    "OR has been wrapped but it should not be".format(method_name)
+                )
+            else:
+                warnings.warn(
+                    "For the future, also decorate _pdf with @supports and specify what you support"
+                    " (such as 'norm=True' to keep the same behavior as before)"
+                )
 
     # since subclasses can be funcs of pdfs, we need to now what to sample/integrate from
     @abc.abstractmethod
@@ -418,6 +424,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             integral = self._single_hook_integrate(
                 limits=limits, norm=norm, x=var, options=options
             )
+        integral = znp.reshape(integral, -1)
         return integral
 
     def _single_hook_integrate(self, limits, norm, x, options):

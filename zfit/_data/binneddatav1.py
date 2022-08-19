@@ -84,6 +84,7 @@ class BinnedData(
 ):
     def __init__(self, *, holder):
         self.holder: BinnedHolder = holder
+        self.name = "BinnedData"  # TODO: improve naming
 
     @classmethod  # TODO: add overflow bins if needed
     def from_tensor(

@@ -214,14 +214,15 @@ def test_sampling_floating(gauss_factory):
     assert min(sampled_from_gauss1[:, 0]) >= low
     assert n_draws == len(sampled_from_gauss1[:, 0])
 
+    nsample = 100000
     gauss_full_sample = gauss.create_sampler(
-        n=10000,
+        n=nsample,
         limits=(mu_true - abs(sigma_true) * 3, mu_true + abs(sigma_true) * 3),
         fixed_params=False,
     )
 
     gauss_full_sample_fixed = gauss.create_sampler(
-        n=10000,
+        n=nsample,
         limits=(mu_true - abs(sigma_true) * 3, mu_true + abs(sigma_true) * 3),
         fixed_params=True,
     )

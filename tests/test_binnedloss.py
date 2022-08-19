@@ -130,6 +130,7 @@ def test_binned_extended_simple(Loss):
 @pytest.mark.parametrize(
     "weights",
     [None, np.random.normal(loc=1.0, scale=0.2, size=test_values_np.shape[0])],
+    ids=["no_weights", "weights_normal"],
 )
 @pytest.mark.parametrize(
     "Loss",
@@ -140,7 +141,9 @@ def test_binned_extended_simple(Loss):
         zfit.loss.ExtendedBinnedChi2,
     ],
 )
-@pytest.mark.parametrize("simultaneous", [True, False])
+@pytest.mark.parametrize(
+    "simultaneous", [True, False], ids=["simultaneous", "sequential"]
+)
 def test_binned_loss(weights, Loss, simultaneous):
     obs = zfit.Space("obs1", limits=(-15, 25))
     gaussian1, mu1, sigma1 = create_gauss1(obs=obs)
@@ -200,7 +203,7 @@ def test_binned_loss(weights, Loss, simultaneous):
 
     result.hesse(name="hesse")
     result.errors(name="asymerr")
-    print(result)
+    str(result)  # check if no error
     rel_tol_errors = 0.1
     mu_error = 0.03 if not simultaneous else 0.021
     sigma_error = 0.0156 if simultaneous else 0.022
@@ -256,8 +259,14 @@ def test_binned_loss(weights, Loss, simultaneous):
 
 
 @pytest.mark.parametrize("Loss", [zfit.loss.BinnedChi2, zfit.loss.ExtendedBinnedChi2])
-@pytest.mark.parametrize("empty", [None, "ignore", False])
-@pytest.mark.parametrize("errors", [None, "expected", "data"])
+@pytest.mark.parametrize(
+    "empty", [None, "ignore", False], ids=["empty", "ignore", "False"]
+)
+@pytest.mark.parametrize(
+    "errors",
+    [None, "expected", "data"],
+    ids=["error_default", "error_expected", "error_data"],
+)
 def test_binned_chi2_loss(Loss, empty, errors):  # TODO: add test with zeros in bins
     obs = zfit.Space("obs1", limits=(-1, 2))
     gaussian1, mu1, sigma1 = create_gauss1(obs=obs)
@@ -285,6 +294,7 @@ def test_binned_chi2_loss(Loss, empty, errors):  # TODO: add test with zeros in 
 @pytest.mark.parametrize(
     "weights",
     [None, np.random.normal(loc=1.0, scale=0.2, size=test_values_np.shape[0])],
+    ids=["weights_none", "weights_random"],
 )
 @pytest.mark.parametrize(
     "Loss",
@@ -315,4 +325,4 @@ def test_binned_loss_hist(weights, Loss):
     loss = Loss(model=binned_gauss, data=h)
     loss2 = Loss(model=binned_gauss, data=test_values_binned)
 
-    assert pytest.approx(float(loss.value()), float(loss2.value()))
+    assert pytest.approx(float(loss.value())) == float(loss2.value())

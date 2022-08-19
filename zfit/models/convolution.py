@@ -128,7 +128,7 @@ class FFTConvPDFV1(BaseFunctor):
             )
 
         if interpolation is None:
-            interpolation = "spline" if self.n_obs == 1 else "linear"
+            interpolation = "linear"  # "spline" if self.n_obs == 1 else "linear"  # TODO: spline is very inefficient, why?
 
         spline_order = 3  # default
         if ":" in interpolation:
@@ -212,13 +212,14 @@ class FFTConvPDFV1(BaseFunctor):
         # guarantee that we add one bin (e.g. if we hit exactly the boundaries, we add one.
         nbins_kernel = n
         # n = max(n, npoints_scaling)
-        tf.assert_less(
-            n - 1,  # so that for three dimension it's 999'999, not 10^6
-            tf.cast(1e6, tf.int32),
-            message="Number of points automatically calculated to be used for the FFT"
-            " based convolution exceeds 1e6. If you want to use this number - "
-            "or an even higher value - use explicitly the `n` argument.",
-        )
+        # TODO: below needed if we try to estimate the number of points
+        # tf.assert_less(
+        #     n - 1,  # so that for three dimension it's 999'999, not 10^6
+        #     tf.cast(1e6, tf.int32),
+        #     message="Number of points automatically calculated to be used for the FFT"
+        #     " based convolution exceeds 1e6. If you want to use this number - "
+        #     "or an even higher value - use explicitly the `n` argument.",
+        # )
 
         binwidth = (upper_kernel - lower_kernel) / nbins_kernel
         to_extend = (
@@ -321,13 +322,13 @@ class FFTConvPDFV1(BaseFunctor):
             )
             prob = prob[0, ..., 0]
         elif self.conv_interpolation == "linear":
-            prob = tfp.math.batch_interp_regular_nd_grid(
-                x=query_points[0],
-                x_ref_min=lower_func,
-                x_ref_max=upper_func,
+            prob = tfp.math.batch_interp_regular_1d_grid(
+                x=query_points[0, ..., 0],
+                x_ref_min=lower_func[..., 0],
+                x_ref_max=upper_func[..., 0],
                 y_ref=conv[0, ..., 0],
                 # y_ref=tf.reverse(conv[0, ..., 0], axis=[0]),
-                axis=-self.n_obs,
+                axis=0,
             )
             prob = prob[0]
 

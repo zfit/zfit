@@ -86,7 +86,7 @@ class IpyoptV1(BaseMinimizer):
 
             .. code-block:: bash
 
-                `ipopt --print_options`
+                `ipopt --print-options`
 
                 A selection of parameters is presented here:
 
@@ -244,7 +244,7 @@ class IpyoptV1(BaseMinimizer):
 
         if init:
             assign_values(params=params, values=init)
-        evaluator = self.create_evaluator()
+        evaluator = self.create_evaluator(numpy_converter=np.array)
         criterion = self.create_criterion()
 
         # initial values as array
@@ -281,13 +281,13 @@ class IpyoptV1(BaseMinimizer):
 
         minimizer_kwargs = dict(
             n=nparams,
-            xL=lower,
-            xU=upper,
+            x_l=lower,
+            x_u=upper,
             m=nconstraints,
-            gL=empty_array,
-            gU=empty_array,  # no constraints
+            g_l=empty_array,
+            g_u=empty_array,  # no constraints
             sparsity_indices_jac_g=(empty_array, empty_array),
-            sparsity_indices_hess=hessian_sparsity_indices,
+            sparsity_indices_h=hessian_sparsity_indices,
             eval_f=evaluator.value,
             eval_grad_f=gradient_inplace,
             eval_g=lambda x, out: None,
@@ -307,7 +307,6 @@ class IpyoptV1(BaseMinimizer):
             else:
                 ipopt_options["hessian_approximation"] = "limited-memory"
                 ipopt_options["limited_memory_update_type"] = hessian
-
         # ipopt_options['dual_inf_tol'] = TODO?
 
         minimizer = ipyopt.Problem(**minimizer_kwargs)
@@ -329,15 +328,15 @@ class IpyoptV1(BaseMinimizer):
         criterion_value = None
         valid_message = ""
 
-        warm_start_options = (
-            "warm_start_init_point",
+        warm_start_options = (  # TODO: what exactly here?
+            # "warm_start_init_point",
             # 'warm_start_same_structure',
             "warm_start_entire_iterate",
         )
         # minimizer.set_intermediate_callback(lambda *a, **k: print(a, k) or True)
 
-        fmin = -999
-        status = -999
+        fmin = None
+        status = None
         converged = False
         for i in range(self._internal_maxiter):
 

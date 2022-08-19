@@ -35,6 +35,7 @@ from .errors import (
     dict_to_matrix,
     matrix_to_dict,
 )
+from ..z import numpy as znp
 from .interface import ZfitMinimizer, ZfitResult
 from .termination import ConvergenceCriterion
 from ..core.interfaces import (
@@ -211,16 +212,8 @@ def _covariance_np(result, params):
             ExperimentalFeatureWarning,
         )
 
-    # TODO: maybe activate again? currently fails due to numerical problems
-    # numgrad_was_none = settings.options.numerical_grad is None
-    # if numgrad_was_none:
-    #     settings.options.numerical_grad = True
-
     _, gradient, hessian = result.loss.value_gradient_hessian(params)
-    covariance = np.linalg.inv(hessian)
-
-    # if numgrad_was_none:
-    #     settings.options.numerical_grad = None
+    covariance = znp.linalg.inv(hessian)
 
     return matrix_to_dict(params, covariance)
 
@@ -234,19 +227,19 @@ def _covariance_approx(result, params):
             "Approximate covariance/hesse estimation with weights is not supported, returning None",
             RuntimeWarning,
         )
-    covariance_dict = {}
+
     inv_hessian = result.approx.inv_hessian(invert=True)
     if inv_hessian is None:
-        return covariance_dict
+        return {}
 
     params_approx = list(result.params)
-    for p1 in params:
-        p1_index = params_approx.index(p1)
-        for p2 in params:
-            p2_index = params_approx.index(p2)
-            index = (p1_index, p2_index)
-            key = (p1, p2)
-            covariance_dict[key] = inv_hessian[index]
+    param_indices = [params_approx.index(p) for p in params]
+    covariance_dict = {
+        (p1, p2): inv_hessian[(p1_index, p2_index)]
+        for (p1, p1_index), (p2, p2_index) in itertools.product(
+            zip(params, param_indices), zip(params, param_indices)
+        )
+    }
     return covariance_dict
 
 
@@ -460,7 +453,7 @@ class FitResult(ZfitResult):
             The created approximation.
         """
         approx = {} if approx is None else approx
-        if isinstance(approx, collections.Mapping):
+        if isinstance(approx, collections.abc.Mapping):
             if "params" not in approx:
                 approx["params"] = params
 
@@ -819,9 +812,7 @@ class FitResult(ZfitResult):
 
         converged = result.get("success", valid)
         status = result["status"]
-        inv_hesse = result.get("hess_inv")
-        if isinstance(inv_hesse, LbfgsInvHessProduct):
-            inv_hesse = inv_hesse.todense()
+
         if message is None and (not converged or not valid):
             message = result.get("message")
         grad = result.get("grad")
@@ -830,8 +821,6 @@ class FitResult(ZfitResult):
             "n_iter": niter,
             "niter": niter,
             "grad": result.get("jac") if grad is None else grad,
-            "inv_hesse": inv_hesse,
-            "hesse": result.get("hesse"),
             "message": message,
             "evaluator": evaluator,
             "original": result,
@@ -839,9 +828,16 @@ class FitResult(ZfitResult):
         approx = dict(
             params=params,
             gradient=info.get("grad"),
-            hessian=info.get("hesse"),
-            inv_hessian=info.get("inv_hesse"),
         )
+        if info.get("niter", 0) > 25:  # unreliable if too few iterations, fails for EDM
+            inv_hesse = result.get("hess_inv")
+            if isinstance(inv_hesse, LbfgsInvHessProduct):
+                inv_hesse = inv_hesse.todense()
+            hesse = info.get("hesse")
+            info["inv_hesse"] = inv_hesse
+            info["hesse"] = hesse
+            approx["hessian"] = hesse
+            approx["inv_hessian"] = inv_hesse
 
         fmin = result["fun"]
         params = dict(zip(params, result_values))
@@ -990,8 +986,8 @@ class FitResult(ZfitResult):
         if inv_hessian is None:
             if hessian is None and evaluator is not None:
                 hessian = evaluator.last_hessian
-            if hessian is not None:
-                inv_hessian = np.linalg.inv(hessian)
+            # if hessian is not None:  # TODO: remove?
+            #     inv_hessian = np.linalg.inv(hessian)
 
         if inv_hessian is not None:
             info["inv_hesse"] = inv_hessian
@@ -1116,7 +1112,22 @@ class FitResult(ZfitResult):
         # DEPRECATED
         error_name: str | None = None,
     ) -> dict[ZfitIndependentParameter, dict]:
-        """Calculate for `params` the symmetric error using the Hessian/covariance matrix.
+        r"""Calculate for `params` the symmetric error using the Hessian/covariance matrix.
+
+        This method estimates the covariance matric using the inverse of the Hessian matrix. The assumption is
+        that the loss profile - usually a likelihood or a :math:\chi^2 - is hyperbolic. This is usually the case for
+        fits with many observations, i.e. it is exact in the asymptotic limit. If the loss profile is not hyperbolic,
+        another method, "zfit_error" or "minuit_minos" should be used.
+
+        **Weights**
+        Weighted likelihoods are a special class of likelihoods as they are not an actual likelihood. However, the
+        minimum is still valid, however the profile is not a proper likelihood. Therefore, corrections
+        will be automatically applied to the Hessian uncertainty estimation in order to correct for the effects
+        in the weights. The corrections used are "asymptotically correct" and are described in
+        `Parameter uncertainties in weighted unbinned maximum likelihood fits`<https://doi.org/10.1140/epjc/s10052-022-10254-8>`
+        by Christoph Langenbruch.
+        Since this method uses the jacobian matrix, it takes significantly longer to calculate than witout weights.
+
 
         Args:
             params: The parameters to calculate the
@@ -1205,7 +1216,7 @@ class FitResult(ZfitResult):
         covariance_dict = self.covariance(params, method, as_dict=True)
         return {
             p: {
-                "error": covariance_dict[(p, p)] ** 0.5 * pseudo_sigma
+                "error": float(covariance_dict[(p, p)]) ** 0.5 * pseudo_sigma
                 if covariance_dict[(p, p)] is not None
                 else None
             }
@@ -1284,7 +1295,7 @@ class FitResult(ZfitResult):
         Returns:
             A `OrderedDict` containing as keys the parameter and as value a `dict` which
                 contains (next to often more things) two keys 'lower' and 'upper',
-                holding the calculated errors. Furthermore it has `cl` to indicate the convidence level
+                holding the calculated errors. Furthermore, it has `cl` to indicate the convidence level
                 the uncertainty was calculated with.
                 Example: result[par1]['upper'] -> the asymmetric upper error of 'par1'
 
@@ -1496,6 +1507,15 @@ class FitResult(ZfitResult):
 
         if "minuit" in self.info:
             self.info["minuit"] = "Minuit_frozen"
+        if "problem" in self.info:
+            try:
+                import ipyopt
+            except ImportError:
+                pass
+            else:
+                if isinstance(self.info["problem"], ipyopt.Problem):
+                    self.info["problem"] = "ipyopt_frozen"
+
         if "evaluator" in self.info:
             self.info["evaluator"] = "evaluator_frozen"
         self._cache_minuit = None
@@ -1606,7 +1626,7 @@ class ValuesHolder(NameToParamGetitem, ListWithKeys):
 
 class ParamHolder(NameToParamGetitem, collections.UserDict):
     def __str__(self) -> str:
-        order_keys = ["value (rounded)", "hesse"]
+        order_keys = ["value", "hesse"]
         keys = OrderedSet()
         for pdict in self.values():
             keys.update(OrderedSet(pdict))
@@ -1629,6 +1649,7 @@ class ParamHolder(NameToParamGetitem, collections.UserDict):
             rows.append(row)
 
         order_keys = ["name"] + list(order_keys) + ["at limit"]
+        order_keys[order_keys.index("value")] = "value  (rounded)"
         table = tabulate(
             rows, order_keys, numalign="right", stralign="right", colalign=("left",)
         )
