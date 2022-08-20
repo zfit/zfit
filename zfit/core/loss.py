@@ -789,7 +789,6 @@ class UnbinnedNLL(BaseLoss):
                same under the same data, make sure to use ``create_new`` instead of instantiating
                a new loss as the former will automatically overtake any relevant constants
                and behavior. |@docend:loss.init.options|
-
         """
         if model is NONE:
             model = self.model

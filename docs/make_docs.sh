@@ -7,7 +7,7 @@
 # get current directory name
 pushd "$(dirname "$0")" >/dev/null || exit
 
-
+MAKE_DOCS_PATH=$( dirname -- "$0"; )
 # generate the ReST files
 #echo "debug"
 #echo ${MAKE_DOCS_PATH}/../zfit

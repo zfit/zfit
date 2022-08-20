@@ -39,8 +39,7 @@ def calc_f(s, f, squared_integers, grid_data_dct2, N):
 
 @z.function(wraps="tensor", autograph=True)
 def _fixed_point(t, N, squared_integers, grid_data_dct2):
-    r"""
-    Compute the fixed point as described in the paper by Botev et al.
+    r"""Compute the fixed point as described in the paper by Botev et al.
 
     .. math:
         t = \xi \gamma^{5}(t)
