@@ -55,7 +55,7 @@ import weakref
 from abc import abstractmethod
 from collections.abc import Iterable
 from itertools import zip_longest
-
+from typing import Optional
 
 import numpy as np
 import tensorflow as tf
@@ -196,6 +196,7 @@ class FunctionCacheHolder(GraphCachable):
         wrapped_func,
         cachables: (ZfitGraphCachable | object | Iterable[ZfitGraphCachable]) = None,
         cachables_mapping=None,
+        stateless_args: bool | None = None,
     ):
         """`tf.function` decorated function holder with caching dependencies on inputs.
 
@@ -221,11 +222,16 @@ class FunctionCacheHolder(GraphCachable):
             cachables: objects that are cached. If they change, the cache is invalidated
             cachables_mapping: keyword arguments to the function. If the values change, the cache is
                 invalidated.
+            stateless_args: If `True`, the arguments that are normally stateful, such as `tf.Variable`s, are regarded
+                as stateless.
         """
-        # cache = {} if cache is None else cache
+
         self.delete_from_cache = False
+        if stateless_args is None:
+            stateless_args = False
+        self.stateless_args = stateless_args
         self.wrapped_func = wrapped_func
-        # self.parent_cache = cache
+
         self.python_func = func
 
         if cachables is None and cachables_mapping is None:
@@ -236,6 +242,7 @@ class FunctionCacheHolder(GraphCachable):
             cachables = []
         if cachables_mapping is None:
             cachables_mapping = {}
+
         cachables = convert_to_container(cachables, container=list)
         cachables_values = convert_to_container(
             cachables_mapping.values(), container=list
@@ -281,7 +288,10 @@ class FunctionCacheHolder(GraphCachable):
         if isinstance(obj, ZfitData):
             obj = id(obj)
         elif isinstance(obj, ZfitParameter):
-            obj = (ZfitParameter, obj.name)
+            if self.stateless_args:
+                obj = (self.IS_TENSOR,)
+            else:
+                obj = (ZfitParameter, obj.name)
         elif isinstance(obj, ZfitSpace):
             obj = id(obj)
         elif tf.is_tensor(obj):

@@ -110,7 +110,7 @@ def do_recurrence(x, polys, degree, recurrence):
 legendre_polys = [lambda x: tf.ones_like(x), lambda x: x]
 
 
-@z.function(wraps="zfit_tensor")
+@z.function(wraps="zfit_tensor", stateless_args=True)
 def legendre_recurrence(p1, p2, n, x):
     """Recurrence relation for Legendre polynomials.
 
@@ -228,7 +228,7 @@ Legendre.register_analytic_integral(func=legendre_integral, limits=legendre_limi
 chebyshev_polys = [lambda x: tf.ones_like(x), lambda x: x]
 
 
-@z.function(wraps="zfit_tensor")
+@z.function(wraps="zfit_tensor", stateless_args=True)
 def chebyshev_recurrence(p1, p2, _, x):
     """Recurrence relation for Chebyshev polynomials.
 
@@ -442,7 +442,7 @@ laguerre_polys = generalized_laguerre_polys_factory(alpha=0.0)
 
 
 def generalized_laguerre_recurrence_factory(alpha=0.0):
-    @z.function(wraps="zfit_tensor")
+    @z.function(wraps="zfit_tensor", stateless_args=True)
     def generalized_laguerre_recurrence(p1, p2, n, x):
         """Recurrence relation for Laguerre polynomials.
 
@@ -566,7 +566,7 @@ Laguerre.register_analytic_integral(
 hermite_polys = [lambda x: tf.ones_like(x), lambda x: 2 * x]
 
 
-@z.function(wraps="zfit_tensor")
+@z.function(wraps="zfit_tensor", stateless_args=True)
 def hermite_recurrence(p1, p2, n, x):
     """Recurrence relation for Hermite polynomials (physics).
 
