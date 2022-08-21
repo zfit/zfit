@@ -9,6 +9,9 @@ html[data-theme="light"] {
     /*--pst-color-primary: #080c80 !important;*/
     --pst-color-primary: #D35827;
     --pst-color-secondary: #27bcd3;
+    --pst-color-inline-code: #1d54e2;
+    /*--pst-color-target: yellow;*/
+
 
 
 /*Here we use css directly because for these attributes there exist no css variables defined by pydata-sphinx-theme.*/
@@ -22,6 +25,9 @@ html[data-theme="dark"] {
     /*--pst-color-primary: #080c80 !important;*/
     --pst-color-primary: #D35827;
     --pst-color-secondary: #27bcd3;
+    --pst-color-inline-code: #1d54e2;
+    /*--pst-color-target: yellow;*/
+
     --pst-color-navbar-link: 255, 255, 255;
     --pst-color-navbar-link-hover: 203, 86, 40;
     --pst-color-navbar-link-active: 203, 86, 40;

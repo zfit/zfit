@@ -1230,10 +1230,7 @@ class FitResult(ZfitResult):
         error_name: str = None,
         sigma: float = 1.0,
     ) -> OrderedDict:
-        r"""
-
-        .. deprecated:: unknown
-            Use :func:`errors` instead.
+        r""".. deprecated:: unknown Use :func:`errors` instead.
 
         Args:
             params: The parameters or their names to calculate the
@@ -1298,7 +1295,6 @@ class FitResult(ZfitResult):
                 holding the calculated errors. Furthermore, it has `cl` to indicate the convidence level
                 the uncertainty was calculated with.
                 Example: result[par1]['upper'] -> the asymmetric upper error of 'par1'
-
         """
         # Deprecated name
         if error_name is not None:
