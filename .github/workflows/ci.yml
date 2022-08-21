@@ -12,12 +12,16 @@ on:
       - "hotfix/*"
   pull_request:
 
+
 jobs:
   unittests:
     runs-on: ${{ matrix.os }}
+#    env:
+#      ZFIT_DO_JIT: ${{ matrix.use-graph }}
+    timeout-minutes: 180 # for eager mode
+    name: tests on ${{ matrix.os }} with ${{ matrix.python-version }} compiled = ${{ matrix.use-graph }}
     env:
       ZFIT_DO_JIT: ${{ matrix.use-graph }}
-    timeout-minutes: 120
     strategy:
       max-parallel: 15
       fail-fast: False
@@ -30,7 +34,6 @@ jobs:
           - os: ubuntu-latest
             extras: alldev
             python-version: "3.10"
-            timeout-minutes: 240
             use-graph: 0
           #            python-version: 3.9
           #            use-graph: 0
@@ -49,9 +52,7 @@ jobs:
             use-graph: 1
             extras: alldev-windows
 
-    name: tests on ${{ matrix.os }} with ${{ matrix.python-version }} compiled = ${{ matrix.use-graph }}
-    #    env:
-    #      ZFIT_DO_JIT: ${{ matrix.use-graph }}
+
     steps:
       - uses: actions/checkout@v3
       - name: Get history and tags for SCM versioning to work
@@ -80,9 +81,9 @@ jobs:
           pip install .[${{ matrix.extras }}]
       - name: Test with pytest
         # TODO: maybe reactivate long tests?
-#          if [ "$GITHUB_REF" == 'refs/heads/develop' ]; then
-#            echo "PYTEST_ADDOPTS=--longtests-kde" >> "$GITHUB_ENV"
-#          fi
+        #          if [ "$GITHUB_REF" == 'refs/heads/develop' ]; then
+        #            echo "PYTEST_ADDOPTS=--longtests-kde" >> "$GITHUB_ENV"
+        #          fi
         run: |
           coverage run --source=. --omit=".tox/*,*/test*,*/minimizers/interface.py,*/core/testing.py" --branch -m pytest .
           mkdir coverage && coverage-lcov --output_file_path ./coverage/lcov.info

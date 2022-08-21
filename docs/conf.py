@@ -58,8 +58,8 @@ panels_add_bootstrap_css = (
 # releases_github_path = "zfit/zfit"  # TODO: use releases or similar?
 # releases_document_name = "../CHANGELOG.rst"
 
-nb_execution_mode = "force"  # use if needed and cache should be ignored
-# nb_execution_mode = "cache"
+# nb_execution_mode = "force"  # use if needed and cache should be ignored
+nb_execution_mode = "cache"
 if nb_execution_mode == "cache":
     jupyter_cache_path = project_dir.joinpath("docs", ".cache", "myst-nb")
     jupyter_cache_path.mkdir(parents=True, exist_ok=True)
@@ -82,6 +82,12 @@ bibtex_bibfiles = [str(project_dir.joinpath("docs", "refs.bib"))]
 zfit_tutorials_path = project_dir.joinpath("docs", "_tmp", "zfit-tutorials")
 atexit.register(lambda path=zfit_tutorials_path: shutil.rmtree(path))
 pygit2.clone_repository("https://github.com/zfit/zfit-tutorials", zfit_tutorials_path)
+
+zfit_images_path = project_dir.joinpath("docs", "images")
+docs_images_path = project_dir.joinpath("docs", "_static", "images")
+docs_images_path.mkdir(parents=True, exist_ok=True)
+atexit.register(lambda path=docs_images_path: shutil.rmtree(path))
+shutil.copytree(zfit_images_path, docs_images_path, dirs_exist_ok=True)
 
 nb_execution_in_temp = True
 
@@ -232,9 +238,12 @@ html_css_files = [
 
 # Theme options are theme-specific and customize the look and feel of a
 # theme further.
-html_logo = "images/zfit-logo-light_400x168.png"
 
 html_theme_options = {
+    "logo": {
+        "image_light": "images/zfit-logo_400x168.png",
+        "image_dark": "images/zfit-logo-light_400x168.png",
+    },
     "github_url": "https://github.com/zfit/zfit",
     "use_edit_page_button": True,
     "navigation_depth": 3,
