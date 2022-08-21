@@ -35,7 +35,8 @@ Bug fixes and small changes
   comparably large to the fit evaluation time, such as is the case for binned fits with many nuisance
   parameters.
 - fix ipyopt was not pickleable in a fitresult
-
+- treat parameters sometimes as "stateless", possibly reducing the number of retraces and reducing the
+  memory footprint.
 
 Experimental
 ------------
