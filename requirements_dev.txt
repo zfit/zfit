@@ -14,7 +14,7 @@ myst-nb
 pip>=9.0.1
 pre-commit
 progressbar2
-pydata-sphinx-theme>=0.6.2  # fix for Jinja
+pydata-sphinx-theme>=0.9  # new dark theme configuration
 pygit2
 pyhf  # for comparison of correctness
 pytest-benchmark
