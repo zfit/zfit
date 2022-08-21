@@ -14,9 +14,9 @@ pandas
 pydantic
 scipy>=1.2
 tabulate
-tensorflow>=2.9, <2.11
+tensorflow>=2.9, <2.10
 tensorflow-addons
-tensorflow_probability>=0.17, <0.19
+tensorflow_probability>=0.17, <0.18
 texttable
 tf_quant_finance>=v0.0.1-dev24
 uhi
