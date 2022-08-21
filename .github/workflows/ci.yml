@@ -11,18 +11,12 @@ on:
       - "release/*"
       - "hotfix/*"
   pull_request:
+    branches-ignore:
+      - "docs/*"
+      - "doc/*"
 
 
 jobs:
-  cancel:
-    name: 'Cancel Previous Runs'
-    runs-on: ubuntu-latest
-    timeout-minutes: 3
-    steps:
-      - uses: styfle/cancel-workflow-action@0.10.0
-        with:
-          all_but_latest: true
-          access_token: ${{ github.token }}
   unittests:
     runs-on: ${{ matrix.os }}
 #    env:
