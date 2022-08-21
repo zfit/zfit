@@ -208,7 +208,7 @@ class FunctionWrapperRegistry:
 
     def reset(self, **kwargs_user):
         kwargs = dict(autograph=False, reduce_retracing=False)
-        kwargs |= self._initial_user_kwargs
+        kwargs.update(self._initial_user_kwargs)
         kwargs.update(kwargs_user)
         self.tf_function = tf.function(**kwargs)
         for cache in self.function_cache.values():
