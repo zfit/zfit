@@ -285,7 +285,7 @@ def test_correlation(minimizer_class_and_kwargs):
 
 @pytest.mark.parametrize("minimizer_class_and_kwargs", minimizers, ids=minimizer_ids)
 @pytest.mark.parametrize("cl", [None, 0.683, 0.8, 0.95, 0.9])
-@pytest.mark.timeout(90)  # if stuck finding new minima
+@pytest.mark.timeout(120)  # if stuck finding new minima
 def test_errors(minimizer_class_and_kwargs, cl):
     n_max_trials = 5  # how often to try to find a new minimum
     results = create_fitresult(minimizer_class_and_kwargs=minimizer_class_and_kwargs)

@@ -420,8 +420,6 @@ error_scales = {None: 1, 1: 1, 2: 2}
     "numgrad", numgrads, ids=lambda x: "numgrad" if x else "autograd"
 )
 @pytest.mark.parametrize("spaces", spaces_all)
-# @pytest.mark.parametrize("errordef", [0.5, 1.0, 2.25, 4.])
-# @pytest.mark.parametrize("cl_scale", [(0.683, 1), (0.9548, 2), (0.99747, 3)])  # cl and expected scale of error
 @pytest.mark.parametrize(
     "minimizer_class_and_kwargs",
     minimizers,
@@ -431,7 +429,6 @@ error_scales = {None: 1, 1: 1, 2: 2}
 )
 @pytest.mark.flaky(reruns=3)
 @pytest.mark.timeout(280)
-# @pytest.mark.skip
 def test_minimizers(
     minimizer_class_and_kwargs, chunksize, numgrad, spaces, pytestconfig
 ):
@@ -462,7 +459,8 @@ def test_minimizers(
     )
 
     if skip_tests:
-        return
+        pass
+        # return
     if not long_clarg and not do_long:
         test_error = False
 
@@ -510,8 +508,16 @@ def test_minimizers(
 
             hesse_methods.append("minuit_hesse")
             profile_methods.append("minuit_minos")
-            if isinstance(minimizer, Minuit):
-                # TODO: Move up for all once https://github.com/scikit-hep/iminuit/issues/631 fixed
+            # the following minimizers should support the "approx" option as the give access to the approx Hessian
+            if isinstance(
+                minimizer,
+                (
+                    Minuit,
+                    zfit.minimize.ScipyLBFGSBV1,
+                    zfit.minimize.ScipyNewtonCGV1,
+                    zfit.minimize.ScipyTruncNCV1,
+                ),
+            ):
                 hesse_methods.append("approx")
 
             rel_error_tol = 0.15
