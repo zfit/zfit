@@ -31,8 +31,8 @@ class HistogramPDF(BaseBinnedPDFV1):
                If this is parameter-like, it will be used as the yield,
                the expected number of events, and the PDF will be extended.
                An extended PDF has additional functionality, such as the
-               `ext_*` methods and the `counts` (for binned PDFs). |@docend:pdf.init.extended|
-               |@doc:pdf.init.extended.auto| If `True`,
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+               |@doc:pdf.init.extended.auto| If ``True``,
                the PDF will be extended automatically if the PDF is extended
                using the total number of events in the histogram.
                This is the default. |@docend:pdf.init.extended.auto|

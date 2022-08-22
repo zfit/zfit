@@ -136,9 +136,9 @@ class BFGS(BaseMinimizer):
             "grad": run(result.objective_gradient),
             "original": result,
         }
-        edm = -999
+        edm = None
         fmin = run(result.objective_value)
-        status = -999
+        status = None
         converged = run(result.converged)
         params = OrderedDict((p, val) for p, val in zip(params, params_result))
         result = FitResult(

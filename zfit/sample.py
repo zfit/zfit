@@ -9,6 +9,10 @@ from zfit.core.interfaces import ZfitPDF
 from zfit.util.exception import NotExtendedPDFError
 from .util.container import convert_to_container
 
+from zfit.z.random import sample_with_replacement, counts_multinomial
+
+__all__ = ["poisson", "sample_with_replacement", "counts_multinomial"]
+
 
 def poisson(n=None, pdfs: Iterable[ZfitPDF] = None):
     if n and pdfs:

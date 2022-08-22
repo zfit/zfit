@@ -17,7 +17,7 @@ def _powerlaw(x, a, k):
     return a * znp.power(x, k)
 
 
-@z.function(wraps="zfit_tensor")
+@z.function(wraps="zfit_tensor", stateless_args=True)
 def crystalball_func(x, mu, sigma, alpha, n):
     t = (x - mu) / sigma * tf.sign(alpha)
     abs_alpha = znp.abs(alpha)
@@ -35,7 +35,7 @@ def crystalball_func(x, mu, sigma, alpha, n):
     return func
 
 
-@z.function(wraps="zfit_tensor")
+@z.function(wraps="zfit_tensor", stateless_args=True)
 def double_crystalball_func(x, mu, sigma, alphal, nl, alphar, nr):
     cond = tf.less(x, mu)
 

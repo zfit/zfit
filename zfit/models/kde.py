@@ -510,7 +510,7 @@ class KDEHelper:
             "adaptive_std",
             "adaptive_geom",
         ):
-            bandwidth_param = -999
+            bandwidth_param = -999999  # dummy value, not needed. Better solution?
         else:
             bandwidth_param = bandwidth
         return bandwidth, bandwidth_param
@@ -588,8 +588,10 @@ class GaussianKDE1DimV1(KDEHelper, WrapDistribution):
         truncate: bool = False,
         name: str = "GaussianKDE1DimV1",
     ):
-        r"""EXPERIMENTAL, `FEEDBACK WELCOME <https://github.com/zfit/zfit/issues/new?assignees=&labels=&template=other.md&title=>`_
-        Exact, one dimensional, (truncated) Kernel Density Estimation with a Gaussian Kernel.
+        r"""EXPERIMENTAL, `FEEDBACK WELCOME.
+
+        <https://github.com/zfit/zfit/issues/new?assignees=&labels=&template=other.md&title=>`_ Exact, one dimensional,
+        (truncated) Kernel Density Estimation with a Gaussian Kernel.
 
         This implementation features an exact implementation as is preferably used for smaller (max. ~ a few thousand
         points) data sets. For larger data sets, methods such as :py:class:`~zfit.pdf.KDE1DimGrid`
@@ -775,8 +777,7 @@ class KDE1DimExact(KDEHelper, WrapDistribution):
         weights: np.ndarray | tf.Tensor | None = None,
         name: str | None = "ExactKDE1DimV1",
     ):
-        r"""
-        Kernel Density Estimation is a non-parametric method to approximate the density of given points.
+        r"""Kernel Density Estimation is a non-parametric method to approximate the density of given points.
 
         For a more in-depth explanation, see also in the section about Kernel Density Estimation
         :ref:`section-exact-kdes`
@@ -981,8 +982,7 @@ class KDE1DimGrid(KDEHelper, WrapDistribution):
         weights: np.ndarray | tf.Tensor | None = None,
         name: str = "GridKDE1DimV1",
     ):
-        r"""
-        Kernel Density Estimation is a non-parametric method to approximate the density of given points.
+        r"""Kernel Density Estimation is a non-parametric method to approximate the density of given points.
 
         For a more in-depth explanation, see also in the section about Kernel Density Estimation
         :ref:`sec-grid-kdes`

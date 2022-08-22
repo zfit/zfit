@@ -125,13 +125,13 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
                    than ``loss.errordef * tol``, the algorithm
                    stopps and it is assumed that the minimum
                    has been found. |@docend:minimizer.criterion|
-             strategy: |@doc:minimizer.strategy| A class of type `ZfitStrategy` that takes no
+             strategy: |@doc:minimizer.strategy| A class of type ``ZfitStrategy`` that takes no
                    input arguments in the init. Determines the behavior of the minimizer in
                    certain situations, most notably when encountering
                    NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
              maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
-                   evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
+                   evaluations of the ``value``, 'gradient`` or ``hessian``. |@docend:minimizer.maxiter|
              minimizer_options: Additional options that will be set in the minimizer.
              name: |@doc:minimizer.name| Human-readable name of the minimizer. |@docend:minimizer.name|
         """
@@ -188,7 +188,7 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
         minimizer = nlopt.opt(nlopt.LD_LBFGS, len(params))
 
         # initial values as array
-        xvalues = np.array(run(params))
+        xvalues = initial_xvalues = np.asarray(run(params))
 
         # get and set the limits
         lower = np.array([p.lower for p in params])
@@ -201,11 +201,11 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
         def obj_func(x, grad):
             if grad.size > 0:
                 value, gradients = evaluator.value_gradient(x)
-                grad[:] = np.array(run(gradients))
+                grad[:] = np.asarray(gradients)
             else:
                 value = evaluator.value(x)
 
-            return value
+            return float(value)
 
         minimizer.set_min_objective(obj_func)
 
@@ -268,7 +268,6 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
                 if step_size is None and param.has_step_size:
                     step_size = param.step_size
                 init_scale.append(step_size)
-
             minimizer.set_initial_step(init_scale)
 
             self._set_tols_inplace(
@@ -300,17 +299,27 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
                         "Minimization in NLopt failed, restarting with slightly varied parameters."
                     )
                 if nrandom < self._nrandom_max:  # in order not to start too close
+                    init_scale_isnot_none = np.asarray(
+                        [scale is not None for scale in init_scale], dtype=np.bool
+                    )
                     init_scale = np.where(
-                        init_scale != None, init_scale, np.ones_like(init_scale)
+                        init_scale_isnot_none,
+                        init_scale,
+                        np.ones_like(init_scale, dtype=np.float64),
                     )
-                    init_scale_no_nan = np.nan_to_num(init_scale, nan=1.0)
 
-                    xvalues += (
-                        np.random.uniform(
-                            low=-init_scale_no_nan, high=init_scale_no_nan
-                        )
-                        / 2
+                    init_scale_no_nan = np.nan_to_num(init_scale, nan=1.0)
+                    init_scale_no_nan = init_scale_no_nan.astype(np.float64)
+                    upper_random = np.minimum(
+                        initial_xvalues + init_scale_no_nan / 2, upper
                     )
+                    lower_random = np.maximum(
+                        initial_xvalues - init_scale_no_nan / 2, lower
+                    )
+                    initial_xvalues = np.random.uniform(
+                        low=lower_random, high=upper_random
+                    )
+
                     nrandom += 1
             else:
                 maxiter_reached = evaluator.niter > evaluator.maxiter
@@ -468,8 +477,8 @@ class NLoptLBFGSV1(NLoptBaseMinimizerV1):
                distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
-                   evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
-            strategy: |@doc:minimizer.strategy| A class of type `ZfitStrategy` that takes no
+                   evaluations of the ``value``, 'gradient`` or ``hessian``. |@docend:minimizer.maxiter|
+            strategy: |@doc:minimizer.strategy| A class of type ``ZfitStrategy`` that takes no
                    input arguments in the init. Determines the behavior of the minimizer in
                    certain situations, most notably when encountering
                    NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
@@ -567,8 +576,8 @@ class NLoptShiftVarV1(NLoptBaseMinimizerV1):
                distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
-                   evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
-            strategy: |@doc:minimizer.strategy| A class of type `ZfitStrategy` that takes no
+                   evaluations of the ``value``, 'gradient`` or ``hessian``. |@docend:minimizer.maxiter|
+            strategy: |@doc:minimizer.strategy| A class of type ``ZfitStrategy`` that takes no
                    input arguments in the init. Determines the behavior of the minimizer in
                    certain situations, most notably when encountering
                    NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
@@ -679,8 +688,8 @@ class NLoptTruncNewtonV1(NLoptBaseMinimizerV1):
                distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
-                   evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
-            strategy: |@doc:minimizer.strategy| A class of type `ZfitStrategy` that takes no
+                   evaluations of the ``value``, 'gradient`` or ``hessian``. |@docend:minimizer.maxiter|
+            strategy: |@doc:minimizer.strategy| A class of type ``ZfitStrategy`` that takes no
                    input arguments in the init. Determines the behavior of the minimizer in
                    certain situations, most notably when encountering
                    NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
@@ -793,8 +802,8 @@ class NLoptSLSQPV1(NLoptBaseMinimizerV1):
                distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
-                   evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
-            strategy: |@doc:minimizer.strategy| A class of type `ZfitStrategy` that takes no
+                   evaluations of the ``value``, 'gradient`` or ``hessian``. |@docend:minimizer.maxiter|
+            strategy: |@doc:minimizer.strategy| A class of type ``ZfitStrategy`` that takes no
                    input arguments in the init. Determines the behavior of the minimizer in
                    certain situations, most notably when encountering
                    NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
@@ -888,8 +897,8 @@ class NLoptBOBYQAV1(NLoptBaseMinimizerV1):
                distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
-                   evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
-            strategy: |@doc:minimizer.strategy| A class of type `ZfitStrategy` that takes no
+                   evaluations of the ``value``, 'gradient`` or ``hessian``. |@docend:minimizer.maxiter|
+            strategy: |@doc:minimizer.strategy| A class of type ``ZfitStrategy`` that takes no
                    input arguments in the init. Determines the behavior of the minimizer in
                    certain situations, most notably when encountering
                    NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
@@ -984,8 +993,8 @@ class NLoptMMAV1(NLoptBaseMinimizerV1):
                distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
-                   evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
-            strategy: |@doc:minimizer.strategy| A class of type `ZfitStrategy` that takes no
+                   evaluations of the ``value``, 'gradient`` or ``hessian``. |@docend:minimizer.maxiter|
+            strategy: |@doc:minimizer.strategy| A class of type ``ZfitStrategy`` that takes no
                    input arguments in the init. Determines the behavior of the minimizer in
                    certain situations, most notably when encountering
                    NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
@@ -1071,8 +1080,8 @@ class NLoptCCSAQV1(NLoptBaseMinimizerV1):
                distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
-                   evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
-            strategy: |@doc:minimizer.strategy| A class of type `ZfitStrategy` that takes no
+                   evaluations of the ``value``, 'gradient`` or ``hessian``. |@docend:minimizer.maxiter|
+            strategy: |@doc:minimizer.strategy| A class of type ``ZfitStrategy`` that takes no
                    input arguments in the init. Determines the behavior of the minimizer in
                    certain situations, most notably when encountering
                    NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
@@ -1187,8 +1196,8 @@ class NLoptCOBYLAV1(NLoptBaseMinimizerV1):
                distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
-                   evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
-            strategy: |@doc:minimizer.strategy| A class of type `ZfitStrategy` that takes no
+                   evaluations of the ``value``, 'gradient`` or ``hessian``. |@docend:minimizer.maxiter|
+            strategy: |@doc:minimizer.strategy| A class of type ``ZfitStrategy`` that takes no
                    input arguments in the init. Determines the behavior of the minimizer in
                    certain situations, most notably when encountering
                    NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
@@ -1285,8 +1294,8 @@ class NLoptSubplexV1(NLoptBaseMinimizerV1):
                distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
-                   evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
-            strategy: |@doc:minimizer.strategy| A class of type `ZfitStrategy` that takes no
+                   evaluations of the ``value``, 'gradient`` or ``hessian``. |@docend:minimizer.maxiter|
+            strategy: |@doc:minimizer.strategy| A class of type ``ZfitStrategy`` that takes no
                    input arguments in the init. Determines the behavior of the minimizer in
                    certain situations, most notably when encountering
                    NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
@@ -1401,8 +1410,8 @@ class NLoptMLSLV1(NLoptBaseMinimizerV1):
                distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
-                   evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
-            strategy: |@doc:minimizer.strategy| A class of type `ZfitStrategy` that takes no
+                   evaluations of the ``value``, 'gradient`` or ``hessian``. |@docend:minimizer.maxiter|
+            strategy: |@doc:minimizer.strategy| A class of type ``ZfitStrategy`` that takes no
                    input arguments in the init. Determines the behavior of the minimizer in
                    certain situations, most notably when encountering
                    NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
@@ -1425,7 +1434,7 @@ class NLoptMLSLV1(NLoptBaseMinimizerV1):
             algorithm = nlopt.GD_MLSL_LDS
 
         local_minimizer = nlopt.LD_LBFGS if local_minimizer is None else local_minimizer
-        if not isinstance(local_minimizer, collections.Mapping):
+        if not isinstance(local_minimizer, collections.abc.Mapping):
             local_minimizer = {"algorithm": local_minimizer}
         if "algorithm" not in local_minimizer:
             raise ValueError("algorithm needs to be specified in local_minimizer")
@@ -1513,8 +1522,8 @@ class NLoptStoGOV1(NLoptBaseMinimizerV1):
                distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
-                   evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
-            strategy: |@doc:minimizer.strategy| A class of type `ZfitStrategy` that takes no
+                   evaluations of the ``value``, 'gradient`` or ``hessian``. |@docend:minimizer.maxiter|
+            strategy: |@doc:minimizer.strategy| A class of type ``ZfitStrategy`` that takes no
                    input arguments in the init. Determines the behavior of the minimizer in
                    certain situations, most notably when encountering
                    NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
@@ -1626,8 +1635,8 @@ class NLoptESCHV1(NLoptBaseMinimizerV1):
                distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
-                   evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
-            strategy: |@doc:minimizer.strategy| A class of type `ZfitStrategy` that takes no
+                   evaluations of the ``value``, 'gradient`` or ``hessian``. |@docend:minimizer.maxiter|
+            strategy: |@doc:minimizer.strategy| A class of type ``ZfitStrategy`` that takes no
                    input arguments in the init. Determines the behavior of the minimizer in
                    certain situations, most notably when encountering
                    NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
@@ -1727,8 +1736,8 @@ class NLoptISRESV1(NLoptBaseMinimizerV1):
                distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
              maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
-                   evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
-             strategy: |@doc:minimizer.strategy| A class of type `ZfitStrategy` that takes no
+                   evaluations of the ``value``, 'gradient`` or ``hessian``. |@docend:minimizer.maxiter|
+             strategy: |@doc:minimizer.strategy| A class of type ``ZfitStrategy`` that takes no
                    input arguments in the init. Determines the behavior of the minimizer in
                    certain situations, most notably when encountering
                    NaNs. It can also implement a callback function. |@docend:minimizer.strategy|

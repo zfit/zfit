@@ -70,7 +70,16 @@ def pytest_configure():
     def savefig(figure=None):
         if figure is None:
             figure = plt.gcf()
-        title_sanitized = figure.axes[0].get_title().replace(" ", "_")
+        title_sanitized = (
+            figure.axes[0]
+            .get_title()
+            .replace(" ", "_")
+            .replace("$", "_")
+            .replace("\\", "_")
+        )
+        title_sanitized = (
+            title_sanitized.replace("/", "_").replace(".", "_").replace(":", "_")
+        )
         if not title_sanitized:
             raise RuntimeError("Title has to be set for plot that should be saved.")
         savepath = images_dir.joinpath(title_sanitized)

@@ -139,8 +139,8 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         options: Mapping | None = None,
     ):
         # first doc line left blank on purpose, subclass adds class docstring (Sphinx autodoc adds the two)
-        """A "simultaneous fit" can be performed by giving one or more `model`, `data`, `fit_range` to the loss. The
-        length of each has to match the length of the others.
+        """A "simultaneous fit" can be performed by giving one or more ``model``, ``data``, ``fit_range`` to the loss.
+        The length of each has to match the length of the others.
 
         Args:
             model: The model or models to evaluate the data on
@@ -149,7 +149,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
                 they
                 have a norm_range) and the data_range for the data.
             constraints: A Tensor representing a loss constraint. Using
-                `zfit.constraint.*` allows for easy use of predefined constraints.
+                ``zfit.constraint.*`` allows for easy use of predefined constraints.
             options: Different options for the loss calculation.
         """
         super().__init__(name=type(self).__name__, params={})
@@ -482,26 +482,29 @@ class BaseLoss(ZfitLoss, BaseNumeric):
     def gradient(self, params: ztyping.ParamTypeInput = None) -> list[tf.Tensor]:
         params = self._input_check_params(params)
         numgrad = self._options["numgrad"]
-
+        params = {p.name: p for p in params}
         return self._gradient(params=params, numgrad=numgrad)
 
     @deprecated(None, "Use `gradient` instead.")
     def gradients(self, *args, **kwargs):
         return self.gradient(*args, **kwargs)
 
-    # @z.function(wraps='loss')
+    @z.function(wraps="loss")
     def _gradient(self, params, numgrad):
+        params = tuple(params.values())
         if numgrad:
-            return numerical_gradient(self.value, params=params)
-
+            gradient = numerical_gradient(self.value, params=params)
         else:
-            return autodiff_gradient(self.value, params=params)
+            gradient = autodiff_gradient(self.value, params=params)
+        return gradient
 
     def value_gradient(
         self, params: ztyping.ParamTypeInput
     ) -> tuple[tf.Tensor, tf.Tensor]:
         params = self._input_check_params(params)
         numgrad = self._options["numgrad"]
+        params = {p.name: p for p in params}
+
         return self._value_gradient(params=params, numgrad=numgrad)
 
     @deprecated(None, "Use `value_gradient` instead.")
@@ -510,6 +513,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
 
     @z.function(wraps="loss")
     def _value_gradient(self, params, numgrad=False):
+        params = tuple(params.values())
         if numgrad:
             value, gradient = numerical_value_gradient(self.value, params=params)
         else:
@@ -524,6 +528,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
     ) -> tuple[tf.Tensor, tf.Tensor, tf.Tensor]:
         params = self._input_check_params(params)
         numgrad = self._options["numhess"] if numgrad is None else numgrad
+        params = {p.name: p for p in params}
         vals = self._value_gradient_hessian(
             params=params, hessian=hessian, numerical=numgrad
         )
@@ -537,6 +542,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
 
     @z.function(wraps="loss")
     def _value_gradient_hessian(self, params, hessian, numerical=False):
+        params = tuple(params.values())
         if numerical:
             return numerical_value_gradients_hessian(
                 func=self.value, gradient=self.gradient, params=params, hessian=hessian
@@ -594,7 +600,7 @@ class UnbinnedNLL(BaseLoss):
 
         where :math:`x_i` is a single event from the dataset *data* and f is the *model*. |@docend:loss.init.explain.unbinnednll|
 
-        |@doc:loss.init.explain.simultaneous| A simultaneous fit can be performed by giving one or more `model`, `data`, to the loss. The
+        |@doc:loss.init.explain.simultaneous| A simultaneous fit can be performed by giving one or more ``model``, ``data``, to the loss. The
         length of each has to match the length of the others
 
         .. math::
@@ -657,12 +663,12 @@ class UnbinnedNLL(BaseLoss):
                  value of the NLL is meaningless. However,
                  with this switch on, one cannot directly compare
                  different likelihoods ablolute value as the constant
-                 may differ! Use `create_new` in order to have a comparable likelihood
+                 may differ! Use ``create_new`` in order to have a comparable likelihood
                  between different losses
 
 
                These settings may extend over time. In order to make sure that a loss is the
-               same under the same data, make sure to use `create_new` instead of instantiating
+               same under the same data, make sure to use ``create_new`` instead of instantiating
                a new loss as the former will automatically overtake any relevant constants
                and behavior. |@docend:loss.init.options|
         """
@@ -775,15 +781,14 @@ class UnbinnedNLL(BaseLoss):
                  value of the NLL is meaningless. However,
                  with this switch on, one cannot directly compare
                  different likelihoods ablolute value as the constant
-                 may differ! Use `create_new` in order to have a comparable likelihood
+                 may differ! Use ``create_new`` in order to have a comparable likelihood
                  between different losses
 
 
                These settings may extend over time. In order to make sure that a loss is the
-               same under the same data, make sure to use `create_new` instead of instantiating
+               same under the same data, make sure to use ``create_new`` instead of instantiating
                a new loss as the former will automatically overtake any relevant constants
                and behavior. |@docend:loss.init.options|
-
         """
         if model is NONE:
             model = self.model
@@ -834,7 +839,7 @@ class ExtendedUnbinnedNLL(UnbinnedNLL):
 
         and the extended likelihood is the product of both. |@docend:loss.init.explain.extendedterm|
 
-        |@doc:loss.init.explain.simultaneous| A simultaneous fit can be performed by giving one or more `model`, `data`, to the loss. The
+        |@doc:loss.init.explain.simultaneous| A simultaneous fit can be performed by giving one or more ``model``, ``data``, to the loss. The
         length of each has to match the length of the others
 
         .. math::
@@ -888,7 +893,9 @@ class ExtendedUnbinnedNLL(UnbinnedNLL):
         yields = znp.stack(yields, axis=0)
         nevents_collected = znp.stack(nevents_collected, axis=0)
 
-        term_new = tf.nn.log_poisson_loss(nevents_collected, znp.log(yields))
+        term_new = tf.nn.log_poisson_loss(
+            nevents_collected, znp.log(yields), compute_full_loss=True
+        )
         if log_offset is not None:
             term_new += log_offset
         nll += znp.sum(term_new, axis=0)
@@ -915,12 +922,12 @@ class SimpleLoss(BaseLoss):
         r"""Loss from a (function returning a) Tensor.
 
         This allows for a very generic loss function as the functions only restriction is that is
-        should depend on `zfit.Parameter`.
+        should depend on ``zfit.Parameter``.
 
         Args:
             func: Callable that constructs the loss and returns a tensor without taking an argument.
-            params: The dependents (independent `zfit.Parameter`) of the loss. Essentially the (free) parameters that
-              the `func` depends on.
+            params: The dependents (independent ``zfit.Parameter``) of the loss. Essentially the (free) parameters that
+              the ``func`` depends on.
             errordef: Definition of which change in the loss corresponds to a change of 1 sigma.
                 For example, 1 for Chi squared, 0.5 for negative log-likelihood.
 

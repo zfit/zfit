@@ -52,10 +52,10 @@ def compute_errors(
 ]:
     """Compute asymmetric errors of parameters by profiling the loss function in the fit result.
 
-    This method finds the value for a given parameter where the loss function is `cl` away: for example
+    This method finds the value for a given parameter where the loss function is ``cl`` away: for example
     for a cl of 68.3%, this is one (multiplied by the errordef). The other parameters are also minimized and
-    not fixed. This method is comparably computationally intensive and, if possible, `hesse` should be used.
-    However, since `hesse` does not capture asymetric or non-parabolic shaped profiles well, this method is
+    not fixed. This method is comparably computationally intensive and, if possible, ``hesse`` should be used.
+    However, since ``hesse`` does not capture asymmetric or non-parabolic shaped profiles well, this method is
     preferable.
 
     Args:
@@ -64,17 +64,17 @@ def compute_errors(
             errors error. If None, use all parameters.
         cl: Confidence Level of the parameter to be determined. Defaults to 68.3%.
         rtol: relative tol between the computed and the exact roots
-        method: type of solver, `method` argument of :py:func:`scipy.optimize.root`. Defaults to "hybr".
+        method: type of solver, ``method`` argument of :py:func:`scipy.optimize.root`. Defaults to "hybr".
         covariance_method: The method to use to calculate the correlation matrix, will be forwarded directly
             to :py:meth:`FitResult.covariance`. Valid choices are
             by default {'minuit_hesse', 'hesse_np'} (or any other method defined in the result)
             or a Callable.
-        sigma: Errors are calculated with respect to `sigma` std deviations.
+        sigma: Errors are calculated with respect to ``sigma`` std deviations.
 
 
     Returns:
         out:
-            A `dict` containing as keys the parameter and as value a `dict` which
+            A ``dict`` containing as keys the parameter and as value a ``dict`` which
             contains two keys 'lower' and 'upper', holding the calculated errors.
             Example: result[par1]['upper'] -> the asymmetric upper error of 'par1'
         out: a fit result is returned when a new minimum is found during the loss scan
@@ -94,15 +94,15 @@ def compute_errors(
     fmin = result.fmin
     rtol *= errordef
     minimizer = result.minimizer
-    from zfit import run
 
-    old_values = run(result)
+    old_values = np.asarray(result.params)
 
     covariance = result.covariance(method=covariance_method, as_dict=True)
     param_errors = {param: covariance[(param, param)] ** 0.5 for param in params}
     # param_scale = np.array(list(param_errors.values()))  # TODO: can be used for root finding initialization?
 
     ncalls = 0
+    loss_min_tol = minimizer.tol * errordef * 2  # 2 is just to be tolerant
     try:
         # start = time.time()
         to_return = {}
@@ -112,7 +112,6 @@ def compute_errors(
             logging.info(f"profiling the parameter {param}")
             param_error = param_errors[param]
             param_value = result.params[param]["value"]
-            other_params = [p for p in all_params if p != param]
 
             initial_values = {"lower": [], "upper": []}
             direction = {"lower": -sigma, "upper": sigma}
@@ -126,6 +125,19 @@ def compute_errors(
                     ap_value_init = ap_value + direction[d] * error_factor
                     initial_values[d].append(ap_value_init)
 
+            index_poi = all_params.index(param)  # remember the index
+
+            @z.function(wraps="gradient")
+            def optimized_loss_gradient(index):
+                assert isinstance(index, int)
+                loss_value, gradient = loss.value_gradient(params=all_params)
+                if isinstance(gradient, (tuple, list)):
+                    gradient = znp.asarray(gradient)
+                gradient = znp.concatenate(
+                    [gradient[:index_poi], gradient[index_poi + 1 :]]
+                )
+                return loss_value, gradient
+
             # TODO: improvement, use jacobian?
             # @np_cache(maxsize=25)
             def func(values, args):
@@ -135,7 +147,7 @@ def compute_errors(
 
                 assign_values(all_params, values)
                 try:
-                    loss_value, gradient = loss.value_gradient(params=other_params)
+                    loss_value, gradient = optimized_loss_gradient(index_poi)
                 except tf.errors.InvalidArgumentError:
                     msg = (
                         f"The evaluation of the errors of {param.name} failed due to too many NaNs"
@@ -143,16 +155,16 @@ def compute_errors(
                         " caused by negative values returned from the PDF."
                     )
                     raise FailEvalLossNaN(msg)
-
                 zeroed_loss = loss_value.numpy() - fmin
 
                 gradient = np.array(gradient)
+
                 if swap_sign(param):  # mirror at x-axis to remove second zero
                     zeroed_loss = -zeroed_loss
                     gradient = -gradient
                     logging.info("Swapping sign in error calculation 'zfit_error'")
 
-                elif zeroed_loss < -minimizer.tol:
+                elif zeroed_loss < -loss_min_tol:
                     assign_values(all_params, values)  # set values to the new minimum
                     raise NewMinimum("A new minimum is found.")
 
@@ -193,7 +205,7 @@ def compute_errors(
         loss = result.loss
         new_found_fmin = loss.value()
         new_result = minimizer.minimize(loss=loss)
-        if new_result.fmin >= new_found_fmin:
+        if new_result.fmin >= new_found_fmin + loss_min_tol:
             raise RuntimeError(
                 "A new minimum was discovered but the minimizer was not able to find this on himself. "
                 "This behavior is currently an exception but will most likely change in the future."

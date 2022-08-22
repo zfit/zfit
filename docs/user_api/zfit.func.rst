@@ -6,7 +6,7 @@ Func
 .. autosummary::
     :toctree: _generated/func
 
-    zfit.func.BaseFunc
-    zfit.func.SimpleFunc
+    zfit.func.BaseFuncV1
+    zfit.func.SimpleFuncV1
     zfit.func.ProdFunc
     zfit.func.SumFunc

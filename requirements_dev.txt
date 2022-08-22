@@ -4,6 +4,8 @@ coverage>=4.5.1
 coverage-lcov
 docformatter
 flake8>=3.5.0
+jax
+jaxlib
 Jinja2
 jupyter-sphinx
 matplotlib  # docs, tests
@@ -11,10 +13,10 @@ mplhep  # docs
 myst-nb
 pip>=9.0.1
 pre-commit
-pydata-sphinx-theme>=0.6.2  # fix for Jinja
+progressbar2
+pydata-sphinx-theme>=0.9  # new dark theme configuration
 pygit2
 pyhf  # for comparison of correctness
-pyhf
 pytest-benchmark
 pyyaml
 seed_intersphinx_mapping
@@ -28,7 +30,7 @@ sphinx-copybutton
 sphinx-panels
 sphinxcontrib-bibtex
 sphinxcontrib-images
-sphinxcontrib-youtube>=1.0.0
+sphinxcontrib-youtube>=1.0.0,<1.2.0
 tox>=2.9.1
 twine>=1.10.0
 watchdog>=0.8.3

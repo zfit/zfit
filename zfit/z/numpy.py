@@ -10,3 +10,14 @@ way of importing:
 #  Copyright (c) 2022 zfit
 
 from tensorflow.experimental.numpy import *
+import tensorflow as tf
+
+
+class linalg:
+
+    inv = staticmethod(tf.linalg.inv)
+    det = staticmethod(tf.linalg.det)
+    solve = staticmethod(tf.linalg.solve)
+
+
+del tf

@@ -5,16 +5,32 @@
 /*pydata-sphinx-theme provides some css variables for customizing the look of the theme.*/
 /*See a list of supported css variables at*/
 /*https://github.com/pydata/pydata-sphinx-theme/blob/master/pydata_sphinx_theme/static/css/theme.css*/
-:root {
+html[data-theme="light"] {
+    /*--pst-color-primary: #080c80 !important;*/
+    --pst-color-primary: #D35827;
+    --pst-color-secondary: #27bcd3;
+    --pst-color-inline-code: #1d54e2;
+    /*--pst-color-target: yellow;*/
+
+
+
+/*Here we use css directly because for these attributes there exist no css variables defined by pydata-sphinx-theme.*/
+/*See https://github.com/pydata/pydata-sphinx-theme/issues/353 for possible changes in the future.*/
+
     --pst-color-navbar-link: 255, 255, 255;
     --pst-color-navbar-link-hover: 203, 86, 40;
     --pst-color-navbar-link-active: 203, 86, 40;
 }
+html[data-theme="dark"] {
+    /*--pst-color-primary: #080c80 !important;*/
+    --pst-color-primary: #D35827;
+    --pst-color-secondary: #27bcd3;
+    --pst-color-inline-code: #1d54e2;
+    /*--pst-color-target: yellow;*/
 
-/*Here we use css directly because for these attributes there exist no css variables defined by pydata-sphinx-theme.*/
-/*See https://github.com/pydata/pydata-sphinx-theme/issues/353 for possible changes in the future.*/
-#navbar-main {
-    background-color: #2f4858 !important;
+    --pst-color-navbar-link: 255, 255, 255;
+    --pst-color-navbar-link-hover: 203, 86, 40;
+    --pst-color-navbar-link-active: 203, 86, 40;
 }
 
 i.fa-github-square:before {

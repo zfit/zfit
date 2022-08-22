@@ -44,8 +44,8 @@ def minimize_supports(*, init: bool = False) -> Callable:
     """Decorator: Add (mandatory for some methods) on a method to control what it can handle.
 
     If any of the flags is set to False, it will check the arguments and, in case they match a flag
-    (say if a *init* is passed while the *init* flag is set to `False`), it will
-    raise a corresponding exception (in this example a `FromResultNotImplemented`) that will
+    (say if a *init* is passed while the *init* flag is set to ``False``), it will
+    raise a corresponding exception (in this example a ``FromResultNotImplemented``) that will
     be caught by an outer function that knows how to handle things.
 
     Args:
@@ -53,7 +53,7 @@ def minimize_supports(*, init: bool = False) -> Callable:
             three options:
             - False: This is the default and means that _no FitResult will ever come true_. The minimizer handles the
               initial parameter values himselves.
-            - 'same': If 'same' is set, a `FitResult` will only come through if it was created with the *exact* same
+            - 'same': If 'same' is set, a ``FitResult`` will only come through if it was created with the *exact* same
               type as
         multiple_limits: If False, only simple limits are to be expected and no iteration is
             therefore required.
@@ -101,17 +101,17 @@ _Minimizer_CHECK_HAS_SUPPORT = {}
 
 
 def _Minimizer_register_check_support(has_support: bool):
-    """Marks a method that the subclass either *has* to or *can't* use the `@supports` decorator.
+    """Marks a method that the subclass either *has* to or *can't* use the ``@supports`` decorator.
 
     Args:
-        has_support: If True, flags that it **requires** the `@supports` decorator. If False,
-            flags that the `@supports` decorator is **not allowed**.
+        has_support: If True, flags that it **requires** the ``@supports`` decorator. If False,
+            flags that the ``@supports`` decorator is **not allowed**.
     """
     if not isinstance(has_support, bool):
         raise TypeError("Has to be boolean.")
 
     def register(func):
-        """Register a method to be checked to (if True) *has* `support` or (if False) has *no* `support`.
+        """Register a method to be checked to (if True) *has* ``support`` or (if False) has *no* ``support``.
 
         Args:
             func:
@@ -148,7 +148,7 @@ class BaseMinimizer(ZfitMinimizer):
     ) -> None:
         """Base Minimizer to minimize loss functions and return a result.
 
-        This class acts as a base class to implement a minimizer. The method `minimize` has to be overridden.
+        This class acts as a base class to implement a minimizer. The method ``minimize`` has to be overridden.
 
 
         Args:
@@ -178,14 +178,14 @@ class BaseMinimizer(ZfitMinimizer):
                    than ``loss.errordef * tol``, the algorithm
                    stopps and it is assumed that the minimum
                    has been found. |@docend:minimizer.criterion|
-            strategy: |@doc:minimizer.strategy| A class of type `ZfitStrategy` that takes no
+            strategy: |@doc:minimizer.strategy| A class of type ``ZfitStrategy`` that takes no
                    input arguments in the init. Determines the behavior of the minimizer in
                    certain situations, most notably when encountering
                    NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
             minimizer_options: Additional minimizer options
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
-                   evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
+                   evaluations of the ``value``, 'gradient`` or ``hessian``. |@docend:minimizer.maxiter|
             name: |@doc:minimizer.name| Human-readable name of the minimizer. |@docend:minimizer.name|
         """
         super().__init__()
@@ -290,7 +290,7 @@ class BaseMinimizer(ZfitMinimizer):
                 params_init = init.loss.get_params()
                 to_set_param_values = {p: val for p, val in zip(params_init, params)}
 
-        if isinstance(params, collections.Mapping):
+        if isinstance(params, collections.abc.Mapping):
             if all(isinstance(p, ZfitParameter) for p in params):
                 to_set_param_values = {
                     p: val for p, val in params.items() if val is not None
@@ -602,6 +602,7 @@ class BaseMinimizer(ZfitMinimizer):
         self,
         loss: ZfitLoss | None = None,
         params: ztyping.ParametersType | None = None,
+        numpy_converter: Callable | None = None,
         strategy: ZfitStrategy | None = None,
     ) -> LossEval:
         """Make a loss evaluator using the strategy and more from the minimizer.
@@ -630,6 +631,9 @@ class BaseMinimizer(ZfitMinimizer):
                 params = self._state["params"]
             else:
                 raise ValueError(f"params cannot be None if not called within minimize")
+
+        if numpy_converter is None:
+            numpy_converter = False
         if strategy is None:
             try:
                 strategy = self._strategy()
@@ -647,6 +651,7 @@ class BaseMinimizer(ZfitMinimizer):
             strategy=strategy,
             do_print=self.verbosity > 9,
             maxiter=self.get_maxiter(len(params)),
+            numpy_converter=numpy_converter,
         )
         if self._is_stateful:
             self._state["evaluator"] = evaluator
@@ -654,7 +659,7 @@ class BaseMinimizer(ZfitMinimizer):
 
     def _update_tol_inplace(self, criterion_value, internal_tol):
         tol_factor = min(
-            math.sqrt(min([max([self.tol / criterion_value * 0.3, 1e-4]), 0.04])), 0.3
+            math.sqrt(min([max([self.tol / criterion_value * 0.3, 1e-4]), 0.04])), 0.21
         )
         for tol in internal_tol:
             if tol in ("gtol", "xtol"):

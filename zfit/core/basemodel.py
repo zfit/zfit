@@ -61,17 +61,17 @@ _BaseModel_USER_IMPL_METHODS_TO_CHECK = {}
 
 
 def _BaseModel_register_check_support(has_support: bool):
-    """Marks a method that the subclass either *has* to or *can't* use the `@supports` decorator.
+    """Marks a method that the subclass either *has* to or *can't* use the ``@supports`` decorator.
 
     Args:
-        has_support: If True, flags that it **requires** the `@supports` decorator. If False,
-            flags that the `@supports` decorator is **not allowed**.
+        has_support: If True, flags that it **requires** the ``@supports`` decorator. If False,
+            flags that the ``@supports`` decorator is **not allowed**.
     """
     if not isinstance(has_support, bool):
         raise TypeError("Has to be boolean.")
 
     def register(func):
-        """Register a method to be checked to (if True) *has* `support` or (if False) has *no* `support`.
+        """Register a method to be checked to (if True) *has* ``support`` or (if False) has *no* ``support``.
 
         Args:
             func:
@@ -118,7 +118,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         dtype=ztypes.float,
         **kwargs,
     ):
-        """The base model to inherit from and overwrite `_unnormalized_pdf`.
+        """The base model to inherit from and overwrite ``_unnormalized_pdf``.
 
         Args:
             dtype: the dtype of the model
@@ -190,10 +190,16 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
                     continue  # not wrapped, no support, need no
 
             # if we reach this points, somethings was implemented wrongly
-            raise BasePDFSubclassingError(
-                "Method {} has not been correctly wrapped with @supports "
-                "OR has been wrapped but it should not be".format(method_name)
-            )
+            if method_name not in ["_pdf"]:
+                raise BasePDFSubclassingError(
+                    "Method {} has not been correctly wrapped with @supports "
+                    "OR has been wrapped but it should not be".format(method_name)
+                )
+            else:
+                warnings.warn(
+                    "For the future, also decorate _pdf with @supports and specify what you support"
+                    " (such as 'norm=True' to keep the same behavior as before)"
+                )
 
     # since subclasses can be funcs of pdfs, we need to now what to sample/integrate from
     @abc.abstractmethod
@@ -275,8 +281,8 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         Args:
             max_draws (default ~1'000'000): Maximum number of draws when integrating . Typically 500'000 - 5'000'000.
             tol: Tolerance on the error of the integral. typically 1e-4 to 1e-8
-            draws_per_dim: The draws for MC integration to do per iteration. Can be set to `'auto`'.
-            draws_simpson: Number of points in one dimensional Simpson integration. Can be set to `'auto'`.
+            draws_per_dim: The draws for MC integration to do per iteration. Can be set to ``'auto``'.
+            draws_simpson: Number of points in one dimensional Simpson integration. Can be set to ``'auto'``.
         """
 
         if draws_per_dim is not None:
@@ -325,9 +331,9 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
 
         Args:
             norm:
-            none_is_error: if both `norm_range` and `self.norm_range` are None, the default
-                value is `False` (meaning: no range specified-> no normalization to be done). If
-                this is set to true, two `None` will raise a Value error.
+            none_is_error: if both ``norm_range`` and ``self.norm_range`` are None, the default
+                value is ``False`` (meaning: no range specified-> no normalization to be done). If
+                this is set to true, two ``None`` will raise a Value error.
 
         Returns:
             Union[:py:class:`~zfit.Space`, False]:
@@ -356,7 +362,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         axes: ztyping.AxesTypeInput = None,
         limits: ztyping.LimitsTypeInput = None,
     ) -> ZfitSpace | None:
-        """Convert the inputs (using eventually `obs`, `axes`) to
+        """Convert the inputs (using eventually ``obs``, ``axes``) to
         :py:class:`~zfit.ZfitSpace` and sort them according to own `obs`.
 
         Args:
@@ -398,7 +404,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         options=None,
         var=None,
     ) -> ztyping.XType:
-        """Integrate the function over `limits` (normalized over `norm_range` if not False).
+        """Integrate the function over ``limits`` (normalized over ``norm_range`` if not False).
 
         Args:
             * ():
@@ -418,6 +424,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             integral = self._single_hook_integrate(
                 limits=limits, norm=norm, x=var, options=options
             )
+        integral = znp.reshape(integral, -1)
         return integral
 
     def _single_hook_integrate(self, limits, norm, x, options):
@@ -498,21 +505,21 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         """Register an analytic integral with the class.
 
         Args:
-            func: A function that calculates the (partial) integral over the axes `limits`.
+            func: A function that calculates the (partial) integral over the axes ``limits``.
                 The signature has to be the following:
 
                     * x (:py:class:`~zfit.core.interfaces.ZfitData`, None): the data for the remaining axes in a partial
                         integral. If it is not a partial integral, this will be None.
                     * limits (:py:class:`~zfit.ZfitSpace`): the limits to integrate over.
                     * norm_range (:py:class:`~zfit.ZfitSpace`, None): Normalization range of the integral.
-                        If not `supports_supports_norm_range`, this will be None.
+                        If not ``supports_supports_norm_range``, this will be None.
                     * params (Dict[param_name, :py:class:`zfit.Parameters`]): The parameters of the model.
                     * model (:py:class:`~zfit.core.interfaces.ZfitModel`):The model that is being integrated.
 
             limits: |limits_arg_descr|
             priority: Priority of the function. If multiple functions cover the same space, the one with the
                 highest priority will be used.
-            supports_multiple_limits: If `True`, the `limits` given to the integration function can have
+            supports_multiple_limits: If ``True``, the ``limits` given to the integration function can have
                 multiple limits. If `False`, only simple limits will pass through and multiple limits will be
                 auto-handled.
             supports_norm: If `True`, `norm` argument to the function may not be `None`.

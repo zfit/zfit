@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import functools
+import logging
 import math as _mt
 from collections import defaultdict
 from collections.abc import Callable
@@ -178,13 +179,15 @@ class FunctionWrapperRegistry:
             func.zfit_graph_cache_registered for func in cls.all_wrapped_functions
         )
 
-    def __init__(self, wraps=None, **kwargs_user) -> None:
+    def __init__(self, wraps=None, stateless_args=None, **kwargs_user) -> None:
         """`tf.function`-like decorator with additional cache-invalidation functionality.
 
         Args:
             **kwargs_user: arguments to `tf.function`
         """
         super().__init__()
+        if stateless_args is None:
+            stateless_args = False
         self._initial_user_kwargs = kwargs_user
 
         self.registries.append(self)
@@ -194,6 +197,7 @@ class FunctionWrapperRegistry:
             # raise RuntimeError(f"Currently custom 'wraps' category ({wraps}) not allowed, set explicitly in `do_jit_types`")
             self.do_jit_types[wraps] = True
         self.wraps = wraps
+        self.stateless_args = stateless_args
         self.function_cache = defaultdict(list)
         self.reset(**self._initial_user_kwargs)
         self.currently_traced = set()
@@ -203,13 +207,9 @@ class FunctionWrapperRegistry:
         return self.do_jit_types[self.wraps] and self.allow_jit
 
     def reset(self, **kwargs_user):
-        kwargs = dict(
-            autograph=False,
-            experimental_relax_shapes=True,
-        )
+        kwargs = dict(autograph=False, reduce_retracing=False)
         kwargs.update(self._initial_user_kwargs)
         kwargs.update(kwargs_user)
-
         self.tf_function = tf.function(**kwargs)
         for cache in self.function_cache.values():
             cache.clear()
@@ -231,6 +231,7 @@ class FunctionWrapperRegistry:
             function_holder = FunctionCacheHolder(func, wrapped_func, args, kwargs)
 
             if function_holder in cache:
+                # print("DEBUG: using cached function")
                 func_holder_index = cache.index(function_holder)
                 func_holder_cached = cache[func_holder_index]
                 if func_holder_cached.is_valid:
@@ -244,6 +245,7 @@ class FunctionWrapperRegistry:
                     )
                     cache[func_holder_index] = function_holder
             else:
+                # print(f"DEBUG: caching function {func} with args {args} and kwargs {kwargs}")
                 cache.append(function_holder)
             func_to_run = function_holder.wrapped_func
             try:
@@ -257,7 +259,19 @@ class FunctionWrapperRegistry:
 
 
 # equivalent to tf.function
-def function(func=None, **kwargs):
+def function(func=None, *, stateless_args=None, **kwargs):
+    """JIT/Graph compilation of functions, `tf.function`-like with additional cache-invalidation functionality.
+
+    Args:
+        func: Function to be compiled.
+        stateless_args: If True, the function is assumed to be stateless and *does not depend on the name of tf.Variables*
+            but only needs the values of the variables. This is not the case for taking gradients, for example.
+        **kwargs: arguments to `tf.function`
+
+    Returns:
+    """
+    if stateless_args is None:
+        stateless_args = False
     if callable(func):
         wrapper = FunctionWrapperRegistry()
         return wrapper(func)
@@ -266,7 +280,7 @@ def function(func=None, **kwargs):
             "All argument have to be key-word only. `func` must not be used"
         )
     else:
-        return FunctionWrapperRegistry(**kwargs)
+        return FunctionWrapperRegistry(**kwargs, stateless_args=stateless_args)
 
 
 # legacy, remove 0.6

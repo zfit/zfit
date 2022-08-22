@@ -11,7 +11,6 @@ if TYPE_CHECKING:
 import abc
 from abc import ABCMeta, abstractmethod
 
-import boost_histogram as bh
 import numpy as np
 import tensorflow as tf
 from uhi.typing.plottable import PlottableHistogram
@@ -64,7 +63,7 @@ class ZfitOrderableDimensional(ZfitDimensional, metaclass=ABCMeta):
         allow_superset: bool = True,
         allow_subset: bool = True,
     ) -> ZfitOrderableDimensional:
-        """Create a new instance that has `obs`; sorted by or set or dropped.
+        """Create a new instance that has ``obs``; sorted by or set or dropped.
 
         The behavior is as follows:
 
@@ -94,7 +93,7 @@ class ZfitOrderableDimensional(ZfitDimensional, metaclass=ABCMeta):
 
         Raises:
             CoordinatesUnderdefinedError: if obs is None and the instance does not have axes
-            ObsIncompatibleError: if `obs` is a superset and allow_superset is False or a subset and
+            ObsIncompatibleError: if ``obs`` is a superset and allow_superset is False or a subset and
                 allow_allow_subset is False
         """
         raise NotImplementedError
@@ -106,7 +105,7 @@ class ZfitOrderableDimensional(ZfitDimensional, metaclass=ABCMeta):
         allow_superset: bool = True,
         allow_subset: bool = True,
     ) -> ZfitOrderableDimensional:
-        """Create a new instance that has `axes`; sorted by or set or dropped.
+        """Create a new instance that has ``axes``; sorted by or set or dropped.
 
         The behavior is as follows:
 
@@ -136,7 +135,7 @@ class ZfitOrderableDimensional(ZfitDimensional, metaclass=ABCMeta):
 
         Raises:
             CoordinatesUnderdefinedError: if obs is None and the instance does not have axes
-            AxesIncompatibleError: if `axes` is a superset and allow_superset is False or a subset and
+            AxesIncompatibleError: if ``axes`` is a superset and allow_superset is False or a subset and
                 allow_allow_subset is False
         """
 
@@ -147,7 +146,7 @@ class ZfitOrderableDimensional(ZfitDimensional, metaclass=ABCMeta):
         """Overwrite the axes of the current object with axes corresponding to range(len(n_obs)).
 
         This effectively fills with (0, 1, 2,...) and can be used mostly when an object enters a PDF or
-        similar. `overwrite` allows to remove the axis first in case there are already some set.
+        similar. ``overwrite`` allows to remove the axis first in case there are already some set.
 
         .. code-block::
 
@@ -162,13 +161,13 @@ class ZfitOrderableDimensional(ZfitDimensional, metaclass=ABCMeta):
 
         Args:
             overwrite: If axes are already set, replace the axes with the autofilled ones.
-                If axes is already set and `overwrite` is False, raise an error.
+                If axes is already set and ``overwrite`` is False, raise an error.
 
         Returns:
             The object with the new axes
 
         Raises:
-            AxesIncompatibleError: if the axes are already set and `overwrite` is False.
+            AxesIncompatibleError: if the axes are already set and ``overwrite`` is False.
         """
         raise NotImplementedError
 
@@ -186,12 +185,12 @@ class ZfitOrderableDimensional(ZfitDimensional, metaclass=ABCMeta):
 
         There are two obs or axes around: the one associated with this Coordinate object and the one associated with x.
         If x_obs or x_axes is given, then this is assumed to be the obs resp. the axes of x and x will be reordered
-        according to `self.obs` resp. `self.axes`.
+        according to ``self.obs`` resp. ``self.axes``.
 
-        If func_obs resp. func_axes is given, then x is assumed to have `self.obs` resp. `self.axes` and will be
-        reordered to align with a function ordered with `func_obs` resp. `func_axes`.
+        If func_obs resp. func_axes is given, then x is assumed to have ``self.obs`` resp. ``self.axes`` and will be
+        reordered to align with a function ordered with ``func_obs`` resp. ``func_axes``.
 
-        Switching `func_obs` for `x_obs` resp. `func_axes` for `x_axes` inverts the reordering of x.
+        Switching ``func_obs`` for ``x_obs`` resp. ``func_axes`` for ``x_axes`` inverts the reordering of x.
 
         Args:
             x: Tensor to be reordered, last dimension should be n_obs resp. n_axes
@@ -199,7 +198,7 @@ class ZfitOrderableDimensional(ZfitDimensional, metaclass=ABCMeta):
                 latter.
             x_axes: Axes associated with x.
             func_obs: Observables associated with a function that x will be given to. Reorders x accordingly and assumes
-                self.obs to be the obs of x. If both, `func_obs` and `func_axes` are given, this has precedency over the
+                self.obs to be the obs of x. If both, ``func_obs`` and ``func_axes`` are given, this has precedency over the
                 latter.
             func_axes: Axe associated with a function that x will be given to. Reorders x accordingly and assumes
                 self.axes to be the axes of x.
@@ -213,7 +212,7 @@ class ZfitOrderableDimensional(ZfitDimensional, metaclass=ABCMeta):
     def get_reorder_indices(
         self, obs: ztyping.ObsTypeInput = None, axes: ztyping.AxesTypeInput = None
     ) -> tuple[int]:
-        """Indices that would order the instances obs as `obs` respectively the instances axes as `axes`.
+        """Indices that would order the instances obs as ``obs`` respectively the instances axes as ``axes``.
 
         Args:
             obs: Observables that the instances obs should be ordered to. Does not reorder, but just
@@ -225,7 +224,7 @@ class ZfitOrderableDimensional(ZfitDimensional, metaclass=ABCMeta):
             New indices that would reorder the instances obs to be obs respectively axes.
 
         Raises:
-            CoordinatesUnderdefinedError: If neither `obs` nor `axes` is given
+            CoordinatesUnderdefinedError: If neither ``obs`` nor ``axes`` is given
         """
         raise NotImplementedError
 
@@ -257,14 +256,14 @@ class ZfitLimit(abc.ABC, metaclass=ABCMeta):
     @property
     @abstractmethod
     def rect_limits(self) -> ztyping.RectLimitsReturnType:
-        """Return the rectangular limits as `np.ndarray``tf.Tensor` if they are set and not false.
+        """Return the rectangular limits as ``np.ndarray``tf.Tensor`` if they are set and not false.
 
             The rectangular limits can be used for sampling. They do not in general represent the limits
             of the object as a functional limit can be set and to check if something is inside the limits,
             the method :py:meth:`~Limit.inside` should be used.
 
             In order to test if the limits are False or None, it is recommended to use the appropriate methods
-            `limits_are_false` and `limits_are_set`.
+            ``limits_are_false`` and ``limits_are_set``.
 
         Returns:
             The lower and upper limits.
@@ -276,19 +275,19 @@ class ZfitLimit(abc.ABC, metaclass=ABCMeta):
     @property
     @abstractmethod
     def rect_limits_np(self) -> ztyping.RectLimitsNPReturnType:
-        """Return the rectangular limits as `np.ndarray`. Raise error if not possible.
+        """Return the rectangular limits as ``np.ndarray``. Raise error if not possible.
 
         Rectangular limits are returned as numpy arrays which can be useful when doing checks that do not
         need to be involved in the computation later on as they allow direct interaction with Python as
-        compared to `tf.Tensor` inside a graph function.
+        compared to ``tf.Tensor`` inside a graph function.
 
         In order to test if the limits are False or None, it is recommended to use the appropriate methods
-        `limits_are_false` and `limits_are_set`.
+        ``limits_are_false`` and ``limits_are_set``.
 
         Returns:
-            A tuple of two `np.ndarray` with shape (1, n_obs) typically. The last
-                dimension is always `n_obs`, the first can be vectorized. This allows unstacking
-                with `z.unstack_x()` as can be done with data.
+            A tuple of two ``np.ndarray`` with shape (1, n_obs) typically. The last
+                dimension is always ``n_obs``, the first can be vectorized. This allows unstacking
+                with ``z.unstack_x()`` as can be done with data.
 
         Raises:
             CannotConvertToNumpyError: In case the conversion fails.
@@ -299,10 +298,10 @@ class ZfitLimit(abc.ABC, metaclass=ABCMeta):
     @property
     @abstractmethod
     def rect_lower(self) -> ztyping.RectLowerReturnType:
-        """The lower, rectangular limits, equivalent to `rect_limits[0]` with shape (..., n_obs)
+        """The lower, rectangular limits, equivalent to ``rect_limits[0]`` with shape (..., n_obs)
 
         Returns:
-            The lower, rectangular limits as `np.ndarray` or `tf.Tensor`
+            The lower, rectangular limits as ``np.ndarray`` or ``tf.Tensor``
         Raises:
             LimitsNotSpecifiedError: If the limits are not set or are false
         """
@@ -311,10 +310,10 @@ class ZfitLimit(abc.ABC, metaclass=ABCMeta):
     @property
     @abstractmethod
     def rect_upper(self) -> ztyping.RectUpperReturnType:
-        """The upper, rectangular limits, equivalent to `rect_limits[1]` with shape (..., n_obs)
+        """The upper, rectangular limits, equivalent to ``rect_limits[1]`` with shape (..., n_obs)
 
         Returns:
-            The upper, rectangular limits as `np.ndarray` or `tf.Tensor`
+            The upper, rectangular limits as ``np.ndarray`` or ``tf.Tensor``
         Raises:
             LimitsNotSpecifiedError: If the limits are not set or are false
         """
@@ -332,7 +331,7 @@ class ZfitLimit(abc.ABC, metaclass=ABCMeta):
     def inside(
         self, x: ztyping.XTypeInput, guarantee_limits: bool = False
     ) -> ztyping.XTypeReturn:
-        """Test if `x` is inside the limits.
+        """Test if ``x`` is inside the limits.
 
         This function should be used to test if values are inside the limits. If the given x is already inside
         the rectangular limits, e.g. because it was sampled from within them
@@ -343,7 +342,7 @@ class ZfitLimit(abc.ABC, metaclass=ABCMeta):
             guarantee_limits: Guarantee that the values are already inside the rectangular limits.
 
         Returns:
-            Return a boolean tensor-like object with the same shape as the input `x` except of the
+            Return a boolean tensor-like object with the same shape as the input ``x`` except of the
                 last dimension removed.
         """
         raise NotImplementedError
@@ -355,18 +354,18 @@ class ZfitLimit(abc.ABC, metaclass=ABCMeta):
         guarantee_limits: bool = False,
         axis: int | None = None,
     ) -> ztyping.XTypeReturnNoData:
-        """Filter `x` by removing the elements along `axis` that are not inside the limits.
+        """Filter ``x`` by removing the elements along ``axis`` that are not inside the limits.
 
-        This is similar to `tf.boolean_mask`.
+        This is similar to ``tf.boolean_mask``.
 
         Args:
             x: Values to be checked whether they are inside of the limits. If not, the corresonding element (in the
-                specified `axis`) is removed. The shape is expected to have the last dimension equal to n_obs.
+                specified ``axis``) is removed. The shape is expected to have the last dimension equal to n_obs.
             guarantee_limits: Guarantee that the values are already inside the rectangular limits.
             axis: The axis to remove the elements from. Defaults to 0.
 
         Returns:
-            Return an object with the same shape as `x` except that along `axis` elements have been
+            Return an object with the same shape as ``x`` except that along ``axis`` elements have been
                 removed.
         """
 
@@ -439,7 +438,7 @@ class ZfitLimit(abc.ABC, metaclass=ABCMeta):
     def equal(self, other: object, allow_graph: bool) -> bool | tf.Tensor:
         """Compare the limits on equality. For ANY objects, this also returns true.
 
-        If called inside a graph context *and* the limits are tensors, this will return a symbolic `tf.Tensor`.
+        If called inside a graph context *and* the limits are tensors, this will return a symbolic ``tf.Tensor``.
 
         Returns:
             Result of the comparison
@@ -463,7 +462,7 @@ class ZfitLimit(abc.ABC, metaclass=ABCMeta):
 
         This can be used to determine whether a fitting range specification can handle another limit.
 
-        If called inside a graph context *and* the limits are tensors, this will return a symbolic `tf.Tensor`.
+        If called inside a graph context *and* the limits are tensors, this will return a symbolic ``tf.Tensor``.
 
 
         Args:
@@ -554,10 +553,10 @@ class ZfitSpace(ZfitLimit, ZfitOrderableDimensional, ZfitObject, metaclass=ABCMe
         rect_limits: ztyping.RectLimitsInputType | None = None,
         name: str | None = None,
     ) -> ZfitSpace:
-        """Return a copy of the space with the new `limits` (and the new `name`).
+        """Return a copy of the space with the new ``limits`` (and the new ``name``).
 
         Args:
-            limits: Limits to use. Can be rectangular, a function (requires to also specify `rect_limits`
+            limits: Limits to use. Can be rectangular, a function (requires to also specify ``rect_limits``
                 or an instance of ZfitLimit.
             rect_limits: Rectangular limits that will be assigned with the instance
             name: Human readable name
@@ -1001,7 +1000,7 @@ class ZfitMinimalHist(PlottableHistogram):
         raise NotImplementedError
 
 
-class ZfitBinnedData(ZfitDimensional, ZfitMinimalHist):
+class ZfitBinnedData(ZfitDimensional, ZfitMinimalHist, metaclass=ABCMeta):
     @abstractmethod
     def variances(self):
         raise NotImplementedError
@@ -1016,6 +1015,14 @@ class ZfitBinnedData(ZfitDimensional, ZfitMinimalHist):
     # @abstractmethod
     # def binning(self):
     #     return self.space.binning
+    @abstractmethod
+    def to_hist(self):
+        """Convert the binned data to a :py:class:`~hist.NamedHist`.
+
+        While a binned data object can be used inside zfit (PDFs,...), it lacks many convenience features that the `hist
+        library <https://hist.readthedocs.io/>`_ offers, such as plots.
+        """
+        pass
 
 
 class ZfitBinnedPDF(ZfitPDF, metaclass=ABCMeta):

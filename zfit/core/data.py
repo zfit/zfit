@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Union
 
+import xxhash
 from tensorflow.python.util.deprecation import deprecated_args, deprecated
 
 if TYPE_CHECKING:
@@ -25,7 +26,7 @@ import zfit
 import zfit.z.numpy as znp
 
 from .. import z
-from ..settings import ztypes
+from ..settings import ztypes, run
 from ..util import ztyping
 from ..util.cache import GraphCachable, invalidate_graph
 from ..util.container import convert_to_container
@@ -45,7 +46,7 @@ from .space import Space, convert_to_space
 
 # TODO: make cut only once, then remember
 class Data(
-    GraphCachable, ZfitUnbinnedData, BaseDimensional, BaseObject, OverloadableMixin
+    ZfitUnbinnedData, BaseDimensional, BaseObject, OverloadableMixin, GraphCachable
 ):
     BATCH_SIZE = 1000000  # 1 mio
 
@@ -55,18 +56,22 @@ class Data(
         obs: ztyping.ObsTypeInput = None,
         name: str = None,
         weights=None,
-        iterator_feed_dict: dict = None,
         dtype: tf.DType = None,
+        use_hash: bool = None,
     ):
-        """Create a data holder from a `dataset` used to feed into `models`.
+        """Create a data holder from a ``dataset`` used to feed into ``models``.
 
         Args:
             dataset: A dataset storing the actual values
             obs: Observables where the data is defined in
-            name: Name of the `Data`
-            iterator_feed_dict:
+            name: Name of the ``Data``
+            weights: Weights of the data
             dtype: |dtype_arg_descr|
+            use_hash: Whether to use a hash for caching
         """
+        if use_hash is None:
+            use_hash = run.hashing_data()
+        self._use_hash = use_hash
         if name is None:
             name = "Data"
         if dtype is None:
@@ -86,12 +91,12 @@ class Data(
         self._data_range = (
             self.space
         )  # TODO proper data cuts: currently set so that the cuts in all dims are applied
-        self.batch_size = self.BATCH_SIZE
-        self.dataset = dataset.batch(self.batch_size)
+        self.dataset = dataset.batch(100_000_000)
         self._name = name
-        self.iterator_feed_dict = iterator_feed_dict
-        self.iterator = None
+
         self.set_weights(weights=weights)
+        self._hashint = None
+        self._update_hash()
 
     @property
     def nevents(self):
@@ -99,6 +104,10 @@ class Data(
         if nevents is None:
             nevents = self._get_nevents()
         return nevents
+
+    @property
+    def hashint(self) -> int | None:
+        return self._hashint
 
     # TODO: which naming? nevents or n_events
 
@@ -123,6 +132,7 @@ class Data(
         self._check_n_obs(space=obs)
         obs = obs.with_autofill_axes(overwrite=True)
         self._space = obs
+        self._update_hash()
 
     @property
     def data_range(self):
@@ -137,6 +147,7 @@ class Data(
 
         def setter(value):
             self._data_range = value
+            self._update_hash()
 
         def getter():
             return self._data_range
@@ -170,6 +181,7 @@ class Data(
 
         def setter(value):
             self._weights = value
+            self._update_hash()
 
         def getter():
             return self.weights
@@ -188,17 +200,20 @@ class Data(
         weights: ztyping.WeightsInputType | str = None,
         name: str = None,
         dtype: tf.DType = None,
+        use_hash: bool = None,
     ):
-        """Create a `Data` from a pandas DataFrame. If `obs` is `None`, columns are used as obs.
+        """Create a ``Data`` from a pandas DataFrame. If ``obs`` is ``None``, columns are used as obs.
 
         Args:
-            df: pandas DataFrame that contains the data. If `obs` is `None`, columns are used as obs. Can be
+            df: pandas DataFrame that contains the data. If ``obs`` is ``None``, columns are used as obs. Can be
                 a superset of obs.
             obs: obs to use for the data. obs have to be the columns in the data frame.
-                If `None`, columns are used as obs.
+                If ``None``, columns are used as obs.
             weights: Weights of the data. Has to be 1-D and match the shape
                 of the data (nevents) or a string that is a column in the dataframe.
             name:
+            dtype: dtype of the data
+            use_hash: If ``True``, a hash of the data is created and is used to identify it in caching.
         """
         if obs is None:
             obs = list(df.columns)
@@ -217,8 +232,13 @@ class Data(
             weights = df[weights]
         array = df[list(obs.obs)].values
 
-        return cls.from_numpy(
-            obs=obs, array=array, weights=weights, name=name, dtype=dtype
+        return Data.from_numpy(  # *not* class, if subclass, keep constructor
+            obs=obs,
+            array=array,
+            weights=weights,
+            name=name,
+            dtype=dtype,
+            use_hash=use_hash,
         )
 
     @classmethod
@@ -240,11 +260,12 @@ class Data(
         name: str = None,
         dtype: tf.DType = None,
         root_dir_options=None,
+        use_hash: bool = None,
         # deprecated
         branches: list[str] = None,
         branches_alias: dict = None,
     ) -> Data:
-        """Create a `Data` from a ROOT file. Arguments are passed to `uproot`.
+        """Create a ``Data`` from a ROOT file. Arguments are passed to ``uproot``.
 
         The arguments are passed to uproot directly.
 
@@ -255,13 +276,13 @@ class Data(
             weights: Weights of the data. Has to be 1-D and match the shape
                 of the data (nevents). Can be a column of the ROOT file by using a string corresponding to a
                 column.
-            obs_alias: A mapping from the `obs` (as keys) to the actual `branches` (as values) in the root file.
-                This allows to have different `observable` names, independent of the branch name in the file.
+            obs_alias: A mapping from the ``obs`` (as keys) to the actual ``branches`` (as values) in the root file.
+                This allows to have different ``observable`` names, independent of the branch name in the file.
             name:
             root_dir_options:
 
         Returns:
-            `zfit.Data`: A `Data` object containing the unbinned data.
+            ``zfit.Data``: A ``Data`` object containing the unbinned data.
         """
         # begin deprecated legacy arguments
         if branches:
@@ -309,8 +330,13 @@ class Data(
             weights_np = weights
         dataset = LightDataset.from_tensor(data)
 
-        return Data(
-            dataset=dataset, obs=obs, weights=weights_np, name=name, dtype=dtype
+        return Data(  # *not* class, if subclass, keep constructor
+            dataset=dataset,
+            obs=obs,
+            weights=weights_np,
+            name=name,
+            dtype=dtype,
+            use_hash=use_hash,
         )
 
     @classmethod
@@ -321,17 +347,20 @@ class Data(
         weights: ztyping.WeightsInputType = None,
         name: str = None,
         dtype: tf.DType = None,
+        use_hash=None,
     ):
-        """Create `Data` from a `np.array`.
+        """Create ``Data`` from a ``np.array``.
 
         Args:
             obs: Observables of the data. They will be matched to the data in the same order.
             array: Numpy array containing the data.
             weights: Weights of the data. Has to be 1-D and match the shape of the data (nevents).
-            name:
+            name: Name of the data.
+            dtype: dtype of the data.
+            use_hash: If ``True``, a hash of the data is created and is used to identify it in caching.
 
         Returns:
-            `zfit.Data`: A `Data` object containing the unbinned data.
+            ``zfit.Data``: A ``Data`` object containing the unbinned data.
         """
 
         if not isinstance(array, (np.ndarray)) and not (
@@ -343,8 +372,13 @@ class Data(
         if dtype is None:
             dtype = ztypes.float
         tensor = tf.cast(array, dtype=dtype)
-        return cls.from_tensor(
-            obs=obs, tensor=tensor, weights=weights, name=name, dtype=dtype
+        return Data.from_tensor(  # *not* class, if subclass, keep constructor
+            obs=obs,
+            tensor=tensor,
+            weights=weights,
+            name=name,
+            dtype=dtype,
+            use_hash=use_hash,
         )
 
     @classmethod
@@ -355,8 +389,9 @@ class Data(
         weights: ztyping.WeightsInputType = None,
         name: str = None,
         dtype: tf.DType = None,
+        use_hash=None,
     ) -> Data:
-        """Create a `Data` from a `tf.Tensor`. `Value` simply returns the tensor (in the right order).
+        """Create a ``Data`` from a ``tf.Tensor``. ``Value`` simply returns the tensor (in the right order).
 
         Args:
             obs: Observables of the data. They will be matched to the data in the same order.
@@ -365,7 +400,7 @@ class Data(
             name: Name of the data.
 
         Returns:
-            `zfit.Data`: A `Data` object containing the unbinned data.
+            ``zfit.Data``: A ``Data`` object containing the unbinned data.
         """
         # dataset = LightDataset.from_tensor(tensor=tensor)
         if dtype is None:
@@ -378,7 +413,26 @@ class Data(
         # dataset = tf.data.Dataset.from_tensor_slices(tensor)
         dataset = LightDataset.from_tensor(tensor)
 
-        return Data(dataset=dataset, obs=obs, name=name, weights=weights, dtype=dtype)
+        return Data(  # *not* class, if subclass, keep constructor
+            dataset=dataset,
+            obs=obs,
+            name=name,
+            weights=weights,
+            dtype=dtype,
+            use_hash=use_hash,
+        )
+
+    def _update_hash(self):
+        if not run.executing_eagerly() or not self._use_hash:
+            self._hashint = None
+        else:
+            try:
+                hashval = xxhash.xxh128(np.asarray(self.value()))
+                if self.has_weights:
+                    hashval.update(np.asarray(self.weights))
+                self._hashint = hashval.intdigest()
+            except AttributeError:  # if the dataset is not yet initialized; this is allowed
+                self._hashint = None
 
     def with_obs(self, obs):
         values = self.value(obs)
@@ -387,10 +441,10 @@ class Data(
         )
 
     def to_pandas(self, obs: ztyping.ObsTypeInput = None):
-        """Create a `pd.DataFrame` from `obs` as columns and return it.
+        """Create a ``pd.DataFrame`` from ``obs`` as columns and return it.
 
         Args:
-            obs: The observables to use as columns. If `None`, all observables are used.
+            obs: The observables to use as columns. If ``None``, all observables are used.
 
         Returns:
         """
@@ -416,17 +470,6 @@ class Data(
 
     def value(self, obs: ztyping.ObsTypeInput = None):
         return znp.asarray(self._value_internal(obs=obs))
-        # TODO: proper iterations
-        # value_iter = self._value_internal(obs=obs)
-        # value = next(value_iter)
-        # try:
-        #     next(value_iter)
-        # except StopIteration:  # it's ok, we're not batched
-        #     return value
-        # else:
-        #     raise DataIsBatchedError(
-        #         f"Data {self} is batched, cannot return only the value. Iterate through it (WIP, make"
-        #         f"an issue on Github if this feature is needed now)")
 
     def numpy(self):
         return self.value().numpy()
@@ -549,7 +592,7 @@ class Data(
         axes: ztyping.AxesTypeInput = None,
         limits: ztyping.LimitsTypeInput = None,
     ) -> Space | None:
-        """Convert the inputs (using eventually `obs`, `axes`) to
+        """Convert the inputs (using eventually ``obs``, ``axes``) to
         :py:class:`~zfit.Space` and sort them according to own `obs`.
 
         Args:
@@ -589,14 +632,15 @@ class SampleData(Data):
         weights=None,
         name: str = None,
         dtype: tf.DType = ztypes.float,
+        use_hash: bool = None,
     ):
         super().__init__(
             dataset,
             obs,
             name=name,
             weights=weights,
-            iterator_feed_dict=None,
             dtype=dtype,
+            use_hash=use_hash,
         )
 
     @classmethod
@@ -612,9 +656,12 @@ class SampleData(Data):
         obs: ztyping.ObsTypeInput,
         name: str = None,
         weights=None,
+        use_hash: bool = None,
     ):
         dataset = LightDataset.from_tensor(sample)
-        return SampleData(dataset=dataset, obs=obs, name=name, weights=weights)
+        return SampleData(
+            dataset=dataset, obs=obs, name=name, weights=weights, use_hash=use_hash
+        )
 
 
 class Sampler(Data):
@@ -631,6 +678,7 @@ class Sampler(Data):
         obs: ztyping.ObsTypeInput = None,
         name: str = None,
         dtype: tf.DType = ztypes.float,
+        use_hash: bool = None,
     ):
 
         super().__init__(
@@ -638,8 +686,8 @@ class Sampler(Data):
             obs=obs,
             name=name,
             weights=weights,
-            iterator_feed_dict=None,
             dtype=dtype,
+            use_hash=use_hash,
         )
         if fixed_params is None:
             fixed_params = OrderedDict()
@@ -676,6 +724,11 @@ class Sampler(Data):
             )
         return super()._value_internal(obs=obs, filter=filter)
 
+    @property
+    def hashint(self) -> int | None:
+        return None  # since the variable can be changed but this may stays static... and using 128 bits we can't have
+        # a tf.Variable that keeps the int
+
     @classmethod
     def get_cache_counting(cls):
         counting = cls._cache_counting
@@ -692,6 +745,7 @@ class Sampler(Data):
         name: str = None,
         weights=None,
         dtype=None,
+        use_hash: bool = None,
     ):
         obs = convert_to_space(obs)
 
@@ -703,14 +757,14 @@ class Sampler(Data):
         sample_holder = tf.Variable(
             initial_value=sample_func(),
             dtype=dtype,
-            trainable=False,  # HACK: sample_func
+            trainable=False,
             # validate_shape=False,
             shape=(None, obs.n_obs),
             name=f"sample_data_holder_{cls.get_cache_counting()}",
         )
         dataset = LightDataset.from_tensor(sample_holder)
 
-        return Sampler(
+        return cls(
             dataset=dataset,
             sample_holder=sample_holder,
             sample_func=sample_func,
@@ -719,14 +773,15 @@ class Sampler(Data):
             obs=obs,
             name=name,
             weights=weights,
+            use_hash=use_hash,
         )
 
     def resample(self, param_values: Mapping = None, n: int | tf.Tensor = None):
         """Update the sample by newly sampling. This affects any object that used this data already.
 
-        All params that are not in the attribute `fixed_params` will use their current value for
+        All params that are not in the attribute ``fixed_params`` will use their current value for
         the creation of the new sample. The value can also be overwritten for one sampling by providing
-        a mapping with `param_values` from `Parameter` to the temporary `value`.
+        a mapping with ``param_values`` from ``Parameter`` to the temporary ``value``.
 
         Args:
             param_values: a mapping from :py:class:`~zfit.Parameter` to a `value`. For the current sampling,
@@ -763,6 +818,7 @@ class Sampler(Data):
             # self.sample_holder.assign(new_sample)
             self.sample_holder.assign(new_sample, read_value=False)
             self._initial_resampled = True
+        self._update_hash()
 
     def __str__(self) -> str:
         return f"<Sampler: {self.name} obs={self.obs}>"

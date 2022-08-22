@@ -61,8 +61,9 @@ class BaseObject(ZfitObject):
                 if not own_element == other._repr.get(key):  # TODO: make repr better
                     return False
         except AttributeError:
-            return self is other
-        return True  # no break occurred
+            pass
+        return self is other
+        # return True  # no break occurred
 
     def __hash__(self):
         return object.__hash__(self)
@@ -70,8 +71,6 @@ class BaseObject(ZfitObject):
 
 class BaseParametrized(BaseObject, ZfitParametrized):
     def __init__(self, params, **kwargs) -> None:
-        # print(f"DEBUG: {kwargs}")  # TODO REMOVE!
-        # raise RuntimeError("DEBUG needs to be removed")
         super().__init__(**kwargs)
         from zfit.core.parameter import convert_to_parameter
 
@@ -93,10 +92,10 @@ class BaseParametrized(BaseObject, ZfitParametrized):
         """Recursively collect parameters that this object depends on according to the filter criteria.
 
         Which parameters should be included can be steered using the arguments as a filter.
-         - **None**: do not filter on this. E.g. `floating=None` will return parameters that are floating as well as
+         - **None**: do not filter on this. E.g. ``floating=None`` will return parameters that are floating as well as
             parameters that are fixed.
          - **True**: only return parameters that fulfil this criterion
-         - **False**: only return parameters that do not fulfil this criterion. E.g. `floating=False` will return
+         - **False**: only return parameters that do not fulfil this criterion. E.g. ``floating=False`` will return
             only parameters that are not floating.
 
         Args:
@@ -106,7 +105,7 @@ class BaseParametrized(BaseObject, ZfitParametrized):
                model depends on other yields (or also non-yields), this will be included. If, however, just submodels
                depend on a yield (as their yield) and it is not correlated to the output of our model, they won't be
                included.
-            extract_independent: If the parameter is an independent parameter, i.e. if it is a `ZfitIndependentParameter`.
+            extract_independent: If the parameter is an independent parameter, i.e. if it is a ``ZfitIndependentParameter``.
         """
         if only_floating is not NotSpecified:
             floating = only_floating

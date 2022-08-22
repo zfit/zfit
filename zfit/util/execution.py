@@ -33,10 +33,10 @@ class RunManager:
         self.numeric_checks = True
         self._mode = self.DEFAULT_MODE.copy()
         self.set_n_cpu(n_cpu=n_cpu)
+        self._hashing_enabled = True
 
-        # HACK
+        # TODO: keep this?
         self._enable_parameter_autoconversion = True
-        # HACK END
 
         # set default values
         self.chunking.active = False  # not yet implemented the chunking...
@@ -241,6 +241,9 @@ class RunManager:
                 "Cannot change the execution mode of graph inside a `z.function`"
                 " decorated function. Only possible in an eager context."
             )
+        return self._force_set_graph_mode(graph)
+
+    def _force_set_graph_mode(self, graph):
         if graph is None:
             graph = "auto"
         return TemporarilySet(
@@ -306,6 +309,8 @@ class RunManager:
             self._mode["autograd"] = autograd
 
     def _set_graph_mode(self, graph):
+        if graph is None:
+            graph = "auto"
         from .graph import jit as jit_obj
 
         # only run eagerly if no graph
@@ -404,6 +409,18 @@ class RunManager:
         Use `clear_graph_caches` instead.
         """
         self.clear_graph_cache()
+
+    def hashing_data(self):
+        """If hashing of data (required for caching) is enabled."""
+        return self._hashing_enabled
+
+    def set_data_hashing(self, enabled: bool):
+        """Enable or disable hashing of data (required for caching).
+
+        Args:
+            enabled: Whether hashing of data is enabled.
+        """
+        self._hashing_enabled = enabled
 
 
 def eval_object(obj: object) -> object:

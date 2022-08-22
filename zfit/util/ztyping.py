@@ -142,7 +142,7 @@ BaseObjectType = Union[
     "zfit.core.interfaces.ZfitFunction",
     "zfit.core.interfaces.ZfitPDF",
 ]  #:
-DependentsType = OrderedSet("zfit.Parameter")  #:
+DependentsType = OrderedSet  #:
 
 # Caching
 CacherOrCachersType = Union[

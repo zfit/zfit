@@ -49,10 +49,13 @@ Example with a pdf that caches the normalization:
 
 from __future__ import annotations
 
+import collections.abc
 import functools
 import weakref
 from abc import abstractmethod
 from collections.abc import Iterable
+from itertools import zip_longest
+from typing import Optional
 
 import numpy as np
 import tensorflow as tf
@@ -191,10 +194,9 @@ class FunctionCacheHolder(GraphCachable):
         self,
         func,
         wrapped_func,
-        cachables: (
-            ZfitGraphCachable | object | Iterable[ZfitGraphCachable | object]
-        ) = None,
+        cachables: (ZfitGraphCachable | object | Iterable[ZfitGraphCachable]) = None,
         cachables_mapping=None,
+        stateless_args: bool | None = None,
     ):
         """`tf.function` decorated function holder with caching dependencies on inputs.
 
@@ -220,13 +222,18 @@ class FunctionCacheHolder(GraphCachable):
             cachables: objects that are cached. If they change, the cache is invalidated
             cachables_mapping: keyword arguments to the function. If the values change, the cache is
                 invalidated.
+            stateless_args: If `True`, the arguments that are normally stateful, such as `tf.Variable`s, are regarded
+                as stateless.
         """
-        # cache = {} if cache is None else cache
+
         self.delete_from_cache = False
+        if stateless_args is None:
+            stateless_args = False
+        self.stateless_args = stateless_args
         self.wrapped_func = wrapped_func
-        # self.parent_cache = cache
+
         self.python_func = func
-        self._hash_value = hash(self.python_func)
+
         if cachables is None and cachables_mapping is None:
             raise ValueError(
                 "Both `cachables and `cachables_mapping` are None. One needs to be different from None."
@@ -235,6 +242,7 @@ class FunctionCacheHolder(GraphCachable):
             cachables = []
         if cachables_mapping is None:
             cachables_mapping = {}
+
         cachables = convert_to_container(cachables, container=list)
         cachables_values = convert_to_container(
             cachables_mapping.values(), container=list
@@ -243,6 +251,7 @@ class FunctionCacheHolder(GraphCachable):
         self.immutable_representation = self.create_immutable(
             cachables, cachables_mapping
         )
+        self._hash_value = hash((self.python_func, self.immutable_representation))
         # self._hash_value = hash(self.immutable_representation)
         super().__init__()  # resets the cache
         self.add_cache_deps(cachables_all)
@@ -261,31 +270,44 @@ class FunctionCacheHolder(GraphCachable):
         Returns:
         """
         # is initialized before the core
-        from ..core.interfaces import ZfitData, ZfitParameter, ZfitSpace
 
         args = list(args)
         kwargs = list(kwargs.keys()) + list(kwargs.values())
-        combined = []
-        if args != []:
-            combined += args
-        if kwargs != []:
-            combined += args
+        combined = args + kwargs
         combined_cleaned = []
         for obj in combined:
-            if isinstance(obj, ZfitData):
-                obj = (id(obj),)
-
-            elif isinstance(obj, ZfitParameter):
-                obj = (ZfitParameter, obj.name)
-            elif isinstance(obj, ZfitSpace):
-                obj = (id(obj),)
-            elif tf.is_tensor(obj):
-                obj = self.IS_TENSOR
-            elif isinstance(obj, np.ndarray):
-                obj = (obj,) if sum(obj.shape) < 20 else id(obj)
-            combined_cleaned.append(obj)
-
+            obj = self.get_immutable_repr_obj(obj)
+            combined_cleaned.extend(obj)
         return tuple(combined_cleaned)
+
+    def get_immutable_repr_obj(self, obj):
+        from ..core.interfaces import ZfitData, ZfitParameter, ZfitSpace
+
+        if isinstance(obj, collections.abc.Mapping):
+            obj = obj.items()
+        if isinstance(obj, ZfitData):
+            obj = id(obj)
+        elif isinstance(obj, ZfitParameter):
+            if self.stateless_args:
+                obj = (self.IS_TENSOR,)
+            else:
+                obj = (ZfitParameter, obj.name)
+        elif isinstance(obj, ZfitSpace):
+            obj = id(obj)
+        elif tf.is_tensor(obj):
+            obj = (self.IS_TENSOR,)
+        elif isinstance(obj, np.ndarray):
+            obj = id(obj)
+        elif isinstance(obj, str):
+            obj = (obj,)
+        elif isinstance(obj, collections.abc.Iterable):
+            obj_new = []
+            for obj_i in obj:
+                obj_new.extend(self.get_immutable_repr_obj(obj_i))
+            obj = tuple(obj_new)
+        if not isinstance(obj, tuple):
+            obj = (obj,)
+        return obj
 
     def __hash__(self) -> int:
         return self._hash_value
@@ -293,11 +315,20 @@ class FunctionCacheHolder(GraphCachable):
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, FunctionCacheHolder):
             return False
+        # return False  # HACK
+        # return self.__hash__() == other.__hash__()  # HACK TODO
         # return all(obj1 == obj2 for obj1, obj2 in zip(self.immutable_representation, other.immutable_representation))
-        array_repr_self = np.array(self.immutable_representation, dtype=object)
-        array_repr_other = np.array(other.immutable_representation, dtype=object)
+        array_repr_self = self.immutable_representation
+        array_repr_other = other.immutable_representation
         try:
-            return all(np.equal(array_repr_self, array_repr_other))
+            all_ids = all(
+                (obj1 is obj2) or (obj1 == obj2)
+                for obj1, obj2 in zip_longest(array_repr_self, array_repr_other)
+            )
+            # all_values = all(np.equal(array_repr_self, array_repr_other))
+            # if all_ids != all_values:
+            #     raise ValueError("Ids and values are not equal")
+            return all_ids  # TODO: this isn't optimal...
         except ValueError:  # broadcasting does not work
             return False
         except TypeError:  # OperatorNotAllowedError inherits from this

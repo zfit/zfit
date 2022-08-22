@@ -23,7 +23,7 @@ class BaseDependentsMixin(ZfitDependenciesMixin):
         """Return a set of all independent :py:class:`~zfit.Parameter` that this object depends on.
 
         Args:
-            only_floating: If `True`, only return floating :py:class:`~zfit.Parameter`
+            only_floating: If ``True``, only return floating :py:class:`~zfit.Parameter`
         """
         dependencies = self._get_dependencies()
         if only_floating:

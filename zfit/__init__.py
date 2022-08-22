@@ -1,11 +1,15 @@
 """Top-level package for zfit."""
 
 #  Copyright (c) 2022 zfit
+import sys
 import warnings
 
-from pkg_resources import get_distribution
+if sys.version_info < (3, 8):
+    from importlib_metadata import version
+else:
+    from importlib.metadata import version
 
-__version__ = get_distribution(__name__).version
+__version__ = version(__name__)
 
 __license__ = "BSD 3-Clause"
 __copyright__ = "Copyright 2018, zfit"
@@ -46,12 +50,8 @@ __all__ = [
     "settings",
 ]
 
+
 #  Copyright (c) 2019 zfit
-warnings.warn(
-    "This is an ALPHA version of zfit for feature testing, do NOT use it in production! "
-    "It is NOT stable and contains bugs and untested features. "
-    "For production use, please use the last beta stable version of zfit."
-)
 
 
 def _maybe_disable_warnings():
@@ -66,7 +66,7 @@ def _maybe_disable_warnings():
             " In order to suppress the TensorFlow warnings AND this warning,"
             " set ZFIT_DISABLE_TF_WARNINGS=1."
         )
-    elif disable_warnings == "0":
+    elif disable_warnings == "0":  # just ignore and do nothing
         return
 
     os.environ["KMP_AFFINITY"] = "noverbose"

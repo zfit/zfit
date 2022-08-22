@@ -18,12 +18,12 @@ with open(
     requirements_dev = requirements_dev_file.read().splitlines()
 
 extras_require = {}
-extras_require["ipyopt"] = ["ipyopt<0.12"]
-extras_require["nlopt"] = ["nlopt<=2.7.0"]
+extras_require["ipyopt"] = ["ipyopt>=0.12"]
+extras_require["nlopt"] = ["nlopt>=2.7.1"]
 allreq = sum(extras_require.values(), [])
 
 tests_require = [
-    "pytest>=3.4.2,<5.4",  # breaks unittests
+    "pytest>=3.4.2",  # breaks unittests
     "pytest-runner>=2.11.1",
     "pytest-rerunfailures>=6",
     "pytest-xdist",
@@ -44,6 +44,11 @@ alldev_nonlinux.pop(
     alldev_nonlinux.index(extras_require["ipyopt"][0])
 )  # ipyopt is not available on non linux systems
 extras_require["alldev-nonlinux"] = alldev_nonlinux
+alldev_windows = alldev_nonlinux.copy()
+alldev_windows.pop(
+    alldev_windows.index("jaxlib")
+)  # not available on Windows: https://github.com/google/jax/issues/438#issuecomment-939866186
+extras_require["alldev-windows"] = alldev_windows
 
 setup(
     install_requires=requirements,
