@@ -4,8 +4,10 @@ Changelog
 
 .. _newest-changelog:
 
-Develop
-========
+0.10.0 (22. August 2022)
+========================
+
+Public release of binned fits and upgrade to Python 3.10 and TensorFlow 2.9.
 
 Major Features and Improvements
 -------------------------------
