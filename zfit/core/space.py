@@ -1173,14 +1173,19 @@ class Space(
                These are the lower and upper limits. |@docend:space.init.limits|
             binning: |@doc:space.init.binning| Binning of the space.
                Currently, only regular and variable binning *with a name* is supported.
-               If an integer is given, it is interpreted as the number of bins and
+               If an integer or a list of integers is given with lengths equal to the number of observables,
+               it is interpreted as the number of bins and
                a regular binning is automatically created using the limits as the
                start and end points. |@docend:space.init.binning|
             name: |@doc:space.init.name| Human-readable name of the space. |@docend:space.init.name|
         """
         if name is None:
             name = "Space"
-        if not isinstance(binning, int):
+        integer_autobinning = isinstance(binning, int) or (
+            isinstance(binning, (list, tuple))
+            and all(isinstance(b, int) for b in binning)
+        )
+        if not integer_autobinning:
             if not isinstance(binning, Binnings):
                 binning = convert_to_container(binning)
                 if binning is not None:
@@ -1212,19 +1217,28 @@ class Space(
         self._limits_dict = limits_dict
 
         if isinstance(binning, int):
-            if not self.n_obs == 1:
-                raise ValueError("Can only use integer as binning with 1D spaces")
-            if binning < 1:
-                raise ValueError("If binning is an integer, it must be > 0")
-            lower = self.lower[0][0]
-            upper = self.upper[0][0]
-            binning = Binnings(
-                [
+            binning = [binning]
+        if integer_autobinning:
+            if len(binning) != self.n_obs:
+                raise ShapeIncompatibleError(
+                    f"Wrong number ({len(binning)}) of integers given for regular binning"
+                    f" ({binning}) with {self.n_obs} observables ({self.obs})."
+                    f" Numbers have to match the number of observables."
+                )
+            regular_binnings = []
+            for i, nbins in enumerate(binning):
+                if nbins < 1:
+                    raise ValueError("If binning is an integer, it must be > 0")
+
+                lower = self.lower[0][i]
+                upper = self.upper[0][i]
+                regular_binnings.append(
                     RegularBinning(
-                        bins=binning, start=lower, stop=upper, name=self.obs[0]
+                        bins=nbins, start=lower, stop=upper, name=self.obs[i]
                     )
-                ]
-            )
+                )
+
+            binning = Binnings(regular_binnings)
 
         self._binning = binning
 
