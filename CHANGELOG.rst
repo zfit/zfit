@@ -20,6 +20,7 @@ Deprecations
 Bug fixes and small changes
 ---------------------------
 - Enable uniform binning for n-dimensional distributions with integer(s).
+- Sum of histograms failed for calling the pdf method (can be indirectly), integrated over wrong axis.
 
 Experimental
 ------------
