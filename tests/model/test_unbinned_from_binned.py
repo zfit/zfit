@@ -49,17 +49,3 @@ def test_unbinned_histogramPDF():
         assert np.min(yval) >= 0
         yval_binned = binned.pdf(sample)
         np.testing.assert_allclose(yval, yval_binned)
-
-    # probs = pdf_sum.counts(data)
-    # true_sum_counts = counts + counts2 + counts3
-    # np.testing.assert_allclose(true_sum_counts, probs)
-    # nsamples = 100_000_000
-    # sample = pdf_sum.sample(n=nsamples)
-    # np.testing.assert_allclose(
-    #     true_sum_counts, sample.values() / nsamples * pdf_sum.get_yield(), rtol=0.03
-    # )
-    #
-    # # integrate
-    # true_integral = znp.sum(true_sum_counts)
-    # integral = pdf_sum.ext_integrate(limits=obs)
-    # assert pytest.approx(float(true_integral)) == float(integral)
