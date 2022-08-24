@@ -19,6 +19,7 @@ Deprecations
 
 Bug fixes and small changes
 ---------------------------
+- Sum of histograms failed for calling the pdf method (can be indirectly), integrated over wrong axis.
 
 Experimental
 ------------
