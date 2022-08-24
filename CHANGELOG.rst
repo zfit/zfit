@@ -4,6 +4,32 @@ Changelog
 
 .. _newest-changelog:
 
+Develop
+========================
+
+Major Features and Improvements
+-------------------------------
+
+Breaking changes
+------------------
+
+
+Deprecations
+-------------
+
+Bug fixes and small changes
+---------------------------
+- Sum of histograms failed for calling the pdf method (can be indirectly), integrated over wrong axis.
+
+Experimental
+------------
+
+Requirement changes
+-------------------
+
+Thanks
+------
+
 0.10.0 (22. August 2022)
 ========================
 

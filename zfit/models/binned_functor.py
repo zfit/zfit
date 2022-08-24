@@ -65,8 +65,10 @@ class BinnedSumPDF(BaseBinnedFunctorPDF):
             raise NormNotImplemented
         pdfs = self.pdfs
         fracs = self.params.values()
-        probs = [pdf.pdf(x) * frac for pdf, frac in zip(pdfs, fracs)]
-        prob = znp.sum(probs)
+        probs = []
+        for pdf, frac in zip(pdfs, fracs):
+            probs.append(pdf.pdf(x) * frac)
+        prob = znp.sum(probs, axis=0)
         return z.convert_to_tensor(prob)
 
     @deprecated_norm_range
