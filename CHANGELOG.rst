@@ -19,7 +19,10 @@ Deprecations
 
 Bug fixes and small changes
 ---------------------------
+- Enable uniform binning for n-dimensional distributions with integer(s).
 - Sum of histograms failed for calling the pdf method (can be indirectly), integrated over wrong axis.
+- Binned PDFs expected binned spaces for limits, now unbinned limits are also allowed and automatically
+    converted to binned limits using the PDFs binning.
 
 Experimental
 ------------
@@ -29,6 +32,8 @@ Requirement changes
 
 Thanks
 ------
+- Justin Skorupa for finding the bug in the sum of histograms and the missing automatic
+  conversion of unbinned spaces to binned spaces.
 
 0.10.0 (22. August 2022)
 ========================

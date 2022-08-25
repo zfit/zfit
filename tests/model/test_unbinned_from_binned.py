@@ -49,3 +49,9 @@ def test_unbinned_histogramPDF():
         assert np.min(yval) >= 0
         yval_binned = binned.pdf(sample)
         np.testing.assert_allclose(yval, yval_binned)
+
+        integral_binned = binned.integrate(limits=obs)
+        integral = pdf.integrate(limits=obs.with_binning(None))
+        np.testing.assert_allclose(integral, integral_binned)
+        integral_binned2 = binned.integrate(limits=obs.with_binning(None))
+        np.testing.assert_allclose(integral_binned, integral_binned2)

@@ -55,7 +55,7 @@ def test_check_n_obs():
         zfit.pdf.Gauss(1.0, 4.0, obs=space2d_1)
 
 
-def test_combine_spaces():
+def test_combine_spaces2():
     combined_space = combine_spaces(space1d_1, space1d_12)
     combined_space2 = space1d_1 * space1d_12
     assert combined_space == space2d_2
@@ -78,7 +78,7 @@ def test_combine_spaces():
         space2d_2.combine(space1)
 
 
-def test_add_spaces():
+def test_add_spaces2():
     from zfit.core.space import add_spaces as add_spaces
 
     assert add_spaces(space1, space2) == space1
