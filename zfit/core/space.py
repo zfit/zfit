@@ -1178,6 +1178,11 @@ class Space(
                a regular binning is automatically created using the limits as the
                start and end points. |@docend:space.init.binning|
             name: |@doc:space.init.name| Human-readable name of the space. |@docend:space.init.name|
+
+        Raises
+            TypeError: If the axes in the binning do not have a name.
+            ObsIncompatibleError: If the obs do not agree with the name of the binning.
+            ShapeIncompatibleError: If the shape of the limits or the binnings do not match the shape of the obs.
         """
         if name is None:
             name = "Space"
@@ -1239,15 +1244,28 @@ class Space(
                 )
 
             binning = Binnings(regular_binnings)
-
+        if binning is not None:
+            bining_names = set(binning.name)
+            obs = set(self.obs)
+            wrong_names = bining_names - obs
+            if wrong_names:
+                raise ObsIncompatibleError(
+                    f"Binning names ({wrong_names}) do not match observables ({obs}), {wrong_names} not in space."
+                )
+            missing_obs = obs - bining_names
+            if missing_obs:
+                raise ObsIncompatibleError(
+                    f"Binning names ({missing_obs}) do not match observables ({obs}), missing {missing_obs}."
+                )
+            binning = Binnings([binning[ob] for ob in self.obs])
         self._binning = binning
 
     # TODO(Mayou36): put it everywhere, multilimits
     @property
     def binning(self):
         binning_out = self._binning
-        if binning_out is not None:
-            binning_out = Binnings([binning_out[ob] for ob in self.obs])
+        # if binning_out is not None:
+        #     binning_out =
         return binning_out
 
     @property

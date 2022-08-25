@@ -11,6 +11,7 @@ from zfit.util.exception import (
     CoordinatesUnderdefinedError,
     LimitsIncompatibleError,
     ShapeIncompatibleError,
+    ObsIncompatibleError,
 )
 
 
@@ -528,3 +529,11 @@ def test_create_binned_raises():
         zfit.binned.RegularBinning(5, -10, 10)
     with pytest.raises(ShapeIncompatibleError):
         zfit.Space(["x", "y"], limits=[(-10, -5), (5, 10)], binning=[3, 5, 2])
+    binning = zfit.binned.VariableBinning([1, 5, 7.3, 11.2], name="y")
+    with pytest.raises(ObsIncompatibleError):
+        _ = zfit.Space("x", binning=binning)
+    binning = (binning, zfit.binned.VariableBinning([1, 5, 7.3, 11.2], name="x"))
+    with pytest.raises(ShapeIncompatibleError):
+        _ = zfit.Space("x", binning=binning)
+    with pytest.raises(ObsIncompatibleError):
+        _ = zfit.Space(["x", "z"], binning=binning)
