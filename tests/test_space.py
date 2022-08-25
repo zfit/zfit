@@ -442,7 +442,7 @@ def test_combine_spaces(binning):
     else:
         binning1 = None
     space1a = zfit.Space(obs1, limits=(lower1, upper1), binning=binning1)
-    if all(
+    if binning1 is not None and all(
         isinstance(b, int) for b in binning1
     ):  # if we create the binning automatically
         binning1 = space1a.binning
@@ -453,7 +453,7 @@ def test_combine_spaces(binning):
     else:
         binning2 = None
     space2a = zfit.Space(obs2, limits=(lower2, upper2), binning=binning2)
-    if all(
+    if binning1 is not None and all(
         isinstance(b, int) for b in binning2
     ):  # if we create the binning automatically
         binning2 = space2a.binning
@@ -474,15 +474,13 @@ def test_combine_spaces(binning):
     else:
         binning12a = None
     space12a = zfit.Space(obs12, limits=(lower12, upper12), binning=binning12a)
-    if all(isinstance(b, int) for b in binning12a):
+    if binning1 is not None and all(isinstance(b, int) for b in binning12a):
         binning12a = space12a.binning
     space12b = zfit.Space(
         obs12,
         limits=([low + shift for low in lower12], [up + shift for up in upper12]),
         binning=binning12a,
     )
-
-    # space3 = zfit.Space(('x', 'y', 'z'), limits=([lower1[0], lower1[1], lower2[0]], [upper1[0], upper1[1], upper2[0]]))
     obs2inv = space2a.with_obs(["y", "z"])
 
     space = space1a * space2a
