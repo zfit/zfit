@@ -32,6 +32,8 @@ Requirement changes
 
 Thanks
 ------
+- Justin Skorupa for finding the bug in the sum of histograms and the missing automatic
+  conversion of unbinned spaces to binned spaces.
 
 0.10.0 (22. August 2022)
 ========================
