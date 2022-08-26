@@ -1173,14 +1173,24 @@ class Space(
                These are the lower and upper limits. |@docend:space.init.limits|
             binning: |@doc:space.init.binning| Binning of the space.
                Currently, only regular and variable binning *with a name* is supported.
-               If an integer is given, it is interpreted as the number of bins and
+               If an integer or a list of integers is given with lengths equal to the number of observables,
+               it is interpreted as the number of bins and
                a regular binning is automatically created using the limits as the
                start and end points. |@docend:space.init.binning|
             name: |@doc:space.init.name| Human-readable name of the space. |@docend:space.init.name|
+
+        Raises
+            TypeError: If the axes in the binning do not have a name.
+            ObsIncompatibleError: If the obs do not agree with the name of the binning.
+            ShapeIncompatibleError: If the shape of the limits or the binnings do not match the shape of the obs.
         """
         if name is None:
             name = "Space"
-        if not isinstance(binning, int):
+        integer_autobinning = isinstance(binning, int) or (
+            isinstance(binning, (list, tuple))
+            and all(isinstance(b, int) for b in binning)
+        )
+        if not integer_autobinning:
             if not isinstance(binning, Binnings):
                 binning = convert_to_container(binning)
                 if binning is not None:
@@ -1212,28 +1222,50 @@ class Space(
         self._limits_dict = limits_dict
 
         if isinstance(binning, int):
-            if not self.n_obs == 1:
-                raise ValueError("Can only use integer as binning with 1D spaces")
-            if binning < 1:
-                raise ValueError("If binning is an integer, it must be > 0")
-            lower = self.lower[0][0]
-            upper = self.upper[0][0]
-            binning = Binnings(
-                [
-                    RegularBinning(
-                        bins=binning, start=lower, stop=upper, name=self.obs[0]
-                    )
-                ]
-            )
+            binning = [binning]
+        if integer_autobinning:
+            if len(binning) != self.n_obs:
+                raise ShapeIncompatibleError(
+                    f"Wrong number ({len(binning)}) of integers given for regular binning"
+                    f" ({binning}) with {self.n_obs} observables ({self.obs})."
+                    f" Numbers have to match the number of observables."
+                )
+            regular_binnings = []
+            for i, nbins in enumerate(binning):
+                if nbins < 1:
+                    raise ValueError("If binning is an integer, it must be > 0")
 
+                lower = self.lower[0][i]
+                upper = self.upper[0][i]
+                regular_binnings.append(
+                    RegularBinning(
+                        bins=nbins, start=lower, stop=upper, name=self.obs[i]
+                    )
+                )
+
+            binning = Binnings(regular_binnings)
+        if binning is not None:
+            bining_names = set(binning.name)
+            obs = set(self.obs)
+            wrong_names = bining_names - obs
+            if wrong_names:
+                raise ObsIncompatibleError(
+                    f"Binning names ({wrong_names}) do not match observables ({obs}), {wrong_names} not in space."
+                )
+            missing_obs = obs - bining_names
+            if missing_obs:
+                raise ObsIncompatibleError(
+                    f"Binning names ({missing_obs}) do not match observables ({obs}), missing {missing_obs}."
+                )
+            binning = Binnings([binning[ob] for ob in self.obs])
         self._binning = binning
 
     # TODO(Mayou36): put it everywhere, multilimits
     @property
     def binning(self):
         binning_out = self._binning
-        if binning_out is not None:
-            binning_out = Binnings([binning_out[ob] for ob in self.obs])
+        # if binning_out is not None:
+        #     binning_out =
         return binning_out
 
     @property

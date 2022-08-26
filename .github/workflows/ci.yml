@@ -38,18 +38,10 @@ jobs:
             extras: alldev
             python-version: "3.10"
             use-graph: 0
-          #            python-version: 3.9
-          #            use-graph: 0
-          #- os: macos-latest
-          #            python-version: 3.9
-          #            use-graph: 0
           - os: macos-latest
             python-version: "3.10"
             use-graph: 1
             extras: alldev-nonlinux
-          #          - os: windows-latest
-          #            python-version: 3.9
-          #            use-graph: 0
           - os: windows-latest
             python-version: "3.10"
             use-graph: 1

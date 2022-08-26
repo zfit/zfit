@@ -8,7 +8,8 @@ space.init.limits: |1+
 space.init.binning: |1+
     Binning of the space.
                 Currently, only regular and variable binning *with a name* is supported.
-                If an integer is given, it is interpreted as the number of bins and
+                If an integer or a list of integers is given with lengths equal to the number of observables,
+                it is interpreted as the number of bins and
                 a regular binning is automatically created using the limits as the
                 start and end points.
 

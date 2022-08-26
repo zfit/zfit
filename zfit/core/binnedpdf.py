@@ -249,9 +249,11 @@ class BaseBinnedPDFV1(
             norm = self.norm
         if norm is None:
             if none_is_error:
-                raise ValueError(f"norm cannot be None for this function.")
-        elif (norm is not False) and (not isinstance(norm, ZfitSpace)):
+                raise ValueError("norm cannot be None for this function.")
+        elif norm is not False and not isinstance(norm, ZfitSpace):
             raise TypeError(f"`norm` needs to be a binned ZfitSpace, not {norm}.")
+        elif not norm.is_binned:
+            norm = norm.with_binning(self.space.binning)
         return norm
 
     def _check_convert_limits(self, limits):
@@ -259,6 +261,8 @@ class BaseBinnedPDFV1(
             limits = self.space
         if not isinstance(limits, ZfitSpace):
             limits = convert_to_space(obs=self.obs, limits=limits)
+        if isinstance(limits, ZfitSpace) and not limits.is_binned:
+            limits = limits.with_binning(self.space.binning)
         return limits
 
     @_BinnedPDF_register_check_support(True)

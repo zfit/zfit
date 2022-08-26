@@ -7,7 +7,12 @@ from zfit import z
 from zfit._variables.axis import RegularBinning
 from zfit.core.coordinates import Coordinates
 from zfit.core.space import ANY, Limit, Space
-from zfit.util.exception import CoordinatesUnderdefinedError, LimitsIncompatibleError
+from zfit.util.exception import (
+    CoordinatesUnderdefinedError,
+    LimitsIncompatibleError,
+    ShapeIncompatibleError,
+    ObsIncompatibleError,
+)
 
 
 @pytest.fixture(autouse=True, scope="module")
@@ -416,6 +421,12 @@ def test_space_add(limits):
             "z": zfit.binned.VariableBinning([1, 2, 4, 5.2, 6.3, 11.2], name="z"),
             "a": zfit.binned.RegularBinning(12, 2, 4, name="a"),
         },
+        {
+            "x": 4,
+            "y": 5,
+            "z": 6,
+            "a": 4,
+        },
     ],
 )
 def test_combine_spaces(binning):
@@ -432,6 +443,10 @@ def test_combine_spaces(binning):
     else:
         binning1 = None
     space1a = zfit.Space(obs1, limits=(lower1, upper1), binning=binning1)
+    if binning1 is not None and all(
+        isinstance(b, int) for b in binning1
+    ):  # if we create the binning automatically
+        binning1 = space1a.binning
     space1b = zfit.Space(obs1, limits=(lower1b, upper1b), binning=binning1)
     obs2 = ["z", "y"]
     if binning is not None:
@@ -439,6 +454,10 @@ def test_combine_spaces(binning):
     else:
         binning2 = None
     space2a = zfit.Space(obs2, limits=(lower2, upper2), binning=binning2)
+    if binning1 is not None and all(
+        isinstance(b, int) for b in binning2
+    ):  # if we create the binning automatically
+        binning2 = space2a.binning
     space2b = zfit.Space(obs2, limits=(lower2b, upper2b), binning=binning2)
     obs3 = ["a", "y", "x"]
     if binning is not None:
@@ -456,13 +475,13 @@ def test_combine_spaces(binning):
     else:
         binning12a = None
     space12a = zfit.Space(obs12, limits=(lower12, upper12), binning=binning12a)
+    if binning1 is not None and all(isinstance(b, int) for b in binning12a):
+        binning12a = space12a.binning
     space12b = zfit.Space(
         obs12,
         limits=([low + shift for low in lower12], [up + shift for up in upper12]),
         binning=binning12a,
     )
-
-    # space3 = zfit.Space(('x', 'y', 'z'), limits=([lower1[0], lower1[1], lower2[0]], [upper1[0], upper1[1], upper2[0]]))
     obs2inv = space2a.with_obs(["y", "z"])
 
     space = space1a * space2a
@@ -508,3 +527,13 @@ def test_create_binned_raises():
         zfit.Space("x", binning=0)
     with pytest.raises(TypeError):
         zfit.binned.RegularBinning(5, -10, 10)
+    with pytest.raises(ShapeIncompatibleError):
+        zfit.Space(["x", "y"], limits=[(-10, -5), (5, 10)], binning=[3, 5, 2])
+    binning = zfit.binned.VariableBinning([1, 5, 7.3, 11.2], name="y")
+    with pytest.raises(ObsIncompatibleError):
+        _ = zfit.Space("x", binning=binning)
+    binning = (binning, zfit.binned.VariableBinning([1, 5, 7.3, 11.2], name="x"))
+    with pytest.raises(ShapeIncompatibleError):
+        _ = zfit.Space("x", binning=binning)
+    with pytest.raises(ObsIncompatibleError):
+        _ = zfit.Space(["x", "z"], binning=binning)
