@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from .. import z
+
 if TYPE_CHECKING:
     import zfit
 
@@ -328,7 +330,7 @@ def automatic_value_gradients_hessian(*args, **kwargs):
     return automatic_value_gradient_hessian(*args, **kwargs)
 
 
-@tf.function(autograph=False)
+# @z.function  # TODO: circular import, improve?
 def reduce_geometric_mean(input_tensor, axis=None, weights=None, keepdims=False):
     if weights is not None:
         log_mean = tf.nn.weighted_moments(

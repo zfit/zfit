@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import contextlib
 import functools
 import logging
+from weakref import WeakSet
 import math as _mt
 from collections import defaultdict
 from collections.abc import Callable
@@ -155,8 +157,8 @@ def run_no_nan(func, x):
 
 
 class FunctionWrapperRegistry:
-    all_wrapped_functions = []
-    registries = []
+    registries = WeakSet()
+    _debug_all_tf_functions = WeakSet()
     allow_jit = True
     _DEFAULT_DO_JIT_TYPES = defaultdict(lambda: True)
     _DEFAULT_DO_JIT_TYPES.update(
@@ -173,12 +175,6 @@ class FunctionWrapperRegistry:
 
     do_jit_types = _DEFAULT_DO_JIT_TYPES.copy()
 
-    @classmethod
-    def all_wrapped_functions_registered(cls):
-        return all(
-            func.zfit_graph_cache_registered for func in cls.all_wrapped_functions
-        )
-
     def __init__(self, wraps=None, stateless_args=None, **kwargs_user) -> None:
         """`tf.function`-like decorator with additional cache-invalidation functionality.
 
@@ -190,15 +186,15 @@ class FunctionWrapperRegistry:
             stateless_args = False
         self._initial_user_kwargs = kwargs_user
 
-        self.registries.append(self)
+        self.registries.add(self)  # TODO: remove?
+        self.python_func = None
         self.wrapped_func = None
 
         if wraps not in self.do_jit_types:
-            # raise RuntimeError(f"Currently custom 'wraps' category ({wraps}) not allowed, set explicitly in `do_jit_types`")
             self.do_jit_types[wraps] = True
         self.wraps = wraps
         self.stateless_args = stateless_args
-        self.function_cache = defaultdict(list)
+        self.function_cache = []
         self.reset(**self._initial_user_kwargs)
         self.currently_traced = set()
 
@@ -210,51 +206,97 @@ class FunctionWrapperRegistry:
         kwargs = dict(autograph=False, reduce_retracing=False)
         kwargs.update(self._initial_user_kwargs)
         kwargs.update(kwargs_user)
-        self.tf_function = tf.function(**kwargs)
-        for cache in self.function_cache.values():
-            cache.clear()
+        self.tf_function_kwargs = kwargs
+        self.function_cache.clear()
+
+    @property
+    def tf_function(self):
+        function = tf.function(**self.tf_function_kwargs)
+
+        return function
 
     def __call__(self, func):
         wrapped_func = self.tf_function(func)
-        cache = self.function_cache[func]
+        cache = self.function_cache
         from ..util.cache import FunctionCacheHolder
 
         def concrete_func(*args, **kwargs):
+            # TODO: add limited cache side, maybe check if inside big function, grow cache.
 
             if not self.do_jit or func in self.currently_traced:
                 return func(*args, **kwargs)
 
-            assert self.all_wrapped_functions_registered()
-
             self.currently_traced.add(func)
-            nonlocal wrapped_func
-            function_holder = FunctionCacheHolder(func, wrapped_func, args, kwargs)
+            nonlocal wrapped_func, cache
 
-            if function_holder in cache:
-                # print("DEBUG: using cached function")
+            def deleter(function_holder):
+                with contextlib.suppress(ValueError):
+                    cache.remove(function_holder)
+
+            #
+            function_holder = FunctionCacheHolder(
+                func,
+                wrapped_func,
+                args,
+                kwargs,
+                deleter=deleter,
+                stateless_args=self.stateless_args,
+            )
+            #
+            try:
                 func_holder_index = cache.index(function_holder)
-                func_holder_cached = cache[func_holder_index]
-                if func_holder_cached.is_valid:
-                    function_holder = func_holder_cached
-                else:
-                    wrapped_func = self.tf_function(
-                        func
-                    )  # update nonlocal wrapped function
-                    function_holder = FunctionCacheHolder(
-                        func, wrapped_func, args, kwargs
-                    )
-                    cache[func_holder_index] = function_holder
-            else:
-                # print(f"DEBUG: caching function {func} with args {args} and kwargs {kwargs}")
+            except ValueError:
+                # cache = cache[-10:]
+                wrapped_func = self.tf_function(func)
+                func_to_run = wrapped_func
+                function_holder = FunctionCacheHolder(
+                    func,
+                    wrapped_func,
+                    args,
+                    kwargs,
+                    deleter=deleter,
+                    stateless_args=self.stateless_args,
+                )
                 cache.append(function_holder)
-            func_to_run = function_holder.wrapped_func
+            else:
+                func_to_run = cache[func_holder_index].wrapped_func
+            # if function_holder in cache:
+            #     # print("DEBUG: using cached function")
+            #
+            #     func_holder_cached = cache[0]
+            #     func_to_run = func_holder_cached.wrapped_func
+            # else:
+            #     cache.clear()
+
+            #     if func_holder_cached.is_valid:
+            #         function_holder = func_holder_cached
+            #     else:
+            #         cache.clear()
+            #         self_tf_function = self.tf_function
+            #         wrapped_func = self_tf_function(
+            #             func
+            #         )  # update nonlocal wrapped function
+            #         self._debug_all_tf_functions.add(self_tf_function)
+            #         print(f"Registered {self_tf_function}, {self._debug_all_tf_functions}")
+            #         function_holder = FunctionCacheHolder(
+            #             func, wrapped_func, args, kwargs
+            #         )
+            #         cache.append(function_holder)
+            # else:
+            #     # print(f"DEBUG: caching function {func} with args {args} and kwargs {kwargs}")
+            #     cache.clear()
+            #     cache.append(function_holder)
+            # func_to_run = function_holder.wrapped_func
+            # import gc
+            #
+            # gc.collect()
             try:
                 result = func_to_run(*args, **kwargs)
             finally:
                 self.currently_traced.remove(func)
             return result
 
-        concrete_func.zfit_graph_cache_registered = False
+        # concrete_func.zfit_graph_cache_registered = False
         return concrete_func
 
 

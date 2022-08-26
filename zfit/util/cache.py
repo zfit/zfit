@@ -54,6 +54,7 @@ import functools
 import weakref
 from abc import abstractmethod
 from collections.abc import Iterable
+from contextlib import suppress
 from itertools import zip_longest
 from typing import Optional
 
@@ -164,7 +165,7 @@ class GraphCachable(ZfitGraphCachable):
     def _clean_cache(self):
         # for func_holder in self.graph_caching_methods:
         #     func_holder.reset
-        self._cache = {}
+        self._cache.clear()
         return
 
     def _inform_cachers(self):
@@ -180,7 +181,16 @@ def invalidate_graph(func):
             raise TypeError(
                 "Decorator can only be used in a subclass of `ZfitGraphCachable`"
             )
-        self.reset_cache(reseter=self)
+
+        from .. import run
+
+        if not tf.inside_function():
+            run.clear_graph_cache()
+        else:
+            self.reset_cache(reseter=self)
+            # raise RuntimeError(f"The function {func} is not supported in graph mode as it modifies pieces that invalidate"
+            #                    " the graph. If you think this should work, please open an issue on"
+            #                    " https://github.com/zfit/zfit/issues/new/choose.")
 
         return func(*args, **kwargs)
 
@@ -189,6 +199,7 @@ def invalidate_graph(func):
 
 class FunctionCacheHolder(GraphCachable):
     IS_TENSOR = object()
+    _debug_all_caches = weakref.WeakSet()
 
     def __init__(
         self,
@@ -197,6 +208,7 @@ class FunctionCacheHolder(GraphCachable):
         cachables: (ZfitGraphCachable | object | Iterable[ZfitGraphCachable]) = None,
         cachables_mapping=None,
         stateless_args: bool | None = None,
+        deleter=None,
     ):
         """`tf.function` decorated function holder with caching dependencies on inputs.
 
@@ -225,7 +237,7 @@ class FunctionCacheHolder(GraphCachable):
             stateless_args: If `True`, the arguments that are normally stateful, such as `tf.Variable`s, are regarded
                 as stateless.
         """
-
+        self.deleter = lambda x: None
         self.delete_from_cache = False
         if stateless_args is None:
             stateless_args = False
@@ -256,9 +268,12 @@ class FunctionCacheHolder(GraphCachable):
         super().__init__()  # resets the cache
         self.add_cache_deps(cachables_all)
         self.is_valid = True  # needed to make the cache valid again
+        self._debug_all_caches.add(self)
+        self.deleter = deleter
 
     def reset_cache_self(self):
         self.is_valid = False
+        self.deleter(self)
 
     def create_immutable(self, args, kwargs):
         """Create a tuple of the args and kwargs by combining them as args + kwargs.keys() + kwargs.values()`
@@ -345,17 +360,17 @@ def clear_graph_cache():
     from zfit.z.zextension import FunctionWrapperRegistry
 
     for registry in FunctionWrapperRegistry.registries:
-        for all_meth in registry.function_cache.values():
-            for wrapped_meth in all_meth:
-                wrapped_meth = wrapped_meth.wrapped_func
-                wrapped_meth._created_variables = None
-                wrapped_meth._stateful_fn = None
-                wrapped_meth._stateless_fn = None
-                wrapped_meth._descriptor_cache.clear()
+        for wrapped_meth in registry.function_cache:
+            wrapped_meth = wrapped_meth.wrapped_func
+            wrapped_meth._created_variables = None
+            wrapped_meth._stateful_fn = None
+            wrapped_meth._stateless_fn = None
+            wrapped_meth._descriptor_cache.clear()
 
     for registry in FunctionWrapperRegistry.registries:
         registry.reset()
     for instance in GraphCachable.instances:
         instance.reset_cache("global")
     # Cachable.graph_caching_methods.clear()
+
     tf.compat.v1.reset_default_graph()
