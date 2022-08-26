@@ -220,7 +220,7 @@ class FunctionWrapperRegistry:
         self.tf_function_kwargs = kwargs
         self.function_cache.clear()
 
-    def set_cache_size(self, cachesize: int | None = None):
+    def set_graph_cache_size(self, cachesize: int | None = None):
         """Set the size of the graph cache.
 
         Args:
@@ -287,7 +287,7 @@ class FunctionWrapperRegistry:
                         warnings.warn(
                             f"Function {function_holder.python_func} was removed from the cache more than 3"
                             f" times (and getting recompiled). Maybe consider increasing the cache size"
-                            f" using `zfit.run.set_cache_size(...)`, the current size is {self.cachesize}."
+                            f" using `zfit.run.set_graph_cache_size(...)`, the current size is {self.cachesize}."
                         )
 
                         self._deleted_cachers - collections.Counter(
@@ -304,18 +304,18 @@ class FunctionWrapperRegistry:
                 self.currently_traced.remove(func)
             return result
 
-        # concrete_func.zfit_graph_cache_registered = False
         return concrete_func
 
 
 # equivalent to tf.function
-def function(func=None, *, stateless_args=None, **kwargs):
+def function(func=None, *, stateless_args=None, cachesize=None, **kwargs):
     """JIT/Graph compilation of functions, `tf.function`-like with additional cache-invalidation functionality.
 
     Args:
         func: Function to be compiled.
         stateless_args: If True, the function is assumed to be stateless and *does not depend on the name of tf.Variables*
             but only needs the values of the variables. This is not the case for taking gradients, for example.
+        cachesize: Size of the cache. If None, the default size is used.
         **kwargs: arguments to `tf.function`
 
     Returns:

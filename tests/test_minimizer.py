@@ -452,7 +452,7 @@ def test_minimizers(
         not long_clarg
         and not do_long
         and not (
-            chunksize == chunksizes[0] and numgrad == False and spaces is spaces_all[0]
+            chunksize == chunksizes[0] and numgrad is False and spaces is spaces_all[0]
         )
     )
 

@@ -9,6 +9,11 @@ Develop
 
 Major Features and Improvements
 -------------------------------
+- reduce the memory footprint on (some) fits, especially repetitive (loops) ones.
+  Reduces the number of cached compiled functions. The cachesize can be set with
+  ``zfit.run.set_cache_size(int)``
+  and specifies the number of compiled functions that are kept in memory. The default is 10, but
+  this can be tuned. Lower values can reduce memory usage, but potentially increase runtime.
 
 Breaking changes
 ------------------
