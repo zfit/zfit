@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import contextlib
 import functools
+import collections
 import logging
 from weakref import WeakSet
 import math as _mt
@@ -160,6 +161,7 @@ class FunctionWrapperRegistry:
     registries = WeakSet()
     _debug_all_tf_functions = WeakSet()
     allow_jit = True
+    DEFAULT_CACHE_SIZE = 10
     _DEFAULT_DO_JIT_TYPES = defaultdict(lambda: True)
     _DEFAULT_DO_JIT_TYPES.update(
         {
@@ -175,13 +177,17 @@ class FunctionWrapperRegistry:
 
     do_jit_types = _DEFAULT_DO_JIT_TYPES.copy()
 
-    def __init__(self, wraps=None, stateless_args=None, **kwargs_user) -> None:
+    def __init__(
+        self, wraps=None, stateless_args=None, cachesize=None, **kwargs_user
+    ) -> None:
         """`tf.function`-like decorator with additional cache-invalidation functionality.
 
         Args:
             **kwargs_user: arguments to `tf.function`
         """
         super().__init__()
+        if cachesize is None:
+            cachesize = self.DEFAULT_CACHE_SIZE
         if stateless_args is None:
             stateless_args = False
         self._initial_user_kwargs = kwargs_user
@@ -191,10 +197,12 @@ class FunctionWrapperRegistry:
         self.wrapped_func = None
 
         if wraps not in self.do_jit_types:
-            self.do_jit_types[wraps] = True
+            from ..settings import run
+
+            self.do_jit_types[wraps] = bool(run.get_graph_mode())
         self.wraps = wraps
         self.stateless_args = stateless_args
-        self.function_cache = []
+        self.function_cache = collections.deque(maxlen=cachesize)
         self.reset(**self._initial_user_kwargs)
         self.currently_traced = set()
 
@@ -227,7 +235,7 @@ class FunctionWrapperRegistry:
                 return func(*args, **kwargs)
 
             self.currently_traced.add(func)
-            nonlocal wrapped_func, cache
+            nonlocal wrapped_func
 
             def deleter(function_holder):
                 with contextlib.suppress(ValueError):
@@ -246,7 +254,6 @@ class FunctionWrapperRegistry:
             try:
                 func_holder_index = cache.index(function_holder)
             except ValueError:
-                # cache = cache[-10:]
                 wrapped_func = self.tf_function(func)
                 func_to_run = wrapped_func
                 function_holder = FunctionCacheHolder(
