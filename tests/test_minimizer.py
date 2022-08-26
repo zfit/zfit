@@ -443,7 +443,7 @@ def test_minimizers(
     if not isinstance(test_error, dict):
         test_error = {"error": test_error}
 
-    numgrad = test_error.get("numgrad", False)
+    # numgrad = test_error.get("numgrad", False)
     do_long = test_error.get("longtests", False)
     has_approx = test_error.get("approx", False)
     test_error = test_error["error"]
@@ -452,15 +452,12 @@ def test_minimizers(
         not long_clarg
         and not do_long
         and not (
-            chunksize == chunksizes[0]
-            and numgrad == numgrads[0]
-            and spaces is spaces_all[0]
+            chunksize == chunksizes[0] and numgrad == False and spaces is spaces_all[0]
         )
     )
 
     if skip_tests:
-        pass
-        # return
+        return
     if not long_clarg and not do_long:
         test_error = False
 

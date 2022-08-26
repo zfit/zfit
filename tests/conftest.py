@@ -34,6 +34,7 @@ def setup_teardown():
             del sys.modules[m]
 
     yield
+
     from zfit.core.parameter import ZfitParameterMixin
 
     ZfitParameterMixin._existing_params.clear()
@@ -47,6 +48,7 @@ def setup_teardown():
     zfit.run.chunking.max_n_points = old_chunksize
     zfit.run.set_graph_mode(old_graph_mode)
     zfit.run.set_autograd_mode(old_autograd_mode)
+    zfit.run.set_graph_cache_size()
     for m in sys.modules.keys():
         if m not in init_modules:
             del sys.modules[m]
