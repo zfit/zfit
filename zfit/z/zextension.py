@@ -10,7 +10,7 @@ from weakref import WeakSet
 import math as _mt
 from collections import defaultdict
 from collections.abc import Callable
-from typing import Any
+from typing import Any, Optional
 
 import numpy as np
 import tensorflow as tf
@@ -202,9 +202,10 @@ class FunctionWrapperRegistry:
             self.do_jit_types[wraps] = bool(run.get_graph_mode())
         self.wraps = wraps
         self.stateless_args = stateless_args
-        self.function_cache = collections.deque(maxlen=cachesize)
+        self.function_cache = collections.deque()
         self.reset(**self._initial_user_kwargs)
         self.currently_traced = set()
+        self.cachesize = cachesize
 
     @property
     def do_jit(self):
@@ -216,6 +217,18 @@ class FunctionWrapperRegistry:
         kwargs.update(kwargs_user)
         self.tf_function_kwargs = kwargs
         self.function_cache.clear()
+
+    def set_cache_size(self, cachesize: int | None = None):
+        """Set the size of the graph cache.
+
+        Args:
+            cachesize: Size of the cache. If None, the default size is used.
+        """
+        if cachesize is None:
+            cachesize = self.DEFAULT_CACHE_SIZE
+        self.cachesize = cachesize
+        while len(self.function_cache) >= self.cachesize:
+            self.function_cache.popleft()
 
     @property
     def tf_function(self):
@@ -264,6 +277,8 @@ class FunctionWrapperRegistry:
                     deleter=deleter,
                     stateless_args=self.stateless_args,
                 )
+                if len(cache) >= self.cachesize:
+                    cache.popleft()
                 cache.append(function_holder)
             else:
                 func_to_run = cache[func_holder_index].wrapped_func

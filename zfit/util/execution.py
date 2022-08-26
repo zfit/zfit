@@ -6,6 +6,7 @@ import contextlib
 import multiprocessing
 import os
 import sys
+from typing import Optional
 
 import tensorflow as tf
 from dotmap import DotMap
@@ -385,6 +386,17 @@ class RunManager:
         from zfit.util.cache import clear_graph_cache
 
         clear_graph_cache()
+
+    def set_graph_cache_size(self, size: int | None = None):
+        """Set the size of the graph cache.
+
+        Args:
+            size: The size of the cache. If None, the default size is used.
+        """
+        from zfit.z.zextension import FunctionWrapperRegistry
+
+        for registry in FunctionWrapperRegistry.registries:
+            registry.set_cache_size(size)
 
     def assert_executing_eagerly(self):
         """Assert that the execution is eager and Python side effects are taken into account.
