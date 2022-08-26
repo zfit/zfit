@@ -296,19 +296,37 @@ class FunctionCacheHolder(GraphCachable):
         return tuple(combined_cleaned)
 
     def get_immutable_repr_obj(self, obj):
-        from ..core.interfaces import ZfitData, ZfitParameter, ZfitSpace
+        from ..core.interfaces import (
+            ZfitData,
+            ZfitParameter,
+            ZfitSpace,
+            ZfitLoss,
+            ZfitModel,
+            ZfitConstraint,
+            ZfitPDF,
+            ZfitLimit,
+        )
 
         if isinstance(obj, collections.abc.Mapping):
             obj = obj.items()
-        if isinstance(obj, ZfitData):
+        if isinstance(
+            obj,
+            (
+                ZfitData,
+                ZfitLoss,
+                ZfitModel,
+                ZfitConstraint,
+                ZfitPDF,
+                ZfitLimit,
+                ZfitSpace,
+            ),
+        ):
             obj = id(obj)
         elif isinstance(obj, ZfitParameter):
             if self.stateless_args:
                 obj = (self.IS_TENSOR,)
             else:
                 obj = (ZfitParameter, obj.name)
-        elif isinstance(obj, ZfitSpace):
-            obj = id(obj)
         elif tf.is_tensor(obj):
             obj = (self.IS_TENSOR,)
         elif isinstance(obj, np.ndarray):

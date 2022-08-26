@@ -6,6 +6,7 @@ import contextlib
 import functools
 import collections
 import logging
+import warnings
 from weakref import WeakSet
 import math as _mt
 from collections import defaultdict
@@ -191,6 +192,7 @@ class FunctionWrapperRegistry:
         if stateless_args is None:
             stateless_args = False
         self._initial_user_kwargs = kwargs_user
+        self._deleted_cachers = collections.Counter()
 
         self.registries.add(self)  # TODO: remove?
         self.python_func = None
@@ -239,6 +241,7 @@ class FunctionWrapperRegistry:
     def __call__(self, func):
         wrapped_func = self.tf_function(func)
         cache = self.function_cache
+        deleted_cachers = self._deleted_cachers
         from ..util.cache import FunctionCacheHolder
 
         def concrete_func(*args, **kwargs):
@@ -254,7 +257,6 @@ class FunctionWrapperRegistry:
                 with contextlib.suppress(ValueError):
                     cache.remove(function_holder)
 
-            #
             function_holder = FunctionCacheHolder(
                 func,
                 wrapped_func,
@@ -278,40 +280,24 @@ class FunctionWrapperRegistry:
                     stateless_args=self.stateless_args,
                 )
                 if len(cache) >= self.cachesize:
-                    cache.popleft()
+                    popped_holder = cache.popleft()
+                    hash_popped_holder = hash(popped_holder)
+                    deleted_cachers.update((hash_popped_holder,))
+                    if self._deleted_cachers[hash_popped_holder] > 3:
+                        warnings.warn(
+                            f"Function {function_holder.python_func} was removed from the cache more than 3"
+                            f" times (and getting recompiled). Maybe consider increasing the cache size"
+                            f" using `zfit.run.set_cache_size(...)`, the current size is {self.cachesize}."
+                        )
+
+                        self._deleted_cachers - collections.Counter(
+                            {hash(function_holder): int(-1e100)}
+                        )  # won't be warned again
+                    del popped_holder
                 cache.append(function_holder)
             else:
                 func_to_run = cache[func_holder_index].wrapped_func
-            # if function_holder in cache:
-            #     # print("DEBUG: using cached function")
-            #
-            #     func_holder_cached = cache[0]
-            #     func_to_run = func_holder_cached.wrapped_func
-            # else:
-            #     cache.clear()
 
-            #     if func_holder_cached.is_valid:
-            #         function_holder = func_holder_cached
-            #     else:
-            #         cache.clear()
-            #         self_tf_function = self.tf_function
-            #         wrapped_func = self_tf_function(
-            #             func
-            #         )  # update nonlocal wrapped function
-            #         self._debug_all_tf_functions.add(self_tf_function)
-            #         print(f"Registered {self_tf_function}, {self._debug_all_tf_functions}")
-            #         function_holder = FunctionCacheHolder(
-            #             func, wrapped_func, args, kwargs
-            #         )
-            #         cache.append(function_holder)
-            # else:
-            #     # print(f"DEBUG: caching function {func} with args {args} and kwargs {kwargs}")
-            #     cache.clear()
-            #     cache.append(function_holder)
-            # func_to_run = function_holder.wrapped_func
-            # import gc
-            #
-            # gc.collect()
             try:
                 result = func_to_run(*args, **kwargs)
             finally:
