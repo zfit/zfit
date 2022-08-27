@@ -7,6 +7,8 @@ from typing import TYPE_CHECKING, Union
 import xxhash
 from tensorflow.python.util.deprecation import deprecated_args, deprecated
 
+from .parameter import set_values
+
 if TYPE_CHECKING:
     import zfit
 
@@ -801,12 +803,9 @@ class Sampler(Data):
         if param_values is not None:
             temp_param_values.update(param_values)
 
-        with ExitStack() as stack:
-
-            _ = [
-                stack.enter_context(param.set_value(val))
-                for param, val in temp_param_values.items()
-            ]
+        with set_values(
+            list(temp_param_values.keys()), list(temp_param_values.values())
+        ):
 
             # if not (n and self._initial_resampled):  # we want to load and make sure that it's initialized
             #     # means it's handled inside the function

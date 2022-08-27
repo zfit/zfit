@@ -21,7 +21,7 @@ import uhi
 import zfit
 import zfit.z.numpy as znp
 from zfit import z
-from zfit._data.binneddatav1 import BinnedData, move_axis_obs
+from zfit._data.binneddatav1 import BinnedData, move_axis_obs, BinnedSampler
 from .baseobject import BaseNumeric, extract_filter_params
 from .binning import unbinned_to_binindex
 from .data import Data
@@ -555,6 +555,76 @@ class BaseBinnedPDFV1(
     @_BinnedPDF_register_check_support(True)
     def _ext_integrate(self, limits, norm, *, options):
         raise SpecificFunctionNotImplemented
+
+    def create_sampler(
+        self,
+        n: ztyping.nSamplingTypeIn = None,
+        limits: ztyping.LimitsType = None,
+        fixed_params: bool | list[ZfitParameter] | tuple[ZfitParameter] = True,
+    ) -> BinnedSampler:
+        """Create a :py:class:`Sampler` that acts as `Data` but can be resampled, also with changed parameters and n.
+
+            If `limits` is not specified, `space` is used (if the space contains limits).
+            If `n` is None and the model is an extended pdf, 'extended' is used by default.
+
+
+        Args:
+            n: The number of samples to be generated. Can be a Tensor that will be
+                or a valid string. Currently implemented:
+
+                    - 'extended': samples `poisson(yield)` from each pdf that is extended.
+
+            limits: From which space to sample.
+            fixed_params: A list of `Parameters` that will be fixed during several `resample` calls.
+                If True, all are fixed, if False, all are floating. If a :py:class:`~zfit.Parameter` is not fixed and
+                its
+                value gets updated (e.g. by a `Parameter.set_value()` call), this will be reflected in
+                `resample`. If fixed, the Parameter will still have the same value as the `Sampler` has
+                been created with when it resamples.
+
+        Returns:
+            :py:class:`~zfit.core.data.Sampler`
+
+        Raises:
+            NotExtendedPDFError: if 'extended' is chosen (implicitly by default or explicitly) as an
+                option for `n` but the pdf itself is not extended.
+            ValueError: if n is an invalid string option.
+            InvalidArgumentError: if n is not specified and pdf is not extended.
+        """
+
+        if n is None:
+            if self.is_extended:
+                n = znp.random.poisson(self.get_yield(), size=1)
+            else:
+                raise ValueError(
+                    f"n cannot be None for sampling of {self} or needs to be extended."
+                )
+        limits = self._check_convert_limits(limits)
+
+        if fixed_params is True:
+            fixed_params = list(self.get_params(only_floating=False))
+        elif fixed_params is False:
+            fixed_params = []
+        elif not isinstance(fixed_params, (list, tuple)):
+            raise TypeError("`Fixed_params` has to be a list, tuple or a boolean.")
+
+        def sample_func(n=n):
+            return self._create_sampler_tensor(limits=limits, n=n)
+
+        sample_data = BinnedSampler.from_sample(
+            sample_func=sample_func,
+            n=n,
+            obs=limits,
+            fixed_params=fixed_params,
+            dtype=self.dtype,
+        )
+
+        return sample_data
+
+    @z.function(wraps="model")
+    def _create_sampler_tensor(self, limits, n):
+        sample = self._call_sample(n=n, limits=limits)
+        return sample
 
     def sample(
         self, n: int = None, limits: ztyping.LimitsType = None

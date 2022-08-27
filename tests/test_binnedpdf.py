@@ -5,6 +5,7 @@ import hist
 import mplhep
 import numpy as np
 import pytest
+import tqdm
 from matplotlib import pyplot as plt
 
 import zfit.pdf
@@ -259,8 +260,10 @@ def create_gauss2d_binned(n, nbins=130):
     gaussy = zfit.pdf.Gauss(mu=250, sigma=200, obs=obsy)
     prod = zfit.pdf.ProductPDF([gaussx, gaussy])
     prod.set_yield(n)
-    axisx = zfit.binned.RegularBinning(nbins, -5, 10, name="x")
-    axisy = zfit.binned.RegularBinning(nbins, 50, 600, name="y")
+    if isinstance(nbins, int):
+        nbins = [nbins, nbins]
+    axisx = zfit.binned.RegularBinning(nbins[0], -5, 10, name="x")
+    axisy = zfit.binned.RegularBinning(nbins[1], 50, 600, name="y")
     obs_binned = zfit.Space(["x", "y"], binning=[axisx, axisy])
     gauss_binned = BinnedFromUnbinnedPDF(pdf=prod, space=obs_binned, extended=n)
     return prod, gauss_binned, obs2d, obs_binned
@@ -329,3 +332,47 @@ def test_binned_from_unbinned_2D():
     plt.title("Gauss 2D binned plot, irregular (x<4.5 larger bins than x>4.5) binning.")
     mplhep.hist2dplot(hist_pdf)
     pytest.zfit_savefig()
+
+
+@pytest.mark.parametrize("ndim", [1, 2], ids=["1D", "2D"])
+def test_binned_sampler(ndim):
+    nbins = 134
+    if ndim == 1:
+        dims = (nbins,)
+        gauss = create_gauss_binned(n=100000, nbins=dims[0])
+    elif ndim == 2:
+        dims = (nbins, 5)
+        gauss = create_gauss2d_binned(n=100000, nbins=dims)
+    else:
+        raise ValueError("ndim must be 1 or 2")
+    nsampled = 10000
+    sample = gauss[1].sample(n=nsampled)
+    sampler = gauss[1].create_sampler(n=nsampled)
+
+    assert sample.values().shape == dims
+    assert sampler.values().shape == dims
+    assert np.sum(sample.values()) == pytest.approx(nsampled)
+    assert np.sum(sampler.values()) == pytest.approx(nsampled)
+
+    sampler.resample(n=nsampled * 2)
+    assert sampler.values().shape == dims
+    assert np.sum(sampler.values()) == pytest.approx(nsampled * 2)
+
+    if ndim == 2:
+        obs2d = gauss[3]
+        sampler_swapped = sampler.with_obs(
+            obs=obs2d.with_obs([obs2d.obs[1], obs2d.obs[0]])
+        )
+        values_swapped = sampler_swapped.values()
+        assert values_swapped.shape == (dims[1], dims[0])
+        assert np.sum(values_swapped) == pytest.approx(nsampled)
+        sampler_swapped.resample(n=nsampled)
+        assert np.sum(sampler_swapped.values()) == pytest.approx(nsampled)
+        sampler_swapped.resample(n=nsampled * 3)
+        assert np.sum(sampler_swapped.values()) == pytest.approx(nsampled * 3)
+
+    # TODO: extremely slow, why? integrals in multiple dimensions?
+    # start = time.time()
+    # for _ in tqdm.tqdm(range(1000)):
+    #     sampler.resample(n=nsampled)
+    # print(f"Time taken {(time.time() - start) / 1000}")

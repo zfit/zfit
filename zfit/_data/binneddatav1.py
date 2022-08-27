@@ -1,8 +1,15 @@
 #  Copyright (c) 2022 zfit
 
+from collections.abc import Mapping
+from collections.abc import Callable
+
+#  Copyright (c) 2022 zfit
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
+
+from ..core.parameter import set_values
 
 if TYPE_CHECKING:
     import zfit
@@ -215,7 +222,7 @@ class BinnedData(
         return vals
 
     def counts(self):
-        """Effective counts of the histogram as an ndim array.
+        """Effective counts of the histogram as a ndim array.
 
         Compared to ``hist``, zfit does not make a difference between a view and a copy; tensors are immutable.
         This distinction is made in the traced function by the compilation backend.
@@ -272,3 +279,171 @@ class BinnedData(
 
 
 # tensorlike.register_tensor_conversion(BinnedData, name='BinnedData', overload_operators=True)
+
+
+class SampleHolder(BinnedHolder):
+    def with_obs(self, obs):
+        assert False, "INTERNAL ERROR, should never be used directly"
+
+
+class BinnedSampler(BinnedData):
+    _cache_counting = 0
+
+    def __init__(
+        self,
+        dataset: SampleHolder,
+        sample_func: Callable,
+        sample_holder: tf.Variable,
+        n: ztyping.NumericalScalarType | Callable,
+        fixed_params: dict[zfit.Parameter, ztyping.NumericalScalarType] = None,
+    ):
+        from .. import ztypes
+
+        super().__init__(holder=dataset)
+        if fixed_params is None:
+            fixed_params = {}
+        if isinstance(fixed_params, (list, tuple)):
+            fixed_params = {param: param.numpy() for param in fixed_params}
+
+        self._initial_resampled = False
+
+        self.fixed_params = fixed_params
+        self.sample_holder = sample_holder
+        self.sample_func = sample_func
+        self.n = n
+        self._n_holder = n
+        self.resample()  # to be used for precompilations etc
+
+    @property
+    def n_samples(self):
+        return self._n_holder
+
+    @property
+    def _approx_nevents(self):
+        nevents = super()._approx_nevents
+        if nevents is None:
+            nevents = self.n
+        return nevents
+
+    # def _value_internal(self, obs: ztyping.ObsTypeInput = None, filter: bool = True):
+    #     if not self._initial_resampled:
+    #         raise RuntimeError(
+    #             "No data generated yet. Use `resample()` to generate samples or directly use `model.sample()`"
+    #             "for single-time sampling."
+    #         )
+    #     return super()._value_internal(obs=obs, filter=filter)
+
+    @property
+    def hashint(self) -> int | None:
+        return None  # since the variable can be changed but this may stays static... and using 128 bits we can't have
+        # a tf.Variable that keeps the int
+
+    @classmethod
+    def get_cache_counting(cls):
+        counting = cls._cache_counting
+        cls._cache_counting += 1
+        return counting
+
+    @classmethod
+    def from_sample(
+        cls,
+        sample_func: Callable,
+        n: ztyping.NumericalScalarType,
+        obs: ztyping.ObsTypeInput,
+        fixed_params=None,
+        dtype=None,
+    ):
+        from ..core.space import convert_to_space
+
+        obs = convert_to_space(obs)
+
+        if fixed_params is None:
+            fixed_params = []
+        if dtype is None:
+            from .. import ztypes
+
+            dtype = ztypes.float
+        # from tensorflow.python.ops.variables import VariableV1
+        sample_holder = tf.Variable(
+            initial_value=sample_func(n),
+            dtype=dtype,
+            trainable=False,
+            # validate_shape=False,
+            shape=(None,) * obs.n_obs,
+            name=f"sample_hist_holder_{cls.get_cache_counting()}",
+        )
+        dataset = SampleHolder(space=obs, values=sample_holder, variances=None)
+
+        return cls(
+            dataset=dataset,
+            sample_holder=sample_holder,
+            sample_func=sample_func,
+            fixed_params=fixed_params,
+            n=n,
+        )
+
+    def resample(self, param_values: Mapping = None, n: int | tf.Tensor = None):
+        """Update the sample by newly sampling. This affects any object that used this data already.
+
+        All params that are not in the attribute ``fixed_params`` will use their current value for
+        the creation of the new sample. The value can also be overwritten for one sampling by providing
+        a mapping with ``param_values`` from ``Parameter`` to the temporary ``value``.
+
+        Args:
+            param_values: a mapping from :py:class:`~zfit.Parameter` to a `value`. For the current sampling,
+                `Parameter` will use the `value`.
+            n: the number of samples to produce. If the `Sampler` was created with
+                anything else then a numerical or tf.Tensor, this can't be used.
+        """
+        if n is None:
+            n = self.n
+
+        temp_param_values = self.fixed_params.copy()
+        if param_values is not None:
+            temp_param_values.update(param_values)
+
+        with set_values(
+            list(temp_param_values.keys()), list(temp_param_values.values())
+        ):
+
+            # if not (n and self._initial_resampled):  # we want to load and make sure that it's initialized
+            #     # means it's handled inside the function
+            #     # TODO(Mayou36): check logic; what if new_samples loaded? get's overwritten by initializer
+            #     # fixed with self.n, needs cleanup
+            #     if not (isinstance(self.n_samples, str) or self.n_samples is None):
+            #         self.sess.run(self.n_samples.initializer)
+            # if n:
+            #     if not isinstance(self.n_samples, tf.Variable):
+            #         raise RuntimeError("Cannot set a new `n` if not a Tensor-like object was given")
+            # self.n_samples.assign(n)
+
+            new_sample = self.sample_func(n)
+            # self.sample_holder.assign(new_sample)
+            self.sample_holder.assign(new_sample, read_value=False)
+            self._initial_resampled = True
+
+    def with_obs(self, obs: ztyping.ObsTypeInput) -> BinnedSampler:
+        """"""
+        from ..core.space import convert_to_space
+
+        obs = convert_to_space(obs)
+        if obs.obs == self.obs:
+            return self
+
+        def new_sample_func(n):
+            sample = self.sample_func(n)
+            values = move_axis_obs(self.space, obs, sample)
+            return values
+
+        return BinnedSampler.from_sample(
+            sample_func=new_sample_func,
+            n=self.n,
+            obs=obs,
+            fixed_params=self.fixed_params,
+        )
+
+    def values(self) -> znp.array:
+        return znp.asarray(super().values())
+
+    def __str__(self) -> str:
+        return f"<BinnedSampler: {self.name} obs={self.obs}>"
