@@ -91,7 +91,7 @@ class GraphCreator1(GraphCachable):
 
 
 class GraphCreator2(GraphCreator1):
-    @z.function(experimental_relax_shapes=False)
+    @z.function()
     def calc(self, x):
         self.retrace_runs += 1
         return x + self.value + CONST

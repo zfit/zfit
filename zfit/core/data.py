@@ -94,7 +94,7 @@ class Data(
         self.dataset = dataset.batch(100_000_000)
         self._name = name
 
-        self.set_weights(weights=weights)
+        self._set_weights(weights=weights)
         self._hashint = None
         self._update_hash()
 
@@ -173,20 +173,25 @@ class Data(
         Args:
             weights:
         """
-        if weights is not None:
-            weights = z.convert_to_tensor(weights)
-            weights = z.to_real(weights)
-            if weights.shape.ndims != 1:
-                raise ShapeIncompatibleError("Weights have to be 1-Dim objects.")
+        # weights = self._set_weights(weights)
 
         def setter(value):
-            self._weights = value
-            self._update_hash()
+            self._set_weights(value)
 
         def getter():
             return self.weights
 
         return TemporarilySet(value=weights, getter=getter, setter=setter)
+
+    def _set_weights(self, weights):
+        if weights is not None:
+            weights = z.convert_to_tensor(weights)
+            weights = z.to_real(weights)
+            if weights.shape.ndims != 1:
+                raise ShapeIncompatibleError("Weights have to be 1-Dim objects.")
+        self._weights = weights
+        self._update_hash()
+        return weights
 
     @property
     def space(self) -> ZfitSpace:

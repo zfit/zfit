@@ -6,6 +6,7 @@ import contextlib
 import multiprocessing
 import os
 import sys
+from typing import Optional
 
 import tensorflow as tf
 from dotmap import DotMap
@@ -314,7 +315,7 @@ class RunManager:
         from .graph import jit as jit_obj
 
         # only run eagerly if no graph
-        tf.config.run_functions_eagerly(graph is False)
+        # tf.config.run_functions_eagerly(graph is False)
         if graph is True:
             jit_obj._set_all(True)
         elif graph is False:
@@ -385,6 +386,28 @@ class RunManager:
         from zfit.util.cache import clear_graph_cache
 
         clear_graph_cache()
+
+    def set_graph_cache_size(self, size: int | None = None):
+        """Set the size of the graph cache to the same value for all.
+
+        Whenever a function, decorated with `z.function` is called, it is first compiled to a graph, which is cached.
+        For different reasons, there can be different compiled functions of the same Python function (such as changed
+        internal parameters). The cache determines how many compiled functions are kept in memory.
+
+        Args:
+            size:(default=10) The size of the cache. If None, the default size is used. With a lower number, a
+                smaller memory footprint *can* be achieved in some cases, but the runtime *can* be slower in some cases
+                (they do not need to be the same). Potentially, the cache should be at least of the size as the number
+                of calls to a function *with different arguments* is expected to happen *outside of any loop*/within
+                one execution of a loop.
+        """
+        from zfit.z.zextension import FunctionWrapperRegistry
+
+        if size is not None and size < 1:
+            raise ValueError("The size of the cache must be at least 1.")
+
+        for registry in FunctionWrapperRegistry.registries:
+            registry.set_graph_cache_size(size)
 
     def assert_executing_eagerly(self):
         """Assert that the execution is eager and Python side effects are taken into account.

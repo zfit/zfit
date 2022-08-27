@@ -84,4 +84,5 @@ print(result.valid)  # check if the result is still valid
 # plot the data
 
 plot_pdf("after fit")
-plt.show()
+# uncomment to display plots
+# plt.show()

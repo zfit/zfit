@@ -10,8 +10,16 @@ from zfit import z
     zfit.run.get_graph_mode() is False,
     reason="If not using graph mode, we cannot test if graphs work or not.",
 )
-def test_modes():
+@pytest.mark.parametrize("cachesize", [1, 10, 1000, None])
+def test_modes(cachesize):
     counts = 0
+
+    zfit.run.set_graph_cache_size(cachesize)
+    if cachesize is not None:
+        assert all(
+            register.cachesize == cachesize
+            for register in zfit.z.zextension.FunctionWrapperRegistry.registries
+        )
 
     @z.function(wraps="42")
     def func(x):
