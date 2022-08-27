@@ -83,7 +83,8 @@ Requirement changes
 -------------------
 - nlopt and ipyopt are now optional dependencies.
 - Python 3.10 added
-- TensorFlow ~= 2.9.0 is now required and the corresponding TensorFlow-Probability version ~= 0.17.0
+- TensorFlow >= 2.9.0, <2.11 is now required and the corresponding TensorFlow-Probability
+  version >= 0.17.0, <0.19.0
 
 Thanks
 ------
