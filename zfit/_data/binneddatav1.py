@@ -1,16 +1,11 @@
 #  Copyright (c) 2022 zfit
 
-from collections.abc import Callable
-from collections.abc import Mapping
-
-#  Copyright (c) 2022 zfit
-
 from __future__ import annotations
 
-#  Copyright (c) 2022 zfit
-
-
 from typing import TYPE_CHECKING
+
+from collections.abc import Callable
+from collections.abc import Mapping
 
 from ..core.parameter import set_values
 
