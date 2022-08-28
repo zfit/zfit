@@ -405,7 +405,12 @@ class BinnedSampler(BinnedData):
             self._initial_resampled = True
 
     def with_obs(self, obs: ztyping.ObsTypeInput) -> BinnedSampler:
-        """"""
+        """Create a new :py:class:`~zfit.core.data.BinnedSampler` with the same sample but different ordered
+        observables.
+
+        Args:
+            obs: The new observables
+        """
         from ..core.space import convert_to_space
 
         obs = convert_to_space(obs)

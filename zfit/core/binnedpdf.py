@@ -322,7 +322,7 @@ class BaseBinnedPDFV1(
             ordered_values = move_axis_obs(self.space, original_space, values)
         return znp.asarray(ordered_values)
 
-    @z.function(wraps="model")
+    @z.function(wraps="model_binned")
     def _call_pdf(self, x, norm):
         with suppress(SpecificFunctionNotImplemented):
             return self._auto_pdf(x, norm)
@@ -394,7 +394,7 @@ class BaseBinnedPDFV1(
             ordered_values = move_axis_obs(self.space, original_space, values)
         return znp.asarray(ordered_values)
 
-    @z.function(wraps="model")
+    @z.function(wraps="model_binned")
     def _call_ext_pdf(self, x, norm):
         with suppress(SpecificFunctionNotImplemented):
             return self._auto_ext_pdf(x, norm)
@@ -453,7 +453,7 @@ class BaseBinnedPDFV1(
         limits = self._check_convert_limits(limits)
         return self._call_integrate(limits, norm, options)
 
-    @z.function(wraps="model")
+    @z.function(wraps="model_binned")
     def _call_integrate(self, limits, norm, options=None):
         if options is None:
             options = {}
@@ -520,7 +520,7 @@ class BaseBinnedPDFV1(
         limits = self._check_convert_limits(limits)
         return self._call_ext_integrate(limits, norm, options=options)
 
-    @z.function(wraps="model")
+    @z.function(wraps="model_binned")
     def _call_ext_integrate(self, limits, norm, *, options):
         with suppress(SpecificFunctionNotImplemented):
             return self._auto_ext_integrate(limits, norm, options=options)
@@ -804,7 +804,6 @@ class BaseBinnedPDFV1(
             )
         return space
 
-    @z.function(wraps="model")
     def counts(
         self, x: ztyping.BinnedDataInputType = None, norm: ztyping.NormInputType = None
     ) -> ZfitBinnedData:
@@ -833,7 +832,7 @@ class BaseBinnedPDFV1(
         counts = self._call_counts(x, norm)
         return move_axis_obs(self.space, space, counts)
 
-    @z.function(wraps="model")
+    @z.function(wraps="model_binned")
     def _call_counts(self, x, norm):
         with suppress(SpecificFunctionNotImplemented):
             return self._auto_counts(x, norm)
@@ -872,7 +871,6 @@ class BaseBinnedPDFV1(
     def _counts(self, x, norm):
         raise SpecificFunctionNotImplemented
 
-    @z.function(wraps="model")
     def rel_counts(
         self, x: ztyping.BinnedDataInputType = None, norm: ztyping.NormInputType = None
     ) -> ZfitBinnedData:
@@ -900,7 +898,7 @@ class BaseBinnedPDFV1(
         values = self._call_rel_counts(x, norm)
         return move_axis_obs(self.space, space, values)
 
-    @z.function(wraps="model")
+    @z.function(wraps="model_binned")
     def _call_rel_counts(self, x, norm):
         with suppress(SpecificFunctionNotImplemented):
             return self._auto_rel_counts(x, norm=norm)
@@ -1059,9 +1057,10 @@ def binned_rect_integration(
 
     binareas = reduce(
         operator.mul, binwidths
-    )  # needs to be np as znp or tf can't broadcast otherwise
+    )  # needs to be python as znp or tf can't broadcast otherwise
     if not is_density:  # scale the counts by the fraction. This is mostly one.
-        binareas_uncut = np.prod(binwidths_unscaled, axis=0)
+        binareas_uncut = reduce(operator.mul, binwidths_unscaled)
+        # binareas_uncut = znp.prod(binwidths_unscaled, axis=0)
         binareas /= binareas_uncut
     values_cut *= binareas
     integral = tf.reduce_sum(values_cut, axis=axis)

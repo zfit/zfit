@@ -240,7 +240,7 @@ class FFTConvPDFV1(BaseFunctor):
             "nbins_func": nbins_func,
         }
 
-    @z.function(wraps="model")
+    @z.function(wraps="model_convolution")
     def _unnormalized_pdf(self, x):
 
         lower_func, upper_func = self._conv_limits["func"]

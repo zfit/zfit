@@ -60,6 +60,7 @@ from typing import Optional
 
 import numpy as np
 import tensorflow as tf
+import uhi.typing.plottable
 
 from . import ztyping
 from .container import convert_to_container
@@ -315,6 +316,7 @@ class FunctionCacheHolder(GraphCachable):
                 ZfitPDF,
                 ZfitLimit,
                 ZfitSpace,
+                uhi.typing.plottable.PlottableHistogram,
             ),
         ):
             obj = id(obj)
