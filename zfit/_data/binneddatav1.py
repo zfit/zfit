@@ -327,14 +327,6 @@ class BinnedSampler(BinnedData):
             nevents = self.n
         return nevents
 
-    # def _value_internal(self, obs: ztyping.ObsTypeInput = None, filter: bool = True):
-    #     if not self._initial_resampled:
-    #         raise RuntimeError(
-    #             "No data generated yet. Use `resample()` to generate samples or directly use `model.sample()`"
-    #             "for single-time sampling."
-    #         )
-    #     return super()._value_internal(obs=obs, filter=filter)
-
     @property
     def hashint(self) -> int | None:
         return None  # since the variable can be changed but this may stays static... and using 128 bits we can't have
@@ -408,19 +400,7 @@ class BinnedSampler(BinnedData):
             list(temp_param_values.keys()), list(temp_param_values.values())
         ):
 
-            # if not (n and self._initial_resampled):  # we want to load and make sure that it's initialized
-            #     # means it's handled inside the function
-            #     # TODO(Mayou36): check logic; what if new_samples loaded? get's overwritten by initializer
-            #     # fixed with self.n, needs cleanup
-            #     if not (isinstance(self.n_samples, str) or self.n_samples is None):
-            #         self.sess.run(self.n_samples.initializer)
-            # if n:
-            #     if not isinstance(self.n_samples, tf.Variable):
-            #         raise RuntimeError("Cannot set a new `n` if not a Tensor-like object was given")
-            # self.n_samples.assign(n)
-
             new_sample = self.sample_func(n)
-            # self.sample_holder.assign(new_sample)
             self.sample_holder.assign(new_sample, read_value=False)
             self._initial_resampled = True
 
