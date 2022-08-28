@@ -47,6 +47,13 @@ class BinnedFromUnbinnedPDF(BaseBinnedFunctorPDF):
                 )
             else:
                 extended = pdf.get_yield()
+        if not isinstance(space, ZfitSpace):
+            try:
+                space = pdf.space.with_binning(space)
+            except Exception as error:
+                raise ValueError(
+                    f"Could not create space {space} from pdf {pdf} with binning {space}"
+                ) from error
         super().__init__(
             obs=space,
             extended=extended,

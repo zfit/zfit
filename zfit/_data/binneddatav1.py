@@ -240,6 +240,10 @@ class BinnedData(
         return znp.sum(self.values())
 
     @property
+    def n_events(self):  # LEGACY, what should be the name?
+        return self.nevents
+
+    @property
     def _approx_nevents(self):
         return znp.sum(self.values())
 

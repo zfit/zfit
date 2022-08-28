@@ -34,6 +34,7 @@ from .interfaces import (
     ZfitPDF,
     ZfitBinnedData,
     ZfitUnbinnedData,
+    ZfitBinning,
 )
 from .parameter import convert_to_parameter
 from .space import supports, convert_to_space
@@ -927,6 +928,33 @@ class BaseBinnedPDFV1(
 
     def set_norm_range(self):
         raise RuntimeError("set_norm_range is removed and should not be used anymore.")
+
+    def to_binned(self, space, *, extended=None, norm=None):
+        """Convert the PDF to a binned PDF."""
+        if isinstance(space, ZfitBinning):
+            if space != self.space.binning:
+                raise ValueError(
+                    "The binning of the PDF and the binning of the space must be equal."
+                )
+        if space != self.space:
+            raise ValueError(
+                f"Space must be the same as the PDF's space, as {self} is already a binned PDF."
+            )
+        if extended is not None:
+            raise WorkInProgressError(
+                "extended is not implemented yet. Create an extended PDF manually."
+            )
+        if norm is not None:
+            raise WorkInProgressError(
+                "norm is not implemented yet. Create a pdf with a different norm range manually."
+            )
+        return self
+
+    def to_unbinned(self):
+        """Convert the PDF to an unbinned PDF."""
+        from zfit.models.unbinnedpdf import UnbinnedFromBinnedPDF
+
+        return UnbinnedFromBinnedPDF(self, self.space.with_binning(None))
 
 
 def binned_rect_integration(

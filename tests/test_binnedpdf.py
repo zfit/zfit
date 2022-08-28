@@ -94,7 +94,12 @@ def test_unbinned_from_binned_from_unbinned():
     pytest.zfit_savefig()
 
     unbinned = zfit.pdf.UnbinnedFromBinnedPDF(gauss_binned, obs=obs)
+    unbinned2 = gauss_binned.to_unbinned()
     y = unbinned.ext_pdf(x)
+    y2 = unbinned2.ext_pdf(x)
+    assert np.allclose(y, y2)
+    y3 = unbinned.to_unbinned().ext_pdf(x)
+    assert np.allclose(y, y3)
     y_true = gauss.ext_pdf(x)
     plt.figure()
     plt.title("Comparison of unbinned gauss to binned to unbinned again")
@@ -350,7 +355,7 @@ def test_binned_sampler(ndim):
         gauss = create_gauss_binned(n=100000, nbins=dims[0])
         gauss = gauss[1]
     elif ndim == 2:
-        dims = (nbins, 5)
+        dims = (nbins, 57)
         gauss = create_gauss2d_binned(n=100000, nbins=dims)
         obs2d = gauss[3]
         gauss = gauss[1]
