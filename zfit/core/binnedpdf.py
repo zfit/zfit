@@ -609,7 +609,9 @@ class BaseBinnedPDFV1(
             raise TypeError("`Fixed_params` has to be a list, tuple or a boolean.")
 
         def sample_func(n=n):
-            return self._create_sampler_tensor(limits=limits, n=n)
+            n = znp.array(n)
+            sample = self._create_sampler_tensor(limits=limits, n=n)
+            return sample
 
         sample_data = BinnedSampler.from_sample(
             sample_func=sample_func,
@@ -621,7 +623,7 @@ class BaseBinnedPDFV1(
 
         return sample_data
 
-    @z.function(wraps="model")
+    @z.function(wraps="sampler")
     def _create_sampler_tensor(self, limits, n):
         sample = self._call_sample(n=n, limits=limits)
         return sample
@@ -657,7 +659,7 @@ class BaseBinnedPDFV1(
             values = values.with_obs(original_limits)
         return values
 
-    @z.function(wraps="model")
+    @z.function(wraps="sample")
     def _call_sample(self, n, limits):
         with suppress(SpecificFunctionNotImplemented):
             self._sample(n, limits)

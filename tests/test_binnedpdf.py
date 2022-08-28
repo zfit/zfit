@@ -337,8 +337,8 @@ def test_binned_from_unbinned_2D():
 @pytest.mark.parametrize(
     "ndim",
     [
-        # 1,
-        # 2,
+        1,
+        2,
         3,
     ],
     ids=lambda x: f"{x}D",
@@ -364,12 +364,12 @@ def test_binned_sampler(ndim):
         gauss = np.random.normal(
             loc=[0.5, 1.5, 3.6], scale=[1.2, 2.1, 0.4], size=(100000, ndim)
         )
+
         data = zfit.data.Data.from_numpy(obs=obs, array=gauss).to_binned(dims)
         gauss = zfit.pdf.HistogramPDF(data=data, extended=True)
     else:
         raise ValueError("ndim must be 1 or 2")
-    nsampled = 10000
-    gauss = gauss[1]
+    nsampled = 100000
     sample = gauss.sample(n=nsampled)
     sampler = gauss.create_sampler(n=nsampled)
 
@@ -394,8 +394,8 @@ def test_binned_sampler(ndim):
         sampler_swapped.resample(n=nsampled * 3)
         assert np.sum(sampler_swapped.values()) == pytest.approx(nsampled * 3)
 
-    # TODO: extremely slow, why? integrals in multiple dimensions?
-    start = time.time()
-    for _ in tqdm.tqdm(range(1000)):
-        sampler.resample(n=nsampled)
-    print(f"Time taken {(time.time() - start) / 1000}")
+    sampler.resample(n=nsampled)
+    # start = time.time()
+    # for _ in tqdm.tqdm(range(15)):
+    #     sampler.resample(n=nsampled)
+    # print(f"Time taken {(time.time() - start)}")

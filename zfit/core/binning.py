@@ -8,7 +8,7 @@ import tensorflow_probability as tfp
 
 import zfit.z.numpy as znp
 from zfit import z
-from zfit.core.interfaces import ZfitData, ZfitRectBinning
+from zfit.core.interfaces import ZfitData, ZfitRectBinning, ZfitSpace
 from zfit.util.ztyping import XTypeInput
 
 
@@ -69,6 +69,16 @@ def unbinned_to_binned(data, space, binned_class=None):
         from zfit._data.binneddatav1 import BinnedData
 
         binned_class = BinnedData
+    if not isinstance(space, ZfitSpace):
+        try:
+            space = data.space.with_binning(space)
+        except Exception as error:
+            raise ValueError(
+                f"The space provided is not a valid space for the data. "
+                f"Either provide a valid space or a binning. "
+                f"The error was: {error}"
+            ) from error
+
     values = data.value()
     weights = data.weights
     if weights is not None:
