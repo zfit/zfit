@@ -334,20 +334,44 @@ def test_binned_from_unbinned_2D():
     pytest.zfit_savefig()
 
 
-@pytest.mark.parametrize("ndim", [1, 2], ids=["1D", "2D"])
+@pytest.mark.parametrize(
+    "ndim",
+    [
+        # 1,
+        # 2,
+        3,
+    ],
+    ids=lambda x: f"{x}D",
+)
 def test_binned_sampler(ndim):
     nbins = 134
     if ndim == 1:
         dims = (nbins,)
         gauss = create_gauss_binned(n=100000, nbins=dims[0])
+        gauss = gauss[1]
     elif ndim == 2:
         dims = (nbins, 5)
         gauss = create_gauss2d_binned(n=100000, nbins=dims)
+        obs2d = gauss[3]
+        gauss = gauss[1]
+    elif ndim == 3:
+        dims = (nbins, 5, 3)
+        obs = (
+            zfit.Space("x", (-5, 10))
+            * zfit.Space("y", (1, 5))
+            * zfit.Space("z", (3, 6))
+        )
+        gauss = np.random.normal(
+            loc=[0.5, 1.5, 3.6], scale=[1.2, 2.1, 0.4], size=(100000, ndim)
+        )
+        data = zfit.data.Data.from_numpy(obs=obs, array=gauss).to_binned(dims)
+        gauss = zfit.pdf.HistogramPDF(data=data, extended=True)
     else:
         raise ValueError("ndim must be 1 or 2")
     nsampled = 10000
-    sample = gauss[1].sample(n=nsampled)
-    sampler = gauss[1].create_sampler(n=nsampled)
+    gauss = gauss[1]
+    sample = gauss.sample(n=nsampled)
+    sampler = gauss.create_sampler(n=nsampled)
 
     assert sample.values().shape == dims
     assert sampler.values().shape == dims
@@ -359,7 +383,6 @@ def test_binned_sampler(ndim):
     assert np.sum(sampler.values()) == pytest.approx(nsampled * 2)
 
     if ndim == 2:
-        obs2d = gauss[3]
         sampler_swapped = sampler.with_obs(
             obs=obs2d.with_obs([obs2d.obs[1], obs2d.obs[0]])
         )
@@ -372,7 +395,7 @@ def test_binned_sampler(ndim):
         assert np.sum(sampler_swapped.values()) == pytest.approx(nsampled * 3)
 
     # TODO: extremely slow, why? integrals in multiple dimensions?
-    # start = time.time()
-    # for _ in tqdm.tqdm(range(1000)):
-    #     sampler.resample(n=nsampled)
-    # print(f"Time taken {(time.time() - start) / 1000}")
+    start = time.time()
+    for _ in tqdm.tqdm(range(1000)):
+        sampler.resample(n=nsampled)
+    print(f"Time taken {(time.time() - start) / 1000}")
