@@ -7,7 +7,7 @@ import functools
 import collections
 import logging
 import warnings
-from weakref import WeakSet
+from weakref import WeakSet, WeakKeyDictionary
 import math as _mt
 from collections import defaultdict
 from collections.abc import Callable
@@ -160,9 +160,8 @@ def run_no_nan(func, x):
 
 class FunctionWrapperRegistry:
     registries = WeakSet()
-    _debug_all_tf_functions = WeakSet()
     allow_jit = True
-    DEFAULT_CACHE_SIZE = 10
+    DEFAULT_CACHE_SIZE = 20
     _DEFAULT_DO_JIT_TYPES = defaultdict(lambda: True)
     _DEFAULT_DO_JIT_TYPES.update(
         {
@@ -253,7 +252,7 @@ class FunctionWrapperRegistry:
             self.currently_traced.add(func)
             nonlocal wrapped_func
 
-            def deleter(function_holder):
+            def deleter(proxy):
                 with contextlib.suppress(ValueError):
                     cache.remove(function_holder)
 
