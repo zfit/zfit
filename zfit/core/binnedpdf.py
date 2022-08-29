@@ -253,7 +253,7 @@ class BaseBinnedPDFV1(
                 raise ValueError("norm cannot be None for this function.")
         elif norm is not False and not isinstance(norm, ZfitSpace):
             raise TypeError(f"`norm` needs to be a binned ZfitSpace, not {norm}.")
-        elif not norm.is_binned:
+        elif norm is not False and not norm.is_binned:
             norm = norm.with_binning(self.space.binning)
         return norm
 
