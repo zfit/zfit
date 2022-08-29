@@ -5,7 +5,7 @@ import hist
 import mplhep
 import numpy as np
 import pytest
-import tqdm
+
 from matplotlib import pyplot as plt
 
 import zfit.pdf
