@@ -85,9 +85,10 @@ def pytest_configure():
         if not title_sanitized:
             raise RuntimeError("Title has to be set for plot that should be saved.")
         if folder is not None:
-            title_sanitized = pathlib.Path(folder).joinpath(title_sanitized)
+            folder = pathlib.Path(folder)
+            folder.mkdir(exist_ok=True, parents=True)
+            title_sanitized = folder.joinpath(title_sanitized)
         savepath = images_dir.joinpath(title_sanitized)
-        savepath.mkdir(exist_ok=True, parents=True)
         plt.savefig(str(savepath))
 
     pytest.zfit_savefig = savefig

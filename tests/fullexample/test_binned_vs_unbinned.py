@@ -70,9 +70,9 @@ def test_sig_bkg_fit(n, floatall, use_sampler, nbins, use_wrapper):
     x = np.linspace(-10, 10, 1000)
 
     plot_folder = (
-        f'NLL_profile_nbins{nbins} n{n} floatall_{floatall} {"sampler" if use_sampler else ""}'
-        f' {"wrapper" if use_wrapper else ""}'.replace(" ", "_")
-    )
+        f'NLL_profile/nbins{nbins} n{n} floatall_{floatall} {"sampler" if use_sampler else ""}'
+        f' {"wrapper" if use_wrapper else ""}'
+    ).replace(" ", "_")
 
     def plot_pdf(title):
         plt.figure()

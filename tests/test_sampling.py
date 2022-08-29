@@ -350,9 +350,6 @@ def test_importance_sampling_uniform():
 
     assert np.std(bin_counts) < np.sqrt(expected_per_bin) * 2
     assert all(abs(bin_counts - expected_per_bin) < np.sqrt(expected_per_bin) * 5)
-    # import matplotlib.pyplot as plt
-    # plt.hist(sample_np, bins=40)
-    # plt.show()
 
 
 # @pytest.mark.xfail  # TODO(mayou36): hacked, EventSpace, needed for phasespace sampling

@@ -1,4 +1,5 @@
 #  Copyright (c) 2022 zfit
+import pathlib
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -9,6 +10,10 @@ import pytest
 def test_yield_bias(exact_nsample, ntoys=100):
     import zfit
     import zfit.z.numpy as znp
+
+    plot_folder = pathlib.Path(
+        f"{'exact' if exact_nsample else 'binomial_sum'}_yield_sampling"
+    )
 
     # create space
     obs = zfit.Space("x", limits=(-10, 10))
@@ -99,9 +104,9 @@ def test_yield_bias(exact_nsample, ntoys=100):
 
     plt.figure("yield_bias_toys")
     plt.title(
-        f'{"Exact" if exact_nsample else "Binomial sum"} sampled. Fit with {minimizer.name}. Signal yield: {nsigs_mean :.2f} +- {std_nsigs_mean:.2f}'
+        f'{"Exact" if exact_nsample else "Binomial sum"} sampled. Fit with {minimizer.name}.'
     )
-    counts, edges, _ = plt.hist(nsigs, bins=50, label="nsig", alpha=0.5)
+    counts, edges, _ = plt.hist(nsigs, bins=50, label=f" Signal yields", alpha=0.5)
     npoints = 50
     plt.plot(
         np.ones(npoints) * true_nsig, np.linspace(0, np.max(counts)), "gx", label="true"
@@ -110,7 +115,7 @@ def test_yield_bias(exact_nsample, ntoys=100):
         np.ones(npoints) * nsigs_mean,
         np.linspace(0, np.max(counts) * 2 / 3),
         "bo",
-        label="mean",
+        label=f"Signal mean: {nsigs_mean :.2f} +- {std_nsigs_mean:.2f}",
     )
 
     plt.plot(
@@ -126,7 +131,7 @@ def test_yield_bias(exact_nsample, ntoys=100):
         label="+std",
     )
     plt.legend()
-    pytest.zfit_savefig()
+    pytest.zfit_savefig(folder=plot_folder)
 
     rel_err_sig = 5 / true_nsig**0.5 / ntoys**0.5
     assert nsigs_mean == pytest.approx(true_nsig, rel=rel_err_sig)
