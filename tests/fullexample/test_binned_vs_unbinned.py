@@ -9,13 +9,10 @@ import pytest
 @pytest.mark.parametrize(
     "use_sampler", [True, False], ids=["useSampler", "onetimeSample"]
 )
-@pytest.mark.parametrize("nbins", [20, 90, 311], ids=lambda x: f"nbins={x:,}")
+@pytest.mark.parametrize("nbins", [27, 90, 311], ids=lambda x: f"nbins={x:,}")
 @pytest.mark.parametrize(
     "use_wrapper",
-    [
-        # True,
-        False
-    ],
+    [True, False],
     ids=lambda x: f"useWrapper={x}",
 )
 @pytest.mark.flaky(reruns=1)  # in case a fit fails
@@ -27,11 +24,9 @@ def test_sig_bkg_fit(n, floatall, use_sampler, nbins, use_wrapper):
 
     import zfit
 
-    n_bins = 100
-
     # create space
     obs_binned = zfit.Space(
-        "x", binning=zfit.binned.RegularBinning(n_bins, -10, 10, name="x")
+        "x", binning=zfit.binned.RegularBinning(nbins, -10, 10, name="x")
     )
     obs = obs_binned.with_binning(None)
 
@@ -70,7 +65,7 @@ def test_sig_bkg_fit(n, floatall, use_sampler, nbins, use_wrapper):
         data = model.sample(n=n_sample)
         data_unbinned = model_unbinned.sample(n=n_sample)
 
-    plot_scaling = n_sample / n_bins * obs.area()
+    plot_scaling = n_sample / nbins * obs.area()
 
     x = np.linspace(-10, 10, 1000)
 
@@ -304,7 +299,6 @@ def test_nbins():
 
         plt.figure()
         plt.title(f"{nbins} bins binned vs unbinned curve")
-        # mplhep.histplot(model_binned.to_hist().density() * 300, label="binned")
         x = np.linspace(0, 10, nbins)
         scaled_density = model_binned.to_hist().density() * model_binned.get_yield()
         plt.plot(x, scaled_density, "x", label="binned")
@@ -343,6 +337,6 @@ def test_nbins():
     plt.ylabel("n_bkg")
     plt.legend()
     pytest.zfit_savefig(folder=plot_folder)
-    plt.show()
+    # plt.show()
     # 4 sigma away, factor of two because binned is less precise
     assert pytest.approx(mean, abs=std * 4 * 2) == result.params["n_bkg"]["value"]
