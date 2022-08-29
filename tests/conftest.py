@@ -69,7 +69,7 @@ def pytest_configure():
     )
     images_dir.mkdir(exist_ok=True)
 
-    def savefig(figure=None):
+    def savefig(figure=None, folder=None):
         if figure is None:
             figure = plt.gcf()
         title_sanitized = (
@@ -84,7 +84,10 @@ def pytest_configure():
         )
         if not title_sanitized:
             raise RuntimeError("Title has to be set for plot that should be saved.")
+        if folder is not None:
+            title_sanitized = pathlib.Path(folder).joinpath(title_sanitized)
         savepath = images_dir.joinpath(title_sanitized)
+        savepath.mkdir(exist_ok=True, parents=True)
         plt.savefig(str(savepath))
 
     pytest.zfit_savefig = savefig
