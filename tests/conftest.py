@@ -78,17 +78,21 @@ def pytest_configure():
             .replace(" ", "_")
             .replace("$", "_")
             .replace("\\", "_")
+            .replace("__", "_")
         )
         title_sanitized = (
-            title_sanitized.replace("/", "_").replace(".", "_").replace(":", "_")
+            title_sanitized.replace("/", "_")
+            .replace(".", "_")
+            .replace(":", "_")
+            .replace(",", "")
         )
         if not title_sanitized:
             raise RuntimeError("Title has to be set for plot that should be saved.")
+        foldersave = images_dir
         if folder is not None:
-            folder = pathlib.Path(folder)
-            folder.mkdir(exist_ok=True, parents=True)
-            title_sanitized = folder.joinpath(title_sanitized)
-        savepath = images_dir.joinpath(title_sanitized)
+            foldersave = foldersave.joinpath(folder)
+        foldersave.mkdir(exist_ok=True, parents=True)
+        savepath = foldersave.joinpath(title_sanitized)
         plt.savefig(str(savepath))
 
     pytest.zfit_savefig = savefig
