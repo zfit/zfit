@@ -15,14 +15,10 @@ def test_yield_bias(exact_nsample, ntoys=100):
         f"{'exact' if exact_nsample else 'binomial_sum'}_yield_sampling"
     )
 
-    # create space
     obs = zfit.Space("x", limits=(-10, 10))
-    # parameters
     mu = zfit.Parameter("mu", 1.0, -4, 6)
     sigma = zfit.Parameter("sigma", 1.1, 0.1, 10)
     lambd = zfit.Parameter("lambda", -0.06, -1, -0.01)
-
-    # model building, pdf creation
     gauss = zfit.pdf.Gauss(mu=mu, sigma=sigma, obs=obs)
     exponential = zfit.pdf.Exponential(lambd, obs=obs)
     n_bkg = zfit.Parameter("n_bkg", 20000)
@@ -31,8 +27,6 @@ def test_yield_bias(exact_nsample, ntoys=100):
     gauss_extended = gauss.create_extended(n_sig)
     exp_extended = exponential.create_extended(n_bkg)
     model = zfit.pdf.SumPDF([gauss_extended, exp_extended])
-
-    # set the values to a start value for the fit
     init_vals = [0.5, 1.2, -0.05, 20350, 2512]
     true_vals = [1.0, 1.1, -0.06, 20000, 3000]
     zfit.param.set_values(params, true_vals)
@@ -55,7 +49,7 @@ def test_yield_bias(exact_nsample, ntoys=100):
     nll = zfit.loss.ExtendedUnbinnedNLL(model=model, data=data)
     nsigs = []
     nbkgs = []
-    minimizer = zfit.minimize.Minuit(gradient=False, tol=1e-5)
+    minimizer = zfit.minimize.Minuit(gradient=False, tol=1e-05)
     failures = 0
     for _ in range(ntoys):
         zfit.param.set_values(params, true_vals)
@@ -67,15 +61,10 @@ def test_yield_bias(exact_nsample, ntoys=100):
             zfit.param.set_values(params, init_vals)
             rnd_sig = np.random.uniform(-(true_nsig**0.5), true_nsig**0.5)
             rnd_bkg = np.random.uniform(-(true_nbkg**0.5), true_nbkg**0.5)
-            # stretch the upper part -> make it asymetric but with as many events left as right
             rnd_sig *= (rnd_sig > 0) + 1
-            rnd_sig += (
-                (rnd_sig > 0) - 0.5
-            ) + true_nsig**0.5 / 2  # push at least half a sigma away
+            rnd_sig += (rnd_sig > 0) - 0.5 + true_nsig**0.5 / 2
             rnd_bkg *= (rnd_bkg > 0) + 1
-            rnd_bkg += (
-                (rnd_bkg > 0) - 0.5
-            ) + true_nbkg**0.5 / 2  # push at least half a sigma away
+            rnd_bkg += (rnd_bkg > 0) - 0.5 + true_nbkg**0.5 / 2
             n_sig.set_value(true_nsig + rnd_sig)
             n_bkg.set_value(true_nbkg + rnd_bkg)
             result = minimizer.minimize(nll)
@@ -83,39 +72,32 @@ def test_yield_bias(exact_nsample, ntoys=100):
                 break
         else:
             failures += 1
-            continue  # it didn't converge
-
+            continue
         nsig_res = float(result.params[n_sig]["value"])
         nsigs.append(nsig_res)
         nbkg_res = float(result.params[n_bkg]["value"])
         nbkgs.append(nbkg_res)
         assert nsig_res + nbkg_res == pytest.approx(true_nsig + true_nbkg, abs=0.5)
-
     nsigs_mean = np.mean(nsigs)
     std_nsigs_mean = np.std(nsigs) / ntoys**0.5 * 4
     nbkg_mean = np.mean(nbkgs)
     std_nbkg_mean = np.std(nbkgs) / ntoys**0.5 * 4
-
-    # for debugging and testing
-    # print(result)
-    # print("failures:", failures)
-    # print(f'nsig: {nsigs_mean :.2f} +- {std_nsigs_mean :.2f}')
-    # print(f'nbkg: {nbkg_mean :.2f} +- {std_nbkg_mean :.2f}')
-
     plt.figure("yield_bias_toys")
     plt.title(
         f'{"Exact" if exact_nsample else "Binomial sum"} sampled. Fit with {minimizer.name}.'
     )
-    counts, edges, _ = plt.hist(nsigs, bins=50, label=f" Signal yields", alpha=0.5)
+
+    counts, edges, _ = plt.hist(nsigs, bins=50, label=" Signal yields", alpha=0.5)
     npoints = 50
     plt.plot(
         np.ones(npoints) * true_nsig, np.linspace(0, np.max(counts)), "gx", label="true"
     )
+
     plt.plot(
         np.ones(npoints) * nsigs_mean,
         np.linspace(0, np.max(counts) * 2 / 3),
         "bo",
-        label=f"Signal mean: {nsigs_mean :.2f} +- {std_nsigs_mean:.2f}",
+        label=f"Signal mean: {nsigs_mean:.2f} +- {std_nsigs_mean:.2f}",
     )
 
     plt.plot(
@@ -124,18 +106,19 @@ def test_yield_bias(exact_nsample, ntoys=100):
         "ro",
         label="-std",
     )
+
     plt.plot(
         np.ones(npoints) * nsigs_mean + np.std(nsigs),
         np.linspace(0, np.max(counts) * 0.2),
         "ro",
         label="+std",
     )
+
     plt.legend()
     pytest.zfit_savefig(folder=plot_folder)
-
-    rel_err_sig = 5 / true_nsig**0.5 / ntoys**0.5
-    assert nsigs_mean == pytest.approx(true_nsig, rel=rel_err_sig)
-    rel_err_bkg = 5 / true_nbkg**0.5 / ntoys**0.5
-    assert nbkg_mean == pytest.approx(true_nbkg, rel=rel_err_bkg)
+    rel_err_sig = 0.001
+    assert nsigs_mean == pytest.approx(true_nsig, rel=rel_err_sig, abs=std_nsigs_mean)
+    rel_err_bkg = 0.001
+    assert nbkg_mean == pytest.approx(true_nbkg, rel=rel_err_bkg, abs=std_nbkg_mean)
     print(f"relative error sig: {rel_err_sig}")
     print(f"relative error bkg: {rel_err_bkg}")
