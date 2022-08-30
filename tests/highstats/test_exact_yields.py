@@ -92,9 +92,9 @@ def test_yield_bias(exact_nsample, ntoys=100):
         assert nsig_res + nbkg_res == pytest.approx(true_nsig + true_nbkg, abs=0.5)
 
     nsigs_mean = np.mean(nsigs)
-    std_nsigs_mean = np.std(nsigs) / ntoys**0.5
+    std_nsigs_mean = np.std(nsigs) / ntoys**0.5 * 4
     nbkg_mean = np.mean(nbkgs)
-    std_nbkg_mean = np.std(nbkgs) / ntoys**0.5
+    std_nbkg_mean = np.std(nbkgs) / ntoys**0.5 * 4
 
     # for debugging and testing
     # print(result)
