@@ -58,8 +58,8 @@ def setup_teardown():
 
 
 def pytest_addoption(parser):
-    parser.addoption("--longtests", action="store", default=False)
-    parser.addoption("--longtests-kde", action="store", default=False)
+    parser.addoption("--longtests", action="store_true", default=False)
+    parser.addoption("--longtests-kde", action="store_true", default=False)
 
 
 def pytest_configure():
@@ -69,7 +69,7 @@ def pytest_configure():
     )
     images_dir.mkdir(exist_ok=True)
 
-    def savefig(figure=None):
+    def savefig(figure=None, folder=None):
         if figure is None:
             figure = plt.gcf()
         title_sanitized = (
@@ -78,13 +78,21 @@ def pytest_configure():
             .replace(" ", "_")
             .replace("$", "_")
             .replace("\\", "_")
+            .replace("__", "_")
         )
         title_sanitized = (
-            title_sanitized.replace("/", "_").replace(".", "_").replace(":", "_")
+            title_sanitized.replace("/", "_")
+            .replace(".", "_")
+            .replace(":", "_")
+            .replace(",", "")
         )
         if not title_sanitized:
             raise RuntimeError("Title has to be set for plot that should be saved.")
-        savepath = images_dir.joinpath(title_sanitized)
+        foldersave = images_dir
+        if folder is not None:
+            foldersave = foldersave.joinpath(folder)
+        foldersave.mkdir(exist_ok=True, parents=True)
+        savepath = foldersave.joinpath(title_sanitized)
         plt.savefig(str(savepath))
 
     pytest.zfit_savefig = savefig

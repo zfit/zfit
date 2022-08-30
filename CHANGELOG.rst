@@ -28,6 +28,8 @@ Bug fixes and small changes
 - Sum of histograms failed for calling the pdf method (can be indirectly), integrated over wrong axis.
 - Binned PDFs expected binned spaces for limits, now unbinned limits are also allowed and automatically
     converted to binned limits using the PDFs binning.
+- Speedup sampling of binned distributions.
+- add ``to_binned`` and ``to_unbinned`` methods to PDF
 
 Experimental
 ------------

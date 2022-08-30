@@ -25,6 +25,8 @@ def _spd_transform(values, probs, variances):
 
     Scaled Poisson distribution from Bohm and Zech, NIMA 748 (2014) 1-6
 
+    The scale is >= 1 to ensure that empty data bins are handled correctly.
+
     Args:
         values: Data values, the counts in each bin.
         probs: Data probabilities, the expected counts in each bin.
@@ -34,8 +36,12 @@ def _spd_transform(values, probs, variances):
         The transformed probabilities and values.
     """
     # Scaled Poisson distribution from Bohm and Zech, NIMA 748 (2014) 1-6
-    scale = values * tf.math.reciprocal_no_nan(variances)
-    return values * scale, probs * scale
+    scale = znp.maximum(
+        values * tf.math.reciprocal_no_nan(variances), znp.ones_like(values)
+    )
+    probs = probs * scale
+    values = values * scale
+    return probs, values
 
 
 @z.function(wraps="tensor")
@@ -52,13 +58,17 @@ def poisson_loss_calc(probs, values, log_offset=None, variances=None):
     Returns:
         The Poisson log probability for the given data.
     """
-    if variances is not None:
+    if False and variances is not None:
         values, probs = _spd_transform(values, probs, variances=variances)
     values += znp.asarray(1e-307, dtype=znp.float64)
     probs += znp.asarray(1e-307, dtype=znp.float64)
     poisson_term = tf.nn.log_poisson_loss(
         values, znp.log(probs), compute_full_loss=True  # TODO: correct offset
     )  # TODO: optimization?
+    # cross-check
+    # import tensorflow_probability as tfp
+    # poisson_dist = tfp.distributions.Poisson(rate=probs)
+    # poisson_term = -poisson_dist.log_prob(values)
     if log_offset is not None:
         poisson_term += log_offset
     return poisson_term
@@ -197,7 +207,9 @@ class ExtendedBinnedNLL(BaseBinned):
         r"""Extended binned likelihood using the expected number of events per bin with a poisson probability.
 
             |@doc:loss.init.explain.spdtransform| A scaled Poisson distribution is
-        used as described by Bohm and Zech, NIMA 748 (2014) 1-6 |@docend:loss.init.explain.spdtransform|
+        used as described by Bohm and Zech, NIMA 748 (2014) 1-6 if the variance
+        of the data is not ``None``. The scaling is forced to be >= 1 in order
+        to avoid issues with empty bins. |@docend:loss.init.explain.spdtransform|
 
             The binned likelihood is defined as
 
@@ -332,7 +344,9 @@ class BinnedNLL(BaseBinned):
         r"""Binned negative log likelihood.
 
             |@doc:loss.init.explain.spdtransform| A scaled Poisson distribution is
-        used as described by Bohm and Zech, NIMA 748 (2014) 1-6 |@docend:loss.init.explain.spdtransform|
+        used as described by Bohm and Zech, NIMA 748 (2014) 1-6 if the variance
+        of the data is not ``None``. The scaling is forced to be >= 1 in order
+        to avoid issues with empty bins. |@docend:loss.init.explain.spdtransform|
 
             The binned likelihood is the binned version of :py:class:`~zfit.loss.UnbinnedNLL`. It is defined as
 

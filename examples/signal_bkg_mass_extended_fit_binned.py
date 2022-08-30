@@ -5,7 +5,6 @@ import mplhep
 import numpy as np
 
 import zfit
-import zfit.models.tobinned
 
 n_bins = 50
 

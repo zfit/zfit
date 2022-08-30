@@ -429,10 +429,8 @@ error_scales = {None: 1, 1: 1, 2: 2}
 )
 @pytest.mark.flaky(reruns=3)
 @pytest.mark.timeout(280)
-def test_minimizers(
-    minimizer_class_and_kwargs, chunksize, numgrad, spaces, pytestconfig
-):
-    long_clarg = pytestconfig.getoption("longtests")
+def test_minimizers(minimizer_class_and_kwargs, chunksize, numgrad, spaces, request):
+    long_clarg = request.config.getoption("--longtests")
     # long_clarg = True
     # zfit.run.chunking.active = True
     # zfit.run.chunking.max_n_points = chunksize

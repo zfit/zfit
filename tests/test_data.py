@@ -387,14 +387,14 @@ def test_data_hashing(space2d):
     assert oldhashint != testhashpdf.lasthash
     assert data1.hashint == testhashpdf.lasthash
 
-    zfit.run.set_graph_mode(
+    with zfit.run.set_graph_mode(
         True
-    )  # meaning integration is now done in graph and has "None"
-    oldhashint = data1.hashint
-    data1.set_weights(np.random.uniform(size=data1.nevents))
-    testhashpdf.pdf(data1)
-    assert oldhashint != testhashpdf.lasthash
-    assert None == testhashpdf.lasthash
+    ):  # meaning integration is now done in graph and has "None"
+        oldhashint = data1.hashint
+        data1.set_weights(np.random.uniform(size=data1.nevents))
+        testhashpdf.pdf(data1)
+        assert oldhashint != testhashpdf.lasthash
+        assert None == testhashpdf.lasthash
 
 
 def test_hashing_resample(space2d):

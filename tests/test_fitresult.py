@@ -151,7 +151,9 @@ if not platform.system() in (
 minimizers = sorted(minimizers, key=lambda val: repr(val))
 
 
-@pytest.mark.parametrize("minimizer_class_and_kwargs", minimizers)
+@pytest.mark.parametrize(
+    "minimizer_class_and_kwargs", minimizers, ids=lambda val: val[0].__name__
+)
 def test_freeze(minimizer_class_and_kwargs):
     result = create_fitresult(minimizer_class_and_kwargs)["result"]
 

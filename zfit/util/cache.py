@@ -60,6 +60,7 @@ from typing import Optional
 
 import numpy as np
 import tensorflow as tf
+import uhi.typing.plottable
 
 from . import ztyping
 from .container import convert_to_container
@@ -196,7 +197,6 @@ def invalidate_graph(func):
 
 class FunctionCacheHolder(GraphCachable):
     IS_TENSOR = object()
-    _debug_all_caches = weakref.WeakSet()
 
     def __init__(
         self,
@@ -239,7 +239,7 @@ class FunctionCacheHolder(GraphCachable):
         if stateless_args is None:
             stateless_args = False
         self.stateless_args = stateless_args
-        self.wrapped_func = wrapped_func
+        self.wrapped_func = weakref.proxy(wrapped_func, deleter)
 
         self.python_func = func
 
@@ -264,7 +264,6 @@ class FunctionCacheHolder(GraphCachable):
         super().__init__()  # resets the cache
         self.add_cache_deps(cachables_all)
         self.is_valid = True  # needed to make the cache valid again
-        self._debug_all_caches.add(self)
         self.deleter = deleter
 
     def reset_cache_self(self):
@@ -315,6 +314,7 @@ class FunctionCacheHolder(GraphCachable):
                 ZfitPDF,
                 ZfitLimit,
                 ZfitSpace,
+                uhi.typing.plottable.PlottableHistogram,
             ),
         ):
             obj = id(obj)

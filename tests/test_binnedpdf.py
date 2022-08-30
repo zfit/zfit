@@ -5,6 +5,7 @@ import hist
 import mplhep
 import numpy as np
 import pytest
+
 from matplotlib import pyplot as plt
 
 import zfit.pdf
@@ -93,7 +94,12 @@ def test_unbinned_from_binned_from_unbinned():
     pytest.zfit_savefig()
 
     unbinned = zfit.pdf.UnbinnedFromBinnedPDF(gauss_binned, obs=obs)
+    unbinned2 = gauss_binned.to_unbinned()
     y = unbinned.ext_pdf(x)
+    y2 = unbinned2.ext_pdf(x)
+    assert np.allclose(y, y2)
+    y3 = unbinned.to_unbinned().ext_pdf(x)
+    assert np.allclose(y, y3)
     y_true = gauss.ext_pdf(x)
     plt.figure()
     plt.title("Comparison of unbinned gauss to binned to unbinned again")
@@ -259,8 +265,10 @@ def create_gauss2d_binned(n, nbins=130):
     gaussy = zfit.pdf.Gauss(mu=250, sigma=200, obs=obsy)
     prod = zfit.pdf.ProductPDF([gaussx, gaussy])
     prod.set_yield(n)
-    axisx = zfit.binned.RegularBinning(nbins, -5, 10, name="x")
-    axisy = zfit.binned.RegularBinning(nbins, 50, 600, name="y")
+    if isinstance(nbins, int):
+        nbins = [nbins, nbins]
+    axisx = zfit.binned.RegularBinning(nbins[0], -5, 10, name="x")
+    axisy = zfit.binned.RegularBinning(nbins[1], 50, 600, name="y")
     obs_binned = zfit.Space(["x", "y"], binning=[axisx, axisy])
     gauss_binned = BinnedFromUnbinnedPDF(pdf=prod, space=obs_binned, extended=n)
     return prod, gauss_binned, obs2d, obs_binned
@@ -329,3 +337,70 @@ def test_binned_from_unbinned_2D():
     plt.title("Gauss 2D binned plot, irregular (x<4.5 larger bins than x>4.5) binning.")
     mplhep.hist2dplot(hist_pdf)
     pytest.zfit_savefig()
+
+
+@pytest.mark.parametrize(
+    "ndim",
+    [
+        1,
+        2,
+        3,
+    ],
+    ids=lambda x: f"{x}D",
+)
+def test_binned_sampler(ndim):
+    nbins = 134
+    if ndim == 1:
+        dims = (nbins,)
+        gauss = create_gauss_binned(n=100000, nbins=dims[0])
+        gauss = gauss[1]
+    elif ndim == 2:
+        dims = (nbins, 57)
+        gauss = create_gauss2d_binned(n=100000, nbins=dims)
+        obs2d = gauss[3]
+        gauss = gauss[1]
+    elif ndim == 3:
+        dims = (nbins, 5, 3)
+        obs = (
+            zfit.Space("x", (-5, 10))
+            * zfit.Space("y", (1, 5))
+            * zfit.Space("z", (3, 6))
+        )
+        gauss = np.random.normal(
+            loc=[0.5, 1.5, 3.6], scale=[1.2, 2.1, 0.4], size=(100000, ndim)
+        )
+
+        data = zfit.data.Data.from_numpy(obs=obs, array=gauss).to_binned(dims)
+        gauss = zfit.pdf.HistogramPDF(data=data, extended=True)
+    else:
+        raise ValueError("ndim must be 1 or 2")
+    nsampled = 100000
+    sample = gauss.sample(n=nsampled)
+    sampler = gauss.create_sampler(n=nsampled)
+
+    assert sample.values().shape == dims
+    assert sampler.values().shape == dims
+    assert np.sum(sample.values()) == pytest.approx(nsampled)
+    assert np.sum(sampler.values()) == pytest.approx(nsampled)
+
+    sampler.resample(n=nsampled * 2)
+    assert sampler.values().shape == dims
+    assert np.sum(sampler.values()) == pytest.approx(nsampled * 2)
+
+    if ndim == 2:
+        sampler_swapped = sampler.with_obs(
+            obs=obs2d.with_obs([obs2d.obs[1], obs2d.obs[0]])
+        )
+        values_swapped = sampler_swapped.values()
+        assert values_swapped.shape == (dims[1], dims[0])
+        assert np.sum(values_swapped) == pytest.approx(nsampled)
+        sampler_swapped.resample(n=nsampled)
+        assert np.sum(sampler_swapped.values()) == pytest.approx(nsampled)
+        sampler_swapped.resample(n=nsampled * 3)
+        assert np.sum(sampler_swapped.values()) == pytest.approx(nsampled * 3)
+
+    sampler.resample(n=nsampled)
+    # start = time.time()
+    # for _ in tqdm.tqdm(range(15)):
+    #     sampler.resample(n=nsampled)
+    # print(f"Time taken {(time.time() - start)}")
