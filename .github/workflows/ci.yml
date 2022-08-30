@@ -47,7 +47,6 @@ jobs:
             use-graph: 1
             extras: alldev-windows
 
-
     steps:
       - uses: actions/checkout@v3
       - name: Get history and tags for SCM versioning to work

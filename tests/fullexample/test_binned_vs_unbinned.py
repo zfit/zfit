@@ -16,13 +16,20 @@ import pytest
     ids=lambda x: f"useWrapper={x}",
 )
 @pytest.mark.flaky(reruns=1)  # in case a fit fails
-def test_sig_bkg_fit(n, floatall, use_sampler, nbins, use_wrapper):
-    import matplotlib.pyplot as plt
-
+def test_sig_bkg_fit(n, floatall, use_sampler, nbins, use_wrapper, request):
     import mplhep
+    import matplotlib.pyplot as plt
     import numpy as np
 
     import zfit
+
+    longtest = request.config.getoption("--longtests")
+    if not longtest:
+        if n > 1000 or floatall or use_sampler:
+            pytest.skip("skipping long test")
+
+    if nbins < 90 or n < 1000:
+        zfit.settings.set_seed(42)
 
     # create space
     obs_binned = zfit.Space(
@@ -233,7 +240,7 @@ def test_sig_bkg_fit(n, floatall, use_sampler, nbins, use_wrapper):
         )
 
 
-def test_nbins():
+def test_nbins(request):
     #  Copyright (c) 2022 zfit
 
     import matplotlib.pyplot as plt
@@ -242,6 +249,8 @@ def test_nbins():
     import zfit.z.numpy as znp
 
     import zfit
+
+    longtest = request.config.getoption("--longtests")
 
     # create space
     obs = zfit.Space("x", limits=(0, 10))
@@ -268,7 +277,10 @@ def test_nbins():
     )
     # make binned
     plot_folder = "nbins_accuracy"
-    binnings = [5, 7, 10, 15, 20, 30, 50, 102, 203, 341, 500, 1000]
+    binnings = [5, 50, 1000]
+    if longtest:
+        binnings += [7, 10, 15, 20, 30, 102, 203, 341, 500]
+        binnings = sorted(binnings)
     minimizer = zfit.minimize.Minuit()
     n_bkg_vals = []
     n_bkg_vals_unbinned = []
@@ -287,7 +299,6 @@ def test_nbins():
         loss_binned = zfit.loss.ExtendedBinnedNLL(model_binned, data_binned)
         result = minimizer.minimize(loss_binned)
         n_bkg_vals.append(result.params["n_bkg"]["value"])
-        print(f"nbins: {nbins}")
         print(result)
         # plot
         plt.figure()
