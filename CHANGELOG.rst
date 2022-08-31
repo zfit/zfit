@@ -4,7 +4,8 @@ Changelog
 
 .. _newest-changelog:
 
-Develop
+
+0.10.1 (31 Aug 2022)
 ========================
 
 Major Features and Improvements
