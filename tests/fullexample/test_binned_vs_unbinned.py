@@ -294,12 +294,9 @@ def test_nbins(request):
         loss = zfit.loss.ExtendedUnbinnedNLL(model_unbinned, data)
         result_unbinned = minimizer.minimize(loss)
         n_bkg_vals_unbinned.append(result_unbinned.params["n_bkg"]["value"])
-        print("Unbinned result")
-        print(result_unbinned)
         loss_binned = zfit.loss.ExtendedBinnedNLL(model_binned, data_binned)
         result = minimizer.minimize(loss_binned)
         n_bkg_vals.append(result.params["n_bkg"]["value"])
-        print(result)
         # plot
         plt.figure()
         plt.title(f"{nbins} bins full fit")
@@ -314,6 +311,8 @@ def test_nbins(request):
         scaled_density = model_binned.to_hist().density() * model_binned.get_yield()
         plt.plot(x, scaled_density, "x", label="binned")
         plt.plot(x, model_unbinned.ext_pdf(x), label="unbinned")
+        plt.xlabel("x")
+        plt.ylabel("density")
         plt.legend()
         pytest.zfit_savefig(folder=plot_folder)
         # plt.show()
@@ -344,8 +343,8 @@ def test_nbins(request):
         alpha=0.5,
         label="unbinned - std",
     )
-    plt.xlabel("nbins")
-    plt.ylabel("n_bkg")
+    plt.xlabel("$N_{bins}$")
+    plt.ylabel("$N_{bkg}$")
     plt.legend()
     pytest.zfit_savefig(folder=plot_folder)
     # plt.show()

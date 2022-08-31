@@ -120,5 +120,3 @@ def test_yield_bias(exact_nsample, ntoys=100):
     assert nsigs_mean == pytest.approx(true_nsig, rel=rel_err_sig, abs=std_nsigs_mean)
     rel_err_bkg = 0.001
     assert nbkg_mean == pytest.approx(true_nbkg, rel=rel_err_bkg, abs=std_nbkg_mean)
-    print(f"relative error sig: {rel_err_sig}")
-    print(f"relative error bkg: {rel_err_bkg}")

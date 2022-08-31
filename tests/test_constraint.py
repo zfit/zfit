@@ -122,7 +122,6 @@ def test_gaussian_constraint():
 
     true_val2 = true_gauss_constr_value(x=param_vals, mu=observed, sigma=sigma)
     assert constr2_np == pytest.approx(true_val2)
-    print(true_val2)
 
     constr.observation[0].set_value(5)
     observed[0] = 5

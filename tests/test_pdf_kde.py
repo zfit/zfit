@@ -219,7 +219,6 @@ def test_all_kde(kdetype, npoints, jit, request):
     full = request.config.getoption("--longtests")
     full = full or request.config.getoption("--longtests-kde")
     cfg = create_kde(kdetype=kdetype, npoints=npoints, cfgonly=True, full=full)
-    print(cfg)
     kdetype = kdetype, npoints
     if jit:
         run_jit = z.function(_run)
