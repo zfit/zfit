@@ -566,6 +566,17 @@ class ZfitSpace(ZfitLimit, ZfitOrderableDimensional, ZfitObject, metaclass=ABCMe
         """
         raise NotImplementedError
 
+    def with_binning(self, binning: ztyping.BinningTypeInput) -> ZfitSpace:
+        """Return a copy of the space with the new ``binning``.
+
+        Args:
+            binning: Binning to use.
+
+        Returns:
+            Copy of the current object with the new binning.
+        """
+        raise NotImplementedError
+
     @abstractmethod
     def get_subspace(self, obs, axes, name):
         """Create a :py:class:`~zfit.Space` consisting of only a subset of the `obs`/`axes` (only one allowed).

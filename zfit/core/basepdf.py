@@ -799,3 +799,15 @@ class BasePDF(ZfitPDF, BaseModel):
                 dtype=self.dtype.name,
             )
         )
+
+    def to_unbinned(self):
+        """Convert to unbinned pdf, returns self if already unbinned."""
+        return self
+
+    def to_binned(self, space, *, extended=None, norm=None):
+        """Convert to binned pdf, returns self if already binned."""
+        from ..models.tobinned import BinnedFromUnbinnedPDF
+
+        return BinnedFromUnbinnedPDF(
+            pdf=self, space=space, extended=extended, norm=norm
+        )

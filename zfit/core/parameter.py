@@ -795,6 +795,35 @@ class BaseComposedParameter(ZfitParameterMixin, OverloadableMixin, BaseParameter
     def independent(self):
         return False
 
+    def set_value(self, value):
+        """Set the value of the parameter. Cannot be used for composed parameters!
+
+        Args:
+            value:
+        """
+        raise LogicalUndefinedOperationError(
+            "Cannot set value of a composed parameter."
+            " Set the value on its components."
+        )
+
+    def randomize(self, minval=None, maxval=None, sampler=np.random.uniform):
+        """Randomize the value of the parameter.
+
+        Cannot be used for composed parameters!
+        """
+        raise LogicalUndefinedOperationError(
+            "Cannot randomize a composed parameter." " Randomize the components."
+        )
+
+    def assign(self, value, use_locking=False, name=None, read_value=True):
+        """Assign the value of the parameter.
+
+        Cannot be used for composed parameters!
+        """
+        raise LogicalUndefinedOperationError(
+            "Cannot assign a composed parameter." " Assign the value on its components."
+        )
+
 
 class ConstantParameter(OverloadableMixin, ZfitParameterMixin, BaseParameter):
     """Constant parameter.

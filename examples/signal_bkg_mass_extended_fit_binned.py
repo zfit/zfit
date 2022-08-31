@@ -5,7 +5,6 @@ import mplhep
 import numpy as np
 
 import zfit
-import zfit.models.tobinned
 
 n_bins = 50
 
@@ -84,4 +83,5 @@ print(result.valid)  # check if the result is still valid
 # plot the data
 
 plot_pdf("after fit")
-plt.show()
+# uncomment to display plots
+# plt.show()

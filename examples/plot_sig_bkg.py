@@ -80,4 +80,5 @@ param_errors, _ = result.errors()
 plot_pdf(title="After fitting")
 plt.legend()
 
-plt.show()
+# uncomment to display plots
+# plt.show()

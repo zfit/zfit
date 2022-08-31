@@ -8,7 +8,8 @@ space.init.limits: |1+
 space.init.binning: |1+
     Binning of the space.
                 Currently, only regular and variable binning *with a name* is supported.
-                If an integer is given, it is interpreted as the number of bins and
+                If an integer or a list of integers is given with lengths equal to the number of observables,
+                it is interpreted as the number of bins and
                 a regular binning is automatically created using the limits as the
                 start and end points.
 
@@ -482,7 +483,9 @@ loss.init.explain.negativelog: |1+
 
 loss.init.explain.spdtransform: |1+
     A scaled Poisson distribution is
-         used as described by Bohm and Zech, NIMA 748 (2014) 1-6
+         used as described by Bohm and Zech, NIMA 748 (2014) 1-6 if the variance
+         of the data is not ``None``. The scaling is forced to be >= 1 in order
+         to avoid issues with empty bins.
 
 loss.init.explain.weightednll: |1+
     If the dataset has weights, a weighted likelihood will be constructed instead

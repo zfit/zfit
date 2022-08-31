@@ -7,6 +7,8 @@ from typing import TYPE_CHECKING, Union
 import xxhash
 from tensorflow.python.util.deprecation import deprecated_args, deprecated
 
+from .parameter import set_values
+
 if TYPE_CHECKING:
     import zfit
 
@@ -94,7 +96,7 @@ class Data(
         self.dataset = dataset.batch(100_000_000)
         self._name = name
 
-        self.set_weights(weights=weights)
+        self._set_weights(weights=weights)
         self._hashint = None
         self._update_hash()
 
@@ -173,20 +175,25 @@ class Data(
         Args:
             weights:
         """
-        if weights is not None:
-            weights = z.convert_to_tensor(weights)
-            weights = z.to_real(weights)
-            if weights.shape.ndims != 1:
-                raise ShapeIncompatibleError("Weights have to be 1-Dim objects.")
+        # weights = self._set_weights(weights)
 
         def setter(value):
-            self._weights = value
-            self._update_hash()
+            self._set_weights(value)
 
         def getter():
             return self.weights
 
         return TemporarilySet(value=weights, getter=getter, setter=setter)
+
+    def _set_weights(self, weights):
+        if weights is not None:
+            weights = z.convert_to_tensor(weights)
+            weights = z.to_real(weights)
+            if weights.shape.ndims != 1:
+                raise ShapeIncompatibleError("Weights have to be 1-Dim objects.")
+        self._weights = weights
+        self._update_hash()
+        return weights
 
     @property
     def space(self) -> ZfitSpace:
@@ -796,12 +803,9 @@ class Sampler(Data):
         if param_values is not None:
             temp_param_values.update(param_values)
 
-        with ExitStack() as stack:
-
-            _ = [
-                stack.enter_context(param.set_value(val))
-                for param, val in temp_param_values.items()
-            ]
+        with set_values(
+            list(temp_param_values.keys()), list(temp_param_values.values())
+        ):
 
             # if not (n and self._initial_resampled):  # we want to load and make sure that it's initialized
             #     # means it's handled inside the function

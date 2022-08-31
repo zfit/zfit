@@ -54,11 +54,13 @@ import functools
 import weakref
 from abc import abstractmethod
 from collections.abc import Iterable
+from contextlib import suppress
 from itertools import zip_longest
 from typing import Optional
 
 import numpy as np
 import tensorflow as tf
+import uhi.typing.plottable
 
 from . import ztyping
 from .container import convert_to_container
@@ -125,8 +127,8 @@ class GraphCachable(ZfitGraphCachable):
         """
         if not isinstance(cacher, ZfitGraphCachable):
             raise TypeError(f"`cacher` is not a `ZfitGraphCachable` but {type(cacher)}")
-        if not cacher in self._cachers:
-            self._cachers[cacher] = None  # could we have a more useful value?
+        if cacher not in self._cachers:
+            self._cachers[cacher] = None
 
     def add_cache_deps(
         self, cache_deps: ztyping.CacherOrCachersType, allow_non_cachable: bool = True
@@ -148,9 +150,7 @@ class GraphCachable(ZfitGraphCachable):
                 cache_dep.register_cacher(self)
             elif not allow_non_cachable:
                 raise TypeError(
-                    "cache_dependent {} is not a `ZfitGraphCachable` but {}".format(
-                        cache_dep, type(cache_dep)
-                    )
+                    f"cache_dependent {cache_dep} is not a `ZfitGraphCachable` but {type(cache_dep)}"
                 )
 
     def reset_cache_self(self):
@@ -162,9 +162,7 @@ class GraphCachable(ZfitGraphCachable):
         self.reset_cache_self()
 
     def _clean_cache(self):
-        # for func_holder in self.graph_caching_methods:
-        #     func_holder.reset
-        self._cache = {}
+        self._cache.clear()
         return
 
     def _inform_cachers(self):
@@ -180,7 +178,17 @@ def invalidate_graph(func):
             raise TypeError(
                 "Decorator can only be used in a subclass of `ZfitGraphCachable`"
             )
-        self.reset_cache(reseter=self)
+
+        from .. import run
+
+        if not tf.inside_function():
+            run.clear_graph_cache()
+        else:
+            self.reset_cache(reseter=self)
+            # TODO: we could make the whole handling more precise and not just reset the whole graph
+            # raise RuntimeError(f"The function {func} is not supported in graph mode as it modifies pieces that invalidate"
+            #                    " the graph. If you think this should work, please open an issue on"
+            #                    " https://github.com/zfit/zfit/issues/new/choose.")
 
         return func(*args, **kwargs)
 
@@ -197,6 +205,7 @@ class FunctionCacheHolder(GraphCachable):
         cachables: (ZfitGraphCachable | object | Iterable[ZfitGraphCachable]) = None,
         cachables_mapping=None,
         stateless_args: bool | None = None,
+        deleter=None,
     ):
         """`tf.function` decorated function holder with caching dependencies on inputs.
 
@@ -225,12 +234,12 @@ class FunctionCacheHolder(GraphCachable):
             stateless_args: If `True`, the arguments that are normally stateful, such as `tf.Variable`s, are regarded
                 as stateless.
         """
-
+        self.deleter = lambda x: None
         self.delete_from_cache = False
         if stateless_args is None:
             stateless_args = False
         self.stateless_args = stateless_args
-        self.wrapped_func = wrapped_func
+        self.wrapped_func = weakref.proxy(wrapped_func, deleter)
 
         self.python_func = func
 
@@ -252,13 +261,14 @@ class FunctionCacheHolder(GraphCachable):
             cachables, cachables_mapping
         )
         self._hash_value = hash((self.python_func, self.immutable_representation))
-        # self._hash_value = hash(self.immutable_representation)
         super().__init__()  # resets the cache
         self.add_cache_deps(cachables_all)
         self.is_valid = True  # needed to make the cache valid again
+        self.deleter = deleter
 
     def reset_cache_self(self):
         self.is_valid = False
+        self.deleter(self)
 
     def create_immutable(self, args, kwargs):
         """Create a tuple of the args and kwargs by combining them as args + kwargs.keys() + kwargs.values()`
@@ -281,19 +291,38 @@ class FunctionCacheHolder(GraphCachable):
         return tuple(combined_cleaned)
 
     def get_immutable_repr_obj(self, obj):
-        from ..core.interfaces import ZfitData, ZfitParameter, ZfitSpace
+        from ..core.interfaces import (
+            ZfitData,
+            ZfitParameter,
+            ZfitSpace,
+            ZfitLoss,
+            ZfitModel,
+            ZfitConstraint,
+            ZfitPDF,
+            ZfitLimit,
+        )
 
         if isinstance(obj, collections.abc.Mapping):
             obj = obj.items()
-        if isinstance(obj, ZfitData):
+        if isinstance(
+            obj,
+            (
+                ZfitData,
+                ZfitLoss,
+                ZfitModel,
+                ZfitConstraint,
+                ZfitPDF,
+                ZfitLimit,
+                ZfitSpace,
+                uhi.typing.plottable.PlottableHistogram,
+            ),
+        ):
             obj = id(obj)
         elif isinstance(obj, ZfitParameter):
             if self.stateless_args:
                 obj = (self.IS_TENSOR,)
             else:
                 obj = (ZfitParameter, obj.name)
-        elif isinstance(obj, ZfitSpace):
-            obj = id(obj)
         elif tf.is_tensor(obj):
             obj = (self.IS_TENSOR,)
         elif isinstance(obj, np.ndarray):
@@ -315,9 +344,6 @@ class FunctionCacheHolder(GraphCachable):
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, FunctionCacheHolder):
             return False
-        # return False  # HACK
-        # return self.__hash__() == other.__hash__()  # HACK TODO
-        # return all(obj1 == obj2 for obj1, obj2 in zip(self.immutable_representation, other.immutable_representation))
         array_repr_self = self.immutable_representation
         array_repr_other = other.immutable_representation
         try:
@@ -325,9 +351,6 @@ class FunctionCacheHolder(GraphCachable):
                 (obj1 is obj2) or (obj1 == obj2)
                 for obj1, obj2 in zip_longest(array_repr_self, array_repr_other)
             )
-            # all_values = all(np.equal(array_repr_self, array_repr_other))
-            # if all_ids != all_values:
-            #     raise ValueError("Ids and values are not equal")
             return all_ids  # TODO: this isn't optimal...
         except ValueError:  # broadcasting does not work
             return False
@@ -345,17 +368,17 @@ def clear_graph_cache():
     from zfit.z.zextension import FunctionWrapperRegistry
 
     for registry in FunctionWrapperRegistry.registries:
-        for all_meth in registry.function_cache.values():
-            for wrapped_meth in all_meth:
-                wrapped_meth = wrapped_meth.wrapped_func
-                wrapped_meth._created_variables = None
-                wrapped_meth._stateful_fn = None
-                wrapped_meth._stateless_fn = None
-                wrapped_meth._descriptor_cache.clear()
+        for wrapped_meth in registry.function_cache:
+            wrapped_meth = wrapped_meth.wrapped_func
+            wrapped_meth._created_variables = None
+            wrapped_meth._stateful_fn = None
+            wrapped_meth._stateless_fn = None
+            wrapped_meth._descriptor_cache.clear()
 
     for registry in FunctionWrapperRegistry.registries:
         registry.reset()
     for instance in GraphCachable.instances:
         instance.reset_cache("global")
     # Cachable.graph_caching_methods.clear()
+
     tf.compat.v1.reset_default_graph()

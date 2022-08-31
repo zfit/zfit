@@ -20,6 +20,7 @@ from .util.exception import (
     SpecificFunctionNotImplemented,
     VectorizedLimitsNotImplemented,
     ShapeIncompatibleError,
+    LogicalUndefinedOperationError,
 )
 
 __all__ = [
@@ -37,6 +38,7 @@ __all__ = [
     "MaximumIterationReached",
     "ShapeIncompatibleError",
     "InitNotImplemented",
+    "LogicalUndefinedOperationError",
     "NONE",
 ]
 

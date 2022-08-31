@@ -4,6 +4,45 @@ Changelog
 
 .. _newest-changelog:
 
+
+0.10.1 (31 Aug 2022)
+========================
+
+Major Features and Improvements
+-------------------------------
+- reduce the memory footprint on (some) fits, especially repetitive (loops) ones.
+  Reduces the number of cached compiled functions. The cachesize can be set with
+  ``zfit.run.set_cache_size(int)``
+  and specifies the number of compiled functions that are kept in memory. The default is 10, but
+  this can be tuned. Lower values can reduce memory usage, but potentially increase runtime.
+
+Breaking changes
+------------------
+
+
+Deprecations
+-------------
+
+Bug fixes and small changes
+---------------------------
+- Enable uniform binning for n-dimensional distributions with integer(s).
+- Sum of histograms failed for calling the pdf method (can be indirectly), integrated over wrong axis.
+- Binned PDFs expected binned spaces for limits, now unbinned limits are also allowed and automatically
+    converted to binned limits using the PDFs binning.
+- Speedup sampling of binned distributions.
+- add ``to_binned`` and ``to_unbinned`` methods to PDF
+
+Experimental
+------------
+
+Requirement changes
+-------------------
+
+Thanks
+------
+- Justin Skorupa for finding the bug in the sum of histograms and the missing automatic
+  conversion of unbinned spaces to binned spaces.
+
 0.10.0 (22. August 2022)
 ========================
 
@@ -47,7 +86,8 @@ Requirement changes
 -------------------
 - nlopt and ipyopt are now optional dependencies.
 - Python 3.10 added
-- TensorFlow ~= 2.9.0 is now required and the corresponding TensorFlow-Probability version ~= 0.17.0
+- TensorFlow >= 2.9.0, <2.11 is now required and the corresponding TensorFlow-Probability
+  version >= 0.17.0, <0.19.0
 
 Thanks
 ------

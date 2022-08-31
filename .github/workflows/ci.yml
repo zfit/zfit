@@ -19,8 +19,6 @@ on:
 jobs:
   unittests:
     runs-on: ${{ matrix.os }}
-#    env:
-#      ZFIT_DO_JIT: ${{ matrix.use-graph }}
     timeout-minutes: 180 # for eager mode
     name: tests on ${{ matrix.os }} with ${{ matrix.python-version }} compiled = ${{ matrix.use-graph }}
     env:
@@ -38,23 +36,14 @@ jobs:
             extras: alldev
             python-version: "3.10"
             use-graph: 0
-          #            python-version: 3.9
-          #            use-graph: 0
-          #- os: macos-latest
-          #            python-version: 3.9
-          #            use-graph: 0
           - os: macos-latest
             python-version: "3.10"
             use-graph: 1
             extras: alldev-nonlinux
-          #          - os: windows-latest
-          #            python-version: 3.9
-          #            use-graph: 0
           - os: windows-latest
             python-version: "3.10"
             use-graph: 1
             extras: alldev-windows
-
 
     steps:
       - uses: actions/checkout@v3
@@ -85,7 +74,7 @@ jobs:
       - name: Test with pytest
         # TODO: maybe reactivate long tests?
         #          if [ "$GITHUB_REF" == 'refs/heads/develop' ]; then
-        #            echo "PYTEST_ADDOPTS=--longtests-kde" >> "$GITHUB_ENV"
+        #            echo "PYTEST_ADDOPTS=--longtests-kde --longtests" >> "$GITHUB_ENV"
         #          fi
         run: |
           coverage run --source=. --omit=".tox/*,*/test*,*/minimizers/interface.py,*/core/testing.py" --branch -m pytest .

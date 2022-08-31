@@ -1144,6 +1144,8 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             raise TypeError("`Fixed_params` has to be a list, tuple or a boolean.")
 
         def sample_func(n=n):
+            if n is not None:
+                n = znp.array(n)
             return self._create_sampler_tensor(limits=limits, n=n)
 
         sample_data = Sampler.from_sample(
@@ -1156,7 +1158,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
 
         return sample_data
 
-    @z.function(wraps="model")
+    @z.function(wraps="sampler")
     def _create_sampler_tensor(self, limits, n):
 
         sample = self._single_hook_sample(n=n, limits=limits, x=None)
@@ -1206,7 +1208,6 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
                 )
         limits = self._check_input_limits(limits=limits, none_is_error=True)
 
-        @z.function(wraps="model_sampling")
         def run_tf(n, limits, x):
             sample = self._single_hook_sample(n=n, limits=limits, x=x)
             return sample
@@ -1222,6 +1223,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
 
         return sample_data
 
+    @z.function(wraps="sample")
     def _single_hook_sample(self, n, limits, x=None):
         del x
         return self._hook_sample(n=n, limits=limits)

@@ -21,7 +21,7 @@ import uhi
 import zfit
 import zfit.z.numpy as znp
 from zfit import z
-from zfit._data.binneddatav1 import BinnedData, move_axis_obs
+from zfit._data.binneddatav1 import BinnedData, move_axis_obs, BinnedSampler
 from .baseobject import BaseNumeric, extract_filter_params
 from .binning import unbinned_to_binindex
 from .data import Data
@@ -34,6 +34,7 @@ from .interfaces import (
     ZfitPDF,
     ZfitBinnedData,
     ZfitUnbinnedData,
+    ZfitBinning,
 )
 from .parameter import convert_to_parameter
 from .space import supports, convert_to_space
@@ -249,9 +250,11 @@ class BaseBinnedPDFV1(
             norm = self.norm
         if norm is None:
             if none_is_error:
-                raise ValueError(f"norm cannot be None for this function.")
-        elif (norm is not False) and (not isinstance(norm, ZfitSpace)):
+                raise ValueError("norm cannot be None for this function.")
+        elif norm is not False and not isinstance(norm, ZfitSpace):
             raise TypeError(f"`norm` needs to be a binned ZfitSpace, not {norm}.")
+        elif norm is not False and not norm.is_binned:
+            norm = norm.with_binning(self.space.binning)
         return norm
 
     def _check_convert_limits(self, limits):
@@ -259,6 +262,8 @@ class BaseBinnedPDFV1(
             limits = self.space
         if not isinstance(limits, ZfitSpace):
             limits = convert_to_space(obs=self.obs, limits=limits)
+        if isinstance(limits, ZfitSpace) and not limits.is_binned:
+            limits = limits.with_binning(self.space.binning)
         return limits
 
     @_BinnedPDF_register_check_support(True)
@@ -317,7 +322,7 @@ class BaseBinnedPDFV1(
             ordered_values = move_axis_obs(self.space, original_space, values)
         return znp.asarray(ordered_values)
 
-    @z.function(wraps="model")
+    @z.function(wraps="model_binned")
     def _call_pdf(self, x, norm):
         with suppress(SpecificFunctionNotImplemented):
             return self._auto_pdf(x, norm)
@@ -389,7 +394,7 @@ class BaseBinnedPDFV1(
             ordered_values = move_axis_obs(self.space, original_space, values)
         return znp.asarray(ordered_values)
 
-    @z.function(wraps="model")
+    @z.function(wraps="model_binned")
     def _call_ext_pdf(self, x, norm):
         with suppress(SpecificFunctionNotImplemented):
             return self._auto_ext_pdf(x, norm)
@@ -448,7 +453,7 @@ class BaseBinnedPDFV1(
         limits = self._check_convert_limits(limits)
         return self._call_integrate(limits, norm, options)
 
-    @z.function(wraps="model")
+    @z.function(wraps="model_binned")
     def _call_integrate(self, limits, norm, options=None):
         if options is None:
             options = {}
@@ -515,7 +520,7 @@ class BaseBinnedPDFV1(
         limits = self._check_convert_limits(limits)
         return self._call_ext_integrate(limits, norm, options=options)
 
-    @z.function(wraps="model")
+    @z.function(wraps="model_binned")
     def _call_ext_integrate(self, limits, norm, *, options):
         with suppress(SpecificFunctionNotImplemented):
             return self._auto_ext_integrate(limits, norm, options=options)
@@ -552,6 +557,78 @@ class BaseBinnedPDFV1(
     def _ext_integrate(self, limits, norm, *, options):
         raise SpecificFunctionNotImplemented
 
+    def create_sampler(
+        self,
+        n: ztyping.nSamplingTypeIn = None,
+        limits: ztyping.LimitsType = None,
+        fixed_params: bool | list[ZfitParameter] | tuple[ZfitParameter] = True,
+    ) -> BinnedSampler:
+        """Create a :py:class:`Sampler` that acts as `Data` but can be resampled, also with changed parameters and n.
+
+            If `limits` is not specified, `space` is used (if the space contains limits).
+            If `n` is None and the model is an extended pdf, 'extended' is used by default.
+
+
+        Args:
+            n: The number of samples to be generated. Can be a Tensor that will be
+                or a valid string. Currently implemented:
+
+                    - 'extended': samples `poisson(yield)` from each pdf that is extended.
+
+            limits: From which space to sample.
+            fixed_params: A list of `Parameters` that will be fixed during several `resample` calls.
+                If True, all are fixed, if False, all are floating. If a :py:class:`~zfit.Parameter` is not fixed and
+                its
+                value gets updated (e.g. by a `Parameter.set_value()` call), this will be reflected in
+                `resample`. If fixed, the Parameter will still have the same value as the `Sampler` has
+                been created with when it resamples.
+
+        Returns:
+            :py:class:`~zfit.core.data.Sampler`
+
+        Raises:
+            NotExtendedPDFError: if 'extended' is chosen (implicitly by default or explicitly) as an
+                option for `n` but the pdf itself is not extended.
+            ValueError: if n is an invalid string option.
+            InvalidArgumentError: if n is not specified and pdf is not extended.
+        """
+
+        if n is None:
+            if self.is_extended:
+                n = znp.random.poisson(self.get_yield(), size=1)
+            else:
+                raise ValueError(
+                    f"n cannot be None for sampling of {self} or needs to be extended."
+                )
+        limits = self._check_convert_limits(limits)
+
+        if fixed_params is True:
+            fixed_params = list(self.get_params(only_floating=False))
+        elif fixed_params is False:
+            fixed_params = []
+        elif not isinstance(fixed_params, (list, tuple)):
+            raise TypeError("`Fixed_params` has to be a list, tuple or a boolean.")
+
+        def sample_func(n=n):
+            n = znp.array(n)
+            sample = self._create_sampler_tensor(limits=limits, n=n)
+            return sample
+
+        sample_data = BinnedSampler.from_sample(
+            sample_func=sample_func,
+            n=n,
+            obs=limits,
+            fixed_params=fixed_params,
+            dtype=self.dtype,
+        )
+
+        return sample_data
+
+    @z.function(wraps="sampler")
+    def _create_sampler_tensor(self, limits, n):
+        sample = self._call_sample(n=n, limits=limits)
+        return sample
+
     def sample(
         self, n: int = None, limits: ztyping.LimitsType = None
     ) -> ZfitBinnedData:
@@ -583,7 +660,7 @@ class BaseBinnedPDFV1(
             values = values.with_obs(original_limits)
         return values
 
-    @z.function(wraps="model")
+    @z.function(wraps="sample")
     def _call_sample(self, n, limits):
         with suppress(SpecificFunctionNotImplemented):
             self._sample(n, limits)
@@ -727,7 +804,6 @@ class BaseBinnedPDFV1(
             )
         return space
 
-    @z.function(wraps="model")
     def counts(
         self, x: ztyping.BinnedDataInputType = None, norm: ztyping.NormInputType = None
     ) -> ZfitBinnedData:
@@ -756,7 +832,7 @@ class BaseBinnedPDFV1(
         counts = self._call_counts(x, norm)
         return move_axis_obs(self.space, space, counts)
 
-    @z.function(wraps="model")
+    @z.function(wraps="model_binned")
     def _call_counts(self, x, norm):
         with suppress(SpecificFunctionNotImplemented):
             return self._auto_counts(x, norm)
@@ -795,7 +871,6 @@ class BaseBinnedPDFV1(
     def _counts(self, x, norm):
         raise SpecificFunctionNotImplemented
 
-    @z.function(wraps="model")
     def rel_counts(
         self, x: ztyping.BinnedDataInputType = None, norm: ztyping.NormInputType = None
     ) -> ZfitBinnedData:
@@ -823,7 +898,7 @@ class BaseBinnedPDFV1(
         values = self._call_rel_counts(x, norm)
         return move_axis_obs(self.space, space, values)
 
-    @z.function(wraps="model")
+    @z.function(wraps="model_binned")
     def _call_rel_counts(self, x, norm):
         with suppress(SpecificFunctionNotImplemented):
             return self._auto_rel_counts(x, norm=norm)
@@ -851,6 +926,33 @@ class BaseBinnedPDFV1(
 
     def set_norm_range(self):
         raise RuntimeError("set_norm_range is removed and should not be used anymore.")
+
+    def to_binned(self, space, *, extended=None, norm=None):
+        """Convert the PDF to a binned PDF."""
+        if isinstance(space, ZfitBinning):
+            if space != self.space.binning:
+                raise ValueError(
+                    "The binning of the PDF and the binning of the space must be equal."
+                )
+        if space != self.space:
+            raise ValueError(
+                f"Space must be the same as the PDF's space, as {self} is already a binned PDF."
+            )
+        if extended is not None:
+            raise WorkInProgressError(
+                "extended is not implemented yet. Create an extended PDF manually."
+            )
+        if norm is not None:
+            raise WorkInProgressError(
+                "norm is not implemented yet. Create a pdf with a different norm range manually."
+            )
+        return self
+
+    def to_unbinned(self):
+        """Convert the PDF to an unbinned PDF."""
+        from zfit.models.unbinnedpdf import UnbinnedFromBinnedPDF
+
+        return UnbinnedFromBinnedPDF(self, self.space.with_binning(None))
 
 
 def binned_rect_integration(
@@ -955,9 +1057,10 @@ def binned_rect_integration(
 
     binareas = reduce(
         operator.mul, binwidths
-    )  # needs to be np as znp or tf can't broadcast otherwise
+    )  # needs to be python as znp or tf can't broadcast otherwise
     if not is_density:  # scale the counts by the fraction. This is mostly one.
-        binareas_uncut = np.prod(binwidths_unscaled, axis=0)
+        binareas_uncut = reduce(operator.mul, binwidths_unscaled)
+        # binareas_uncut = znp.prod(binwidths_unscaled, axis=0)
         binareas /= binareas_uncut
     values_cut *= binareas
     integral = tf.reduce_sum(values_cut, axis=axis)

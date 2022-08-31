@@ -452,7 +452,6 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         # value = value_substracted[0] - value_substracted[1]
 
     def _value(self, model, data, fit_range, constraints, log_offset):
-        # try:
         return self._loss_func(
             model=model,
             data=data,
@@ -460,9 +459,6 @@ class BaseLoss(ZfitLoss, BaseNumeric):
             constraints=constraints,
             log_offset=log_offset,
         )
-
-    # except NotImplementedError as error:
-    #     raise NotImplementedError(f"_loss_func not properly defined! error {error}") from error
 
     def __add__(self, other):
         if not isinstance(other, BaseLoss):

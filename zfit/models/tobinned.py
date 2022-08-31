@@ -47,6 +47,13 @@ class BinnedFromUnbinnedPDF(BaseBinnedFunctorPDF):
                 )
             else:
                 extended = pdf.get_yield()
+        if not isinstance(space, ZfitSpace):
+            try:
+                space = pdf.space.with_binning(space)
+            except Exception as error:
+                raise ValueError(
+                    f"Could not create space {space} from pdf {pdf} with binning {space}"
+                ) from error
         super().__init__(
             obs=space,
             extended=extended,
@@ -91,13 +98,16 @@ class BinnedFromUnbinnedPDF(BaseBinnedFunctorPDF):
             return pdf.integrate(limits_space, norm=False, options=options)
 
         limits = znp.stack([lower_flat, upper_flat], axis=1)
-        values = tf.vectorized_map(integrate_one, limits)
+        try:
+            values = tf.vectorized_map(integrate_one, limits)[:, 0]
+        except ValueError:
+            values = tf.map_fn(integrate_one, limits)
         values = znp.reshape(values, shape)
         if norm:
             values /= pdf.normalization(norm)
         return values
 
-    @z.function
+    @z.function(wraps="model_binned")
     def _counts(self, x, norm):
         pdf = self.pdfs[0]
         edges = [znp.array(edge) for edge in self.axes.edges]

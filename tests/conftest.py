@@ -34,6 +34,7 @@ def setup_teardown():
             del sys.modules[m]
 
     yield
+
     from zfit.core.parameter import ZfitParameterMixin
 
     ZfitParameterMixin._existing_params.clear()
@@ -47,6 +48,7 @@ def setup_teardown():
     zfit.run.chunking.max_n_points = old_chunksize
     zfit.run.set_graph_mode(old_graph_mode)
     zfit.run.set_autograd_mode(old_autograd_mode)
+    zfit.run.set_graph_cache_size()
     for m in sys.modules.keys():
         if m not in init_modules:
             del sys.modules[m]
@@ -56,8 +58,8 @@ def setup_teardown():
 
 
 def pytest_addoption(parser):
-    parser.addoption("--longtests", action="store", default=False)
-    parser.addoption("--longtests-kde", action="store", default=False)
+    parser.addoption("--longtests", action="store_true", default=False)
+    parser.addoption("--longtests-kde", action="store_true", default=False)
 
 
 def pytest_configure():
@@ -67,7 +69,7 @@ def pytest_configure():
     )
     images_dir.mkdir(exist_ok=True)
 
-    def savefig(figure=None):
+    def savefig(figure=None, folder=None):
         if figure is None:
             figure = plt.gcf()
         title_sanitized = (
@@ -76,13 +78,21 @@ def pytest_configure():
             .replace(" ", "_")
             .replace("$", "_")
             .replace("\\", "_")
+            .replace("__", "_")
         )
         title_sanitized = (
-            title_sanitized.replace("/", "_").replace(".", "_").replace(":", "_")
+            title_sanitized.replace("/", "_")
+            .replace(".", "_")
+            .replace(":", "_")
+            .replace(",", "")
         )
         if not title_sanitized:
             raise RuntimeError("Title has to be set for plot that should be saved.")
-        savepath = images_dir.joinpath(title_sanitized)
+        foldersave = images_dir
+        if folder is not None:
+            foldersave = foldersave.joinpath(folder)
+        foldersave.mkdir(exist_ok=True, parents=True)
+        savepath = foldersave.joinpath(title_sanitized)
         plt.savefig(str(savepath))
 
     pytest.zfit_savefig = savefig

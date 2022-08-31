@@ -6,8 +6,8 @@ from ordered_set import OrderedSet
 
 import zfit
 from zfit import Parameter, z
-from zfit.core.parameter import ComplexParameter, ComposedParameter
-from zfit.util.exception import NameAlreadyTakenError
+from zfit.param import ComplexParameter, ComposedParameter
+from zfit.exception import NameAlreadyTakenError, LogicalUndefinedOperationError
 
 
 def test_complex_param():
@@ -129,19 +129,24 @@ def test_composed_param():
     assert a_changed == param_a.numpy()
     assert a_changed != a_unchanged
 
-    print(param_a)
+    # Test param representation
+    str(param_a)
+    repr(param_a)
 
     @z.function
     def print_param(p):
-        print(p)
+        _ = str(p)
+        _ = repr(p)
 
     print_param(param_a)
 
     # TODO(params): reactivate to check?
-    # with pytest.raises(LogicalUndefinedOperationError):
-    #     param_a.assign(value=5.)
-    # with pytest.raises(LogicalUndefinedOperationError):
-    #     param_a.assign(value=5.)
+    with pytest.raises(LogicalUndefinedOperationError):
+        param_a.set_value(value=5.0)
+    with pytest.raises(LogicalUndefinedOperationError):
+        param_a.assign(value=5.0)
+    with pytest.raises(LogicalUndefinedOperationError):
+        param_a.randomize()
 
 
 def test_shape_parameter():

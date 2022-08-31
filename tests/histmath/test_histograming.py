@@ -52,12 +52,10 @@ def test_unbinned_to_bins():
         ),
     ]
     h = hist.NamedHist(*axes)
-    name_values = {name: val for name, val in zip(["x", "y", "z"], values.transpose())}
+    name_values = dict(zip(["x", "y", "z"], values.transpose()))
     # h.fill(**name_values)
     true_bins = h.axes.index(*name_values.values())
-    print(true_bins)
     space = zfit.Space(binning=axes)
     data = zfit.Data.from_tensor(space.with_binning(None), values)
     bins = znp.transpose(unbinned_to_binindex(data, space))
-    print(bins)
     np.testing.assert_array_equal(bins, true_bins)
