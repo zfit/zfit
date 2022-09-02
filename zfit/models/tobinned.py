@@ -100,7 +100,7 @@ class BinnedFromUnbinnedPDF(BaseBinnedFunctorPDF):
         limits = znp.stack([lower_flat, upper_flat], axis=1)
         try:
             values = tf.vectorized_map(integrate_one, limits)[:, 0]
-        except ValueError:
+        except (ValueError, TypeError):
             values = tf.map_fn(integrate_one, limits)
         values = znp.reshape(values, shape)
         if norm:
@@ -149,7 +149,7 @@ class BinnedFromUnbinnedPDF(BaseBinnedFunctorPDF):
         limits = znp.stack([lower_flat, upper_flat], axis=1)
         try:
             values = tf.vectorized_map(integrate_one, limits)[:, 0]
-        except ValueError:
+        except (ValueError, TypeError):
             values = tf.map_fn(integrate_one, limits)
         values = znp.reshape(values, shape)
         if missing_yield:
