@@ -1519,7 +1519,7 @@ class FitResult(ZfitResult):
     def __str__(self):
         string = (
             Style.BRIGHT
-            + f"FitResult"
+            + "FitResult"
             + Style.NORMAL
             + f" of\n{self.loss} \nwith\n{self.minimizer}\n\n"
         )

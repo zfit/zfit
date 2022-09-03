@@ -142,7 +142,7 @@ def legendre_integral(
     lower = z.convert_to_tensor(lower_rescaled)
     upper = z.convert_to_tensor(upper_rescaled)
 
-    integral_0 = model.params[f"c_0"] * (upper - lower)  # if polynomial 0 is 1
+    integral_0 = model.params["c_0"] * (upper - lower)  # if polynomial 0 is 1
     if model.degree == 0:
         integral = integral_0
     else:
@@ -300,12 +300,12 @@ def func_integral_chebyshev1(limits, norm, params, model):
     lower = z.convert_to_tensor(lower_rescaled)
     upper = z.convert_to_tensor(upper_rescaled)
 
-    integral = model.params[f"c_0"] * (
+    integral = model.params["c_0"] * (
         upper - lower
     )  # if polynomial 0 is defined as T_0 = 1
     if model.degree >= 1:
         integral += (
-            model.params[f"c_1"] * 0.5 * (upper**2 - lower**2)
+            model.params["c_1"] * 0.5 * (upper**2 - lower**2)
         )  # if polynomial 0 is defined as T_0 = 1
     if model.degree >= 2:
 

@@ -1300,7 +1300,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             )
         except (SpecificFunctionNotImplemented, AnalyticIntegralNotImplemented):
             raise AnalyticSamplingNotImplemented(
-                f"analytic sampling not possible because the analytic integral"
+                "analytic sampling not possible because the analytic integral"
                 f" is not"
                 " implemented for the boundaries: {limits}"
             )
@@ -1448,4 +1448,4 @@ class SimpleModelSubclassMixin:
             )
         not_str = [param for param in params if not isinstance(param, str)]
         if not_str:
-            raise TypeError(f"The following parameters are not strings in `_PARAMS`: ")
+            raise TypeError("The following parameters are not strings in `_PARAMS`: ")

@@ -20,7 +20,6 @@ repos:
       - id: trailing-whitespace
         files: ".*\\.(?:tex|py)$"
       - id: detect-private-key
-      - id: name-tests-test
       - id: fix-byte-order-marker
       - id: check-ast
       - id: check-docstring-first
@@ -61,8 +60,8 @@ repos:
   - repo: https://github.com/asottile/setup-cfg-fmt
     rev: v2.0.0
     hooks:
-    - id: setup-cfg-fmt
-      args: [--max-py-version=3.10]
+      - id: setup-cfg-fmt
+        args: [ --max-py-version=3.10 ]
 
   # Notebook formatting
   - repo: https://github.com/nbQA-dev/nbQA
@@ -119,14 +118,19 @@ repos:
       - id: cleveref-capitalization
       - id: consistent-spelling
         args:
-            [
-              "--emph=et al.",
-              "--emph=a priori",
-              "--emph=a posteriori",
-              '--regex=naive=\bna(i|\\"i)ve',
-            ]
+          [
+            "--emph=et al.",
+            "--emph=a priori",
+            "--emph=a posteriori",
+            '--regex=naive=\bna(i|\\"i)ve',
+          ]
       - id: csquotes
       - id: ensure-labels-for-sections
       - id: no-space-in-cite
       - id: tilde-cite
       - id: unique-labels
+
+  - repo: https://github.com/dannysepler/rm_unneeded_f_str
+    rev: v0.1.0
+    hooks:
+      - id: rm-unneeded-f-str

@@ -290,7 +290,7 @@ def test_all_kde(kdetype, npoints, jit, request):
             f"{name} with {npoints_plot} points{weights_print}{bandwidth_print}{kernel_print}{grid_print}{binning_print}",
             fontsize=10,
         )
-        plt.plot(x, prob, label=f"KDE")
+        plt.plot(x, prob, label="KDE")
         plt.plot(x, prob_true, label="true PDF")
         data_np = zfit.run(data)
         plt.hist(data_np, bins=40, density=True, alpha=0.3, label="Kernel points")
@@ -413,7 +413,7 @@ def test_kde_border(kdetype, npoints, upper):
         f"{kernel_print}{grid_print}{binning_print}",
         fontsize=10,
     )
-    plt.plot(x, prob, label=f"KDE")
+    plt.plot(x, prob, label="KDE")
     plt.plot(x, prob_true, label="true PDF")
     data_np = zfit.run(data)
     plt.hist(data_np, bins=40, density=True, alpha=0.3, label="Kernel points")

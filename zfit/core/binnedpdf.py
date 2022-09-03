@@ -238,7 +238,7 @@ class BaseBinnedPDFV1(
 
                         raise TypeError(
                             f"Data to {self} has to be Binned Data, not {x}. (It can also be unbinned Data)"
-                            + f" but conversion to it failed (see also above) with the following error:"
+                            + " but conversion to it failed (see also above) with the following error:"
                             + f" {error})"
                         ) from error
 

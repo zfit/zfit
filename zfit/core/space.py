@@ -410,7 +410,7 @@ class Limit(
         """
         if not self.has_limits:
             raise LimitsNotSpecifiedError(
-                f"Limits are False or not set, cannot return the rectangular limits."
+                "Limits are False or not set, cannot return the rectangular limits."
             )
         rect_limits = self._rect_limits
         return rect_limits
@@ -1443,7 +1443,7 @@ class Space(
         """
         if not self.has_limits:
             raise LimitsNotSpecifiedError(
-                f"Limits are False or not set, cannot return the rectangular limits."
+                "Limits are False or not set, cannot return the rectangular limits."
             )
         lower_ordered, upper_ordered = self._rect_limits_z()
         rect_limits = lower_ordered, upper_ordered
@@ -1457,7 +1457,7 @@ class Space(
         """
         if not self.has_limits:
             raise LimitsNotSpecifiedError(
-                f"Limits are False or not set, cannot return the rectangular limits."
+                "Limits are False or not set, cannot return the rectangular limits."
             )
         lower_ordered, upper_ordered = self._rect_limits_z()
         rect_limits = z.convert_to_tensor(lower_ordered), z.convert_to_tensor(
