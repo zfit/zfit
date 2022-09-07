@@ -88,6 +88,15 @@ class BinnedData(
     # tfp.experimental.AutoCompositeTensor, OverloadableMixinValues, ZfitBinnedData
 ):
     def __init__(self, *, holder):
+        """Create a binned data object from a :py:class:`~zfit.core.data.BinnedHolder`.
+
+        Prefer to use the constructors ``from_*`` of :py:class:`~zfit.core.data.BinnedData`
+        like :py:meth:`~zfit.core.data.BinnedData.from_hist`, :py:meth:`~zfit.core.data.BinnedData.from_tensor`
+        or :py:meth:`~zfit.core.data.BinnedData.from_unbinned`.
+
+        Args:
+            holder:
+        """
         self.holder: BinnedHolder = holder
         self.name = "BinnedData"  # TODO: improve naming
 
@@ -98,11 +107,16 @@ class BinnedData(
         """Create a binned dataset defined in *space* where values are considered to be the counts.
 
         Args:
-            space: The space of the data. Variables need to match the values dimensions. The space has to be binned
-                and carry the information about the edges.
-            values: Actual counts of the histogram.
-            variances: Uncertainties of the histogram values. If ``True``, the uncertainties are taken to be poissonian
-                distributed.
+            space: |@doc:binneddata.param.space| Binned space of the data.
+               The space is used to define the binning and the limits of the data. |@docend:binneddata.param.space|
+            values: |@doc:binneddata.param.values| Corresponds to the counts of the histogram.
+               Follows the definition of the
+               `Unified Histogram Interface (UHI) <https://uhi.readthedocs.io/en/latest/plotting.html#plotting>`_. |@docend:binneddata.param.values|
+            variances: |@doc:binneddata.param.variances| Corresponds to the uncertainties of the histogram.
+               If ``True``, the uncertainties are created assuming that ``values``
+               have been drawn from a Poisson distribution.
+               Follows the definition of the
+               `Unified Histogram Interface (UHI) <https://uhi.readthedocs.io/en/latest/plotting.html#plotting>`_. |@docend:binneddata.param.variances|
         """
         values = znp.asarray(values, znp.float64)
         if variances is True:
@@ -113,22 +127,34 @@ class BinnedData(
 
     @classmethod
     def from_unbinned(cls, space: ZfitSpace, data: ZfitData):
+        """Convert an unbinned dataset to a binned dataset.
+
+        Args:
+            space: |@doc:binneddata.param.space| Binned space of the data.
+               The space is used to define the binning and the limits of the data. |@docend:binneddata.param.space|
+            data: Unbinned data to be converted to binned data
+
+        Returns:
+            ZfitBinnedData: The binned data
+        """
         from zfit.core.binning import unbinned_to_binned
 
         return unbinned_to_binned(data, space)
 
     @classmethod
-    def from_hist(cls, hist: hist.NamedHist) -> BinnedData:
+    def from_hist(cls, h: hist.NamedHist) -> BinnedData:
         """Create a binned dataset from a ``hist`` histogram.
 
+        A histogram (following the UHI definition) with named axes.
+
         Args:
-            hist: A NamedHist. The axes will be used as the binning in zfit.
+            h: A NamedHist. The axes will be used as the binning in zfit.
         """
         from zfit import Space
 
-        space = Space(binning=histaxes_to_binning(hist.axes))
-        values = znp.asarray(hist.values(flow=flow))
-        variances = hist.variances(flow=flow)
+        space = Space(binning=histaxes_to_binning(h.axes))
+        values = znp.asarray(h.values(flow=flow))
+        variances = h.variances(flow=flow)
         if variances is not None:
             variances = znp.asarray(variances)
         holder = BinnedHolder(space=space, values=values, variances=variances)
@@ -254,6 +280,11 @@ class BinnedData(
         return hash(id(self))
 
     def to_unbinned(self):
+        """Use the bincenters as unbinned data with values as counts.
+
+        Returns:
+            ``ZfitData``: Unbinned data
+        """
         meshed_center = znp.meshgrid(*self.axes.centers, indexing="ij")
         flat_centers = [znp.reshape(center, (-1,)) for center in meshed_center]
         centers = znp.stack(flat_centers, axis=-1)

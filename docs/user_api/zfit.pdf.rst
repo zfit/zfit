@@ -19,9 +19,10 @@ Binned PDFs
 ###########
 
 Binned PDFs extend the functionality of unbinned PDFs by providing more histogram-like features in
-addition to the basic unbinned PDFs. They interface well with the
-`boost-histogram <https://boost-histogram.readthedocs.io/en/latest/>`_ and especially
-`Hist <https://github.com/scikit-hep/hist>`_ libraries.
+addition to the basic unbinned PDFs. They interface with the
+`Unified Histogram Interface (uhi) <https://uhi.readthedocs.io/en/latest/?badge=latest>`_
+that is provided `boost-histogram <https://boost-histogram.readthedocs.io/en/latest/>`_ and especially
+`Hist <https://github.com/scikit-hep/hist>`_.
 
 .. toctree::
     :maxdepth: 2
