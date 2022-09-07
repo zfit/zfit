@@ -146,10 +146,10 @@ def test_extended_unbinned_nll(size):
     status = minimizer.minimize(loss=nll)
     params = status.params
     assert params[mu3]["value"] == pytest.approx(
-        zfit.run(tf.math.reduce_mean(test_values)), rel=0.05
+        zfit.run(tf.math.reduce_mean(test_values.value())), rel=0.05
     )
     assert params[sigma3]["value"] == pytest.approx(
-        zfit.run(tf.math.reduce_std(test_values)), rel=0.05
+        zfit.run(tf.math.reduce_std(test_values.value())), rel=0.05
     )
     assert params[yield3]["value"] == pytest.approx(size, rel=0.005)
 

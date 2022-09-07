@@ -84,8 +84,7 @@ class BaseFuncV1(BaseModel, ZfitFunc):
                 "Most probably, the number of obs the func was designed for"
                 "does not coincide with the `n_obs` from the `space`/`obs`"
                 "it received on initialization."
-                "Original Error: {}".format(error)
-            )
+            ) from error
 
     def as_pdf(self) -> "zfit.core.interfaces.ZfitPDF":
         """Create a PDF out of the function.

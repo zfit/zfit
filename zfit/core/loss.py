@@ -70,7 +70,7 @@ def _unbinned_nll_tf(
         fit_range:
 
     Returns:
-        The unbinned nll
+        The unbinned nll value as a scalar
     """
 
     if is_container(model):
@@ -78,13 +78,8 @@ def _unbinned_nll_tf(
             _unbinned_nll_tf(model=p, data=d, fit_range=r, log_offset=log_offset)
             for p, d, r in zip(model, data, fit_range)
         ]
-        # nlls_total = [nll.total for nll in nlls]
-        # nlls_correction = [nll.correction for nll in nlls]
-        # nlls_total_summed = znp.sum(input_tensor=nlls_total, axis=0)
         nlls_summed = znp.sum(nlls, axis=0)
 
-        # nlls_correction_summed = znp.sum(input_tensor=nlls_correction, axis=0)
-        # nll_finished = (nlls_total_summed, nlls_correction_summed)
         nll_finished = nlls_summed
     else:
         if fit_range is not None:

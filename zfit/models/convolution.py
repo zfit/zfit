@@ -363,7 +363,9 @@ class FFTConvPDFV1(BaseFunctor):
         )
 
         return accept_reject_sample(
-            lambda x: tf.ones(shape=tf.shape(x)[0], dtype=self.dtype),  # use inside?
+            lambda x: tf.ones(
+                shape=tf.shape(x.value())[0], dtype=self.dtype
+            ),  # use inside?
             # all the points are inside
             n=n,
             limits=limits,

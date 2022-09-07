@@ -864,6 +864,8 @@ class BaseSpace(ZfitSpace, BaseObject):
         return filtered
 
     def _filter(self, x, guarantee_limits):
+        if isinstance(x, ZfitData):
+            x = x.value()
         filtered = tf.boolean_mask(
             tensor=x, mask=self.inside(x, guarantee_limits=guarantee_limits)
         )

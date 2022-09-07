@@ -212,7 +212,7 @@ def test_sampling_floating(gauss_factory):
     sampled_from_gauss1 = sampler
     assert max(sampled_from_gauss1.value()[:, 0]) <= high
     assert min(sampled_from_gauss1.value()[:, 0]) >= low
-    assert n_draws == len(sampled_from_gauss1[:, 0])
+    assert n_draws == len(sampled_from_gauss1.value()[:, 0])
 
     nsample = 100000
     gauss_full_sample = gauss.create_sampler(

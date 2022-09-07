@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from ..util.exception import BreakingAPIChangeError
+
 if TYPE_CHECKING:
     import zfit
 
@@ -42,10 +44,10 @@ def compute_errors(
     result: zfit.result.FitResult,
     params: list[ZfitIndependentParameter],
     cl: float | None = None,
-    rtol: float | None = 0.001,
+    rtol: float | None = None,
     method: str | None = None,
     covariance_method: str | Callable | None = None,
-    sigma: float = 1,
+    sigma: float = None,
 ) -> tuple[
     dict[ZfitIndependentParameter, dict[str, float]],
     zfit.result.FitResult | None,
@@ -69,8 +71,6 @@ def compute_errors(
             to :py:meth:`FitResult.covariance`. Valid choices are
             by default {'minuit_hesse', 'hesse_np'} (or any other method defined in the result)
             or a Callable.
-        sigma: Errors are calculated with respect to ``sigma`` std deviations.
-
 
     Returns:
         out:
@@ -79,12 +79,15 @@ def compute_errors(
             Example: result[par1]['upper'] -> the asymmetric upper error of 'par1'
         out: a fit result is returned when a new minimum is found during the loss scan
     """
+    if rtol is None:
+        rtol = 0.001
     method = "hybr" if method is None else method
     # method = "krylov" if method is None else method  # TODO: integration tests, better for large n params?
-    if cl is None:
-        factor = 1.0
-    else:
-        factor = scipy.stats.chi2(1).ppf(cl)
+    factor = 1.0 if cl is None else scipy.stats.chi2(1).ppf(cl)
+    if sigma is not None:
+        raise BreakingAPIChangeError(
+            "Use cl instead of sigma in compute_errors. I.e. sigma=1 -> cl=0.6827."
+        )
     params = convert_to_container(params)
     new_result = None
 

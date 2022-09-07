@@ -31,7 +31,7 @@ from .. import z
 from ..settings import ztypes, run
 from ..util import ztyping
 from ..util.cache import GraphCachable, invalidate_graph
-from ..util.container import convert_to_container
+from ..util.container import convert_to_container, is_container
 from ..util.exception import (
     ObsIncompatibleError,
     ShapeIncompatibleError,
@@ -633,7 +633,6 @@ class Data(ZfitUnbinnedData, BaseDimensional, BaseObject, GraphCachable):
 
 def getitem_obs(self, item):
     item = convert_to_obs_str(item)
-
     return self.value(item)
 
 
