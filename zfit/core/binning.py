@@ -51,6 +51,16 @@ def histogramdd(sample, bins=10, range=None, weights=None, density=None):
 
 
 def unbinned_to_hist_eager(values, edges, weights=None):
+    """Convert an unbinned dataset to a binned dataset in eager mode.
+
+    Args:
+        values: Unbinned dataset to convert.
+        edges: Edges of the bins.
+        weights: Event weights.
+
+    Returns:
+        binned_data: Binned dataset.
+    """
     if weights is not None and weights.shape == () and None in weights:
         weights = None
     binning = [
@@ -65,6 +75,16 @@ def unbinned_to_hist_eager(values, edges, weights=None):
 
 
 def unbinned_to_binned(data, space, binned_class=None):
+    """Convert an unbinned dataset to a binned dataset.
+
+    Args:
+        data: Unbinned dataset to convert.
+        space: Space to bin the data in.
+        binned_class: Class to use for the binned dataset. Defaults to `BinnedData`.
+
+    Returns:
+        binned_data: Binned dataset of type `binned_class`.
+    """
     if binned_class is None:
         from zfit._data.binneddatav1 import BinnedData
 
@@ -94,6 +114,16 @@ def unbinned_to_binned(data, space, binned_class=None):
 
 
 def unbinned_to_binindex(data, space, flow=False):
+    """Calculate the bin index of each data point.
+
+    Args:
+        data: Data to calculate the bin index for.
+        space: Defines the binning.
+        flow: Whether to include the underflow and overflow bins.
+
+    Returns:
+        binindex: Tensor with shape (ndata, n_obs) holding the bin index of each data point.
+    """
     if flow:
         warnings.warn(
             "Flow currently not fully supported. Values outside the edges are all 0."
