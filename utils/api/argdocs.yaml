@@ -45,6 +45,18 @@ binneddata.param.variances: |1+
                 have been drawn from a Poisson distribution. Follows the definition of the
                 `Unified Histogram Interface (UHI) <https://uhi.readthedocs.io/en/latest/plotting.html#plotting>`_.
 
+binnedpdf.pdf.x: |1+
+    Values to evaluate the PDF at.
+                If this is a ``ZfitBinnedData``-like object, a histogram of *densities*
+                will be returned. If x is a ``ZfitUnbinnedData``-like object, the densities will be
+                evaluated at the points of ``x``.
+
+binnedpdf.out.problike: |1+
+  If the input was unbinned, it returns an array 
+                of shape (nevents,). If the input was binned, the dimensions and ordering of
+                the axes corresponds to the input axes.
+                  
+          
 
 pdf.init.norm: |1+
   Normalization of the PDF.

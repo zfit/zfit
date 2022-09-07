@@ -217,10 +217,12 @@ class BasePDF(ZfitPDF, BaseModel):
             The normalization value
         """
         if options is None:
-            options = {}
+            options = {}  # TODO: pass options through
         limits = self._check_input_limits(limits=limits)
 
-        return self._single_hook_normalization(limits=limits)
+        return self._single_hook_normalization(
+            limits=limits,
+        )
 
     def _single_hook_normalization(self, limits):  # TODO(Mayou36): add yield?
         return self._hook_normalization(limits=limits)
@@ -278,12 +280,15 @@ class BasePDF(ZfitPDF, BaseModel):
                or a mapping of *obs* to numpy-like arrays.
                If an array is given, the first dimension is interpreted as the events while
                the second is meant to be the dimensionality of a single event. |@docend:pdf.param.x|
-          norm: :py:class:`~zfit.Space` to normalize over
+          norm: |@doc:pdf.param.norm| Normalization of the function.
+               By default, this is the ``norm`` of the PDF (which by default is the same as
+               the space of the PDF). Should be ``ZfitSpace`` to define the space
+               to normalize over. |@docend:pdf.param.norm|
 
         Returns:
           :py:class:`tf.Tensor` of type `self.dtype`.
         """
-        assert norm_range is None
+        del norm_range  # taken care of in the deprecation decorator
         if not self.is_extended:
             raise NotExtendedPDFError(f"{self} is not extended, cannot call `ext_pdf`")
         with self._convert_sort_x(x) as x:
@@ -325,12 +330,17 @@ class BasePDF(ZfitPDF, BaseModel):
                or a mapping of *obs* to numpy-like arrays.
                If an array is given, the first dimension is interpreted as the events while
                the second is meant to be the dimensionality of a single event. |@docend:pdf.param.x|
-          norm: :py:class:`~zfit.Space` to normalize over
+          norm: |@doc:pdf.param.norm| Normalization of the function.
+               By default, this is the ``norm`` of the PDF (which by default is the same as
+               the space of the PDF). Should be ``ZfitSpace`` to define the space
+               to normalize over. |@docend:pdf.param.norm|
 
         Returns:
           :py:class:`tf.Tensor` of type `self.dtype`.
         """
         assert norm_range is None
+        del norm_range  # taken care of in the deprecation decorator
+
         if not self.is_extended:
             raise NotExtendedPDFError(f"{self} is not extended, cannot call `ext_pdf`")
         with self._convert_sort_x(x) as x:
@@ -376,12 +386,16 @@ class BasePDF(ZfitPDF, BaseModel):
                or a mapping of *obs* to numpy-like arrays.
                If an array is given, the first dimension is interpreted as the events while
                the second is meant to be the dimensionality of a single event. |@docend:pdf.param.x|
-          norm: :py:class:`~zfit.Space` to normalize over
+          norm: |@doc:pdf.param.norm| Normalization of the function.
+               By default, this is the ``norm`` of the PDF (which by default is the same as
+               the space of the PDF). Should be ``ZfitSpace`` to define the space
+               to normalize over. |@docend:pdf.param.norm|
 
         Returns:
           :py:class:`tf.Tensor` of type `self.dtype`.
         """
         assert norm_range is None
+        del norm_range  # taken care of in the deprecation decorator
         norm = self._check_input_norm(norm, none_is_error=True)
         with self._convert_sort_x(x) as x:
             value = self._single_hook_pdf(x=x, norm=norm)
@@ -435,12 +449,16 @@ class BasePDF(ZfitPDF, BaseModel):
                or a mapping of *obs* to numpy-like arrays.
                If an array is given, the first dimension is interpreted as the events while
                the second is meant to be the dimensionality of a single event. |@docend:pdf.param.x|
-          norm: :py:class:`~zfit.Space` to normalize over
+          norm: |@doc:pdf.param.norm| Normalization of the function.
+               By default, this is the ``norm`` of the PDF (which by default is the same as
+               the space of the PDF). Should be ``ZfitSpace`` to define the space
+               to normalize over. |@docend:pdf.param.norm|
 
         Returns:
           A ``Tensor`` of type ``self.dtype``.
         """
         assert norm_range is None
+        del norm_range  # taken care of in the deprecation decorator
         norm = self._check_input_norm(norm)
         with self._convert_sort_x(x) as x:
             return znp.asarray(z.to_real(self._single_hook_log_pdf(x=x, norm=norm)))
@@ -478,10 +496,15 @@ class BasePDF(ZfitPDF, BaseModel):
         """Integrate the function over ``limits`` (normalized over ``norm_range`` if not False).
 
         Args:
-            options ():
-            limits: the limits to integrate over
-            norm: the limits to normalize over or False to integrate the
-                unnormalized probability
+            limits: |@doc:pdf.integrate.limits| Limits of the integration. |@docend:pdf.integrate.limits|
+            norm: |@doc:pdf.integrate.norm| Normalization of the integration.
+               By default, this is the same as the default space of the PDF.
+               ``False`` means no normalization and returns the unnormed integral. |@docend:pdf.integrate.norm|
+            options: |@doc:pdf.integrate.options| Options for the integration.
+               Additional options for the integration. Currently supported options are:
+               - type: one of (``bins``)
+                 This hints that bins are integrated. A method that is vectorizable, non-dynamic and
+                 therefore less suitable for complicated functions is chosen. |@docend:pdf.integrate.options|
 
         Returns:
             The integral value as a scalar with shape ()
@@ -489,6 +512,7 @@ class BasePDF(ZfitPDF, BaseModel):
         if options is None:
             options = {}
         assert norm_range is None
+        del norm_range  # taken care of in the deprecation decorator
         norm = self._check_input_norm(norm)
         limits = self._check_input_limits(limits=limits)
         if not self.is_extended:
@@ -787,6 +811,8 @@ class BasePDF(ZfitPDF, BaseModel):
         Args:
             norm:
         """
+        assert norm_range is None
+        del norm_range  # taken care of in the deprecation decorator
         from .operations import convert_pdf_to_func  # prevent circular import
 
         return convert_pdf_to_func(pdf=self, norm=norm)
