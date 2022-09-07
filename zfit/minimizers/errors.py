@@ -171,7 +171,7 @@ def compute_errors(
                     assign_values(all_params, values)  # set values to the new minimum
                     raise NewMinimum("A new minimum is found.")
 
-                downward_shift = errordef * sigma**2
+                downward_shift = errordef * factor**2
                 shifted_loss = zeroed_loss - downward_shift
 
                 return np.concatenate([[shifted_loss], gradient])
@@ -214,7 +214,7 @@ def compute_errors(
                 "This behavior is currently an exception but will most likely change in the future."
             )
         to_return, new_result_ = compute_errors(
-            result=new_result, params=params, sigma=sigma, rtol=rtol, method=method
+            result=new_result, params=params, cl=cl, rtol=rtol, method=method
         )
         if new_result_ is not None:
             new_result = new_result_
