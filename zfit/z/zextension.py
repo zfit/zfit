@@ -23,11 +23,6 @@ from ..util.warnings import warn_advanced_feature
 
 
 def constant(value, dtype=ztypes.float, shape=None, name="Const", verify_shape=None):
-    # TODO(tf2): remove this legacy thing below
-    if verify_shape is not None:
-        raise RuntimeError(
-            "'verify_shape' is not a valid argument anymore. It's always true. Please remove."
-        )
     return tf.constant(value, dtype=dtype, shape=shape, name=name)
 
 

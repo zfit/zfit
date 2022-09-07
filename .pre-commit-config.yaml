@@ -75,11 +75,11 @@ repos:
         args: [ --py37-plus ]
 
   - repo: https://github.com/mgedmin/check-manifest
-    rev: '0.48'
+    rev: "0.48"
     hooks:
       - id: check-manifest
-        stages: [ manual ]
-
+        args: [ --update, --no-build-isolation ]
+        additional_dependencies: [ setuptools-scm, setuptools-scm-git-archive ]
 
   - repo: https://github.com/roy-ht/pre-commit-jupyter
     rev: v1.2.1

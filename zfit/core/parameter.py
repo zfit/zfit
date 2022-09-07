@@ -1284,7 +1284,7 @@ def set_values(
 
     Args:
         params: Parameters to set the values.
-        values: List-like object that supports indexing.
+        values: List-like object that supports indexing or a `FitResult`.
         allow_partial: Allow to set only parts of the parameters in case values is a `ZfitResult`
             and not all are present in the
             *values*. If False, *params* not in *values* will raise an error.
