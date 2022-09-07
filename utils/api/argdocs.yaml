@@ -36,14 +36,13 @@ binneddata.param.space: |1+
                 The space is used to define the binning and the limits of the data.
 binneddata.param.values: |1+
     Corresponds to the counts of the histogram.
-                Follows the definition of the 
+                Follows the definition of the
                 `Unified Histogram Interface (UHI) <https://uhi.readthedocs.io/en/latest/plotting.html#plotting>`_.
 
 binneddata.param.variances: |1+
     Corresponds to the uncertainties of the histogram.
                 If ``True``, the uncertainties are created assuming that ``values``
-                have been drawn from a Poisson distribution.
-                Follows the definition of the 
+                have been drawn from a Poisson distribution. Follows the definition of the
                 `Unified Histogram Interface (UHI) <https://uhi.readthedocs.io/en/latest/plotting.html#plotting>`_.
 
 
