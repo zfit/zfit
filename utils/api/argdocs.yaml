@@ -84,8 +84,9 @@ pdf.init.extended.auto: |1+
 pdf.integrate.limits: |1+
   Limits of the integration.
 
-pdf.partial_integrate.limit: |1+
+pdf.partial_integrate.limits: |1+
   Limits of the integration that will be integrated out.
+                Has to be a subset of the PDFs observables.
 pdf.integrate.norm: |1+
   Normalization of the integration.
                 By default, this is the same as the default space of the PDF.
