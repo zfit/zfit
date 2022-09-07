@@ -95,7 +95,7 @@ def compute_errors(
     loss = result.loss
     errordef = loss.errordef * factor
     fmin = result.fmin
-    rtol *= errordef
+    rtol *= errordef  # TODO: get factor, sigma right etc
     minimizer = result.minimizer
 
     old_values = np.asarray(result.params)
@@ -117,7 +117,7 @@ def compute_errors(
             param_value = result.params[param]["value"]
 
             initial_values = {"lower": [], "upper": []}
-            direction = {"lower": -sigma, "upper": sigma}
+            direction = {"lower": -factor, "upper": factor}
 
             for ap in all_params:
                 ap_value = result.params[ap]["value"]
