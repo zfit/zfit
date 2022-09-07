@@ -4,6 +4,31 @@ Changelog
 
 .. _newest-changelog:
 
+Develop
+========================
+
+Major Features and Improvements
+-------------------------------
+- columns of unbinned data can be accessed with the obs like a mapping
+
+Breaking changes
+------------------
+- ``Data`` can no longer be used directly as an array-like object but got mapping-like behavior.
+
+Deprecations
+-------------
+
+Bug fixes and small changes
+---------------------------
+
+Experimental
+------------
+
+Requirement changes
+-------------------
+
+Thanks
+------
 
 0.10.1 (31 Aug 2022)
 ========================

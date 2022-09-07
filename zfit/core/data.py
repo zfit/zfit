@@ -47,9 +47,7 @@ from .space import Space, convert_to_space
 
 
 # TODO: make cut only once, then remember
-class Data(
-    ZfitUnbinnedData, BaseDimensional, BaseObject, OverloadableMixin, GraphCachable
-):
+class Data(ZfitUnbinnedData, BaseDimensional, BaseObject, GraphCachable):
     BATCH_SIZE = 1000000  # 1 mio
 
     def __init__(
@@ -175,6 +173,7 @@ class Data(
         Args:
             weights:
         """
+
         # weights = self._set_weights(weights)
 
         def setter(value):
@@ -628,6 +627,15 @@ class Data(
 
         return BinnedData.from_unbinned(space=space, data=self)
 
+    def __getitem__(self, item):
+        return getitem_obs(self, item)
+
+
+def getitem_obs(self, item):
+    item = convert_to_obs_str(item)
+
+    return self.value(item)
+
 
 class SampleData(Data):
     _cache_counting = 0
@@ -828,7 +836,7 @@ class Sampler(Data):
         return f"<Sampler: {self.name} obs={self.obs}>"
 
 
-register_tensor_conversion(Data, name="Data", overload_operators=True)
+# register_tensor_conversion(Data, name="Data", overload_operators=True)
 
 
 class LightDataset:

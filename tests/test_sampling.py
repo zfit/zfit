@@ -210,8 +210,8 @@ def test_sampling_floating(gauss_factory):
     sampler = gauss.create_sampler(n=n_draws, limits=(low, high), fixed_params=False)
     sampler.resample()
     sampled_from_gauss1 = sampler
-    assert max(sampled_from_gauss1[:, 0]) <= high
-    assert min(sampled_from_gauss1[:, 0]) >= low
+    assert max(sampled_from_gauss1.value()[:, 0]) <= high
+    assert min(sampled_from_gauss1.value()[:, 0]) >= low
     assert n_draws == len(sampled_from_gauss1[:, 0])
 
     nsample = 100000

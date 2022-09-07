@@ -546,7 +546,7 @@ class BasePDF(ZfitPDF, BaseModel):
         self._set_yield(value=value)
 
     def create_extended(
-        self, yield_: ztyping.ParamTypeInput, name_addition: str = "extended"
+        self, yield_: ztyping.ParamTypeInput, name_addition: str = None
     ) -> ZfitPDF:
         """Return an extended version of this pdf with yield ``yield_``. The parameters are shared.
 

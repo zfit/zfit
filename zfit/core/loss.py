@@ -481,9 +481,10 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         params = {p.name: p for p in params}
         return self._gradient(params=params, numgrad=numgrad)
 
-    @deprecated(None, "Use `gradient` instead.")
     def gradients(self, *args, **kwargs):
-        return self.gradient(*args, **kwargs)
+        raise BreakingAPIChangeError(
+            "`gradients` is deprecated, use `gradient` instead."
+        )
 
     @z.function(wraps="loss")
     def _gradient(self, params, numgrad):
@@ -503,9 +504,10 @@ class BaseLoss(ZfitLoss, BaseNumeric):
 
         return self._value_gradient(params=params, numgrad=numgrad)
 
-    @deprecated(None, "Use `value_gradient` instead.")
     def value_gradients(self, *args, **kwargs):
-        return self.value_gradient(*args, **kwargs)
+        raise BreakingAPIChangeError(
+            "`value_gradients` is deprecated, use `value_gradient` instead."
+        )
 
     @z.function(wraps="loss")
     def _value_gradient(self, params, numgrad=False):
@@ -532,9 +534,10 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         vals = vals[0], z.convert_to_tensor(vals[1]), vals[2]
         return vals
 
-    @deprecated(None, "Use `value_gradient_hessian` instead.")
     def value_gradients_hessian(self, *args, **kwargs):
-        return self.value_gradient_hessian(*args, **kwargs)
+        raise BreakingAPIChangeError(
+            "`value_gradients_hessian` is deprecated, use `value_gradient_hessian` instead."
+        )
 
     @z.function(wraps="loss")
     def _value_gradient_hessian(self, params, hessian, numerical=False):
