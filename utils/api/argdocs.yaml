@@ -52,11 +52,11 @@ binnedpdf.pdf.x: |1+
                 evaluated at the points of ``x``.
 
 binnedpdf.out.problike: |1+
-  If the input was unbinned, it returns an array 
+  If the input was unbinned, it returns an array
                 of shape (nevents,). If the input was binned, the dimensions and ordering of
                 the axes corresponds to the input axes.
-                  
-          
+
+
 
 pdf.init.norm: |1+
   Normalization of the PDF.

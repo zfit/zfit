@@ -376,9 +376,7 @@ class BaseBinnedPDFV1(
         Returns:
             |@doc:binnedpdf.out.problike| If the input was unbinned, it returns an array
                of shape (nevents,). If the input was binned, the dimensions and ordering of
-               the axes corresponds to the input axes.
-
-          |@docend:binnedpdf.out.problike|
+               the axes corresponds to the input axes. |@docend:binnedpdf.out.problike|
         """
         del norm_range  # should be taken care of by deprecation decorator
         if not self.is_extended:
