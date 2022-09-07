@@ -38,6 +38,17 @@ repos:
       - id: docformatter
         args: [ -r, --in-place, --wrap-descriptions, '120', --wrap-summaries, '120', -- ]
 
+  - repo: local  # intentionally duplicated! If there is a modification from the replace
+    hooks:
+      - id: doc arg replacer checker
+        name: docarg checker
+        description: "If this hook modifies, it means that the now modified docstring is
+          not compliant with the docformatter."
+        entry: utils/api/replace_argdocs.py
+        language: python
+        always_run: true
+        additional_dependencies: [ pyyaml ]
+
   - repo: https://github.com/mattlqx/pre-commit-sign
     rev: v1.1.3
     hooks:

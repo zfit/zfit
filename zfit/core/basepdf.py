@@ -527,7 +527,7 @@ class BasePDF(ZfitPDF, BaseModel):
         """Return an extended version of this pdf with yield ``yield_``. The parameters are shared.
 
         Args:
-            yield_: |@doc:pdf.param.yield| Yield of the PDF.
+            yield_: |@doc:pdf.param.yield| Yield (expected number of events) of the PDF.
                This is the expected number of events.
                If this is parameter-like, it will be used as the yield,
                the expected number of events, and the PDF will be extended.
@@ -575,7 +575,7 @@ class BasePDF(ZfitPDF, BaseModel):
         These can be useful for plotting and for binned likelihoods.
 
         Args:
-            value: |@doc:pdf.param.yield| Yield of the PDF.
+            value: |@doc:pdf.param.yield| Yield (expected number of events) of the PDF.
                This is the expected number of events.
                If this is parameter-like, it will be used as the yield,
                the expected number of events, and the PDF will be extended.

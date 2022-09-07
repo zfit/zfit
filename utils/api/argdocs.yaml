@@ -48,7 +48,7 @@ pdf.param.norm: |1+
                 to normalize over.
 
 pdf.param.x: |1+
-  Data to evaluate the method on. Should be ``ZfitData`` 
+  Data to evaluate the method on. Should be ``ZfitData``
                 or a mapping of *obs* to numpy-like arrays.
                 If an array is given, the first dimension is interpreted as the events while
                 the second is meant to be the dimensionality of a single event.
@@ -84,7 +84,7 @@ pdf.integrate.options: |1+
                   therefore less suitable for complicated functions is chosen.
 
 pdf.param.yield: |1+
-  Yield of the PDF.
+  Yield (expected number of events) of the PDF.
                 This is the expected number of events.
                 If this is parameter-like, it will be used as the yield,
                 the expected number of events, and the PDF will be extended.
