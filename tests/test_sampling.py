@@ -292,7 +292,9 @@ def test_importance_sampling():
         def __call__(self, n_to_produce, limits, dtype):
             importance_sampling_called[0] = True
             n_to_produce = tf.cast(n_to_produce, dtype=tf.int32)
-            gaussian_sample = gauss_sampler.sample(n=n_to_produce, limits=limits)
+            gaussian_sample = gauss_sampler.sample(
+                n=n_to_produce, limits=limits
+            ).value()
             weights = gauss_sampler.pdf(gaussian_sample)
             weights_max = None
             thresholds = tf.random.uniform(shape=(n_to_produce,), dtype=dtype)

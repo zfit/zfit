@@ -3,6 +3,7 @@ import itertools
 import platform
 from collections import OrderedDict
 
+import iminuit
 import numpy as np
 import pytest
 import scipy.optimize
@@ -427,9 +428,11 @@ error_scales = {None: 1, 1: 1, 2: 2}
         "."
     )[-1],
 )
-@pytest.mark.flaky(reruns=3)
+# @pytest.mark.flaky(reruns=3)
 @pytest.mark.timeout(280)
 def test_minimizers(minimizer_class_and_kwargs, chunksize, numgrad, spaces, request):
+    import zfit.z.numpy as znp
+
     long_clarg = request.config.getoption("--longtests")
     # long_clarg = True
     # zfit.run.chunking.active = True
@@ -469,11 +472,13 @@ def test_minimizers(minimizer_class_and_kwargs, chunksize, numgrad, spaces, requ
 
     # run 3 times: once fully (as normal, once with a high tol first, then with a low restarting from the previous one)
     init_vals = zfit.run(params)
+
     result = minimizer.minimize(loss=loss)
     zfit.param.set_values(params, init_vals)
     result_hightol = minimizer_hightol.minimize(loss=loss)
     zfit.param.set_values(params, init_vals)
     result_lowtol = minimizer.minimize(loss=result_hightol)
+    minuit_xcheck = iminuit.Minuit(loss, znp.array(zfit.run(params)))
 
     assert result.valid
     assert result_hightol.valid
@@ -484,7 +489,8 @@ def test_minimizers(minimizer_class_and_kwargs, chunksize, numgrad, spaces, requ
     assert result_lowtol.fmin == pytest.approx(result.fmin, abs=2.0)
     if not isinstance(minimizer, zfit.minimize.IpyoptV1):
         assert (
-            result_lowtol.info["n_eval"] < 1.2 * result.info["n_eval"]
+            result_lowtol.info["n_eval"]
+            < 1.2 * result.info["n_eval"] + 10  # +10 if it's very small, it's hard
         )  # should not be more, surely not a lot
 
     aval, bval, cval = (zfit.run(v) for v in (mu_param, sigma_param, lambda_param))
@@ -497,6 +503,8 @@ def test_minimizers(minimizer_class_and_kwargs, chunksize, numgrad, spaces, requ
     # Test Hesse
     if test_error:
         for cl, errscale in [(0.683, 1), (0.9548, 2), (0.99747, 3)]:
+            print("minos run", minuit_xcheck.minos(cl=cl))
+            # print(minuit_xcheck.params)
             hesse_methods = ["hesse_np"]
             profile_methods = ["zfit_error"]
             from zfit.minimizers.minimizer_minuit import Minuit

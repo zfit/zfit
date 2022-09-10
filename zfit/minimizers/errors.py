@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import time
 from typing import TYPE_CHECKING
 
 from ..util.exception import BreakingAPIChangeError
@@ -24,7 +25,7 @@ import zfit.z.numpy as znp
 
 from .. import settings, z
 from ..core.interfaces import ZfitIndependentParameter
-from ..core.parameter import assign_values
+from ..core.parameter import assign_values, assign_values_jit
 from ..util.container import convert_to_container
 from ..util.deprecation import deprecated_args
 
@@ -82,20 +83,24 @@ def compute_errors(
     if rtol is None:
         rtol = 0.001
     method = "hybr" if method is None else method
+    if cl is None:
+        cl = 0.68268949  # scipy.stats.chi2(1).cdf(1)
     # method = "krylov" if method is None else method  # TODO: integration tests, better for large n params?
-    factor = 1.0 if cl is None else scipy.stats.chi2(1).ppf(cl)
+    factor = scipy.stats.chi2(1).ppf(cl)
     if sigma is not None:
         raise BreakingAPIChangeError(
             "Use cl instead of sigma in compute_errors. I.e. sigma=1 -> cl=0.6827."
         )
+    if sigma is None:
+        sigma = 1.0
     params = convert_to_container(params)
     new_result = None
 
     all_params = list(result.params.keys())
     loss = result.loss
-    errordef = loss.errordef * factor
+    errordef = loss.errordef
     fmin = result.fmin
-    rtol *= errordef  # TODO: get factor, sigma right etc
+    rtol *= errordef
     minimizer = result.minimizer
 
     old_values = np.asarray(result.params)
@@ -107,7 +112,7 @@ def compute_errors(
     ncalls = 0
     loss_min_tol = minimizer.tol * errordef * 2  # 2 is just to be tolerant
     try:
-        # start = time.time()
+        start = time.time()
         to_return = {}
         for param in params:
             assign_values(all_params, result)
@@ -127,12 +132,14 @@ def compute_errors(
                 for d in ["lower", "upper"]:
                     ap_value_init = ap_value + direction[d] * error_factor
                     initial_values[d].append(ap_value_init)
+            print(f"DEBUG: initial_values: {initial_values}")
 
             index_poi = all_params.index(param)  # remember the index
 
             @z.function(wraps="gradient")
-            def optimized_loss_gradient(index):
+            def optimized_loss_gradient(index, values):
                 assert isinstance(index, int)
+                assign_values_jit(all_params, values)
                 loss_value, gradient = loss.value_gradient(params=all_params)
                 if isinstance(gradient, (tuple, list)):
                     gradient = znp.asarray(gradient)
@@ -148,9 +155,8 @@ def compute_errors(
                 ncalls += 1
                 swap_sign = args
 
-                assign_values(all_params, values)
                 try:
-                    loss_value, gradient = optimized_loss_gradient(index_poi)
+                    loss_value, gradient = optimized_loss_gradient(index_poi, values)
                 except tf.errors.InvalidArgumentError:
                     msg = (
                         f"The evaluation of the errors of {param.name} failed due to too many NaNs"
@@ -160,7 +166,7 @@ def compute_errors(
                     raise FailEvalLossNaN(msg)
                 zeroed_loss = loss_value.numpy() - fmin
 
-                gradient = np.array(gradient)
+                gradient = znp.array(gradient)
 
                 if swap_sign(param):  # mirror at x-axis to remove second zero
                     zeroed_loss = -zeroed_loss
@@ -171,10 +177,12 @@ def compute_errors(
                     assign_values(all_params, values)  # set values to the new minimum
                     raise NewMinimum("A new minimum is found.")
 
-                downward_shift = errordef * factor**2
+                downward_shift = errordef * factor  # ** 2  # TODO: what is correct?
                 shifted_loss = zeroed_loss - downward_shift
-
-                return np.concatenate([[shifted_loss], gradient])
+                print(
+                    f"DEBUG: shifted_loss: {shifted_loss}, zeroed_loss: {zeroed_loss}, errordef: {errordef}, factor: {factor}"
+                )
+                return znp.concatenate([[shifted_loss], gradient])
 
             to_return[param] = {}
             swap_sign = {
@@ -196,7 +204,7 @@ def compute_errors(
                 )
                 to_return[param][d] = roots.x[all_params.index(param)] - param_value
                 # print(f"error {d}, time needed {time.time() - start2}")
-        # print(f"errors found, time needed {time.time() - start}")
+        print(f"errors found, time needed {time.time() - start:.2f}s")
         assign_values(all_params, old_values)
 
     except NewMinimum as e:
