@@ -14,4 +14,3 @@ Use Constraint to constrain your models parameters.
     zfit.constraint.PoissonConstraint
     zfit.constraint.LogNormalConstraint
     zfit.constraint.SimpleConstraint
-    zfit.constraint.nll_gaussian
