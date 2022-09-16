@@ -478,7 +478,6 @@ def test_minimizers(minimizer_class_and_kwargs, chunksize, numgrad, spaces, requ
     result_hightol = minimizer_hightol.minimize(loss=loss)
     zfit.param.set_values(params, init_vals)
     result_lowtol = minimizer.minimize(loss=result_hightol)
-    minuit_xcheck = iminuit.Minuit(loss, znp.array(zfit.run(params)))
 
     assert result.valid
     assert result_hightol.valid
@@ -503,8 +502,6 @@ def test_minimizers(minimizer_class_and_kwargs, chunksize, numgrad, spaces, requ
     # Test Hesse
     if test_error:
         for cl, errscale in [(0.683, 1), (0.9548, 2), (0.99747, 3)]:
-            print("minos run", minuit_xcheck.minos(cl=cl))
-            # print(minuit_xcheck.params)
             hesse_methods = ["hesse_np"]
             profile_methods = ["zfit_error"]
             from zfit.minimizers.minimizer_minuit import Minuit

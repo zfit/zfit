@@ -82,17 +82,21 @@ def compute_errors(
     """
     if rtol is None:
         rtol = 0.001
-    method = "hybr" if method is None else method
+    # method = "hybr" if method is None else method
+    method = (
+        "krylov" if method is None else method
+    )  # TODO: integration tests, better for large n params?
     if cl is None:
-        cl = 0.68268949  # scipy.stats.chi2(1).cdf(1)
-    # method = "krylov" if method is None else method  # TODO: integration tests, better for large n params?
-    factor = scipy.stats.chi2(1).ppf(cl)
-    if sigma is not None:
-        raise BreakingAPIChangeError(
-            "Use cl instead of sigma in compute_errors. I.e. sigma=1 -> cl=0.6827."
-        )
-    if sigma is None:
-        sigma = 1.0
+        if sigma is None:
+            sigma = 1
+
+    else:
+        if sigma is None:
+            sigma = scipy.stats.chi2(1).ppf(cl) ** 0.5
+        else:
+            raise ValueError("Cannot specify both sigma and cl.")
+    # TODO: how to name things, sigma or cl?
+
     params = convert_to_container(params)
     new_result = None
 
@@ -100,14 +104,14 @@ def compute_errors(
     loss = result.loss
     errordef = loss.errordef
     fmin = result.fmin
-    rtol *= errordef
+    rtol *= errordef * 2  # * 2 for tolerance
     minimizer = result.minimizer
 
     old_values = np.asarray(result.params)
 
     covariance = result.covariance(method=covariance_method, as_dict=True)
     param_errors = {param: covariance[(param, param)] ** 0.5 for param in params}
-    # param_scale = np.array(list(param_errors.values()))  # TODO: can be used for root finding initialization?
+    param_scale = np.array(list(param_errors.values()))
 
     ncalls = 0
     loss_min_tol = minimizer.tol * errordef * 2  # 2 is just to be tolerant
@@ -122,7 +126,7 @@ def compute_errors(
             param_value = result.params[param]["value"]
 
             initial_values = {"lower": [], "upper": []}
-            direction = {"lower": -factor, "upper": factor}
+            direction = {"lower": -1, "upper": 1}
 
             for ap in all_params:
                 ap_value = result.params[ap]["value"]
@@ -130,14 +134,28 @@ def compute_errors(
                     covariance[(param, ap)] * (2 * errordef / param_error**2) ** 0.5
                 )
                 for d in ["lower", "upper"]:
-                    ap_value_init = ap_value + direction[d] * error_factor
+                    step = direction[d] * error_factor * sigma
+                    for ntrial in range(500):
+                        ap_value_init = ap_value + step
+                        if ap_value_init < ap.lower or ap_value_init > ap.upper:
+                            step *= 0.8
+                        else:
+                            break
+                    else:
+                        raise RuntimeError(
+                            f"Could not find a valid initial value for {ap} in {d} direction after {ntrial + 1} trials."
+                            f" step tried: {step}"
+                        )
+
                     initial_values[d].append(ap_value_init)
-            print(f"DEBUG: initial_values: {initial_values}")
 
             index_poi = all_params.index(param)  # remember the index
+            _ = loss.value_gradient(
+                params=all_params
+            )  # to make sure the loss is compiled
 
             @z.function(wraps="gradient")
-            def optimized_loss_gradient(index, values):
+            def optimized_loss_gradient(values, index):
                 assert isinstance(index, int)
                 assign_values_jit(all_params, values)
                 loss_value, gradient = loss.value_gradient(params=all_params)
@@ -149,14 +167,14 @@ def compute_errors(
                 return loss_value, gradient
 
             # TODO: improvement, use jacobian?
-            # @np_cache(maxsize=25)
+            @np_cache(maxsize=3)
             def func(values, args):
                 nonlocal ncalls
                 ncalls += 1
                 swap_sign = args
 
                 try:
-                    loss_value, gradient = optimized_loss_gradient(index_poi, values)
+                    loss_value, gradient = optimized_loss_gradient(values, index_poi)
                 except tf.errors.InvalidArgumentError:
                     msg = (
                         f"The evaluation of the errors of {param.name} failed due to too many NaNs"
@@ -177,11 +195,8 @@ def compute_errors(
                     assign_values(all_params, values)  # set values to the new minimum
                     raise NewMinimum("A new minimum is found.")
 
-                downward_shift = errordef * factor  # ** 2  # TODO: what is correct?
+                downward_shift = errordef * sigma**2
                 shifted_loss = zeroed_loss - downward_shift
-                print(
-                    f"DEBUG: shifted_loss: {shifted_loss}, zeroed_loss: {zeroed_loss}, errordef: {errordef}, factor: {factor}"
-                )
                 return znp.concatenate([[shifted_loss], gradient])
 
             to_return[param] = {}
@@ -196,15 +211,11 @@ def compute_errors(
                     x0=np.array(initial_values[d]),
                     tol=rtol,
                     options={
-                        "factor": 0.1,
-                        # 'diag': 1 / param_scale,  # scale factor for variables
-                        # 'diag': param_scale,
+                        "diag": 1 / param_scale,  # scale factor for variables
                     },
                     method=method,
                 )
                 to_return[param][d] = roots.x[all_params.index(param)] - param_value
-                # print(f"error {d}, time needed {time.time() - start2}")
-        print(f"errors found, time needed {time.time() - start:.2f}s")
         assign_values(all_params, old_values)
 
     except NewMinimum as e:

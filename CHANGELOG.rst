@@ -10,6 +10,7 @@ Develop
 Major Features and Improvements
 -------------------------------
 - columns of unbinned data can be accessed with the obs like a mapping
+- speedup builtin ``errors`` method and make it more robust
 
 Breaking changes
 ------------------
