@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import time
+import warnings
 from typing import TYPE_CHECKING
 
 import tqdm
@@ -76,7 +77,7 @@ def compute_errors(
             error. If None, use all parameters.
         cl: Confidence Level of the parameter to be determined. Defaults to 68.3%.
         rtol: relative tol between the computed and the exact roots
-        method: type of solver, ``method`` argument of :py:func:`scipy.optimize.root`. Defaults to "hybr" or "krylov".
+        method: type of solver, ``method`` argument of :py:func:`scipy.optimize.root`. Defaults to "hybr".
         covariance_method: The method to use to calculate the correlation matrix, will be forwarded directly
             to :py:meth:`FitResult.covariance`. Valid choices are
             by default {'minuit_hesse', 'hesse_np'} (or any other method defined in the result)
@@ -90,9 +91,8 @@ def compute_errors(
         out: a fit result is returned when a new minimum is found during the loss scan
     """
     if rtol is None:
-        rtol = 0.01
-    # method = "hybr" if method is None else method
-    method = "krylov" if method is None else method
+        rtol = 0.03
+    method = "hybr" if method is None else method
     # TODO: integration tests, better for large n params?
     if cl is None:
         if sigma is None:
@@ -141,7 +141,7 @@ def compute_errors(
                 )
                 for d in ["lower", "upper"]:
                     step = direction[d] * error_factor * sigma
-                    for ntrial in range(500):
+                    for ntrial in range(50):
                         ap_value_init = ap_value + step
                         if ap_value_init < ap.lower or ap_value_init > ap.upper:
                             step *= 0.8
@@ -150,7 +150,8 @@ def compute_errors(
                     else:
                         raise RuntimeError(
                             f"Could not find a valid initial value for {ap} in {d} direction after {ntrial + 1} trials."
-                            f" step tried: {step}"
+                            f" step tried: {step}. This should not happes, the error probably looks weird. Maybe plot"
+                            f" the loss function for different parameter values and check if it looks reasonable."
                         )
 
                     initial_values[d].append(ap_value_init)
@@ -174,10 +175,13 @@ def compute_errors(
 
             # TODO: improvement, use jacobian?
             root = None
+            ntol = 999  # if it's right in the beginning, we think it's fine
+            # TODO: should we add a "robust" or similar option to not skip this?
+            # or evaluate and then decide ,maybe use krylov as it doesn't do a lot of calls in the beginning, it
+            # approximates the jacobian
 
-            @np_cache(maxsize=3)
             def func(values, args):
-                nonlocal ncalls, root
+                nonlocal ncalls, root, ntol
                 ncalls += 1
                 swap_sign = args
 
@@ -207,9 +211,13 @@ def compute_errors(
                 shifted_loss = zeroed_loss - downward_shift
                 print(f"DEBUG: shifted_loss {shifted_loss} rtol {rtol}")
 
-                if shifted_loss < rtol:
-                    root = values[index_poi]
-                    raise RootFound()
+                if abs(shifted_loss) < rtol:
+                    if ntol > 3:
+                        root = values[index_poi]
+                        raise RootFound()
+                    ntol += 1
+                else:
+                    ntol = 0
 
                 return znp.concatenate([[shifted_loss], gradient])
 
@@ -220,11 +228,11 @@ def compute_errors(
             }
             for d in ["lower", "upper"]:
                 try:
-                    optimize.root(
+                    root_result = optimize.root(
                         fun=func,
                         args=(swap_sign[d],),
                         x0=np.array(initial_values[d]),
-                        tol=1e-12,  # we won't stop like this anyway
+                        tol=rtol,  # we won't stop like this anyway
                         options={
                             "diag": 1 / param_scale,  # scale factor for variables
                         },
@@ -232,11 +240,13 @@ def compute_errors(
                     )
                 except RootFound:
                     assert root is not None, "Should be changed inside function."
-                    to_return[param][d] = root - param_value
                 else:
-                    raise RuntimeError(
-                        f"Could not find a root for {param} in {d} direction."
+                    warnings.warn(
+                        f"The root finding did not converge below {rtol} but stopped by its own criteria."
                     )
+                    root = root_result.x[index_poi]
+                to_return[param][d] = root - param_value
+
         assign_values(all_params, result)
 
     except NewMinimum as e:
