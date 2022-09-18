@@ -3,7 +3,6 @@ import itertools
 import platform
 from collections import OrderedDict
 
-import iminuit
 import numpy as np
 import pytest
 import scipy.optimize
@@ -379,7 +378,7 @@ def test_minimize_pure_func(params, minimizer_class_and_kwargs):
         assert pytest.approx(result.params[param]["hesse"]["error"], rel=0.15) == error
     param = list(result.params)[1]
     result.errors(param, name="errors")
-    assert pytest.approx(result.params[param]["errors"]["lower"], rel=0.15) == -0.61
+    assert pytest.approx(result.params[param]["errors"]["lower"], rel=0.15) == -0.53
     assert pytest.approx(result.params[param]["errors"]["upper"], rel=0.15) == 0.7
 
 

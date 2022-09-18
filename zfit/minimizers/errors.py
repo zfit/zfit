@@ -5,6 +5,8 @@ from __future__ import annotations
 import time
 from typing import TYPE_CHECKING
 
+import tqdm
+
 from ..util.exception import BreakingAPIChangeError
 
 if TYPE_CHECKING:
@@ -64,7 +66,7 @@ def compute_errors(
     Args:
         result: fit result to be used to compute the uncertainties.
         params: The parameters to calculate the
-            errors error. If None, use all parameters.
+            error. If None, use all parameters.
         cl: Confidence Level of the parameter to be determined. Defaults to 68.3%.
         rtol: relative tol between the computed and the exact roots
         method: type of solver, ``method`` argument of :py:func:`scipy.optimize.root`. Defaults to "hybr".
@@ -83,9 +85,8 @@ def compute_errors(
     if rtol is None:
         rtol = 0.001
     # method = "hybr" if method is None else method
-    method = (
-        "krylov" if method is None else method
-    )  # TODO: integration tests, better for large n params?
+    method = "krylov" if method is None else method
+    # TODO: integration tests, better for large n params?
     if cl is None:
         if sigma is None:
             sigma = 1
@@ -107,18 +108,16 @@ def compute_errors(
     rtol *= errordef * 2  # * 2 for tolerance
     minimizer = result.minimizer
 
-    old_values = np.asarray(result.params)
-
     covariance = result.covariance(method=covariance_method, as_dict=True)
-    param_errors = {param: covariance[(param, param)] ** 0.5 for param in params}
+    param_errors = {param: covariance[(param, param)] ** 0.5 for param in all_params}
     param_scale = np.array(list(param_errors.values()))
 
     ncalls = 0
     loss_min_tol = minimizer.tol * errordef * 2  # 2 is just to be tolerant
     try:
-        start = time.time()
         to_return = {}
-        for param in params:
+        for param in tqdm.tqdm(params):
+            print(f"DEBUG: param {param}")
             assign_values(all_params, result)
 
             logging.info(f"profiling the parameter {param}")
@@ -195,6 +194,7 @@ def compute_errors(
                     assign_values(all_params, values)  # set values to the new minimum
                     raise NewMinimum("A new minimum is found.")
 
+                print("DEBUG: zeroed_loss", zeroed_loss)
                 downward_shift = errordef * sigma**2
                 shifted_loss = zeroed_loss - downward_shift
                 return znp.concatenate([[shifted_loss], gradient])
@@ -216,7 +216,7 @@ def compute_errors(
                     method=method,
                 )
                 to_return[param][d] = roots.x[all_params.index(param)] - param_value
-        assign_values(all_params, old_values)
+        assign_values(all_params, result)
 
     except NewMinimum as e:
         from .. import settings

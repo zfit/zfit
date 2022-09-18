@@ -156,7 +156,7 @@ def run_no_nan(func, x):
 class FunctionWrapperRegistry:
     registries = WeakSet()
     allow_jit = True
-    DEFAULT_CACHE_SIZE = 20
+    DEFAULT_CACHE_SIZE = 200
     _DEFAULT_DO_JIT_TYPES = defaultdict(lambda: True)
     _DEFAULT_DO_JIT_TYPES.update(
         {
