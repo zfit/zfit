@@ -12,6 +12,7 @@ from collections.abc import Iterable, Callable
 
 from contextlib import suppress
 from functools import reduce
+from uhi.typing.plottable import PlottableHistogram
 
 import numpy as np
 import tensorflow as tf
@@ -88,12 +89,11 @@ class BaseBinnedPDFV1(
     GraphCachable,
     BaseDimensional,
     OverloadableMixinValues,
-    ZfitMinimalHist,
     ZfitBinnedPDF,
 ):
     def __init__(self, obs, extended=None, norm=None, name=None, **kwargs):
-        super().__init__(dtype=znp.float64, **kwargs)
-        self._name = name  # TODO: why is this needed?
+        super().__init__(dtype=znp.float64, name=name, **kwargs)
+        # self._name = name  # TODO: why is this needed?
 
         self._space = self._check_convert_obs_init(obs)
         self._yield = None
@@ -225,9 +225,7 @@ class BaseBinnedPDFV1(
     def _convert_input_binned_x(self, x, none_is_space=None):
         if x is None and none_is_space:
             return self.space
-        if isinstance(x, uhi.typing.plottable.PlottableHistogram) and not isinstance(
-            x, ZfitBinnedData
-        ):
+        if isinstance(x, PlottableHistogram) and not isinstance(x, ZfitBinnedData):
             x = BinnedData.from_hist(x)
         if not isinstance(x, ZfitBinnedData):
             if not isinstance(x, ZfitSpace):

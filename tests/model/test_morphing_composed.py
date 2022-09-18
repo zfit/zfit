@@ -77,7 +77,8 @@ def test_moprhing_sum():
         pytest.approx(bkg_true, abs=3 * bkg_true**0.5)
         == result.params[bkg_yield]["value"]
     )
-    for p in result.params.values():
+    for p in params_to_test:
+        p = result.params[p]
         lower = p["zfit"]["lower"]
         upper = p["zfit"]["upper"]
         avg = (abs(upper) + abs(lower)) / 2
