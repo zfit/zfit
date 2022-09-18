@@ -93,7 +93,6 @@ def compute_errors(
     if rtol is None:
         rtol = 0.03
     method = "hybr" if method is None else method
-    # TODO: integration tests, better for large n params?
     if cl is None:
         if sigma is None:
             sigma = 1
@@ -123,8 +122,7 @@ def compute_errors(
     loss_min_tol = minimizer.tol * errordef * 2  # 2 is just to be tolerant
     try:
         to_return = {}
-        for param in tqdm.tqdm(params):
-            print(f"DEBUG: param {param}")
+        for param in params:
             assign_values(all_params, result)
 
             logging.info(f"profiling the parameter {param}")
@@ -209,7 +207,6 @@ def compute_errors(
 
                 downward_shift = errordef * sigma**2
                 shifted_loss = zeroed_loss - downward_shift
-                print(f"DEBUG: shifted_loss {shifted_loss} rtol {rtol}")
 
                 if abs(shifted_loss) < rtol:
                     if ntol > 3:
