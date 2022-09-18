@@ -157,9 +157,10 @@ def test_moprhing_sum():
     result = minimizer.minimize(loss_binned)
     result.hesse()
     print(result)
-    for p in loss_binned.get_params():
-        print(p, p.value())
-        result.errors(method="zfit_errors", params=p)
+    # for p in loss_binned.get_params():)
+    result.errors(method="zfit_errors")
+    print("Finished zfit errors")
+    result.errors(name="minos", method="minuit_minos")
     print(result)
 
     # %%

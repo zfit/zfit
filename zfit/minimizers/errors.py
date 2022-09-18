@@ -42,6 +42,13 @@ class FailEvalLossNaN(Exception):
     pass
 
 
+class RootFound(Exception):
+    """Exception class for cases where a root is found, since SciPy root solvers don't really respect tol or xtol on
+    initial evaluation."""
+
+    pass
+
+
 @deprecated_args(None, "Use cl for confidence level instead.", "sigma")
 def compute_errors(
     result: zfit.result.FitResult,
@@ -69,7 +76,7 @@ def compute_errors(
             error. If None, use all parameters.
         cl: Confidence Level of the parameter to be determined. Defaults to 68.3%.
         rtol: relative tol between the computed and the exact roots
-        method: type of solver, ``method`` argument of :py:func:`scipy.optimize.root`. Defaults to "hybr".
+        method: type of solver, ``method`` argument of :py:func:`scipy.optimize.root`. Defaults to "hybr" or "krylov".
         covariance_method: The method to use to calculate the correlation matrix, will be forwarded directly
             to :py:meth:`FitResult.covariance`. Valid choices are
             by default {'minuit_hesse', 'hesse_np'} (or any other method defined in the result)
@@ -83,7 +90,7 @@ def compute_errors(
         out: a fit result is returned when a new minimum is found during the loss scan
     """
     if rtol is None:
-        rtol = 0.001
+        rtol = 0.01
     # method = "hybr" if method is None else method
     method = "krylov" if method is None else method
     # TODO: integration tests, better for large n params?
@@ -105,7 +112,7 @@ def compute_errors(
     loss = result.loss
     errordef = loss.errordef
     fmin = result.fmin
-    rtol *= errordef * 2  # * 2 for tolerance
+    rtol *= errordef
     minimizer = result.minimizer
 
     covariance = result.covariance(method=covariance_method, as_dict=True)
@@ -166,9 +173,11 @@ def compute_errors(
                 return loss_value, gradient
 
             # TODO: improvement, use jacobian?
+            root = None
+
             @np_cache(maxsize=3)
             def func(values, args):
-                nonlocal ncalls
+                nonlocal ncalls, root
                 ncalls += 1
                 swap_sign = args
 
@@ -194,9 +203,14 @@ def compute_errors(
                     assign_values(all_params, values)  # set values to the new minimum
                     raise NewMinimum("A new minimum is found.")
 
-                print("DEBUG: zeroed_loss", zeroed_loss)
                 downward_shift = errordef * sigma**2
                 shifted_loss = zeroed_loss - downward_shift
+                print(f"DEBUG: shifted_loss {shifted_loss} rtol {rtol}")
+
+                if shifted_loss < rtol:
+                    root = values[index_poi]
+                    raise RootFound()
+
                 return znp.concatenate([[shifted_loss], gradient])
 
             to_return[param] = {}
@@ -205,17 +219,24 @@ def compute_errors(
                 "upper": lambda p: p < param_value,
             }
             for d in ["lower", "upper"]:
-                roots = optimize.root(
-                    fun=func,
-                    args=(swap_sign[d],),
-                    x0=np.array(initial_values[d]),
-                    tol=rtol,
-                    options={
-                        "diag": 1 / param_scale,  # scale factor for variables
-                    },
-                    method=method,
-                )
-                to_return[param][d] = roots.x[all_params.index(param)] - param_value
+                try:
+                    optimize.root(
+                        fun=func,
+                        args=(swap_sign[d],),
+                        x0=np.array(initial_values[d]),
+                        tol=1e-12,  # we won't stop like this anyway
+                        options={
+                            "diag": 1 / param_scale,  # scale factor for variables
+                        },
+                        method=method,
+                    )
+                except RootFound:
+                    assert root is not None, "Should be changed inside function."
+                    to_return[param][d] = root - param_value
+                else:
+                    raise RuntimeError(
+                        f"Could not find a root for {param} in {d} direction."
+                    )
         assign_values(all_params, result)
 
     except NewMinimum as e:
