@@ -174,6 +174,7 @@ def compute_errors(
             # TODO: improvement, use jacobian?
             root = None
             ntol = 999  # if it's right in the beginning, we think it's fine
+
             # TODO: should we add a "robust" or similar option to not skip this?
             # or evaluate and then decide ,maybe use krylov as it doesn't do a lot of calls in the beginning, it
             # approximates the jacobian
@@ -268,13 +269,15 @@ def compute_errors(
     return to_return, new_result
 
 
-def numerical_pdf_jacobian(func, params):
+def numerical_pdf_jacobian(func, params):  # TODO: jit?
+    params = list(params.values())
     jacobian_func = numdifftools.Jacobian(func)
     return jacobian_func([param.value() for param in params]).T
 
 
 @z.function(wraps="autodiff")
 def autodiff_pdf_jacobian(func, params):
+    params = list(params.values())
     columns = []
 
     for p in params:
@@ -310,15 +313,16 @@ def covariance_with_weights(method, result, params):
             values.append(v)
         return znp.concatenate(values, axis=0)
 
-    if settings.options["numerical_grad"]:
+    params_dict = {p.name: p for p in params}
+    if run.get_graph_mode():
 
         def wrapped_func(values):
-            assign_values(params, values)
+            assign_values(list(params.values()), values)
             return func()
 
-        jacobian = numerical_pdf_jacobian(func=wrapped_func, params=params)
+        jacobian = numerical_pdf_jacobian(func=wrapped_func, params=params_dict)
     else:
-        jacobian = autodiff_pdf_jacobian(func=func, params=params).numpy()
+        jacobian = autodiff_pdf_jacobian(func=func, params=params_dict).numpy()
 
     C = np.matmul(jacobian, jacobian.T)
     covariance = np.matmul(Hinv, np.matmul(C, Hinv))

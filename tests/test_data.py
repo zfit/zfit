@@ -287,8 +287,10 @@ def test_data_axis_access(obs3d, data1):
         for obs, arr in zip(obs3d, data1.value().numpy().T)
     }
     for obs in obs3d:
-        np.testing.assert_allclose(data1.value(obs), true_mapping[obs])
-        np.testing.assert_allclose(data1[obs], true_mapping[obs])
+        np.testing.assert_allclose(data1.value(obs), true_mapping[obs][:, 0])
+        np.testing.assert_allclose(data1.value([obs]), true_mapping[obs])
+        np.testing.assert_allclose(data1[obs], true_mapping[obs][:, 0])
+        np.testing.assert_allclose(data1[[obs]], true_mapping[obs])
     obs2d = [obs3d[2], obs3d[1]]
     array2d = znp.concatenate([true_mapping[obs] for obs in obs2d], axis=1)
     np.testing.assert_allclose(data1[obs2d], array2d)

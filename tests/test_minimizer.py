@@ -379,7 +379,7 @@ def test_minimize_pure_func(params, minimizer_class_and_kwargs):
     param = list(result.params)[1]
     result.errors(param, name="errors")
     assert pytest.approx(result.params[param]["errors"]["lower"], rel=0.15) == -0.53
-    assert pytest.approx(result.params[param]["errors"]["upper"], rel=0.15) == 0.7
+    assert pytest.approx(result.params[param]["errors"]["upper"], rel=0.15) == 0.56
 
 
 def test_dependent_param_extraction():
