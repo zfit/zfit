@@ -217,7 +217,7 @@ def test_params_at_limit():
 
 @pytest.mark.flaky(reruns=3)
 @pytest.mark.parametrize("minimizer_class_and_kwargs", minimizers, ids=minimizer_ids)
-@pytest.mark.parametrize("use_weights", [False, True])
+@pytest.mark.parametrize("use_weights", [False, True], ids=["no_weights", "weights"])
 def test_covariance(minimizer_class_and_kwargs, use_weights):
     n = 15000
     if use_weights:
@@ -328,7 +328,7 @@ def test_new_minimum(minimizer_class_and_kwargs):
     loss, params = create_loss(10000)
 
     minimizer_class, minimizer_kwargs, test_error = minimizer_class_and_kwargs
-    minimizer = minimizer_class(**minimizer_kwargs)  # HACK
+    minimizer = minimizer_class(**minimizer_kwargs)
     if isinstance(minimizer, zfit.minimize.NLoptLBFGSV1):
         return  # TODO: fix this, nlopt lbfgs cannot find the minimum when starting so close...
     a_param, b_param, c_param = params

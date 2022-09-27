@@ -6,6 +6,7 @@ import time
 import warnings
 from typing import TYPE_CHECKING
 
+import jacobi
 import tqdm
 
 from ..util.exception import BreakingAPIChangeError
@@ -271,11 +272,10 @@ def compute_errors(
 
 def numerical_pdf_jacobian(func, params):  # TODO: jit?
     params = list(params.values())
-    jacobian_func = numdifftools.Jacobian(func)
-    return jacobian_func([param.value() for param in params]).T
+    return znp.asarray(jacobi.jacobi(func, params)[0].T)
 
 
-@z.function(wraps="autodiff")
+# @z.function(wraps="autodiff")
 def autodiff_pdf_jacobian(func, params):
     params = list(params.values())
     columns = []
@@ -293,6 +293,10 @@ def autodiff_pdf_jacobian(func, params):
 
 
 def covariance_with_weights(method, result, params):
+    """Compute the covariance matrix of the parameters with weights."""
+    from .. import run
+
+    run.assert_executing_eagerly()
     model = result.loss.model
     data = result.loss.data
     from zfit import run
@@ -314,18 +318,19 @@ def covariance_with_weights(method, result, params):
         return znp.concatenate(values, axis=0)
 
     params_dict = {p.name: p for p in params}
-    if run.get_graph_mode():
+
+    if run.get_autograd_mode():
+        jacobian = autodiff_pdf_jacobian(func=func, params=params_dict).nump
+    else:
 
         def wrapped_func(values):
-            assign_values(list(params.values()), values)
-            return func()
+            assign_values(list(params_dict.values()), values)
+            return np.array(func())
 
         jacobian = numerical_pdf_jacobian(func=wrapped_func, params=params_dict)
-    else:
-        jacobian = autodiff_pdf_jacobian(func=func, params=params_dict).numpy()
 
-    C = np.matmul(jacobian, jacobian.T)
-    covariance = np.matmul(Hinv, np.matmul(C, Hinv))
+    C = znp.matmul(jacobian, znp.transpose(jacobian))
+    covariance = np.asarray(znp.matmul(Hinv, znp.matmul(C, Hinv)))
     assign_values(params, old_vals)
     return matrix_to_dict(params, covariance)
 
