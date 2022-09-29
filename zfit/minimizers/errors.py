@@ -116,6 +116,12 @@ def compute_errors(
     minimizer = result.minimizer
 
     covariance = result.covariance(method=covariance_method, as_dict=True)
+    if covariance is None:
+        covariance = result.covariance(method="hesse_np", as_dict=True)
+    if covariance is None:
+        raise RuntimeError(
+            "Could not compute covariance matrix. Check if the minimum is valid."
+        )
     param_errors = {param: covariance[(param, param)] ** 0.5 for param in all_params}
     param_scale = np.array(list(param_errors.values()))
 
@@ -320,7 +326,7 @@ def covariance_with_weights(method, result, params):
     params_dict = {p.name: p for p in params}
 
     if run.get_autograd_mode():
-        jacobian = autodiff_pdf_jacobian(func=func, params=params_dict).nump
+        jacobian = autodiff_pdf_jacobian(func=func, params=params_dict)
     else:
 
         def wrapped_func(values):

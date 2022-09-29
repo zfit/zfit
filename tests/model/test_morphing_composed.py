@@ -2,6 +2,7 @@
 import time
 
 import pytest
+from matplotlib import pyplot as plt
 
 
 def test_moprhing_sum():
@@ -17,13 +18,13 @@ def test_moprhing_sum():
     sigma = zfit.Parameter("sigma", true_sigma, 0.1, 10)
     model_nobin = zfit.pdf.Gauss(mu, sigma, obs)
     data_nobin = zfit.Data.from_numpy(obs, normal_np)
-    minimizer = zfit.minimize.Minuit()
+    minimizer = zfit.minimize.Minuit(verbosity=7)
     # make binned
     nbins = 50
     data = data_nobin.to_binned(nbins)
     model = model_nobin.to_binned(data.space)
     obs_binned = data.space
-    sig_true = 4_000
+    sig_true = 10_000
     sig_yield = zfit.Parameter("sig_yield", sig_true, 0, 100_000)
     template_hist = model.sample(
         25_000
@@ -49,7 +50,7 @@ def test_moprhing_sum():
     bkg_hists = {-1: bkg_hist_m1, -0.5: bkg_hist_m05, 0: bkg_hist, 1: bkg_hist_p1}
     bkg_histpdfs = {k: zfit.pdf.HistogramPDF(v) for k, v in bkg_hists.items()}
     alpha = zfit.Parameter("alpha", 0, -3, 3)
-    bkg_true = 15_000
+    bkg_true = 45_000
     bkg_yield = zfit.Parameter("bkg_yield", bkg_true)
     bkg_pdf = zfit.pdf.SplineMorphingPDF(alpha, bkg_histpdfs, extended=bkg_yield)
 
@@ -66,12 +67,22 @@ def test_moprhing_sum():
     loss_binned = zfit.loss.ExtendedBinnedNLL(
         model, data, constraints=[modifier_constraints, alpha_constraint]
     )
-    result = minimizer.minimize(loss_binned)
+    result = minimizer.minimize(loss_binned, params=[sig_yield, bkg_yield])
+    print(result)
     assert result.valid
     params_to_test = [bkg_yield, alpha] + list(modifiers.values())[::7]
+    print(result)
+    import mplhep
+
+    plt.figure()
+    mplhep.histplot(model.to_hist(), label="model")
+    mplhep.histplot(data.to_hist(), label="data")
+    plt.legend()
+    plt.show()
     result.hesse(name="hesse", params=params_to_test)
     result.errors(name="zfit", method="zfit_errors", params=params_to_test)
     result.errors(name="minos", method="minuit_minos", params=params_to_test)
+    print(result)
     assert pytest.approx(sig_true, abs=3 * sig_true**0.5) == np.array(sig_yield)
     assert (
         pytest.approx(bkg_true, abs=3 * bkg_true**0.5)
