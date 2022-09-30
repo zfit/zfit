@@ -18,7 +18,7 @@ def test_moprhing_sum():
     sigma = zfit.Parameter("sigma", true_sigma, 0.1, 10)
     model_nobin = zfit.pdf.Gauss(mu, sigma, obs)
     data_nobin = zfit.Data.from_numpy(obs, normal_np)
-    minimizer = zfit.minimize.Minuit(verbosity=7)
+    minimizer = zfit.minimize.Minuit()
     # make binned
     nbins = 50
     data = data_nobin.to_binned(nbins)
@@ -67,27 +67,19 @@ def test_moprhing_sum():
     loss_binned = zfit.loss.ExtendedBinnedNLL(
         model, data, constraints=[modifier_constraints, alpha_constraint]
     )
-    result = minimizer.minimize(loss_binned, params=[sig_yield, bkg_yield])
-    print(result)
+    result = minimizer.minimize(loss_binned)
     assert result.valid
     params_to_test = [bkg_yield, alpha] + list(modifiers.values())[::7]
-    print(result)
-    import mplhep
 
-    plt.figure()
-    mplhep.histplot(model.to_hist(), label="model")
-    mplhep.histplot(data.to_hist(), label="data")
-    plt.legend()
-    plt.show()
     result.hesse(name="hesse", params=params_to_test)
     result.errors(name="zfit", method="zfit_errors", params=params_to_test)
     result.errors(name="minos", method="minuit_minos", params=params_to_test)
-    print(result)
     assert pytest.approx(sig_true, abs=3 * sig_true**0.5) == np.array(sig_yield)
     assert (
         pytest.approx(bkg_true, abs=3 * bkg_true**0.5)
         == result.params[bkg_yield]["value"]
     )
+    assert pytest.approx(1, abs=0.003) == np.mean(list(modifiers.values()))
     for p in params_to_test:
         p = result.params[p]
         lower = p["zfit"]["lower"]
