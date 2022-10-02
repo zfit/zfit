@@ -1,7 +1,8 @@
 #  Copyright (c) 2022 zfit
 from __future__ import annotations
 
-from typing import Literal, List, Tuple, Union, Optional, Mapping
+from typing import List, Tuple, Union, Optional, Mapping
+from typing_extensions import Literal
 
 from pydantic import Field, validator, root_validator
 
@@ -20,7 +21,7 @@ class SpaceRepr(BaseRepr):
     name: str
     lower: NumericTyped = Field(alias="min")
     upper: NumericTyped = Field(alias="max")
-    binning: None = None
+    binning: Optional[float] = None
 
     # @root_validator()
     # def _validate(cls, values):

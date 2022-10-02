@@ -1,9 +1,8 @@
 #  Copyright (c) 2022 zfit
-from typing import Annotated, Union, Literal, Mapping, Tuple, Optional, Any
 
+from typing_extensions import Literal
 import pydantic
 from pydantic import Field, root_validator, validator
-from typing_extensions import Self
 
 from .spacerepr import SpaceRepr
 from .paramrepr import ParameterRepr

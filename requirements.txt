@@ -26,3 +26,4 @@ uhi
 uproot>=4,<5
 xxhash
 zfit_interface
+frozendict

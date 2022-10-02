@@ -2,13 +2,19 @@
 
 from __future__ import annotations
 
+from typing_extensions import Literal
+
 import numpy as np
+import pydantic
 import tensorflow as tf
 
 import zfit.z.numpy as znp
 from zfit import z
 from ..core.basepdf import BasePDF
+from ..core.serialmixin import SerializableMixin
 from ..core.space import ANY_LOWER, ANY_UPPER, Space
+from ..serialization import ParameterRepr, SpaceRepr
+from ..serialization.pdfrepr import BasePDFRepr
 from ..settings import ztypes
 from ..util import ztyping
 
@@ -186,7 +192,7 @@ def double_crystalball_mu_integral_func(
     return integral
 
 
-class CrystalBall(BasePDF):
+class CrystalBall(BasePDF, SerializableMixin):
     _N_OBS = 1
 
     def __init__(
@@ -240,6 +246,29 @@ class CrystalBall(BasePDF):
         return crystalball_func(x=x, mu=mu, sigma=sigma, alpha=alpha, n=n)
 
 
+class CrystalBallPDFRepr(BasePDFRepr):
+    _implementation = CrystalBall
+    hs3_type: Literal["CrystalBall"] = pydantic.Field("CrystalBall", alias="type")
+    x: SpaceRepr
+    mu: ParameterRepr
+    sigma: ParameterRepr
+    alpha: ParameterRepr
+    n: ParameterRepr
+
+    @pydantic.root_validator(pre=True)
+    def convert_params(cls, values):
+        if cls.orm_mode(values):
+            values = dict(values)
+            values.update(**values.pop("params"))
+            values["x"] = values.pop("space")
+        return values
+
+    def _to_orm(self, init):
+        init["obs"] = init.pop("x")
+        out = super()._to_orm(init)
+        return out
+
+
 crystalball_integral_limits = Space(
     axes=(0,), limits=(((ANY_LOWER,),), ((ANY_UPPER,),))
 )
@@ -249,7 +278,7 @@ CrystalBall.register_analytic_integral(
 )
 
 
-class DoubleCB(BasePDF):
+class DoubleCB(BasePDF, SerializableMixin):
     _N_OBS = 1
 
     def __init__(
@@ -320,6 +349,31 @@ class DoubleCB(BasePDF):
         return double_crystalball_func(
             x=x, mu=mu, sigma=sigma, alphal=alphal, nl=nl, alphar=alphar, nr=nr
         )
+
+
+class DoubleCBPDFRepr(BasePDFRepr):
+    _implementation = DoubleCB
+    hs3_type: Literal["DoubleCB"] = pydantic.Field("DoubleCB", alias="type")
+    x: SpaceRepr
+    mu: ParameterRepr
+    sigma: ParameterRepr
+    alphal: ParameterRepr
+    nl: ParameterRepr
+    alphar: ParameterRepr
+    nr: ParameterRepr
+
+    @pydantic.root_validator(pre=True)
+    def convert_params(cls, values):
+        if cls.orm_mode(values):
+            values = dict(values)
+            values.update(**values.pop("params"))
+            values["x"] = values.pop("space")
+        return values
+
+    def _to_orm(self, init):
+        init["obs"] = init.pop("x")
+        out = super()._to_orm(init)
+        return out
 
 
 DoubleCB.register_analytic_integral(

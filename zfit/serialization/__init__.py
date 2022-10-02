@@ -12,5 +12,6 @@ warnings.warn(
 
 from .paramrepr import ParameterRepr
 from .spacerepr import SpaceRepr
+from . import serializer
 
 # from .pdfrepr import PDFRepr

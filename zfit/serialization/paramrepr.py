@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from typing import Literal, Optional
+from typing import Optional
+from typing_extensions import Literal
 
 import pydantic
 from pydantic import Field, validator
@@ -24,10 +25,10 @@ class ParameterRepr(BaseRepr):
     hs3_type: Literal["Parameter"] = Field("Parameter", alias="type")
     name: str
     value: float
-    lower: float | None = Field(None, alias="min")
-    upper: float | None = Field(None, alias="max")
-    step_size: float | None = None
-    floating: bool | None = None
+    lower: Optional[float] = Field(None, alias="min")
+    upper: Optional[float] = Field(None, alias="max")
+    step_size: Optional[float] = None
+    floating: Optional[bool] = None
 
     @validator("value", pre=True)
     def _validate_value(cls, v):

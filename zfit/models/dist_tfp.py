@@ -8,6 +8,8 @@ Therefore a convenient wrapper as well as a lot of implementations are provided.
 #  Copyright (c) 2023 zfit
 
 from collections import OrderedDict
+from typing import Mapping
+from typing_extensions import Literal
 from typing import Optional
 
 import tensorflow as tf
@@ -27,6 +29,7 @@ from ..serialization import SpaceRepr, ParameterRepr
 from ..serialization.pdfrepr import BasePDFRepr, ParamsTypeDiscriminated
 from ..settings import ztypes
 from ..util import ztyping
+from ..util.deprecation import deprecated_args
 
 
 # TODO: improve? while loop over `.sample`? Maybe as a fallback if not implemented?
@@ -235,18 +238,12 @@ class GaussPDFRepr(BasePDFRepr):
     mu: ParameterRepr
     sigma: ParameterRepr
 
-    @classmethod
-    def params_to_dict(cls, values):
-        return {"mu": values.pop("mu"), "sigma": values.pop("sigma")}
-
     @root_validator(pre=True)
     def convert_params(cls, values):
         if cls.orm_mode(values):
             values = dict(values)
             values.update(**values.pop("params"))
             values["x"] = values.pop("space")
-        # else:
-        #     values['params'] = cls.params_to_dict(values)
         return values
 
     def _to_orm(self, init):
@@ -363,7 +360,7 @@ class TruncatedGauss(WrapDistribution):
         )
 
 
-class Cauchy(WrapDistribution):
+class Cauchy(WrapDistribution, SerializableMixin):
     _N_OBS = 1
 
     def __init__(
@@ -410,16 +407,39 @@ class Cauchy(WrapDistribution):
         )
 
 
-class Poisson(WrapDistribution):
+class CauchyPDFRepr(BasePDFRepr):
+    _implementation = Cauchy
+    hs3_type: Literal["Cauchy"] = Field("Cauchy", alias="type")
+    x: SpaceRepr
+    m: ParameterRepr
+    gamma: ParameterRepr
+
+    @root_validator(pre=True)
+    def convert_params(cls, values):
+        if cls.orm_mode(values):
+            values = dict(values)
+            values.update(**values.pop("params"))
+            values["x"] = values.pop("space")
+        return values
+
+    def _to_orm(self, init):
+        init["obs"] = init.pop("x")
+        out = super()._to_orm(init)
+        return out
+
+
+class Poisson(WrapDistribution, SerializableMixin):
     _N_OBS = 1
 
+    @deprecated_args(None, "Use lam instead", "lamb")
     def __init__(
         self,
-        lamb: ztyping.ParamTypeInput,
+        lam: ztyping.ParamTypeInput,
         obs: ztyping.ObsTypeInput,
         name: str = "Poisson",
         *,
         extended: Optional[ztyping.ParamTypeInput] = None,
+        lamb=None,
     ):
         """Poisson distribution, parametrized with an event rate parameter (lamb).
 
@@ -433,9 +453,12 @@ class Poisson(WrapDistribution):
             obs: Observables and normalization range the pdf is defined in
             name: Name of the PDF
         """
-        (lamb,) = self._check_input_params(lamb)
-        params = OrderedDict((("lamb", lamb),))
-        dist_params = lambda: dict(rate=lamb.value())
+        if lamb is not None:
+            lam = lamb
+        del lamb
+        (lam,) = self._check_input_params(lam)
+        params = {"lam": lam}
+        dist_params = lambda: dict(rate=lam.value())
         distribution = tfp.distributions.Poisson
         super().__init__(
             distribution=distribution,
@@ -445,3 +468,23 @@ class Poisson(WrapDistribution):
             name=name,
             extended=extended,
         )
+
+
+class PoissonPDFRepr(BasePDFRepr):
+    _implementation = Poisson
+    hs3_type: Literal["Poisson"] = Field("Poisson", alias="type")
+    x: SpaceRepr
+    lam: ParameterRepr
+
+    @root_validator(pre=True)
+    def convert_params(cls, values):
+        if cls.orm_mode(values):
+            values = dict(values)
+            values.update(**values.pop("params"))
+            values["x"] = values.pop("space")
+        return values
+
+    def _to_orm(self, init):
+        init["obs"] = init.pop("x")
+        out = super()._to_orm(init)
+        return out

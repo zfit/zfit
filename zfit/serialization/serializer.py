@@ -1,11 +1,14 @@
 #  Copyright (c) 2022 zfit
+from __future__ import annotations
 import contextlib
+import copy
 import functools
 from enum import Enum
-from typing import Type, Any, Optional, Union, Annotated, Literal, Mapping, Iterable
+from typing import Type, Any, Optional, Union, Mapping, Iterable, Dict, List
+from typing_extensions import Literal
 
+from frozendict import frozendict
 from pydantic.utils import GetterDict
-from typing_extensions import Self
 
 import pydantic
 from pydantic import constr, Field, validator
@@ -65,21 +68,42 @@ class Serializer:
             name = pdf.name
             if name in out["pdfs"]:
                 name = f"{name}_{pdf_number}"
-            out["pdfs"][name] = pdf.repr.from_orm(pdf).dict(**serial_kwargs)
+            out["pdfs"][name] = pdf.get_repr().from_orm(pdf).dict(**serial_kwargs)
 
             for param in pdf.get_params(floating=None):
                 if param.name not in out["variables"]:
-                    out["variables"][param.name] = param.repr.from_orm(param).dict(
-                        **serial_kwargs
-                    )
+                    paramdict = param.get_repr().from_orm(param).dict(**serial_kwargs)
+                    del paramdict["type"]
+                    out["variables"][param.name] = paramdict
 
             for ob in pdf.obs:
                 if ob not in out["variables"]:
                     space = pdf.space.with_obs(ob)
-                    out["variables"][ob] = space.repr.from_orm(space).dict(
-                        **serial_kwargs
-                    )
+                    spacedict = space.get_repr().from_orm(space).dict(**serial_kwargs)
+                    del spacedict["type"]
+                    out["variables"][ob] = spacedict
 
+        out = cls.post_serialize(out)
+
+        return out
+
+    @classmethod
+    def from_hs3(cls, load):
+        for param, paramdict in load["variables"].items():
+            if 'value' in paramdict:
+                paramdict['type'] = 'Parameter'
+            else:
+                paramdict['type'] = 'Space'
+
+        load = cls.pre_deserialize(load)
+
+        out = {'pdfs': {}, 'variables': {}}
+        for name, pdf in load['pdfs'].items():
+            repr = Serializer.type_repr[pdf['type']]
+            out['pdfs'][name] = repr(**pdf).to_orm()
+        for name, param in load['variables'].items():
+            repr = Serializer.type_repr[param['type']]
+            out['variables'][name] = repr(**param).to_orm()
         return out
 
     @classmethod
@@ -89,8 +113,65 @@ class Serializer:
         yield
         cls._deserializing = False
 
+    @classmethod
+    def post_serialize(cls, out):
+        parameter = frozendict({'name': None, 'min': None, 'max': None})
+        replace_forward = {parameter: lambda x: x['name']}
+        out['pdfs'] = replace_matching(out['pdfs'], replace_forward)
+        hs3_variables = frozendict({'name': None, 'type': None})
+        return out
+
+    @classmethod
+    def pre_deserialize(cls, out):
+        out = copy.deepcopy(out)
+        replace_backward = {k: lambda x=k: out['variables'][x] for k in out['variables'].keys()}
+        out['pdfs'] = replace_matching(out['pdfs'], replace_backward)
+        return out
+
 
 TYPENAME = "hs3_type"
+
+
+def elements_match(mapping, replace):
+    found = False
+    for match, replacement in replace.items():
+        if isinstance(mapping, Mapping) and isinstance(match, Mapping):
+            for k, v in match.items():
+                if k not in mapping:
+                    break
+                if v is None:
+                    continue  # fine so far, a "free field"
+                val = mapping.get(k)
+
+                if val == v:
+                    continue
+                break
+            else:
+                found = True
+                break
+        if mapping == match:
+            found = True
+        if found:
+            break
+    else:
+        return False, None
+    return True, replacement(mapping)
+
+
+def replace_matching(mapping, replace):
+    # we need to test in the very beginning, it could be that the structure is a match
+    is_match, new_map = elements_match(mapping, replace)
+    if is_match:
+        return new_map
+
+    mapping = copy.copy(mapping)
+    if isinstance(mapping, Mapping):
+        for k, v in mapping.items():
+            mapping[k] = replace_matching(v, replace)
+    elif not isinstance(mapping, str) and isinstance(mapping, Iterable):
+        replaced_list = [replace_matching(v, replace) for v in mapping]
+        mapping = type(mapping)(replaced_list)
+    return mapping
 
 
 def convert_to_orm(init):
@@ -128,8 +209,8 @@ class BaseRepr(pydantic.BaseModel):
     _implementation = pydantic.PrivateAttr()
     _context = pydantic.PrivateAttr(None)
     _constructor = pydantic.PrivateAttr(None)
-    dictionary: Optional[dict] = Field(alias="dict")
-    tags: Optional[list[str]]
+    dictionary: Optional[Dict] = Field(alias="dict")
+    tags: Optional[List[str]]
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
@@ -151,7 +232,7 @@ class BaseRepr(pydantic.BaseModel):
         # return isinstance(v, (GetterDict, cls._implementation))
 
     @classmethod
-    def from_orm(cls: pydantic.BaseModel, obj: Any) -> Self:
+    def from_orm(cls: pydantic.BaseModel, obj: Any) -> "BaseRepr":
         old_mode = cls._context
         cls._context = MODES.orm
         out = super().from_orm(obj)
