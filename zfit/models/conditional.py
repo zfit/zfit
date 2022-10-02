@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
+
+from ..util.ztyping import ExtendedInputType, NormInputType
 
 if TYPE_CHECKING:
     pass
@@ -39,6 +41,8 @@ class ConditionalPDFV1(BaseFunctor):
         pdf: ZfitPDF,
         cond: Mapping[ZfitIndependentParameter, ZfitSpace],
         name: str = "ConditionalPDF",
+        extended: ExtendedInputType = None,
+        norm: NormInputType = None,
         *,
         extended: ztyping.ParamTypeInput | None = None,
         use_vectorized_map: bool = False,
@@ -61,6 +65,12 @@ class ConditionalPDFV1(BaseFunctor):
                or label of
                the PDF for better identification.
                Has no programmatical functional purpose as identification. |@docend:model.init.name|
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+            norm: |@doc:model.init.norm| The normalization of the PDF. |@docend:model.init.norm|
             use_vectorized_map ():
             sample_with_replacement ():
         """
@@ -68,7 +78,7 @@ class ConditionalPDFV1(BaseFunctor):
         self._use_vectorized_map = use_vectorized_map
         self._cond, cond_obs = self._check_input_cond(cond)
         obs = pdf.space * cond_obs
-        super().__init__(pdfs=pdf, obs=obs, name=name, extended=extended)
+        super().__init__(pdfs=pdf, obs=obs, name=name, extended=extended, norm=norm)
         self.set_norm_range(pdf.norm)
 
     def _check_input_cond(self, cond):
@@ -161,7 +171,7 @@ class ConditionalPDFV1(BaseFunctor):
             n,
             x.nevents,
             message="Different number of n requested than x given for "
-            "conditional sampling. Needs to agree",
+                    "conditional sampling. Needs to agree",
         )
 
         param_x_indices = {

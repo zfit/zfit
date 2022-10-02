@@ -17,6 +17,7 @@ from ..serialization import ParameterRepr, SpaceRepr
 from ..serialization.pdfrepr import BasePDFRepr
 from ..settings import ztypes
 from ..util import ztyping
+from ..util.ztyping import ExtendedInputType, NormInputType
 
 
 def _powerlaw(x, a, k):
@@ -203,7 +204,8 @@ class CrystalBall(BasePDF, SerializableMixin):
         n: ztyping.ParamTypeInput,
         obs: ztyping.ObsTypeInput,
         *,
-        extended: Optional[ztyping.ParamTypeInput] = None,
+        extended: ExtendedInputType = None,
+        norm: NormInputType = None,
         name: str = "CrystalBall",
     ):
         """Crystal Ball shaped PDF. A combination of a Gaussian with a powerlaw tail.
@@ -229,13 +231,33 @@ class CrystalBall(BasePDF, SerializableMixin):
             sigma: Standard deviation of the gaussian
             alpha: parameter where to switch from a gaussian to the powertail
             n: Exponent of the powertail
-            obs: |@doc:pdf.init.obs||@docend:pdf.init.obs|
-            name: |@doc:pdf.init.name||@docend:pdf.init.name|
+            obs: |@doc:pdf.init.obs| Observables of the
+               model. This will be used as the default space of the PDF and,
+               if not given explicitly, as the normalization range.
+
+               The default space is used for example in the sample method: if no
+               sampling limits are given, the default space is used.
+
+               The observables are not equal to the domain as it does not restrict or
+               truncate the model outside this range. |@docend:pdf.init.obs|
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+            norm: |@doc:pdf.init.norm| Normalization of the PDF.
+               By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
+            name: |@doc:pdf.init.name| Human-readable name
+               or label of
+               the PDF for better identification.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.name|
 
         .. _CBShape: https://en.wikipedia.org/wiki/Crystal_Ball_function
         """
         params = {"mu": mu, "sigma": sigma, "alpha": alpha, "n": n}
-        super().__init__(obs=obs, name=name, params=params, extended=extended)
+        super().__init__(
+            obs=obs, name=name, params=params, extended=extended, norm=norm
+        )
 
     def _unnormalized_pdf(self, x):
         mu = self.params["mu"]
@@ -291,10 +313,11 @@ class DoubleCB(BasePDF, SerializableMixin):
         nr: ztyping.ParamTypeInput,
         obs: ztyping.ObsTypeInput,
         *,
-        extended: Optional[ztyping.ParamTypeInput] = None,
+        extended: ExtendedInputType = None,
+        norm: NormInputType = None,
         name: str = "DoubleCB",
     ):
-        """Double sided Crystal Ball shaped PDF. A combination of two CB using the **mu** (not a frac) on each side.
+        """Double-sided Crystal Ball shaped PDF. A combination of two CB using the **mu** (not a frac) on each side.
 
         The function is defined as follows:
 
@@ -325,8 +348,26 @@ class DoubleCB(BasePDF, SerializableMixin):
             alphar: parameter where to switch from a gaussian to the powertail on the right
                 side
             nr: Exponent of the powertail on the right side
-            obs: |@doc:pdf.init.obs||@docend:pdf.init.obs|
-            name: |@doc:pdf.init.name||@docend:pdf.init.name|
+            obs: |@doc:pdf.init.obs| Observables of the
+               model. This will be used as the default space of the PDF and,
+               if not given explicitly, as the normalization range.
+
+               The default space is used for example in the sample method: if no
+               sampling limits are given, the default space is used.
+
+               The observables are not equal to the domain as it does not restrict or
+               truncate the model outside this range. |@docend:pdf.init.obs|
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+            norm: |@doc:pdf.init.norm| Normalization of the PDF.
+               By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
+            name: |@doc:pdf.init.name| Human-readable name
+               or label of
+               the PDF for better identification.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.name|
         """
         params = {
             "mu": mu,
@@ -336,7 +377,9 @@ class DoubleCB(BasePDF, SerializableMixin):
             "alphar": alphar,
             "nr": nr,
         }
-        super().__init__(obs=obs, name=name, params=params, extended=extended)
+        super().__init__(
+            obs=obs, name=name, params=params, extended=extended, norm=norm
+        )
 
     def _unnormalized_pdf(self, x):
         mu = self.params["mu"]

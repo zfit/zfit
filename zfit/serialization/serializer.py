@@ -90,20 +90,20 @@ class Serializer:
     @classmethod
     def from_hs3(cls, load):
         for param, paramdict in load["variables"].items():
-            if 'value' in paramdict:
-                paramdict['type'] = 'Parameter'
+            if "value" in paramdict:
+                paramdict["type"] = "Parameter"
             else:
-                paramdict['type'] = 'Space'
+                paramdict["type"] = "Space"
 
         load = cls.pre_deserialize(load)
 
-        out = {'pdfs': {}, 'variables': {}}
-        for name, pdf in load['pdfs'].items():
-            repr = Serializer.type_repr[pdf['type']]
-            out['pdfs'][name] = repr(**pdf).to_orm()
-        for name, param in load['variables'].items():
-            repr = Serializer.type_repr[param['type']]
-            out['variables'][name] = repr(**param).to_orm()
+        out = {"pdfs": {}, "variables": {}}
+        for name, pdf in load["pdfs"].items():
+            repr = Serializer.type_repr[pdf["type"]]
+            out["pdfs"][name] = repr(**pdf).to_orm()
+        for name, param in load["variables"].items():
+            repr = Serializer.type_repr[param["type"]]
+            out["variables"][name] = repr(**param).to_orm()
         return out
 
     @classmethod
@@ -115,17 +115,19 @@ class Serializer:
 
     @classmethod
     def post_serialize(cls, out):
-        parameter = frozendict({'name': None, 'min': None, 'max': None})
-        replace_forward = {parameter: lambda x: x['name']}
-        out['pdfs'] = replace_matching(out['pdfs'], replace_forward)
-        hs3_variables = frozendict({'name': None, 'type': None})
+        parameter = frozendict({"name": None, "min": None, "max": None})
+        replace_forward = {parameter: lambda x: x["name"]}
+        out["pdfs"] = replace_matching(out["pdfs"], replace_forward)
+        hs3_variables = frozendict({"name": None, "type": None})
         return out
 
     @classmethod
     def pre_deserialize(cls, out):
         out = copy.deepcopy(out)
-        replace_backward = {k: lambda x=k: out['variables'][x] for k in out['variables'].keys()}
-        out['pdfs'] = replace_matching(out['pdfs'], replace_backward)
+        replace_backward = {
+            k: lambda x=k: out["variables"][x] for k in out["variables"].keys()
+        }
+        out["pdfs"] = replace_matching(out["pdfs"], replace_backward)
         return out
 
 
@@ -209,8 +211,8 @@ class BaseRepr(pydantic.BaseModel):
     _implementation = pydantic.PrivateAttr()
     _context = pydantic.PrivateAttr(None)
     _constructor = pydantic.PrivateAttr(None)
-    dictionary: Optional[Dict] = Field(alias="dict")
-    tags: Optional[List[str]]
+    dictionary: dict | None = Field(alias="dict")
+    tags: list[str] | None
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
@@ -232,7 +234,7 @@ class BaseRepr(pydantic.BaseModel):
         # return isinstance(v, (GetterDict, cls._implementation))
 
     @classmethod
-    def from_orm(cls: pydantic.BaseModel, obj: Any) -> "BaseRepr":
+    def from_orm(cls: pydantic.BaseModel, obj: Any) -> BaseRepr:
         old_mode = cls._context
         cls._context = MODES.orm
         out = super().from_orm(obj)

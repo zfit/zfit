@@ -20,6 +20,7 @@ from ..serialization.pdfrepr import BasePDFRepr
 from ..util import ztyping
 from ..util.exception import BreakingAPIChangeError
 from ..util.warnings import warn_advanced_feature
+from ..util.ztyping import ExtendedInputType, NormInputType
 
 
 class Exponential(BasePDF, SerializableMixin):
@@ -29,6 +30,8 @@ class Exponential(BasePDF, SerializableMixin):
         self,
         lam=None,
         obs: ztyping.ObsTypeInput = None,
+        extended: ExtendedInputType = None,
+        norm: NormInputType = None,
         name: str = "Exponential",
         *,
         extended: Optional[ztyping.ParamTypeInput] = None,
@@ -40,10 +43,27 @@ class Exponential(BasePDF, SerializableMixin):
         defined as :math:`\\frac{ e^{\\lambda \\cdot x}}{ \\int_{lower}^{upper} e^{\\lambda \\cdot x} dx}`
 
         Args:
-            lam: Accessed as parameter "lambda".
-            obs: The :py:class:`~zfit.Space` the pdf is defined in.
-            name: Name of the pdf.
-            dtype:
+            lam: Lambda parameter of the exponential.
+            obs: |@doc:pdf.init.obs| Observables of the
+               model. This will be used as the default space of the PDF and,
+               if not given explicitly, as the normalization range.
+
+               The default space is used for example in the sample method: if no
+               sampling limits are given, the default space is used.
+
+               The observables are not equal to the domain as it does not restrict or
+               truncate the model outside this range. |@docend:pdf.init.obs|
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+            norm: |@doc:pdf.init.norm| Normalization of the PDF.
+               By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
+            name: |@doc:pdf.init.name| Human-readable name
+               or label of
+               the PDF for better identification.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.name|
         """
         if lambda_ is not None:
             if lam is None:
@@ -52,8 +72,8 @@ class Exponential(BasePDF, SerializableMixin):
                 raise BreakingAPIChangeError(
                     "The 'lambda' parameter has been renamed from 'lambda_' to 'lam'."
                 )
-        params = {"lambda": lam, 'lam': lam}
-        super().__init__(obs, name=name, params=params, extended=extended)
+        params = {"lambda": lam, "lam": lam}
+        super().__init__(obs, name=name, params=params, extended=extended, norm=norm)
 
         self._calc_numerics_data_shift = lambda: z.constant(0.0)
 
@@ -222,7 +242,7 @@ class ExponentialPDFRepr(BasePDFRepr):
     def convert_params(cls, values):
         if cls.orm_mode(values):
             values = dict(values)
-            values.update(lam=values.pop("params").pop('lam'))
+            values.update(lam=values.pop("params").pop("lam"))
             values["x"] = values.pop("space")
         return values
 

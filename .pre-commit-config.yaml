@@ -93,11 +93,12 @@ repos:
     hooks:
       - id: jupyter-notebook-cleanup
 
-  - repo: https://github.com/sondrelg/pep585-upgrade
-    rev: 'v1.0'
-    hooks:
-      - id: upgrade-type-hints
-        args: [ '--futures=true' ]
+  # TODO: 3.8+ only?
+  #  - repo: https://github.com/sondrelg/pep585-upgrade
+  #    rev: 'v1.0'
+  #    hooks:
+  #      - id: upgrade-type-hints
+  #        args: [ '--futures=true' ]
 
   - repo: https://github.com/shssoichiro/oxipng
     rev: v8.0.0

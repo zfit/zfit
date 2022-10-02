@@ -30,6 +30,7 @@ from ..serialization.pdfrepr import BasePDFRepr, ParamsTypeDiscriminated
 from ..settings import ztypes
 from ..util import ztyping
 from ..util.deprecation import deprecated_args
+from ..util.ztyping import ExtendedInputType, NormInputType
 
 
 # TODO: improve? while loop over `.sample`? Maybe as a fallback if not implemented?
@@ -196,6 +197,8 @@ class Gauss(WrapDistribution, SerializableMixin):
         mu: ztyping.ParamTypeInput,
         sigma: ztyping.ParamTypeInput,
         obs: ztyping.ObsTypeInput,
+        extended: ExtendedInputType = None,
+        norm: NormInputType = None,
         name: str = "Gauss",
     ):
         """Gaussian or Normal distribution with a mean (mu) and a standartdeviation (sigma).
@@ -216,7 +219,17 @@ class Gauss(WrapDistribution, SerializableMixin):
             mu: Mean of the gaussian dist
             sigma: Standard deviation or spread of the gaussian
             obs: Observables and normalization range the pdf is defined in
-            name: Name of the pdf
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+            norm: |@doc:pdf.init.norm| Normalization of the PDF.
+               By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
+            name: |@doc:model.init.name| Human-readable name
+               or label of
+               the PDF for better identification.
+               Has no programmatical functional purpose as identification. |@docend:model.init.name|
         """
         mu, sigma = self._check_input_params(mu, sigma)
         params = OrderedDict((("mu", mu), ("sigma", sigma)))
@@ -228,6 +241,8 @@ class Gauss(WrapDistribution, SerializableMixin):
             obs=obs,
             params=params,
             name=name,
+            extended=extended,
+            norm=norm,
         )
 
 
@@ -282,6 +297,8 @@ class Uniform(WrapDistribution):
         low: ztyping.ParamTypeInput,
         high: ztyping.ParamTypeInput,
         obs: ztyping.ObsTypeInput,
+        extended: ExtendedInputType = None,
+        norm: NormInputType = None,
         name: str = "Uniform",
         *,
         extended: Optional[ztyping.ParamTypeInput] = None,
@@ -292,12 +309,14 @@ class Uniform(WrapDistribution):
             low: Below this value, the pdf is zero.
             high: Above this value, the pdf is zero.
             obs: Observables and normalization range the pdf is defined in
-            name: Name of the pdf
             extended: |@doc:pdf.init.extended| The overall yield of the PDF.
                If this is parameter-like, it will be used as the yield,
                the expected number of events, and the PDF will be extended.
                An extended PDF has additional functionality, such as the
                ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+            norm: |@doc:pdf.init.norm| Normalization of the PDF.
+               By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
+            name: |@doc:model.init.pdf||@docend:model.init.pdf|
         """
         low, high = self._check_input_params(low, high)
         params = OrderedDict((("low", low), ("high", high)))
@@ -310,6 +329,7 @@ class Uniform(WrapDistribution):
             params=params,
             name=name,
             extended=extended,
+            norm=norm,
         )
 
 
@@ -323,6 +343,8 @@ class TruncatedGauss(WrapDistribution):
         low: ztyping.ParamTypeInput,
         high: ztyping.ParamTypeInput,
         obs: ztyping.ObsTypeInput,
+        extended: ExtendedInputType = None,
+        norm: NormInputType = None,
         name: str = "TruncatedGauss",
         *,
         extended: Optional[ztyping.ParamTypeInput] = None,
@@ -335,12 +357,17 @@ class TruncatedGauss(WrapDistribution):
             low: Below this value, the pdf is zero.
             high: Above this value, the pdf is zero.
             obs: Observables and normalization range the pdf is defined in
-            name: Name of the pdf
             extended: |@doc:pdf.init.extended| The overall yield of the PDF.
                If this is parameter-like, it will be used as the yield,
                the expected number of events, and the PDF will be extended.
                An extended PDF has additional functionality, such as the
                ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+            norm: |@doc:pdf.init.norm| Normalization of the PDF.
+               By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
+            name: |@doc:model.init.name| Human-readable name
+               or label of
+               the PDF for better identification.
+               Has no programmatical functional purpose as identification. |@docend:model.init.name|
         """
         mu, sigma, low, high = self._check_input_params(mu, sigma, low, high)
         params = OrderedDict(
@@ -357,6 +384,7 @@ class TruncatedGauss(WrapDistribution):
             params=params,
             name=name,
             extended=extended,
+            norm=norm,
         )
 
 
@@ -368,6 +396,8 @@ class Cauchy(WrapDistribution, SerializableMixin):
         m: ztyping.ParamTypeInput,
         gamma: ztyping.ParamTypeInput,
         obs: ztyping.ObsTypeInput,
+        extended: ExtendedInputType = None,
+        norm: NormInputType = None,
         name: str = "Cauchy",
         *,
         extended: Optional[ztyping.ParamTypeInput] = None,
@@ -386,12 +416,17 @@ class Cauchy(WrapDistribution, SerializableMixin):
             m: Invariant mass of the unstable particle.
             gamma: Width of the shape.
             obs: Observables and normalization range the pdf is defined in
-            name: Name of the PDF
             extended: |@doc:pdf.init.extended| The overall yield of the PDF.
                If this is parameter-like, it will be used as the yield,
                the expected number of events, and the PDF will be extended.
                An extended PDF has additional functionality, such as the
                ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+            norm: |@doc:pdf.init.norm| Normalization of the PDF.
+               By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
+            name: |@doc:model.init.name| Human-readable name
+               or label of
+               the PDF for better identification.
+               Has no programmatical functional purpose as identification. |@docend:model.init.name|
         """
         m, gamma = self._check_input_params(m, gamma)
         params = OrderedDict((("m", m), ("gamma", gamma)))
@@ -404,6 +439,7 @@ class Cauchy(WrapDistribution, SerializableMixin):
             params=params,
             name=name,
             extended=extended,
+            norm=norm,
         )
 
 
@@ -436,6 +472,8 @@ class Poisson(WrapDistribution, SerializableMixin):
         self,
         lam: ztyping.ParamTypeInput,
         obs: ztyping.ObsTypeInput,
+        extended: ExtendedInputType = None,
+        norm: NormInputType = None,
         name: str = "Poisson",
         *,
         extended: Optional[ztyping.ParamTypeInput] = None,
@@ -451,6 +489,13 @@ class Poisson(WrapDistribution, SerializableMixin):
         Args:
             lamb: the event rate
             obs: Observables and normalization range the pdf is defined in
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+            norm: |@doc:pdf.init.norm| Normalization of the PDF.
+               By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
             name: Name of the PDF
         """
         if lamb is not None:
@@ -467,6 +512,7 @@ class Poisson(WrapDistribution, SerializableMixin):
             params=params,
             name=name,
             extended=extended,
+            norm=norm,
         )
 
 

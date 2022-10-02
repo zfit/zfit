@@ -17,6 +17,10 @@ class SerializableMixin(ZfitSerializable):
         orm = self.get_repr().from_orm(self)
         return orm.json(exclude_none=True, by_alias=True)
 
+    def from_json(self, json):
+        orm = self.get_repr().parse_raw(json)
+        return orm.to_orm()
+
     @classmethod
     def get_repr(cls):
         try:

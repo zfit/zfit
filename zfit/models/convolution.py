@@ -14,6 +14,7 @@ from ..core.sample import accept_reject_sample
 from ..core.space import supports
 from ..util import ztyping
 from ..util.exception import ShapeIncompatibleError, WorkInProgressError
+from ..util.ztyping import ExtendedInputType, NormInputType
 
 
 class FFTConvPDFV1(BaseFunctor):
@@ -26,6 +27,8 @@ class FFTConvPDFV1(BaseFunctor):
         limits_kernel: ztyping.LimitsType = None,
         interpolation: Optional[str] = None,
         obs: Optional[ztyping.ObsTypeInput] = None,
+        extended: ExtendedInputType = None,
+        norm: NormInputType = None,
         name: str = "FFTConvV1",
         *,
         extended: Optional[ztyping.ParamTypeInput] = None,
@@ -108,6 +111,13 @@ class FFTConvPDFV1(BaseFunctor):
                   than for a linear interpolation.
 
             obs: Observables of the class. If not specified, automatically taken from `func`
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+            norm: |@doc:pdf.init.norm| Normalization of the PDF.
+               By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
             name: Human readable name of the PDF
         """
         from zfit import run
@@ -116,7 +126,14 @@ class FFTConvPDFV1(BaseFunctor):
         valid_interpolations = ("spline", "linear")
 
         obs = func.space if obs is None else obs
-        super().__init__(obs=obs, pdfs=[func, kernel], name=name, extended=extended)
+        super().__init__(
+            obs=obs,
+            pdfs=[func, kernel],
+            params={},
+            name=name,
+            extended=extended,
+            norm=norm,
+        )
 
         if self.n_obs > 1:
             raise WorkInProgressError(
