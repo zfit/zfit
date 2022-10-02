@@ -21,6 +21,7 @@ tensorflow-macos>=2.10, <2.12; sys_platform == 'darwin' and platform_machine == 
 tensorflow_probability>=0.18, <0.20
 texttable
 tf_quant_finance>=v0.0.1-dev24
+typing-extensions
 uhi
 uproot>=4,<5
 xxhash

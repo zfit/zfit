@@ -13,6 +13,7 @@ from typing import Optional
 import tensorflow as tf
 import tensorflow_probability as tfp
 import tensorflow_probability.python.distributions as tfd
+from pydantic import Field, root_validator
 
 from zfit import z
 from zfit.util.exception import (
@@ -20,7 +21,10 @@ from zfit.util.exception import (
 )
 from ..core.basepdf import BasePDF
 from ..core.parameter import convert_to_parameter
+from ..core.serialmixin import SerializableMixin
 from ..core.space import Space, supports
+from ..serialization import SpaceRepr, ParameterRepr
+from ..serialization.pdfrepr import BasePDFRepr, ParamsTypeDiscriminated
 from ..settings import ztypes
 from ..util import ztyping
 
@@ -181,7 +185,7 @@ class WrapDistribution(BasePDF):  # TODO: extend functionality of wrapper, like 
 #         return integral  # TODO: generalize for VectorSpaces
 
 
-class Gauss(WrapDistribution):
+class Gauss(WrapDistribution, SerializableMixin):
     _N_OBS = 1
 
     def __init__(
@@ -222,6 +226,33 @@ class Gauss(WrapDistribution):
             params=params,
             name=name,
         )
+
+
+class GaussPDFRepr(BasePDFRepr):
+    _implementation = Gauss
+    hs3_type: Literal["Gauss"] = Field("Gauss", alias="type")
+    x: SpaceRepr
+    mu: ParameterRepr
+    sigma: ParameterRepr
+
+    @classmethod
+    def params_to_dict(cls, values):
+        return {"mu": values.pop("mu"), "sigma": values.pop("sigma")}
+
+    @root_validator(pre=True)
+    def convert_params(cls, values):
+        if cls.orm_mode(values):
+            values = dict(values)
+            values.update(**values.pop("params"))
+            values["x"] = values.pop("space")
+        # else:
+        #     values['params'] = cls.params_to_dict(values)
+        return values
+
+    def _to_orm(self, init):
+        init["obs"] = init.pop("x")
+        out = super()._to_orm(init)
+        return out
 
 
 class ExponentialTFP(WrapDistribution):

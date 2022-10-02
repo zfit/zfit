@@ -24,6 +24,7 @@ from tensorflow.python.ops.resource_variable_ops import ResourceVariable as TFVa
 from tensorflow.python.ops.variables import Variable
 from tensorflow.python.types.core import Tensor as TensorType
 
+from .serialmixin import SerializableMixin
 from .. import z
 
 znp = z.numpy
@@ -340,7 +341,11 @@ from weakref import WeakSet
 
 
 class Parameter(
-    ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndependentParameter
+    ZfitParameterMixin,
+    TFBaseVariable,
+    BaseParameter,
+    SerializableMixin,
+    ZfitIndependentParameter,
 ):
     """Class for fit parameters, derived from TF Variable class."""
 
