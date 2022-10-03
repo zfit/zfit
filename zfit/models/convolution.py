@@ -263,8 +263,8 @@ class FFTConvPDFV1(BaseFunctor, SerializableMixin):
 
         binwidth = (upper_kernel - lower_kernel) / nbins_kernel
         to_extend = (
-                        binwidth * nbins_func - (upper_sample - lower_sample)
-                    ) / 2  # how much we need to extend the func_limits
+            binwidth * nbins_func - (upper_sample - lower_sample)
+        ) / 2  # how much we need to extend the func_limits
         # on each side in order to match the binwidth of the kernel
         lower_sample -= to_extend
         upper_sample += to_extend

@@ -18,6 +18,7 @@ import numpy as np
 import pydantic
 import tensorflow as tf
 import tensorflow_probability as tfp
+
 # TF backwards compatibility
 from ordered_set import OrderedSet
 from pydantic import Field, validator

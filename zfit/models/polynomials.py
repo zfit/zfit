@@ -413,7 +413,7 @@ def func_integral_chebyshev1(limits, norm, params, model):
     )  # if polynomial 0 is defined as T_0 = 1
     if model.degree >= 1:
         integral += (
-            model.params["c_1"] * 0.5 * (upper ** 2 - lower ** 2)
+            model.params["c_1"] * 0.5 * (upper**2 - lower**2)
         )  # if polynomial 0 is defined as T_0 = 1
     if model.degree >= 2:
 
@@ -836,5 +836,6 @@ def convert_coeffs_dict_to_list(coeffs: Mapping) -> list:
         ):  # happens, if there are other parameters in there, such as a yield
             break
     return coeffs_list
+
 
 # EOF
