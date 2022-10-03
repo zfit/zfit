@@ -5,27 +5,33 @@ from __future__ import annotations
 
 import abc
 import collections
+import copy
 import functools
 import warnings
 from collections.abc import Iterable, Callable
 from contextlib import suppress
 from inspect import signature
+from typing import Optional
 from weakref import WeakValueDictionary
 
 import numpy as np
+import pydantic
 import tensorflow as tf
 import tensorflow_probability as tfp
-
 # TF backwards compatibility
 from ordered_set import OrderedSet
+from pydantic import Field, validator
 from tensorflow.python.framework import ops
 from tensorflow.python.ops import array_ops
 from tensorflow.python.ops.resource_variable_ops import ResourceVariable as TFVariable
 from tensorflow.python.ops.variables import Variable
 from tensorflow.python.types.core import Tensor as TensorType
+from typing_extensions import Literal
 
 from .serialmixin import SerializableMixin
 from .. import z
+from ..serialization.paramrepr import make_param_constructor
+from ..serialization.serializer import BaseRepr
 
 znp = z.numpy
 import zfit.z.numpy as znp
@@ -699,8 +705,31 @@ class Parameter(
         self.upper = value
 
 
+class ParameterRepr(BaseRepr):
+    _implementation = Parameter
+    _constructor = pydantic.PrivateAttr(make_param_constructor(Parameter))
+    hs3_type: Literal["Parameter"] = Field("Parameter", alias="type")
+    name: str
+    value: float
+    lower: Optional[float] = Field(None, alias="min")
+    upper: Optional[float] = Field(None, alias="max")
+    step_size: Optional[float] = None
+    floating: Optional[bool] = None
+
+    @validator("value", pre=True)
+    def _validate_value(cls, v):
+        if cls.orm_mode(v):
+            v = v()
+        return v
+
+    def __hash__(self):
+        return hash(self.name) + hash(type(self))
+
+
 class BaseComposedParameter(ZfitParameterMixin, OverloadableMixin, BaseParameter):
-    def __init__(self, params, value_fn, name="BaseComposedParameter", **kwargs):
+    def __init__(
+        self, params, value_fn, dtype=None, name="BaseComposedParameter", **kwargs
+    ):
         # 0.4 breaking
         if "value" in kwargs:
             raise BreakingAPIChangeError(
@@ -736,6 +765,7 @@ class BaseComposedParameter(ZfitParameterMixin, OverloadableMixin, BaseParameter
             # end legacy
 
         self._value_fn = value_fn
+        self._dtype = dtype if dtype is not None else ztypes.float
 
     def _get_dependencies(self):
         return _extract_dependencies(list(self.params.values()))
@@ -828,23 +858,24 @@ class BaseComposedParameter(ZfitParameterMixin, OverloadableMixin, BaseParameter
         )
 
 
-class ConstantParameter(OverloadableMixin, ZfitParameterMixin, BaseParameter):
+class ConstantParameter(
+    OverloadableMixin, ZfitParameterMixin, BaseParameter, SerializableMixin
+):
     """Constant parameter.
 
     Value cannot change.
     """
 
-    def __init__(self, name, value, dtype=ztypes.float):
-        """
+    def __init__(self, name, value):
+        """Constant parameter that cannot change its value.
 
         Args:
-            name:
-            value:
-            dtype:
+            name: Unique identifier of the parameter.
+            value: Constant value.
         """
-        super().__init__(name=name, params={}, dtype=dtype)
+        super().__init__(name=name, params={}, dtype=ztypes.float)
         self._value_np = tf.get_static_value(value, partial=True)
-        self._value = tf.guarantee_const(tf.convert_to_tensor(value, dtype=dtype))
+        self._value = tf.guarantee_const(tf.convert_to_tensor(value, dtype=self.dtype))
 
     @property
     def shape(self):
@@ -895,6 +926,29 @@ register_tensor_conversion(
 register_tensor_conversion(
     BaseComposedParameter, "BaseComposedParameter", overload_operators=True
 )
+
+
+class ConstantParamRepr(BaseRepr):
+    _implementation = ConstantParameter
+    _constructor = pydantic.PrivateAttr(make_param_constructor(ConstantParameter))
+    hs3_type: Literal["ConstantParameter"] = pydantic.Field(
+        "ConstantParameter", alias="type"
+    )
+    name: str
+    value: float
+    floating: bool = False
+
+    @validator("value", pre=True)
+    def _validate_value(cls, value):
+        if cls.orm_mode(value):
+            value = value()
+        return value
+
+    def _to_orm(self, init):
+        init = copy.copy(init)
+        init.pop("floating")
+        out = super()._to_orm(init)
+        return out
 
 
 class ComposedParameter(BaseComposedParameter):
@@ -1357,18 +1411,12 @@ def check_convert_param_values_assign(params, values, allow_partial=False):
                 raise ValueError(
                     f"Incompatible length of parameters and values: {params}, {values}"
                 )
-    not_param = [
-        param for param in params if not isinstance(param, (ZfitParameter, tf.Variable))
-    ]
+    not_param = [param for param in params if not isinstance(param, ZfitParameter)]
     if not_param:
         raise TypeError(
             f"The following are not parameters (but should be): {not_param}"
         )
-    non_independent_params = [
-        param
-        for param in params
-        if not (isinstance(param, tf.Variable) or param.independent)
-    ]
+    non_independent_params = [param for param in params if not param.independent]
     if non_independent_params:
         raise ParameterNotIndependentError(
             f"trying to set value of parameters that are not independent "

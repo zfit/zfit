@@ -1,12 +1,17 @@
 #  Copyright (c) 2022 zfit
+from __future__ import annotations
+
 import abc
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 
 import numpy as np
 
 from ..core.interfaces import ZfitLoss
 from ..util import ztyping
 from ..util.checks import Singleton
+
+if TYPE_CHECKING:
+    import zfit
 
 
 class ConvergenceCriterion(abc.ABC):
@@ -30,7 +35,7 @@ class ConvergenceCriterion(abc.ABC):
         self.name = name
         self.last_value = CRITERION_NOT_AVAILABLE
 
-    def converged(self, result: "zfit.core.fitresult.FitResult") -> bool:
+    def converged(self, result: zfit.core.fitresult.FitResult) -> bool:
         """Calculate the criterion and check if it is below the tolerance.
 
         Args:
@@ -41,7 +46,7 @@ class ConvergenceCriterion(abc.ABC):
         value = self.calculate(result)
         return value < self.tol
 
-    def calculate(self, result: "zfit.core.fitresult.FitResult"):
+    def calculate(self, result: zfit.core.fitresult.FitResult):
         """Evaluate the convergence criterion and store it in `last_value`
 
         Args:
@@ -52,7 +57,7 @@ class ConvergenceCriterion(abc.ABC):
         return value
 
     @abc.abstractmethod
-    def _calculate(self, result: "zfit.core.fitresult.FitResult") -> float:
+    def _calculate(self, result: zfit.core.fitresult.FitResult) -> float:
         raise NotImplementedError
 
     def __repr__(self) -> str:
@@ -69,7 +74,7 @@ class EDM(ConvergenceCriterion):
         tol: float,
         loss: ZfitLoss,
         params: ztyping.ParamTypeInput,
-        name: Optional[str] = "edm",
+        name: str | None = "edm",
     ):
         """Estimated distance to minimum.
 

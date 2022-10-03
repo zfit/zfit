@@ -2,6 +2,9 @@
 
 Gauss, exponential... that can be used together with Functors to build larger models.
 """
+#  Copyright (c) 2022 zfit
+
+from __future__ import annotations
 
 #  Copyright (c) 2023 zfit
 import contextlib
@@ -15,7 +18,8 @@ from zfit import z
 from ..core.basepdf import BasePDF
 from ..core.serialmixin import SerializableMixin
 from ..core.space import ANY_LOWER, ANY_UPPER, Space
-from ..serialization import SpaceRepr, ParameterRepr
+from ..serialization import SpaceRepr, Serializer
+from ..core.parameter import ParameterRepr
 from ..serialization.pdfrepr import BasePDFRepr
 from ..util import ztyping
 from ..util.exception import BreakingAPIChangeError
@@ -236,13 +240,13 @@ class ExponentialPDFRepr(BasePDFRepr):
     _implementation = Exponential
     hs3_type: Literal["Exponential"] = Field("Exponential", alias="type")
     x: SpaceRepr
-    lam: ParameterRepr
+    lam: Serializer.types.ParamTypeDiscriminated
 
     @root_validator(pre=True)
-    def convert_params(cls, values):
+    def convert_params_exp(cls, values):
         if cls.orm_mode(values):
             values = dict(values)
-            values.update(lam=values.pop("params").pop("lam"))
+            values.update(lam=values.pop("params")["lam"])
             values["x"] = values.pop("space")
         return values
 

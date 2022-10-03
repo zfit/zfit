@@ -1,4 +1,6 @@
 #  Copyright (c) 2022 zfit
+from __future__ import annotations
+
 import warnings
 
 from .serializer import Serializer
@@ -10,8 +12,5 @@ warnings.warn(
     ExperimentalFeatureWarning,
 )
 
-from .paramrepr import ParameterRepr
 from .spacerepr import SpaceRepr
 from . import serializer
-
-# from .pdfrepr import PDFRepr

@@ -134,7 +134,7 @@ class BasePDF(ZfitPDF, BaseModel):
 
         self._yield = None
         self._norm = norm
-        if extended not in (False, None):
+        if extended is not False and extended is not None:
             self._set_yield(extended)
 
     def __init_subclass__(cls, **kwargs):

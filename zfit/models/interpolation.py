@@ -1,4 +1,6 @@
 #  Copyright (c) 2022 zfit
+from __future__ import annotations
+
 from typing import Optional
 
 import tensorflow_addons as tfa
@@ -16,7 +18,7 @@ class SplinePDF(BaseFunctor):
     def __init__(
         self,
         pdf: ZfitBinnedPDF,
-        order: Optional[int] = None,
+        order: int | None = None,
         obs: ztyping.ObsTypeInput = None,
         extended: ExtendedInputType = None,
         norm: NormInputType = None,

@@ -1,9 +1,12 @@
 #  Copyright (c) 2023 zfit
+from __future__ import annotations
 from typing import Optional, Union
 
+import pydantic
 import tensorflow as tf
 import tensorflow_addons as tfa
 import tensorflow_probability as tfp
+from typing_extensions import Literal
 
 import zfit.z.numpy as znp
 from .functor import BaseFunctor
@@ -11,22 +14,27 @@ from .. import exception, z
 from ..core.data import Data, sum_samples
 from ..core.interfaces import ZfitPDF
 from ..core.sample import accept_reject_sample
+from ..core.serialmixin import SerializableMixin
 from ..core.space import supports
+from ..serialization import Serializer, SpaceRepr
+from ..serialization.pdfrepr import BasePDFRepr
 from ..util import ztyping
 from ..util.exception import ShapeIncompatibleError, WorkInProgressError
 from ..util.ztyping import ExtendedInputType, NormInputType
 
+LimitsTypeInput = Optional[Union[ztyping.LimitsType, float]]
 
-class FFTConvPDFV1(BaseFunctor):
+
+class FFTConvPDFV1(BaseFunctor, SerializableMixin):
     def __init__(
         self,
         func: ZfitPDF,
         kernel: ZfitPDF,
-        n: Optional[int] = None,
-        limits_func: Union[ztyping.LimitsType, float] = None,
-        limits_kernel: ztyping.LimitsType = None,
-        interpolation: Optional[str] = None,
-        obs: Optional[ztyping.ObsTypeInput] = None,
+        n: int | None = None,
+        limits_func: LimitsTypeInput | None = None,
+        limits_kernel: ztyping.LimitsType | None = None,
+        interpolation: str | None = None,
+        obs: ztyping.ObsTypeInput | None = None,
         extended: ExtendedInputType = None,
         norm: NormInputType = None,
         name: str = "FFTConvV1",
@@ -124,6 +132,18 @@ class FFTConvPDFV1(BaseFunctor):
 
         run.assert_executing_eagerly()
         valid_interpolations = ("spline", "linear")
+        original_init = {
+            "func": func,
+            "kernel": kernel,
+            "n": n,
+            "limits_func": limits_func,
+            "limits_kernel": limits_kernel,
+            "interpolation": interpolation,
+            "obs": obs,
+            "extended": extended,
+            "norm": norm,
+            "name": name,
+        }
 
         obs = func.space if obs is None else obs
         super().__init__(
@@ -134,6 +154,7 @@ class FFTConvPDFV1(BaseFunctor):
             extended=extended,
             norm=norm,
         )
+        self.hs3.original_init.update(original_init)
 
         if self.n_obs > 1:
             raise WorkInProgressError(
@@ -218,7 +239,7 @@ class FFTConvPDFV1(BaseFunctor):
                 "Simply switch the two should resolve the problem."
             )
 
-        # get finest resolution. Find the dimensions with the largest kernel-space to func-space ratio
+        # get the finest resolution. Find the dimensions with the largest kernel-space to func-space ratio
         # We take the binwidth of the kernel as the overall binwidth and need to have the same binning in
         # the function as well
         area_ratios = (upper_sample - lower_sample) / (
@@ -242,8 +263,8 @@ class FFTConvPDFV1(BaseFunctor):
 
         binwidth = (upper_kernel - lower_kernel) / nbins_kernel
         to_extend = (
-            binwidth * nbins_func - (upper_sample - lower_sample)
-        ) / 2  # how much we need to extend the func_limits
+                        binwidth * nbins_func - (upper_sample - lower_sample)
+                    ) / 2  # how much we need to extend the func_limits
         # on each side in order to match the binwidth of the kernel
         lower_sample -= to_extend
         upper_sample += to_extend
@@ -394,6 +415,27 @@ class FFTConvPDFV1(BaseFunctor):
         )
 
 
+class FFTConvPDFV1Repr(BasePDFRepr):
+    _implementation = FFTConvPDFV1
+    hs3_type: Literal["FFTConvPDFV1"] = pydantic.Field("FFTConvPDFV1", alias="type")
+    func: Serializer.types.PDFTypeDiscriminated
+
+    kernel: Serializer.types.PDFTypeDiscriminated
+    n: Optional[int] = None
+    limits_func: Optional[SpaceRepr] = None
+    limits_kernel: Optional[SpaceRepr] = None
+    interpolation: Optional[str] = None
+    obs: Optional[SpaceRepr] = None
+
+    @pydantic.root_validator(pre=True)
+    def validate_all(cls, values):
+        values = dict(values)
+        if cls.orm_mode(values):
+            for k, v in values["hs3"].original_init.items():
+                values[k] = v
+        return values
+
+
 class AddingSampleAndWeights:
     def __init__(self, func, kernel, limits_func, limits_kernel) -> None:
         super().__init__()
@@ -402,7 +444,7 @@ class AddingSampleAndWeights:
         self.limits_func = limits_func
         self.limits_kernel = limits_kernel
 
-    def __call__(self, n_to_produce: Union[int, tf.Tensor], limits, dtype):
+    def __call__(self, n_to_produce: int | tf.Tensor, limits, dtype):
         kernel_lower, kernel_upper = self.kernel.space.rect_limits
         sample_lower, sample_upper = limits.rect_limits
 

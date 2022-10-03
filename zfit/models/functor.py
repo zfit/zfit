@@ -12,17 +12,22 @@ import functools
 import operator
 from collections import Counter
 from collections.abc import Iterable
+from typing import List, Optional
 from typing import Optional
 
+import pydantic
 import tensorflow as tf
+from typing_extensions import Literal
 
 import zfit.z.numpy as znp
-from .basefunctor import _preprocess_init_sum
+from .basefunctor import _preprocess_init_sum, FunctorPDFRepr
 from .. import z
 from ..core.basepdf import BasePDF
 from ..core.interfaces import ZfitData, ZfitPDF
+from ..core.serialmixin import SerializableMixin
 from ..core.space import supports
 from ..models.basefunctor import FunctorMixin, extract_daughter_input_obs
+from ..serialization import Serializer
 from ..util import ztyping
 from ..util.container import convert_to_container
 from ..util.exception import (
@@ -60,7 +65,7 @@ class BaseFunctor(FunctorMixin, BasePDF):
         return [pdf.is_extended for pdf in self.pdfs]
 
 
-class SumPDF(BaseFunctor):  # TODO: add extended argument
+class SumPDF(BaseFunctor, SerializableMixin):  # TODO: add extended argument
     def __init__(
         self,
         pdfs: Iterable[ZfitPDF],
@@ -102,6 +107,11 @@ class SumPDF(BaseFunctor):  # TODO: add extended argument
         Raises
             ModelIncompatibleError: If model is incompatible.
         """
+        original_init = {
+            "fracs": convert_to_container(fracs),
+            "extended": extended,
+            "obs": obs,
+        }
         # Check user input
         self._fracs = None
 
@@ -117,12 +127,15 @@ class SumPDF(BaseFunctor):  # TODO: add extended argument
 
         self._fracs = param_fracs
         self._original_fracs = fracs_cleaned
+        self._automatically_extended = False
 
         if extended in (None, True) and all_extended and not fracs_cleaned:
+            self._automatically_extended = True
             extended = sum_yields
         super().__init__(
             pdfs=pdfs, obs=obs, params=params, name=name, extended=extended, norm=norm
         )
+        self.hs3.original_init.update(original_init)
 
     @property
     def fracs(self):
@@ -152,6 +165,17 @@ class SumPDF(BaseFunctor):  # TODO: add extended argument
         prob = sum(probs)
         return z.convert_to_tensor(prob)
 
+    @supports(norm=True, multiple_limits=True)
+    def _ext_pdf(self, x, norm, *, norm_range=None):
+        equal_norm_ranges = len(set([pdf.norm for pdf in self.pdfs] + [norm])) == 1
+        if (norm and not equal_norm_ranges) or not self._automatically_extended:
+            raise SpecificFunctionNotImplemented
+        pdfs = self.pdfs
+        fracs = self.params.values()
+        probs = [pdf.ext_pdf(x) * frac for pdf, frac in zip(pdfs, fracs)]
+        prob = sum(probs)
+        return z.convert_to_tensor(prob)
+
     @supports(multiple_limits=True)
     def _integrate(self, limits, norm, options):
         pdfs = self.pdfs
@@ -161,6 +185,23 @@ class SumPDF(BaseFunctor):  # TODO: add extended argument
         integrals = [
             frac
             * pdf.integrate(
+                limits=limits, options=options
+            )  # do NOT propagate the norm_range!
+            for pdf, frac in zip(pdfs, fracs)
+        ]
+        return znp.sum(integrals, axis=0)
+
+    @supports(multiple_limits=True)
+    def _ext_integrate(self, limits, norm, options):
+        if not self._automatically_extended:
+            raise SpecificFunctionNotImplemented
+        pdfs = self.pdfs
+        fracs = self.fracs
+        # TODO(SUM): why was this needed?
+        # assert norm_range not in (None, False), "Bug, who requested an unnormalized integral?"
+        integrals = [
+            frac
+            * pdf.ext_integrate(
                 limits=limits, options=options
             )  # do NOT propagate the norm_range!
             for pdf, frac in zip(pdfs, fracs)
@@ -237,7 +278,21 @@ class SumPDF(BaseFunctor):  # TODO: add extended argument
         return sample
 
 
-class ProductPDF(BaseFunctor):
+class SumPDFRepr(FunctorPDFRepr):
+    _implementation = SumPDF
+    hs3_type: Literal["SumPDF"] = pydantic.Field("SumPDF", alias="type")
+    fracs: Optional[List[Serializer.types.ParamInputTypeDiscriminated]] = None
+
+    @pydantic.root_validator(pre=True)
+    def validate_all_sumpdf(cls, values):
+        if cls.orm_mode(values):
+            init = values["hs3"].original_init
+            values = dict(values)
+            values["fracs"] = init["fracs"]
+        return values
+
+
+class ProductPDF(BaseFunctor, SerializableMixin):
     def __init__(
         self,
         pdfs: list[ZfitPDF],
@@ -271,7 +326,10 @@ class ProductPDF(BaseFunctor):
             norm: |@doc:pdf.init.norm| Normalization of the PDF.
                By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
         """
+        original_init = {"extended": extended, "obs": obs}
+
         super().__init__(pdfs=pdfs, obs=obs, name=name, extended=extended, norm=norm)
+        self.hs3.original_init.update(original_init)
 
         same_obs_pdfs = []
         disjoint_obs_pdfs = []
@@ -371,3 +429,8 @@ class ProductPDF(BaseFunctor):
                 values.append(pdf.pdf(x, norm_range=norm))
         values = functools.reduce(operator.mul, values)
         return z.convert_to_tensor(values)
+
+
+class ProductPDFRepr(FunctorPDFRepr):
+    _implementation = ProductPDF
+    hs3_type: Literal["ProductPDF"] = pydantic.Field("ProductPDF", alias="type")

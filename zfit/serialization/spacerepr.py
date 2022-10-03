@@ -23,12 +23,6 @@ class SpaceRepr(BaseRepr):
     upper: NumericTyped = Field(alias="max")
     binning: Optional[float] = None
 
-    # @root_validator()
-    # def _validate(cls, values):
-    #     if not cls.orm_mode(values):
-    #         values['obs'] = values.pop('name')
-    #     return values
-
     @root_validator(pre=True)
     def _validate_pre(cls, values):
         if cls.orm_mode(values):

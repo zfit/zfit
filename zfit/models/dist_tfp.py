@@ -3,30 +3,31 @@
 <https://github.com/tensorflow/probability>`_. While their API is slightly different from the zfit models, it is similar
 enough to be easily wrapped.
 
-Therefore a convenient wrapper as well as a lot of implementations are provided.
+Therefore, a convenient wrapper as well as a lot of implementations are provided.
 """
 #  Copyright (c) 2023 zfit
+from __future__ import annotations
 
 from collections import OrderedDict
-from typing import Mapping
-from typing_extensions import Literal
 from typing import Optional
 
 import tensorflow as tf
 import tensorflow_probability as tfp
 import tensorflow_probability.python.distributions as tfd
 from pydantic import Field, root_validator
+from typing_extensions import Literal
 
 from zfit import z
 from zfit.util.exception import (
     AnalyticSamplingNotImplemented,
 )
 from ..core.basepdf import BasePDF
+from ..core.interfaces import ZfitData
 from ..core.parameter import convert_to_parameter
 from ..core.serialmixin import SerializableMixin
 from ..core.space import Space, supports
-from ..serialization import SpaceRepr, ParameterRepr
-from ..serialization.pdfrepr import BasePDFRepr, ParamsTypeDiscriminated
+from ..serialization import SpaceRepr, Serializer
+from ..serialization.pdfrepr import BasePDFRepr
 from ..settings import ztypes
 from ..util import ztyping
 from ..util.deprecation import deprecated_args
@@ -109,7 +110,7 @@ class WrapDistribution(BasePDF):  # TODO: extend functionality of wrapper, like 
             kwargs = kwargs()
         return self._distribution(**params, **kwargs, name=self.name + "_tfp")
 
-    def _unnormalized_pdf(self, x: "zfit.Data"):
+    def _unnormalized_pdf(self, x: ZfitData):
         value = z.unstack_x(x)  # TODO: use this? change shaping below?
         return self.distribution.prob(value=value, name="unnormalized_pdf")
 
@@ -250,8 +251,8 @@ class GaussPDFRepr(BasePDFRepr):
     _implementation = Gauss
     hs3_type: Literal["Gauss"] = Field("Gauss", alias="type")
     x: SpaceRepr
-    mu: ParameterRepr
-    sigma: ParameterRepr
+    mu: Serializer.types.ParamInputTypeDiscriminated
+    sigma: Serializer.types.ParamTypeDiscriminated
 
     @root_validator(pre=True)
     def convert_params(cls, values):
@@ -447,8 +448,8 @@ class CauchyPDFRepr(BasePDFRepr):
     _implementation = Cauchy
     hs3_type: Literal["Cauchy"] = Field("Cauchy", alias="type")
     x: SpaceRepr
-    m: ParameterRepr
-    gamma: ParameterRepr
+    m: Serializer.types.ParamTypeDiscriminated
+    gamma: Serializer.types.ParamTypeDiscriminated
 
     @root_validator(pre=True)
     def convert_params(cls, values):
@@ -520,7 +521,7 @@ class PoissonPDFRepr(BasePDFRepr):
     _implementation = Poisson
     hs3_type: Literal["Poisson"] = Field("Poisson", alias="type")
     x: SpaceRepr
-    lam: ParameterRepr
+    lam: Serializer.types.ParamTypeDiscriminated
 
     @root_validator(pre=True)
     def convert_params(cls, values):

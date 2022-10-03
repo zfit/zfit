@@ -1,4 +1,6 @@
 #  Copyright (c) 2022 zfit
+from __future__ import annotations
+
 from typing import Optional
 
 import numpy as np
@@ -16,8 +18,8 @@ class HistogramPDF(BaseBinnedPDFV1):
     def __init__(
         self,
         data: ztyping.BinnedDataInputType,
-        extended: Optional[ztyping.ExtendedInputType] = None,
-        norm: Optional[ztyping.NormInputType] = None,
+        extended: ztyping.ExtendedInputType | None = None,
+        norm: ztyping.NormInputType | None = None,
         name: str = "HistogramPDF",
     ) -> None:
         """Binned PDF resembling a histogram.

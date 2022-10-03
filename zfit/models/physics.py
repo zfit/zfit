@@ -2,20 +2,18 @@
 
 from __future__ import annotations
 
-from typing_extensions import Literal
-
 import numpy as np
 import pydantic
 import tensorflow as tf
+from typing_extensions import Literal
 
 import zfit.z.numpy as znp
 from zfit import z
 from ..core.basepdf import BasePDF
 from ..core.serialmixin import SerializableMixin
 from ..core.space import ANY_LOWER, ANY_UPPER, Space
-from ..serialization import ParameterRepr, SpaceRepr
+from ..serialization import SpaceRepr, Serializer
 from ..serialization.pdfrepr import BasePDFRepr
-from ..settings import ztypes
 from ..util import ztyping
 from ..util.ztyping import ExtendedInputType, NormInputType
 
@@ -272,10 +270,10 @@ class CrystalBallPDFRepr(BasePDFRepr):
     _implementation = CrystalBall
     hs3_type: Literal["CrystalBall"] = pydantic.Field("CrystalBall", alias="type")
     x: SpaceRepr
-    mu: ParameterRepr
-    sigma: ParameterRepr
-    alpha: ParameterRepr
-    n: ParameterRepr
+    mu: Serializer.types.ParamTypeDiscriminated
+    sigma: Serializer.types.ParamTypeDiscriminated
+    alpha: Serializer.types.ParamTypeDiscriminated
+    n: Serializer.types.ParamTypeDiscriminated
 
     @pydantic.root_validator(pre=True)
     def convert_params(cls, values):
@@ -398,12 +396,12 @@ class DoubleCBPDFRepr(BasePDFRepr):
     _implementation = DoubleCB
     hs3_type: Literal["DoubleCB"] = pydantic.Field("DoubleCB", alias="type")
     x: SpaceRepr
-    mu: ParameterRepr
-    sigma: ParameterRepr
-    alphal: ParameterRepr
-    nl: ParameterRepr
-    alphar: ParameterRepr
-    nr: ParameterRepr
+    mu: Serializer.types.ParamTypeDiscriminated
+    sigma: Serializer.types.ParamTypeDiscriminated
+    alphal: Serializer.types.ParamTypeDiscriminated
+    nl: Serializer.types.ParamTypeDiscriminated
+    alphar: Serializer.types.ParamTypeDiscriminated
+    nr: Serializer.types.ParamTypeDiscriminated
 
     @pydantic.root_validator(pre=True)
     def convert_params(cls, values):

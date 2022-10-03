@@ -1,4 +1,5 @@
 #  Copyright (c) 2022 zfit
+from __future__ import annotations
 
 import tensorflow as tf
 
@@ -17,7 +18,7 @@ class Adam(WrapOptimizer):
         beta2=0.999,
         epsilon=1e-08,
         name="Adam",
-        **kwargs
+        **kwargs,
     ):
         # todo write documentation for api.
         optimizer = tf.keras.optimizers.Adam(

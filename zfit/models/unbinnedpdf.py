@@ -1,5 +1,5 @@
-#  Copyright (c) 2023 zfit
-from typing import Optional
+#  Copyright (c) 2022 zfit
+from __future__ import annotations
 
 import pydantic
 import tensorflow as tf
@@ -10,7 +10,6 @@ from zfit.core.interfaces import ZfitSpace
 from zfit.core.space import supports
 from zfit.models.functor import BaseFunctor
 from zfit.util.ztyping import ExtendedInputType, NormInputType
-from zfit.util import ztyping
 from zfit.z import numpy as znp
 
 

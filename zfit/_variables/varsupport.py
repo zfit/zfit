@@ -1,5 +1,5 @@
 #  Copyright (c) 2022 zfit
-
+from __future__ import annotations
 
 import tensorflow_probability as tfp
 import zfit_interface.variables

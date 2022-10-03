@@ -1,24 +1,92 @@
 #  Copyright (c) 2022 zfit
 from __future__ import annotations
+
 import contextlib
 import copy
 import functools
+from dataclasses import dataclass
 from enum import Enum
-from typing import Type, Any, Optional, Union, Mapping, Iterable, Dict, List
-from typing_extensions import Literal
+from typing import Any, Union, Mapping, Iterable, Dict, List, TypeVar, Optional
 
+import pydantic
+import tensorflow as tf
 from frozendict import frozendict
-from pydantic.utils import GetterDict
+from pydantic import Field
+from typing_extensions import Literal, Annotated
 
-import pydantic
-from pydantic import constr, Field, validator
-
-import pydantic
-
+from zfit.core.interfaces import ZfitParameter
+from zfit.core.serialmixin import ZfitSerializable
 from zfit.util.exception import WorkInProgressError
 
 
+@dataclass
+class Aliases:
+    hs3_type: str = "type"
+
+
+alias1 = Aliases(hs3_type="type")
+
+
+class Types:
+    def __init__(self):
+        self._pdf_repr = []
+        self._param_repr = []
+        self.block_forward_refs = True
+        self.alias = alias1
+        self.DUMMYTYPE = TypeVar("DUMMYTYPE")
+
+    def one_or_many(self, repr):
+        if self.block_forward_refs:
+            raise NameError(
+                "Internal error, should always be caught! If you see this, most likely the annotation"
+                " evaluation was not postponed. To fix this, add a `from __future__ import annotations`"
+                " and make sure to use Python 3.7+"
+            )
+        if len(repr) == 0:
+            return None
+        elif len(repr) == 1:
+            return repr[0]
+        else:
+            return Union[
+                Annotated[Union[tuple(repr)], Field(discriminator="hs3_type")],
+                self.DUMMYTYPE,
+            ]
+
+    @property
+    def PDFTypeDiscriminated(self):
+        return self.one_or_many(self._pdf_repr)
+
+    @property
+    def ParamTypeDiscriminated(self):
+        return self.one_or_many(self._param_repr)
+
+    @property
+    def ListParamTypeDiscriminated(self):
+        return List[self.ParamTypeDiscriminated]
+
+    @property
+    def ParamInputTypeDiscriminated(self):
+        return Union[self.ParamTypeDiscriminated, float, int]
+
+    @property
+    def ListParamInputTypeDiscriminated(self):
+        return List[self.ParamInputTypeDiscriminated]
+
+    def add_pdf_repr(self, repr):
+        cls = repr._implementation
+        from ..core.interfaces import ZfitPDF
+        from ..core.interfaces import ZfitParameter
+
+        if issubclass(cls, ZfitPDF):
+            self._pdf_repr.append(repr)
+        elif issubclass(cls, ZfitParameter):
+            self._param_repr.append(repr)
+
+
 class Serializer:
+    types = Types()
+    is_initialized = False
+
     constructor_repr = {}
     type_repr = {}
     _deserializing = False
@@ -26,6 +94,11 @@ class Serializer:
     @classmethod
     def register(own_cls, repr):
         cls = repr._implementation
+        if not issubclass(cls, ZfitSerializable):
+            raise TypeError(
+                f"{cls} is not a subclass of ZfitSerializable. Possible solution: inherit from "
+                f"the SerializableMixin"
+            )
 
         if cls not in own_cls.constructor_repr:
             own_cls.constructor_repr[cls] = repr
@@ -40,8 +113,12 @@ class Serializer:
         else:
             raise ValueError(f"Type {hs3_type} already registered")
 
+        own_cls.types.add_pdf_repr(repr)
+
     @classmethod
     def to_hs3(cls, obj):
+        cls.initialize()
+
         serial_kwargs = {"exclude_none": True, "by_alias": True}
         if not isinstance(obj, (list, tuple)):
             pdfs = [obj]
@@ -70,8 +147,15 @@ class Serializer:
                 name = f"{name}_{pdf_number}"
             out["pdfs"][name] = pdf.get_repr().from_orm(pdf).dict(**serial_kwargs)
 
-            for param in pdf.get_params(floating=None):
+            for param in pdf.get_params(floating=None, extract_independent=None):
                 if param.name not in out["variables"]:
+                    # TODO: handle correctly composed params etc?
+                    # HACK
+                    from zfit import ComposedParameter
+
+                    if isinstance(param, ComposedParameter):
+                        print("HACK, skipping ComposedParameter")
+                        continue
                     paramdict = param.get_repr().from_orm(param).dict(**serial_kwargs)
                     del paramdict["type"]
                     out["variables"][param.name] = paramdict
@@ -88,10 +172,24 @@ class Serializer:
         return out
 
     @classmethod
+    def initialize(cls):
+        if not cls.is_initialized:
+            cls.types.block_forward_refs = False
+            for repr in cls.constructor_repr.values():
+                repr.update_forward_refs(
+                    **{"Union": Union, "List": List, "Literal": Literal}
+                )
+            cls.is_initialized = True
+
+    @classmethod
     def from_hs3(cls, load):
+        cls.initialize()
         for param, paramdict in load["variables"].items():
             if "value" in paramdict:
-                paramdict["type"] = "Parameter"
+                if paramdict.get("floating", True) is False:
+                    paramdict["type"] = "ConstantParameter"
+                else:
+                    paramdict["type"] = "Parameter"
             else:
                 paramdict["type"] = "Space"
 
@@ -118,7 +216,10 @@ class Serializer:
         parameter = frozendict({"name": None, "min": None, "max": None})
         replace_forward = {parameter: lambda x: x["name"]}
         out["pdfs"] = replace_matching(out["pdfs"], replace_forward)
-        hs3_variables = frozendict({"name": None, "type": None})
+
+        const_params = frozendict({"name": None, "type": None, "floating": False})
+        replace_forward = {const_params: lambda x: x["name"]}
+        out["pdfs"] = replace_matching(out["pdfs"], replace_forward)
         return out
 
     @classmethod
@@ -146,13 +247,17 @@ def elements_match(mapping, replace):
                 val = mapping.get(k)
 
                 if val == v:
-                    continue
-                break
+                    continue  # also fine
+                break  # we're not fine, so let's stop here
             else:
                 found = True
                 break
-        if mapping == match:
-            found = True
+        try:
+            direct_hit = mapping == match
+        except TypeError:
+            continue
+        else:
+            found = direct_hit or found
         if found:
             break
     else:
@@ -170,7 +275,11 @@ def replace_matching(mapping, replace):
     if isinstance(mapping, Mapping):
         for k, v in mapping.items():
             mapping[k] = replace_matching(v, replace)
-    elif not isinstance(mapping, str) and isinstance(mapping, Iterable):
+    elif (
+        not isinstance(mapping, (str, ZfitParameter))
+        and not tf.is_tensor(mapping)
+        and isinstance(mapping, Iterable)
+    ):
         replaced_list = [replace_matching(v, replace) for v in mapping]
         mapping = type(mapping)(replaced_list)
     return mapping
@@ -180,7 +289,13 @@ def convert_to_orm(init):
     if isinstance(init, Mapping):
         for k, v in init.items():
 
-            if not isinstance(v, (Iterable, Mapping)):
+            from zfit.core.interfaces import ZfitParameter, ZfitSpace
+
+            if (
+                not isinstance(v, (Iterable, Mapping))
+                or isinstance(v, (ZfitParameter, ZfitSpace))
+                or tf.is_tensor(v)
+            ):
                 continue
             elif TYPENAME in v:
                 type_ = v[TYPENAME]
@@ -188,12 +303,16 @@ def convert_to_orm(init):
             else:
                 init[k] = convert_to_orm(v)
 
+        if TYPENAME in init:  # dicts can be the raw data we want.
+            cls = Serializer.type_repr[init[TYPENAME]]
+            return cls(**init).to_orm()
+
     elif isinstance(init, (list, tuple)):
         init = type(init)([convert_to_orm(v) for v in init])
     return init
 
 
-def to_mro_init(func):
+def to_orm_init(func):
     @functools.wraps(func)
     def wrapper(self, init, **kwargs):
         init = convert_to_orm(init)
@@ -211,8 +330,9 @@ class BaseRepr(pydantic.BaseModel):
     _implementation = pydantic.PrivateAttr()
     _context = pydantic.PrivateAttr(None)
     _constructor = pydantic.PrivateAttr(None)
-    dictionary: dict | None = Field(alias="dict")
-    tags: list[str] | None
+
+    dictionary: Optional[Dict] = Field(alias="dict")
+    tags: Optional[List[str]] = None
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
@@ -225,39 +345,40 @@ class BaseRepr(pydantic.BaseModel):
         orm_mode = True
         arbitrary_types_allowed = True
         allow_population_by_field_name = True
+        smart_union = True
 
     @classmethod
     def orm_mode(cls, v):
         if cls._context is None:
             raise ValueError("No context set!")
         return cls._context == MODES.orm
-        # return isinstance(v, (GetterDict, cls._implementation))
 
     @classmethod
     def from_orm(cls: pydantic.BaseModel, obj: Any) -> BaseRepr:
+
         old_mode = cls._context
-        cls._context = MODES.orm
-        out = super().from_orm(obj)
-        cls._context = old_mode
+        try:
+            cls._context = MODES.orm
+            out = super().from_orm(obj)
+        finally:
+            cls._context = old_mode
         return out
 
     def to_orm(self):
-        print("Starting to_orm")
         old_mode = type(self)._context
-        type(self)._context = MODES.repr
-        # raise NotImplementedError("LOGIC?? TODO")
-        if self._implementation is None:
-            raise ValueError("No implementation registered!")
-        init = self.dict(exclude_none=True)
-        print(init)
-        type_ = init.pop("hs3_type")
-        # assert type_ == self.hs3_type
-        out = self._to_orm(init)
-        type(self)._context = old_mode
-        print(f"Finished to_orm, mode = {type(self)._context}")
+        try:
+            type(self)._context = MODES.repr
+            if self._implementation is None:
+                raise ValueError("No implementation registered!")
+            init = self.dict(exclude_none=True)
+            type_ = init.pop("hs3_type")
+            # assert type_ == self.hs3_type
+            out = self._to_orm(init)
+        finally:
+            type(self)._context = old_mode
         return out
 
-    @to_mro_init
+    @to_orm_init
     def _to_orm(self, init):
         constructor = self._constructor
         if constructor is None:

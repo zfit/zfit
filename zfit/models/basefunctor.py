@@ -4,7 +4,9 @@ from __future__ import annotations
 
 from collections import OrderedDict
 from collections.abc import Iterable
+from typing import List, Optional, Union
 
+import pydantic
 import tensorflow as tf
 
 from ..core.coordinates import convert_to_obs_str
@@ -13,6 +15,9 @@ from ..core.dimension import get_same_obs
 from ..core.interfaces import ZfitFunctorMixin, ZfitModel, ZfitSpace, ZfitParameter
 from ..core.parameter import convert_to_parameter
 from ..core.space import Space, combine_spaces
+from ..serialization import SpaceRepr
+from ..serialization.pdfrepr import BasePDFRepr
+from ..serialization.serializer import BaseRepr, Serializer
 from ..settings import ztypes, run
 from ..util import ztyping
 from ..util.container import convert_to_container
@@ -133,6 +138,21 @@ class FunctorMixin(ZfitFunctorMixin):
                     "The normalization range is `None`, no default norm is set"
                 )
         return self._check_input_norm_range(norm=norm, none_is_error=none_is_error)
+
+
+class FunctorPDFRepr(BasePDFRepr):
+    _implementation = None
+    pdfs: List[Serializer.types.PDFTypeDiscriminated]
+    obs: Optional[SpaceRepr] = None
+
+    @pydantic.root_validator(pre=True)
+    def validate_all_functor(cls, values):
+        if cls.orm_mode(values):
+            init = values["hs3"].original_init
+            values = dict(values)
+            values["obs"] = init["obs"]
+            values["extended"] = init["extended"]
+        return values
 
 
 def _extract_common_obs(obs: tuple[tuple[str] | Space]) -> tuple[str]:
