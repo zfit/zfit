@@ -11,9 +11,10 @@ import warnings
 from collections.abc import Iterable, Callable
 from contextlib import suppress
 from inspect import signature
-from typing import Optional
+from typing import Optional, Dict
 from weakref import WeakValueDictionary
 
+import dill as dill
 import numpy as np
 import pydantic
 import tensorflow as tf
@@ -32,7 +33,7 @@ from typing_extensions import Literal
 from .serialmixin import SerializableMixin
 from .. import z
 from ..serialization.paramrepr import make_param_constructor
-from ..serialization.serializer import BaseRepr
+from ..serialization.serializer import BaseRepr, Serializer
 
 znp = z.numpy
 import zfit.z.numpy as znp
@@ -939,6 +940,9 @@ class ConstantParamRepr(BaseRepr):
     value: float
     floating: bool = False
 
+    # lower: Optional[float] = Field(None, alias="min")
+    # upper: Optional[float] = Field(None, alias="max")
+
     @validator("value", pre=True)
     def _validate_value(cls, value):
         if cls.orm_mode(value):
@@ -952,7 +956,7 @@ class ConstantParamRepr(BaseRepr):
         return out
 
 
-class ComposedParameter(BaseComposedParameter):
+class ComposedParameter(SerializableMixin, BaseComposedParameter):
     @deprecated_args(None, "Use `params` instead.", "dependents")
     def __init__(
         self,
@@ -1005,6 +1009,7 @@ class ComposedParameter(BaseComposedParameter):
                 .. deprecated:: unknown
                     use `params` instead.
         """
+        original_init = {"name": name, "value_fn": value_fn, "params": params}
         if dependents is not NotSpecified:
             params = dependents
         elif params is NotSpecified:
@@ -1022,6 +1027,7 @@ class ComposedParameter(BaseComposedParameter):
             else:
                 params_dict = {f"param_{i}": p for i, p in enumerate(params)}
         super().__init__(params=params_dict, value_fn=value_fn, name=name, dtype=dtype)
+        self.hs3.original_init.update(original_init)
 
     def __repr__(self):
         if tf.executing_eagerly():
@@ -1029,6 +1035,39 @@ class ComposedParameter(BaseComposedParameter):
         else:
             value = "graph-node"
         return f"<zfit.{self.__class__.__name__} '{self.name}' params={[(k, p.name) for k, p in self.params.items()]} value={value}>"
+
+
+class ComposedParameterRepr(BaseRepr):
+    _implementation = ComposedParameter
+    _constructor = pydantic.PrivateAttr(make_param_constructor(ComposedParameter))
+    hs3_type: Literal["ComposedParameter"] = pydantic.Field(
+        "ComposedParameter", alias="type"
+    )
+    name: str
+    value_fn: str
+    params: Dict[str, Serializer.types.ParamTypeDiscriminated]
+
+    # lower: Optional[float] = Field(None, alias="min")
+    # upper: Optional[float] = Field(None, alias="max")
+    # value: Optional[float] = None
+
+    @validator("value_fn", pre=True)
+    def _validate_value_pre(cls, value):
+        if cls.orm_mode(value):
+            value = dill.dumps(value).hex()
+        return value
+
+    @validator("value_fn", pre=False)
+    def _validate_value_post(cls, value):
+        if not cls.orm_mode(value):
+            value = dill.loads(bytes.fromhex(value))
+        return value
+
+    @pydantic.root_validator(pre=True)
+    def validate_all_functor(cls, values):
+        if cls.orm_mode(values):
+            values = values["hs3"].original_init
+        return values
 
 
 class ComplexParameter(ComposedParameter):  # TODO: change to real, imag as input?

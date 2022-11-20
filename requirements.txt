@@ -3,6 +3,7 @@ colorama
 colored
 colorlog
 deprecated
+dill
 dotmap
 frozendict
 hist

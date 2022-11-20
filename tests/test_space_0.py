@@ -218,7 +218,11 @@ def test_dimensions():
     )
     assert space.n_obs == 2
     assert space.n_limits == 1
-    low1, low2, up1, up2 = space.limit2d
+    lower, upper = space.limits
+    low1 = lower[0][0]
+    low2 = lower[0][1]
+    up1 = upper[0][0]
+    up2 = upper[0][1]
     assert low1 == lower1
     assert low2 == lower2
     assert up1 == upper1

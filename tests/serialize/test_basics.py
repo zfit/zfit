@@ -262,7 +262,7 @@ def test_replace_matching():
     original_dict = {
         "metadata": {
             "HS3": {"version": "experimental"},
-            "serializer": {"lib": "zfit", "version": "0.10.2.dev9+gfc70df47"},
+            "serializer": {"lib": "zfit", "version": str(zfit.__version__)},
         },
         "pdfs": {
             "Gauss": {
@@ -314,7 +314,7 @@ def test_replace_matching():
     target_dict = {
         "metadata": {
             "HS3": {"version": "experimental"},
-            "serializer": {"lib": "zfit", "version": "0.10.2.dev9+gfc70df47"},
+            "serializer": {"lib": "zfit", "version": str(zfit.__version__)},
         },
         "pdfs": {"Gauss": {"mu": "mu", "sigma": "sigma", "type": "Gauss", "x": "obs"}},
         "variables": {

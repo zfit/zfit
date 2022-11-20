@@ -471,8 +471,8 @@ class Poisson(WrapDistribution, SerializableMixin):
     @deprecated_args(None, "Use lam instead", "lamb")
     def __init__(
         self,
-        lam: ztyping.ParamTypeInput,
-        obs: ztyping.ObsTypeInput,
+        lam: ztyping.ParamTypeInput = None,
+        obs: ztyping.ObsTypeInput = None,
         extended: ExtendedInputType = None,
         norm: NormInputType = None,
         name: str = "Poisson",

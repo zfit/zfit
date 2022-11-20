@@ -149,13 +149,6 @@ class Serializer:
 
             for param in pdf.get_params(floating=None, extract_independent=None):
                 if param.name not in out["variables"]:
-                    # TODO: handle correctly composed params etc?
-                    # HACK
-                    from zfit import ComposedParameter
-
-                    if isinstance(param, ComposedParameter):
-                        print("HACK, skipping ComposedParameter")
-                        continue
                     paramdict = param.get_repr().from_orm(param).dict(**serial_kwargs)
                     del paramdict["type"]
                     out["variables"][param.name] = paramdict
@@ -190,6 +183,8 @@ class Serializer:
                     paramdict["type"] = "ConstantParameter"
                 else:
                     paramdict["type"] = "Parameter"
+            elif "value_fn" in paramdict:
+                paramdict["type"] = "ComposedParameter"
             else:
                 paramdict["type"] = "Space"
 
@@ -198,10 +193,12 @@ class Serializer:
         out = {"pdfs": {}, "variables": {}}
         for name, pdf in load["pdfs"].items():
             repr = Serializer.type_repr[pdf["type"]]
-            out["pdfs"][name] = repr(**pdf).to_orm()
+            repr_inst = repr(**pdf)
+            out["pdfs"][name] = repr_inst.to_orm()
         for name, param in load["variables"].items():
             repr = Serializer.type_repr[param["type"]]
-            out["variables"][name] = repr(**param).to_orm()
+            repr_inst = repr(**param)
+            out["variables"][name] = repr_inst.to_orm()
         return out
 
     @classmethod

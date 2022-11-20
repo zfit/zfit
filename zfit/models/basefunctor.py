@@ -197,10 +197,16 @@ def _preprocess_init_sum(fracs, obs, pdfs):
     if fracs:
         # create fracs if one is missing
         if len(fracs) == len(pdfs) - 1:
-            remaining_frac_func = lambda: tf.constant(
-                1.0, dtype=ztypes.float
-            ) - tf.add_n(fracs)
-            remaining_frac = convert_to_parameter(remaining_frac_func, params=fracs)
+            frac_params_tmp = {f"frac_{i}": frac for i, frac in enumerate(fracs)}
+
+            def remaining_frac_func(params):
+                return tf.constant(1.0, dtype=ztypes.float) - tf.add_n(
+                    list(params.values())
+                )
+
+            remaining_frac = convert_to_parameter(
+                remaining_frac_func, params=frac_params_tmp
+            )
             if run.numeric_checks:
                 tf.debugging.assert_non_negative(
                     remaining_frac,

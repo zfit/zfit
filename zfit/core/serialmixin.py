@@ -66,6 +66,7 @@ class HS3:
     implementation = None
 
     def __init__(self, obj):
+        super().__init__()
         self.obj = obj
         self.original_init = {}
 

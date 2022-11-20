@@ -19,8 +19,8 @@ class SpaceRepr(BaseRepr):
     _implementation = Space
     hs3_type: Literal["Space"] = Field("Space", alias="type")
     name: str
-    lower: NumericTyped = Field(alias="min")
-    upper: NumericTyped = Field(alias="max")
+    lower: Optional[NumericTyped] = Field(alias="min")
+    upper: Optional[NumericTyped] = Field(alias="max")
     binning: Optional[float] = None
 
     @root_validator(pre=True)
@@ -50,7 +50,7 @@ class SpaceRepr(BaseRepr):
         return v
 
     def _to_orm(self, init) -> SpaceRepr._implementation:
-        init["limits"] = init.pop("lower"), init.pop("upper")
+        init["limits"] = init.pop("lower", None), init.pop("upper", None)
         init["obs"] = init.pop("name")
         init = super()._to_orm(init)
         return init

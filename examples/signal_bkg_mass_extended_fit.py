@@ -1,8 +1,6 @@
 #  Copyright (c) 2022 zfit
 
-import matplotlib.pyplot as plt
-import numpy as np
-
+import pprint
 import zfit
 
 n_bins = 50
@@ -50,3 +48,16 @@ param_hesse = result.hesse()
     _,
 ) = result.errors()  # this returns a new FitResult if a new minimum was found
 print(result.valid)  # check if the result is still valid
+
+# EXPERIMENTAL: we can serialize the model to a human-readable format with HS3
+# or we can simply pickle the result (first freezing it)
+import zfit.serialization as zserial
+
+# human readable representation
+pprint.pprint(zserial.Serializer.to_hs3(model))
+
+result.freeze()
+dumped = pickle.dumps(result)
+loaded = pickle.loads(dumped)
+
+zfit.param.set_values(params, loaded)
