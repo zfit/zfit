@@ -9,7 +9,7 @@ Develop
 
 Major Features and Improvements
 -------------------------------
-- columns of unbinned data can be accessed with the obs like a mapping
+- columns of unbinned ``data`` can be accessed with the obs like a mapping (like a dataframe)
 - speedup builtin ``errors`` method and make it more robust
 
 Breaking changes
@@ -21,12 +21,14 @@ Deprecations
 
 Bug fixes and small changes
 ---------------------------
+- improved caching speed, reduced tradeoff against memory
 
 Experimental
 ------------
 
 Requirement changes
 -------------------
+- add jacobi (many thanks at @HansDembinski for the package)
 
 Thanks
 ------
