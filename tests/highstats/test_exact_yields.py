@@ -49,7 +49,7 @@ def test_yield_bias(exact_nsample, ntoys=300):
     nll = zfit.loss.ExtendedUnbinnedNLL(model=model, data=data)
     nsigs = []
     nbkgs = []
-    minimizer = zfit.minimize.Minuit(gradient=False, tol=1e-05)
+    minimizer = zfit.minimize.Minuit(gradient=False, tol=1e-05, mode=2)
     failures = 0
     for _ in range(ntoys):
         zfit.param.set_values(params, true_vals)
