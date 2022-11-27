@@ -87,14 +87,14 @@ covariance = lambda: np.array([[mu_constr[1] ** 2, 0], [0, sigma_constr[1] ** 2]
 covariance_tf = lambda: z.convert_to_tensor(covariance())
 
 
-def create_gauss1():
+def create_gauss1(obs=obs1):
     mu, sigma = create_params1()
-    return Gauss(mu, sigma, obs=obs1, name="gaussian1"), mu, sigma
+    return Gauss(mu, sigma, obs=obs, name="gaussian1"), mu, sigma
 
 
-def create_gauss2():
+def create_gauss2(obs=obs1):
     mu, sigma = create_params2()
-    return Gauss(mu, sigma, obs=obs1, name="gaussian2"), mu, sigma
+    return Gauss(mu, sigma, obs=obs, name="gaussian2"), mu, sigma
 
 
 def create_gauss3ext():
@@ -500,7 +500,7 @@ def test_iminuit_compatibility(create_loss):
     assert result_zfit.fmin == pytest.approx(result.fmin.fval, abs=0.03)
 
 
-@pytest.mark.skip  # TODO: reactivate and make real, just mockup
+# @pytest.mark.skip  # TODO: reactivate and make real, just mockup
 @pytest.mark.flaky(3)
 # @pytest.mark.parametrize('weights', [None, np.random.normal(loc=1., scale=0.2, size=test_values_np.shape[0])])
 @pytest.mark.parametrize("weights", [None])
@@ -512,10 +512,10 @@ def test_binned_nll(weights):
 
     test_values = tf.constant(test_values_np)
     test_values = zfit.Data.from_tensor(obs=obs, tensor=test_values, weights=weights)
-    test_values_binned = test_values.create_hist(
-        converter=zfit.hist.histogramdd, bin_kwargs={"bins": 100}
+    test_values_binned = test_values.to_binned(100)
+    nll_object = zfit.loss.BinnedNLL(
+        model=gaussian1.to_binned(test_values_binned.axes), data=test_values_binned
     )
-    nll_object = zfit.loss.BinnedNLL(model=gaussian1, data=test_values_binned)
     minimizer = Minuit()
     status = minimizer.minimize(loss=nll_object, params=[mu1, sigma1])
     params = status.params
@@ -526,15 +526,14 @@ def test_binned_nll(weights):
         np.std(test_values_np), rel=rel_error
     )
 
-    constraints = zfit.constraint.nll_gaussian(
+    constraints = zfit.constraint.GaussianConstraint(
         params=[mu2, sigma2],
-        mu=[mu_constr[0], sigma_constr[0]],
-        sigma=[mu_constr[1], sigma_constr[1]],
+        observation=[mu_constr[0], sigma_constr[0]],
+        uncertainty=[mu_constr[1], sigma_constr[1]],
     )
     nll_object = zfit.loss.BinnedNLL(
-        model=gaussian2,
+        model=gaussian2.to_binned(test_values_binned.axes),
         data=test_values_binned,
-        fit_range=(-np.infty, np.infty),
         constraints=constraints,
     )
 
