@@ -1234,6 +1234,17 @@ def assign_values_jit(
     values: ztyping.NumericalScalarType | Iterable[ztyping.NumericalScalarType],
     use_locking=False,
 ):
+    """Assign values to parameters jitted.
+
+    This method can be significantly faster than `set_values`, however it expects the correct data-type and
+    cannot, for example, take a `FitResult` as input or function as a context manager. Only use when
+    performance is critical (such as inside a minimizer).
+
+    Args:
+        params: The parameters to assign the values to.
+        values: Values to assign to the parameters.
+        use_locking:
+    """
     for i, param in enumerate(params):
         value = values[i]
         if value.dtype != param.dtype:
@@ -1284,7 +1295,7 @@ def set_values(
 
     Args:
         params: Parameters to set the values.
-        values: List-like object that supports indexing.
+        values: List-like object that supports indexing or a `FitResult`.
         allow_partial: Allow to set only parts of the parameters in case values is a `ZfitResult`
             and not all are present in the
             *values*. If False, *params* not in *values* will raise an error.

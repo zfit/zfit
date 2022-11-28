@@ -23,7 +23,7 @@ class SplinePDF(BaseFunctor):
 
         Args:
             pdf: Binned PDF that will be interpolated.
-            order: Spline interpolation order. Default is
+            order: Spline interpolation order. Default is 3
             obs: Unbinned observable. If not given, the observable of the pdf is used without the binning.
             extended: |@doc:pdf.init.extended| The overall yield of the PDF.
                If this is parameter-like, it will be used as the yield,

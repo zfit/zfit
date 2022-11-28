@@ -2,7 +2,7 @@
 import pytest
 
 
-@pytest.mark.parametrize("n", [300, 10000, 200_000], ids=lambda x: f"samplesize={x:,}")
+@pytest.mark.parametrize("n", [500, 10000, 200_000], ids=lambda x: f"samplesize={x:,}")
 @pytest.mark.parametrize(
     "floatall", [True, False], ids=["floatAll", "floatSigBkgLambdaOnly"]
 )

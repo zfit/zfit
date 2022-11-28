@@ -31,7 +31,7 @@ from .. import z
 from ..settings import ztypes, run
 from ..util import ztyping
 from ..util.cache import GraphCachable, invalidate_graph
-from ..util.container import convert_to_container
+from ..util.container import convert_to_container, is_container
 from ..util.exception import (
     ObsIncompatibleError,
     ShapeIncompatibleError,
@@ -47,9 +47,7 @@ from .space import Space, convert_to_space
 
 
 # TODO: make cut only once, then remember
-class Data(
-    ZfitUnbinnedData, BaseDimensional, BaseObject, OverloadableMixin, GraphCachable
-):
+class Data(ZfitUnbinnedData, BaseDimensional, BaseObject, GraphCachable):
     BATCH_SIZE = 1000000  # 1 mio
 
     def __init__(
@@ -158,6 +156,7 @@ class Data(
 
     @property
     def weights(self):
+        """Get the weights of the data."""
         # TODO: refactor below more general, when to apply a cut?
         if self.data_range.has_limits and self.has_weights:
             raw_values = self._value_internal(obs=self.data_range.obs, filter=False)
@@ -175,6 +174,7 @@ class Data(
         Args:
             weights:
         """
+
         # weights = self._set_weights(weights)
 
         def setter(value):
@@ -442,6 +442,14 @@ class Data(
                 self._hashint = None
 
     def with_obs(self, obs):
+        """Create a new ``Data`` with a subset of the data using the *obs*.
+
+        Args:
+            obs: Observables to return. Has to be a subset of the original observables.
+
+        Returns:
+            ``zfit.Data``: A new ``Data`` object containing the subset of the data.
+        """
         values = self.value(obs)
         return type(self).from_tensor(
             obs=self.space, tensor=values, weights=self.weights, name=self.name
@@ -476,7 +484,19 @@ class Data(
         return z.unstack_x(self.value(obs=obs))
 
     def value(self, obs: ztyping.ObsTypeInput = None):
-        return znp.asarray(self._value_internal(obs=obs))
+        """Return the data as a numpy-like object in ``obs`` order.
+
+        Args:
+            obs: Observables to return. If ``None``, all observables are returned. Can be a subset of the original
+                observables. If a string is given, a 1-D array is returned with shape (nevents,). If a list of strings
+                or a ``zfit.Space`` is given, a 2-D array is returned with shape (nevents, nobs).
+
+        Returns:
+        """
+        out = znp.asarray(self._value_internal(obs=obs))
+        if isinstance(obs, str):
+            out = znp.squeeze(out, axis=-1)
+        return out
 
     def numpy(self):
         return self.value().numpy()
@@ -627,6 +647,15 @@ class Data(
         from zfit._data.binneddatav1 import BinnedData
 
         return BinnedData.from_unbinned(space=space, data=self)
+
+    def __getitem__(self, item):
+        return getitem_obs(self, item)
+
+
+def getitem_obs(self, item):
+    if not isinstance(item, str):
+        item = convert_to_obs_str(item)
+    return self.value(item)
 
 
 class SampleData(Data):
@@ -828,7 +857,7 @@ class Sampler(Data):
         return f"<Sampler: {self.name} obs={self.obs}>"
 
 
-register_tensor_conversion(Data, name="Data", overload_operators=True)
+# register_tensor_conversion(Data, name="Data", overload_operators=True)
 
 
 class LightDataset:

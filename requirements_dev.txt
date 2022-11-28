@@ -1,7 +1,7 @@
 bumpversion>=0.5.3
 check-manifest
 coverage>=4.5.1
-coverage-lcov
+# coverage-lcov  # reactivate once https://github.com/TheCleric/coverage-lcov/issues/6 resolved (remove it CI)
 docformatter
 flake8>=3.5.0
 jax
@@ -16,7 +16,7 @@ pre-commit
 progressbar2
 pydata-sphinx-theme>=0.9  # new dark theme configuration
 pygit2
-pyhf  # for comparison of correctness
+pyhf>=0.7 # for comparison of correctness
 pytest-benchmark
 pyyaml
 seed_intersphinx_mapping

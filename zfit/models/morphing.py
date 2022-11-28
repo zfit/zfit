@@ -6,6 +6,7 @@ from collections.abc import Mapping, Iterable
 
 import tensorflow as tf
 import tensorflow_addons as tfa
+from uhi.typing.plottable import PlottableHistogram
 
 import zfit.z.numpy as znp
 from zfit import z
@@ -13,6 +14,7 @@ from zfit.core.binnedpdf import BaseBinnedPDFV1
 from ..core import parameter
 from ..core.interfaces import ZfitBinnedPDF
 from ..util import ztyping
+from ..util.exception import SpecificFunctionNotImplemented
 
 
 @z.function(wraps="tensor")
@@ -72,34 +74,55 @@ class SplineMorphingPDF(BaseBinnedPDFV1):
                 hists = {
                     float(i - 1): hist for i, hist in enumerate(hists)
                 }  # mapping to -1, 0, 1
+
+        hists_clean = {}
+        for a, hist in hists.items():
+            if isinstance(hist, PlottableHistogram):
+                from zfit.models.histogram import HistogramPDF
+
+                hist = HistogramPDF(hist)
+            if isinstance(hist, ZfitBinnedPDF):
+                hists[a] = hist
+            else:
+                raise TypeError(
+                    f"hist {hist} is not a ZfitBinnedPDF or a UHI histogram."
+                )
+
         self.hists = hists
         self.alpha = alpha
         obs = list(hists.values())[0].space
+        all_extended = all(hist.is_extended for hist in hists.values())
         if extended is None:  # TODO: yields?
-            extended = all(hist.is_extended for hist in hists.values())
-            if extended:
-                alphas = znp.array(list(self.hists.keys()), dtype=znp.float64)
-
-                def interpolated_yield(params):
-                    alpha = params["alpha"]
-                    densities = tuple(
-                        params[f"{i}"] for i in range(len(params) - 1)
-                    )  # minus alpha, we don't want it
-                    return spline_interpolator(
-                        alpha=alpha, alphas=alphas, densities=densities
-                    )
-
-                number = parameter.get_auto_number()
-                yields = {
-                    f"{i}": hist.get_yield() for i, hist in enumerate(hists.values())
-                }
-                yields["alpha"] = alpha
-                new_yield = parameter.ComposedParameter(
-                    f"AUTOGEN_{number}_interpolated_yield",
-                    interpolated_yield,
-                    params=yields,
+            extended = all_extended
+        self._automatically_extended = None
+        if extended is True:  # create the yield automatically
+            self._automatically_extended = True
+            if not all_extended:
+                raise ValueError(
+                    "If extended is True, all PDFs must be extended to create the yield automatically."
                 )
-                extended = new_yield
+            alphas = znp.array(list(self.hists.keys()), dtype=znp.float64)
+
+            def interpolated_yield(params):
+                alpha = params["alpha"]
+                densities = tuple(
+                    params[f"{i}"] for i in range(len(params) - 1)
+                )  # params has n hist entries + 1 alpha entry
+                return spline_interpolator(
+                    alpha=alpha, alphas=alphas, densities=densities
+                )
+
+            number = parameter.get_auto_number()
+            yields = {f"{i}": hist.get_yield() for i, hist in enumerate(hists.values())}
+            yields["alpha"] = alpha
+            new_yield = parameter.ComposedParameter(
+                f"AUTOGEN_{number}_interpolated_yield",
+                interpolated_yield,
+                params=yields,
+            )
+            extended = new_yield
+        elif extended is not False:
+            self._automatically_extended = False
         super().__init__(
             obs=obs,
             extended=extended,
@@ -109,6 +132,8 @@ class SplineMorphingPDF(BaseBinnedPDFV1):
         )
 
     def _counts(self, x, norm):
+        if not self._automatically_extended:
+            raise SpecificFunctionNotImplemented
         densities = [hist.counts(x, norm=norm) for hist in self.hists.values()]
         alphas = znp.array(list(self.hists.keys()), dtype=znp.float64)
         alpha = self.params["alpha"]
@@ -123,6 +148,8 @@ class SplineMorphingPDF(BaseBinnedPDFV1):
         return y
 
     def _ext_pdf(self, x, norm):
+        if not self._automatically_extended:
+            raise SpecificFunctionNotImplemented
         densities = [hist.ext_pdf(x, norm=norm) for hist in self.hists.values()]
         alphas = znp.array(list(self.hists.keys()), dtype=znp.float64)
         alpha = self.params["alpha"]

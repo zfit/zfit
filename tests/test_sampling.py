@@ -210,9 +210,9 @@ def test_sampling_floating(gauss_factory):
     sampler = gauss.create_sampler(n=n_draws, limits=(low, high), fixed_params=False)
     sampler.resample()
     sampled_from_gauss1 = sampler
-    assert max(sampled_from_gauss1[:, 0]) <= high
-    assert min(sampled_from_gauss1[:, 0]) >= low
-    assert n_draws == len(sampled_from_gauss1[:, 0])
+    assert max(sampled_from_gauss1.value()[:, 0]) <= high
+    assert min(sampled_from_gauss1.value()[:, 0]) >= low
+    assert n_draws == len(sampled_from_gauss1.value()[:, 0])
 
     nsample = 100000
     gauss_full_sample = gauss.create_sampler(
@@ -292,7 +292,9 @@ def test_importance_sampling():
         def __call__(self, n_to_produce, limits, dtype):
             importance_sampling_called[0] = True
             n_to_produce = tf.cast(n_to_produce, dtype=tf.int32)
-            gaussian_sample = gauss_sampler.sample(n=n_to_produce, limits=limits)
+            gaussian_sample = gauss_sampler.sample(
+                n=n_to_produce, limits=limits
+            ).value()
             weights = gauss_sampler.pdf(gaussian_sample)
             weights_max = None
             thresholds = tf.random.uniform(shape=(n_to_produce,), dtype=dtype)

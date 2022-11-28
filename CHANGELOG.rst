@@ -4,6 +4,34 @@ Changelog
 
 .. _newest-changelog:
 
+Develop
+========================
+
+Major Features and Improvements
+-------------------------------
+- columns of unbinned ``data`` can be accessed with the obs like a mapping (like a dataframe)
+- speedup builtin ``errors`` method and make it more robust
+
+Breaking changes
+------------------
+- ``Data`` can no longer be used directly as an array-like object but got mapping-like behavior.
+
+Deprecations
+-------------
+
+Bug fixes and small changes
+---------------------------
+- improved caching speed, reduced tradeoff against memory
+
+Experimental
+------------
+
+Requirement changes
+-------------------
+- add jacobi (many thanks at @HansDembinski for the package)
+
+Thanks
+------
 
 0.10.1 (31 Aug 2022)
 ========================
