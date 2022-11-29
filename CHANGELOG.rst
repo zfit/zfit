@@ -4,6 +4,11 @@ Changelog
 
 .. _newest-changelog:
 
+0.11.1 (20 Nov 2022)
+=========================
+
+Hotfix for wrong import
+
 0.11.0 (29 Nov 2022)
 ========================
 
