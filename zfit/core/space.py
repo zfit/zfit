@@ -36,7 +36,13 @@ from .coordinates import (
     convert_to_obs_str,
 )
 from .dimension import common_axes, common_obs, limits_overlap
-from .interfaces import ZfitLimit, ZfitOrderableDimensional, ZfitSpace, ZfitPDF
+from .interfaces import (
+    ZfitLimit,
+    ZfitOrderableDimensional,
+    ZfitSpace,
+    ZfitPDF,
+    ZfitData,
+)
 from .. import z
 from .._variables.axis import Binnings, RegularBinning
 from ..settings import ztypes
@@ -176,6 +182,8 @@ def convert_to_tensor_or_numpy(obj, dtype=ztypes.float):
 
 
 def _sanitize_x_input(x, n_obs):
+    if isinstance(x, ZfitData):
+        x = x.value()
     x = z.convert_to_tensor(x)
     if not x.shape.ndims > 1 and n_obs > 1:
         raise ValueError(
@@ -410,7 +418,7 @@ class Limit(
         """
         if not self.has_limits:
             raise LimitsNotSpecifiedError(
-                f"Limits are False or not set, cannot return the rectangular limits."
+                "Limits are False or not set, cannot return the rectangular limits."
             )
         rect_limits = self._rect_limits
         return rect_limits
@@ -856,6 +864,8 @@ class BaseSpace(ZfitSpace, BaseObject):
         return filtered
 
     def _filter(self, x, guarantee_limits):
+        if isinstance(x, ZfitData):
+            x = x.value()
         filtered = tf.boolean_mask(
             tensor=x, mask=self.inside(x, guarantee_limits=guarantee_limits)
         )
@@ -1443,7 +1453,7 @@ class Space(
         """
         if not self.has_limits:
             raise LimitsNotSpecifiedError(
-                f"Limits are False or not set, cannot return the rectangular limits."
+                "Limits are False or not set, cannot return the rectangular limits."
             )
         lower_ordered, upper_ordered = self._rect_limits_z()
         rect_limits = lower_ordered, upper_ordered
@@ -1457,7 +1467,7 @@ class Space(
         """
         if not self.has_limits:
             raise LimitsNotSpecifiedError(
-                f"Limits are False or not set, cannot return the rectangular limits."
+                "Limits are False or not set, cannot return the rectangular limits."
             )
         lower_ordered, upper_ordered = self._rect_limits_z()
         rect_limits = z.convert_to_tensor(lower_ordered), z.convert_to_tensor(

@@ -23,11 +23,6 @@ from ..util.warnings import warn_advanced_feature
 
 
 def constant(value, dtype=ztypes.float, shape=None, name="Const", verify_shape=None):
-    # TODO(tf2): remove this legacy thing below
-    if verify_shape is not None:
-        raise RuntimeError(
-            "'verify_shape' is not a valid argument anymore. It's always true. Please remove."
-        )
     return tf.constant(value, dtype=dtype, shape=shape, name=name)
 
 
@@ -161,7 +156,7 @@ def run_no_nan(func, x):
 class FunctionWrapperRegistry:
     registries = WeakSet()
     allow_jit = True
-    DEFAULT_CACHE_SIZE = 20
+    DEFAULT_CACHE_SIZE = 200
     _DEFAULT_DO_JIT_TYPES = defaultdict(lambda: True)
     _DEFAULT_DO_JIT_TYPES.update(
         {

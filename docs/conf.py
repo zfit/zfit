@@ -135,7 +135,7 @@ with open("subst_types.txt") as subst_types:
     rst_epilog = subst_types.read()
 
 # add whitespaces to the internal commands. Maybe move to preprocessing?
-rst_epilog += f"""
+rst_epilog += """
 .. |wzw| unicode:: U+200B
    :trim:
 

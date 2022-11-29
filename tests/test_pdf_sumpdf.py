@@ -1,4 +1,5 @@
 #  Copyright (c) 2022 zfit
+import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 import scipy.stats
@@ -100,7 +101,13 @@ def test_sampling():
     assert true_mu == pytest.approx(np.mean(sample), abs=tol)
     assert np.std(sample_true) == pytest.approx(np.std(sample), abs=tol)
 
-    assert scipy.stats.ks_2samp(sample_true, sample).pvalue > 0.05
+    plt.figure()
+    plt.title("Sampling of SumPDF")
+    plt.hist(sample, bins=100, density=True, label="sampled")
+    plt.hist(sample_true, bins=100, density=True, label="sampled true")
+    plt.legend()
+    pytest.zfit_savefig(folder="sampling")
+    assert scipy.stats.mannwhitneyu(sample, sample_true).pvalue > 0.05
 
 
 @pytest.mark.flaky(2)  # mc integration
@@ -110,7 +117,7 @@ def test_integrate():
     class SimpleSampleSumPDF(zfit.pdf.SumPDF):
         @zfit.supports()
         def _integrate(self, limits, norm, options):
-            raise SpecificFunctionNotImplemented  # fallback to the default sampling
+            raise SpecificFunctionNotImplemented  # force fallback to the default sampling
 
         @zfit.supports()
         def _analytic_integrate(self, limits, norm):

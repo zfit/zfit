@@ -7,6 +7,7 @@ dotmap
 hist
 iminuit>=2.3
 importlib-metadata; python_version <"3.8.0"
+jacobi
 numdifftools
 numpy>=1.16
 ordered-set
@@ -14,9 +15,9 @@ pandas
 pydantic
 scipy>=1.2
 tabulate
-tensorflow>=2.9, <2.11
+tensorflow>=2.10, <2.12
 tensorflow-addons
-tensorflow_probability>=0.17, <0.19
+tensorflow_probability>=0.18, <0.20
 texttable
 tf_quant_finance>=v0.0.1-dev24
 uhi

@@ -372,7 +372,7 @@ def adaptive_factory(func, grid):
             kde_silverman = constructor(
                 bandwidth="silverman",
                 data=data,
-                name=f"INTERNAL_for_adaptive_kde",
+                name="INTERNAL_for_adaptive_kde",
                 **kwargs,
             )
             grid = kde_silverman._grid
@@ -390,7 +390,7 @@ def adaptive_factory(func, grid):
             kde_silverman = constructor(
                 bandwidth="silverman",
                 data=data,
-                name=f"INTERNAL_for_adaptive_kde",
+                name="INTERNAL_for_adaptive_kde",
                 **kwargs,
             )
             return func(data=data, func=kde_silverman.pdf, weights=weights)
@@ -707,7 +707,7 @@ class GaussianKDE1DimV1(KDEHelper, WrapDistribution):
         if truncate:
             if not isinstance(obs, ZfitSpace):
                 raise ValueError(
-                    f"`obs` has to be a `ZfitSpace` if `truncated` is True."
+                    "`obs` has to be a `ZfitSpace` if `truncated` is True."
                 )
             inside = obs.inside(data)
             all_inside = znp.all(inside)
@@ -1329,7 +1329,7 @@ class KDE1DimFFT(KDEHelper, BasePDF):
                Has no programmatical functional purpose as identification. |@docend:model.init.name|
         """
         if isinstance(bandwidth, ZfitParameter):
-            raise TypeError(f"bandwidth cannot be a Parameter for the FFT KDE.")
+            raise TypeError("bandwidth cannot be a Parameter for the FFT KDE.")
         if num_grid_points is None:
             num_grid_points = self._default_num_grid_points
         if binning_method is None:

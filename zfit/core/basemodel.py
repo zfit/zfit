@@ -317,15 +317,6 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         if draws_simpson is not None:
             self.integration.draws_simpson = draws_simpson
 
-    # TODO: remove below? or add "analytic gradients"?
-    def gradient(
-        self,
-        x: ztyping.XType,
-        norm: ztyping.LimitsType,
-        params: ztyping.ParamsTypeOpt = None,
-    ):
-        raise NotImplementedError("Are the gradients needed?")
-
     def _check_input_norm(self, norm, none_is_error=False) -> ZfitSpace | None:
         """Convert to :py:class:`~zfit.Space`.
 
@@ -351,8 +342,6 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         if limits is None or (isinstance(limits, ZfitSpace) and not limits.has_limits):
             if none_is_error:
                 raise ValueError("The `limits` have to be specified and not be None")
-            # else:
-            #     limits = False
 
         return self._convert_sort_space(limits=limits)
 
@@ -406,12 +395,20 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
     ) -> ztyping.XType:
         """Integrate the function over ``limits`` (normalized over ``norm_range`` if not False).
 
+        If an analytic integration function is available, it is used, otherwise numerical methods will be invoked.
+        If the integration is in more than one dimension and no analytical integration method is provided, this can
+        be unstable and the PDF will warn that the accuracy target was not reached.
+
         Args:
-            * ():
-            options ():
-            limits: the limits to integrate over
-            norm: the limits to normalize over or False to integrate the
-                unnormalized probability
+            limits: |@doc:pdf.integrate.limits| Limits of the integration. |@docend:pdf.integrate.limits|
+            norm: |@doc:pdf.integrate.norm| Normalization of the integration.
+               By default, this is the same as the default space of the PDF.
+               ``False`` means no normalization and returns the unnormed integral. |@docend:pdf.integrate.norm|
+            options: |@doc:pdf.integrate.options| Options for the integration.
+               Additional options for the integration. Currently supported options are:
+               - type: one of (``bins``)
+                 This hints that bins are integrated. A method that is vectorizable, non-dynamic and
+                 therefore less suitable for complicated functions is chosen. |@docend:pdf.integrate.options|
 
         Returns:
             The integral value as a scalar with shape ()
@@ -568,8 +565,10 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         """Analytical integration over function and raise Error if not possible.
 
         Args:
-            limits: the limits to integrate over
-            norm: the limits to normalize over
+            limits: |@doc:pdf.integrate.limits| Limits of the integration. |@docend:pdf.integrate.limits|
+            norm: |@doc:pdf.integrate.norm| Normalization of the integration.
+               By default, this is the same as the default space of the PDF.
+               ``False`` means no normalization and returns the unnormed integral. |@docend:pdf.integrate.norm|
 
         Returns:
             The integral value
@@ -579,7 +578,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
                 means that no analytical normalization is available, explicitly: the **analytical**
                 integral over the limits = norm is not available.
         """
-
+        del norm_range  # taken care of in the deprecation decorator
         norm = self._check_input_norm(norm)
         limits = self._check_input_limits(limits=limits)
         return self._single_hook_analytic_integrate(limits=limits, norm=norm)
@@ -659,12 +658,20 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         """Numerical integration over the model.
 
         Args:
-            limits: the limits to integrate over
-            norm: the limits to normalize over
+            limits: |@doc:pdf.integrate.limits| Limits of the integration. |@docend:pdf.integrate.limits|
+            norm: |@doc:pdf.integrate.norm| Normalization of the integration.
+               By default, this is the same as the default space of the PDF.
+               ``False`` means no normalization and returns the unnormed integral. |@docend:pdf.integrate.norm|
+            options: |@doc:pdf.integrate.options| Options for the integration.
+               Additional options for the integration. Currently supported options are:
+               - type: one of (``bins``)
+                 This hints that bins are integrated. A method that is vectorizable, non-dynamic and
+                 therefore less suitable for complicated functions is chosen. |@docend:pdf.integrate.options|
 
         Returns:
             The integral value
         """
+        del norm_range  # taken care of in the deprecation decorator
         norm = self._check_input_norm(norm)
         limits = self._check_input_limits(limits=limits)
         if options is None:
@@ -747,11 +754,17 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         to the dimensions of `norm` (if not False)
 
         Args:
-            * ():
-            norm ():
-            options ():
             x: The value at which the partially integrated function will be evaluated
-            limits: the limits to integrate over. Can contain only some axes
+            limits: |@doc:pdf.partial_integrate.limits| Limits of the integration that will be integrated out.
+               Has to be a subset of the PDFs observables. |@docend:pdf.partial_integrate.limits|
+            norm: |@doc:pdf.integrate.norm| Normalization of the integration.
+               By default, this is the same as the default space of the PDF.
+               ``False`` means no normalization and returns the unnormed integral. |@docend:pdf.integrate.norm|
+            options: |@doc:pdf.integrate.options| Options for the integration.
+               Additional options for the integration. Currently supported options are:
+               - type: one of (``bins``)
+                 This hints that bins are integrated. A method that is vectorizable, non-dynamic and
+                 therefore less suitable for complicated functions is chosen. |@docend:pdf.integrate.options|
 
         Returns:
             The value of the partially integrated function evaluated at `x`.
@@ -871,18 +884,22 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
 
         Args:
             x: The value at which the partially integrated function will be evaluated
-            limits: the limits to integrate over. Can contain only some axes
-            norm: the limits to normalize over. Has to have all axes
+            limits: |@doc:pdf.partial_integrate.limits| Limits of the integration that will be integrated out.
+               Has to be a subset of the PDFs observables. |@docend:pdf.partial_integrate.limits|
+            norm: |@doc:pdf.integrate.norm| Normalization of the integration.
+               By default, this is the same as the default space of the PDF.
+               ``False`` means no normalization and returns the unnormed integral. |@docend:pdf.integrate.norm|
 
         Returns:
             The value of the partially integrated function evaluated at `x`.
 
         Raises:
-            AnalyticIntegralNotImplementedError: if the *analytic* integral (over this limits) is not implemented
+            AnalyticIntegralNotImplementedError: if the *analytic* integral (over these limits) is not implemented
             NormRangeNotImplementedError: if the *norm* argument is not supported. This
                 means that no analytical normalization is available, explicitly: the **analytical**
                 integral over the limits = norm is not available.
         """
+        del norm_range  # taken care of in the deprecation decorator
         norm = self._check_input_norm(norm=norm)
         limits = self._check_input_limits(limits=limits)
         with self._convert_sort_x(x, partial=True) as x:
@@ -978,12 +995,16 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
 
         Args:
             x: The value at which the partially integrated function will be evaluated
-            limits: the limits to integrate over. Can contain only some axes
-            norm: the limits to normalize over. Has to have all axes
+            limits: |@doc:pdf.partial_integrate.limits| Limits of the integration that will be integrated out.
+               Has to be a subset of the PDFs observables. |@docend:pdf.partial_integrate.limits|
+            norm: |@doc:pdf.integrate.norm| Normalization of the integration.
+               By default, this is the same as the default space of the PDF.
+               ``False`` means no normalization and returns the unnormed integral. |@docend:pdf.integrate.norm|
 
         Returns:
             The value of the partially integrated function evaluated at `x`.
         """
+        del norm_range  # taken care of in the deprecation decorator
         norm = self._check_input_norm(norm)
         limits = self._check_input_limits(limits=limits)
         with self._convert_sort_x(x, partial=True) as x:
@@ -1300,7 +1321,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             )
         except (SpecificFunctionNotImplemented, AnalyticIntegralNotImplemented):
             raise AnalyticSamplingNotImplemented(
-                f"analytic sampling not possible because the analytic integral"
+                "analytic sampling not possible because the analytic integral"
                 f" is not"
                 " implemented for the boundaries: {limits}"
             )
@@ -1448,4 +1469,4 @@ class SimpleModelSubclassMixin:
             )
         not_str = [param for param in params if not isinstance(param, str)]
         if not_str:
-            raise TypeError(f"The following parameters are not strings in `_PARAMS`: ")
+            raise TypeError("The following parameters are not strings in `_PARAMS`: ")

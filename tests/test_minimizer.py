@@ -378,8 +378,8 @@ def test_minimize_pure_func(params, minimizer_class_and_kwargs):
         assert pytest.approx(result.params[param]["hesse"]["error"], rel=0.15) == error
     param = list(result.params)[1]
     result.errors(param, name="errors")
-    assert pytest.approx(result.params[param]["errors"]["lower"], rel=0.15) == -0.61
-    assert pytest.approx(result.params[param]["errors"]["upper"], rel=0.15) == 0.7
+    assert pytest.approx(result.params[param]["errors"]["lower"], rel=0.15) == -0.53
+    assert pytest.approx(result.params[param]["errors"]["upper"], rel=0.15) == 0.56
 
 
 def test_dependent_param_extraction():
@@ -427,9 +427,11 @@ error_scales = {None: 1, 1: 1, 2: 2}
         "."
     )[-1],
 )
-@pytest.mark.flaky(reruns=3)
+# @pytest.mark.flaky(reruns=3)
 @pytest.mark.timeout(280)
 def test_minimizers(minimizer_class_and_kwargs, chunksize, numgrad, spaces, request):
+    import zfit.z.numpy as znp
+
     long_clarg = request.config.getoption("--longtests")
     # long_clarg = True
     # zfit.run.chunking.active = True
@@ -469,6 +471,7 @@ def test_minimizers(minimizer_class_and_kwargs, chunksize, numgrad, spaces, requ
 
     # run 3 times: once fully (as normal, once with a high tol first, then with a low restarting from the previous one)
     init_vals = zfit.run(params)
+
     result = minimizer.minimize(loss=loss)
     zfit.param.set_values(params, init_vals)
     result_hightol = minimizer_hightol.minimize(loss=loss)
@@ -484,7 +487,8 @@ def test_minimizers(minimizer_class_and_kwargs, chunksize, numgrad, spaces, requ
     assert result_lowtol.fmin == pytest.approx(result.fmin, abs=2.0)
     if not isinstance(minimizer, zfit.minimize.IpyoptV1):
         assert (
-            result_lowtol.info["n_eval"] < 1.2 * result.info["n_eval"]
+            result_lowtol.info["n_eval"]
+            < 1.2 * result.info["n_eval"] + 10  # +10 if it's very small, it's hard
         )  # should not be more, surely not a lot
 
     aval, bval, cval = (zfit.run(v) for v in (mu_param, sigma_param, lambda_param))

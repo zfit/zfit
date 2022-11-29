@@ -443,7 +443,7 @@ def test_deletion():
     import gc
 
     def func():
-        a = zfit.Parameter(f"param", 42)
+        a = zfit.Parameter("param", 42)
         return True
 
     assert func()
@@ -455,7 +455,7 @@ def test_deletion():
 def test_to_numpy():
     import zfit
 
-    param = zfit.Parameter(f"param", 42)
+    param = zfit.Parameter("param", 42)
     assert zfit.run(param) == 42
 
     p1 = zfit.param.ConstantParameter("aoeu1", 15)

@@ -326,12 +326,12 @@ def accept_reject_sample(
             n_to_produce=n_to_produce, limits=new_limits, dtype=dtype
         )
 
-        rnd_sample = Data.from_tensor(obs=new_limits, tensor=rnd_sample)
+        rnd_sample_data = Data.from_tensor(obs=new_limits, tensor=rnd_sample)
         n_drawn = tf.cast(n_drawn, dtype=tf.int64)
         if run.numeric_checks:
             tf.debugging.assert_non_negative(n_drawn)
         n_total_drawn += n_drawn
-        probabilities = prob(rnd_sample)
+        probabilities = prob(rnd_sample_data)
         shape_rnd_sample = tf.shape(input=rnd_sample)[0]
         if run.numeric_checks:
             tf.debugging.assert_equal(tf.shape(input=probabilities), shape_rnd_sample)

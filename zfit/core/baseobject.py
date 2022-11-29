@@ -1,8 +1,10 @@
 """Baseclass for most objects appearing in zfit."""
+
 #  Copyright (c) 2022 zfit
 
 from __future__ import annotations
 
+import contextlib
 import itertools
 import warnings
 from collections import OrderedDict
@@ -56,12 +58,10 @@ class BaseObject(ZfitObject):
     def __eq__(self, other: object) -> bool:
         if not isinstance(self, type(other)):
             return False
-        try:
+        with contextlib.suppress(AttributeError):
             for key, own_element in self._repr.items():
-                if not own_element == other._repr.get(key):  # TODO: make repr better
+                if not own_element == other._repr.get(key):
                     return False
-        except AttributeError:
-            pass
         return self is other
         # return True  # no break occurred
 

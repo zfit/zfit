@@ -7,7 +7,7 @@ import pytest
 
 
 @pytest.mark.parametrize("exact_nsample", [True, False], ids=["exact", "binomial sum"])
-def test_yield_bias(exact_nsample, ntoys=100):
+def test_yield_bias(exact_nsample, ntoys=300):
     import zfit
     import zfit.z.numpy as znp
 
@@ -49,7 +49,7 @@ def test_yield_bias(exact_nsample, ntoys=100):
     nll = zfit.loss.ExtendedUnbinnedNLL(model=model, data=data)
     nsigs = []
     nbkgs = []
-    minimizer = zfit.minimize.Minuit(gradient=False, tol=1e-05)
+    minimizer = zfit.minimize.Minuit(gradient=False, tol=1e-05, mode=2)
     failures = 0
     for _ in range(ntoys):
         zfit.param.set_values(params, true_vals)
@@ -77,11 +77,11 @@ def test_yield_bias(exact_nsample, ntoys=100):
         nsigs.append(nsig_res)
         nbkg_res = float(result.params[n_bkg]["value"])
         nbkgs.append(nbkg_res)
-        assert nsig_res + nbkg_res == pytest.approx(true_nsig + true_nbkg, abs=0.5)
+        assert nsig_res + nbkg_res == pytest.approx(true_nsig + true_nbkg, abs=0.6)
     nsigs_mean = np.mean(nsigs)
-    std_nsigs_mean = np.std(nsigs) / ntoys**0.5 * 4
+    std_nsigs_mean = np.std(nsigs) / ntoys**0.5 * 5
     nbkg_mean = np.mean(nbkgs)
-    std_nbkg_mean = np.std(nbkgs) / ntoys**0.5 * 4
+    std_nbkg_mean = np.std(nbkgs) / ntoys**0.5 * 5
     plt.figure("yield_bias_toys")
     plt.title(
         f'{"Exact" if exact_nsample else "Binomial sum"} sampled. Fit with {minimizer.name}.'

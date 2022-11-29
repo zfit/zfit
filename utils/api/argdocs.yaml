@@ -31,6 +31,32 @@ model.init.obs: |1+
 
                 The observables are not equal to the domain as it does not restrict or
                 truncate the model outside this range.
+binneddata.param.space: |1+
+    Binned space of the data.
+                The space is used to define the binning and the limits of the data.
+binneddata.param.values: |1+
+    Corresponds to the counts of the histogram.
+                Follows the definition of the
+                `Unified Histogram Interface (UHI) <https://uhi.readthedocs.io/en/latest/plotting.html#plotting>`_.
+
+binneddata.param.variances: |1+
+    Corresponds to the uncertainties of the histogram.
+                If ``True``, the uncertainties are created assuming that ``values``
+                have been drawn from a Poisson distribution. Follows the definition of the
+                `Unified Histogram Interface (UHI) <https://uhi.readthedocs.io/en/latest/plotting.html#plotting>`_.
+
+binnedpdf.pdf.x: |1+
+    Values to evaluate the PDF at.
+                If this is a ``ZfitBinnedData``-like object, a histogram of *densities*
+                will be returned. If x is a ``ZfitUnbinnedData``-like object, the densities will be
+                evaluated at the points of ``x``.
+
+binnedpdf.out.problike: |1+
+  If the input was unbinned, it returns an array
+                of shape (nevents,). If the input was binned, the dimensions and ordering of
+                the axes corresponds to the input axes.
+
+
 
 pdf.init.norm: |1+
   Normalization of the PDF.
@@ -40,6 +66,18 @@ pdf.pdf.norm: |1+
   Normalization of the function.
                 By default, this is the ``norm`` of the PDF (which by default is the same as
                 the space of the PDF).
+
+pdf.param.norm: |1+
+  Normalization of the function.
+                By default, this is the ``norm`` of the PDF (which by default is the same as
+                the space of the PDF). Should be ``ZfitSpace`` to define the space
+                to normalize over.
+
+pdf.param.x: |1+
+  Data to evaluate the method on. Should be ``ZfitData``
+                or a mapping of *obs* to numpy-like arrays.
+                If an array is given, the first dimension is interpreted as the events while
+                the second is meant to be the dimensionality of a single event.
 
 pdf.init.extended: |1+
   The overall yield of the PDF.
@@ -58,7 +96,9 @@ pdf.init.extended.auto: |1+
 pdf.integrate.limits: |1+
   Limits of the integration.
 
-
+pdf.partial_integrate.limits: |1+
+  Limits of the integration that will be integrated out.
+                Has to be a subset of the PDFs observables.
 pdf.integrate.norm: |1+
   Normalization of the integration.
                 By default, this is the same as the default space of the PDF.
@@ -69,6 +109,14 @@ pdf.integrate.options: |1+
                 - type: one of (``bins``)
                   This hints that bins are integrated. A method that is vectorizable, non-dynamic and
                   therefore less suitable for complicated functions is chosen.
+
+pdf.param.yield: |1+
+  Yield (expected number of events) of the PDF.
+                This is the expected number of events.
+                If this is parameter-like, it will be used as the yield,
+                the expected number of events, and the PDF will be extended.
+                An extended PDF has additional functionality, such as the
+                ``ext_*`` methods and the ``counts`` (for binned PDFs).
 
 pdf.sample.n: |1+
   Number of samples to draw.

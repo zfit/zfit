@@ -2,7 +2,7 @@
 import pytest
 
 
-@pytest.mark.parametrize("n", [300, 10000, 200_000], ids=lambda x: f"samplesize={x:,}")
+@pytest.mark.parametrize("n", [500, 10000, 200_000], ids=lambda x: f"samplesize={x:,}")
 @pytest.mark.parametrize(
     "floatall", [True, False], ids=["floatAll", "floatSigBkgLambdaOnly"]
 )
@@ -135,14 +135,22 @@ def test_sig_bkg_fit(n, floatall, use_sampler, nbins, use_wrapper, request):
     mu.floating = True
     minimizer.minimize(nll_unbinned)
     mu.floating = False
-    param_vals = np.linspace(mu.value() - 0.6, mu.value() + 0.6)
+    param_vals = np.linspace(mu.value() - 0.3, mu.value() + 0.3)
     nlls = []
     nlls_binned = []
     for val in param_vals:
         mu.set_value(val)
-        minimizer.minimize(nll_unbinned)
+        try:
+            minimizer.minimize(nll_unbinned)
+        except Exception:
+            continue
+
         nlls.append(nll_unbinned.value())
-        minimizer.minimize(nll)
+        try:
+            minimizer.minimize(nll)
+        except Exception:
+            nlls.pop(-1)
+            continue
         nlls_binned.append(nll.value())
 
     plt.figure()

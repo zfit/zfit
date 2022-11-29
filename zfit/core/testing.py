@@ -45,7 +45,7 @@ class AutoTester:
 
         if isinstance(analytic_int_axes, tuple):
             raise TypeError(
-                f"`analytic_int_axes` is either a number or a list of tuples."
+                "`analytic_int_axes` is either a number or a list of tuples."
             )
         analytic_int_axes = convert_to_container(
             analytic_int_axes, non_containers=[tuple]

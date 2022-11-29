@@ -150,7 +150,7 @@ def _preprocess_init_sum(fracs, obs, pdfs):
         raise ValueError(f"Cannot build a sum of less than two pdfs {pdfs}")
     common_obs = obs if obs is not None else pdfs[0].obs
     common_obs = convert_to_obs_str(common_obs)
-    if not all(frozenset(pdf.obs) == frozenset(common_obs) for pdf in pdfs):
+    if any(frozenset(pdf.obs) != frozenset(common_obs) for pdf in pdfs):
         raise ObsIncompatibleError(
             "Currently, sums are only supported in the same observables"
         )

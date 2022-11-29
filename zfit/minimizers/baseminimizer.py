@@ -590,7 +590,7 @@ class BaseMinimizer(ZfitMinimizer):
             if self._is_stateful:
                 n = len(self._state["params"])
             else:
-                raise ValueError(f"n cannot be None if not called within minimize")
+                raise ValueError("n cannot be None if not called within minimize")
         maxiter = self.maxiter
         if callable(maxiter):
             maxiter = maxiter(n)
@@ -624,13 +624,13 @@ class BaseMinimizer(ZfitMinimizer):
             if self._is_stateful:
                 loss = self._state["loss"]
             else:
-                raise ValueError(f"loss cannot be None if not called within minimize")
+                raise ValueError("loss cannot be None if not called within minimize")
 
         if params is None:
             if self._is_stateful:
                 params = self._state["params"]
             else:
-                raise ValueError(f"params cannot be None if not called within minimize")
+                raise ValueError("params cannot be None if not called within minimize")
 
         if numpy_converter is None:
             numpy_converter = False
@@ -686,13 +686,13 @@ class BaseMinimizer(ZfitMinimizer):
             if self._is_stateful:
                 loss = self._state["loss"]
             else:
-                raise ValueError(f"loss cannot be None if not called within minimize")
+                raise ValueError("loss cannot be None if not called within minimize")
 
         if params is None:
             if self._is_stateful:
                 params = self._state["params"]
             else:
-                raise ValueError(f"params cannot be None if not called within minimize")
+                raise ValueError("params cannot be None if not called within minimize")
 
         criterion = self.criterion(tol=self.tol, loss=loss, params=params)
         if self._is_stateful:

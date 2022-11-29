@@ -9,3 +9,5 @@ zfit.egg-info/
 /.cache/
 /.pytest_cache/
 /build/
+.editorconfig
+tmp/*

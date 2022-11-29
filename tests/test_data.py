@@ -253,15 +253,8 @@ def test_from_tensors(weights_factory):
 
 
 def test_overloaded_operators(data1):
-    a = data1 * 5.0
-    example_data1 = data1.value().numpy()
-    np.testing.assert_array_equal(5 * example_data1, a.numpy())
-    np.testing.assert_array_equal(example_data1, data1.numpy())
-    data_squared = data1 * data1
-    np.testing.assert_allclose(example_data1**2, data_squared.numpy(), rtol=1e-8)
-    np.testing.assert_allclose(
-        np.log(example_data1), tf.math.log(data1).numpy(), rtol=1e-8
-    )
+    with pytest.raises(TypeError):
+        a = data1 * 5.0
 
 
 def test_sort_by_obs(data1, obs3d):
@@ -284,6 +277,24 @@ def test_sort_by_obs(data1, obs3d):
 
     assert data1.obs == obs3d
     np.testing.assert_array_equal(example_data1, data1.value().numpy())
+
+
+def test_data_axis_access(obs3d, data1):
+    import zfit.z.numpy as znp
+
+    true_mapping = {
+        obs: znp.reshape(arr, (-1, 1))
+        for obs, arr in zip(obs3d, data1.value().numpy().T)
+    }
+    for obs in obs3d:
+        np.testing.assert_allclose(data1.value(obs), true_mapping[obs][:, 0])
+        np.testing.assert_allclose(data1.value([obs]), true_mapping[obs])
+        np.testing.assert_allclose(data1[obs], true_mapping[obs][:, 0])
+        np.testing.assert_allclose(data1[[obs]], true_mapping[obs])
+    obs2d = [obs3d[2], obs3d[1]]
+    array2d = znp.concatenate([true_mapping[obs] for obs in obs2d], axis=1)
+    np.testing.assert_allclose(data1[obs2d], array2d)
+    np.testing.assert_allclose(data1.value(obs2d), array2d)
 
 
 def test_subdata(obs3d, data1):
