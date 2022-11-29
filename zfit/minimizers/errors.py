@@ -7,7 +7,6 @@ import warnings
 from typing import TYPE_CHECKING
 
 import jacobi
-import tqdm
 
 from ..util.exception import BreakingAPIChangeError
 
