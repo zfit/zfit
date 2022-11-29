@@ -20,6 +20,7 @@ Breaking changes
 Bug fixes and small changes
 ---------------------------
 - improved caching speed, reduced tradeoff against memory
+- yields were not added correctly in some (especially binned) PDFs and the fit would fail
 
 Requirement changes
 -------------------
