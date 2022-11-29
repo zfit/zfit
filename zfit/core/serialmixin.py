@@ -3,6 +3,8 @@ from __future__ import annotations
 
 import pydantic
 
+from zfit.util.warnings import warn_experimental_feature
+
 
 class ZfitSerializable:
     hs3_type: str = None
@@ -24,13 +26,16 @@ class SerializableMixin(ZfitSerializable):
     def __init_subclass__(cls, **kwargs):
         cls.hs3 = create_HS3(cls)
 
+    @warn_experimental_feature
     def to_json(self):
+
         from zfit.serialization import Serializer
 
         Serializer.initialize()
         orm = self.get_repr().from_orm(self)
         return orm.json(exclude_none=True, by_alias=True)
 
+    @warn_experimental_feature
     @classmethod
     def from_json(cls, json):
         from zfit.serialization import Serializer
@@ -39,6 +44,7 @@ class SerializableMixin(ZfitSerializable):
         orm = cls.get_repr().parse_raw(json)
         return orm.to_orm()
 
+    @warn_experimental_feature
     def to_dict(self):
         from zfit.serialization import Serializer
 
@@ -46,6 +52,7 @@ class SerializableMixin(ZfitSerializable):
         orm = self.get_repr().from_orm(self)
         return orm.dict(exclude_none=True, by_alias=True)
 
+    @warn_experimental_feature
     def from_dict(self, dict_):
         from zfit.serialization import Serializer
 

@@ -1,6 +1,5 @@
 #  Copyright (c) 2022 zfit
 import copy
-import pprint
 
 import pytest
 from frozendict import frozendict
@@ -14,10 +13,9 @@ def test_serial_space():
 
     space = zfit.Space("x", (-1, 1))
     json1 = space.to_json()
-    print(json1)
     space2 = zfit.Space.get_repr().parse_raw(json1).to_orm()
     space2_direct = zfit.Space.hs3.from_json(json1)
-    print(space2)
+
     assert space == space2
     assert space == space2_direct
     json2 = space2.to_json()
@@ -33,9 +31,8 @@ def test_serial_param():
     param = zfit.Parameter("mu", 0.1, -1, 1)
 
     json1 = param.to_json()
-    print(json1)
     param2 = zfit.Parameter.get_repr().parse_raw(json1).to_orm()
-    print(param2)
+
     assert param == param2
     json2 = param2.to_json()
     assert json1 == json2
@@ -243,9 +240,8 @@ def test_serial_hs3_pdfs(pdf, extended):
         pdf.set_yield(scale)
 
     hs3json = zserial.Serializer.to_hs3(pdf)
-    pprint.pprint(hs3json)
     loaded = zserial.Serializer.from_hs3(hs3json)
-    pprint.pprint(loaded)
+
     loaded_pdf = list(loaded["pdfs"].values())[0]
     assert str(pdf) == str(loaded_pdf)
     x = znp.linspace(-3, 3, 100)
@@ -346,7 +342,6 @@ def test_replace_matching():
     target_test["pdfs"] = zserial.serializer.replace_matching(
         target_test["pdfs"], replace_forward
     )
-    pprint.pprint(target_test)
     assert target_test == target_dict
     replace_backward = {
         k: lambda x=k: target_dict["variables"][x]
@@ -356,7 +351,7 @@ def test_replace_matching():
     original_test["pdfs"] = zserial.serializer.replace_matching(
         original_test["pdfs"], replace_backward
     )
-    pprint.pprint(original_test)
+
     assert original_test == original_dict
 
 
@@ -368,11 +363,8 @@ def test_dumpload_pdf(pdfcreator):
     pdf = pdfcreator()
     param1 = list(pdf.get_params())[0]
     json1 = pdf.to_json()
-    print("json1", json1)
     gauss2_raw = pdf.__class__.get_repr().parse_raw(json1)
-    print("gauss2_raw", gauss2_raw)
     gauss2 = gauss2_raw.to_orm()
-    print(gauss2)
     assert str(pdf) == str(gauss2)
     json2 = gauss2.to_json()
     json1cleaned = json1

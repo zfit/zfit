@@ -17,6 +17,7 @@ from typing_extensions import Literal, Annotated
 from zfit.core.interfaces import ZfitParameter
 from zfit.core.serialmixin import ZfitSerializable
 from zfit.util.exception import WorkInProgressError
+from zfit.util.warnings import warn_experimental_feature
 
 
 @dataclass
@@ -115,6 +116,7 @@ class Serializer:
 
         own_cls.types.add_pdf_repr(repr)
 
+    @warn_experimental_feature
     @classmethod
     def to_hs3(cls, obj):
         cls.initialize()
@@ -174,6 +176,7 @@ class Serializer:
                 )
             cls.is_initialized = True
 
+    @warn_experimental_feature
     @classmethod
     def from_hs3(cls, load):
         cls.initialize()
