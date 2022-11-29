@@ -401,6 +401,5 @@ def test_binned_sampler(ndim):
 
     sampler.resample(n=nsampled)
     # start = time.time()
-    # for _ in tqdm.tqdm(range(15)):
     #     sampler.resample(n=nsampled)
     # print(f"Time taken {(time.time() - start)}")
