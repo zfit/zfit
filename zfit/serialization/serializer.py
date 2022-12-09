@@ -6,7 +6,7 @@ import copy
 import functools
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Union, Mapping, Iterable, Dict, List, TypeVar, Optional
+from typing import Any, Union, Mapping, Iterable, Dict, List, TypeVar, Optional, Tuple
 
 import pydantic
 import tensorflow as tf
@@ -14,7 +14,7 @@ from frozendict import frozendict
 from pydantic import Field
 from typing_extensions import Literal, Annotated
 
-from zfit.core.interfaces import ZfitParameter
+from zfit.core.interfaces import ZfitParameter, ZfitPDF
 from zfit.core.serialmixin import ZfitSerializable
 from zfit.util.exception import WorkInProgressError
 from zfit.util.warnings import warn_experimental_feature
@@ -30,6 +30,7 @@ alias1 = Aliases(hs3_type="type")
 
 class Types:
     def __init__(self):
+        """Hold all types that are used in the serialization, automatically collects parameters and PDFs."""
         self._pdf_repr = []
         self._param_repr = []
         self.block_forward_refs = True
@@ -37,6 +38,14 @@ class Types:
         self.DUMMYTYPE = TypeVar("DUMMYTYPE")
 
     def one_or_many(self, repr):
+        """Returns either a single or a list of the given repr correctly annotated.
+
+        Args:
+            repr: The repr to be annotated.
+
+        Returns:
+            The annotated repr.
+        """
         if self.block_forward_refs:
             raise NameError(
                 "Internal error, should always be caught! If you see this, most likely the annotation"
@@ -73,10 +82,13 @@ class Types:
     def ListParamInputTypeDiscriminated(self):
         return List[self.ParamInputTypeDiscriminated]
 
-    def add_pdf_repr(self, repr):
+    def register_repr(self, repr: Union[ZfitPDF, ZfitParameter]) -> None:
+        """Register a repr to be used in the serialization such as PDF or Parameter.
+
+        Args:
+            repr: The repr to be registered.
+        """
         cls = repr._implementation
-        from ..core.interfaces import ZfitPDF
-        from ..core.interfaces import ZfitParameter
 
         if issubclass(cls, ZfitPDF):
             self._pdf_repr.append(repr)
@@ -93,7 +105,12 @@ class Serializer:
     _deserializing = False
 
     @classmethod
-    def register(own_cls, repr):
+    def register(own_cls, repr: ZfitSerializable) -> None:
+        """Register a repr to be used in the HS3 serialization.
+
+        Args:
+            repr: The repr to be registered.
+        """
         cls = repr._implementation
         if not issubclass(cls, ZfitSerializable):
             raise TypeError(
@@ -114,11 +131,44 @@ class Serializer:
         else:
             raise ValueError(f"Type {hs3_type} already registered")
 
-        own_cls.types.add_pdf_repr(repr)
+        own_cls.types.register_repr(repr)
+
+    @classmethod
+    def initialize(cls) -> None:
+        """Initialize the serializer by evaluating all the forward references.
+
+        This is a necessary implementation trick to work properly with pydantics caching as we cannot modify an existing
+        Type after it has been created. This is necessary to register new types as possible options (say a new PDF is
+        registered and can be a possibility in a SumPDF) on the fly.
+        """
+        if not cls.is_initialized:
+            cls.types.block_forward_refs = False
+            for repr in cls.constructor_repr.values():
+                repr.update_forward_refs(
+                    **{"Union": Union, "List": List, "Literal": Literal}
+                )
+            cls.is_initialized = True
 
     @warn_experimental_feature
     @classmethod
-    def to_hs3(cls, obj):
+    def to_hs3(cls, obj: Union[List[ZfitPDF], Tuple[ZfitPDF], ZfitPDF]) -> str:
+        """Serialize a PDF or a list of PDFs to a JSON string according to the HS3 standard.
+
+        .. warning::
+            This is an experimental feature and the API might change in the future. DO NOT RELY ON THE OUTPUT FOR
+            ANYTHING ELSE THAN TESTING.
+
+        HS3 is the `HEP Statistics Serialization Standard <https://github.com/hep-statistics-serialization-standard/hep-statistics-serialization-standard>`_.
+        It is a JSON/YAML-based serialization that is a
+        coordinated effort of the HEP community to standardize the serialization of statistical models. The standard
+        is still in development and is not yet finalized. This function is experimental and may change in the future.
+
+
+        Args:
+            obj: The PDF or list of PDFs to be serialized.
+
+        Returns:
+        """
         cls.initialize()
 
         serial_kwargs = {"exclude_none": True, "by_alias": True}
@@ -166,19 +216,9 @@ class Serializer:
 
         return out
 
-    @classmethod
-    def initialize(cls):
-        if not cls.is_initialized:
-            cls.types.block_forward_refs = False
-            for repr in cls.constructor_repr.values():
-                repr.update_forward_refs(
-                    **{"Union": Union, "List": List, "Literal": Literal}
-                )
-            cls.is_initialized = True
-
     @warn_experimental_feature
     @classmethod
-    def from_hs3(cls, load):
+    def from_hs3(cls, load: Mapping[str, Mapping]) -> ZfitPDF:
         cls.initialize()
         for param, paramdict in load["variables"].items():
             if "value" in paramdict:

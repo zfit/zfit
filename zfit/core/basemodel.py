@@ -1148,6 +1148,11 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         """
 
         limits = self._check_input_limits(limits=limits)
+        if isinstance(n, str):
+            n = None
+        if n is not None:
+            n = tf.convert_to_tensor(n)
+            n = tf.cast(n, dtype=tf.int32)
 
         if not limits.limits_are_set:
             limits = self.space  # TODO(Mayou36): clean up, better norm_range?
@@ -1212,7 +1217,9 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             ValueError: if n is an invalid string option.
             InvalidArgumentError: if n is not specified and pdf is not extended.
         """
-        if not isinstance(n, str) and n is not None:
+        if isinstance(n, str):
+            n = None
+        if n is not None:
             n = tf.convert_to_tensor(n)
             n = tf.cast(n, dtype=tf.int32)
 
