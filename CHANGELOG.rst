@@ -4,6 +4,28 @@ Changelog
 
 .. _newest-changelog:
 
+Develop
+========================
+
+
+Breaking changes
+------------------
+
+Deprecations
+-------------
+
+Bug fixes and small changes
+---------------------------
+
+Experimental
+------------
+
+Requirement changes
+-------------------
+
+Thanks
+------
+
 0.11.1 (20 Nov 2022)
 =========================
 
