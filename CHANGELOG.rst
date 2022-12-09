@@ -16,6 +16,7 @@ Deprecations
 
 Bug fixes and small changes
 ---------------------------
+- ``create_extended`` added ``None`` to the name, removed.
 
 Experimental
 ------------

@@ -576,7 +576,7 @@ class BasePDF(ZfitPDF, BaseModel):
                 "This PDF is already extended, cannot create an extended one."
             )
         try:
-            new_pdf = self.copy(name=self.name + str(name_addition))
+            new_pdf = self.copy(name=self.name)
         except Exception as error:
             raise RuntimeError(
                 f"PDF {self} could not be copied, therefore `create_extended` failed and a new "
