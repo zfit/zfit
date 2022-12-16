@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Union, Optional
+from typing import TYPE_CHECKING
 
 import xxhash
 from tensorflow.python.util.deprecation import deprecated_args, deprecated
 
 from .parameter import set_values
+from .serialmixin import ZfitSerializable
 
 if TYPE_CHECKING:
     import zfit
@@ -16,7 +17,6 @@ from collections.abc import Mapping
 from collections.abc import Callable
 
 from collections import OrderedDict
-from contextlib import ExitStack
 
 import numpy as np
 import pandas as pd
@@ -30,7 +30,7 @@ from .. import z
 from ..settings import ztypes, run
 from ..util import ztyping
 from ..util.cache import GraphCachable, invalidate_graph
-from ..util.container import convert_to_container, is_container
+from ..util.container import convert_to_container
 from ..util.exception import (
     ObsIncompatibleError,
     ShapeIncompatibleError,
@@ -41,12 +41,13 @@ from .baseobject import BaseObject
 from .coordinates import convert_to_obs_str
 from .dimension import BaseDimensional
 from .interfaces import ZfitSpace, ZfitUnbinnedData
-from .tensorlike import register_tensor_conversion, OverloadableMixin
 from .space import Space, convert_to_space
 
 
 # TODO: make cut only once, then remember
-class Data(ZfitUnbinnedData, BaseDimensional, BaseObject, GraphCachable):
+class Data(
+    ZfitUnbinnedData, BaseDimensional, BaseObject, GraphCachable, ZfitSerializable
+):
     BATCH_SIZE = 1000000  # 1 mio
 
     def __init__(
@@ -671,6 +672,13 @@ class Data(ZfitUnbinnedData, BaseDimensional, BaseObject, GraphCachable):
                 f" resembles more closely the behavior of a pandas DataFrame."
             ) from error
         return value
+
+
+# TODO(serialization): add to serializer
+# class DataRepr(BaseRepr):
+#     _implementation = Data
+#     _owndict = pydantic.PrivateAttr(default_factory=dict)
+#     hs3_type: Literal["Data"] = Field("Data", alias="type")
 
 
 def getitem_obs(self, item):

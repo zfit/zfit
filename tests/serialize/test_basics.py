@@ -227,6 +227,20 @@ all_pdfs = basic_pdfs + [
 ]
 
 
+# TODO(serialization): add to serializer
+# def test_loss_serialization():
+#     import zfit
+#
+#     for pdf_factory in all_pdfs:
+#         pdf = pdf_factory()
+#         data = zfit.Data.from_numpy(obs=pdf.space, array=np.random.normal(size=1000))
+#         # print(pdf)
+#         loss = zfit.loss.UnbinnedNLL(pdf, data)
+#         loss_json = loss.to_json()
+#         print(loss_json)
+#         break
+
+
 @pytest.mark.parametrize("pdf", all_pdfs, ids=lambda x: x.__name__)
 @pytest.mark.parametrize("extended", [True, None], ids=["extended", "not extended"])
 def test_serial_hs3_pdfs(pdf, extended):

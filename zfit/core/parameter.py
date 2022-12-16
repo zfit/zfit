@@ -492,7 +492,7 @@ class Parameter(
             abstol = 1e-5
         else:
             reltol = 1e-5
-            abstol = 1e-8
+            abstol = 1e-7
         tol = znp.minimum(diff * reltol, abstol)  # if one limit is inf we would get inf
         if not exact:  # if exact, we wanna allow to set it slightly over the limit.
             tol = -tol  # If not, we wanna make sure it's inside

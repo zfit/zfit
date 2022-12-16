@@ -14,7 +14,13 @@ from frozendict import frozendict
 from pydantic import Field
 from typing_extensions import Literal, Annotated
 
-from zfit.core.interfaces import ZfitParameter, ZfitPDF
+from zfit.core.interfaces import (
+    ZfitParameter,
+    ZfitPDF,
+    ZfitData,
+    ZfitBinnedData,
+    ZfitConstraint,
+)
 from zfit.core.serialmixin import ZfitSerializable
 from zfit.util.exception import WorkInProgressError
 from zfit.util.warnings import warn_experimental_feature
@@ -31,6 +37,8 @@ alias1 = Aliases(hs3_type="type")
 class Types:
     def __init__(self):
         """Hold all types that are used in the serialization, automatically collects parameters and PDFs."""
+        self._constraint_repr = []
+        self._data_repr = []
         self._pdf_repr = []
         self._param_repr = []
         self.block_forward_refs = True
@@ -67,6 +75,14 @@ class Types:
         return self.one_or_many(self._pdf_repr)
 
     @property
+    def DataTypeDiscriminated(self):
+        return self.one_or_many(self._data_repr)
+
+    @property
+    def ConstraintTypeDiscriminated(self):
+        return self.one_or_many(self._constraint_repr)
+
+    @property
     def ParamTypeDiscriminated(self):
         return self.one_or_many(self._param_repr)
 
@@ -94,6 +110,10 @@ class Types:
             self._pdf_repr.append(repr)
         elif issubclass(cls, ZfitParameter):
             self._param_repr.append(repr)
+        elif issubclass(cls, (ZfitData, ZfitBinnedData)):
+            self._data_repr.append(repr)
+        elif issubclass(cls, ZfitConstraint):
+            self._constraint_repr.append(repr)
 
 
 class Serializer:
@@ -149,8 +169,8 @@ class Serializer:
                 )
             cls.is_initialized = True
 
-    @warn_experimental_feature
     @classmethod
+    @warn_experimental_feature
     def to_hs3(cls, obj: Union[List[ZfitPDF], Tuple[ZfitPDF], ZfitPDF]) -> str:
         """Serialize a PDF or a list of PDFs to a JSON string according to the HS3 standard.
 
@@ -216,8 +236,8 @@ class Serializer:
 
         return out
 
-    @warn_experimental_feature
     @classmethod
+    @warn_experimental_feature
     def from_hs3(cls, load: Mapping[str, Mapping]) -> ZfitPDF:
         cls.initialize()
         for param, paramdict in load["variables"].items():

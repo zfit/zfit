@@ -663,8 +663,6 @@ class BasePDF(ZfitPDF, BaseModel):
         Returns:
             The yield of the current model or None
         """
-        if not self.is_extended:
-            raise ExtendedPDFError("PDF is not extended, cannot get yield.")
         return self._yield
 
     @property
