@@ -588,7 +588,6 @@ class BasePDF(ZfitPDF, BaseModel):
         return new_pdf
 
     def set_yield(self, value):
-
         """Make the model extended **inplace** by setting a yield. If possible, prefer to use ``create_extended``.
 
         This does not alter the general behavior of the PDF. The ``pdf`` and ``integrate`` and similar methods will

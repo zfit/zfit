@@ -14,7 +14,6 @@ import tensorflow as tf
 
 
 class linalg:
-
     inv = staticmethod(tf.linalg.inv)
     det = staticmethod(tf.linalg.det)
     solve = staticmethod(tf.linalg.solve)
