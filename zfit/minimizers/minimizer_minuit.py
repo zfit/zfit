@@ -252,7 +252,6 @@ class Minuit(BaseMinimizer, GraphCachable):
         return fitresult
 
     def _make_minuit(self, loss, params, init):
-
         evaluator = self.create_evaluator(loss, params)
 
         # create options

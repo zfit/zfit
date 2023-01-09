@@ -79,7 +79,6 @@ def register_tensor_conversion(
 
 
 class OverloadableMixin(ZfitParameter):
-
     # Conversion to tensor.
     @staticmethod
     def _TensorConversionFunction(
@@ -155,7 +154,6 @@ register_tensor_conversion(OverloadableMixin, overload_operators=True)
 
 class WrappedVariable(metaclass=MetaBaseParameter):
     def __init__(self, initial_value, constraint, *args, **kwargs):
-
         super().__init__(*args, **kwargs)
         self.variable = tf.Variable(
             initial_value=initial_value,

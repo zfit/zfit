@@ -1402,7 +1402,6 @@ class KDE1DimFFT(KDEHelper, BasePDF):
         )
 
     def _unnormalized_pdf(self, x):
-
         x = z.unstack_x(x)
         x_min = self._grid[0]
         x_max = self._grid[-1]

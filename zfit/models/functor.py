@@ -181,7 +181,6 @@ class SumPDF(BaseFunctor):
 
     @supports(multiple_limits=True)
     def _partial_integrate(self, x, limits, norm, *, options):
-
         pdfs = self.pdfs
         fracs = self.fracs
 
