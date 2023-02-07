@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 from __future__ import annotations
 
 import pydantic
@@ -14,6 +14,9 @@ class ZfitSerializable:
         from zfit.serialization import Serializer
 
         return Serializer.type_repr[cls.hs3_type]
+
+    def to_orm(self):
+        raise NotImplementedError
 
 
 class SerializableMixin(ZfitSerializable):
@@ -35,8 +38,8 @@ class SerializableMixin(ZfitSerializable):
         orm = self.get_repr().from_orm(self)
         return orm.json(exclude_none=True, by_alias=True)
 
-    @warn_experimental_feature
     @classmethod
+    @warn_experimental_feature
     def from_json(cls, json):
         from zfit.serialization import Serializer
 
@@ -52,12 +55,13 @@ class SerializableMixin(ZfitSerializable):
         orm = self.get_repr().from_orm(self)
         return orm.dict(exclude_none=True, by_alias=True)
 
+    @classmethod
     @warn_experimental_feature
-    def from_dict(self, dict_):
+    def from_dict(cls, dict_):
         from zfit.serialization import Serializer
 
         Serializer.initialize()
-        orm = self.get_repr().parse_obj(dict_)
+        orm = cls.get_repr().parse_obj(dict_)
         return orm.to_orm()
 
     @classmethod

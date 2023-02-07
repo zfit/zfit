@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 from __future__ import annotations
 
 import contextlib
@@ -178,16 +178,20 @@ class Serializer:
             This is an experimental feature and the API might change in the future. DO NOT RELY ON THE OUTPUT FOR
             ANYTHING ELSE THAN TESTING.
 
-        HS3 is the `HEP Statistics Serialization Standard <https://github.com/hep-statistics-serialization-standard/hep-statistics-serialization-standard>`_.
-        It is a JSON/YAML-based serialization that is a
-        coordinated effort of the HEP community to standardize the serialization of statistical models. The standard
-        is still in development and is not yet finalized. This function is experimental and may change in the future.
+        THIS FUNCTION DOESN'T YET ADHERE TO HS3 (but just as a proxy).
+
+        |@doc:hs3.explain| HS3 is the `HEP Statistics Serialization Standard <https://github.com/hep-statistics-serialization-standard/hep-statistics-serialization-standard>`_.
+                   It is a JSON/YAML-based serialization that is a
+                   coordinated effort of the HEP community to standardize the serialization of statistical models. The standard
+                   is still in development and is not yet finalized. This function is experimental and may change in the future. |@docend:hs3.explain|
+
 
 
         Args:
             obj: The PDF or list of PDFs to be serialized.
 
         Returns:
+            mapping: The serialized objects as a mapping. The keys are 'pdfs' and 'variables' as well as a 'metadata' key
         """
         cls.initialize()
 
@@ -238,7 +242,29 @@ class Serializer:
 
     @classmethod
     @warn_experimental_feature
-    def from_hs3(cls, load: Mapping[str, Mapping]) -> ZfitPDF:
+    def from_hs3(
+        cls, load: Mapping[str, Mapping]
+    ) -> Mapping[str, Union[ZfitPDF, ZfitParameter]]:
+        """Load a PDF or a list of PDFs from a JSON string according to the HS3 standard.
+
+        .. warning::
+            This is an experimental feature and the API might change in the future. DO NOT RELY ON THE OUTPUT FOR
+            ANYTHING ELSE THAN TESTING.
+
+        THIS FUNCTION DOESN'T YET ADHERE TO HS3 (but just as a proxy).
+
+        |@doc:hs3.explain| HS3 is the `HEP Statistics Serialization Standard <https://github.com/hep-statistics-serialization-standard/hep-statistics-serialization-standard>`_.
+                   It is a JSON/YAML-based serialization that is a
+                   coordinated effort of the HEP community to standardize the serialization of statistical models. The standard
+                   is still in development and is not yet finalized. This function is experimental and may change in the future. |@docend:hs3.explain|
+
+        Args:
+            load: The serialized objects as a mapping. The keys are 'pdfs' and 'variables' as well as a 'metadata' key
+              and following the HS3 standard.
+
+        Returns:
+            mapping: The PDFs and variables as a mapping to the original keys.
+        """
         cls.initialize()
         for param, paramdict in load["variables"].items():
             if "value" in paramdict:
@@ -262,6 +288,8 @@ class Serializer:
             repr = Serializer.type_repr[param["type"]]
             repr_inst = repr(**param)
             out["variables"][name] = repr_inst.to_orm()
+        out["metadata"] = load["metadata"].copy()
+        out = cls.post_deserialize(out)
         return out
 
     @classmethod
@@ -289,6 +317,10 @@ class Serializer:
             k: lambda x=k: out["variables"][x] for k in out["variables"].keys()
         }
         out["pdfs"] = replace_matching(out["pdfs"], replace_backward)
+        return out
+
+    @classmethod
+    def post_deserialize(cls, out):
         return out
 
 

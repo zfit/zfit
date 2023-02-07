@@ -1,7 +1,5 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 from __future__ import annotations
-
-import warnings
 
 from .serializer import Serializer
 from .spacerepr import SpaceRepr

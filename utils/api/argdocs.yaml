@@ -698,3 +698,10 @@ result.init.evaluator: |1+
 result.init.values: |1+
     Values of the parameters at the
                     found minimum.
+
+
+hs3.explain: |1+
+    HS3 is the `HEP Statistics Serialization Standard <https://github.com/hep-statistics-serialization-standard/hep-statistics-serialization-standard>`_.
+                    It is a JSON/YAML-based serialization that is a
+                    coordinated effort of the HEP community to standardize the serialization of statistical models. The standard
+                    is still in development and is not yet finalized. This function is experimental and may change in the future.
