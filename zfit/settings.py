@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 
 import numpy as np
 import tensorflow as tf
@@ -10,9 +10,12 @@ run = RunManager()
 
 
 def set_seed(seed):
-    """Set random seed for numpy."""
+    """Set random seed for numpy and TensorFlow."""
     np.random.seed(seed)
-    tf.random.set_seed(seed)
+    if seed is None:
+        seed = tf.random.get_global_generator().make_seeds(1)
+    tf.random.get_global_generator().reset_from_seed(seed)
+    # tf.random.set_seed(seed)
 
 
 _verbosity = 0

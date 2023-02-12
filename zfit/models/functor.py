@@ -4,7 +4,7 @@ A FunctorBase class is provided to make handling the models easier.
 
 Their implementation is often non-trivial.
 """
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 
 from __future__ import annotations
 
@@ -224,7 +224,7 @@ class SumPDF(BaseFunctor):
                 sub_sample = sub_sample.value()
             samples.append(sub_sample)
         sample = znp.concatenate(samples, axis=0)
-        sample = tf.random.shuffle(sample)
+        sample = z.random.shuffle(sample)
         return sample
 
 
