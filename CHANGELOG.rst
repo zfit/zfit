@@ -17,6 +17,7 @@ Deprecations
 Bug fixes and small changes
 ---------------------------
 - ``create_extended`` added ``None`` to the name, removed.
+- adding binned losses would error due to the removed ``fit_range`` argument.
 
 Experimental
 ------------
@@ -26,6 +27,9 @@ Requirement changes
 
 Thanks
 ------
+- Dan Johnson for finding the bug in the binned loss that would fail to sum them up.
+- Hanae Tilquin for spotting the bug with TensorFlows changed behavior or random states inside a tf.function,
+  leading to biased samples whenever a global seed was set.
 
 0.11.1 (20 Nov 2022)
 =========================
