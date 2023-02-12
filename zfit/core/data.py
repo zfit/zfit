@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 
 from __future__ import annotations
 
@@ -51,13 +51,13 @@ class Data(ZfitUnbinnedData, BaseDimensional, BaseObject, GraphCachable):
     BATCH_SIZE = 1000000  # 1 mio
 
     def __init__(
-        self,
-        dataset: tf.data.Dataset | LightDataset,
-        obs: ztyping.ObsTypeInput = None,
-        name: str = None,
-        weights=None,
-        dtype: tf.DType = None,
-        use_hash: bool = None,
+            self,
+            dataset: tf.data.Dataset | LightDataset,
+            obs: ztyping.ObsTypeInput = None,
+            name: str = None,
+            weights=None,
+            dtype: tf.DType = None,
+            use_hash: bool = None,
     ):
         """Create a data holder from a ``dataset`` used to feed into ``models``.
 
@@ -201,13 +201,13 @@ class Data(ZfitUnbinnedData, BaseDimensional, BaseObject, GraphCachable):
 
     @classmethod
     def from_pandas(
-        cls,
-        df: pd.DataFrame,
-        obs: ztyping.ObsTypeInput = None,
-        weights: ztyping.WeightsInputType | str = None,
-        name: str = None,
-        dtype: tf.DType = None,
-        use_hash: bool = None,
+            cls,
+            df: pd.DataFrame,
+            obs: ztyping.ObsTypeInput = None,
+            weights: ztyping.WeightsInputType | str = None,
+            name: str = None,
+            dtype: tf.DType = None,
+            use_hash: bool = None,
     ):
         """Create a ``Data`` from a pandas DataFrame. If ``obs`` is ``None``, columns are used as obs.
 
@@ -257,20 +257,20 @@ class Data(ZfitUnbinnedData, BaseDimensional, BaseObject, GraphCachable):
         "branches_alias",
     )
     def from_root(
-        cls,
-        path: str,
-        treepath: str,
-        obs: ZfitSpace = None,
-        *,
-        weights: ztyping.WeightsStrInputType = None,
-        obs_alias: Mapping[str, str] = None,
-        name: str = None,
-        dtype: tf.DType = None,
-        root_dir_options=None,
-        use_hash: bool = None,
-        # deprecated
-        branches: list[str] = None,
-        branches_alias: dict = None,
+            cls,
+            path: str,
+            treepath: str,
+            obs: ZfitSpace = None,
+            *,
+            weights: ztyping.WeightsStrInputType = None,
+            obs_alias: Mapping[str, str] = None,
+            name: str = None,
+            dtype: tf.DType = None,
+            root_dir_options=None,
+            use_hash: bool = None,
+            # deprecated
+            branches: list[str] = None,
+            branches_alias: dict = None,
     ) -> Data:
         """Create a ``Data`` from a ROOT file. Arguments are passed to ``uproot``.
 
@@ -348,13 +348,13 @@ class Data(ZfitUnbinnedData, BaseDimensional, BaseObject, GraphCachable):
 
     @classmethod
     def from_numpy(
-        cls,
-        obs: ztyping.ObsTypeInput,
-        array: np.ndarray,
-        weights: ztyping.WeightsInputType = None,
-        name: str = None,
-        dtype: tf.DType = None,
-        use_hash=None,
+            cls,
+            obs: ztyping.ObsTypeInput,
+            array: np.ndarray,
+            weights: ztyping.WeightsInputType = None,
+            name: str = None,
+            dtype: tf.DType = None,
+            use_hash=None,
     ):
         """Create ``Data`` from a ``np.array``.
 
@@ -371,7 +371,7 @@ class Data(ZfitUnbinnedData, BaseDimensional, BaseObject, GraphCachable):
         """
 
         if not isinstance(array, (np.ndarray)) and not (
-            tf.is_tensor(array) and hasattr(array, "numpy")
+                tf.is_tensor(array) and hasattr(array, "numpy")
         ):
             raise TypeError(
                 f"`array` has to be a `np.ndarray`. Is currently {type(array)}"
@@ -390,13 +390,13 @@ class Data(ZfitUnbinnedData, BaseDimensional, BaseObject, GraphCachable):
 
     @classmethod
     def from_tensor(
-        cls,
-        obs: ztyping.ObsTypeInput,
-        tensor: tf.Tensor,
-        weights: ztyping.WeightsInputType = None,
-        name: str = None,
-        dtype: tf.DType = None,
-        use_hash=None,
+            cls,
+            obs: ztyping.ObsTypeInput,
+            tensor: tf.Tensor,
+            weights: ztyping.WeightsInputType = None,
+            name: str = None,
+            dtype: tf.DType = None,
+            use_hash=None,
     ) -> Data:
         """Create a ``Data`` from a ``tf.Tensor``. ``Value`` simply returns the tensor (in the right order).
 
@@ -614,10 +614,10 @@ class Data(ZfitUnbinnedData, BaseDimensional, BaseObject, GraphCachable):
 
     # TODO(Mayou36): refactor with pdf or other range things?
     def _convert_sort_space(
-        self,
-        obs: ztyping.ObsTypeInput = None,
-        axes: ztyping.AxesTypeInput = None,
-        limits: ztyping.LimitsTypeInput = None,
+            self,
+            obs: ztyping.ObsTypeInput = None,
+            axes: ztyping.AxesTypeInput = None,
+            limits: ztyping.LimitsTypeInput = None,
     ) -> Space | None:
         """Convert the inputs (using eventually ``obs``, ``axes``) to
         :py:class:`~zfit.Space` and sort them according to own `obs`.
@@ -662,13 +662,13 @@ class SampleData(Data):
     _cache_counting = 0
 
     def __init__(
-        self,
-        dataset: tf.data.Dataset | LightDataset,
-        obs: ztyping.ObsTypeInput = None,
-        weights=None,
-        name: str = None,
-        dtype: tf.DType = ztypes.float,
-        use_hash: bool = None,
+            self,
+            dataset: tf.data.Dataset | LightDataset,
+            obs: ztyping.ObsTypeInput = None,
+            weights=None,
+            name: str = None,
+            dtype: tf.DType = ztypes.float,
+            use_hash: bool = None,
     ):
         super().__init__(
             dataset,
@@ -687,12 +687,12 @@ class SampleData(Data):
 
     @classmethod
     def from_sample(
-        cls,
-        sample: tf.Tensor,
-        obs: ztyping.ObsTypeInput,
-        name: str = None,
-        weights=None,
-        use_hash: bool = None,
+            cls,
+            sample: tf.Tensor,
+            obs: ztyping.ObsTypeInput,
+            name: str = None,
+            weights=None,
+            use_hash: bool = None,
     ):
         dataset = LightDataset.from_tensor(sample)
         return SampleData(
@@ -704,17 +704,17 @@ class Sampler(Data):
     _cache_counting = 0
 
     def __init__(
-        self,
-        dataset: LightDataset,
-        sample_func: Callable,
-        sample_holder: tf.Variable,
-        n: ztyping.NumericalScalarType | Callable,
-        weights=None,
-        fixed_params: dict[zfit.Parameter, ztyping.NumericalScalarType] = None,
-        obs: ztyping.ObsTypeInput = None,
-        name: str = None,
-        dtype: tf.DType = ztypes.float,
-        use_hash: bool = None,
+            self,
+            dataset: LightDataset,
+            sample_func: Callable,
+            sample_holder: tf.Variable,
+            n: ztyping.NumericalScalarType | Callable,
+            weights=None,
+            fixed_params: dict[zfit.Parameter, ztyping.NumericalScalarType] = None,
+            obs: ztyping.ObsTypeInput = None,
+            name: str = None,
+            dtype: tf.DType = ztypes.float,
+            use_hash: bool = None,
     ):
 
         super().__init__(
@@ -773,15 +773,15 @@ class Sampler(Data):
 
     @classmethod
     def from_sample(
-        cls,
-        sample_func: Callable,
-        n: ztyping.NumericalScalarType,
-        obs: ztyping.ObsTypeInput,
-        fixed_params=None,
-        name: str = None,
-        weights=None,
-        dtype=None,
-        use_hash: bool = None,
+            cls,
+            sample_func: Callable,
+            n: ztyping.NumericalScalarType,
+            obs: ztyping.ObsTypeInput,
+            fixed_params=None,
+            name: str = None,
+            weights=None,
+            dtype=None,
+            use_hash: bool = None,
     ):
         obs = convert_to_space(obs)
 
@@ -833,7 +833,7 @@ class Sampler(Data):
             temp_param_values.update(param_values)
 
         with set_values(
-            list(temp_param_values.keys()), list(temp_param_values.values())
+                list(temp_param_values.keys()), list(temp_param_values.values())
         ):
 
             # if not (n and self._initial_resampled):  # we want to load and make sure that it's initialized
@@ -881,10 +881,10 @@ class LightDataset:
 
 
 def sum_samples(
-    sample1: ZfitUnbinnedData,
-    sample2: ZfitUnbinnedData,
-    obs: ZfitSpace,
-    shuffle: bool = False,
+        sample1: ZfitUnbinnedData,
+        sample2: ZfitUnbinnedData,
+        obs: ZfitSpace,
+        shuffle: bool = False,
 ):
     samples = [sample1, sample2]
     if obs is None:
