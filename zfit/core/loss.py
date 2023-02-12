@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 
 from __future__ import annotations
 
@@ -241,7 +241,6 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         return params
 
     def _input_check(self, pdf, data, fit_range):
-
         if isinstance(pdf, tuple):
             raise TypeError("`pdf` has to be a pdf or a list of pdfs, not a tuple.")
         if isinstance(data, tuple):
@@ -685,7 +684,6 @@ class UnbinnedNLL(BaseLoss):
             )
 
     def _loss_func(self, model, data, fit_range, constraints, log_offset):
-
         return self._loss_func_watched(
             data=data,
             model=model,
@@ -1016,7 +1014,6 @@ class SimpleLoss(BaseLoss):
 
     # @z.function(wraps='loss')
     def _loss_func(self, model, data, fit_range, constraints=None, log_offset=None):
-
         try:
             params = self._simple_func_params
             params = tuple(params)

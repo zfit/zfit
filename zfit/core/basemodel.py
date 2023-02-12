@@ -2,7 +2,7 @@
 
 Handle integration and sampling
 """
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 
 from __future__ import annotations
 
@@ -457,7 +457,6 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         return integral
 
     def _call_integrate(self, limits, norm, options):
-
         with suppress(FunctionNotImplemented):
             return self._integrate(limits, norm, options=options)
         with suppress(AnalyticIntegralNotImplemented):
@@ -823,7 +822,6 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         return integral
 
     def _call_partial_integrate(self, x, limits, norm, *, options):
-
         with suppress(FunctionNotImplemented):
             return self._partial_integrate(
                 x=x, limits=limits, norm=norm, options=options
@@ -1181,7 +1179,6 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
 
     @z.function(wraps="sampler")
     def _create_sampler_tensor(self, limits, n):
-
         sample = self._single_hook_sample(n=n, limits=limits, x=None)
         return sample
 
@@ -1363,7 +1360,6 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         cls._additional_repr = dict(cls._additional_repr, **kwargs)
 
     def _get_additional_repr(self, sorted=True):
-
         # nice name change
         sorted_ = sorted
         sorted = builtins.sorted
@@ -1388,7 +1384,6 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         return additional_repr
 
     def __repr__(self):  # TODO(mayou36):repr to baseobject with _repr
-
         return "<zfit.{type_name} " " params=[{params}]".format(
             type_name=type(self),
             params=", ".join(sorted(str(p.name) for p in self.params.values())),
