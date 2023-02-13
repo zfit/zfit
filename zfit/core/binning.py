@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 import warnings
 
 import hist
@@ -104,6 +104,7 @@ def unbinned_to_binned(data, space, binned_class=None):
     if weights is not None:
         weights = znp.array(weights)
     edges = tuple(space.binning.edges)
+    raise RuntimeError("What about multidim datasets? Edges etc?")
     values, variances = tf.numpy_function(
         unbinned_to_hist_eager,
         inp=[values, edges, weights],
