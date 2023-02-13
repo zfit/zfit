@@ -7,3 +7,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: fauguste/auto-cancellation-running-action@0.1.4
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
