@@ -467,7 +467,7 @@ class Data(ZfitUnbinnedData, BaseDimensional, BaseObject, GraphCachable):
         df = pd.DataFrame(data=values, columns=obs_str)
         return df
 
-    def unstack_x(self, obs: ztyping.ObsTypeInput = None):
+    def unstack_x(self, obs: ztyping.ObsTypeInput = None, always_list=None):
         """Return the unstacked data: a list of tensors or a single Tensor.
 
         Args:
@@ -476,7 +476,7 @@ class Data(ZfitUnbinnedData, BaseDimensional, BaseObject, GraphCachable):
         Returns:
             List(tf.Tensor)
         """
-        return z.unstack_x(self.value(obs=obs))
+        return z.unstack_x(self.value(obs=obs), always_list=always_list)
 
     def value(self, obs: ztyping.ObsTypeInput = None):
         """Return the data as a numpy-like object in ``obs`` order.
@@ -855,7 +855,7 @@ class LightDataset:
             tensor = z.convert_to_tensor(tensor)
         self.tensor = tensor
 
-    def batch(self):  # ad-hoc just empty
+    def batch(self, _):  # ad-hoc just empty, mimicking tf.data.Dataset interface
         return self
 
     def __iter__(self):
