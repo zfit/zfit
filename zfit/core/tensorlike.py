@@ -9,7 +9,7 @@ from zfit.core import interfaces as zinterfaces
 
 
 def register_tensor_conversion(
-        convertable, name=None, overload_operators=True, priority=10
+    convertable, name=None, overload_operators=True, priority=10
 ):  # higher than any tf conversion
     def _dense_var_to_tensor(var, dtype=None, name=None, as_ref=False):
         return var._dense_var_to_tensor(dtype=dtype, name=name, as_ref=as_ref)
@@ -29,7 +29,7 @@ class OverloadableMixin:
     # Conversion to tensor.
     @staticmethod
     def _TensorConversionFunction(
-            v, dtype=None, name=None, as_ref=False
+        v, dtype=None, name=None, as_ref=False
     ):  # pylint: disable=invalid-name
         """Utility function for converting a Variable to a Tensor."""
         _ = name
@@ -100,7 +100,7 @@ class OverloadableMixinValues:
     # Conversion to tensor.
     @staticmethod
     def _TensorConversionFunction(
-            v, dtype=None, name=None, as_ref=False
+        v, dtype=None, name=None, as_ref=False
     ):  # pylint: disable=invalid-name
         """Utility function for converting a Variable to a Tensor."""
         _ = name

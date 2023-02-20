@@ -119,14 +119,14 @@ def _BasePDF_register_check_support(has_support: bool):
 
 class BasePDF(ZfitPDF, BaseModel):
     def __init__(
-            self,
-            obs: ztyping.ObsTypeInput,
-            params: dict[str, ZfitParameter] = None,
-            dtype: type = ztypes.float,
-            name: str = "BasePDF",
-            extended=None,
-            norm=None,
-            **kwargs,
+        self,
+        obs: ztyping.ObsTypeInput,
+        params: dict[str, ZfitParameter] = None,
+        dtype: type = ztypes.float,
+        name: str = "BasePDF",
+        extended=None,
+        norm=None,
+        **kwargs,
     ):
         super().__init__(obs=obs, dtype=dtype, name=name, params=params, **kwargs)
 
@@ -202,7 +202,7 @@ class BasePDF(ZfitPDF, BaseModel):
         raise SpecificFunctionNotImplemented
 
     def normalization(
-            self, limits: ztyping.LimitsType, *, options=None
+        self, limits: ztyping.LimitsType, *, options=None
     ) -> ztyping.XType:
         """Return the normalization of the function (usually the integral over ``limits``).
 
@@ -267,11 +267,11 @@ class BasePDF(ZfitPDF, BaseModel):
     @z.function(wraps="model")
     @deprecated_norm_range
     def ext_pdf(
-            self,
-            x: ztyping.XTypeInput,
-            norm: ztyping.LimitsTypeInput = None,
-            *,
-            norm_range=None,
+        self,
+        x: ztyping.XTypeInput,
+        norm: ztyping.LimitsTypeInput = None,
+        *,
+        norm_range=None,
     ) -> ztyping.XType:
         """Probability density function scaled by yield, normalized over ``norm_range``.
 
@@ -317,11 +317,11 @@ class BasePDF(ZfitPDF, BaseModel):
     @z.function(wraps="model")
     @deprecated_norm_range
     def ext_log_pdf(
-            self,
-            x: ztyping.XTypeInput,
-            norm: ztyping.LimitsTypeInput = None,
-            *,
-            norm_range=None,
+        self,
+        x: ztyping.XTypeInput,
+        norm: ztyping.LimitsTypeInput = None,
+        *,
+        norm_range=None,
     ) -> ztyping.XType:
         """Log of probability density function scaled by yield, normalized over ``norm_range``.
 
@@ -373,11 +373,11 @@ class BasePDF(ZfitPDF, BaseModel):
     @deprecated_norm_range
     @z.function(wraps="model")
     def pdf(
-            self,
-            x: ztyping.XTypeInput,
-            norm: ztyping.LimitsTypeInput = None,
-            *,
-            norm_range=None,
+        self,
+        x: ztyping.XTypeInput,
+        norm: ztyping.LimitsTypeInput = None,
+        *,
+        norm_range=None,
     ) -> ztyping.XType:
         """Probability density function of ``x``, normalized over ``norm``.
 
@@ -422,7 +422,7 @@ class BasePDF(ZfitPDF, BaseModel):
         if self.is_extended:
             with suppress(FunctionNotImplemented):
                 return (
-                        self._ext_pdf(x, norm) / self.get_yield()
+                    self._ext_pdf(x, norm) / self.get_yield()
                 )  # TODO: extend/refactor the calling
 
         return self._fallback_pdf(x, norm)
@@ -440,7 +440,7 @@ class BasePDF(ZfitPDF, BaseModel):
 
     @deprecated_norm_range
     def log_pdf(
-            self, x: ztyping.XType, norm: ztyping.LimitsType = None, *, norm_range=None
+        self, x: ztyping.XType, norm: ztyping.LimitsType = None, *, norm_range=None
     ) -> ztyping.XType:
         """Log probability density function normalized over ``norm_range``.
 
@@ -486,12 +486,12 @@ class BasePDF(ZfitPDF, BaseModel):
     @z.function(wraps="model")
     @deprecated_norm_range
     def ext_integrate(
-            self,
-            limits: ztyping.LimitsType,
-            norm: ztyping.LimitsType = None,
-            *,
-            norm_range=None,
-            options=None,
+        self,
+        limits: ztyping.LimitsType,
+        norm: ztyping.LimitsType = None,
+        *,
+        norm_range=None,
+        options=None,
     ) -> ztyping.XType:
         """Integrate the function over ``limits`` (normalized over ``norm_range`` if not False).
 
@@ -518,11 +518,11 @@ class BasePDF(ZfitPDF, BaseModel):
         if not self.is_extended:
             raise NotExtendedPDFError(f"{self} is not extended, cannot call `ext_pdf`")
         return (
-                self.integrate(limits=limits, norm=norm, options=options) * self.get_yield()
+            self.integrate(limits=limits, norm=norm, options=options) * self.get_yield()
         )
 
     def _apply_yield(
-            self, value: float, norm: ztyping.LimitsType, log: bool
+        self, value: float, norm: ztyping.LimitsType, log: bool
     ) -> float | tf.Tensor:
         if self.is_extended and not norm.limits_are_false:
             if log:
@@ -546,11 +546,11 @@ class BasePDF(ZfitPDF, BaseModel):
         self._set_yield(value=value)
 
     def create_extended(
-            self,
-            yield_: ztyping.ParamTypeInput,
-            name: str = None,
-            *,
-            name_addition: str = None,
+        self,
+        yield_: ztyping.ParamTypeInput,
+        name: str = None,
+        *,
+        name_addition: str = None,
     ) -> ZfitPDF:
         """Return an extended version of this pdf with yield ``yield_``. The parameters are shared.
 
@@ -666,10 +666,10 @@ class BasePDF(ZfitPDF, BaseModel):
         return self._yield
 
     def _get_params(
-            self,
-            floating: bool | None = True,
-            is_yield: bool | None = None,
-            extract_independent: bool | None = True,
+        self,
+        floating: bool | None = True,
+        is_yield: bool | None = None,
+        extract_independent: bool | None = True,
     ) -> set[ZfitParameter]:
 
         params = super()._get_params(
@@ -692,7 +692,7 @@ class BasePDF(ZfitPDF, BaseModel):
         return params
 
     def create_projection_pdf(
-            self, limits: ztyping.LimitsTypeInput, *, options=None, limits_to_integrate=None
+        self, limits: ztyping.LimitsTypeInput, *, options=None, limits_to_integrate=None
     ) -> ZfitPDF:
         """Create a PDF projection by integrating out some dimensions.
 
@@ -753,7 +753,7 @@ class BasePDF(ZfitPDF, BaseModel):
         from ..models.polynomials import RecursivePolynomial
 
         if (
-                type(self) == WrapDistribution
+            type(self) == WrapDistribution
         ):  # NOT isinstance! Because e.g. Gauss wraps that and takes different args
             parameters = dict(
                 distribution=self._distribution, dist_params=self.dist_params
