@@ -60,7 +60,6 @@ def minimize_supports(*, init: bool = False) -> Callable:
     """
 
     def wrapper(func):
-
         parameters = inspect.signature(func).parameters
         keys = list(parameters.keys())
         init_str = "init"
