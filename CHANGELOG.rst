@@ -17,6 +17,7 @@ Deprecations
 Bug fixes and small changes
 ---------------------------
 - ``create_extended`` added ``None`` to the name, removed.
+- ``SimpleConstraint`` now also takes a function that has an explicit ``params`` argument.
 
 Experimental
 ------------
@@ -26,6 +27,7 @@ Requirement changes
 
 Thanks
 ------
+@P-H-Wagner for finding the bug in ``SimpleConstraint``.
 
 0.11.1 (20 Nov 2022)
 =========================

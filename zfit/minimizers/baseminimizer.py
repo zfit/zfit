@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 """Definition of minimizers, wrappers etc."""
 from __future__ import annotations
 
@@ -60,7 +60,6 @@ def minimize_supports(*, init: bool = False) -> Callable:
     """
 
     def wrapper(func):
-
         parameters = inspect.signature(func).parameters
         keys = list(parameters.keys())
         init_str = "init"
