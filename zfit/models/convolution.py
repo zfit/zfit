@@ -211,6 +211,7 @@ class FFTConvPDFV1(BaseFunctor):
             nbins_func_exact_max
         )  # plus one and floor is like ceiling (we want more bins) with the
         # guarantee that we add one bin (e.g. if we hit exactly the boundaries, we add one.
+        nbins_func = n
         nbins_kernel = n
         # n = max(n, npoints_scaling)
         # TODO: below needed if we try to estimate the number of points
@@ -297,14 +298,6 @@ class FFTConvPDFV1(BaseFunctor):
         #     y_kernel_rect = tf.linalg.adjoint(y_kernel_rect)
 
         # get correct shape for tf.nn.convolution
-        print(" * * * ")
-        print("y_func_rect")
-        print(y_func_rect)
-        print(" * * * ")
-        print(" * * * ")
-        print("func_dims")
-        print(func_dims)
-        print(" * * * ")
         y_func_rect_conv = znp.reshape(y_func_rect, (1, *func_dims, 1))
         y_kernel_rect_conv = znp.reshape(y_kernel_rect, (*kernel_dims, 1, 1))
 
