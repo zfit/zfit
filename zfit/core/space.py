@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 
 from __future__ import annotations
 
@@ -617,7 +617,7 @@ class Limit(
             return 1
         return self.rect_lower.shape[0]
 
-    def equal(self, other: object, allow_graph: bool = True) -> bool | tf.Tensor:
+    def equal(self, other: object, allow_graph: bool = True) -> tf.Tensor:
         """Compare the limits on equality. For ANY objects, this also returns true.
 
         If called inside a graph context *and* the limits are tensors, this will return a symbolic `tf.Tensor`.
@@ -632,7 +632,7 @@ class Limit(
              IllegalInGraphModeError: if `allow_graph`
         """
         if not isinstance(other, ZfitLimit):
-            return False
+            return znp.array(False)
         return equal_limits(self, other, allow_graph=allow_graph)
 
     def __eq__(self, other: object) -> bool:
@@ -655,7 +655,7 @@ class Limit(
         #                   " identity tests. To prevent this, use numpy objects, not tensors, for limits if not needed.")
         #     return self is other
 
-    def less_equal(self, other: object, allow_graph: bool = True) -> bool | tf.Tensor:
+    def less_equal(self, other: object, allow_graph: bool = True) -> znp.array:
         """Set-like comparison for compatibility. If an object is less_equal to another, the limits are combatible.
 
         This can be used to determine whether a fitting range specification can handle another limit.
@@ -674,7 +674,7 @@ class Limit(
              IllegalInGraphModeError: it the comparison happens with tensors in a graph context.
         """
         if not isinstance(other, ZfitLimit):
-            return False
+            return znp.array(False)
         return less_equal_limits(self, other, allow_graph=allow_graph)
 
     def __le__(self, other: object) -> bool:
@@ -735,9 +735,9 @@ def rect_limits_are_any(limit: ZfitLimit) -> bool:
         return False
 
 
-def less_equal_limits(limit1: Limit, limit2: Limit, allow_graph=True) -> bool:
+def less_equal_limits(limit1: Limit, limit2: Limit, allow_graph=True) -> znp.array:
     if rect_limits_are_any(limit1) or rect_limits_are_any(limit2):
-        return True
+        return znp.array(True)
 
     try:
         lower1, upper1 = limit1.rect_limits_np
@@ -761,7 +761,7 @@ def less_equal_limits(limit1: Limit, limit2: Limit, allow_graph=True) -> bool:
 
     # if one is functional, one is rect: the bigger one can be rect
     elif not limit1.has_rect_limits and limit2.has_rect_limits:
-        funcs_equal = True
+        funcs_equal = znp.array(True)
     else:
         funcs_equal = limit1.limit_fn == limit2.limit_fn
     return z.unstable.logical_and(rect_limits_le, funcs_equal)
@@ -770,11 +770,11 @@ def less_equal_limits(limit1: Limit, limit2: Limit, allow_graph=True) -> bool:
 def equal_limits(limit1: Limit, limit2: Limit, allow_graph=True) -> bool:
     # if both are functional, we just need to compare their functions; the rect limits are "irrelevant"
     if not (limit1.has_rect_limits or limit2.has_rect_limits):
-        return limit1.limit_fn == limit2.limit_fn
+        return znp.array(limit1.limit_fn == limit2.limit_fn)
 
     # if one is functional, one is rect: they are not the same
     elif limit1.has_rect_limits ^ limit2.has_rect_limits:
-        return False
+        return znp.array(False)
 
     try:
         lower, upper = limit1.rect_limits_np
