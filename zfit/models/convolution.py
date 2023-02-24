@@ -113,10 +113,11 @@ class FFTConvPDFV1(BaseFunctor):
         run.assert_executing_eagerly()
         valid_interpolations = ("spline", "linear")
 
-        obs = func.space if obs is None else obs ### convolved pdf obs = func obs if obs not explicitly given when initialised
+        obs = (
+            func.space if obs is None else obs
+        )  ### convolved pdf obs = func obs if obs not explicitly given when initialised
         super().__init__(obs=obs, pdfs=[func, kernel], params={}, name=name)
-        
-        
+
         if self.n_obs > 1:
             raise WorkInProgressError(
                 "More than 1 dimensional convolutions are currently not supported."
@@ -241,11 +242,10 @@ class FFTConvPDFV1(BaseFunctor):
             "nbins_kernel": nbins_kernel,
             "nbins_func": nbins_func,
         }
-        
+
         ### define subcomponent obs
         self.obs_func = func.space
         self.obs_kernel = kernel.space
-        
 
     @z.function(wraps="model_convolution")
     def _unnormalized_pdf(self, x):
