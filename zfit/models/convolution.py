@@ -15,7 +15,7 @@ from ..core.space import supports
 from ..util import ztyping
 from ..util.exception import ShapeIncompatibleError, WorkInProgressError
 
-print("hello world")
+
 class FFTConvPDFV1(BaseFunctor):
     def __init__(
         self,
@@ -113,9 +113,10 @@ class FFTConvPDFV1(BaseFunctor):
         run.assert_executing_eagerly()
         valid_interpolations = ("spline", "linear")
 
-        obs = func.space if obs is None else obs
+        obs = func.space if obs is None else obs ### convolved pdf obs = func obs if obs not explicitly given when initialised
         super().__init__(obs=obs, pdfs=[func, kernel], params={}, name=name)
-
+        
+        
         if self.n_obs > 1:
             raise WorkInProgressError(
                 "More than 1 dimensional convolutions are currently not supported."
@@ -239,6 +240,11 @@ class FFTConvPDFV1(BaseFunctor):
             "nbins_kernel": nbins_kernel,
             "nbins_func": nbins_func,
         }
+        
+        ### define subcomponent obs
+        self.obs_func = func.space
+        self.obs_kernel = kernel.space
+        
 
     @z.function(wraps="model_convolution")
     def _unnormalized_pdf(self, x):
@@ -255,12 +261,12 @@ class FFTConvPDFV1(BaseFunctor):
         x_func = tf.meshgrid(*tf.unstack(x_funcs, axis=-1), indexing="ij")
         x_func = znp.transpose(x_func)
         x_func_flatish = znp.reshape(x_func, (-1, self.n_obs))
-        data_func = Data.from_tensor(tensor=x_func_flatish, obs=self.obs)
+        data_func = Data.from_tensor(tensor=x_func_flatish, obs=self.obs_func)
 
         x_kernel = tf.meshgrid(*tf.unstack(x_kernels, axis=-1), indexing="ij")
         x_kernel = znp.transpose(x_kernel)
         x_kernel_flatish = znp.reshape(x_kernel, (-1, self.n_obs))
-        data_kernel = Data.from_tensor(tensor=x_kernel_flatish, obs=self.obs)
+        data_kernel = Data.from_tensor(tensor=x_kernel_flatish, obs=self.obs_kernel)
 
         y_func = self.pdfs[0].pdf(data_func, norm=False)
         y_kernel = self.pdfs[1].pdf(data_kernel, norm=False)
@@ -291,6 +297,14 @@ class FFTConvPDFV1(BaseFunctor):
         #     y_kernel_rect = tf.linalg.adjoint(y_kernel_rect)
 
         # get correct shape for tf.nn.convolution
+        print(" * * * ")
+        print("y_func_rect")
+        print(y_func_rect)
+        print(" * * * ")
+        print(" * * * ")
+        print("func_dims")
+        print(func_dims)
+        print(" * * * ")
         y_func_rect_conv = znp.reshape(y_func_rect, (1, *func_dims, 1))
         y_kernel_rect_conv = znp.reshape(y_kernel_rect, (*kernel_dims, 1, 1))
 
