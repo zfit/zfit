@@ -159,9 +159,9 @@ def inside_rect_limits(x, rect_limits):
     lower, upper = z.unstack_x(rect_limits, axis=0)
     lower = z.convert_to_tensor(lower)
     upper = z.convert_to_tensor(upper)
-    below_upper = znp.all(tf.less_equal(x, upper), axis=-1)  # if all obs inside
-    above_lower = znp.all(tf.greater_equal(x, lower), axis=-1)
-    inside = tf.logical_and(above_lower, below_upper)
+    below_upper = znp.all(znp.less_equal(x, upper), axis=-1)  # if all obs inside
+    above_lower = znp.all(znp.greater_equal(x, lower), axis=-1)
+    inside = znp.logical_and(above_lower, below_upper)
     return inside
 
 
@@ -174,7 +174,7 @@ def filter_rect_limits(x, rect_limits, axis=None):
 
 def convert_to_tensor_or_numpy(obj, dtype=ztypes.float):
     if contains_tensor(obj):
-        return z.convert_to_tensor(obj, dtype=dtype)
+        return znp.asarray(obj, dtype=dtype)
     else:
         with suppress(AttributeError):
             dtype = dtype.as_numpy_dtype
@@ -473,7 +473,7 @@ class Limit(
         """
         return self.rect_limits[1]
 
-    def rect_area(self) -> float | np.ndarray | tf.Tensor:
+    def rect_area(self) -> float | np.ndarray | znp.array:
         """Calculate the total rectangular area of all the limits and axes.
 
         Useful, for example, for MC integration.
@@ -617,7 +617,7 @@ class Limit(
             return 1
         return self.rect_lower.shape[0]
 
-    def equal(self, other: object, allow_graph: bool = True) -> tf.Tensor:
+    def equal(self, other: object, allow_graph: bool = True) -> znp.array:
         """Compare the limits on equality. For ANY objects, this also returns true.
 
         If called inside a graph context *and* the limits are tensors, this will return a symbolic `tf.Tensor`.
@@ -627,12 +627,12 @@ class Limit(
             allow_graph: If False and the function returns a symbolic tensor, raise IllegalInGraphModeError instead.
 
         Returns:
-            Either a Python boolean or a `tf.Tensor`
+            A ``znp.array`` with the result of the comparison.
          Raises:
              IllegalInGraphModeError: if `allow_graph`
         """
         if not isinstance(other, ZfitLimit):
-            return znp.array(False)
+            return np.array(False)
         return equal_limits(self, other, allow_graph=allow_graph)
 
     def __eq__(self, other: object) -> bool:
@@ -674,7 +674,7 @@ class Limit(
              IllegalInGraphModeError: it the comparison happens with tensors in a graph context.
         """
         if not isinstance(other, ZfitLimit):
-            return znp.array(False)
+            return np.array(False)
         return less_equal_limits(self, other, allow_graph=allow_graph)
 
     def __le__(self, other: object) -> bool:
@@ -737,7 +737,7 @@ def rect_limits_are_any(limit: ZfitLimit) -> bool:
 
 def less_equal_limits(limit1: Limit, limit2: Limit, allow_graph=True) -> znp.array:
     if rect_limits_are_any(limit1) or rect_limits_are_any(limit2):
-        return znp.array(True)
+        return np.array(True)
 
     try:
         lower1, upper1 = limit1.rect_limits_np
@@ -761,7 +761,7 @@ def less_equal_limits(limit1: Limit, limit2: Limit, allow_graph=True) -> znp.arr
 
     # if one is functional, one is rect: the bigger one can be rect
     elif not limit1.has_rect_limits and limit2.has_rect_limits:
-        funcs_equal = znp.array(True)
+        funcs_equal = np.array(True)
     else:
         funcs_equal = limit1.limit_fn == limit2.limit_fn
     return z.unstable.logical_and(rect_limits_le, funcs_equal)
@@ -770,11 +770,11 @@ def less_equal_limits(limit1: Limit, limit2: Limit, allow_graph=True) -> znp.arr
 def equal_limits(limit1: Limit, limit2: Limit, allow_graph=True) -> bool:
     # if both are functional, we just need to compare their functions; the rect limits are "irrelevant"
     if not (limit1.has_rect_limits or limit2.has_rect_limits):
-        return znp.array(limit1.limit_fn == limit2.limit_fn)
+        return np.array(limit1.limit_fn == limit2.limit_fn)
 
     # if one is functional, one is rect: they are not the same
     elif limit1.has_rect_limits ^ limit2.has_rect_limits:
-        return znp.array(False)
+        return np.array(False)
 
     try:
         lower, upper = limit1.rect_limits_np
@@ -1062,7 +1062,7 @@ class BaseSpace(ZfitSpace, BaseObject):
             return NotImplemented
         return equal_space(self, other)
 
-    def equal(self, other: object, allow_graph: bool) -> bool | tf.Tensor:
+    def equal(self, other: object, allow_graph: bool) -> znp.array:
         """Compare the limits on equality. For ANY objects, this also returns true.
 
         If called inside a graph context *and* the limits are tensors, this will return a symbolic `tf.Tensor`.
@@ -1470,9 +1470,7 @@ class Space(
                 "Limits are False or not set, cannot return the rectangular limits."
             )
         lower_ordered, upper_ordered = self._rect_limits_z()
-        rect_limits = z.convert_to_tensor(lower_ordered), z.convert_to_tensor(
-            upper_ordered
-        )
+        rect_limits = znp.asarray(lower_ordered), znp.asarray(upper_ordered)
         return rect_limits
 
     @property
@@ -1547,7 +1545,7 @@ class Space(
         upper_ordered = self.reorder_x(upper_stacked, **reorder_kwargs)
         return lower_ordered, upper_ordered
 
-    def rect_area(self) -> float | np.ndarray | tf.Tensor:
+    def rect_area(self) -> float | np.ndarray | znp.array:
         """Calculate the total rectangular area of all the limits and axes.
 
         Useful, for example, for MC integration.
@@ -2600,7 +2598,7 @@ def compare_limits_coords_dict(
         equal.append(
             compare_limits_dict(limit1_dict, limit2_dict, comparator=comparator)
         )
-    return z.unstable.reduce_all(equal, axis=0)
+    return z.unstable.reduce_all(equal)
 
 
 def compare_limits_dict(dict1: Mapping, dict2: Mapping, comparator: Callable) -> bool:
@@ -2616,7 +2614,7 @@ def compare_limits_dict(dict1: Mapping, dict2: Mapping, comparator: Callable) ->
 
         else:  # no break, nothing matched
             return False
-    return z.unstable.reduce_all(comparison, axis=0)
+    return z.unstable.reduce_all(comparison)
 
 
 def flatten_spaces(spaces):
