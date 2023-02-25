@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 
 import tensorflow as tf
 from tf_quant_finance.math import root_search
@@ -76,7 +76,6 @@ def convolve_1d_data_with_kernel(
         return tf.squeeze(tf.nn.conv1d(c, k, 1, "SAME"))
 
     else:
-
         P = tf.math.pow(
             tf.constant(2, ztypes.int),
             tf.cast(

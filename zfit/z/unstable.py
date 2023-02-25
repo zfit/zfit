@@ -85,7 +85,6 @@ def equal(x, y):
 
 def reduce_all(input_tensor, axis=None):
     if not SWITCH_ON or has_tensor(input_tensor):
-
         if axis is None:
             input_tensor = [
                 znp.reshape(ar, (-1,)) for ar in tf.nest.flatten(input_tensor)

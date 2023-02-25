@@ -985,7 +985,6 @@ class BaseSpace(ZfitSpace, BaseObject):
             coord = frozenset(coord)
             self_coord = frozenset(self_coord)
             if coord != self_coord:
-
                 if not allow_superset and coord.issuperset(self_coord):
                     raise CoordinatesIncompatibleError(
                         f"Superset is not allowed, but {coord} is a superset"
@@ -1215,7 +1214,6 @@ class Space(
         super().__init__(obs=obs, axes=axes, name=name)
 
         if binning is not None and not isinstance(binning, int):
-
             if limits is None and rect_limits is None:
                 limits = [[], []]
                 for axis in binning:
@@ -1892,7 +1890,6 @@ class Space(
                     )
                 new_space = self.copy(axes=axes, limits=self._limits_dict)
             else:
-
                 coords = self.coords.with_axes(
                     axes=axes, allow_superset=allow_superset, allow_subset=allow_subset
                 )
@@ -3100,7 +3097,6 @@ class MultiSpace(BaseSpace):
             limits = False
         elif self.has_rect_limits:
             if self.n_obs < 3 and not self.n_events > 1 and self.n_limits <= 3:
-
                 limits = [lim.rect_limits for lim in self]
             else:
                 limits = "rectangular"
@@ -3381,7 +3377,6 @@ def supports(
 def contains_tensor(objects):
     tensor_found = tf.is_tensor(objects)
     with suppress(TypeError):
-
         for obj in objects:
             if tensor_found:
                 break

@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 
 from __future__ import annotations
 
@@ -380,7 +380,6 @@ def weighted_quantile(x, quantiles, weights=None, side="middle"):
         calculated_right = tf.gather(x, quantile_index_right)
         calculated = (calculated_left + calculated_right) / 2
     elif side in ("left", "right"):
-
         quantile_index = tf.searchsorted(weighted_quantiles, quantiles, side=side)
 
         calculated = tf.gather(x, quantile_index)
