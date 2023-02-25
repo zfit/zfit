@@ -147,7 +147,8 @@ class FFTConvPDFV1(BaseFunctor):
         # get function limits
         if limits_func is None:
             limits_func = func.space
-        #limits_func = self._check_input_limits(limits=limits_func)
+        self._space_func = func.space
+        limits_func = self._check_input_limits(limits=limits_func,obs=func.obs,obs_ref=func.obs)
         if limits_func.n_limits == 0:
             raise exception.LimitsNotSpecifiedError(
                 "obs have to have limits to define where to integrate over."
@@ -158,7 +159,8 @@ class FFTConvPDFV1(BaseFunctor):
         # get kernel limits
         if limits_kernel is None:
             limits_kernel = kernel.space
-        #limits_kernel = self._check_input_limits(limits=limits_kernel)
+        self._space_kernel = kernel.space
+        limits_kernel = self._check_input_limits(limits=limits_kernel,obs=kernel.obs,obs_ref=kernel.obs)
 
         if limits_kernel.n_limits == 0:
             raise exception.LimitsNotSpecifiedError(
@@ -179,9 +181,8 @@ class FFTConvPDFV1(BaseFunctor):
                 f" {func.n_obs}"
             )
 
-        ### define subcomponent obs
-        self._space_func = func.space
-        self._space_kernel = kernel.space
+        
+        
         
         limits_func = limits_func.with_obs(self._space_func)
         limits_kernel = limits_kernel.with_obs(self._space_kernel)

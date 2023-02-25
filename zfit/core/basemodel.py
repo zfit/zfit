@@ -338,16 +338,17 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
 
         return self._convert_sort_space(limits=norm)
 
-    def _check_input_limits(self, limits, none_is_error=False):
+    def _check_input_limits(self, limits, obs=None, obs_ref=None, none_is_error=False):
         if limits is None or (isinstance(limits, ZfitSpace) and not limits.has_limits):
             if none_is_error:
                 raise ValueError("The `limits` have to be specified and not be None")
 
-        return self._convert_sort_space(limits=limits)
+        return self._convert_sort_space(limits=limits,obs=obs,obs_ref=obs_ref)
 
     def _convert_sort_space(
         self,
         obs: ztyping.ObsTypeInput | ztyping.LimitsTypeInput = None,
+        obs_ref = None,
         axes: ztyping.AxesTypeInput = None,
         limits: ztyping.LimitsTypeInput = None,
     ) -> ZfitSpace | None:
@@ -361,19 +362,24 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
 
         Returns:
         """
+
         if obs is None:  # for simple limits to convert them
             obs = self.obs
-        elif not set(obs).intersection(self.obs):
+            
+        if obs_ref is None:
+            obs_ref = self.obs
+            
+        elif not set(obs).intersection(obs_ref):
             raise SpaceIncompatibleError(
-                "The given space {obs} is not compatible with the obs of the pdfs{self.obs};"
+                f"The given space {obs} is not compatible with the obs of the pdfs{obs_ref};"
                 " they are disjoint."
             )
         space = convert_to_space(obs=obs, axes=axes, limits=limits)
-
-        if self.space is not None:  # e.g. not the first call
-            space = space.with_coords(
-                self.space, allow_superset=True, allow_subset=True
-            )
+        # breaks when using 'sub-pdfs'
+        #if self.space is not None:  # e.g. not the first call
+        #    space = space.with_coords(
+        #        self.space, allow_superset=True, allow_subset=True
+        #    )
         return space
 
     # Integrals
