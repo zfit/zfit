@@ -343,12 +343,12 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             if none_is_error:
                 raise ValueError("The `limits` have to be specified and not be None")
 
-        return self._convert_sort_space(limits=limits,obs=obs,obs_ref=obs_ref)
+        return self._convert_sort_space(limits=limits, obs=obs, obs_ref=obs_ref)
 
     def _convert_sort_space(
         self,
         obs: ztyping.ObsTypeInput | ztyping.LimitsTypeInput = None,
-        obs_ref = None,
+        obs_ref=None,
         axes: ztyping.AxesTypeInput = None,
         limits: ztyping.LimitsTypeInput = None,
     ) -> ZfitSpace | None:
@@ -365,10 +365,10 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
 
         if obs is None:  # for simple limits to convert them
             obs = self.obs
-            
+
         if obs_ref is None:
             obs_ref = self.obs
-            
+
         elif not set(obs).intersection(obs_ref):
             raise SpaceIncompatibleError(
                 f"The given space {obs} is not compatible with the obs of the pdfs{obs_ref};"
@@ -376,7 +376,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             )
         space = convert_to_space(obs=obs, axes=axes, limits=limits)
         # breaks when using 'sub-pdfs'
-        #if self.space is not None:  # e.g. not the first call
+        # if self.space is not None:  # e.g. not the first call
         #    space = space.with_coords(
         #        self.space, allow_superset=True, allow_subset=True
         #    )
