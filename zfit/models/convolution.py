@@ -244,8 +244,8 @@ class FFTConvPDFV1(BaseFunctor):
         }
 
         ### define subcomponent obs
-        self.obs_func = func.space
-        self.obs_kernel = kernel.space
+        self._space_func = func.space
+        self._space_kernel = kernel.space
 
     @z.function(wraps="model_convolution")
     def _unnormalized_pdf(self, x):
