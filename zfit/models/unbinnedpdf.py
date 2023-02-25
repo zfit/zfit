@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 import pydantic
 import tensorflow as tf
 
@@ -75,7 +75,6 @@ class UnbinnedFromBinnedPDF(BaseFunctor):
 
     @supports(norm=True, multiple_limits=True)
     def _sample(self, n, limits: ZfitSpace):
-
         pdf = self.pdfs[0]
         # TODO: use real limits, currently not supported in binned sample
         sample = pdf.sample(n=n)
