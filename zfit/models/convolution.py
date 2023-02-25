@@ -262,7 +262,7 @@ class FFTConvPDFV1(BaseFunctor):
         x_func = tf.meshgrid(*tf.unstack(x_funcs, axis=-1), indexing="ij")
         x_func = znp.transpose(x_func)
         x_func_flatish = znp.reshape(x_func, (-1, self.n_obs))
-        data_func = Data.from_tensor(tensor=x_func_flatish, obs=self.obs_func)
+        data_func = Data.from_tensor(tensor=x_func_flatish, obs=self._space_func)
 
         x_kernel = tf.meshgrid(*tf.unstack(x_kernels, axis=-1), indexing="ij")
         x_kernel = znp.transpose(x_kernel)
