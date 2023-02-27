@@ -1,12 +1,13 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from zfit import z
+
 if TYPE_CHECKING:
     import zfit
-
 
 import numpy as np
 import pytest
@@ -228,7 +229,7 @@ def test_prod_gauss_nd_mixed():
     true_unnormalized_probs = probs_4d(values=test_values)
 
     normalization_probs = limits_4d.area() * probs_4d(
-        tf.random.uniform(minval=low, maxval=high, shape=(40**4, 4))
+        z.random.uniform(minval=low, maxval=high, shape=(40**4, 4))
     )
     true_probs = true_unnormalized_probs / tf.reduce_mean(
         input_tensor=normalization_probs
