@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 """Recurrent polynomials."""
 from __future__ import annotations
 
@@ -669,7 +669,9 @@ def convert_coeffs_dict_to_list(coeffs: Mapping) -> list:
     for i in range(len(coeffs)):
         try:
             coeffs_list.append(coeffs[f"c_{i}"])
-        except KeyError:  # happens, if there are other parameters in there, such as a yield
+        except (
+            KeyError
+        ):  # happens, if there are other parameters in there, such as a yield
             break
     return coeffs_list
 

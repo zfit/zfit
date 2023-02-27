@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 import numpy as np
 import pytest
 import tensorflow as tf
@@ -297,7 +297,7 @@ def test_importance_sampling():
             ).value()
             weights = gauss_sampler.pdf(gaussian_sample)
             weights_max = None
-            thresholds = tf.random.uniform(shape=(n_to_produce,), dtype=dtype)
+            thresholds = z.random.uniform(shape=(n_to_produce,), dtype=dtype)
             return gaussian_sample, thresholds, weights, weights_max, n_to_produce
 
     sample = accept_reject_sample(
@@ -338,7 +338,7 @@ def test_importance_sampling_uniform():
             )
             sample = gaussian.sample(sample_shape=(n_to_produce, 1))
             weights = gaussian.prob(sample)[:, 0]
-            thresholds = tf.random.uniform(shape=(n_to_produce,), dtype=dtype)
+            thresholds = z.random.uniform(shape=(n_to_produce,), dtype=dtype)
             return sample, thresholds, weights, None, n_to_produce
 
     uniform._sample_and_weights = GaussianSampleAndWeights
@@ -393,3 +393,20 @@ def test_sampling_fixed_eventlimits():
     assert all(sample_np[n_samples2:n_samples3] <= upper3)
     # with pytest.raises(InvalidArgumentError):  # cannot use the exact message, () are regex syntax... bug in pytest
     #     _ = gauss1.sample(n=n_samples_tot + 1, limits=limits)  # TODO(Mayou36): catch analytic integral
+
+
+def test_sampling_seed():
+    data_set = np.random.normal(loc=0.5, scale=0.1, size=100)
+
+    zfit.settings.set_seed(123)
+
+    obs = zfit.Space("x", (0, 1))
+    _data_z = zfit.Data.from_numpy(obs=obs, array=data_set)
+    gauss = zfit.pdf.Gauss(1, 3, obs=obs)
+
+    n = 30
+    sample4 = gauss.sample(n=n)
+    sample5 = gauss.sample(n=n)
+
+    print(sample4.value(), sample5.value())
+    assert not np.allclose(sample4.value(), sample5.value())

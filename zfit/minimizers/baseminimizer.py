@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 """Definition of minimizers, wrappers etc."""
 from __future__ import annotations
 
@@ -532,7 +532,6 @@ class BaseMinimizer(ZfitMinimizer):
             if strategy is not None:
                 prelim_result = strategy.fit_result
             if prelim_result is not None:
-
                 result = prelim_result
             else:
                 raise
@@ -639,7 +638,6 @@ class BaseMinimizer(ZfitMinimizer):
                 if not isinstance(strategy, ZfitStrategy):
                     raise TypeError
             except TypeError:  # cannot be called -> is not a class LEGACY
-
                 strategy = self._strategy
 
         if self._is_stateful:

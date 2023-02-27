@@ -1,6 +1,6 @@
 """Used to make pytest functions available globally."""
 
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 
 import os
 import pathlib
@@ -52,6 +52,8 @@ def setup_teardown():
     for m in sys.modules.keys():
         if m not in init_modules:
             del sys.modules[m]
+
+    zfit.settings.set_seed(None)
     import gc
 
     gc.collect()

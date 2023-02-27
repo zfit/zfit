@@ -2,7 +2,7 @@
 
 Handle integration and sampling
 """
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 
 from __future__ import annotations
 
@@ -592,11 +592,10 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         try:
             integral = self._limits_analytic_integrate(limits=limits, norm=norm)
         except NormRangeNotImplemented:
-
             unnormalized_integral = self._limits_analytic_integrate(limits, norm=False)
             try:
                 normalization = self._limits_analytic_integrate(limits=norm, norm=False)
-            except (AnalyticIntegralNotImplemented):
+            except AnalyticIntegralNotImplemented:
                 raise NormRangeNotImplemented(
                     "Function does not support this (or even any)"
                     "normalization range 'norm'."

@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 import numpy as np
 import tensorflow as tf
 
@@ -30,7 +30,7 @@ def allclose_anyaware(x, y, rtol=1e-5, atol=1e-8):
     Returns:
     """
     if not SWITCH_ON or has_tensor([x, y]):
-        return znp.all(tf.less_equal(znp.abs(x - y), znp.abs(y) * rtol + atol))
+        return znp.all(znp.less_equal(znp.abs(x - y), znp.abs(y) * rtol + atol))
     else:
         x = np.array(x)
         y = np.array(y)
@@ -78,49 +78,63 @@ def reduce_prod(input_tensor, axis=None, keepdims=None):
 
 def equal(x, y):
     if not SWITCH_ON or is_tensor(x) or is_tensor(y):
-        return tf.equal(x, y)
+        return znp.equal(x, y)
     else:
         return np.equal(x, y)
 
 
 def reduce_all(input_tensor, axis=None):
     if not SWITCH_ON or has_tensor(input_tensor):
+        if axis is None:
+            input_tensor = [
+                znp.reshape(ar, (-1,)) for ar in tf.nest.flatten(input_tensor)
+            ]
         return znp.all(input_tensor, axis)
     else:
-        return np.all(input_tensor, axis)
+        out = np.all(input_tensor, axis)
+        if out.shape == (1,):
+            out = out[0]
+        return out
 
 
 def reduce_any(input_tensor, axis=None):
     if not SWITCH_ON or has_tensor(input_tensor):
+        if axis is None:
+            input_tensor = [
+                znp.reshape(ar, (-1,)) for ar in tf.nest.flatten(input_tensor)
+            ]
         return znp.any(input_tensor, axis)
     else:
-        return np.any(input_tensor, axis)
+        out = np.any(input_tensor, axis)
+        if out.shape == (1,):
+            out = out[0]
+        return out
 
 
 def logical_and(x, y):
     if not SWITCH_ON or has_tensor(x) or has_tensor(y):
-        return tf.logical_and(x, y)
+        return znp.logical_and(x, y)
     else:
         return np.logical_and(x, y)
 
 
 def logical_or(x, y):
     if not SWITCH_ON or has_tensor(x) or has_tensor(y):
-        return tf.logical_or(x, y)
+        return znp.logical_or(x, y)
     else:
         return np.logical_or(x, y)
 
 
 def less_equal(x, y):
     if not SWITCH_ON or has_tensor(x) or has_tensor(y):
-        return tf.less_equal(x, y)
+        return znp.less_equal(x, y)
     else:
         return np.less_equal(x, y)
 
 
 def greater_equal(x, y):
     if not SWITCH_ON or has_tensor(x) or has_tensor(y):
-        return tf.greater_equal(x, y)
+        return znp.greater_equal(x, y)
     else:
         return np.greater_equal(x, y)
 
@@ -132,7 +146,7 @@ def gather(x, indices=None, axis=None):
         return np.take(x, indices=indices, axis=axis)
 
 
-def concat(values, axis, name=None):
+def concat(values, axis):
     if not SWITCH_ON or has_tensor(values):
         return znp.concatenate(values, axis=axis)
     else:

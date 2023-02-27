@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 
 from __future__ import annotations
 
@@ -139,7 +139,6 @@ def make_pushback_strategy(
                 if last_grad is not None:
                     last_grad = -last_grad
                 if last_loss is not None:
-
                     loss_evaluated = last_loss + self.nan_penalty * nan_counter
                 else:
                     loss_evaluated = values.get("loss")

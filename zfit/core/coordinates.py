@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 
 from __future__ import annotations
 
@@ -139,7 +139,6 @@ class Coordinates(ZfitOrderableDimensional):
                     )
 
                 if not frozenset(obs) == frozenset(self.obs):
-
                     if not allow_superset and frozenset(obs) - frozenset(self.obs):
                         raise ObsIncompatibleError(
                             f"Obs {obs} are a superset of {self.obs}, not allowed according to flag."
@@ -203,7 +202,6 @@ class Coordinates(ZfitOrderableDimensional):
                 )
             new_coords = type(self)(obs=self.obs, axes=axes)
         else:
-
             axes = _convert_axes_to_int(axes)
             if not self.axes and not len(axes) == len(self.obs):
                 raise AxesIncompatibleError(
@@ -478,7 +476,6 @@ def convert_to_obs_str(obs, container=tuple):
         obs = convert_to_container(value=obs, container=container)
         new_obs = []
         for ob in obs:
-
             if not isinstance(ob, str):
                 raise TypeError(f"Observables have to be string, not {ob} as in {obs}")
             else:

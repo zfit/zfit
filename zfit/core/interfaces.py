@@ -20,7 +20,6 @@ from ..util.deprecation import deprecated
 
 
 class ZfitObject(abc.ABC):
-
     # TODO: make abstractmethod?
     def __eq__(self, other: object) -> bool:
         raise NotImplementedError

@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 
 import tensorflow as tf
 
@@ -40,6 +40,7 @@ class CustomPDF2D(zfit.pdf.BasePDF):
 
 
 # add an analytic integral
+
 
 # define the integral function
 def integral_full(limits, norm_range, params, model):

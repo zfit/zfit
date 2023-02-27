@@ -74,7 +74,10 @@ class UnbinnedFromBinnedPDF(BaseFunctor):
         return self.pdfs[0].ext_integrate(limits, norm=binned_norm, options=options)
 
     @supports(norm=True, multiple_limits=True)
-    def _sample(self, n, limits: ZfitSpace):
+    def _sample(self, n, limits: ZfitSpace, *, prng=None):
+        if prng is None:
+            prng = z.random.get_prng()
+
         pdf = self.pdfs[0]
         # TODO: use real limits, currently not supported in binned sample
         sample = pdf.sample(n=n)
@@ -102,7 +105,7 @@ class UnbinnedFromBinnedPDF(BaseFunctor):
         )  # TODO: what if we have fractions?
         lower_flat_repeated = tf.repeat(lower_flat, counts_flat, axis=0)
         upper_flat_repeated = tf.repeat(upper_flat, counts_flat, axis=0)
-        sample_unbinned = tf.random.uniform(
+        sample_unbinned = prng.uniform(
             (znp.sum(counts_flat), ndim),
             minval=lower_flat_repeated,
             maxval=upper_flat_repeated,

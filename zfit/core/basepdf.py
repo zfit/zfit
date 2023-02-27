@@ -671,7 +671,6 @@ class BasePDF(ZfitPDF, BaseModel):
         is_yield: bool | None = None,
         extract_independent: bool | None = True,
     ) -> set[ZfitParameter]:
-
         params = super()._get_params(
             floating, is_yield=is_yield, extract_independent=extract_independent
         )
