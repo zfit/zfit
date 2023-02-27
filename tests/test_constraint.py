@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 import numpy as np
 import pytest
 import scipy.stats
@@ -194,7 +194,7 @@ def test_gaussian_constraint_sampling():
     assert np.std(sample[param1]) == pytest.approx(sigma[0], rel=0.01)
 
 
-def test_simple_constraint():
+def test_simple_constraint_legacy():
     param1 = zfit.Parameter("Param1", 5)
     param2 = zfit.Parameter("Param2", 6)
     params = [param1, param2]
@@ -211,6 +211,27 @@ def test_simple_constraint():
     assert constr_np == pytest.approx(2.02)
 
     assert constr.get_cache_deps() == set(params)
+
+
+def test_simple_constraint_paramfunc():
+    param1 = zfit.Parameter("Param1", 5)
+    param2 = zfit.Parameter("Param2", 6)
+    params = {"p1": param1, "p2": param2}
+
+    observed = [3.0, 6.1]
+    sigma = [1.0, 0.5]
+
+    def func(params):
+        return true_nll_gaussian(
+            x=observed, mu=[params["p1"], params["p2"]], sigma=sigma
+        )
+
+    constr = SimpleConstraint(func=func, params=params)
+
+    constr_np = constr.value().numpy()
+    assert constr_np == pytest.approx(2.02)
+
+    assert constr.get_cache_deps() == set(params.values())
 
 
 def test_log_normal_constraint():

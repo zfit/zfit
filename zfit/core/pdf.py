@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 
 from __future__ import annotations
 
@@ -79,7 +79,6 @@ class PDF(Func, ZfitPDF):
         norm: typing.Mapping[str, ZfitSpace] = None,
         label: str | None = None,
     ):
-
         self.supports = supports
         if norm is None:
             norm = obs.values()  # TODO: preprocess

@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 import pytest
 import tensorflow as tf
 
@@ -301,7 +301,6 @@ def test_with_obs(limits, binning):
 
         space = space_used.with_obs(obs2)
         if using_space_as_lim:
-
             assert space == space2mixed
         else:
             assert space == space2mixed

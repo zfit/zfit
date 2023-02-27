@@ -1,10 +1,12 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 
 from __future__ import annotations
 
 import abc
+import collections
 from collections import OrderedDict
 from collections.abc import Callable
+from typing import Mapping, Iterable
 
 import tensorflow as tf
 import tensorflow_probability as tfp
@@ -52,29 +54,51 @@ class BaseConstraint(ZfitConstraint, BaseNumeric):
         return _extract_dependencies(self.get_params(floating=None))
 
 
+# TODO: improve arbitrary constraints, should we allow only functions that have a `params` argument?
 class SimpleConstraint(BaseConstraint):
-    def __init__(self, func: Callable, params: ztyping.ParameterType | None):
+    def __init__(
+        self,
+        func: Callable,
+        params: Mapping[str, ztyping.ParameterType]
+        | Iterable[ztyping.ParameterType]
+        | ztyping.ParameterType
+        | None,
+        *,
+        name: str = None,
+    ):
         """Constraint from a (function returning a) Tensor.
 
-        The parameters are named "param_{i}" with i starting from 0 and corresponding to the index of params.
-
         Args:
-            func: Callable that constructs the constraint and returns a tensor.
-            params: The dependents (independent ``zfit.Parameter``) of the loss. If not given, the
-                dependents are figured out automatically.
+            func: Callable that constructs the constraint and returns a tensor. For the expected signature,
+                see below in ``params``.
+            params: The parameters of the loss. If given as a list, the parameters are named "param_{i}"
+                and the function does not take any arguments. If given as a dict, the function expects
+                the parameter as the first argument (``params``).
         """
+        if name is None:
+            name = "SimpleConstraint"
         self._simple_func = func
+        self._func_params = None
+        if isinstance(params, collections.abc.Mapping):
+            self._func_params = params
+            params = list(params.values())
         self._simple_func_dependents = convert_to_container(
             params, container=OrderedSet
         )
 
         params = convert_to_container(params, container=list)
-        params = OrderedDict((f"param_{i}", p) for i, p in enumerate(params))
+        if self._func_params is None:
+            params = OrderedDict((f"param_{i}", p) for i, p in enumerate(params))
+        else:
+            params = self._func_params
 
-        super().__init__(name="SimpleConstraint", params=params)
+        super().__init__(name=name, params=params)
 
     def _value(self):
-        return self._simple_func()
+        if self._func_params is None:
+            return self._simple_func()
+        else:
+            return self._simple_func(self._func_params)
 
 
 class ProbabilityConstraint(BaseConstraint):

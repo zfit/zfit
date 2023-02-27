@@ -178,7 +178,9 @@ class BaseLoss(ZfitLoss, BaseNumeric):
     def _check_init_options(self, options, data):
         try:
             nevents = sum(d.nevents for d in data)
-        except RuntimeError:  # can happen if not yet sampled. What to do? Approx_nevents?
+        except (
+            RuntimeError
+        ):  # can happen if not yet sampled. What to do? Approx_nevents?
             nevents = 150_000  # sensible default
         options = {} if options is None else options
 
@@ -194,7 +196,6 @@ class BaseLoss(ZfitLoss, BaseNumeric):
             )  # start using kahan if we have more than 500k events
 
         if options.get("subtr_const") is None:  # TODO: balance better?
-
             # if nevents < 200_000:
             #     subtr_const = True
             # elif nevents < 1_000_000:
@@ -463,11 +464,13 @@ class BaseLoss(ZfitLoss, BaseNumeric):
             raise ValueError("cannot safely add two different kind of loss.")
         model = self.model + other.model
         data = self.data + other.data
+        fit_range = None
         fit_range = self.fit_range + other.fit_range
         constraints = self.constraints + other.constraints
-        return type(self)(
-            model=model, data=data, fit_range=fit_range, constraints=constraints
-        )
+        kwargs = dict(model=model, data=data, constraints=constraints)
+        if any(fitrng is not None for fitrng in fit_range):
+            kwargs["fit_range"] = fit_range
+        return type(self)(**kwargs)
 
     def gradient(self, params: ztyping.ParamTypeInput = None) -> list[tf.Tensor]:
         params = self._input_check_params(params)

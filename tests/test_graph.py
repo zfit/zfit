@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 import pytest
 import tensorflow as tf
 
@@ -25,28 +25,39 @@ def test_modes(cachesize):
     def func(x):
         nonlocal counts
         counts += 1
-        return tf.random.uniform(shape=()) * x
+        return z.random.get_prng().uniform(shape=()) * x
 
     func(5)
+
+    counts_after_compile = (
+        counts  # TF can run through a function n times when compiling
+    )
     func(5)
+    assert counts == counts_after_compile
     func(5)
+    assert counts == counts_after_compile
     func(5)
-    assert counts == 1
+    assert counts == counts_after_compile
     zfit.run.set_graph_mode(False)
     func(5)
-    assert counts == 2
+    assert counts == counts_after_compile + 1
     zfit.run.set_mode_default()
     func(5)
     func(5)
     func(5)
-    assert counts == 2
+    assert (
+        counts == counts_after_compile + 1
+    )  # No compilation occurred, default is graph mode
     zfit.run.clear_graph_cache()
+    counts = 0
     func(5)
+    counts_after_compile = counts
     func(5)
+    assert counts == counts_after_compile
     func(5)
-    assert counts == 3
+    assert counts == counts_after_compile
 
-    # use with everywhere in orther to reset it correctly
+    # use with everywhere in other to reset it correctly
     with zfit.run.set_autograd_mode(False):
         assert zfit.settings.options.numerical_grad
         with zfit.run.set_mode_default():

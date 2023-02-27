@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 
 from __future__ import annotations
 
@@ -329,7 +329,6 @@ class ExtendedBinnedNLL(BaseBinned):
         is_yield: bool | None = None,
         extract_independent: bool | None = True,
     ) -> set[ZfitParameter]:
-
         return super()._get_params(floating, is_yield, extract_independent)
 
 
