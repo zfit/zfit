@@ -960,7 +960,9 @@ class ZfitPDF(ZfitModel):
         raise NotImplementedError
 
     @abstractmethod
-    def create_extended(self, yield_: ztyping.ParamTypeInput) -> ZfitPDF:
+    def create_extended(
+        self, yield_: ztyping.ParamTypeInput, name: str = None
+    ) -> ZfitPDF:
         raise NotImplementedError
 
     @abstractmethod

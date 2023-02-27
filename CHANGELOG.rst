@@ -18,6 +18,8 @@ Bug fixes and small changes
 ---------------------------
 - ``create_extended`` added ``None`` to the name, removed.
 - ``SimpleConstraint`` now also takes a function that has an explicit ``params`` argument.
+- add ``name`` argument to ``create_extended``.
+- adding binned losses would error due to the removed ``fit_range`` argument.
 - setting a global seed made the sampler return constant values, fixed (unoptimized but correct). If you ran
   a fit with a global seed, you might want to rerun it.
 - histogramming and limit checks failed due to a stricter Numpy check, fixed.
@@ -30,7 +32,10 @@ Requirement changes
 
 Thanks
 ------
-@P-H-Wagner for finding the bug in ``SimpleConstraint``.
+- @P-H-Wagner for finding the bug in ``SimpleConstraint``.
+- Dan Johnson for finding the bug in the binned loss that would fail to sum them up.
+- Hanae Tilquin for spotting the bug with TensorFlows changed behavior or random states inside a tf.function,
+  leading to biased samples whenever a global seed was set.
 
 0.11.1 (20 Nov 2022)
 =========================
