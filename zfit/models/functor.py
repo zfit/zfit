@@ -224,7 +224,7 @@ class SumPDF(BaseFunctor):
                 sub_sample = sub_sample.value()
             samples.append(sub_sample)
         sample = znp.concatenate(samples, axis=0)
-        sample = tf.random.shuffle(sample)
+        sample = z.random.shuffle(sample)
         return sample
 
 
