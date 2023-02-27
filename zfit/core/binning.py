@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 import warnings
 
 import hist
@@ -48,6 +48,22 @@ def histogramdd(sample, bins=10, range=None, weights=None, density=None):
     bincounts.set_shape(shape=(None,) * n_obs)
     # edges = [edge.set_shape(shape=(None)) for edge in edges]
     return bincounts, edges
+
+
+def unbinned_to_hist_eager_edgesweightsargs(values, *edges_weights):
+    """Same as `unbinned_to_hist_eager` but with the edges and weights as positional arguments.
+
+    This is needed to circumvent the limitation of `tf.numpy_function` that only allows
+    numpy arrays as positional arguments and not structures of numpy arrays, such as edges are.
+
+    Args:
+        values:
+        *edges_weights:
+
+    Returns:
+    """
+    *edges, weights = edges_weights
+    return unbinned_to_hist_eager(values, edges, weights=weights)
 
 
 def unbinned_to_hist_eager(values, edges, weights=None):
@@ -105,8 +121,8 @@ def unbinned_to_binned(data, space, binned_class=None):
         weights = znp.array(weights)
     edges = tuple(space.binning.edges)
     values, variances = tf.numpy_function(
-        unbinned_to_hist_eager,
-        inp=[values, edges, weights],
+        unbinned_to_hist_eager_edgesweightsargs,
+        inp=[values, *edges, weights],
         Tout=[tf.float64, tf.float64],
     )
     binned = binned_class.from_tensor(space=space, values=values, variances=variances)

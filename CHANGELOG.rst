@@ -18,6 +18,9 @@ Bug fixes and small changes
 ---------------------------
 - ``create_extended`` added ``None`` to the name, removed.
 - ``SimpleConstraint`` now also takes a function that has an explicit ``params`` argument.
+- setting a global seed made the sampler return constant values, fixed (unoptimized but correct). If you ran
+  a fit with a global seed, you might want to rerun it.
+- histogramming and limit checks failed due to a stricter Numpy check, fixed.
 
 Experimental
 ------------

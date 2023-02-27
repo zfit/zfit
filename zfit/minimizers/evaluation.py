@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 
 from __future__ import annotations
 
@@ -193,7 +193,6 @@ class LossEval:
                 raise
 
         finally:
-
             if self.do_print:
                 try:
                     print_gradient(params, values, gradient=gradient, loss=loss_value)

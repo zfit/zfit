@@ -1,5 +1,5 @@
 """Example test for a pdf or function."""
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -259,7 +259,7 @@ def test_conv_2D_simple():
 
     start = obs_func.rect_lower
     stop = obs_func.rect_upper
-    x_tensor = tf.random.uniform((n_points, 2), start, stop)
+    x_tensor = z.random.uniform((n_points, 2), start, stop)
     x_tensor = tf.reshape(x_tensor, (-1, 2))
     linspace = tf.linspace(start, stop, num=n_points)
     linspace = tf.transpose(tf.meshgrid(*tf.unstack(linspace, axis=-1)))

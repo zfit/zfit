@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 import numpy as np
 import pytest
 import tensorflow as tf
@@ -23,7 +23,7 @@ test_values_np = np.random.normal(loc=mu_true, scale=sigma_true, size=(yield_tru
 
 
 def create_test_values(size):
-    return tf.random.normal(mean=mu_true, stddev=sigma_true, shape=(size, 1))
+    return z.random.get_prng().normal(mean=mu_true, stddev=sigma_true, shape=(size, 1))
 
 
 test_values_np2 = np.random.normal(loc=mu_true2, scale=sigma_true2, size=yield_true)
@@ -358,7 +358,6 @@ def test_simple_loss():
 
     loss_func.errordef = 1
     loss_deps = zfit.loss.SimpleLoss(func=loss_func, params=param_list)
-    # loss = zfit.loss.SimpleLoss(func=loss_func)
     loss = zfit.loss.SimpleLoss(func=loss_func, params=param_list)
     loss2 = zfit.loss.SimpleLoss(func=loss_func, params=truevals)
 

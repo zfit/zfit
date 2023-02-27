@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 import pytest
 import tensorflow as tf
 
@@ -25,7 +25,7 @@ def test_modes(cachesize):
     def func(x):
         nonlocal counts
         counts += 1
-        return tf.random.uniform(shape=()) * x
+        return z.random.get_prng().uniform(shape=()) * x
 
     func(5)
     func(5)

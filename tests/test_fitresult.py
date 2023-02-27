@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 import pickle
 import platform
 
@@ -334,7 +334,6 @@ def test_new_minimum(minimizer_class_and_kwargs):
     a_param, b_param, c_param = params
 
     if test_error:
-
         b_param.floating = False
         b_param.set_value(3.7)
         c_param.floating = False

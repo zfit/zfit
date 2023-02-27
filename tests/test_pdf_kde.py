@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 import itertools
 
 import numpy as np
@@ -236,7 +236,6 @@ def test_all_kde(kdetype, npoints, jit, request):
             data,
         ) = run_jit(kdetype, full=full)
     else:
-
         (
             expected_integral,
             integral,
