@@ -1,5 +1,4 @@
 #  Copyright (c) 2023 zfit
-import tensorflow as tf
 
 import zfit
 from zfit import z

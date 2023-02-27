@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 
 import copy
 
@@ -381,8 +381,6 @@ def test_multidim_data_range():
 
 
 def test_data_hashing(space2d):
-    import zfit.z.numpy as znp
-
     npdata1 = np.random.uniform(size=(3352, 2))
     # data1 = data1.transpose()
     data1 = zfit.Data.from_numpy(obs=space2d, array=npdata1)

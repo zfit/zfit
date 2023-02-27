@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 import numpy as np
 import pytest
 import tensorflow as tf
@@ -6,8 +6,8 @@ from ordered_set import OrderedSet
 
 import zfit
 from zfit import Parameter, z
-from zfit.param import ComplexParameter, ComposedParameter
 from zfit.exception import NameAlreadyTakenError, LogicalUndefinedOperationError
+from zfit.param import ComplexParameter, ComposedParameter
 
 
 def test_complex_param():
