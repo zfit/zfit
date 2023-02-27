@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 
 from __future__ import annotations
 
@@ -339,7 +339,6 @@ def accept_reject_sample(
         if (
             prob_max_init is None or weights_max is None
         ):  # TODO(performance): estimate prob_max, after enough estimations -> fix it?
-
             # safety margin, predicting future, improve for small samples?
             weights_maximum_new = znp.max(weights)
             weights_maximum = znp.maximum(weights_maximum, weights_maximum_new)

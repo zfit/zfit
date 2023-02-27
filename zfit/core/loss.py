@@ -178,7 +178,9 @@ class BaseLoss(ZfitLoss, BaseNumeric):
     def _check_init_options(self, options, data):
         try:
             nevents = sum(d.nevents for d in data)
-        except RuntimeError:  # can happen if not yet sampled. What to do? Approx_nevents?
+        except (
+            RuntimeError
+        ):  # can happen if not yet sampled. What to do? Approx_nevents?
             nevents = 150_000  # sensible default
         options = {} if options is None else options
 
@@ -194,7 +196,6 @@ class BaseLoss(ZfitLoss, BaseNumeric):
             )  # start using kahan if we have more than 500k events
 
         if options.get("subtr_const") is None:  # TODO: balance better?
-
             # if nevents < 200_000:
             #     subtr_const = True
             # elif nevents < 1_000_000:

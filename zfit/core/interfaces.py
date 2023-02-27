@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 
 from __future__ import annotations
 
@@ -20,7 +20,6 @@ from ..util.deprecation import deprecated
 
 
 class ZfitObject(abc.ABC):
-
     # TODO: make abstractmethod?
     def __eq__(self, other: object) -> bool:
         raise NotImplementedError

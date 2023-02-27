@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 
 from __future__ import annotations
 
@@ -202,7 +202,6 @@ class BaseBinnedPDFV1(
         is_yield: bool | None = None,
         extract_independent: bool | None = True,
     ) -> set[ZfitParameter]:
-
         params = super()._get_params(
             floating, is_yield=is_yield, extract_independent=extract_independent
         )
@@ -233,7 +232,6 @@ class BaseBinnedPDFV1(
                     try:
                         x = Data.from_tensor(obs=self.obs, tensor=x)
                     except Exception as error:
-
                         raise TypeError(
                             f"Data to {self} has to be Binned Data, not {x}. (It can also be unbinned Data)"
                             + " but conversion to it failed (see also above) with the following error:"
@@ -1147,7 +1145,6 @@ def cut_edges_and_bins(
         edge = znp.asarray(edge)
         edge = znp.reshape(edge, (-1,))
         if axis is None or i in axis:
-
             lower_i = lower_all[current_axis, None]
             edge_minimum = edge[0]
             # edge_minimum = tf.gather(edge, indices=0, axis=i)

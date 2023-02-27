@@ -4,7 +4,7 @@ A FunctorBase class is provided to make handling the models easier.
 
 Their implementation is often non-trivial.
 """
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 
 from __future__ import annotations
 
@@ -268,7 +268,6 @@ class ProductPDF(BaseFunctor):
             len(set([pdf.norm for pdf in self.pdfs] + [norm])) == 1
         )  # all equal
         if not self._prod_is_same_obs_pdf and equal_norm_ranges:
-
             probs = [pdf.pdf(var=x, norm=norm) for pdf in self._prod_disjoint_obs_pdfs]
             prob = functools.reduce(operator.mul, probs)
             return z.convert_to_tensor(prob)

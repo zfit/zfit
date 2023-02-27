@@ -18,6 +18,7 @@ Bug fixes and small changes
 ---------------------------
 - ``create_extended`` added ``None`` to the name, removed.
 - adding binned losses would error due to the removed ``fit_range`` argument.
+- histogramming and limit checks failed due to a stricter Numpy check, fixed.
 
 Experimental
 ------------

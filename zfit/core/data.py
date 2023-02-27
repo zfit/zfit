@@ -438,7 +438,9 @@ class Data(ZfitUnbinnedData, BaseDimensional, BaseObject, GraphCachable):
                 if self.has_weights:
                     hashval.update(np.asarray(self.weights))
                 self._hashint = hashval.intdigest()
-            except AttributeError:  # if the dataset is not yet initialized; this is allowed
+            except (
+                AttributeError
+            ):  # if the dataset is not yet initialized; this is allowed
                 self._hashint = None
 
     def with_obs(self, obs):
@@ -716,7 +718,6 @@ class Sampler(Data):
         dtype: tf.DType = ztypes.float,
         use_hash: bool = None,
     ):
-
         super().__init__(
             dataset=dataset,
             obs=obs,
@@ -835,7 +836,6 @@ class Sampler(Data):
         with set_values(
             list(temp_param_values.keys()), list(temp_param_values.values())
         ):
-
             # if not (n and self._initial_resampled):  # we want to load and make sure that it's initialized
             #     # means it's handled inside the function
             #     # TODO(Mayou36): check logic; what if new_samples loaded? get's overwritten by initializer

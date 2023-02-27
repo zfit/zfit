@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 
 from __future__ import annotations
 
@@ -429,7 +429,6 @@ class BinnedSampler(BinnedData):
         with set_values(
             list(temp_param_values.keys()), list(temp_param_values.values())
         ):
-
             new_sample = self.sample_func(n)
             self.sample_holder.assign(new_sample, read_value=False)
             self._initial_resampled = True
