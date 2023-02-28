@@ -6,7 +6,11 @@ import pydantic
 import tensorflow as tf
 import tensorflow_addons as tfa
 import tensorflow_probability as tfp
-from typing_extensions import Literal
+
+try:
+    from typing import Literal
+except ImportError:  # TODO(3.8): remove
+    from typing_extensions import Literal
 
 import zfit.z.numpy as znp
 from .functor import BaseFunctor

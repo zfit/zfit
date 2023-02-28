@@ -1,16 +1,16 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 from __future__ import annotations
 
-from typing import Optional, Union, Any, List
+from typing import Union
 
-from typing_extensions import Literal, Annotated
+try:
+    from typing import Literal
+except ImportError:  # TODO(3.8): remove
+    from typing_extensions import Literal
 import pydantic
-from pydantic import Field, root_validator, validator
+from pydantic import Field
 
-from .spacerepr import SpaceRepr
-from ..core.parameter import ParameterRepr
 from .serializer import BaseRepr, Serializer
-from ..core.interfaces import ZfitPDF
 
 
 class BasePDFRepr(BaseRepr):

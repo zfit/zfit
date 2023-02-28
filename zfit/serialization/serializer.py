@@ -12,7 +12,11 @@ import pydantic
 import tensorflow as tf
 from frozendict import frozendict
 from pydantic import Field
-from typing_extensions import Literal, Annotated
+
+try:
+    from typing import Literal, Annotated
+except ImportError:  # TODO(3.8): remove
+    from typing_extensions import Literal, Annotated
 
 from zfit.core.interfaces import (
     ZfitParameter,

@@ -5,7 +5,11 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Optional
 
 import pydantic
-from typing_extensions import Literal
+
+try:
+    from typing import Literal
+except ImportError:  # TODO(3.8): remove
+    from typing_extensions import Literal
 
 from ..core.serialmixin import SerializableMixin
 from ..serialization import SpaceRepr, Serializer

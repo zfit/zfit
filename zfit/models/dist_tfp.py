@@ -15,7 +15,11 @@ import tensorflow as tf
 import tensorflow_probability as tfp
 import tensorflow_probability.python.distributions as tfd
 from pydantic import Field, root_validator
-from typing_extensions import Literal
+
+try:
+    from typing import Literal
+except ImportError:  # TODO(3.8): remove
+    from typing_extensions import Literal
 
 from zfit import z
 from zfit.util.exception import (

@@ -1,8 +1,12 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 from __future__ import annotations
 
-from typing import List, Tuple, Union, Optional, Mapping
-from typing_extensions import Literal
+from typing import Tuple, Union, Optional
+
+try:
+    from typing import Literal
+except ImportError:  # TODO(3.8): remove
+    from typing_extensions import Literal
 
 from pydantic import Field, validator, root_validator
 

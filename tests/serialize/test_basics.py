@@ -1,11 +1,9 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 import copy
 
+import numpy as np
 import pytest
 from frozendict import frozendict
-import numpy as np
-
-import zfit
 
 
 def test_serial_space():
@@ -371,7 +369,6 @@ def test_replace_matching():
 
 @pytest.mark.parametrize("pdfcreator", all_pdfs, ids=lambda x: x.__name__)
 def test_dumpload_pdf(pdfcreator):
-    import zfit
     import zfit.z.numpy as znp
 
     pdf = pdfcreator()

@@ -6,21 +6,22 @@ import abc
 import collections
 from collections import OrderedDict
 from collections.abc import Callable
-from typing import Literal, List, Union, Dict
 from typing import Mapping, Iterable
 
-import pydantic
+try:
+    from typing import Literal
+except ImportError:  # TODO(3.8): remove
+    from typing_extensions import Literal
+
 import tensorflow as tf
 import tensorflow_probability as tfp
 from ordered_set import OrderedSet
-from pydantic import Field
 
 import zfit.z.numpy as znp
 from zfit import z
 from .baseobject import BaseNumeric
 from .dependents import _extract_dependencies
 from .interfaces import ZfitConstraint, ZfitParameter
-from ..serialization.serializer import BaseRepr
 from ..settings import ztypes
 from ..util import ztyping
 from ..util.container import convert_to_container
