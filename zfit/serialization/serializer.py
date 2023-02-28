@@ -380,7 +380,6 @@ def replace_matching(mapping, replace):
 def convert_to_orm(init):
     if isinstance(init, Mapping):
         for k, v in init.items():
-
             from zfit.core.interfaces import ZfitParameter, ZfitSpace
 
             if (
@@ -447,7 +446,6 @@ class BaseRepr(pydantic.BaseModel):
 
     @classmethod
     def from_orm(cls: pydantic.BaseModel, obj: Any) -> BaseRepr:
-
         old_mode = cls._context
         try:
             cls._context = MODES.orm
