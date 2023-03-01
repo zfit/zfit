@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 
 #
 #
@@ -63,7 +63,7 @@ nb_execution_mode = "cache"
 if nb_execution_mode == "cache":
     jupyter_cache_path = project_dir.joinpath("docs", ".cache", "myst-nb")
     jupyter_cache_path.mkdir(parents=True, exist_ok=True)
-    jupyter_cache = str(jupyter_cache_path)
+    nb_execution_cache_path = str(jupyter_cache_path)
 
 source_suffix = {
     ".ipynb": "myst-nb",
