@@ -58,8 +58,8 @@ panels_add_bootstrap_css = (
 # releases_github_path = "zfit/zfit"  # TODO: use releases or similar?
 # releases_document_name = "../CHANGELOG.rst"
 
-# nb_execution_mode = "force"  # use if needed and cache should be ignored
-nb_execution_mode = "cache"
+nb_execution_mode = "force"  # use if needed and cache should be ignored
+# nb_execution_mode = "cache"
 if nb_execution_mode == "cache":
     jupyter_cache_path = project_dir.joinpath("docs", ".cache", "myst-nb")
     jupyter_cache_path.mkdir(parents=True, exist_ok=True)
