@@ -250,6 +250,9 @@ html_theme_options = {
     "search_bar_text": "Search zfit...",
     "navigation_with_keys": True,
     "search_bar_position": "sidebar",
+    "icon_links": [
+        {}
+    ],  # temporary fix for https://github.com/pydata/pydata-sphinx-theme/issues/1220
     # "repository_url": "https://github.com/zfit/zfit",  # adding jupyter book somehow?
     # "repository_branch": "develop",
     # "path_to_docs": "docs",
