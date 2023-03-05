@@ -1,11 +1,10 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 import time
 
 import hist
 import mplhep
 import numpy as np
 import pytest
-
 from matplotlib import pyplot as plt
 
 import zfit.pdf

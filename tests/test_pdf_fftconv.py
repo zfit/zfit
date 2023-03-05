@@ -9,6 +9,7 @@ import scipy.stats
 import tensorflow as tf
 
 import zfit
+import zfit.z.numpy as znp
 from zfit import z
 from zfit.util.exception import WorkInProgressError
 
@@ -132,7 +133,7 @@ def test_conv_1d_shifted(interpolation):
 
     conv = zfit.pdf.FFTConvPDFV1(func=func, kernel=funck, n=200)
 
-    xnp = tf.linspace(obs_kernel.rect_lower, obs.rect_upper, 4023)
+    xnp = znp.linspace(obs_kernel.rect_lower, obs.rect_upper, 4023)
 
     # true convolution
     kernel_points = obs_kernel.filter(xnp)

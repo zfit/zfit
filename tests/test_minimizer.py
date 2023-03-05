@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 import itertools
 import platform
 from collections import OrderedDict
@@ -430,8 +430,6 @@ error_scales = {None: 1, 1: 1, 2: 2}
 # @pytest.mark.flaky(reruns=3)
 @pytest.mark.timeout(280)
 def test_minimizers(minimizer_class_and_kwargs, chunksize, numgrad, spaces, request):
-    import zfit.z.numpy as znp
-
     long_clarg = request.config.getoption("--longtests")
     # long_clarg = True
     # zfit.run.chunking.active = True
