@@ -190,7 +190,7 @@ class FFTConvPDFV1(BaseFunctor):
 
         lower_func, upper_func = limits_func.rect_limits
         lower_kernel, upper_kernel = limits_kernel.rect_limits
-        
+
         ### If limits_func arg is given do not extend range for convolution (i.e., account for leakage)
         if self._given_limits_func is not None:
             lower_sample, upper_sample = self._given_limits_func
