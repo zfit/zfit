@@ -143,6 +143,7 @@ class FFTConvPDFV1(BaseFunctor):
         self._conv_spline_order = spline_order
 
         # get function limits
+        self._given_limits_func = limits_func
         if limits_func is None:
             limits_func = func.space
         limits_func = self._check_input_limits(limits=limits_func)
@@ -189,8 +190,13 @@ class FFTConvPDFV1(BaseFunctor):
 
         lower_func, upper_func = limits_func.rect_limits
         lower_kernel, upper_kernel = limits_kernel.rect_limits
-        lower_sample = lower_func + lower_kernel
-        upper_sample = upper_func + upper_kernel
+        
+        ### If limits_func arg is given do not extend range for convolution (i.e., account for leakage)
+        if self._given_limits_func is not None:
+            lower_sample, upper_sample = self._given_limits_func
+        else:
+            lower_sample = lower_func + lower_kernel
+            upper_sample = upper_func + upper_kernel
 
         # TODO: what if kernel area is larger?
         if limits_kernel.rect_area() > limits_func.rect_area():
