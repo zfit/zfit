@@ -279,14 +279,6 @@ class CrystalBallPDFRepr(BasePDFRepr):
     alpha: Serializer.types.ParamTypeDiscriminated
     n: Serializer.types.ParamTypeDiscriminated
 
-    @pydantic.root_validator(pre=True)
-    def convert_params(cls, values):
-        if cls.orm_mode(values):
-            values = dict(values)
-            values.update(**values.pop("params"))
-            values["x"] = values.pop("space")
-        return values
-
     def _to_orm(self, init):
         init["obs"] = init.pop("x")
         out = super()._to_orm(init)
@@ -406,14 +398,6 @@ class DoubleCBPDFRepr(BasePDFRepr):
     nl: Serializer.types.ParamTypeDiscriminated
     alphar: Serializer.types.ParamTypeDiscriminated
     nr: Serializer.types.ParamTypeDiscriminated
-
-    @pydantic.root_validator(pre=True)
-    def convert_params(cls, values):
-        if cls.orm_mode(values):
-            values = dict(values)
-            values.update(**values.pop("params"))
-            values["x"] = values.pop("space")
-        return values
 
     def _to_orm(self, init):
         init["obs"] = init.pop("x")

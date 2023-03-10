@@ -135,7 +135,7 @@ class BaseRecursivePolynomialRepr(BasePDFRepr):
     apply_scaling: Optional[bool]
 
     @pydantic.root_validator(pre=True)
-    def convert_params(cls, values):
+    def convert_params(cls, values):  # does not propagate `params` into the fields
         if cls.orm_mode(values):
             values = dict(values)
             values["x"] = values.pop("space")

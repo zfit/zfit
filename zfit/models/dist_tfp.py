@@ -258,14 +258,6 @@ class GaussPDFRepr(BasePDFRepr):
     mu: Serializer.types.ParamInputTypeDiscriminated
     sigma: Serializer.types.ParamInputTypeDiscriminated
 
-    @root_validator(pre=True)
-    def convert_params(cls, values):
-        if cls.orm_mode(values):
-            values = dict(values)
-            values.update(**values.pop("params"))
-            values["x"] = values.pop("space")
-        return values
-
     def _to_orm(self, init):
         init["obs"] = init.pop("x")
         out = super()._to_orm(init)
@@ -455,14 +447,6 @@ class CauchyPDFRepr(BasePDFRepr):
     m: Serializer.types.ParamTypeDiscriminated
     gamma: Serializer.types.ParamTypeDiscriminated
 
-    @root_validator(pre=True)
-    def convert_params(cls, values):
-        if cls.orm_mode(values):
-            values = dict(values)
-            values.update(**values.pop("params"))
-            values["x"] = values.pop("space")
-        return values
-
     def _to_orm(self, init):
         init["obs"] = init.pop("x")
         out = super()._to_orm(init)
@@ -526,14 +510,6 @@ class PoissonPDFRepr(BasePDFRepr):
     hs3_type: Literal["Poisson"] = Field("Poisson", alias="type")
     x: SpaceRepr
     lam: Serializer.types.ParamTypeDiscriminated
-
-    @root_validator(pre=True)
-    def convert_params(cls, values):
-        if cls.orm_mode(values):
-            values = dict(values)
-            values.update(**values.pop("params"))
-            values["x"] = values.pop("space")
-        return values
 
     def _to_orm(self, init):
         init["obs"] = init.pop("x")
