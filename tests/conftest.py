@@ -162,8 +162,7 @@ def get_truth(folder, filename, request, newval=None):
         )
     current_dir = pathlib.Path(__file__).parent
     static_dir = current_dir / "truth" / folder
-    if not static_dir.exists():
-        raise FileNotFoundError(f"Folder {static_dir} does not exist")
+    static_dir.mkdir(exist_ok=True, parents=True)
 
     filepath = static_dir / (filename)
     # check if need to update value first
@@ -179,6 +178,9 @@ def get_truth(folder, filename, request, newval=None):
 
             with open(filepath, "w") as f:
                 yaml.dump(newval, f)
+
+        elif filepath.suffix == ".asdf":
+            newval.write_to(filepath)
         else:
             raise ValueError(
                 f"Filetype {filepath.suffix} not supported. Needs manual implementation of the truth value in get_truth function."
@@ -196,6 +198,11 @@ def get_truth(folder, filename, request, newval=None):
 
         with open(filepath, "r") as f:
             return yaml.safe_load(f)
+    elif filepath.suffix == ".asdf":
+        import asdf
+
+        with asdf.open(filepath, copy_arrays=True) as f:
+            return asdf.AsdfFile(f.tree, copy_arrays=True)
     else:
         raise ValueError(f"Filetype {filepath.suffix} not supported")
     raise ValueError(f"Folder {folder} not supported.")

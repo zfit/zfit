@@ -2,13 +2,21 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Union, Optional, List
+
+from ..serialization import SpaceRepr
+
+try:
+    from typing import Literal
+except ImportError:  # TODO(3.8): remove
+    from typing_extensions import Literal
 
 import xxhash
 from tensorflow.python.util.deprecation import deprecated_args, deprecated
 
 from .parameter import set_values
-from .serialmixin import ZfitSerializable
+from .serialmixin import ZfitSerializable, SerializableMixin
+from ..serialization.serializer import BaseRepr, to_orm_init
 
 if TYPE_CHECKING:
     import zfit
@@ -46,7 +54,12 @@ from .space import Space, convert_to_space
 
 # TODO: make cut only once, then remember
 class Data(
-    ZfitUnbinnedData, BaseDimensional, BaseObject, GraphCachable, ZfitSerializable
+    ZfitUnbinnedData,
+    BaseDimensional,
+    BaseObject,
+    GraphCachable,
+    SerializableMixin,
+    ZfitSerializable,
 ):
     BATCH_SIZE = 1000000  # 1 mio
 
@@ -189,7 +202,10 @@ class Data(
             weights = z.convert_to_tensor(weights)
             weights = z.to_real(weights)
             if weights.shape.ndims != 1:
-                raise ShapeIncompatibleError("Weights have to be 1-Dim objects.")
+                if weights.shape.ndims == 2 and weights.shape[1] == 1:
+                    weights = znp.reshape(weights, (-1,))
+                else:
+                    raise ShapeIncompatibleError("Weights have to be 1-Dim objects.")
         self._weights = weights
         self._update_hash()
         return weights
@@ -675,10 +691,53 @@ class Data(
 
 
 # TODO(serialization): add to serializer
-# class DataRepr(BaseRepr):
-#     _implementation = Data
-#     _owndict = pydantic.PrivateAttr(default_factory=dict)
-#     hs3_type: Literal["Data"] = Field("Data", alias="type")
+class DataRepr(BaseRepr):
+    _implementation = Data
+    _owndict = pydantic.PrivateAttr(default_factory=dict)
+    hs3_type: Literal["Data"] = Field("Data", alias="type")
+
+    data: np.ndarray
+    space: Union[SpaceRepr, List[SpaceRepr]]
+    name: Optional[str] = None
+    weights: Optional[np.ndarray] = None
+
+    @pydantic.root_validator(pre=True)
+    def extract_data(cls, values):
+        if cls.orm_mode(values):
+            values = dict(values)
+            values["data"] = values["value"]()
+        return values
+
+    @pydantic.validator("space", pre=True)
+    def flatten_spaces(cls, v):
+        if cls.orm_mode(v):
+            v = [v.get_subspace(o) for o in v.obs]
+        return v
+
+    @pydantic.validator("data", pre=True)
+    def convert_data(cls, v):
+        v = np.asarray(v)
+        return v
+
+    @pydantic.validator("weights", pre=True)
+    def convert_weights(cls, v):
+        if v is not None:
+            v = np.asarray(v)
+        return v
+
+    @to_orm_init
+    def _to_orm(self, init):
+        dataset = LightDataset(znp.asarray(init.pop("data")))
+        init["dataset"] = dataset
+        init["obs"] = init.pop("space")
+
+        spaces = init["obs"]
+        space = spaces[0]
+        for sp in spaces[1:]:
+            space *= sp
+        init["obs"] = space
+        out = super()._to_orm(init)
+        return out
 
 
 def getitem_obs(self, item):

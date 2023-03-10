@@ -9,6 +9,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Union, Mapping, Iterable, Dict, List, TypeVar, Optional, Tuple
 
+import numpy as np
 import pydantic
 import tensorflow as tf
 from frozendict import frozendict
@@ -448,10 +449,25 @@ def convert_to_orm(init):
         for k, v in init.items():
             from zfit.core.interfaces import ZfitParameter, ZfitSpace
 
+            from zfit.core.data import LightDataset
+
             if (
                 not isinstance(v, (Iterable, Mapping))
                 or isinstance(
-                    v, (ZfitParameter, ZfitSpace)
+                    v,
+                    (
+                        ZfitParameter,
+                        ZfitSpace,
+                        ZfitData,
+                        ZfitBinnedData,
+                        LightDataset,
+                        np.ndarray,
+                        str,
+                        bytes,
+                        bool,
+                        int,
+                        float,
+                    ),
                 )  # skip to not trigger the "in"
                 or tf.is_tensor(v)
             ):

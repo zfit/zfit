@@ -435,3 +435,81 @@ def test_params_dumpload(param_factory):
     param_loaded = param.get_repr().parse_raw(json).to_orm()
     assert param == param_loaded
     assert json == param_loaded.to_json()
+
+
+data_factories = [
+    lambda: zfit.data.Data.from_numpy(
+        obs=zfit.Space("obs1", (-3.0, 5.0)), array=np.random.normal(size=(100, 1))
+    ),
+    lambda: zfit.data.Data.from_numpy(
+        obs=zfit.Space("obs1", (-3.0, 5.0)),
+        array=np.random.normal(size=(100, 1)),
+        weights=np.random.normal(size=(100, 1)),
+    ),
+    lambda: zfit.data.Data.from_numpy(
+        obs=zfit.Space("obs1", (-3.0, 5.0)) * zfit.Space("obs2", (-13.0, 15.0)),
+        array=np.random.normal(size=(100, 2)),
+        weights=np.random.normal(size=(100, 1)),
+    ),
+    lambda: zfit.data.Data.from_numpy(
+        obs=zfit.Space("obs1", (-3.0, 5.0)) * zfit.Space("obs2", (-13.0, 15.0)),
+        array=np.random.normal(size=(100, 2)),
+    ),
+]
+
+
+@pytest.mark.parametrize("data_factory", data_factories)
+def test_data_dumpload(data_factory, request):
+    data = data_factory()
+    asdf_dumped = data.to_asdf()
+    data_truth_dumped = pytest.helpers.get_truth(
+        "hs3_data", "basic_data_dumpload1.asdf", request, newval=asdf_dumped
+    )
+    data_loaded1 = data.__class__.from_asdf(
+        asdf_dumped
+    )  # class just to make sure we don't use the instance method
+    asdf_dumped2 = (
+        data_loaded1.to_asdf()
+    )  # dump and load two times to check consistency
+    data_loaded2 = data.__class__.from_asdf(
+        asdf_dumped2
+    )  # class just to make sure we don't use the instance method
+    data_truth_tree = dict(data_truth_dumped.tree)
+    data_tree = dict(asdf_dumped.tree)
+    data_tree2 = dict(asdf_dumped2.tree)
+
+    for d in [data_truth_tree, data_tree, data_tree2]:
+        d.pop("asdf_library", None)
+        d.pop("history", None)
+
+    # test and pop all the arrays in the dict, then compare the rest
+    true_weigths = data_truth_tree.pop("weights", 1)
+    np.testing.assert_allclose(true_weigths, data_tree.pop("weights", 1))
+    np.testing.assert_allclose(true_weigths, data_tree2.pop("weights", 1))
+
+    true_data = data_truth_tree.pop("data")
+    np.testing.assert_allclose(true_data, data_tree.pop("data"))
+    np.testing.assert_allclose(true_data, data_tree2.pop("data"))
+    np.testing.assert_allclose(data.value(), data_loaded1.value())
+    np.testing.assert_allclose(data.value(), data_loaded2.value())
+    assert (data.weights is None) == (data_loaded1.weights is None)
+    assert (data.weights is None) == (data_loaded2.weights is None)
+    if data.weights is not None:
+        np.testing.assert_allclose(data.weights, data_loaded1.weights)
+        np.testing.assert_allclose(data.weights, data_loaded2.weights)
+    with pytest.raises(
+        TypeError, match="The object you are trying to serialize contains numpy arrays."
+    ):
+        data.to_json()
+    with pytest.raises(
+        TypeError, match="The object you are trying to serialize contains numpy arrays."
+    ):
+        data.to_yaml()
+    with pytest.raises(
+        TypeError, match="The object you are trying to serialize contains numpy arrays."
+    ):
+        data_loaded2.to_json()
+    with pytest.raises(
+        TypeError, match="The object you are trying to serialize contains numpy arrays."
+    ):
+        data_loaded2.to_yaml()

@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import pydantic
+import yaml
 
 from zfit.util.warnings import warn_experimental_feature
 
@@ -30,6 +31,38 @@ class SerializableMixin(ZfitSerializable):
         cls.hs3 = create_HS3(cls)
 
     @warn_experimental_feature
+    def to_yaml(self):
+        """Convert the object to a yaml string.
+
+        Returns:
+            str: The yaml string.
+        """
+        json_obj = self.to_json()
+        yaml_obj = yaml.safe_dump(json_obj)
+        return yaml_obj
+
+    @warn_experimental_feature
+    def to_asdf(self):
+        """Convert the object to an asdf file."""
+        import asdf
+
+        asdf_obj = asdf.AsdfFile(self.to_dict())
+        return asdf_obj
+
+    @classmethod
+    @warn_experimental_feature
+    def from_asdf(cls, asdf_obj):
+        """Load an object from an asdf file."""
+        from zfit.serialization import Serializer
+
+        asdf_tree = asdf_obj.tree
+        # cleanup the asdf chunk
+        asdf_tree.pop("asdf_library", None)
+        asdf_tree.pop("history", None)
+        orm = cls.from_dict(asdf_tree)
+        return orm
+
+    @warn_experimental_feature
     def to_json(self):
         """Convert the object to a json string.
 
@@ -40,7 +73,17 @@ class SerializableMixin(ZfitSerializable):
 
         Serializer.initialize()
         orm = self.get_repr().from_orm(self)
-        return orm.json(exclude_none=True, by_alias=True)
+        try:
+            json_obj = orm.json(exclude_none=True, by_alias=True)
+        except TypeError as error:
+            if "Object of type 'ndarray' is not JSON serializable" in str(error):
+                raise TypeError(
+                    "The object you are trying to serialize contains numpy arrays. "
+                    "This is not supported by json. Please use `to_asdf` (or `to_dict)` instead."
+                )
+            else:
+                raise
+        return json_obj
 
     @classmethod
     @warn_experimental_feature
@@ -116,7 +159,19 @@ class HS3:
 
     def to_json(self):
         orm = self.repr.from_orm(self)
-        return orm.json(exclude_none=True, by_alias=True)
+        try:
+            json_obj = orm.json(exclude_none=True, by_alias=True)
+        except TypeError as error:
+            if "TypeError: Object of type 'ndarray' is not JSON serializable" in str(
+                error
+            ):
+                raise TypeError(
+                    "The object you are trying to serialize contains numpy arrays. "
+                    "This is not supported by json. Please use `to_asdf` (or `to_dict)` instead."
+                )
+            else:
+                raise
+        return json_obj
 
     def to_dict(self):
         orm = self.repr.from_orm(self)
