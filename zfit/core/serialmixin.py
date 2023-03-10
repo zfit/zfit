@@ -53,7 +53,6 @@ class SerializableMixin(ZfitSerializable):
     @warn_experimental_feature
     def from_asdf(cls, asdf_obj):
         """Load an object from an asdf file."""
-        from zfit.serialization import Serializer
 
         asdf_tree = asdf_obj.tree
         # cleanup the asdf chunk
@@ -72,7 +71,8 @@ class SerializableMixin(ZfitSerializable):
         from zfit.serialization import Serializer
 
         Serializer.initialize()
-        orm = self.get_repr().from_orm(self)
+        repr = self.get_repr()
+        orm = repr.from_orm(self)
         try:
             json_obj = orm.json(exclude_none=True, by_alias=True)
         except TypeError as error:
@@ -112,7 +112,8 @@ class SerializableMixin(ZfitSerializable):
         from zfit.serialization import Serializer
 
         Serializer.initialize()
-        orm = self.get_repr().from_orm(self)
+        repr = self.get_repr()
+        orm = repr.from_orm(self)
         return orm.dict(exclude_none=True, by_alias=True)
 
     @classmethod

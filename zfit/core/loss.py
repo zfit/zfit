@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List, Optional, Union
 
 try:
     from typing import Literal
@@ -135,14 +135,28 @@ def _constraint_check_convert(constraints):
 
 
 # TODO(serialization): add to serializer
-# class BaseLossRepr(BaseRepr):
-#     _implementation = None
-#     _owndict = pydantic.PrivateAttr(default_factory=dict)
-#     hs3_type: Literal["BaseLoss"] = Field("BaseLoss", alias="type")
-#     model: Union[Serializer.types.PDFTypeDiscriminated, List[Serializer.types.PDFTypeDiscriminated]]
-#     data: Union[Serializer.types.DataTypeDiscriminated, List[Serializer.types.DataTypeDiscriminated]]
-#     # constraints: Optional[List[Serializer.types.ConstraintTypeDiscriminated]] = Field(default_factory=list)
-#     options: Optional[Mapping] = Field(default_factory=dict)
+class BaseLossRepr(BaseRepr):
+    _implementation = None
+    _owndict = pydantic.PrivateAttr(default_factory=dict)
+    hs3_type: Literal["BaseLoss"] = Field("BaseLoss", alias="type")
+    model: Union[
+        Serializer.types.PDFTypeDiscriminated,
+        List[Serializer.types.PDFTypeDiscriminated],
+    ]
+    data: Union[
+        Serializer.types.DataTypeDiscriminated,
+        List[Serializer.types.DataTypeDiscriminated],
+    ]
+    constraints: Optional[List[Serializer.types.ConstraintTypeDiscriminated]] = Field(
+        default_factory=list
+    )
+    options: Optional[Mapping] = Field(default_factory=dict)
+
+    @pydantic.validator("model", "data", "constraints", pre=True)
+    def _check_container(cls, v):
+        if cls.orm_mode(v):
+            v = convert_to_container(v, list)
+        return v
 
 
 class BaseLoss(ZfitLoss, BaseNumeric):
@@ -597,7 +611,7 @@ def one_two_many(values, n=3, many="multiple"):
     return values
 
 
-class UnbinnedNLL(BaseLoss):
+class UnbinnedNLL(BaseLoss, SerializableMixin):
     _name = "UnbinnedNLL"
 
     def __init__(
@@ -830,9 +844,9 @@ class UnbinnedNLL(BaseLoss):
 
 
 # TODO(serialization): add to serializer
-# class UnbinnedNLLRepr(BaseLossRepr):
-#     _implementation = UnbinnedNLL
-#     hs3_type: Literal["UnbinnedNLL"] = pydantic.Field("UnbinnedNLL", alias="type")
+class UnbinnedNLLRepr(BaseLossRepr):
+    _implementation = UnbinnedNLL
+    hs3_type: Literal["UnbinnedNLL"] = pydantic.Field("UnbinnedNLL", alias="type")
 
 
 class ExtendedUnbinnedNLL(UnbinnedNLL):
@@ -933,9 +947,11 @@ class ExtendedUnbinnedNLL(UnbinnedNLL):
 
 
 # TODO(serialization): add to serializer
-# class ExtendedUnbinnedNLLRepr(BaseLossRepr):
-#     _implementation = ExtendedUnbinnedNLL
-#     hs3_type: Literal["ExtendedUnbinnedNLL"] = pydantic.Field("ExtendedUnbinnedNLL", alias="type")
+class ExtendedUnbinnedNLLRepr(BaseLossRepr):
+    _implementation = ExtendedUnbinnedNLL
+    hs3_type: Literal["ExtendedUnbinnedNLL"] = pydantic.Field(
+        "ExtendedUnbinnedNLL", alias="type"
+    )
 
 
 class SimpleLoss(BaseLoss):

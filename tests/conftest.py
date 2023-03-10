@@ -7,6 +7,7 @@ import pathlib
 import sys
 
 import matplotlib.pyplot as plt
+import numpy as np
 import pytest
 
 try:
@@ -127,6 +128,10 @@ def cleanup_recursive(dict1, dict2):
                 dict1[key] = dict1sub
             if dict2sub is not None:
                 dict2[key] = dict2sub
+        elif isinstance(val1, np.ndarray):
+            dict1[key] = val1.tolist()
+        elif isinstance(val2, np.ndarray):
+            dict2[key] = val2.tolist()
     return dict1, dict2
 
 
@@ -171,6 +176,8 @@ def get_truth(folder, filename, request, newval=None):
         if filepath.suffix == ".json":
             import json
 
+            if isinstance(newval, str):
+                newval = json.loads(newval)
             with open(filepath, "w") as f:
                 json.dump(newval, f)
         elif filepath.suffix == ".yaml":

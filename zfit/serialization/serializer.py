@@ -28,9 +28,9 @@ from zfit.core.interfaces import (
     ZfitData,
     ZfitBinnedData,
     ZfitConstraint,
+    ZfitLoss,
 )
 from zfit.core.serialmixin import ZfitSerializable
-from zfit.util.exception import WorkInProgressError
 from zfit.util.warnings import warn_experimental_feature
 
 
@@ -206,7 +206,11 @@ class Serializer:
     @classmethod
     @warn_experimental_feature
     def to_hs3(
-        cls, obj: Union[List[ZfitPDF], Tuple[ZfitPDF], ZfitPDF]
+        cls,
+        obj: Union[
+            Union[List[ZfitPDF], Tuple[ZfitPDF], ZfitPDF],
+            Union[List[ZfitLoss], Tuple[ZfitLoss], ZfitLoss],
+        ],
     ) -> Mapping[str, Any]:
         """Serialize a PDF or a list of PDFs to a JSON string according to the HS3 standard.
 
@@ -248,14 +252,16 @@ class Serializer:
                     "Mappings are currently not supported. Use a PDF or a list of PDFs instead."
                 )
         else:
-            pdfs = convert_to_container(obj)
+            obj = convert_to_container(obj)
         from zfit.core.interfaces import ZfitPDF
 
-        if not all(isinstance(ob, ZfitPDF) for ob in pdfs):
-            raise WorkInProgressError("Only PDFs can be serialized currently")
+        all_pdfs = all(isinstance(ob, ZfitPDF) for ob in obj)
+        all_losses = all(isinstance(ob, ZfitLoss) for ob in obj)
+        if not all_pdfs and not all_losses:
+            raise TypeError("Only PDFs or losses can be serialized.")
         from zfit.core.serialmixin import ZfitSerializable
 
-        if not all(isinstance(pdf, ZfitSerializable) for pdf in pdfs):
+        if not all(isinstance(pdf, ZfitSerializable) for pdf in obj):
             raise SerializationTypeError("All pdfs must be ZfitSerializable")
         import zfit
 
@@ -266,12 +272,33 @@ class Serializer:
             },
             "pdfs": {},
             "variables": {},
+            "loss": {},
+            "data": {},
+            "constraints": {},
         }
-        pdf_number = range(len(pdfs))
-        for pdf in pdfs:
-            name = pdf.name
-            if name in out["pdfs"]:
-                name = f"{name}_{pdf_number}"
+        loss_number = range(len(obj))
+
+        all_objs = {"data": [], "pdfs": [], "constraints": [], "loss": []}
+        if all_pdfs:
+            all_objs["pdfs"] = obj
+        else:
+            for loss in obj:
+                all_objs["pdfs"].extend(loss.model)
+                all_objs["constraints"].extend(loss.constraints)
+                all_objs["data"].extend(loss.data)
+                all_objs["loss"].append(loss)
+        all_objs = {key: set(val) for key, val in all_objs.items()}
+        all_objs_cleaned = {key: {} for key in all_objs.keys()}
+        # give all of the objects unique names
+        for key, val in all_objs.items():
+            for ob in val:
+                name = ob.name
+                if name in all_objs_cleaned[key]:
+                    name = f"{name}_{loss_number}"
+                all_objs_cleaned[key][name] = ob
+
+        for name, pdf in all_objs_cleaned["pdfs"].items():
+            assert name not in out["pdfs"], "Name should have been uniqueified"
             pdf_repr = pdf.get_repr().from_orm(pdf)
             out["pdfs"][name] = pdf_repr.dict(**serial_kwargs)
 
@@ -291,6 +318,17 @@ class Serializer:
                     spacedict = space.get_repr().from_orm(space).dict(**serial_kwargs)
                     del spacedict["type"]
                     out["variables"][ob] = spacedict
+
+        for name, loss in all_objs_cleaned["loss"].items():
+            out["loss"][name] = loss.get_repr().from_orm(loss).dict(**serial_kwargs)
+
+        for name, data in all_objs_cleaned["data"].items():
+            out["data"][name] = data.get_repr().from_orm(data).dict(**serial_kwargs)
+
+        for name, constraint in all_objs_cleaned["constraints"].items():
+            out["constraints"][name] = (
+                constraint.get_repr().from_orm(constraint).dict(**serial_kwargs)
+            )
 
         out = cls.post_serialize(out)
 
@@ -342,7 +380,7 @@ class Serializer:
 
         load = cls.pre_deserialize(load)
 
-        out = {"pdfs": {}, "variables": {}}
+        out = {"pdfs": {}, "variables": {}, "loss": {}, "data": {}, "constraints": {}}
         for name, pdf in load["pdfs"].items():
             repr = Serializer.type_repr[pdf["type"]]
             repr_inst = repr(**pdf)
@@ -351,7 +389,20 @@ class Serializer:
             repr = Serializer.type_repr[param["type"]]
             repr_inst = repr(**param)
             out["variables"][name] = repr_inst.to_orm()
+        for name, loss in load["loss"].items():
+            repr = Serializer.type_repr[loss["type"]]
+            repr_inst = repr(**loss)
+            out["loss"][name] = repr_inst.to_orm()
+        for name, data in load["data"].items():
+            repr = Serializer.type_repr[data["type"]]
+            repr_inst = repr(**data)
+            out["data"][name] = repr_inst.to_orm()
+        for name, constraint in load["constraints"].items():
+            repr = Serializer.type_repr[constraint["type"]]
+            repr_inst = repr(**constraint)
+            out["constraints"][name] = repr_inst.to_orm()
         out["metadata"] = load["metadata"].copy()
+
         out = cls.post_deserialize(out)
         return out
 

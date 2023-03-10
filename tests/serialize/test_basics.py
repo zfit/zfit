@@ -41,13 +41,13 @@ def test_serial_param():
     assert param == param3
 
 
-def gauss(**kwargs):
+def gauss(extended=None, **kwargs):
     import zfit
 
     mu = zfit.Parameter("mu_gauss", 0.1, -1, 1)
     sigma = zfit.Parameter("sigma_gauss", 0.1, 0, 1)
     obs = zfit.Space("obs", (-3, 3))
-    return zfit.pdf.Gauss(mu=mu, sigma=sigma, obs=obs)
+    return zfit.pdf.Gauss(mu=mu, sigma=sigma, obs=obs, extended=extended)
 
 
 def prod2dgauss(extended=None, **kwargs):
@@ -60,28 +60,28 @@ def prod2dgauss(extended=None, **kwargs):
     obs2 = zfit.Space("obs2", (-13, 5))
     gauss1 = zfit.pdf.Gauss(mu=mu, sigma=sigma1, obs=obs1)
     gauss2 = zfit.pdf.Gauss(mu=mu, sigma=sigma2, obs=obs2)
-    prod = zfit.pdf.ProductPDF([gauss1, gauss2], extended=extended)
+    prod = zfit.pdf.ProductPDF([gauss1, gauss2], extended=extended, name="prod2dgauss")
     return prod
 
 
-def cauchy(**kwargs):
+def cauchy(extended=None, **kwargs):
     import zfit
 
     m = zfit.Parameter("m_cauchy", 0.1, -1, 1)
     gamma = zfit.Parameter("gamma_cauchy", 0.1, 0, 1)
     obs = zfit.Space("obs", (-3, 3))
-    return zfit.pdf.Cauchy(m=m, gamma=gamma, obs=obs)
+    return zfit.pdf.Cauchy(m=m, gamma=gamma, obs=obs, extended=extended)
 
 
-def exponential(**kwargs):
+def exponential(extended=None, **kwargs):
     import zfit
 
     lam = zfit.Parameter("lambda_exp", 0.1, -1, 1)
     obs = zfit.Space("obs", (-3, 3))
-    return zfit.pdf.Exponential(lam=lam, obs=obs)
+    return zfit.pdf.Exponential(lam=lam, obs=obs, extended=extended)
 
 
-def crystalball(**kwargs):
+def crystalball(extended=None, **kwargs):
     import zfit
 
     alpha = zfit.Parameter("alphacb", 0.1, -1, 1)
@@ -89,10 +89,12 @@ def crystalball(**kwargs):
     mu = zfit.Parameter("mucb", 0.1, -1, 1)
     sigma = zfit.Parameter("sigmacb", 0.1, 0, 1)
     obs = zfit.Space("obs", (-3, 3))
-    return zfit.pdf.CrystalBall(alpha=alpha, n=n, mu=mu, sigma=sigma, obs=obs)
+    return zfit.pdf.CrystalBall(
+        alpha=alpha, n=n, mu=mu, sigma=sigma, obs=obs, extended=extended
+    )
 
 
-def doublecb(**kwargs):
+def doublecb(extended=None, **kwargs):
     import zfit
 
     alphaL = zfit.Parameter("alphaL_dcb", 0.1, -1, 1)
@@ -103,48 +105,55 @@ def doublecb(**kwargs):
     sigma = zfit.Parameter("sigma_dcb", 0.1, 0, 1)
     obs = zfit.Space("obs", (-3, 3))
     return zfit.pdf.DoubleCB(
-        alphal=alphaL, nl=nL, alphar=alphaR, nr=nR, mu=mu, sigma=sigma, obs=obs
+        alphal=alphaL,
+        nl=nL,
+        alphar=alphaR,
+        nr=nR,
+        mu=mu,
+        sigma=sigma,
+        obs=obs,
+        extended=extended,
     )
 
 
-def legendre(**kwargs):
+def legendre(extended=None, **kwargs):
     import zfit
 
     obs = zfit.Space("obs", (-3, 3))
     coeffs = [zfit.Parameter(f"coeff{i}_legendre", 0.1, -1, 1) for i in range(5)]
-    return zfit.pdf.Legendre(obs=obs, coeffs=coeffs)
+    return zfit.pdf.Legendre(obs=obs, coeffs=coeffs, extended=extended)
 
 
-def chebyshev(**kwargs):
+def chebyshev(extended=None, **kwargs):
     import zfit
 
     obs = zfit.Space("obs", (-3, 3))
     coeffs = [zfit.Parameter(f"coeff{i}_cheby", 0.1, -1, 1) for i in range(5)]
-    return zfit.pdf.Chebyshev(obs=obs, coeffs=coeffs)
+    return zfit.pdf.Chebyshev(obs=obs, coeffs=coeffs, extended=extended)
 
 
-def chebyshev2(**kwargs):
+def chebyshev2(extended=None, **kwargs):
     import zfit
 
     obs = zfit.Space("obs", (-3, 3))
     coeffs = [zfit.Parameter(f"coeff{i}_cheby2", 0.1, -1, 1) for i in range(5)]
-    return zfit.pdf.Chebyshev2(obs=obs, coeffs=coeffs)
+    return zfit.pdf.Chebyshev2(obs=obs, coeffs=coeffs, extended=extended)
 
 
-def laguerre(**kwargs):
+def laguerre(extended=None, **kwargs):
     import zfit
 
     obs = zfit.Space("obs", (-3, 3))
     coeffs = [zfit.Parameter(f"coeff{i}_laguerre", 0.1) for i in range(5)]
-    return zfit.pdf.Laguerre(obs=obs, coeffs=coeffs)
+    return zfit.pdf.Laguerre(obs=obs, coeffs=coeffs, extended=extended)
 
 
-def hermite(**kwargs):
+def hermite(extended=None, **kwargs):
     import zfit
 
     obs = zfit.Space("obs", (-3, 3))
     coeffs = [zfit.Parameter(f"coeff{i}_hermite", 0.1, -1, 1) for i in range(5)]
-    return zfit.pdf.Hermite(obs=obs, coeffs=coeffs)
+    return zfit.pdf.Hermite(obs=obs, coeffs=coeffs, extended=extended)
 
 
 basic_pdfs = [
@@ -211,6 +220,7 @@ def complicatedpdf(pdfs=None, extended=None, **kwargs):
         fracs=[
             zfit.Parameter(f"frac_sum3_{i}", 0.1, -1, 1) for i in range(len(pdfs4) - 1)
         ],
+        name="complicatedpdf",
     )
     return sum3
 
@@ -244,19 +254,81 @@ all_pdfs = (
     + [prod2dgauss]
 )
 
+all_constraints = [
+    lambda: zfit.constraint.GaussianConstraint(
+        params=[zfit.Parameter("mu", 0.0, -1, 1), zfit.Parameter("sigma", 1.0, 0, 10)],
+        observation=[0.0, 1.0],
+        uncertainty=[0.1, 0.5],
+    ),
+    lambda: zfit.constraint.PoissonConstraint(
+        params=[zfit.Parameter("mu", 0.1, -1, 1), zfit.Parameter("sigma", 1.0, 0, 10)],
+        observation=[0.1, 1.2],
+    ),
+    lambda: zfit.constraint.LogNormalConstraint(
+        params=[zfit.Parameter("mu", 0.1, -1, 1), zfit.Parameter("sigma", 1.0, 0, 10)],
+        observation=[0.1, 1.2],
+        uncertainty=[0.1, 0.5],
+    ),
+]
+
 
 # TODO(serialization): add to serializer
-# def test_loss_serialization():
-#     import zfit
-#
-#     for pdf_factory in all_pdfs:
-#         pdf = pdf_factory()
-#         data = zfit.Data.from_numpy(obs=pdf.space, array=np.random.normal(size=1000))
-#         # print(pdf)
-#         loss = zfit.loss.UnbinnedNLL(pdf, data)
-#         loss_json = loss.to_json()
-#         print(loss_json)
-#         break
+@pytest.mark.parametrize(
+    "ext_Loss",
+    [(False, zfit.loss.UnbinnedNLL), (True, zfit.loss.ExtendedUnbinnedNLL)],
+    ids=lambda x: x[1].__name__,
+)
+@pytest.mark.parametrize("pdf_factory", all_pdfs, ids=lambda x: x.__name__)
+@pytest.mark.parametrize(
+    "Constraint", [None] + all_constraints, ids=lambda x: (x is not None) and x.__name__
+)
+def test_loss_serialization(ext_Loss, pdf_factory, Constraint, request):
+    import zfit
+
+    extended, Loss = ext_Loss
+    pdf = pdf_factory(extended=extended)
+    assert pdf.is_extended == extended, "Error in testing setup"
+    data = zfit.Data.from_numpy(
+        obs=pdf.space, array=np.random.normal(size=(1000, pdf.n_obs))
+    )
+    constraint = Constraint() if Constraint is not None else None
+    loss = Loss(pdf, data, constraints=constraint)
+    loss_dict = loss.to_dict()
+    loss_asdf = loss.to_asdf()
+
+    loss_truth_dumped = pytest.helpers.get_truth(
+        f"hs3_loss/{loss.name}",
+        f"{loss.name}_{pdf.name}.asdf",
+        request,
+        newval=loss_asdf,
+    )
+    loss_truth_tree = loss_truth_dumped.tree
+    loss_asdf_tree = loss_asdf.tree
+    for l in [loss_asdf_tree, loss_truth_tree]:
+        l.pop("asdf_library", None)
+        l.pop("history", None)
+
+    # assert loss_asdf_tree == loss_truth_tree
+    loss_loaded = loss.__class__.from_asdf(loss_asdf)
+
+    print(loss_loaded)
+
+
+@pytest.mark.parametrize("Constraint", all_constraints, ids=lambda x: x.__name__)
+def test_constraint_dumpload(Constraint, request):
+    constraint = Constraint()
+    constraint_dict = constraint.to_dict()
+    constraint_json = constraint.to_json()
+    constraint_loaded_truth = pytest.helpers.get_truth(
+        "hs3_constraint", f"{constraint.name}.json", request, newval=constraint_json
+    )
+    constraint_loaded = constraint.__class__.from_json(constraint_json).to_dict()
+    constraint_loaded_truth["library"] = "ZFIT_ARBITRARY_VALUE"
+    (
+        constraint_loaded_cleaned,
+        constraint_loaded_truth_cleaned,
+    ) = pytest.helpers.cleanup_hs3(constraint_loaded, constraint_loaded_truth)
+    assert constraint_loaded_cleaned == constraint_loaded_truth_cleaned
 
 
 @pytest.mark.parametrize("pdf", all_pdfs, ids=lambda x: x.__name__)
