@@ -26,3 +26,9 @@ class BasePDFRepr(BaseRepr):
             values.update(**values.pop("params"))
             values["x"] = values.pop("space")
         return values
+
+    def _to_orm(self, init):
+        if "x" in init:  # in case it was already popped downstreams
+            init["obs"] = init.pop("x")
+        out = super()._to_orm(init)
+        return out

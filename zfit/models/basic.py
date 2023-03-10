@@ -241,8 +241,3 @@ class ExponentialPDFRepr(BasePDFRepr):
     hs3_type: Literal["Exponential"] = Field("Exponential", alias="type")
     x: SpaceRepr
     lam: Serializer.types.ParamTypeDiscriminated
-
-    def _to_orm(self, init):
-        init["obs"] = init.pop("x")
-        out = super()._to_orm(init)
-        return out

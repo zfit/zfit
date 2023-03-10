@@ -142,7 +142,6 @@ class BaseRecursivePolynomialRepr(BasePDFRepr):
         return values
 
     def _to_orm(self, init):
-        init["obs"] = init.pop("x")
         init["coeff0"], *init["coeffs"] = init.pop("params").values()
         return super()._to_orm(init)
 

@@ -258,11 +258,6 @@ class GaussPDFRepr(BasePDFRepr):
     mu: Serializer.types.ParamInputTypeDiscriminated
     sigma: Serializer.types.ParamInputTypeDiscriminated
 
-    def _to_orm(self, init):
-        init["obs"] = init.pop("x")
-        out = super()._to_orm(init)
-        return out
-
 
 class ExponentialTFP(WrapDistribution):
     _N_OBS = 1
@@ -447,11 +442,6 @@ class CauchyPDFRepr(BasePDFRepr):
     m: Serializer.types.ParamTypeDiscriminated
     gamma: Serializer.types.ParamTypeDiscriminated
 
-    def _to_orm(self, init):
-        init["obs"] = init.pop("x")
-        out = super()._to_orm(init)
-        return out
-
 
 class Poisson(WrapDistribution, SerializableMixin):
     _N_OBS = 1
@@ -510,8 +500,3 @@ class PoissonPDFRepr(BasePDFRepr):
     hs3_type: Literal["Poisson"] = Field("Poisson", alias="type")
     x: SpaceRepr
     lam: Serializer.types.ParamTypeDiscriminated
-
-    def _to_orm(self, init):
-        init["obs"] = init.pop("x")
-        out = super()._to_orm(init)
-        return out
