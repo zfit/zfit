@@ -25,11 +25,16 @@ class SpaceRepr(BaseRepr):
     name: str
     lower: Optional[NumericTyped] = Field(alias="min")
     upper: Optional[NumericTyped] = Field(alias="max")
-    binning: Optional[float] = None
+    binning: Optional[float] = None  # TODO: binning
 
     @root_validator(pre=True)
     def _validate_pre(cls, values):
         if cls.orm_mode(values):
+            if values["n_obs"] > 1:
+                raise RuntimeError(
+                    "Multiple observables are not supported yet. For PDFs with multiple observables, "
+                    "this should work. But directly dumping a multidimensional Space is not supported."
+                )
             values = dict(values)
             values["name"] = values.pop("obs")[0]
 

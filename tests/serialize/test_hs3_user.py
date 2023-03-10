@@ -49,5 +49,3 @@ def test_dumpload_hs3(request):
 
     hs3model_false_truth = hs3model_true.copy()
     hs3model_false_truth["variables"]["mu3"] = mu
-
-    # hs3model = zfit.hs3.dump(model)

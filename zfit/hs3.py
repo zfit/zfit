@@ -38,7 +38,7 @@ def dump(obj: ZfitSerializable):
     Returns:
     str: The string representation of the object.
     """
-    return Serializer().to_hs3(obj)
+    return Serializer.to_hs3(obj)
 
 
 @warn_experimental_feature
@@ -63,4 +63,4 @@ def load(string: str):
     Returns:
         ZfitSerializable: The object.
     """
-    return Serializer().from_hs3(string)
+    return Serializer.from_hs3(string)

@@ -405,7 +405,7 @@ def test_dumpload_pdf(pdfcreator):
         json1cleaned = json2cleaned.replace(f"autoparam_{i}", "autoparam_ANY")
     assert json1cleaned == json2cleaned  # Just a technicality
     gauss3 = pdf.__class__.get_repr().parse_raw(json2).to_orm()
-    x = znp.linspace(-3, 3, 100)
+    x = znp.random.uniform(-3, 3, size=(100, pdf.n_obs))
     assert np.allclose(pdf.pdf(x), gauss3.pdf(x))
     assert np.allclose(gauss2.pdf(x), gauss3.pdf(x))
     param1.set_value(0.6)
@@ -425,7 +425,6 @@ param_factories = [
     lambda: zfit.Parameter("test1", 5.0, floating=True),
     lambda: zfit.param.ConstantParameter("const1", 5.0),
     lambda: zfit.Space("obs", (-3.0, 5.0)),
-    lambda: zfit.Space("obs1", (-3.0, 5.0)) * zfit.Space("obs2", (-13.0, 15.0)),
 ]
 
 

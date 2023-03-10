@@ -43,7 +43,13 @@ alias1 = Aliases(hs3_type="type")
 
 class Types:
     def __init__(self):
-        """Hold all types that are used in the serialization, automatically collects parameters and PDFs."""
+        """Hold all types that are used in the serialization, automatically collects parameters and PDFs.
+
+        This holding of types in this way is needed to delay the evaluation of the annotations, which is necessary since
+        pydantic will remember (statically) the types and not evaluate them again. Therefore, we delay the evaluation of
+        the types until the first time the serializer is used by artificially blocking the forward references
+        evaluation.
+        """
         self._constraint_repr = []
         self._data_repr = []
         self._pdf_repr = []
@@ -108,6 +114,15 @@ class Types:
     def register_repr(self, repr: Union[ZfitPDF, ZfitParameter]) -> None:
         """Register a repr to be used in the serialization such as PDF or Parameter.
 
+        This is needed to make sure that objects which use any of these types can be recursively
+        serialized. They are autamtically added to the correct type.
+        For example, a `SumPDF` can be a sum of arbitrary PDFs, so it needs to be able to serialize
+        any PDF. This is done by registering the PDFs to the serializer and assigning the datafield
+        of `PDFTypeDiscriminated` to the `pdfs` field of `SumPDF`.
+
+        Discriminated refers to the fact that they're not arbitrary types, but only the types that
+        are registered and that exactly those will be used.
+
         Args:
             repr: The repr to be registered.
         """
@@ -128,6 +143,13 @@ class SerializationTypeError(TypeError):
 
 
 class Serializer:
+    """Main serializer, to be used as a class only."""
+
+    def __new__(cls, *args, **kwargs):
+        raise TypeError(
+            "Serializer should be used as a class, no instances are allowed"
+        )
+
     types = Types()
     is_initialized = False
 
@@ -252,7 +274,9 @@ class Serializer:
             pdf_repr = pdf.get_repr().from_orm(pdf)
             out["pdfs"][name] = pdf_repr.dict(**serial_kwargs)
 
-            for param in pdf.get_params(floating=None, extract_independent=None):
+            for param in pdf.get_params(
+                floating=None, extract_independent=None
+            ):  # TODO: this is not ideal, we should take the serialized params?
                 if isinstance(param, ComposedParameter):
                     continue  # we skip it currently, as it depends on others. Maybe also put in?
                 if param.name not in out["variables"]:

@@ -8,6 +8,8 @@ import dill
 def make_param_constructor(constructor):
     """Create a constructor for a parameter class avoiding the `NameAlreadyTakenError`.
 
+    If the parameter already exists, it is returned instead of creating a new one.
+
     Args:
         constructor: Callable that creates the parameter.
 

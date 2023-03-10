@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 
 from __future__ import annotations
 
@@ -43,7 +43,9 @@ class BinnedSumPDF(BaseBinnedFunctorPDF):
             param_fracs,
             params,
             sum_yields,
+            frac_param_created,
         ) = _preprocess_init_sum(fracs, obs, pdfs)
+        del frac_param_created  # currently actually not used
 
         self._fracs = param_fracs
         self._original_fracs = fracs_cleaned

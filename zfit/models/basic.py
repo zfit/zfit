@@ -2,7 +2,7 @@
 
 Gauss, exponential... that can be used together with Functors to build larger models.
 """
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 
 from __future__ import annotations
 
@@ -246,7 +246,7 @@ class ExponentialPDFRepr(BasePDFRepr):
     def convert_params_exp(cls, values):
         if cls.orm_mode(values):
             values = dict(values)
-            values.update(lam=values.pop("params")["lam"])
+            values.update(**values.pop("params"))
             values["x"] = values.pop("space")
         return values
 
