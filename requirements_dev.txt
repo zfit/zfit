@@ -18,6 +18,7 @@ pydata-sphinx-theme>=0.9  # new dark theme configuration
 pygit2
 pyhf>=0.7.0  # for comparison of correctness
 pytest-benchmark
+pytest-helpers-namespace
 pyyaml
 seed_intersphinx_mapping
 setupext-janitor

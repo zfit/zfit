@@ -1150,9 +1150,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         limits = self._check_input_limits(limits=limits)
         if isinstance(n, str):
             n = None
-        if n is not None:
-            n = tf.convert_to_tensor(n)
-            n = tf.cast(n, dtype=tf.int32)
+        # Do NOT convert to tensor here, it will be done in the sampler (could be stateful object)
 
         if not limits.limits_are_set:
             limits = self.space  # TODO(Mayou36): clean up, better norm_range?

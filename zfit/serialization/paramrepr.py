@@ -1,6 +1,8 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 
 from __future__ import annotations
+
+import dill
 
 
 def make_param_constructor(constructor):

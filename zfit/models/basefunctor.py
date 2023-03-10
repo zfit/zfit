@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 
 from __future__ import annotations
 
@@ -166,6 +166,7 @@ def _extract_common_obs(obs: tuple[tuple[str] | Space]) -> tuple[str]:
 
 
 def _preprocess_init_sum(fracs, obs, pdfs):
+    frac_param_created = False
     if len(pdfs) < 2:
         raise ValueError(f"Cannot build a sum of less than two pdfs {pdfs}")
     common_obs = obs if obs is not None else pdfs[0].obs
@@ -197,6 +198,7 @@ def _preprocess_init_sum(fracs, obs, pdfs):
     if fracs:
         # create fracs if one is missing
         if len(fracs) == len(pdfs) - 1:
+            frac_param_created = True
             frac_params_tmp = {f"frac_{i}": frac for i, frac in enumerate(fracs)}
 
             def remaining_frac_func(params):
@@ -213,7 +215,7 @@ def _preprocess_init_sum(fracs, obs, pdfs):
                     f"The remaining fraction is negative, the sum of fracs is > 0. Fracs: {fracs}",
                 )  # check fractions
 
-            # IMPORTANT! Otherwise, recursion due to namespace capture in the lambda
+            # IMPORTANT to change the name! Otherwise, recursion due to namespace capture in the lambda
             fracs_cleaned = fracs + [remaining_frac]
 
         elif len(fracs) == len(pdfs):
@@ -256,4 +258,11 @@ def _preprocess_init_sum(fracs, obs, pdfs):
     params = OrderedDict()
     for i, frac in enumerate(param_fracs):
         params[f"frac_{i}"] = frac
-    return all_extended, fracs_cleaned, param_fracs, params, sum_yields
+    return (
+        all_extended,
+        fracs_cleaned,
+        param_fracs,
+        params,
+        sum_yields,
+        frac_param_created,
+    )

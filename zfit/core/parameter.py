@@ -1013,7 +1013,7 @@ class ComposedParameter(SerializableMixin, BaseComposedParameter):
                 .. deprecated:: unknown
                     use `params` instead.
         """
-        original_init = {"name": name, "value_fn": value_fn, "params": params}
+        original_init = {"name": name, "value_fn": value_fn}
         if dependents is not NotSpecified:
             params = dependents
         elif params is NotSpecified:
@@ -1030,6 +1030,9 @@ class ComposedParameter(SerializableMixin, BaseComposedParameter):
                 params_dict = {}
             else:
                 params_dict = {f"param_{i}": p for i, p in enumerate(params)}
+        original_init[
+            "params"
+        ] = params_dict  # needs to be here, we need the params to be a dict for the serialization
         super().__init__(params=params_dict, value_fn=value_fn, name=name, dtype=dtype)
         self.hs3.original_init.update(original_init)
 
@@ -1051,20 +1054,10 @@ class ComposedParameterRepr(BaseRepr):
     value_fn: str
     params: Dict[str, Serializer.types.ParamTypeDiscriminated]
 
-    # lower: Optional[float] = Field(None, alias="min")
-    # upper: Optional[float] = Field(None, alias="max")
-    # value: Optional[float] = None
-
     @validator("value_fn", pre=True)
     def _validate_value_pre(cls, value):
         if cls.orm_mode(value):
             value = dill.dumps(value).hex()
-        return value
-
-    @validator("value_fn", pre=False)
-    def _validate_value_post(cls, value):
-        if not cls.orm_mode(value):
-            value = dill.loads(bytes.fromhex(value))
         return value
 
     @pydantic.root_validator(pre=True)
@@ -1072,6 +1065,13 @@ class ComposedParameterRepr(BaseRepr):
         if cls.orm_mode(values):
             values = values["hs3"].original_init
         return values
+
+    def _to_orm(self, init):
+        init = copy.copy(init)
+        value_fn = init.pop("value_fn")
+        init["value_fn"] = dill.loads(bytes.fromhex(value_fn))
+        out = super()._to_orm(init)
+        return out
 
 
 class ComplexParameter(ComposedParameter):  # TODO: change to real, imag as input?

@@ -5,6 +5,8 @@ import numpy as np
 import pytest
 from frozendict import frozendict
 
+import zfit
+
 
 def test_serial_space():
     import zfit
@@ -46,6 +48,20 @@ def gauss(**kwargs):
     sigma = zfit.Parameter("sigma_gauss", 0.1, 0, 1)
     obs = zfit.Space("obs", (-3, 3))
     return zfit.pdf.Gauss(mu=mu, sigma=sigma, obs=obs)
+
+
+def prod2dgauss(extended=None, **kwargs):
+    import zfit
+
+    mu = zfit.Parameter("mu_gauss", 0.1, -1, 1)
+    sigma1 = zfit.Parameter("sigma_gauss", 0.1, 0, 1)
+    obs1 = zfit.Space("obs1", (-3, 7))
+    sigma2 = zfit.Parameter("sigma_gauss2", 0.1, 0, 1)
+    obs2 = zfit.Space("obs2", (-13, 5))
+    gauss1 = zfit.pdf.Gauss(mu=mu, sigma=sigma1, obs=obs1)
+    gauss2 = zfit.pdf.Gauss(mu=mu, sigma=sigma2, obs=obs2)
+    prod = zfit.pdf.ProductPDF([gauss1, gauss2], extended=extended)
+    return prod
 
 
 def cauchy(**kwargs):
@@ -217,12 +233,16 @@ def conditionalpdf(pdf=None, extended=None, **kwargs):
     )
 
 
-all_pdfs = basic_pdfs + [
-    sumpdf,
-    productpdf,
-    convolutionpdf,
-    complicatedpdf,
-]
+all_pdfs = (
+    basic_pdfs
+    + [
+        sumpdf,
+        productpdf,
+        convolutionpdf,
+        complicatedpdf,
+    ]
+    + [prod2dgauss]
+)
 
 
 # TODO(serialization): add to serializer
@@ -256,7 +276,7 @@ def test_serial_hs3_pdfs(pdf, extended):
 
     loaded_pdf = list(loaded["pdfs"].values())[0]
     assert str(pdf) == str(loaded_pdf)
-    x = znp.linspace(-3, 3, 100)
+    x = znp.random.uniform(-3, 3, size=(107, pdf.n_obs))
     assert np.allclose(pdf.pdf(x), loaded_pdf.pdf(x))
     if extended:
         scale.set_value(0.6)
@@ -391,3 +411,28 @@ def test_dumpload_pdf(pdfcreator):
     param1.set_value(0.6)
     assert np.allclose(pdf.pdf(x), gauss3.pdf(x))
     assert np.allclose(gauss2.pdf(x), gauss3.pdf(x))
+
+
+param_factories = [
+    lambda: zfit.param.ComposedParameter(
+        "test", lambda x: x, [zfit.Parameter("x", 1.0, 0.5, 1.4)]
+    ),
+    lambda: zfit.Parameter("test1", 5.0, 3.0, 10.0),
+    lambda: zfit.Parameter("test1", 5.0, 3.0, 10.0, step_size=1.1),
+    lambda: zfit.Parameter("test1", 5.0, step_size=1.1),
+    lambda: zfit.Parameter("test1", 5.0, 3.0, 10.0, step_size=1.1, floating=False),
+    lambda: zfit.Parameter("test1", 5.0, 3.0, 10.0, floating=False),
+    lambda: zfit.Parameter("test1", 5.0, floating=True),
+    lambda: zfit.param.ConstantParameter("const1", 5.0),
+    lambda: zfit.Space("obs", (-3.0, 5.0)),
+    lambda: zfit.Space("obs1", (-3.0, 5.0)) * zfit.Space("obs2", (-13.0, 15.0)),
+]
+
+
+@pytest.mark.parametrize("param_factory", param_factories)
+def test_params_dumpload(param_factory):
+    param = param_factory()
+    json = param.to_json()
+    param_loaded = param.get_repr().parse_raw(json).to_orm()
+    assert param == param_loaded
+    assert json == param_loaded.to_json()

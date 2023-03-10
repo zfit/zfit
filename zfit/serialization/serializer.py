@@ -1,6 +1,7 @@
 #  Copyright (c) 2023 zfit
 from __future__ import annotations
 
+import collections
 import contextlib
 import copy
 import functools
@@ -12,6 +13,8 @@ import pydantic
 import tensorflow as tf
 from frozendict import frozendict
 from pydantic import Field
+
+from zfit.util.container import convert_to_container
 
 try:
     from typing import Literal, Annotated
@@ -120,6 +123,10 @@ class Types:
             self._constraint_repr.append(repr)
 
 
+class SerializationTypeError(TypeError):
+    pass
+
+
 class Serializer:
     types = Types()
     is_initialized = False
@@ -175,7 +182,9 @@ class Serializer:
 
     @classmethod
     @warn_experimental_feature
-    def to_hs3(cls, obj: Union[List[ZfitPDF], Tuple[ZfitPDF], ZfitPDF]) -> str:
+    def to_hs3(
+        cls, obj: Union[List[ZfitPDF], Tuple[ZfitPDF], ZfitPDF]
+    ) -> Mapping[str, Any]:
         """Serialize a PDF or a list of PDFs to a JSON string according to the HS3 standard.
 
         .. warning::
@@ -189,19 +198,34 @@ class Serializer:
                    coordinated effort of the HEP community to standardize the serialization of statistical models. The standard
                    is still in development and is not yet finalized. This function is experimental and may change in the future. |@docend:hs3.explain|
 
-
-
         Args:
             obj: The PDF or list of PDFs to be serialized.
 
         Returns:
             mapping: The serialized objects as a mapping. The keys are 'pdfs' and 'variables' as well as a 'metadata' key
         """
+        from zfit.param import ComposedParameter
+
         cls.initialize()
 
         serial_kwargs = {"exclude_none": True, "by_alias": True}
-        if not isinstance(obj, (list, tuple)):
-            pdfs = [obj]
+        # check if already HS3 format
+        if isinstance(obj, collections.abc.Mapping):
+            if (
+                "pdfs" in obj
+                and isinstance(obj["pdfs"], collections.abc.Mapping)
+                and "variables" in obj
+                and "metadata" in obj
+            ):
+                raise ValueError(
+                    "Object seems to be already in HS3 format. If it contains PDFs, use `obj['pdfs'].values()` instead of `obj` to get a valid conversion"
+                )
+            else:
+                raise ValueError(
+                    "Mappings are currently not supported. Use a PDF or a list of PDFs instead."
+                )
+        else:
+            pdfs = convert_to_container(obj)
         from zfit.core.interfaces import ZfitPDF
 
         if not all(isinstance(ob, ZfitPDF) for ob in pdfs):
@@ -209,7 +233,7 @@ class Serializer:
         from zfit.core.serialmixin import ZfitSerializable
 
         if not all(isinstance(pdf, ZfitSerializable) for pdf in pdfs):
-            raise TypeError("All pdfs must be ZfitSerializable")
+            raise SerializationTypeError("All pdfs must be ZfitSerializable")
         import zfit
 
         out = {
@@ -225,9 +249,12 @@ class Serializer:
             name = pdf.name
             if name in out["pdfs"]:
                 name = f"{name}_{pdf_number}"
-            out["pdfs"][name] = pdf.get_repr().from_orm(pdf).dict(**serial_kwargs)
+            pdf_repr = pdf.get_repr().from_orm(pdf)
+            out["pdfs"][name] = pdf_repr.dict(**serial_kwargs)
 
             for param in pdf.get_params(floating=None, extract_independent=None):
+                if isinstance(param, ComposedParameter):
+                    continue  # we skip it currently, as it depends on others. Maybe also put in?
                 if param.name not in out["variables"]:
                     paramdict = param.get_repr().from_orm(param).dict(**serial_kwargs)
                     del paramdict["type"]
@@ -270,6 +297,13 @@ class Serializer:
             mapping: The PDFs and variables as a mapping to the original keys.
         """
         cls.initialize()
+        # sanity checks, TODO
+        if "variables" not in load:
+            pass
+        if "pdfs" not in load:
+            pass
+        if "metadata" not in load:
+            pass
         for param, paramdict in load["variables"].items():
             if "value" in paramdict:
                 if paramdict.get("floating", True) is False:
@@ -306,11 +340,15 @@ class Serializer:
     @classmethod
     def post_serialize(cls, out):
         parameter = frozendict({"name": None, "min": None, "max": None})
-        replace_forward = {parameter: lambda x: x["name"]}
+        replace_forward = {parameter: lambda x: x["name"] if "value_fn" not in x else x}
         out["pdfs"] = replace_matching(out["pdfs"], replace_forward)
 
-        const_params = frozendict({"name": None, "type": None, "floating": False})
-        replace_forward = {const_params: lambda x: x["name"]}
+        const_params = frozendict(
+            {"name": None, "type": "ConstantParameter", "floating": False}
+        )
+        replace_forward = {
+            const_params: lambda x: x["name"] if "value_fn" not in x else x
+        }
         out["pdfs"] = replace_matching(out["pdfs"], replace_forward)
         return out
 
@@ -388,7 +426,9 @@ def convert_to_orm(init):
 
             if (
                 not isinstance(v, (Iterable, Mapping))
-                or isinstance(v, (ZfitParameter, ZfitSpace))
+                or isinstance(
+                    v, (ZfitParameter, ZfitSpace)
+                )  # skip to not trigger the "in"
                 or tf.is_tensor(v)
             ):
                 continue

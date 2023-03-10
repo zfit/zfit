@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 
 import copy
 import random
@@ -80,7 +80,6 @@ def test_equality(space1, space2):
     assert space1.axes == space2.axes
     assert space1.obs == space2.obs
     np.testing.assert_allclose(space1.rect_limits, space2.rect_limits)
-    # TODO: reactivate below
     assert zfit.run(space1.rect_area()) == pytest.approx(
         zfit.run(space2.rect_area()), rel=1e-8
     )

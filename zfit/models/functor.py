@@ -127,8 +127,9 @@ class SumPDF(BaseFunctor, SerializableMixin):  # TODO: add extended argument
             param_fracs,
             params,
             sum_yields,
+            frac_param_created,
         ) = _preprocess_init_sum(fracs, obs, pdfs)
-
+        self._frac_param_created = frac_param_created
         self._fracs = param_fracs
         self._original_fracs = fracs_cleaned
         self._automatically_extended = False
