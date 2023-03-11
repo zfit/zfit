@@ -16,6 +16,7 @@ numpy>=1.16
 ordered-set
 pandas
 pydantic
+pyyaml
 scipy>=1.2
 tabulate
 tensorflow>=2.10, <2.12; sys_platform != 'darwin' or platform_machine != 'arm64'
