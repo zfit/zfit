@@ -1,7 +1,7 @@
 #  Copyright (c) 2023 zfit
 from __future__ import annotations
 
-from typing import Union
+from typing import Union, Optional
 
 try:
     from typing import Literal
@@ -18,6 +18,7 @@ class BasePDFRepr(BaseRepr):
     _owndict = pydantic.PrivateAttr(default_factory=dict)
     hs3_type: Literal["BasePDF"] = Field("BasePDF", alias="type")
     extended: Union[bool, None, Serializer.types.ParamTypeDiscriminated] = None
+    name: Optional[str] = None
 
     @root_validator(pre=True)
     def convert_params(cls, values):

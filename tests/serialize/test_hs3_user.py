@@ -101,14 +101,15 @@ def test_dumpload_hs3_loss(request):
         else:
             for k, v in val.items():
                 if isinstance(v, np.ndarray):
-                    np.testing.assert_equal(v, hs3model_true[key][k])
+                    np.testing.assert_equal(v, val[k])
                 else:
                     try:
-                        is_equal = v == hs3model_true[key][k]
+                        is_equal = v == val[k]
                     except ValueError:
                         pass
                     else:
-                        assert is_equal
+                        if not is_equal:
+                            assert v == val[k]  # make sure the diff is shown by pytest
     model_loaded = zfit.hs3.load(hs3model)
     loss = list(model_loaded["loss"].values())[0]
     loss.value()

@@ -231,7 +231,6 @@ class Serializer:
         Returns:
             mapping: The serialized objects as a mapping. The keys are 'pdfs' and 'variables' as well as a 'metadata' key
         """
-        from zfit.param import ComposedParameter
 
         cls.initialize()
 
@@ -305,8 +304,8 @@ class Serializer:
             for param in pdf.get_params(
                 floating=None, extract_independent=None
             ):  # TODO: this is not ideal, we should take the serialized params?
-                if isinstance(param, ComposedParameter):
-                    continue  # we skip it currently, as it depends on others. Maybe also put in?
+                # if isinstance(param, ComposedParameter):
+                #     continue  # we skip it currently, as it depends on others. Maybe also put in?
                 if param.name not in out["variables"]:
                     paramdict = param.get_repr().from_orm(param).dict(**serial_kwargs)
                     del paramdict["type"]
@@ -380,27 +379,21 @@ class Serializer:
 
         load = cls.pre_deserialize(load)
 
-        out = {"pdfs": {}, "variables": {}, "loss": {}, "data": {}, "constraints": {}}
-        for name, pdf in load["pdfs"].items():
-            repr = Serializer.type_repr[pdf["type"]]
-            repr_inst = repr(**pdf)
-            out["pdfs"][name] = repr_inst.to_orm()
-        for name, param in load["variables"].items():
-            repr = Serializer.type_repr[param["type"]]
-            repr_inst = repr(**param)
-            out["variables"][name] = repr_inst.to_orm()
-        for name, loss in load["loss"].items():
-            repr = Serializer.type_repr[loss["type"]]
-            repr_inst = repr(**loss)
-            out["loss"][name] = repr_inst.to_orm()
-        for name, data in load["data"].items():
-            repr = Serializer.type_repr[data["type"]]
-            repr_inst = repr(**data)
-            out["data"][name] = repr_inst.to_orm()
-        for name, constraint in load["constraints"].items():
-            repr = Serializer.type_repr[constraint["type"]]
-            repr_inst = repr(**constraint)
-            out["constraints"][name] = repr_inst.to_orm()
+        out = {
+            "variables": {},  # order matters! variables first
+            "data": {},
+            "constraints": {},
+            "pdfs": {},
+            "loss": {},
+        }
+        assert (
+            list(out)[0] == "variables"
+        ), "Order changed, has to deserealize variables first"
+        for kind, kindout in out.items():
+            for name, obj_dict in load[kind].items():
+                repr = Serializer.type_repr[obj_dict["type"]]
+                repr_inst = repr(**obj_dict)
+                kindout[name] = repr_inst.to_orm()
         out["metadata"] = load["metadata"].copy()
 
         out = cls.post_deserialize(out)
@@ -415,17 +408,35 @@ class Serializer:
 
     @classmethod
     def post_serialize(cls, out):
-        parameter = frozendict({"name": None, "min": None, "max": None})
-        replace_forward = {parameter: lambda x: x["name"] if "value_fn" not in x else x}
-        out["pdfs"] = replace_matching(out["pdfs"], replace_forward)
+        # This is not very stable as it allows only one pass and cannot be applied multiple times (i.e. the replacement back of the params:
+        # name is replaced by the dict, that's fine for *once*, but fails if done twice (as the "name" field will be replaced by the dict)
+        for what in ["pdfs", "loss", "data", "constraints"]:
+            # replace constant parameters with their name
+            const_params = frozendict(
+                {"name": None, "type": "ConstantParameter", "floating": False}
+            )
+            replace_forward_const_param = {const_params: lambda x: x["name"]}
+            out[what] = replace_matching(out[what], replace_forward_const_param)
 
-        const_params = frozendict(
-            {"name": None, "type": "ConstantParameter", "floating": False}
-        )
-        replace_forward = {
-            const_params: lambda x: x["name"] if "value_fn" not in x else x
-        }
-        out["pdfs"] = replace_matching(out["pdfs"], replace_forward)
+            # replace composed parameters with their name
+            composed_params = frozendict(
+                {"name": None, "type": "ComposedParameter", "value_fn": None}
+            )
+            replace_forward_composed_param = {composed_params: lambda x: x["name"]}
+            out[what] = replace_matching(out[what], replace_forward_composed_param)
+
+            # replace parameters and spaces with their name
+            parameter = frozendict({"name": None, "min": None, "max": None})
+            replace_forward_param = {parameter: lambda x: x["name"]}
+            out[what] = replace_matching(out[what], replace_forward_param)
+        for parname, param in out["variables"].items():
+            if "value_fn" in param:
+                out["variables"][parname]["params"] = replace_matching(
+                    out["variables"][parname]["params"], replace_forward_const_param
+                )
+                out["variables"][parname]["params"] = replace_matching(
+                    out["variables"][parname]["params"], replace_forward_param
+                )
         return out
 
     @classmethod
@@ -434,7 +445,11 @@ class Serializer:
         replace_backward = {
             k: lambda x=k: out["variables"][x] for k in out["variables"].keys()
         }
-        out["pdfs"] = replace_matching(out["pdfs"], replace_backward)
+        for parname, param in out["variables"].items():
+            if param["type"] == "ComposedParameter":
+                param["params"] = replace_matching(param["params"], replace_backward)
+        for what in ["pdfs", "loss", "data", "constraints"]:
+            out[what] = replace_matching(out[what], replace_backward)
         return out
 
     @classmethod
@@ -463,11 +478,18 @@ def elements_match(mapping, replace):
                 found = True
                 break
         try:
-            direct_hit = mapping == match
+            direct_hit = bool(mapping == match)
+        except ValueError as error:
+            if (
+                "The truth value of an array with more than one element is ambiguous"
+                in str(error)
+            ):
+                direct_hit = bool((mapping == match).all())
+            else:
+                raise
         except TypeError:
             continue
-        else:
-            found = direct_hit or found
+        found = direct_hit or found
         if found:
             break
     else:
@@ -485,10 +507,8 @@ def replace_matching(mapping, replace):
     if isinstance(mapping, Mapping):
         for k, v in mapping.items():
             mapping[k] = replace_matching(v, replace)
-    elif (
-        not isinstance(mapping, (str, ZfitParameter))
-        and not tf.is_tensor(mapping)
-        and isinstance(mapping, Iterable)
+    elif isinstance(mapping, Iterable) and not (
+        isinstance(mapping, (str, (ZfitParameter, np.ndarray))) or tf.is_tensor(mapping)
     ):
         replaced_list = [replace_matching(v, replace) for v in mapping]
         mapping = type(mapping)(replaced_list)

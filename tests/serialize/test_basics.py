@@ -7,6 +7,9 @@ from frozendict import frozendict
 
 import zfit
 
+rndgen = np.random.Generator(np.random.PCG64(8213))
+rndgens = [np.random.Generator(np.random.PCG64(8213 + i)) for i in range(10)]
+
 
 def test_serial_space():
     import zfit
@@ -47,7 +50,9 @@ def gauss(extended=None, **kwargs):
     mu = zfit.Parameter("mu_gauss", 0.1, -1, 1)
     sigma = zfit.Parameter("sigma_gauss", 0.1, 0, 1)
     obs = zfit.Space("obs", (-3, 3))
-    return zfit.pdf.Gauss(mu=mu, sigma=sigma, obs=obs, extended=extended)
+    return zfit.pdf.Gauss(
+        mu=mu, sigma=sigma, obs=obs, extended=extended, name="MyGaussName"
+    )
 
 
 def prod2dgauss(extended=None, **kwargs):
@@ -289,7 +294,7 @@ def test_loss_serialization(ext_Loss, pdf_factory, Constraint, request):
     pdf = pdf_factory(extended=extended)
     assert pdf.is_extended == extended, "Error in testing setup"
     data = zfit.Data.from_numpy(
-        obs=pdf.space, array=np.random.normal(size=(1000, pdf.n_obs))
+        obs=pdf.space, array=rndgens[0].normal(size=(1000, pdf.n_obs))
     )
     constraint = Constraint() if Constraint is not None else None
     loss = Loss(pdf, data, constraints=constraint)
@@ -509,33 +514,36 @@ def test_params_dumpload(param_factory):
     assert json == param_loaded.to_json()
 
 
-data_factories = [
-    lambda: zfit.data.Data.from_numpy(
-        obs=zfit.Space("obs1", (-3.0, 5.0)), array=np.random.normal(size=(100, 1))
-    ),
-    lambda: zfit.data.Data.from_numpy(
-        obs=zfit.Space("obs1", (-3.0, 5.0)),
-        array=np.random.normal(size=(100, 1)),
-        weights=np.random.normal(size=(100, 1)),
-    ),
-    lambda: zfit.data.Data.from_numpy(
-        obs=zfit.Space("obs1", (-3.0, 5.0)) * zfit.Space("obs2", (-13.0, 15.0)),
-        array=np.random.normal(size=(100, 2)),
-        weights=np.random.normal(size=(100, 1)),
-    ),
-    lambda: zfit.data.Data.from_numpy(
-        obs=zfit.Space("obs1", (-3.0, 5.0)) * zfit.Space("obs2", (-13.0, 15.0)),
-        array=np.random.normal(size=(100, 2)),
-    ),
-]
+data_factories = enumerate(
+    [
+        lambda: zfit.data.Data.from_numpy(
+            obs=zfit.Space("obs1", (-3.0, 5.0)), array=rndgens[1].normal(size=(100, 1))
+        ),
+        lambda: zfit.data.Data.from_numpy(
+            obs=zfit.Space("obs1", (-3.0, 5.0)),
+            array=rndgens[2].normal(size=(100, 1)),
+            weights=rndgens[2].normal(size=(100, 1)),
+        ),
+        lambda: zfit.data.Data.from_numpy(
+            obs=zfit.Space("obs1", (-3.0, 5.0)) * zfit.Space("obs2", (-13.0, 15.0)),
+            array=rndgens[3].normal(size=(100, 2)),
+            weights=rndgens[3].normal(size=(100, 1)),
+        ),
+        lambda: zfit.data.Data.from_numpy(
+            obs=zfit.Space("obs1", (-3.0, 5.0)) * zfit.Space("obs2", (-13.0, 15.0)),
+            array=rndgens[4].normal(size=(100, 2)),
+        ),
+    ]
+)
 
 
 @pytest.mark.parametrize("data_factory", data_factories)
 def test_data_dumpload(data_factory, request):
-    data = data_factory()
+    i, factory = data_factory
+    data = factory()
     asdf_dumped = data.to_asdf()
     data_truth_dumped = pytest.helpers.get_truth(
-        "hs3_data", "basic_data_dumpload1.asdf", request, newval=asdf_dumped
+        "hs3_data", f"basic_data_dumpload_{i}.asdf", request, newval=asdf_dumped
     )
     data_loaded1 = data.__class__.from_asdf(
         asdf_dumped

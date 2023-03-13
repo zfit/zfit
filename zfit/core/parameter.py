@@ -1193,6 +1193,11 @@ def get_auto_number():
     return auto_number
 
 
+def _reset_auto_number():
+    global _auto_number
+    _auto_number = 0
+
+
 def convert_to_parameters(
     value,
     name: str | list[str] | None = None,

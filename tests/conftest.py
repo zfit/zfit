@@ -36,9 +36,10 @@ def setup_teardown():
 
     yield
 
-    from zfit.core.parameter import ZfitParameterMixin
+    from zfit.core.parameter import ZfitParameterMixin, _reset_auto_number
 
     ZfitParameterMixin._existing_params.clear()
+    _reset_auto_number()
 
     from zfit.util.cache import clear_graph_cache
 

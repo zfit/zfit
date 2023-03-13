@@ -290,10 +290,10 @@ class SumPDFRepr(FunctorPDFRepr):
 
     @pydantic.root_validator(pre=True)
     def validate_all_sumpdf(cls, values):
-        if cls.orm_mode(values):
-            init = values["hs3"].original_init
-            values = dict(values)
-            values["fracs"] = init["fracs"]
+        # if cls.orm_mode(values):
+        #     init = values["hs3"].original_init
+        #     values = dict(values)
+        #     values["fracs"] = init["fracs"]
         return values
 
 
