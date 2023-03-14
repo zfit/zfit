@@ -4,15 +4,8 @@ Changelog
 
 .. _newest-changelog:
 
-Develop
+0.12.0 (13 March 2023)
 ========================
-
-
-Breaking changes
-------------------
-
-Deprecations
--------------
 
 Bug fixes and small changes
 ---------------------------
@@ -24,11 +17,6 @@ Bug fixes and small changes
   a fit with a global seed, you might want to rerun it.
 - histogramming and limit checks failed due to a stricter Numpy check, fixed.
 
-Experimental
-------------
-
-Requirement changes
--------------------
 
 Thanks
 ------
