@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 
 from __future__ import annotations
 
@@ -20,7 +20,9 @@ from ..util.exception import WorkInProgressError
 
 
 class UniformSampleAndWeights:
-    def __call__(self, n_to_produce: int | tf.Tensor, limits: Space, dtype):
+    def __call__(self, n_to_produce: int | tf.Tensor, limits: Space, dtype, prng=None):
+        if prng is None:
+            prng = z.random.get_prng()
         rnd_samples = []
         thresholds_unscaled_list = []
         weights = tf.broadcast_to(z.constant(1.0, shape=(1,)), shape=(n_to_produce,))
@@ -41,7 +43,7 @@ class UniformSampleAndWeights:
                     z.to_real(n_to_produce) * z.to_real(frac), dtype=tf.int64
                 )  # TODO(Mayou36): split right!
 
-            sample_drawn = tf.random.uniform(
+            sample_drawn = prng.uniform(
                 shape=(n_partial_to_produce, limits.n_obs + 1),
                 # + 1 dim for the function value
                 dtype=ztypes.float,
@@ -51,8 +53,7 @@ class UniformSampleAndWeights:
                 sample_drawn[:, :-1] * (upper - lower) + lower
             )  # -1: all except func value
             thresholds_unscaled = sample_drawn[:, -1]
-            # if not multiple_limits:
-            #     return rnd_sample, thresholds_unscaled
+
             rnd_samples.append(rnd_sample)
             thresholds_unscaled_list.append(thresholds_unscaled)
             n_produced += n_partial_to_produce
@@ -339,7 +340,6 @@ def accept_reject_sample(
         if (
             prob_max_init is None or weights_max is None
         ):  # TODO(performance): estimate prob_max, after enough estimations -> fix it?
-
             # safety margin, predicting future, improve for small samples?
             weights_maximum_new = znp.max(weights)
             weights_maximum = znp.maximum(weights_maximum, weights_maximum_new)
@@ -505,7 +505,7 @@ def accept_reject_sample(
     new_sample = tf.stop_gradient(new_sample)  # stopping backprop
 
     if multiple_limits:
-        new_sample = tf.random.shuffle(
+        new_sample = z.random.shuffle(
             new_sample
         )  # to make sure, randomly remove and not biased.
     if dynamic_array_shape:  # if not dynamic we produced exact n -> no need to cut
@@ -564,7 +564,7 @@ def extended_sampling(pdfs: Iterable[ZfitPDF] | ZfitPDF, limits: Space) -> tf.Te
     pdfs = extract_extended_pdfs(pdfs)
 
     for pdf in pdfs:
-        n = tf.random.poisson(lam=pdf.get_yield(), shape=(), dtype=ztypes.float)
+        n = z.random.poisson(lam=pdf.get_yield(), shape=(), dtype=ztypes.float)
         n = tf.cast(n, dtype=tf.int64)
         sample = pdf.sample(limits=limits, n=n)
         # sample.set_shape((n, limits.n_obs))

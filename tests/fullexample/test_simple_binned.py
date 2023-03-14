@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 import json
 
 # In[2]:
@@ -29,33 +29,33 @@ def test_simple_examples_1D():
               "data": {signp},
               """
         """
-                                                          "modifiers": [ { "name": "mu", "type": "normfactor", "data": null} ]
-                                                        },
-                                                        { "name": "background",
-                                                        """
+                                                              "modifiers": [ { "name": "mu", "type": "normfactor", "data": null} ]
+                                                            },
+                                                            { "name": "background",
+                                                            """
         f'"data": {bkgnp},'
         """
-                                                          "modifiers": [ {"name": "uncorr_bkguncrt", "type": "shapesys",
-                                                          """
+                                                              "modifiers": [ {"name": "uncorr_bkguncrt", "type": "shapesys",
+                                                              """
         f'"data": {uncnp}'
         """
-                                                      } ]
+                                                          } ]
+                                                        }
+                                                      ]
                                                     }
-                                                  ]
-                                                }
-                                            ],
-                                            "observations": [
-                                                {
-                                                """
+                                                ],
+                                                "observations": [
+                                                    {
+                                                    """
         f'"name": "singlechannel", "data": {datanp}'
         """
-                                                        }
-                                                    ],
-                                                    "measurements": [
-                                                        { "name": "Measurement", "config": {"poi": "mu", "parameters": []} }
-                                                    ],
-                                                    "version": "1.0.0"
-                                                    }"""
+                                                            }
+                                                        ],
+                                                        "measurements": [
+                                                            { "name": "Measurement", "config": {"poi": "mu", "parameters": []} }
+                                                        ],
+                                                        "version": "1.0.0"
+                                                        }"""
     )
 
     obs = zfit.Space(
@@ -230,9 +230,7 @@ def test_hypotest(benchmark, n_bins, hypotest, eager):
         )
         benchmark(hypotest, pdf, data)
     elif hypotest == "zfit":
-
         with zfit.run.set_graph_mode(not eager):
-
             hypotest = hypotest_zfit
             obs = zfit.Space(
                 "signal",

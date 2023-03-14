@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 import functools
 
 import tensorflow as tf
@@ -26,7 +26,6 @@ def register_tensor_conversion(
 
 
 class OverloadableMixin:
-
     # Conversion to tensor.
     @staticmethod
     def _TensorConversionFunction(
@@ -98,7 +97,6 @@ class OverloadableMixin:
 
 
 class OverloadableMixinValues:
-
     # Conversion to tensor.
     @staticmethod
     def _TensorConversionFunction(

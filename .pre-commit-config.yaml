@@ -3,7 +3,7 @@ ci:
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.3.0
+    rev: v4.4.0
     hooks:
       - id: check-added-large-files
         args: [ '--maxkb=1000' ]
@@ -33,7 +33,7 @@ repos:
         additional_dependencies: [ pyyaml ]
 
   - repo: https://github.com/PyCQA/docformatter
-    rev: v1.5.0
+    rev: v1.5.1
     hooks:
       - id: docformatter
         args: [ -r, --in-place, --wrap-descriptions, '120', --wrap-summaries, '120', -- ]
@@ -50,7 +50,7 @@ repos:
         additional_dependencies: [ pyyaml ]
 
   - repo: https://github.com/pre-commit/pygrep-hooks
-    rev: v1.9.0
+    rev: v1.10.0
     hooks:
       - id: python-use-type-annotations
       - id: python-check-mock-methods
@@ -59,20 +59,20 @@ repos:
       - id: rst-directive-colons
 
   - repo: https://github.com/asottile/pyupgrade
-    rev: v2.38.2
+    rev: v3.3.1
     hooks:
       - id: pyupgrade
         args: [ --py37-plus ]
 
   - repo: https://github.com/asottile/setup-cfg-fmt
-    rev: v2.0.0
+    rev: v2.2.0
     hooks:
       - id: setup-cfg-fmt
         args: [ --max-py-version=3.10, --include-version-classifiers ]
 
   # Notebook formatting
   - repo: https://github.com/nbQA-dev/nbQA
-    rev: 1.5.2
+    rev: 1.6.3
     hooks:
       - id: nbqa-isort
         additional_dependencies: [ isort==5.6.4 ]
@@ -82,7 +82,7 @@ repos:
         args: [ --py37-plus ]
 
   - repo: https://github.com/mgedmin/check-manifest
-    rev: "0.48"
+    rev: "0.49"
     hooks:
       - id: check-manifest
         args: [ --update, --no-build-isolation ]
@@ -100,18 +100,18 @@ repos:
         args: [ '--futures=true' ]
 
   - repo: https://github.com/shssoichiro/oxipng
-    rev: v6.0.1
+    rev: v8.0.0
     hooks:
       - id: oxipng
 
   - repo: https://github.com/psf/black
-    rev: 22.8.0
+    rev: 23.1.0
     hooks:
       - id: black
         language_version: python3
 
   - repo: https://github.com/python-jsonschema/check-jsonschema
-    rev: 0.18.3
+    rev: 0.21.0
     hooks:
       - id: check-github-workflows
       - id: check-github-actions
@@ -119,7 +119,7 @@ repos:
       - id: check-readthedocs
 
   - repo: https://github.com/jonasbb/pre-commit-latex-hooks
-    rev: v1.3.0
+    rev: v1.4.0
     hooks:
       - id: american-eg-ie
       - id: cleveref-capitalization
@@ -138,6 +138,6 @@ repos:
       - id: unique-labels
 
   - repo: https://github.com/dannysepler/rm_unneeded_f_str
-    rev: v0.1.0
+    rev: v0.2.0
     hooks:
       - id: rm-unneeded-f-str

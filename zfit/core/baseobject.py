@@ -1,6 +1,6 @@
 """Baseclass for most objects appearing in zfit."""
 
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 
 from __future__ import annotations
 
@@ -48,7 +48,6 @@ class BaseObject(ZfitObject):
     def copy(
         self, deep: bool = False, name: str = None, **overwrite_params
     ) -> ZfitObject:
-
         new_object = self._copy(deep=deep, name=name, overwrite_params=overwrite_params)
         return new_object
 
@@ -126,7 +125,6 @@ class BaseParametrized(BaseObject, ZfitParametrized):
         is_yield: bool | None = None,
         extract_independent: bool | None = True,
     ) -> set[ZfitParameter]:
-
         if (
             is_yield is True
         ):  # we want exclusively yields, we don't have them by default

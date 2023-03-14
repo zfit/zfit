@@ -242,7 +242,6 @@ class FFTConvPDFV1(BaseFunctor):
 
     @z.function(wraps="model_convolution")
     def _unnormalized_pdf(self, x):
-
         lower_func, upper_func = self._conv_limits["func"]
         nbins_func = self._conv_limits["nbins_func"]
         x_funcs = tf.linspace(lower_func, upper_func, tf.cast(nbins_func, tf.int32))

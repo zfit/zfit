@@ -1,8 +1,6 @@
-#  Copyright (c) 2022 zfit
-import time
+#  Copyright (c) 2023 zfit
 
 import pytest
-from matplotlib import pyplot as plt
 
 
 def test_moprhing_sum():

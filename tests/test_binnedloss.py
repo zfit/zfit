@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 
 import mplhep
 import numpy as np
@@ -122,7 +122,12 @@ def test_binned_extended_simple(Loss):
     pdf_sum = BinnedSumPDF(pdfs=[pdf, pdf2, pdf3], obs=obs)
 
     nll = Loss(pdf_sum, data=observed_data)
+    nll2 = Loss(pdf_sum, data=observed_data)
     nll.value(), nll.gradient()  # TODO: add some check?
+
+    nllsum = nll + nll2  # check that sum works
+    # TODO: should this actually work I think?
+    # assert float(nllsum.value()) == pytest.approx(nll.value() + nll2.value(), rel=1e-3)
 
 
 @pytest.mark.plots
@@ -332,3 +337,8 @@ def test_binned_loss_hist(weights, Loss):
     loss2 = Loss(model=binned_gauss, data=test_values_binned)
 
     assert pytest.approx(float(loss.value())) == float(loss2.value())
+
+    nllsum = loss + loss2  # check that sum works
+    nllsum += loss2  # check that sum works
+    # TODO: this should actually work I think
+    # assert nllsum.value() == pytest.approx(loss.value() + loss2.value(), rel=1e-3)

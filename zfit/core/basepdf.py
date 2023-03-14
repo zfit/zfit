@@ -50,7 +50,7 @@ True
 For more advanced methods and ways to register analytic integrals or overwrite certain methods, see
 also the advanced models in `zfit models <https://github.com/zfit/zfit-tutorials>`_
 """
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 
 from __future__ import annotations
 
@@ -75,7 +75,7 @@ from .space import Space
 from ..settings import run, ztypes
 from ..util import ztyping
 from ..util.cache import invalidate_graph
-from ..util.deprecation import deprecated, deprecated_norm_range, deprecated_args
+from ..util.deprecation import deprecated, deprecated_norm_range
 from ..util.exception import (
     AlreadyExtendedPDFError,
     BreakingAPIChangeError,
@@ -546,7 +546,11 @@ class BasePDF(ZfitPDF, BaseModel):
         self._set_yield(value=value)
 
     def create_extended(
-        self, yield_: ztyping.ParamTypeInput, name_addition: str = None
+        self,
+        yield_: ztyping.ParamTypeInput,
+        name: str = None,
+        *,
+        name_addition: str = None,
     ) -> ZfitPDF:
         """Return an extended version of this pdf with yield ``yield_``. The parameters are shared.
 
@@ -557,14 +561,19 @@ class BasePDF(ZfitPDF, BaseModel):
                the expected number of events, and the PDF will be extended.
                An extended PDF has additional functionality, such as the
                ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.param.yield|
+            name: New name of the PDF. If ``None``, the name of the PDF with a trailing "_ext" is used.
 
         Returns:
             :py:class:`~zfit.core.interfaces.ZfitPDF`: a new PDF that is extended
         """
         # TODO(Mayou36): fix copy
         if name_addition is not None:
-            raise BreakingAPIChangeError("name_addition is not supported anymore")
+            raise BreakingAPIChangeError(
+                "name_addition is not supported anymore, use `name` instead."
+            )
         from zfit.models.functor import ProductPDF
+
+        name = f"{self.name}_ext" if name is None else name
 
         if isinstance(self, ProductPDF):
             warnings.warn(
@@ -576,7 +585,7 @@ class BasePDF(ZfitPDF, BaseModel):
                 "This PDF is already extended, cannot create an extended one."
             )
         try:
-            new_pdf = self.copy(name=self.name + str(name_addition))
+            new_pdf = self.copy(name=name)
         except Exception as error:
             raise RuntimeError(
                 f"PDF {self} could not be copied, therefore `create_extended` failed and a new "
@@ -588,7 +597,6 @@ class BasePDF(ZfitPDF, BaseModel):
         return new_pdf
 
     def set_yield(self, value):
-
         """Make the model extended **inplace** by setting a yield. If possible, prefer to use ``create_extended``.
 
         This does not alter the general behavior of the PDF. The ``pdf`` and ``integrate`` and similar methods will
@@ -663,7 +671,6 @@ class BasePDF(ZfitPDF, BaseModel):
         is_yield: bool | None = None,
         extract_independent: bool | None = True,
     ) -> set[ZfitParameter]:
-
         params = super()._get_params(
             floating, is_yield=is_yield, extract_independent=extract_independent
         )

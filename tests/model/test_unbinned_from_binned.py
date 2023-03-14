@@ -1,7 +1,6 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 
 import numpy as np
-import pytest
 
 
 def test_unbinned_histogramPDF():

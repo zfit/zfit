@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 import matplotlib.pyplot as plt
 import numpy as np
 import pytest
@@ -112,8 +112,6 @@ def test_sampling():
 
 @pytest.mark.flaky(2)  # mc integration
 def test_integrate():
-    import zfit.z.numpy as znp
-
     class SimpleSampleSumPDF(zfit.pdf.SumPDF):
         @zfit.supports()
         def _integrate(self, limits, norm, options):
@@ -153,7 +151,9 @@ def test_integrate():
         limits=limits,
         norm=False,
     ).numpy()
-    integral_manual_true = gauss1.integrate(limits,) * frac + gauss2.integrate(
+    integral_manual_true = gauss1.integrate(
+        limits,
+    ) * frac + gauss2.integrate(
         limits,
     ) * (1 - frac)
 

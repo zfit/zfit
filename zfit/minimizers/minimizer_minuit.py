@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 
 from __future__ import annotations
 
@@ -189,7 +189,6 @@ class Minuit(BaseMinimizer, GraphCachable):
         message = ""
         maxiter_reached = False
         for i in range(self._internal_maxiter):
-
             # perform minimization
             try:
                 minimizer = minimizer.migrad(**minimize_options)
@@ -252,7 +251,6 @@ class Minuit(BaseMinimizer, GraphCachable):
         return fitresult
 
     def _make_minuit(self, loss, params, init):
-
         evaluator = self.create_evaluator(loss, params)
 
         # create options

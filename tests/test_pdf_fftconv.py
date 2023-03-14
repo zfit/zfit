@@ -1,5 +1,5 @@
 """Example test for a pdf or function."""
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -9,6 +9,7 @@ import scipy.stats
 import tensorflow as tf
 
 import zfit
+import zfit.z.numpy as znp
 from zfit import z
 from zfit.util.exception import WorkInProgressError
 
@@ -132,7 +133,7 @@ def test_conv_1d_shifted(interpolation):
 
     conv = zfit.pdf.FFTConvPDFV1(func=func, kernel=funck, n=200)
 
-    xnp = tf.linspace(obs_kernel.rect_lower, obs.rect_upper, 4023)
+    xnp = znp.linspace(obs_kernel.rect_lower, obs.rect_upper, 4023)
 
     # true convolution
     kernel_points = obs_kernel.filter(xnp)
@@ -259,7 +260,7 @@ def test_conv_2D_simple():
 
     start = obs_func.rect_lower
     stop = obs_func.rect_upper
-    x_tensor = tf.random.uniform((n_points, 2), start, stop)
+    x_tensor = z.random.uniform((n_points, 2), start, stop)
     x_tensor = tf.reshape(x_tensor, (-1, 2))
     linspace = tf.linspace(start, stop, num=n_points)
     linspace = tf.transpose(tf.meshgrid(*tf.unstack(linspace, axis=-1)))

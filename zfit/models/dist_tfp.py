@@ -92,7 +92,6 @@ class WrapDistribution(BasePDF):  # TODO: extend functionality of wrapper, like 
 
     @property
     def distribution(self):
-
         params = self.dist_params
         if callable(params):
             params = params()

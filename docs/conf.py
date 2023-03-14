@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 
 #
 #
@@ -58,12 +58,12 @@ panels_add_bootstrap_css = (
 # releases_github_path = "zfit/zfit"  # TODO: use releases or similar?
 # releases_document_name = "../CHANGELOG.rst"
 
-# nb_execution_mode = "force"  # use if needed and cache should be ignored
-nb_execution_mode = "cache"
+nb_execution_mode = "force"  # use if needed and cache should be ignored
+# nb_execution_mode = "cache"
 if nb_execution_mode == "cache":
     jupyter_cache_path = project_dir.joinpath("docs", ".cache", "myst-nb")
     jupyter_cache_path.mkdir(parents=True, exist_ok=True)
-    jupyter_cache = str(jupyter_cache_path)
+    nb_execution_cache_path = str(jupyter_cache_path)
 
 source_suffix = {
     ".ipynb": "myst-nb",
@@ -250,6 +250,9 @@ html_theme_options = {
     "search_bar_text": "Search zfit...",
     "navigation_with_keys": True,
     "search_bar_position": "sidebar",
+    "icon_links": [
+        {}
+    ],  # temporary fix for https://github.com/pydata/pydata-sphinx-theme/issues/1220
     # "repository_url": "https://github.com/zfit/zfit",  # adding jupyter book somehow?
     # "repository_branch": "develop",
     # "path_to_docs": "docs",

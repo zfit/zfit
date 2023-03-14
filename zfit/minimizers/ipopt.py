@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 
 from __future__ import annotations
 
@@ -339,7 +339,6 @@ class IpyoptV1(BaseMinimizer):
         status = None
         converged = False
         for i in range(self._internal_maxiter):
-
             minimizer.set(**internal_tol)
 
             # run the minimization
