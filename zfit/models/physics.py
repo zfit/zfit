@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 
 from __future__ import annotations
 
@@ -196,8 +196,9 @@ class CrystalBall(BasePDF):
         alpha: ztyping.ParamTypeInput,
         n: ztyping.ParamTypeInput,
         obs: ztyping.ObsTypeInput,
+        *,
+        extended: Optional[ztyping.ParamTypeInput] = None,
         name: str = "CrystalBall",
-        dtype: type = ztypes.float,
     ):
         """Crystal Ball shaped PDF. A combination of a Gaussian with a powerlaw tail.
 
@@ -222,14 +223,13 @@ class CrystalBall(BasePDF):
             sigma: Standard deviation of the gaussian
             alpha: parameter where to switch from a gaussian to the powertail
             n: Exponent of the powertail
-            obs:
-            name:
-            dtype:
+            obs: |@doc:pdf.init.obs||@docend:pdf.init.obs|
+            name: |@doc:pdf.init.name||@docend:pdf.init.name|
 
         .. _CBShape: https://en.wikipedia.org/wiki/Crystal_Ball_function
         """
         params = {"mu": mu, "sigma": sigma, "alpha": alpha, "n": n}
-        super().__init__(obs=obs, dtype=dtype, name=name, params=params)
+        super().__init__(obs=obs, name=name, params=params, extended=extended)
 
     def _unnormalized_pdf(self, x):
         mu = self.params["mu"]
@@ -261,8 +261,9 @@ class DoubleCB(BasePDF):
         alphar: ztyping.ParamTypeInput,
         nr: ztyping.ParamTypeInput,
         obs: ztyping.ObsTypeInput,
+        *,
+        extended: Optional[ztyping.ParamTypeInput] = None,
         name: str = "DoubleCB",
-        dtype: type = ztypes.float,
     ):
         """Double sided Crystal Ball shaped PDF. A combination of two CB using the **mu** (not a frac) on each side.
 
@@ -290,14 +291,13 @@ class DoubleCB(BasePDF):
             mu: The mean of the gaussian
             sigma: Standard deviation of the gaussian
             alphal: parameter where to switch from a gaussian to the powertail on the left
-            side
+                side
             nl: Exponent of the powertail on the left side
             alphar: parameter where to switch from a gaussian to the powertail on the right
-            side
+                side
             nr: Exponent of the powertail on the right side
-            obs:
-            name:
-            dtype:
+            obs: |@doc:pdf.init.obs||@docend:pdf.init.obs|
+            name: |@doc:pdf.init.name||@docend:pdf.init.name|
         """
         params = {
             "mu": mu,
@@ -307,7 +307,7 @@ class DoubleCB(BasePDF):
             "alphar": alphar,
             "nr": nr,
         }
-        super().__init__(obs=obs, dtype=dtype, name=name, params=params)
+        super().__init__(obs=obs, name=name, params=params, extended=extended)
 
     def _unnormalized_pdf(self, x):
         mu = self.params["mu"]

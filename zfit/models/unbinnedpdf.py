@@ -1,4 +1,6 @@
 #  Copyright (c) 2023 zfit
+from typing import Optional
+
 import pydantic
 import tensorflow as tf
 
@@ -7,21 +9,33 @@ from zfit.core.binning import unbinned_to_binindex
 from zfit.core.interfaces import ZfitSpace
 from zfit.core.space import supports
 from zfit.models.functor import BaseFunctor
+from zfit.util import ztyping
 from zfit.z import numpy as znp
 
 
 class UnbinnedFromBinnedPDF(BaseFunctor):
-    def __init__(self, pdf, obs=None):
+    def __init__(
+        self,
+        pdf,
+        obs=None,
+        extended: Optional[ztyping.ParamTypeInput] = None,
+    ):
         """Create a unbinned pdf from a binned pdf.
 
         Args:
-            pdf:
-            obs:
+            pdf: The binned pdf to be unbinned. The lineshape of the PDF will be a step function representing the histogram.
+                For smoothed lineshapes, use the ``SplinePDF`` or similar.
+            obs: Defaults to the `obs` of `pdf`. |@doc:pdf.init.obs||@docend:pdf.init.obs|
+            extended: Defaults to the `extended` of `pdf` |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
         """
-        if pdf.is_extended:
-            extended = pdf.get_yield()
-        else:
-            extended = None
+        if extended is None:
+            if pdf.is_extended:
+                extended = pdf.get_yield()
+
         if obs is None:
             obs = pdf.space
             obs = obs.with_binning(None)

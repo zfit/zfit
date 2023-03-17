@@ -3,8 +3,9 @@
 Gauss, exponential... that can be used together with Functors to build larger models.
 """
 
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 import contextlib
+from typing import Optional
 
 import tensorflow as tf
 
@@ -25,6 +26,8 @@ class Exponential(BasePDF):
         lam=None,
         obs: ztyping.ObsTypeInput = None,
         name: str = "Exponential",
+        *,
+        extended: Optional[ztyping.ParamTypeInput] = None,
         lambda_=None,
     ):
         """Exponential function exp(lambda * x).
@@ -46,7 +49,7 @@ class Exponential(BasePDF):
                     "The 'lambda' parameter has been renamed from 'lambda_' to 'lam'."
                 )
         params = {"lambda": lam}
-        super().__init__(obs, name=name, params=params)
+        super().__init__(obs, name=name, params=params, extended=extended)
 
         self._calc_numerics_data_shift = lambda: z.constant(0.0)
 

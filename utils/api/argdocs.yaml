@@ -136,6 +136,22 @@ pdf.binned.counts.norm: |1+
                 This normalizes the counts so that the actual sum of all counts is
                 equal to the yield.
 
+pdf.polynomial.init.coeff0: |1+
+  Coefficient of the constant term.
+                This is the coefficient of the constant term, i.e. the term
+                :math:`x^0`. If None, set to 1.
+
+pdf.polynomial.init.coeffs: |1+
+  Coefficients of the sum of the polynomial.
+                The coefficients of the polynomial, starting with the first order
+                term. To set the constant term, use ``coeff0``.
+
+pdf.polynomial.init.apply_scaling: |1+
+  Rescale the data so that the actual limits represent (-1, 1).
+                This is usually wanted as the polynomial is defined in this range.
+                Default is ``True``.
+
+
 
 pdf.kde.bandwidth.weights: |1+
   Weights of each event
