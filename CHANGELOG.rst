@@ -18,6 +18,8 @@ Deprecations
 
 Bug fixes and small changes
 ---------------------------
+- added ``extended`` as a parameter to all PDFs: a PDF can now directly be extended without the need for
+  ``create_extended`` (or ``set_yield``).
 
 Experimental
 ------------
