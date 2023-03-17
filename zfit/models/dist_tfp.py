@@ -5,9 +5,10 @@ enough to be easily wrapped.
 
 Therefore a convenient wrapper as well as a lot of implementations are provided.
 """
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 
 from collections import OrderedDict
+from typing import Optional
 
 import tensorflow as tf
 import tensorflow_probability as tfp
@@ -67,7 +68,7 @@ class WrapDistribution(BasePDF):  # TODO: extend functionality of wrapper, like 
         dist_kwargs=None,
         dtype=ztypes.float,
         name=None,
-        **kwargs
+        **kwargs,
     ):
         # Check if subclass of distribution?
         if dist_kwargs is None:
@@ -254,6 +255,8 @@ class Uniform(WrapDistribution):
         high: ztyping.ParamTypeInput,
         obs: ztyping.ObsTypeInput,
         name: str = "Uniform",
+        *,
+        extended: Optional[ztyping.ParamTypeInput] = None,
     ):
         """Uniform distribution which is constant between `low`, `high` and zero outside.
 
@@ -262,6 +265,11 @@ class Uniform(WrapDistribution):
             high: Above this value, the pdf is zero.
             obs: Observables and normalization range the pdf is defined in
             name: Name of the pdf
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
         """
         low, high = self._check_input_params(low, high)
         params = OrderedDict((("low", low), ("high", high)))
@@ -273,6 +281,7 @@ class Uniform(WrapDistribution):
             obs=obs,
             params=params,
             name=name,
+            extended=extended,
         )
 
 
@@ -287,6 +296,8 @@ class TruncatedGauss(WrapDistribution):
         high: ztyping.ParamTypeInput,
         obs: ztyping.ObsTypeInput,
         name: str = "TruncatedGauss",
+        *,
+        extended: Optional[ztyping.ParamTypeInput] = None,
     ):
         """Gaussian distribution that is 0 outside of `low`, `high`. Equivalent to the product of Gauss and Uniform.
 
@@ -297,6 +308,11 @@ class TruncatedGauss(WrapDistribution):
             high: Above this value, the pdf is zero.
             obs: Observables and normalization range the pdf is defined in
             name: Name of the pdf
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
         """
         mu, sigma, low, high = self._check_input_params(mu, sigma, low, high)
         params = OrderedDict(
@@ -312,6 +328,7 @@ class TruncatedGauss(WrapDistribution):
             obs=obs,
             params=params,
             name=name,
+            extended=extended,
         )
 
 
@@ -324,6 +341,8 @@ class Cauchy(WrapDistribution):
         gamma: ztyping.ParamTypeInput,
         obs: ztyping.ObsTypeInput,
         name: str = "Cauchy",
+        *,
+        extended: Optional[ztyping.ParamTypeInput] = None,
     ):
         r"""Non-relativistic Breit-Wigner (Cauchy) PDF representing the energy distribution of a decaying particle.
 
@@ -340,6 +359,11 @@ class Cauchy(WrapDistribution):
             gamma: Width of the shape.
             obs: Observables and normalization range the pdf is defined in
             name: Name of the PDF
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
         """
         m, gamma = self._check_input_params(m, gamma)
         params = OrderedDict((("m", m), ("gamma", gamma)))
@@ -351,6 +375,7 @@ class Cauchy(WrapDistribution):
             obs=obs,
             params=params,
             name=name,
+            extended=extended,
         )
 
 
@@ -362,6 +387,8 @@ class Poisson(WrapDistribution):
         lamb: ztyping.ParamTypeInput,
         obs: ztyping.ObsTypeInput,
         name: str = "Poisson",
+        *,
+        extended: Optional[ztyping.ParamTypeInput] = None,
     ):
         """Poisson distribution, parametrized with an event rate parameter (lamb).
 
@@ -385,4 +412,5 @@ class Poisson(WrapDistribution):
             obs=obs,
             params=params,
             name=name,
+            extended=extended,
         )

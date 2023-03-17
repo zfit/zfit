@@ -4,6 +4,30 @@ Changelog
 
 .. _newest-changelog:
 
+Develop
+========================
+
+Major Features and Improvements
+-------------------------------
+
+Breaking changes
+------------------
+
+Deprecations
+-------------
+
+Bug fixes and small changes
+---------------------------
+
+Experimental
+------------
+
+Requirement changes
+-------------------
+
+Thanks
+------
+
 0.12.0 (13 March 2023)
 ========================
 
@@ -64,12 +88,6 @@ Major Features and Improvements
   and specifies the number of compiled functions that are kept in memory. The default is 10, but
   this can be tuned. Lower values can reduce memory usage, but potentially increase runtime.
 
-Breaking changes
-------------------
-
-
-Deprecations
--------------
 
 Bug fixes and small changes
 ---------------------------
@@ -80,11 +98,6 @@ Bug fixes and small changes
 - Speedup sampling of binned distributions.
 - add ``to_binned`` and ``to_unbinned`` methods to PDF
 
-Experimental
-------------
-
-Requirement changes
--------------------
 
 Thanks
 ------

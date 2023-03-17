@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 from typing import Optional, Union
 
 import tensorflow as tf
@@ -27,6 +27,8 @@ class FFTConvPDFV1(BaseFunctor):
         interpolation: Optional[str] = None,
         obs: Optional[ztyping.ObsTypeInput] = None,
         name: str = "FFTConvV1",
+        *,
+        extended: Optional[ztyping.ParamTypeInput] = None,
     ):
         r"""*EXPERIMENTAL* Numerical Convolution pdf of `func` convoluted with `kernel` using FFT
 
@@ -114,7 +116,7 @@ class FFTConvPDFV1(BaseFunctor):
         valid_interpolations = ("spline", "linear")
 
         obs = func.space if obs is None else obs
-        super().__init__(obs=obs, pdfs=[func, kernel], params={}, name=name)
+        super().__init__(obs=obs, pdfs=[func, kernel], name=name, extended=extended)
 
         if self.n_obs > 1:
             raise WorkInProgressError(
