@@ -1,10 +1,8 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-from ..core.basepdf import BasePDF
+from typing import TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
     pass
@@ -25,6 +23,8 @@ from ..core.interfaces import (
     ZfitSpace,
     ZfitParameter,
 )
+from ..core.basepdf import BasePDF
+from ..util import ztyping
 from ..core.parameter import set_values
 from ..core.space import combine_spaces, convert_to_space, supports
 from ..util.exception import WorkInProgressError
@@ -40,6 +40,7 @@ class ConditionalPDFV1(BaseFunctor):
         cond: Mapping[ZfitIndependentParameter, ZfitSpace],
         name: str = "ConditionalPDF",
         *,
+        extended: ztyping.ParamTypeInput | None = None,
         use_vectorized_map: bool = False,
         sample_with_replacement: bool = True,
     ) -> None:
@@ -67,7 +68,7 @@ class ConditionalPDFV1(BaseFunctor):
         self._use_vectorized_map = use_vectorized_map
         self._cond, cond_obs = self._check_input_cond(cond)
         obs = pdf.space * cond_obs
-        super().__init__(pdfs=pdf, obs=obs, name=name)
+        super().__init__(pdfs=pdf, obs=obs, name=name, extended=extended)
         self.set_norm_range(pdf.norm)
 
     def _check_input_cond(self, cond):

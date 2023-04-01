@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 
 from __future__ import annotations
 
@@ -492,7 +492,6 @@ class FitResult(ZfitResult):
                     f"Error with name {method_name} already exists in {repr(self)} with a different"
                     f" convidence level of {errordict['cl']} instead of the requested {cl}."
                     f" Use a different name.",
-                    stacklevel=2,
                 )
             else:
                 uncached.append(p)
@@ -1193,7 +1192,7 @@ class FitResult(ZfitResult):
                 for p in error_dict:
                     error_dict[p]["cl"] = cl
                 if name:
-                    self._cache_errors(error_name=name, errors=error_dict)
+                    self._cache_errors(name=name, errors=error_dict)
             else:
                 error_dict = {}
 
@@ -1206,9 +1205,9 @@ class FitResult(ZfitResult):
             )
         return {p: error_dict[p] for p in params}
 
-    def _cache_errors(self, error_name, errors):
+    def _cache_errors(self, name, errors):
         for param, error in errors.items():
-            self.params[param][error_name] = error
+            self.params[param][name] = error
 
     def _hesse(self, params, method, cl):
         pseudo_sigma = scipy.stats.chi2(1).ppf(cl) ** 0.5
@@ -1264,15 +1263,14 @@ class FitResult(ZfitResult):
         ]
 
     @deprecated_args(None, "Use name instead.", "error_name")
-    @deprecated_args(None, "Use cl for confidence level instead.", "sigma")
     def errors(
         self,
         params: ParamsTypeOpt = None,
         method: str | Callable = None,
         name: str = None,
-        error_name: str = None,
         cl: float | None = None,
         sigma=None,
+        error_name: str = None,
     ) -> tuple[OrderedDict, None | FitResult]:
         r"""Calculate and set for `params` the asymmetric error using the set error method.
 
@@ -1302,7 +1300,7 @@ class FitResult(ZfitResult):
 
         if sigma is not None:
             if cl is not None:
-                raise ValueError("Cannot define sigma and cl, use cl only.")
+                raise ValueError("Cannot define sigma and cl, use only one.")
             else:
                 cl = scipy.stats.chi2(1).cdf(sigma)
 
@@ -1326,9 +1324,7 @@ class FitResult(ZfitResult):
         name_warning_triggered = False
         if name is None:
             if not isinstance(method, str):
-                raise ValueError(
-                    "Need to specify `error_name` or use a string as `method`"
-                )
+                raise ValueError("Need to specify `name` or use a string as `method`")
             message = (
                 "Default name of errors (which is currently the method name such as `minuit_minos`"
                 "or `zfit_errors`) has changed to `errors`. Old names are still added as well for compatibility"
@@ -1366,17 +1362,17 @@ class FitResult(ZfitResult):
                 )
                 for p in error_dict:
                     error_dict[p]["cl"] = cl
-                self._cache_errors(error_name=name, errors=error_dict)
+                self._cache_errors(name=name, errors=error_dict)
 
                 if new_result is not None:
                     msg = "Invalid, a new minimum was found."
-                    self._cache_errors(error_name=name, errors={p: msg for p in params})
+                    self._cache_errors(name=name, errors={p: msg for p in params})
                     self._valid = False
                     self._message = msg
-                    new_result._cache_errors(error_name=name, errors=error_dict)
+                    new_result._cache_errors(name=name, errors=error_dict)
         all_errors = {p: self.params[p][name] for p in params}
         if name_warning_triggered:
-            self._cache_errors(error_name=method, errors=error_dict)
+            self._cache_errors(name=method, errors=error_dict)
 
         return all_errors, new_result
 

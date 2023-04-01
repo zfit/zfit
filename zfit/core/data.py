@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Union
+from typing import TYPE_CHECKING, Union, Optional
 
 import xxhash
 from tensorflow.python.util.deprecation import deprecated_args, deprecated
@@ -215,30 +215,40 @@ class Data(ZfitUnbinnedData, BaseDimensional, BaseObject, GraphCachable):
             obs: obs to use for the data. obs have to be the columns in the data frame.
                 If ``None``, columns are used as obs.
             weights: Weights of the data. Has to be 1-D and match the shape
-                of the data (nevents) or a string that is a column in the dataframe.
+                of the data (nevents) or a string that is a column in the dataframe. By default, looks for a column ``""``, i.e.
+                 an empty string.
             name:
             dtype: dtype of the data
             use_hash: If ``True``, a hash of the data is created and is used to identify it in caching.
         """
+        weights_requested = weights is not None
+        if weights is None:
+            weights = ""
         if obs is None:
             obs = list(df.columns)
+        space = convert_to_space(obs)
+        if isinstance(weights, str):  # it's in the df
+            if weights not in df.columns:
+                if weights_requested:
+                    raise ValueError(
+                        f"Weights {weights} is a string and not in dataframe with columns {df.columns}"
+                    )
+                weights = None
+            else:
+                obs = [o for o in space.obs if o != weights]
+                weights = df[weights]
+                space = space.with_obs(obs=obs)
 
-        obs = convert_to_space(obs)
-        not_in_df = set(obs.obs) - set(df.columns)
+        not_in_df = set(space.obs) - set(df.columns)
         if not_in_df:
             raise ValueError(
                 f"Observables {not_in_df} not in dataframe with columns {df.columns}"
             )
-        if isinstance(weights, str):
-            if weights not in df.columns:
-                raise ValueError(
-                    f"Weights {weights} is a string and not in dataframe with columns {df.columns}"
-                )
-            weights = df[weights]
-        array = df[list(obs.obs)].values
+
+        array = df[list(space.obs)].values
 
         return Data.from_numpy(  # *not* class, if subclass, keep constructor
-            obs=obs,
+            obs=space,
             array=array,
             weights=weights,
             name=name,
@@ -453,19 +463,29 @@ class Data(ZfitUnbinnedData, BaseDimensional, BaseObject, GraphCachable):
             obs=self.space, tensor=values, weights=self.weights, name=self.name
         )
 
-    def to_pandas(self, obs: ztyping.ObsTypeInput = None):
+    def to_pandas(
+        self, obs: ztyping.ObsTypeInput = None, weightsname: str | None = None
+    ):
         """Create a ``pd.DataFrame`` from ``obs`` as columns and return it.
 
         Args:
             obs: The observables to use as columns. If ``None``, all observables are used.
+            weightsname: The name of the weights column if the data has weights. If ``None``, defaults to ``""``, an empty string.
 
         Returns:
+            ``pd.DataFrame``: A ``pd.DataFrame`` containing the data and the weights (if present).
         """
         values = self.value(obs=obs)
         if obs is None:
             obs = self.obs
-        obs_str = convert_to_obs_str(obs)
+        obs_str = list(convert_to_obs_str(obs))
         values = values.numpy()
+        if self.has_weights:
+            weights = self.weights.numpy()
+            if weightsname is None:
+                weightsname = ""
+            values = np.concatenate((values, weights[:, None]), axis=1)
+            obs_str = obs_str + [weightsname]
         df = pd.DataFrame(data=values, columns=obs_str)
         return df
 
@@ -642,7 +662,15 @@ class Data(ZfitUnbinnedData, BaseDimensional, BaseObject, GraphCachable):
         return BinnedData.from_unbinned(space=space, data=self)
 
     def __getitem__(self, item):
-        return getitem_obs(self, item)
+        try:
+            value = getitem_obs(self, item)
+        except Exception as error:
+            raise RuntimeError(
+                f"Failed to retrieve {item} from data {self}. This can be changed behavior (since zfit 0.11): data can"
+                f" no longer be accessed numpy-like but instead the 'obs' can be used, i.e. strings or spaces. This"
+                f" resembles more closely the behavior of a pandas DataFrame."
+            ) from error
+        return value
 
 
 def getitem_obs(self, item):

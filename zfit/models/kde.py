@@ -1,8 +1,9 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 
 from __future__ import annotations
 
 from collections.abc import Callable
+from typing import Optional
 
 import numpy as np
 import tensorflow as tf
@@ -587,6 +588,8 @@ class GaussianKDE1DimV1(KDEHelper, WrapDistribution):
         weights: None | np.ndarray | tf.Tensor = None,
         truncate: bool = False,
         name: str = "GaussianKDE1DimV1",
+        *,
+        extended: ztyping.ParamTypeInput | None = None,
     ):
         r"""EXPERIMENTAL, `FEEDBACK WELCOME.
 
@@ -683,11 +686,19 @@ class GaussianKDE1DimV1(KDEHelper, WrapDistribution):
              constant :math:`\frac{1}{n_{data}}`. |@docend:pdf.kde.init.weights|
             truncate: If a truncated Gaussian kernel should be used with the limits given by the `obs` lower and
                 upper limits. This can cause NaNs in case datapoints are outside of the limits.
-            name: |@doc:pdf.kde.init.name||@docend:pdf.kde.init.name|
+            name: |@doc:pdf.init.name||@docend:pdf.init.name|
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
         """
         original_data = data
         data, size, weights = self._convert_init_data_weights_size(
-            data, weights, padding=False, limits=None
+            data,
+            weights,
+            padding=False,
+            limits=None,
         )
 
         bandwidth, bandwidth_param = self._convert_input_bandwidth(
@@ -746,6 +757,7 @@ class GaussianKDE1DimV1(KDEHelper, WrapDistribution):
             dist_kwargs=dist_kwargs,
             distribution=distribution,
             name=name,
+            extended=extended,
         )
 
         self._data_weights = weights
@@ -776,6 +788,7 @@ class KDE1DimExact(KDEHelper, WrapDistribution):
         padding: callable | str | bool | None = None,
         weights: np.ndarray | tf.Tensor | None = None,
         name: str | None = "ExactKDE1DimV1",
+        extended: ztyping.ParamTypeInput | None = None,
     ):
         r"""Kernel Density Estimation is a non-parametric method to approximate the density of given points.
 
@@ -894,6 +907,11 @@ class KDE1DimExact(KDEHelper, WrapDistribution):
                or label of
                the PDF for better identification.
                Has no programmatical functional purpose as identification. |@docend:model.init.name|
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
         """
         if kernel is None:
             kernel = tfd.Normal
@@ -955,6 +973,7 @@ class KDE1DimExact(KDEHelper, WrapDistribution):
             dist_kwargs=dist_kwargs,
             distribution=distribution,
             name=name,
+            extended=extended,
         )
 
 
@@ -981,6 +1000,7 @@ class KDE1DimGrid(KDEHelper, WrapDistribution):
         obs: ztyping.ObsTypeInput | None = None,
         weights: np.ndarray | tf.Tensor | None = None,
         name: str = "GridKDE1DimV1",
+        extended: ztyping.ParamTypeInput | None = None,
     ):
         r"""Kernel Density Estimation is a non-parametric method to approximate the density of given points.
 
@@ -1099,6 +1119,10 @@ class KDE1DimGrid(KDEHelper, WrapDistribution):
                or label of
                the PDF for better identification.
                Has no programmatical functional purpose as identification. |@docend:model.init.name|
+            extended: |@doc:model.init.extended| Whether the PDF is extended
+                or not. If True, the PDF can be integrated over the full space
+                and the integral will be 1. If False, the integral will be the
+                number of events in the dataset. |@docend:model.init.extended|
         """
         if kernel is None:
             kernel = tfd.Normal
@@ -1187,6 +1211,7 @@ class KDE1DimGrid(KDEHelper, WrapDistribution):
             dist_kwargs=dist_kwargs,
             distribution=distribution,
             name=name,
+            extended=extended,
         )
 
 
@@ -1207,6 +1232,7 @@ class KDE1DimFFT(KDEHelper, BasePDF):
         padding: callable | str | bool | None = None,
         weights: np.ndarray | tf.Tensor | None = None,
         name: str = "KDE1DimFFT",
+        extended: ztyping.ParamTypeInput | None = None,
     ):
         r"""Kernel Density Estimation is a non-parametric method to approximate the density of given points.
 
@@ -1327,6 +1353,7 @@ class KDE1DimFFT(KDEHelper, BasePDF):
                or label of
                the PDF for better identification.
                Has no programmatical functional purpose as identification. |@docend:model.init.name|
+            extended: |@doc:model.init.extended||@docend:model.init.extended|
         """
         if isinstance(bandwidth, ZfitParameter):
             raise TypeError("bandwidth cannot be a Parameter for the FFT KDE.")
@@ -1375,7 +1402,7 @@ class KDE1DimFFT(KDEHelper, BasePDF):
         self._bandwidth = bandwidth
 
         params = {"bandwidth": self._bandwidth}
-        super().__init__(obs=obs, name=name, params=params)
+        super().__init__(obs=obs, name=name, params=params, extended=extended)
         self._kernel = kernel
         self._weights = weights
         if support is None:
@@ -1424,6 +1451,7 @@ class KDE1DimISJ(KDEHelper, BasePDF):
         binning_method: str | None = None,
         weights: np.ndarray | tf.Tensor | None = None,
         name: str = "KDE1DimISJ",
+        extended: ztyping.ParamTypeInput | None = None,
     ):
         r"""Kernel Density Estimation is a non-parametric method to approximate the density of given points.
 
@@ -1519,6 +1547,11 @@ class KDE1DimISJ(KDEHelper, BasePDF):
                or label of
                the PDF for better identification.
                Has no programmatical functional purpose as identification. |@docend:model.init.name|
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
         """
         if num_grid_points is None:
             num_grid_points = self._default_num_grid_points
@@ -1557,7 +1590,7 @@ class KDE1DimISJ(KDEHelper, BasePDF):
         )
 
         params = {}
-        super().__init__(obs=obs, name=name, params=params)
+        super().__init__(obs=obs, name=name, params=params, extended=extended)
 
     def _unnormalized_pdf(self, x):
         x = z.unstack_x(x)

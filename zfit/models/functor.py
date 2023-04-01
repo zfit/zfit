@@ -12,6 +12,7 @@ import functools
 import operator
 from collections import Counter
 from collections.abc import Iterable
+from typing import Optional
 
 import tensorflow as tf
 
@@ -58,7 +59,7 @@ class BaseFunctor(FunctorMixin, BasePDF):
         return [pdf.is_extended for pdf in self.pdfs]
 
 
-class SumPDF(BaseFunctor):
+class SumPDF(BaseFunctor):  # TODO: add extended argument
     def __init__(
         self,
         pdfs: Iterable[ZfitPDF],
@@ -230,9 +231,27 @@ class SumPDF(BaseFunctor):
 
 class ProductPDF(BaseFunctor):
     def __init__(
-        self, pdfs: list[ZfitPDF], obs: ztyping.ObsTypeInput = None, name="ProductPDF"
+        self,
+        pdfs: list[ZfitPDF],
+        obs: ztyping.ObsTypeInput = None,
+        name="ProductPDF",
+        *,
+        extended: ztyping.ParamTypeInput | None = None,
     ):
-        super().__init__(pdfs=pdfs, obs=obs, name=name)
+        """Product of multiple PDFs.
+
+        Parameters
+        ----------
+        pdfs: PDFs that are multiplied together.
+        obs: Observables the PDF is defined on.
+        name: Name of the PDF.
+        extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+        """
+        super().__init__(pdfs=pdfs, obs=obs, name=name, extended=extended)
 
         same_obs_pdfs = []
         disjoint_obs_pdfs = []

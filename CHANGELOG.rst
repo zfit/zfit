@@ -4,6 +4,23 @@ Changelog
 
 .. _newest-changelog:
 
+
+0.12.1 (1 April 2023)
+========================
+
+
+Bug fixes and small changes
+---------------------------
+- added ``extended`` as a parameter to all PDFs: a PDF can now directly be extended without the need for
+  ``create_extended`` (or ``set_yield``).
+- ``to_pandas`` and ``from_pandas`` now also support weights as columns. Default column name is ``""``.
+- add ``numpy`` and ``backend`` to options when setting the seed
+- reproducibility by fixing the seed in zfit is restored, ``zfit.run.set_seed`` now also sets the seed for the backend(numpy, tensorflow, etc.) if requested (on by default)
+
+Thanks
+------
+- Sebastian Schmitt @schmitse for reporting the bug in the non-reproducibility of the seed.
+
 0.12.0 (13 March 2023)
 ========================
 
@@ -64,12 +81,6 @@ Major Features and Improvements
   and specifies the number of compiled functions that are kept in memory. The default is 10, but
   this can be tuned. Lower values can reduce memory usage, but potentially increase runtime.
 
-Breaking changes
-------------------
-
-
-Deprecations
--------------
 
 Bug fixes and small changes
 ---------------------------
@@ -80,11 +91,6 @@ Bug fixes and small changes
 - Speedup sampling of binned distributions.
 - add ``to_binned`` and ``to_unbinned`` methods to PDF
 
-Experimental
-------------
-
-Requirement changes
--------------------
 
 Thanks
 ------

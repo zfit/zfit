@@ -54,7 +54,7 @@ also the advanced models in `zfit models <https://github.com/zfit/zfit-tutorials
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
     import zfit
@@ -124,7 +124,7 @@ class BasePDF(ZfitPDF, BaseModel):
         params: dict[str, ZfitParameter] = None,
         dtype: type = ztypes.float,
         name: str = "BasePDF",
-        extended=None,
+        extended: ztyping.ParamTypeInput | None = None,
         norm=None,
         **kwargs,
     ):
