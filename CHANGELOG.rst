@@ -32,7 +32,7 @@ Requirement changes
 
 Thanks
 ------
-- Sebastian Schmitt @schmitt for reporting the bug in the non-reproducibility of the seed.
+- Sebastian Schmitt @schmitse for reporting the bug in the non-reproducibility of the seed.
 
 0.12.0 (13 March 2023)
 ========================
