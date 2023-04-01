@@ -27,8 +27,7 @@ def set_seed(seed=None, numpy=None, backend=None):
             abs(backend_seed) % 2**31
         )  # make sure it's positive and not too large
         seed = backend_seed
-    else:
-        backend_seed = seed
+
     if numpy is None:
         numpy = True
     if backend is None:
@@ -37,16 +36,16 @@ def set_seed(seed=None, numpy=None, backend=None):
     if numpy is True:
         numpy = seed
     if backend is True:
-        backend = backend_seed
+        backend = seed
 
-    if numpy is not None:
+    if numpy is not None and numpy is not False:
         np.random.seed(numpy)
-    if backend is not None:
+    if backend is not None and backend is not False:
         tf.random.set_seed(backend)
 
     from .z.random import get_prng
 
-    get_prng().reset_from_seed(backend_seed)
+    get_prng().reset_from_seed(seed)
 
 
 _verbosity = 0
