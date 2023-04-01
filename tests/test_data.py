@@ -167,6 +167,7 @@ def test_from_numpy(weights_factory, obs3d):
 def test_from_to_pandas(obs3d):
     dtype = np.float32
     example_data_np = np.random.random(size=(1000, len(obs3d)))
+    example_weights = np.random.random(size=(1000,))
     example_data = pd.DataFrame(data=example_data_np, columns=obs3d)
     data = zfit.Data.from_pandas(obs=obs3d, df=example_data, dtype=dtype)
     x = data.value()
@@ -182,7 +183,15 @@ def test_from_to_pandas(obs3d):
     x2 = data2.value()
     x_np2 = x2.numpy()
     np.testing.assert_array_equal(example_data_np, x_np2)
+    assert len(data2.obs) == len(obs3d)
+    assert len(data2.obs) == len(data2.to_pandas().columns)
 
+    data2w = zfit.Data.from_pandas(df=example_data2, weights=example_weights)
+    df2w = data2w.to_pandas()
+    data2w2 = zfit.Data.from_pandas(df=df2w)
+    assert data2w2.obs == obs3d
+    np.testing.assert_allclose(data2w2.weights.numpy(), example_weights)
+    np.testing.assert_allclose(data2w2.value().numpy(), example_data_np)
     df = data2.to_pandas()
     assert all(df == example_data)
 
@@ -250,6 +259,15 @@ def test_from_tensors(weights_factory):
         np.testing.assert_allclose(weights_data, weights)
     else:
         assert weights is None
+
+    df = data.to_pandas()
+    data_new = zfit.Data.from_pandas(df=df)
+    assert data_new.obs == data.obs
+    assert np.allclose(data_new.value().numpy(), data.value().numpy())
+    if weights is not None:
+        assert np.allclose(data_new.weights.numpy(), data.weights.numpy())
+    else:
+        assert data_new.weights is None
 
 
 def test_overloaded_operators(data1):

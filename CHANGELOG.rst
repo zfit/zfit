@@ -20,6 +20,7 @@ Bug fixes and small changes
 ---------------------------
 - added ``extended`` as a parameter to all PDFs: a PDF can now directly be extended without the need for
   ``create_extended`` (or ``set_yield``).
+- ``to_pandas`` and ``from_pandas`` now also support weights as columns. Default column name is ``""``.
 - add ``numpy`` and ``backend`` to options when setting the seed
 - reproducibility by fixing the seed in zfit is restored, ``zfit.run.set_seed`` now also sets the seed for the backend(numpy, tensorflow, etc.) if requested (on by default)
 
