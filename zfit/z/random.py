@@ -17,9 +17,19 @@ __all__ = ["counts_multinomial", "sample_with_replacement"]
 from ..settings import ztypes
 from ..z import numpy as znp
 
+generator = None
+
 
 def get_prng():
-    return tf.random.get_global_generator()
+    """Get the global random number generator.
+
+    Returns:
+        zfit random number generator
+    """
+    global generator
+    if generator is None:  # initialization
+        generator = tf.random.Generator.from_non_deterministic_state()
+    return generator
 
 
 def sample_with_replacement(
