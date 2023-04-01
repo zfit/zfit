@@ -226,6 +226,7 @@ class Data(ZfitUnbinnedData, BaseDimensional, BaseObject, GraphCachable):
             weights = ""
         if obs is None:
             obs = list(df.columns)
+        space = convert_to_space(obs)
         if isinstance(weights, str):  # it's in the df
             if weights not in df.columns:
                 if weights_requested:
@@ -234,20 +235,20 @@ class Data(ZfitUnbinnedData, BaseDimensional, BaseObject, GraphCachable):
                     )
                 weights = None
             else:
-                obs = [o for o in obs if o != weights]
+                obs = [o for o in space.obs if o != weights]
                 weights = df[weights]
+                space = space.with_obs(obs=obs)
 
-        obs = convert_to_space(obs)
-        not_in_df = set(obs.obs) - set(df.columns)
+        not_in_df = set(space.obs) - set(df.columns)
         if not_in_df:
             raise ValueError(
                 f"Observables {not_in_df} not in dataframe with columns {df.columns}"
             )
 
-        array = df[list(obs.obs)].values
+        array = df[list(space.obs)].values
 
         return Data.from_numpy(  # *not* class, if subclass, keep constructor
-            obs=obs,
+            obs=space,
             array=array,
             weights=weights,
             name=name,
