@@ -4,17 +4,10 @@ Changelog
 
 .. _newest-changelog:
 
-Develop
+
+0.12.1 (1 April 2023)
 ========================
 
-Major Features and Improvements
--------------------------------
-
-Breaking changes
-------------------
-
-Deprecations
--------------
 
 Bug fixes and small changes
 ---------------------------
@@ -23,13 +16,6 @@ Bug fixes and small changes
 - ``to_pandas`` and ``from_pandas`` now also support weights as columns. Default column name is ``""``.
 - add ``numpy`` and ``backend`` to options when setting the seed
 - reproducibility by fixing the seed in zfit is restored, ``zfit.run.set_seed`` now also sets the seed for the backend(numpy, tensorflow, etc.) if requested (on by default)
-
-
-Experimental
-------------
-
-Requirement changes
--------------------
 
 Thanks
 ------
