@@ -86,7 +86,7 @@ jobs:
           coverage run --source=. --omit=".tox/*,*/test*,*/minimizers/interface.py,*/core/testing.py" --branch -m pytest .
           mkdir coverage && coverage-lcov --output_file_path ./coverage/lcov.info
       - name: Coveralls Parallel
-        uses: coverallsapp/github-action@v1.2.4
+        uses: coverallsapp/github-action@v2.0.0
         with:
           github-token: ${{ secrets.github_token }}
           flag-name: run-${{ matrix.use-graph }}-${{ matrix.python-version }}-ubuntu
@@ -222,7 +222,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Coveralls Finished
-        uses: coverallsapp/github-action@v1.2.4
+        uses: coverallsapp/github-action@v2.0.0
         with:
           github-token: ${{ secrets.github_token }}
           parallel-finished: true
