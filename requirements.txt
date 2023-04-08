@@ -19,7 +19,7 @@ pyyaml
 scipy>=1.2
 tabulate
 tensorflow>=2.11, <2.13; sys_platform != 'darwin' or platform_machine != 'arm64'
-tensorflow-addons
+tensorflow-addons>=0.20
 tensorflow-macos>=2.11, <2.13; sys_platform == 'darwin' and platform_machine == 'arm64'
 tensorflow_probability>=0.19, <0.21
 texttable
