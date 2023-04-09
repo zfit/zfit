@@ -25,6 +25,7 @@ class FFTConvPDFV1(BaseFunctor):
         limits_func: Union[ztyping.LimitsType, float] = None,
         limits_kernel: ztyping.LimitsType = None,
         interpolation: Optional[str] = None,
+        include_leakage: Optional[bool] = True,
         obs: Optional[ztyping.ObsTypeInput] = None,
         name: str = "FFTConvV1",
     ):
@@ -192,11 +193,14 @@ class FFTConvPDFV1(BaseFunctor):
         lower_kernel, upper_kernel = limits_kernel.rect_limits
 
         ### If limits_func arg is given do not extend range for convolution (i.e., account for leakage)
-        if self._given_limits_func is not None:
-            lower_sample, upper_sample = self._given_limits_func
-        else:
+        if include_leakage:
             lower_sample = lower_func + lower_kernel
             upper_sample = upper_func + upper_kernel
+        else:
+            if self._given_limits_func is not None:
+                lower_sample, upper_sample = self._given_limits_func
+            else:
+                lower_sample, upper_sample = lower_func, upper_func
 
         # TODO: what if kernel area is larger?
         if limits_kernel.rect_area() > limits_func.rect_area():
