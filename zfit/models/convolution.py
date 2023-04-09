@@ -105,9 +105,9 @@ class FFTConvPDFV1(BaseFunctor):
                   a system of equations. When using 1000+ points this can affect the runtime critical.
                   However, it provides better solution, a curve that is smooth even with less points
                   than for a linear interpolation.
-           
-           include_leakage: Specify if to not convolve the func outside the obs range. 
-               
+
+           include_leakage: Specify if to not convolve the func outside the obs range.
+
                Recommended to leave as default (True) unless needed.
                bool: True or False
 
