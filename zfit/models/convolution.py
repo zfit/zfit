@@ -25,6 +25,7 @@ class FFTConvPDFV1(BaseFunctor):
         limits_func: Union[ztyping.LimitsType, float] = None,
         limits_kernel: ztyping.LimitsType = None,
         interpolation: Optional[str] = None,
+        include_leakage: Optional[bool] = True,
         obs: Optional[ztyping.ObsTypeInput] = None,
         name: str = "FFTConvV1",
         *,
@@ -107,6 +108,11 @@ class FFTConvPDFV1(BaseFunctor):
                   However, it provides better solution, a curve that is smooth even with less points
                   than for a linear interpolation.
 
+           include_leakage: Specify if to not convolve the func outside the obs range.
+
+               Recommended to leave as default (True) unless needed.
+               bool: True or False
+
             obs: Observables of the class. If not specified, automatically taken from `func`
             name: Human readable name of the PDF
         """
@@ -145,6 +151,7 @@ class FFTConvPDFV1(BaseFunctor):
         self._conv_spline_order = spline_order
 
         # get function limits
+        self._given_limits_func = limits_func
         if limits_func is None:
             limits_func = func.space
         limits_func = self._check_input_limits(limits=limits_func)
@@ -191,8 +198,16 @@ class FFTConvPDFV1(BaseFunctor):
 
         lower_func, upper_func = limits_func.rect_limits
         lower_kernel, upper_kernel = limits_kernel.rect_limits
-        lower_sample = lower_func + lower_kernel
-        upper_sample = upper_func + upper_kernel
+
+        ### If limits_func arg is given do not extend range for convolution (i.e., account for leakage)
+        if include_leakage:
+            lower_sample = lower_func + lower_kernel
+            upper_sample = upper_func + upper_kernel
+        else:
+            if self._given_limits_func is not None:
+                lower_sample, upper_sample = self._given_limits_func
+            else:
+                lower_sample, upper_sample = lower_func, upper_func
 
         # TODO: what if kernel area is larger?
         if limits_kernel.rect_area() > limits_func.rect_area():
