@@ -178,7 +178,7 @@ class ConditionalPDFV1(BaseFunctor):
             n,
             x.nevents,
             message="Different number of n requested than x given for "
-                    "conditional sampling. Needs to agree",
+            "conditional sampling. Needs to agree",
         )
 
         param_x_indices = {

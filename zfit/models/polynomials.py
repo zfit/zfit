@@ -67,7 +67,15 @@ class RecursivePolynomial(BasePDF):
         """Base class to create 1 dimensional recursive polynomials that can be rescaled. Overwrite _poly_func.
 
         Args:
-            obs: |@doc:pdf.init.obs||@docend:pdf.init.obs|
+            obs: |@doc:pdf.init.obs| Observables of the
+               model. This will be used as the default space of the PDF and,
+               if not given explicitly, as the normalization range.
+
+               The default space is used for example in the sample method: if no
+               sampling limits are given, the default space is used.
+
+               The observables are not equal to the domain as it does not restrict or
+               truncate the model outside this range. |@docend:pdf.init.obs|
             coeffs: |@doc:pdf.polynomial.init.coeffs| Coefficients of the sum of the polynomial.
                The coefficients of the polynomial, starting with the first order
                term. To set the constant term, use ``coeff0``. |@docend:pdf.polynomial.init.coeffs|
