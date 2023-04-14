@@ -189,6 +189,7 @@ class Data(
         Args:
             weights:
         """
+
         # weights = self._set_weights(weights)
 
         def setter(value):
@@ -776,7 +777,7 @@ class SampleData(Data):
         return counting
 
     @classmethod
-    def from_sample(
+    def from_sample(  # TODO(deprecate and remove? use normal data?
         cls,
         sample: tf.Tensor,
         obs: ztyping.ObsTypeInput,
@@ -784,9 +785,8 @@ class SampleData(Data):
         weights=None,
         use_hash: bool = None,
     ):
-        dataset = LightDataset.from_tensor(sample)
-        return SampleData(
-            dataset=dataset, obs=obs, name=name, weights=weights, use_hash=use_hash
+        return Data.from_tensor(
+            tensor=sample, obs=obs, name=name, weights=weights, use_hash=use_hash
         )
 
 
