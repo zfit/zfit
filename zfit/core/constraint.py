@@ -269,6 +269,11 @@ class GaussianConstraint(TFProbabilityConstraint, SerializableMixin):
         observation = convert_to_container(observation, tuple)
         params = convert_to_container(params, tuple)
         uncertainty = convert_to_container(uncertainty, tuple)
+        if (
+            isinstance(uncertainty[0], (np.ndarray, tf.Tensor))
+            and len(uncertainty) == 1
+        ):
+            uncertainty = tuple(uncertainty[0])
         original_init = {
             "observation": observation,
             "params": params,
@@ -277,6 +282,9 @@ class GaussianConstraint(TFProbabilityConstraint, SerializableMixin):
 
         def create_covariance(mu, sigma):
             mu = z.convert_to_tensor(mu)
+            sigma = np.asarray(
+                sigma
+            )  # otherwise TF complains that the shape got changed from [2] to [2, 2] (if we have a tuple of two arrays)
             sigma = z.convert_to_tensor(sigma)  # TODO (Mayou36): fix as above?
             params_tensor = z.convert_to_tensor(params)
 

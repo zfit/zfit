@@ -146,6 +146,13 @@ def cleanup_hs3(obj1, obj2):
         raise TypeError(
             f"obj1 and obj2 both need to be of type 'Mapping', are {obj1} and {obj2}"
         )
+    missing2 = set(obj1.keys()) - set(obj2.keys())
+    missing1 = set(obj2.keys()) - set(obj1.keys())
+    if missing1 and missing2:
+        raise ValueError(
+            f"Both objects are missing keys: {missing1} and {missing2}. "
+            f"obj1: {obj1}, obj2: {obj2}"
+        )
     return cleanup_recursive(obj1, obj2)
 
 

@@ -229,7 +229,14 @@ class Serializer:
             obj: The PDF or list of PDFs to be serialized.
 
         Returns:
-            mapping: The serialized objects as a mapping. The keys are 'pdfs' and 'variables' as well as a 'metadata' key
+            mapping: The serialized objects as a mapping.
+                     |@doc:hs3.layout.explain| The keys in the HS3 format are:
+                    - 'distributions': list of PDFs
+                    - 'variables': list of variables, i.e. ``zfit.Space`` and ``zfit.Parameter`` (or more generally parameters)
+                    - 'loss': list of losses
+                    - 'data': list of data
+                    - 'metadata': contains the version of the HS3 format and the
+                      zfit version used to create the file |@docend:hs3.layout.explain|
         """
 
         cls.initialize()
@@ -238,13 +245,13 @@ class Serializer:
         # check if already HS3 format
         if isinstance(obj, collections.abc.Mapping):
             if (
-                "pdfs" in obj
-                and isinstance(obj["pdfs"], collections.abc.Mapping)
+                "distributions" in obj
+                and isinstance(obj["distributions"], collections.abc.Mapping)
                 and "variables" in obj
                 and "metadata" in obj
             ):
                 raise ValueError(
-                    "Object seems to be already in HS3 format. If it contains PDFs, use `obj['pdfs'].values()` instead of `obj` to get a valid conversion"
+                    "Object seems to be already in HS3 format. If it contains PDFs, use `obj['distributions'].values()` instead of `obj` to get a valid conversion"
                 )
             else:
                 raise ValueError(
@@ -261,7 +268,7 @@ class Serializer:
         from zfit.core.serialmixin import ZfitSerializable
 
         if not all(isinstance(pdf, ZfitSerializable) for pdf in obj):
-            raise SerializationTypeError("All pdfs must be ZfitSerializable")
+            raise SerializationTypeError("All distributions must be ZfitSerializable")
         import zfit
 
         out = {
@@ -269,7 +276,7 @@ class Serializer:
                 "HS3": {"version": "experimental"},
                 "serializer": {"lib": "zfit", "version": zfit.__version__},
             },
-            "pdfs": {},
+            "distributions": {},
             "variables": {},
             "loss": {},
             "data": {},
@@ -277,12 +284,12 @@ class Serializer:
         }
         loss_number = range(len(obj))
 
-        all_objs = {"data": [], "pdfs": [], "constraints": [], "loss": []}
+        all_objs = {"data": [], "distributions": [], "constraints": [], "loss": []}
         if all_pdfs:
-            all_objs["pdfs"] = obj
+            all_objs["distributions"] = obj
         else:
             for loss in obj:
-                all_objs["pdfs"].extend(loss.model)
+                all_objs["distributions"].extend(loss.model)
                 all_objs["constraints"].extend(loss.constraints)
                 all_objs["data"].extend(loss.data)
                 all_objs["loss"].append(loss)
@@ -293,19 +300,17 @@ class Serializer:
             for ob in val:
                 name = ob.name
                 if name in all_objs_cleaned[key]:
-                    name = f"{name}_{loss_number}"
+                    name = f"{name}_{iter(loss_number)}"
                 all_objs_cleaned[key][name] = ob
 
-        for name, pdf in all_objs_cleaned["pdfs"].items():
-            assert name not in out["pdfs"], "Name should have been uniqueified"
+        for name, pdf in all_objs_cleaned["distributions"].items():
+            assert name not in out["distributions"], "Name should have been uniqueified"
             pdf_repr = pdf.get_repr().from_orm(pdf)
-            out["pdfs"][name] = pdf_repr.dict(**serial_kwargs)
+            out["distributions"][name] = pdf_repr.dict(**serial_kwargs)
 
             for param in pdf.get_params(
                 floating=None, extract_independent=None
             ):  # TODO: this is not ideal, we should take the serialized params?
-                # if isinstance(param, ComposedParameter):
-                #     continue  # we skip it currently, as it depends on others. Maybe also put in?
                 if param.name not in out["variables"]:
                     paramdict = param.get_repr().from_orm(param).dict(**serial_kwargs)
                     del paramdict["type"]
@@ -352,8 +357,13 @@ class Serializer:
                    is still in development and is not yet finalized. This function is experimental and may change in the future. |@docend:hs3.explain|
 
         Args:
-            load: The serialized objects as a mapping. The keys are 'pdfs' and 'variables' as well as a 'metadata' key
-              and following the HS3 standard.
+            load: The serialized objects as a mapping. |@doc:hs3.layout.explain| The keys in the HS3 format are:
+                    - 'distributions': list of PDFs
+                    - 'variables': list of variables, i.e. ``zfit.Space`` and ``zfit.Parameter`` (or more generally parameters)
+                    - 'loss': list of losses
+                    - 'data': list of data
+                    - 'metadata': contains the version of the HS3 format and the
+                      zfit version used to create the file |@docend:hs3.layout.explain|
 
         Returns:
             mapping: The PDFs and variables as a mapping to the original keys.
@@ -362,7 +372,7 @@ class Serializer:
         # sanity checks, TODO
         if "variables" not in load:
             pass
-        if "pdfs" not in load:
+        if "distributions" not in load:
             pass
         if "metadata" not in load:
             pass
@@ -383,7 +393,7 @@ class Serializer:
             "variables": {},  # order matters! variables first
             "data": {},
             "constraints": {},
-            "pdfs": {},
+            "distributions": {},
             "loss": {},
         }
         assert (
@@ -410,7 +420,7 @@ class Serializer:
     def post_serialize(cls, out):
         # This is not very stable as it allows only one pass and cannot be applied multiple times (i.e. the replacement back of the params:
         # name is replaced by the dict, that's fine for *once*, but fails if done twice (as the "name" field will be replaced by the dict)
-        for what in ["pdfs", "loss", "data", "constraints"]:
+        for what in ["distributions", "loss", "data", "constraints"]:
             # replace constant parameters with their name
             const_params = frozendict(
                 {"name": None, "type": "ConstantParameter", "floating": False}
@@ -448,7 +458,7 @@ class Serializer:
         for parname, param in out["variables"].items():
             if param["type"] == "ComposedParameter":
                 param["params"] = replace_matching(param["params"], replace_backward)
-        for what in ["pdfs", "loss", "data", "constraints"]:
+        for what in ["distributions", "loss", "data", "constraints"]:
             out[what] = replace_matching(out[what], replace_backward)
         return out
 

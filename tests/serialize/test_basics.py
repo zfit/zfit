@@ -303,7 +303,7 @@ def test_loss_serialization(ext_Loss, pdf_factory, Constraint, request):
 
     loss_truth_dumped = pytest.helpers.get_truth(
         f"hs3_loss/{loss.name}",
-        f"{loss.name}_{pdf.name}.asdf",
+        f"{loss.name}_{pdf.name}_{'unconstr' if constraint is None else constraint.name}.asdf",
         request,
         newval=loss_asdf,
     )
@@ -314,7 +314,7 @@ def test_loss_serialization(ext_Loss, pdf_factory, Constraint, request):
         l.pop("history", None)
 
     # assert loss_asdf_tree == loss_truth_tree
-    loss_loaded = loss.__class__.from_asdf(loss_asdf)
+    loss_loaded = loss.from_asdf(loss_asdf)
 
     print(loss_loaded)
 
@@ -351,7 +351,7 @@ def test_serial_hs3_pdfs(pdf, extended):
     hs3json = zserial.Serializer.to_hs3(pdf)
     loaded = zserial.Serializer.from_hs3(hs3json)
 
-    loaded_pdf = list(loaded["pdfs"].values())[0]
+    loaded_pdf = list(loaded["distributions"].values())[0]
     assert str(pdf) == str(loaded_pdf)
     x = znp.random.uniform(-3, 3, size=(107, pdf.n_obs))
     assert np.allclose(pdf.pdf(x), loaded_pdf.pdf(x))
@@ -369,7 +369,7 @@ def test_replace_matching():
             "HS3": {"version": "experimental"},
             "serializer": {"lib": "zfit", "version": str(zfit.__version__)},
         },
-        "pdfs": {
+        "distributions": {
             "Gauss": {
                 "mu": {
                     "floating": True,
@@ -421,7 +421,9 @@ def test_replace_matching():
             "HS3": {"version": "experimental"},
             "serializer": {"lib": "zfit", "version": str(zfit.__version__)},
         },
-        "pdfs": {"Gauss": {"mu": "mu", "sigma": "sigma", "type": "Gauss", "x": "obs"}},
+        "distributions": {
+            "Gauss": {"mu": "mu", "sigma": "sigma", "type": "Gauss", "x": "obs"}
+        },
         "variables": {
             "mu": {
                 "floating": True,
@@ -448,8 +450,8 @@ def test_replace_matching():
     parameter = frozendict({"name": None, "min": None, "max": None})
     replace_forward = {parameter: lambda x: x["name"]}
     target_test = copy.deepcopy(original_dict)
-    target_test["pdfs"] = zserial.serializer.replace_matching(
-        target_test["pdfs"], replace_forward
+    target_test["distributions"] = zserial.serializer.replace_matching(
+        target_test["distributions"], replace_forward
     )
     assert target_test == target_dict
     replace_backward = {
@@ -457,8 +459,8 @@ def test_replace_matching():
         for k in target_dict["variables"].keys()
     }
     original_test = copy.deepcopy(target_dict)
-    original_test["pdfs"] = zserial.serializer.replace_matching(
-        original_test["pdfs"], replace_backward
+    original_test["distributions"] = zserial.serializer.replace_matching(
+        original_test["distributions"], replace_backward
     )
 
     assert original_test == original_dict
