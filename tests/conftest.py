@@ -6,6 +6,7 @@ import os
 import pathlib
 import sys
 
+import dill
 import matplotlib.pyplot as plt
 import numpy as np
 import pytest
@@ -133,6 +134,11 @@ def cleanup_recursive(dict1, dict2):
             dict1[key] = val1.tolist()
         elif isinstance(val2, np.ndarray):
             dict2[key] = val2.tolist()
+        elif key == "value_fn":  # We have a composed parameter
+            if isinstance(val1, str):
+                dict1[key] = dill.dumps(dill.loads(bytes.fromhex(val1))).hex()
+            if isinstance(val2, str):
+                dict2[key] = dill.dumps(dill.loads(bytes.fromhex(val2))).hex()
     return dict1, dict2
 
 
