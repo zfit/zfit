@@ -56,13 +56,12 @@ class BaseFunctor(FunctorMixin, BasePDF):
             norm = extract_daughter_input_obs(
                 obs=norm, spaces=[model.space for model in self.models]
             )
+            self.set_norm_range(norm)
         if not norm.limits_are_set:
             raise NormRangeUnderdefinedError(
                 f"Daughter pdfs {self.pdfs} do not agree on a `norm` and/or no `norm`"
                 "has been explicitly set."
             )
-
-        self.set_norm_range(norm)
 
     @property
     def pdfs_extended(self):
@@ -176,8 +175,7 @@ class SumPDF(BaseFunctor, SerializableMixin):  # TODO: add extended argument
         if (norm and not equal_norm_ranges) or not self._automatically_extended:
             raise SpecificFunctionNotImplemented
         pdfs = self.pdfs
-        fracs = self.params.values()
-        probs = [pdf.ext_pdf(x) * frac for pdf, frac in zip(pdfs, fracs)]
+        probs = [pdf.ext_pdf(x) for pdf in pdfs]
         prob = sum(probs)
         return z.convert_to_tensor(prob)
 
@@ -205,11 +203,10 @@ class SumPDF(BaseFunctor, SerializableMixin):  # TODO: add extended argument
         # TODO(SUM): why was this needed?
         # assert norm_range not in (None, False), "Bug, who requested an unnormalized integral?"
         integrals = [
-            frac
-            * pdf.ext_integrate(
+            pdf.ext_integrate(
                 limits=limits, options=options
             )  # do NOT propagate the norm_range!
-            for pdf, frac in zip(pdfs, fracs)
+            for pdf in pdfs
         ]
         return znp.sum(integrals, axis=0)
 

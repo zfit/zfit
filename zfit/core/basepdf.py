@@ -56,6 +56,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from tensorflow.python.util.deprecation import deprecated_args
+
 from ..util.ztyping import ExtendedInputType, NormInputType
 
 if TYPE_CHECKING:
@@ -198,16 +200,21 @@ class BasePDF(ZfitPDF, BaseModel):
         return TemporarilySet(value=norm, setter=setter, getter=getter)
 
     @_BasePDF_register_check_support(True)
-    def _normalization(self, limits):
+    def _normalization(self, norm, options):
         raise SpecificFunctionNotImplemented
 
+    @deprecated_args(None, "Use `norm` instead.", "limits")
     def normalization(
-        self, limits: ztyping.LimitsType, *, options=None
+        self,
+        norm: ztyping.LimitsType,
+        *,
+        options=None,
+        limits: ztyping.LimitsType = None,
     ) -> ztyping.XType:
-        """Return the normalization of the function (usually the integral over ``limits``).
+        """Return the normalization of the function (usually the integral over ``norm``).
 
         Args:
-            limits:  |@doc:pdf.param.norm| Normalization of the function.
+            norm:  |@doc:pdf.param.norm| Normalization of the function.
                By default, this is the ``norm`` of the PDF (which by default is the same as
                the space of the PDF). Should be ``ZfitSpace`` to define the space
                to normalize over. |@docend:pdf.param.norm|
@@ -216,28 +223,27 @@ class BasePDF(ZfitPDF, BaseModel):
         Returns:
             The normalization value
         """
+        del limits
         if options is None:
             options = {}  # TODO: pass options through
-        limits = self._check_input_limits(limits=limits)
+        norm = self._check_input_norm(norm, none_is_error=True)
 
-        return self._single_hook_normalization(
-            limits=limits,
-        )
+        return self._single_hook_normalization(norm=norm, options=options)
 
-    def _single_hook_normalization(self, limits):  # TODO(Mayou36): add yield?
-        return self._hook_normalization(limits=limits)
+    def _single_hook_normalization(self, norm, options):  # TODO(Mayou36): add yield?
+        return self._hook_normalization(norm=norm, options=options)
 
-    def _hook_normalization(self, limits):
-        return self._call_normalization(limits=limits)  # no _norm_* needed
+    def _hook_normalization(self, norm, options):
+        return self._call_normalization(norm=norm, options=options)  # no _norm_* needed
 
-    def _call_normalization(self, limits):
+    def _call_normalization(self, norm, options):
         # TODO: caching? alternative
         with suppress(FunctionNotImplemented):
-            return self._normalization(limits=limits)
-        return self._fallback_normalization(limits)
+            return self._normalization(norm=norm, options=options)
+        return self._fallback_normalization(norm, options=options)
 
-    def _fallback_normalization(self, limits):
-        return self._hook_integrate(limits=limits, norm=False, options=None)
+    def _fallback_normalization(self, norm, options):
+        return self._hook_integrate(limits=norm, norm=False, options=options)
 
     def _unnormalized_pdf(self, x):
         raise SpecificFunctionNotImplemented
@@ -289,6 +295,7 @@ class BasePDF(ZfitPDF, BaseModel):
           :py:class:`tf.Tensor` of type `self.dtype`.
         """
         del norm_range  # taken care of in the deprecation decorator
+        norm = self._check_input_norm(norm, none_is_error=True)
         if not self.is_extended:
             raise NotExtendedPDFError(f"{self} is not extended, cannot call `ext_pdf`")
         with self._convert_sort_x(x) as x:
@@ -340,7 +347,7 @@ class BasePDF(ZfitPDF, BaseModel):
         """
         assert norm_range is None
         del norm_range  # taken care of in the deprecation decorator
-
+        norm = self._check_input_norm(norm, none_is_error=True)
         if not self.is_extended:
             raise NotExtendedPDFError(f"{self} is not extended, cannot call `ext_pdf`")
         with self._convert_sort_x(x) as x:
@@ -430,7 +437,7 @@ class BasePDF(ZfitPDF, BaseModel):
     def _fallback_pdf(self, x, norm):
         pdf = self._call_unnormalized_pdf(x)
         if norm.has_limits:
-            pdf /= self._hook_normalization(limits=norm)
+            pdf /= self._hook_normalization(norm=norm, options={})
         return pdf
 
     @_BasePDF_register_check_support(False)
