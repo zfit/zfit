@@ -1,5 +1,5 @@
 #  Copyright (c) 2023 zfit
-"""Recurrent polynomials."""
+""" Recurrent polynomials."""
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Optional
@@ -297,7 +297,6 @@ class Legendre(RecursivePolynomial, SerializableMixin):
             coeffs=coeffs,
             apply_scaling=apply_scaling,
             coeff0=coeff0,
-            *,
             extended=extended,
             norm=norm,
         )
@@ -396,7 +395,6 @@ class Chebyshev(RecursivePolynomial, SerializableMixin):
             coeffs=coeffs,
             coeff0=coeff0,
             apply_scaling=apply_scaling,
-            *,
             extended=extended,
             norm=norm,
         )
@@ -521,7 +519,6 @@ class Chebyshev2(RecursivePolynomial, SerializableMixin):
             coeffs=coeffs,
             coeff0=coeff0,
             apply_scaling=apply_scaling,
-            *,
             extended=extended,
             norm=norm,
         )
@@ -661,7 +658,6 @@ class Laguerre(RecursivePolynomial, SerializableMixin):
             coeffs=coeffs,
             coeff0=coeff0,
             apply_scaling=apply_scaling,
-            *,
             extended=extended,
             norm=norm,
         )
@@ -787,7 +783,6 @@ class Hermite(RecursivePolynomial, SerializableMixin):
             coeffs=coeffs,
             coeff0=coeff0,
             apply_scaling=apply_scaling,
-            *,
             extended=extended,
             norm=norm,
         )

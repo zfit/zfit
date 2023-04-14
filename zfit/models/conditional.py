@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Dict
+from typing import TYPE_CHECKING
 
 from ..util.ztyping import ExtendedInputType, NormInputType
 
@@ -26,7 +26,6 @@ from ..core.interfaces import (
     ZfitParameter,
 )
 from ..core.basepdf import BasePDF
-from ..util import ztyping
 from ..core.parameter import set_values
 from ..core.space import combine_spaces, convert_to_space, supports
 from ..util.exception import WorkInProgressError
@@ -40,11 +39,10 @@ class ConditionalPDFV1(BaseFunctor):
         self,
         pdf: ZfitPDF,
         cond: Mapping[ZfitIndependentParameter, ZfitSpace],
+        *,
         name: str = "ConditionalPDF",
         extended: ExtendedInputType = None,
         norm: NormInputType = None,
-        *,
-        extended: ztyping.ParamTypeInput | None = None,
         use_vectorized_map: bool = False,
         sample_with_replacement: bool = True,
     ) -> None:

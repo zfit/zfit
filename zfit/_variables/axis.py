@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 
 from __future__ import annotations
 
@@ -7,7 +7,6 @@ from collections.abc import Iterable
 import hist
 import zfit_interface as zinterface
 from hist.axestuple import NamedAxesTuple
-
 
 # @tfp.experimental.auto_composite_tensor()
 # class Regular(hist.axis.Regular, tfp.experimental.AutoCompositeTensor, family='zfit'):

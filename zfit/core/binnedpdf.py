@@ -17,7 +17,6 @@ from uhi.typing.plottable import PlottableHistogram
 import numpy as np
 import tensorflow as tf
 import tensorflow_probability as tfp
-import uhi
 
 import zfit
 import zfit.z.numpy as znp
@@ -31,7 +30,6 @@ from .interfaces import (
     ZfitBinnedPDF,
     ZfitParameter,
     ZfitSpace,
-    ZfitMinimalHist,
     ZfitPDF,
     ZfitBinnedData,
     ZfitUnbinnedData,
@@ -43,7 +41,7 @@ from .tensorlike import OverloadableMixinValues
 from ..util import ztyping
 from ..util.cache import GraphCachable
 from ..util.container import convert_to_container
-from ..util.deprecation import deprecated_args, deprecated, deprecated_norm_range
+from ..util.deprecation import deprecated, deprecated_norm_range
 from ..util.exception import (
     AlreadyExtendedPDFError,
     NotExtendedPDFError,

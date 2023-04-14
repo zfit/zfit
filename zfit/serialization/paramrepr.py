@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import dill
-
 
 def make_param_constructor(constructor):
     """Create a constructor for a parameter class avoiding the `NameAlreadyTakenError`.

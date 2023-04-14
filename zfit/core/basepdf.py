@@ -54,7 +54,7 @@ also the advanced models in `zfit models <https://github.com/zfit/zfit-tutorials
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from ..util.ztyping import ExtendedInputType, NormInputType
 
@@ -85,7 +85,6 @@ from ..util.exception import (
     NotExtendedPDFError,
     NormNotImplemented,
     SpecificFunctionNotImplemented,
-    ExtendedPDFError,
 )
 from ..util.temporary import TemporarilySet
 
@@ -188,7 +187,6 @@ class BasePDF(ZfitPDF, BaseModel):
         Args:
             norm:
         """
-
         norm = self._check_input_norm(norm)
 
         def setter(value):
@@ -544,7 +542,6 @@ class BasePDF(ZfitPDF, BaseModel):
         Args:
             value:
         """
-
         self._set_yield(value=value)
 
     def create_extended(

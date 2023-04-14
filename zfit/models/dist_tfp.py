@@ -1,4 +1,4 @@
-"""A rich selection of analytically implemented Distributions (models) are available in `TensorFlow Probability.
+""" A rich selection of analytically implemented Distributions (models) are available in `TensorFlow Probability.
 
 <https://github.com/tensorflow/probability>`_. While their API is slightly different from the zfit models, it is similar
 enough to be easily wrapped.
@@ -9,12 +9,11 @@ Therefore, a convenient wrapper as well as a lot of implementations are provided
 from __future__ import annotations
 
 from collections import OrderedDict
-from typing import Optional
 
 import tensorflow as tf
 import tensorflow_probability as tfp
 import tensorflow_probability.python.distributions as tfd
-from pydantic import Field, root_validator
+from pydantic import Field
 
 try:
     from typing import Literal
@@ -289,11 +288,10 @@ class Uniform(WrapDistribution):
         low: ztyping.ParamTypeInput,
         high: ztyping.ParamTypeInput,
         obs: ztyping.ObsTypeInput,
+        *,
         extended: ExtendedInputType = None,
         norm: NormInputType = None,
         name: str = "Uniform",
-        *,
-        extended: Optional[ztyping.ParamTypeInput] = None,
     ):
         """Uniform distribution which is constant between `low`, `high` and zero outside.
 
@@ -335,11 +333,10 @@ class TruncatedGauss(WrapDistribution):
         low: ztyping.ParamTypeInput,
         high: ztyping.ParamTypeInput,
         obs: ztyping.ObsTypeInput,
+        *,
         extended: ExtendedInputType = None,
         norm: NormInputType = None,
         name: str = "TruncatedGauss",
-        *,
-        extended: Optional[ztyping.ParamTypeInput] = None,
     ):
         """Gaussian distribution that is 0 outside of `low`, `high`. Equivalent to the product of Gauss and Uniform.
 
@@ -388,11 +385,10 @@ class Cauchy(WrapDistribution, SerializableMixin):
         m: ztyping.ParamTypeInput,
         gamma: ztyping.ParamTypeInput,
         obs: ztyping.ObsTypeInput,
+        *,
         extended: ExtendedInputType = None,
         norm: NormInputType = None,
         name: str = "Cauchy",
-        *,
-        extended: Optional[ztyping.ParamTypeInput] = None,
     ):
         r"""Non-relativistic Breit-Wigner (Cauchy) PDF representing the energy distribution of a decaying particle.
 
@@ -451,11 +447,10 @@ class Poisson(WrapDistribution, SerializableMixin):
         self,
         lam: ztyping.ParamTypeInput = None,
         obs: ztyping.ObsTypeInput = None,
+        *,
         extended: ExtendedInputType = None,
         norm: NormInputType = None,
         name: str = "Poisson",
-        *,
-        extended: Optional[ztyping.ParamTypeInput] = None,
         lamb=None,
     ):
         """Poisson distribution, parametrized with an event rate parameter (lamb).

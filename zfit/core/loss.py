@@ -37,7 +37,7 @@ znp = z.numpy
 from ..util import ztyping
 from ..util.checks import NONE
 from ..util.container import convert_to_container, is_container
-from ..util.deprecation import deprecated, deprecated_args
+from ..util.deprecation import deprecated_args
 from ..util.exception import (
     BehaviorUnderDiscussion,
     BreakingAPIChangeError,

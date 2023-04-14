@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from typing import Optional
 
 import numpy as np
 import tensorflow as tf
@@ -95,7 +94,6 @@ def bandwidth_silverman(data, weights):
     Returns:
         Estimated bandwidth
     """
-
     return bandwidth_rule_of_thumb(
         data=data, weights=weights, factor=znp.array(0.9, dtype=ztypes.float)
     )
@@ -127,7 +125,6 @@ def bandwidth_scott(data, weights):
     Returns:
         Estimated bandwidth
     """
-
     return bandwidth_rule_of_thumb(
         data=data, weights=weights, factor=znp.array(1.059, dtype=ztypes.float)
     )
@@ -161,7 +158,6 @@ def bandwidth_isj(data, weights):
     Returns:
         Estimated bandwidth
     """
-
     return isj_util.calculate_bandwidth(
         data, num_grid_points=1024, binning_method="linear", weights=weights
     )
@@ -223,7 +219,6 @@ def bandwidth_adaptive_geomV1(data, func, weights):
     Returns:
         Estimated bandwidth of size data
     """
-
     data = z.convert_to_tensor(data)
     if weights is not None:
         n = znp.sum(weights)
@@ -588,11 +583,10 @@ class GaussianKDE1DimV1(KDEHelper, WrapDistribution):
         bandwidth: ztyping.ParamTypeInput | str = None,
         weights: None | np.ndarray | tf.Tensor = None,
         truncate: bool = False,
+        *,
         extended: ExtendedInputType = None,
         norm: NormInputType = None,
         name: str = "GaussianKDE1DimV1",
-        *,
-        extended: ztyping.ParamTypeInput | None = None,
     ):
         r"""EXPERIMENTAL, `FEEDBACK WELCOME.
 
@@ -772,7 +766,6 @@ class GaussianKDE1DimV1(KDEHelper, WrapDistribution):
             extended=extended,
             norm=norm,
             name=name,
-            extended=extended,
         )
 
         self._data_weights = weights
@@ -805,7 +798,6 @@ class KDE1DimExact(KDEHelper, WrapDistribution):
         extended: ExtendedInputType = None,
         norm: NormInputType = None,
         name: str | None = "ExactKDE1DimV1",
-        extended: ztyping.ParamTypeInput | None = None,
     ):
         r"""Kernel Density Estimation is a non-parametric method to approximate the density of given points.
 
@@ -999,7 +991,6 @@ class KDE1DimExact(KDEHelper, WrapDistribution):
             extended=extended,
             norm=norm,
             name=name,
-            extended=extended,
         )
 
 
@@ -1028,7 +1019,6 @@ class KDE1DimGrid(KDEHelper, WrapDistribution):
         extended: ExtendedInputType = None,
         norm: NormInputType = None,
         name: str = "GridKDE1DimV1",
-        extended: ztyping.ParamTypeInput | None = None,
     ):
         r"""Kernel Density Estimation is a non-parametric method to approximate the density of given points.
 
@@ -1248,7 +1238,6 @@ class KDE1DimGrid(KDEHelper, WrapDistribution):
             extended=extended,
             norm=norm,
             name=name,
-            extended=extended,
         )
 
 
@@ -1271,7 +1260,6 @@ class KDE1DimFFT(KDEHelper, BasePDF):
         extended: ExtendedInputType = None,
         norm: NormInputType = None,
         name: str = "KDE1DimFFT",
-        extended: ztyping.ParamTypeInput | None = None,
     ):
         r"""Kernel Density Estimation is a non-parametric method to approximate the density of given points.
 
@@ -1501,7 +1489,6 @@ class KDE1DimISJ(KDEHelper, BasePDF):
         extended: ExtendedInputType = None,
         norm: NormInputType = None,
         name: str = "KDE1DimISJ",
-        extended: ztyping.ParamTypeInput | None = None,
     ):
         r"""Kernel Density Estimation is a non-parametric method to approximate the density of given points.
 

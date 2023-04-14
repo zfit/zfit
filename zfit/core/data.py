@@ -4,6 +4,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Union, Optional, List
 
+import pydantic
+from pydantic import Field
+
 from ..serialization import SpaceRepr
 
 try:
@@ -186,7 +189,6 @@ class Data(
         Args:
             weights:
         """
-
         # weights = self._set_weights(weights)
 
         def setter(value):

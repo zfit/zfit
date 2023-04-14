@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections import OrderedDict
 from collections.abc import Iterable
-from typing import List, Optional, Union
+from typing import List, Optional
 
 import pydantic
 import tensorflow as tf
@@ -17,7 +17,7 @@ from ..core.parameter import convert_to_parameter
 from ..core.space import Space, combine_spaces
 from ..serialization import SpaceRepr
 from ..serialization.pdfrepr import BasePDFRepr
-from ..serialization.serializer import BaseRepr, Serializer
+from ..serialization.serializer import Serializer
 from ..settings import ztypes, run
 from ..util import ztyping
 from ..util.container import convert_to_container

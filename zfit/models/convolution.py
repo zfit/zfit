@@ -1,5 +1,6 @@
 #  Copyright (c) 2023 zfit
 from __future__ import annotations
+
 from typing import Optional, Union
 
 import pydantic
@@ -39,11 +40,10 @@ class FFTConvPDFV1(BaseFunctor, SerializableMixin):
         limits_kernel: ztyping.LimitsType | None = None,
         interpolation: str | None = None,
         obs: ztyping.ObsTypeInput | None = None,
+        *,
         extended: ExtendedInputType = None,
         norm: NormInputType = None,
         name: str = "FFTConvV1",
-        *,
-        extended: Optional[ztyping.ParamTypeInput] = None,
     ):
         r"""*EXPERIMENTAL* Numerical Convolution pdf of `func` convoluted with `kernel` using FFT
 

@@ -1,4 +1,4 @@
-"""Baseclass for most objects appearing in zfit."""
+""" Baseclass for most objects appearing in zfit."""
 
 #  Copyright (c) 2023 zfit
 
@@ -6,7 +6,6 @@ from __future__ import annotations
 
 import contextlib
 import itertools
-import warnings
 from collections import OrderedDict
 from collections.abc import Iterable
 

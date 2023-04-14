@@ -7,8 +7,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from zfit.core.interfaces import ZfitBinning
-
 if TYPE_CHECKING:
     import zfit
 

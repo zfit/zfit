@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 
 from __future__ import annotations
 
@@ -7,9 +7,9 @@ from collections.abc import Iterable
 import numpy as np
 
 from .interfaces import ZfitDimensional
-from ..util.exception import SpaceIncompatibleError
 from ..util import ztyping
 from ..util.container import convert_to_container
+from ..util.exception import SpaceIncompatibleError
 
 
 class BaseDimensional(ZfitDimensional):

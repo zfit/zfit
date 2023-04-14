@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 import tensorflow_probability as tfp
 from zfit_interface.data import ZfitData
 

@@ -1,4 +1,4 @@
-"""Basic PDFs are provided here.
+""" Basic PDFs are provided here.
 
 Gauss, exponential... that can be used together with Functors to build larger models.
 """
@@ -8,10 +8,14 @@ from __future__ import annotations
 
 #  Copyright (c) 2023 zfit
 import contextlib
-from typing import Optional
+
+try:
+    from typing import Literal
+except ImportError:  # TODO(3.8): remove
+    from typing_extensions import Literal
 
 import tensorflow as tf
-from pydantic import Field, root_validator
+from pydantic import Field
 
 import zfit.z.numpy as znp
 from zfit import z
@@ -19,7 +23,6 @@ from ..core.basepdf import BasePDF
 from ..core.serialmixin import SerializableMixin
 from ..core.space import ANY_LOWER, ANY_UPPER, Space
 from ..serialization import SpaceRepr, Serializer
-from ..core.parameter import ParameterRepr
 from ..serialization.pdfrepr import BasePDFRepr
 from ..util import ztyping
 from ..util.exception import BreakingAPIChangeError
@@ -34,11 +37,10 @@ class Exponential(BasePDF, SerializableMixin):
         self,
         lam=None,
         obs: ztyping.ObsTypeInput = None,
+        *,
         extended: ExtendedInputType = None,
         norm: NormInputType = None,
         name: str = "Exponential",
-        *,
-        extended: Optional[ztyping.ParamTypeInput] = None,
         lambda_=None,
     ):
         """Exponential function exp(lambda * x).

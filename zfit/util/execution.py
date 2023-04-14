@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 
 from __future__ import annotations
 
@@ -6,7 +6,6 @@ import contextlib
 import multiprocessing
 import os
 import sys
-from typing import Optional
 
 import tensorflow as tf
 from dotmap import DotMap
@@ -140,7 +139,6 @@ class RunManager:
 
         This can BREAK in the future.
         """
-
         from .graph import jit
 
         jit._set_all(not eager)
@@ -365,7 +363,6 @@ class RunManager:
 
     def set_mode_default(self):
         """Reset the mode to the default of `graph` = 'auto' and `autograd` = True."""
-
         return TemporarilySet(
             value=self.DEFAULT_MODE,
             setter=lambda v: self.set_mode(**v),
@@ -375,13 +372,13 @@ class RunManager:
     def clear_graph_cache(self):
         """Clear all generated graphs and effectively reset. Should not affect execution, only performance.
 
-        In a simple fit scenario, this is not used. But if several fits are performed with different python objects
-        such as a scan over a range (by changing the norm_range and creating a new dataset), doing minimization and
-        therefore invoking the loss (by default creating a graph) will leave the graphs in the cache, even tough
-        the already scanned ranges are not needed anymore.
+        In a simple fit scenario, this is not used. But if several fits are performed with different python objects such
+        as a scan over a range (by changing the norm_range and creating a new dataset), doing minimization and therefore
+        invoking the loss (by default creating a graph) will leave the graphs in the cache, even tough the already
+        scanned ranges are not needed anymore.
 
-        To clean, this function can be invoked. The only effect should be to speed up things, but should not have
-        any side-effects other than that.
+        To clean, this function can be invoked. The only effect should be to speed up things, but should not have any
+        side-effects other than that.
         """
         from zfit.util.cache import clear_graph_cache
 

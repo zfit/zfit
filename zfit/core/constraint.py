@@ -6,7 +6,7 @@ import abc
 import collections
 from collections import OrderedDict
 from collections.abc import Callable
-from typing import Mapping, Iterable, Union, List
+from typing import Mapping, Iterable, List
 
 import numpy as np
 import pydantic

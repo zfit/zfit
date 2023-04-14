@@ -1,4 +1,4 @@
-"""Functors are functions that take typically one or more other PDF. Prominent examples are a sum, convolution etc.
+""" Functors are functions that take typically one or more other PDF. Prominent examples are a sum, convolution etc.
 
 A FunctorBase class is provided to make handling the models easier.
 
@@ -12,7 +12,7 @@ import functools
 import operator
 from collections import Counter
 from collections.abc import Iterable
-from typing import List, Optional
+from typing import List
 from typing import Optional
 
 import pydantic

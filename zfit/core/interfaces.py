@@ -1031,8 +1031,9 @@ class ZfitBinnedData(ZfitDimensional, ZfitMinimalHist, metaclass=ABCMeta):
     def to_hist(self):
         """Convert the binned data to a :py:class:`~hist.NamedHist`.
 
-        While a binned data object can be used inside zfit (PDFs,...), it lacks many convenience features that the `hist
-        library <https://hist.readthedocs.io/>`_ offers, such as plots.
+        While a binned data object can be used inside zfit (PDFs,...), it lacks many convenience features that the
+        `hist library <https://hist.readthedocs.io/>`_
+        offers, such as plots.
         """
         pass
 

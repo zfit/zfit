@@ -1,4 +1,4 @@
-"""Define Parameter which holds the value."""
+""" Define Parameter which holds the value."""
 #  Copyright (c) 2023 zfit
 
 from __future__ import annotations
@@ -236,7 +236,6 @@ class WrappedVariable(metaclass=MetaBaseParameter):
         Args:
           operator: string. The operator name.
         """
-
         tensor_oper = getattr(tf.Tensor, operator)
 
         def _run_op(a, *args):
@@ -465,7 +464,6 @@ class Parameter(
     @property
     def has_limits(self) -> bool:
         """If the parameter has limits set or not."""
-
         no_limits = self._lower is None and self._upper is None
         return not no_limits
 
