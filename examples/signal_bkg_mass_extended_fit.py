@@ -55,7 +55,7 @@ print(result.valid)  # check if the result is still valid
 import zfit.serialization as zserial
 
 # human readable representation
-pprint.pprint(zserial.Serializer.to_hs3(model))
+pprint.pprint(zfit.hs3.dumps(model))
 
 result.freeze()
 dumped = pickle.dumps(result)

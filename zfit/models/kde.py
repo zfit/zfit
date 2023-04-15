@@ -8,8 +8,10 @@ import pydantic
 
 from ..serialization import Serializer, SpaceRepr
 
+from typing import Union, Optional
+
 try:
-    from typing import Literal, Union, Optional
+    from typing import Literal
 except ImportError:  # Python < 3.8
     from typing_extensions import Literal
 
