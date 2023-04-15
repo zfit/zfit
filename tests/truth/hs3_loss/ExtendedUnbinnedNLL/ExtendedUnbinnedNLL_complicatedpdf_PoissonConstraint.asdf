@@ -20,10 +20,10 @@ constraints:
   type: PoissonConstraint
 data:
 - data: !core/ndarray-1.0.0
-    source: 0
+    source: 5
     datatype: float64
     byteorder: little
-    shape: [994, 1]
+    shape: [996, 1]
   name: Data
   space:
   - {max: 3.0, min: -3.0, name: obs, type: Space}
@@ -37,7 +37,7 @@ model:
     value: 0.10000000149011612}
   - {floating: true, max: 1.0, min: -1.0, name: frac_sum3_2, step_size: 0.001, type: Parameter,
     value: 0.10000000149011612}
-  - name: Composed_autoparam_7
+  - name: Composed_autoparam_11
     params:
       frac_0: {floating: true, max: 1.0, min: -1.0, name: frac_sum3_0, step_size: 0.001,
         type: Parameter, value: 0.10000000149011612}
@@ -49,56 +49,102 @@ model:
     value_fn: 800495de010000000000008c0a64696c6c2e5f64696c6c948c105f6372656174655f66756e6374696f6e9493942868008c0c5f6372656174655f636f6465949394284306000112010aff944b014b004b004b014b064a53000001432274006a01640174026a0364028d027400a00474057c00a006a1008301a10118005300944e473ff00000000000008c0564747970659485948794288c027466948c08636f6e7374616e74948c067a7479706573948c05666c6f6174948c056164645f6e948c046c697374948c0676616c7565739474948c06706172616d739485948c582f686f6d652f6a6f6e61732f446f63756d656e74732f706879736963732f736f6674776172652f7a6669745f70726f6a6563742f7a6669745f7265706f2f7a6669742f6d6f64656c732f6261736566756e63746f722e7079948c1372656d61696e696e675f667261635f66756e63944bcc430612010a0106ff94292974945294637a6669742e6d6f64656c732e6261736566756e63746f720a5f5f646963745f5f0a68154e4e749452947d947d94288c0f5f5f616e6e6f746174696f6e735f5f947d948c0c5f5f7175616c6e616d655f5f948c315f70726570726f636573735f696e69745f73756d2e3c6c6f63616c733e2e72656d61696e696e675f667261635f66756e6394758694622e
   name: complicatedpdf
   pdfs:
-  - apply_scaling: true
-    coeffs:
-      c_0: {floating: false, name: FIXED_autoparam_1, type: ConstantParameter, value: 1.0}
-      c_1: {floating: true, max: .inf, min: -.inf, name: coeff0_laguerre, step_size: 0.001,
-        type: Parameter, value: 0.10000000149011612}
-      c_2: {floating: true, max: .inf, min: -.inf, name: coeff1_laguerre, step_size: 0.001,
-        type: Parameter, value: 0.10000000149011612}
-      c_3: {floating: true, max: .inf, min: -.inf, name: coeff2_laguerre, step_size: 0.001,
-        type: Parameter, value: 0.10000000149011612}
-      c_4: {floating: true, max: .inf, min: -.inf, name: coeff3_laguerre, step_size: 0.001,
-        type: Parameter, value: 0.10000000149011612}
-      c_5: {floating: true, max: .inf, min: -.inf, name: coeff4_laguerre, step_size: 0.001,
-        type: Parameter, value: 0.10000000149011612}
-    name: Laguerre
-    type: Laguerre
-    x: {max: 3.0, min: -3.0, name: obs, type: Space}
-  - apply_scaling: true
-    coeffs:
-      c_0: {floating: false, name: FIXED_autoparam_2, type: ConstantParameter, value: 1.0}
-      c_1: {floating: true, max: 1.0, min: -1.0, name: coeff0_cheby2, step_size: 0.001,
-        type: Parameter, value: 0.10000000149011612}
-      c_2: {floating: true, max: 1.0, min: -1.0, name: coeff1_cheby2, step_size: 0.001,
-        type: Parameter, value: 0.10000000149011612}
-      c_3: {floating: true, max: 1.0, min: -1.0, name: coeff2_cheby2, step_size: 0.001,
-        type: Parameter, value: 0.10000000149011612}
-      c_4: {floating: true, max: 1.0, min: -1.0, name: coeff3_cheby2, step_size: 0.001,
-        type: Parameter, value: 0.10000000149011612}
-      c_5: {floating: true, max: 1.0, min: -1.0, name: coeff4_cheby2, step_size: 0.001,
-        type: Parameter, value: 0.10000000149011612}
-    name: Chebyshev2
-    type: Chebyshev2
-    x: {max: 3.0, min: -3.0, name: obs, type: Space}
-  - apply_scaling: true
-    coeffs:
-      c_0: {floating: false, name: FIXED_autoparam_3, type: ConstantParameter, value: 1.0}
-      c_1: {floating: true, max: 1.0, min: -1.0, name: coeff0_cheby, step_size: 0.001,
-        type: Parameter, value: 0.10000000149011612}
-      c_2: {floating: true, max: 1.0, min: -1.0, name: coeff1_cheby, step_size: 0.001,
-        type: Parameter, value: 0.10000000149011612}
-      c_3: {floating: true, max: 1.0, min: -1.0, name: coeff2_cheby, step_size: 0.001,
-        type: Parameter, value: 0.10000000149011612}
-      c_4: {floating: true, max: 1.0, min: -1.0, name: coeff3_cheby, step_size: 0.001,
-        type: Parameter, value: 0.10000000149011612}
-      c_5: {floating: true, max: 1.0, min: -1.0, name: coeff4_cheby, step_size: 0.001,
-        type: Parameter, value: 0.10000000149011612}
-    name: Chebyshev
-    type: Chebyshev
-    x: {max: 3.0, min: -3.0, name: obs, type: Space}
+  - data: &id002 !core/ndarray-1.0.0
+      source: 0
+      datatype: float64
+      byteorder: little
+      shape: [21]
+    name: KDE1DimFFT
+    obs: {max: 3.0, min: -3.0, name: obs, type: Space}
+    type: KDE1DimFFT
+    weights: &id003 !core/ndarray-1.0.0
+      source: 1
+      datatype: float64
+      byteorder: little
+      shape: [21]
+  - data: &id004 !core/ndarray-1.0.0
+      source: 2
+      datatype: float64
+      byteorder: little
+      shape: [21]
+    name: GridKDE1DimV1
+    num_grid_points: 512
+    obs: {max: 3.0, min: -3.0, name: obs, type: Space}
+    type: KDE1DimGrid
+  - data: &id001 !core/ndarray-1.0.0
+      source: 3
+      datatype: float64
+      byteorder: little
+      shape: [21]
+    name: ExactKDE1DimV1
+    obs: {max: 3.0, min: -3.0, name: obs, type: Space}
+    type: KDE1DimExact
   - name: ProductPDF
     pdfs:
+    - apply_scaling: true
+      coeffs:
+        c_0: {floating: false, name: FIXED_autoparam_5, type: ConstantParameter, value: 1.0}
+        c_1: {floating: true, max: .inf, min: -.inf, name: coeff0_laguerre, step_size: 0.001,
+          type: Parameter, value: 0.10000000149011612}
+        c_2: {floating: true, max: .inf, min: -.inf, name: coeff1_laguerre, step_size: 0.001,
+          type: Parameter, value: 0.10000000149011612}
+        c_3: {floating: true, max: .inf, min: -.inf, name: coeff2_laguerre, step_size: 0.001,
+          type: Parameter, value: 0.10000000149011612}
+        c_4: {floating: true, max: .inf, min: -.inf, name: coeff3_laguerre, step_size: 0.001,
+          type: Parameter, value: 0.10000000149011612}
+        c_5: {floating: true, max: .inf, min: -.inf, name: coeff4_laguerre, step_size: 0.001,
+          type: Parameter, value: 0.10000000149011612}
+      name: Laguerre
+      type: Laguerre
+      x: {max: 3.0, min: -3.0, name: obs, type: Space}
+    - apply_scaling: true
+      coeffs:
+        c_0: {floating: false, name: FIXED_autoparam_6, type: ConstantParameter, value: 1.0}
+        c_1: {floating: true, max: 1.0, min: -1.0, name: coeff0_cheby2, step_size: 0.001,
+          type: Parameter, value: 0.10000000149011612}
+        c_2: {floating: true, max: 1.0, min: -1.0, name: coeff1_cheby2, step_size: 0.001,
+          type: Parameter, value: 0.10000000149011612}
+        c_3: {floating: true, max: 1.0, min: -1.0, name: coeff2_cheby2, step_size: 0.001,
+          type: Parameter, value: 0.10000000149011612}
+        c_4: {floating: true, max: 1.0, min: -1.0, name: coeff3_cheby2, step_size: 0.001,
+          type: Parameter, value: 0.10000000149011612}
+        c_5: {floating: true, max: 1.0, min: -1.0, name: coeff4_cheby2, step_size: 0.001,
+          type: Parameter, value: 0.10000000149011612}
+      name: Chebyshev2
+      type: Chebyshev2
+      x: {max: 3.0, min: -3.0, name: obs, type: Space}
+    - apply_scaling: true
+      coeffs:
+        c_0: {floating: false, name: FIXED_autoparam_7, type: ConstantParameter, value: 1.0}
+        c_1: {floating: true, max: 1.0, min: -1.0, name: coeff0_cheby, step_size: 0.001,
+          type: Parameter, value: 0.10000000149011612}
+        c_2: {floating: true, max: 1.0, min: -1.0, name: coeff1_cheby, step_size: 0.001,
+          type: Parameter, value: 0.10000000149011612}
+        c_3: {floating: true, max: 1.0, min: -1.0, name: coeff2_cheby, step_size: 0.001,
+          type: Parameter, value: 0.10000000149011612}
+        c_4: {floating: true, max: 1.0, min: -1.0, name: coeff3_cheby, step_size: 0.001,
+          type: Parameter, value: 0.10000000149011612}
+        c_5: {floating: true, max: 1.0, min: -1.0, name: coeff4_cheby, step_size: 0.001,
+          type: Parameter, value: 0.10000000149011612}
+      name: Chebyshev
+      type: Chebyshev
+      x: {max: 3.0, min: -3.0, name: obs, type: Space}
+    - apply_scaling: true
+      coeffs:
+        c_0: {floating: false, name: FIXED_autoparam_8, type: ConstantParameter, value: 1.0}
+        c_1: {floating: true, max: 1.0, min: -1.0, name: coeff0_legendre, step_size: 0.001,
+          type: Parameter, value: 0.10000000149011612}
+        c_2: {floating: true, max: 1.0, min: -1.0, name: coeff1_legendre, step_size: 0.001,
+          type: Parameter, value: 0.10000000149011612}
+        c_3: {floating: true, max: 1.0, min: -1.0, name: coeff2_legendre, step_size: 0.001,
+          type: Parameter, value: 0.10000000149011612}
+        c_4: {floating: true, max: 1.0, min: -1.0, name: coeff3_legendre, step_size: 0.001,
+          type: Parameter, value: 0.10000000149011612}
+        c_5: {floating: true, max: 1.0, min: -1.0, name: coeff4_legendre, step_size: 0.001,
+          type: Parameter, value: 0.10000000149011612}
+      name: Legendre
+      type: Legendre
+      x: {max: 3.0, min: -3.0, name: obs, type: Space}
     - alphal: {floating: true, max: 1.0, min: -1.0, name: alphaL_dcb, step_size: 0.001,
         type: Parameter, value: 0.10000000149011612}
       alphar: {floating: true, max: 1.0, min: -1.0, name: alphaR_dcb, step_size: 0.001,
@@ -149,7 +195,7 @@ model:
         type: Parameter, value: 0.10000000149011612}
       - {floating: true, max: 1.0, min: -1.0, name: frac_sum2_1, step_size: 0.001,
         type: Parameter, value: 0.10000000149011612}
-      - name: Composed_autoparam_6
+      - name: Composed_autoparam_10
         params:
           frac_0: {floating: true, max: 1.0, min: -1.0, name: frac_sum2_0, step_size: 0.001,
             type: Parameter, value: 0.10000000149011612}
@@ -159,46 +205,33 @@ model:
         value_fn: 800495de010000000000008c0a64696c6c2e5f64696c6c948c105f6372656174655f66756e6374696f6e9493942868008c0c5f6372656174655f636f6465949394284306000112010aff944b014b004b004b014b064a53000001432274006a01640174026a0364028d027400a00474057c00a006a1008301a10118005300944e473ff00000000000008c0564747970659485948794288c027466948c08636f6e7374616e74948c067a7479706573948c05666c6f6174948c056164645f6e948c046c697374948c0676616c7565739474948c06706172616d739485948c582f686f6d652f6a6f6e61732f446f63756d656e74732f706879736963732f736f6674776172652f7a6669745f70726f6a6563742f7a6669745f7265706f2f7a6669742f6d6f64656c732f6261736566756e63746f722e7079948c1372656d61696e696e675f667261635f66756e63944bcc430612010a0106ff94292974945294637a6669742e6d6f64656c732e6261736566756e63746f720a5f5f646963745f5f0a68154e4e749452947d947d94288c0f5f5f616e6e6f746174696f6e735f5f947d948c0c5f5f7175616c6e616d655f5f948c315f70726570726f636573735f696e69745f73756d2e3c6c6f63616c733e2e72656d61696e696e675f667261635f66756e6394758694622e
       name: SumPDF
       pdfs:
-      - apply_scaling: true
-        coeffs:
-          c_0: {floating: false, name: FIXED_autoparam_3, type: ConstantParameter,
-            value: 1.0}
-          c_1: {floating: true, max: 1.0, min: -1.0, name: coeff0_cheby, step_size: 0.001,
-            type: Parameter, value: 0.10000000149011612}
-          c_2: {floating: true, max: 1.0, min: -1.0, name: coeff1_cheby, step_size: 0.001,
-            type: Parameter, value: 0.10000000149011612}
-          c_3: {floating: true, max: 1.0, min: -1.0, name: coeff2_cheby, step_size: 0.001,
-            type: Parameter, value: 0.10000000149011612}
-          c_4: {floating: true, max: 1.0, min: -1.0, name: coeff3_cheby, step_size: 0.001,
-            type: Parameter, value: 0.10000000149011612}
-          c_5: {floating: true, max: 1.0, min: -1.0, name: coeff4_cheby, step_size: 0.001,
-            type: Parameter, value: 0.10000000149011612}
-        name: Chebyshev
-        type: Chebyshev
-        x: {max: 3.0, min: -3.0, name: obs, type: Space}
+      - data: *id001
+        name: ExactKDE1DimV1
+        obs: {max: 3.0, min: -3.0, name: obs, type: Space}
+        type: KDE1DimExact
       - apply_scaling: true
         coeffs:
           c_0: {floating: false, name: FIXED_autoparam_4, type: ConstantParameter,
             value: 1.0}
-          c_1: {floating: true, max: 1.0, min: -1.0, name: coeff0_legendre, step_size: 0.001,
+          c_1: {floating: true, max: 1.0, min: -1.0, name: coeff0_hermite, step_size: 0.001,
             type: Parameter, value: 0.10000000149011612}
-          c_2: {floating: true, max: 1.0, min: -1.0, name: coeff1_legendre, step_size: 0.001,
+          c_2: {floating: true, max: 1.0, min: -1.0, name: coeff1_hermite, step_size: 0.001,
             type: Parameter, value: 0.10000000149011612}
-          c_3: {floating: true, max: 1.0, min: -1.0, name: coeff2_legendre, step_size: 0.001,
+          c_3: {floating: true, max: 1.0, min: -1.0, name: coeff2_hermite, step_size: 0.001,
             type: Parameter, value: 0.10000000149011612}
-          c_4: {floating: true, max: 1.0, min: -1.0, name: coeff3_legendre, step_size: 0.001,
+          c_4: {floating: true, max: 1.0, min: -1.0, name: coeff3_hermite, step_size: 0.001,
             type: Parameter, value: 0.10000000149011612}
-          c_5: {floating: true, max: 1.0, min: -1.0, name: coeff4_legendre, step_size: 0.001,
+          c_5: {floating: true, max: 1.0, min: -1.0, name: coeff4_hermite, step_size: 0.001,
             type: Parameter, value: 0.10000000149011612}
-        name: Legendre
-        type: Legendre
+        name: Hermite
+        type: Hermite
         x: {max: 3.0, min: -3.0, name: obs, type: Space}
       - fracs:
         - {floating: true, max: 1.0, min: -1.0, name: frac_sum1_0, step_size: 0.001,
           type: Parameter, value: 0.10000000149011612}
         - {floating: true, max: 1.0, min: -1.0, name: frac_sum1_1, step_size: 0.001,
           type: Parameter, value: 0.10000000149011612}
-        - name: Composed_autoparam_5
+        - name: Composed_autoparam_9
           params:
             frac_0: {floating: true, max: 1.0, min: -1.0, name: frac_sum1_0, step_size: 0.001,
               type: Parameter, value: 0.10000000149011612}
@@ -208,57 +241,28 @@ model:
           value_fn: 800495de010000000000008c0a64696c6c2e5f64696c6c948c105f6372656174655f66756e6374696f6e9493942868008c0c5f6372656174655f636f6465949394284306000112010aff944b014b004b004b014b064a53000001432274006a01640174026a0364028d027400a00474057c00a006a1008301a10118005300944e473ff00000000000008c0564747970659485948794288c027466948c08636f6e7374616e74948c067a7479706573948c05666c6f6174948c056164645f6e948c046c697374948c0676616c7565739474948c06706172616d739485948c582f686f6d652f6a6f6e61732f446f63756d656e74732f706879736963732f736f6674776172652f7a6669745f70726f6a6563742f7a6669745f7265706f2f7a6669742f6d6f64656c732f6261736566756e63746f722e7079948c1372656d61696e696e675f667261635f66756e63944bcc430612010a0106ff94292974945294637a6669742e6d6f64656c732e6261736566756e63746f720a5f5f646963745f5f0a68154e4e749452947d947d94288c0f5f5f616e6e6f746174696f6e735f5f947d948c0c5f5f7175616c6e616d655f5f948c315f70726570726f636573735f696e69745f73756d2e3c6c6f63616c733e2e72656d61696e696e675f667261635f66756e6394758694622e
         name: SumPDF
         pdfs:
-        - apply_scaling: true
-          coeffs:
-            c_0: {floating: false, name: FIXED_autoparam_0, type: ConstantParameter,
-              value: 1.0}
-            c_1: {floating: true, max: 1.0, min: -1.0, name: coeff0_hermite, step_size: 0.001,
-              type: Parameter, value: 0.10000000149011612}
-            c_2: {floating: true, max: 1.0, min: -1.0, name: coeff1_hermite, step_size: 0.001,
-              type: Parameter, value: 0.10000000149011612}
-            c_3: {floating: true, max: 1.0, min: -1.0, name: coeff2_hermite, step_size: 0.001,
-              type: Parameter, value: 0.10000000149011612}
-            c_4: {floating: true, max: 1.0, min: -1.0, name: coeff3_hermite, step_size: 0.001,
-              type: Parameter, value: 0.10000000149011612}
-            c_5: {floating: true, max: 1.0, min: -1.0, name: coeff4_hermite, step_size: 0.001,
-              type: Parameter, value: 0.10000000149011612}
-          name: Hermite
-          type: Hermite
-          x: {max: 3.0, min: -3.0, name: obs, type: Space}
-        - apply_scaling: true
-          coeffs:
-            c_0: {floating: false, name: FIXED_autoparam_1, type: ConstantParameter,
-              value: 1.0}
-            c_1: {floating: true, max: .inf, min: -.inf, name: coeff0_laguerre, step_size: 0.001,
-              type: Parameter, value: 0.10000000149011612}
-            c_2: {floating: true, max: .inf, min: -.inf, name: coeff1_laguerre, step_size: 0.001,
-              type: Parameter, value: 0.10000000149011612}
-            c_3: {floating: true, max: .inf, min: -.inf, name: coeff2_laguerre, step_size: 0.001,
-              type: Parameter, value: 0.10000000149011612}
-            c_4: {floating: true, max: .inf, min: -.inf, name: coeff3_laguerre, step_size: 0.001,
-              type: Parameter, value: 0.10000000149011612}
-            c_5: {floating: true, max: .inf, min: -.inf, name: coeff4_laguerre, step_size: 0.001,
-              type: Parameter, value: 0.10000000149011612}
-          name: Laguerre
-          type: Laguerre
-          x: {max: 3.0, min: -3.0, name: obs, type: Space}
-        - apply_scaling: true
-          coeffs:
-            c_0: {floating: false, name: FIXED_autoparam_2, type: ConstantParameter,
-              value: 1.0}
-            c_1: {floating: true, max: 1.0, min: -1.0, name: coeff0_cheby2, step_size: 0.001,
-              type: Parameter, value: 0.10000000149011612}
-            c_2: {floating: true, max: 1.0, min: -1.0, name: coeff1_cheby2, step_size: 0.001,
-              type: Parameter, value: 0.10000000149011612}
-            c_3: {floating: true, max: 1.0, min: -1.0, name: coeff2_cheby2, step_size: 0.001,
-              type: Parameter, value: 0.10000000149011612}
-            c_4: {floating: true, max: 1.0, min: -1.0, name: coeff3_cheby2, step_size: 0.001,
-              type: Parameter, value: 0.10000000149011612}
-            c_5: {floating: true, max: 1.0, min: -1.0, name: coeff4_cheby2, step_size: 0.001,
-              type: Parameter, value: 0.10000000149011612}
-          name: Chebyshev2
-          type: Chebyshev2
-          x: {max: 3.0, min: -3.0, name: obs, type: Space}
+        - data:
+            data: !core/ndarray-1.0.0
+              source: 4
+              datatype: float64
+              byteorder: little
+              shape: [21, 1]
+            name: Data
+            space:
+            - {max: 3.0, min: -3.0, name: obs, type: Space}
+            type: Data
+          name: KDE1DimFFT
+          type: KDE1DimFFT
+        - data: *id002
+          name: KDE1DimFFT
+          obs: {max: 3.0, min: -3.0, name: obs, type: Space}
+          type: KDE1DimFFT
+          weights: *id003
+        - data: *id004
+          name: GridKDE1DimV1
+          num_grid_points: 512
+          obs: {max: 3.0, min: -3.0, name: obs, type: Space}
+          type: KDE1DimGrid
         type: SumPDF
       type: SumPDF
     type: ProductPDF
@@ -266,55 +270,68 @@ model:
 options: {}
 type: ExtendedUnbinnedNLL
 ...
-ÓBLK 0                          /Ô“íÃ³„f‚¨Ó æDÌâc* ÀWId5ø«ô?°¶4x›ú¿8YÒ_Õyğ¿áwHÀmqí?­öÜ}.÷¿’}JÔ™·Î?íã…ùç›Í?ÀíiB×¬­¿?;-]òñô?Çm×eEá?ÀJ=+øL¢¿ì)°÷šÎ¿ÆF‚†´¿”/âùTé?AñÉ„Ÿä¿Z±Ycõó¿ä¼fîò¿¯,%á6òæ¿xUë¬ññ¿—ë~+Có¿Ö¡/n|ó¿òÏ1Yz¸í?‚=·ç€¨¿³FfÑ^è¿)è$ö,ï¿êï6m[ºõ¿ŠC‚m\»Ç¿~“#“	–Ó¿NVúXÜ#ï¿¿´é‘Û¿‘
-X?¥Ó¿'Aõ¤"Dâ¿Î¥`’d!ü?5Pß^!@mğ×ÙÄÖÜ¿È¦ÏÌä@K35Éİ?ÿt‰Ànì?İûí£Ãô¿[Ø”Üë¿ï£¥‡ç¤ğ¿‡<ƒO¥‹?úÈë( ñ¿AY?ŸAÀŞJşšªqÛ?êr¶Y¿Øâ¿8›¾¿ğ¼m%LÓ¿K0]”¾ªã?RÉeúáB§?>är~ä?‘¦@÷ Àæ*&¸T[å¿œ÷µ$›ô¿PÖZğø'ã?|lœ»ée¡?W¾§`Õ¿$sŒ€Íò?µjqÂ?g1üƒCñ¿ÜU@xãÖ?ƒ™…®˜;Ø¿“™~óRö?tædUoã?çy·Ç¿u«)›hï?Hé6Aõ?•>éÖ•ñ¿$ì{é8ë¿@ ›ãQ	Ú¿÷õ/(3àâ¿VlÓ¤ê«û?iË:à?Ğû~çšô¿Šã[ò÷¿ªêëõ»ñ?Uˆ
-;üôë¿k³Íqÿ¿X İ¬eĞ¿R^‰åÉÿ¿ç¶å?¡ä?İP
-ã{?[.lÃ¯êÚ?á¸¼/–€Á¿dÓÛp,}ı?au¦‰7À?¹~PK¿cé?»uÊ
-=å¿`‘˜~4Å?Ñ-=Òz˜Ô¿Ş± ³ş¿oÀ€2eè¿šÏà{Ÿö?úı‚§­ğ¿îï³¶Ò?Ogyé÷?\™‡éºá?C}t²&Ù?XW&’İè?ìR‘/ÔÓ?SPÅ¸\é?· ×(xÊ?I¢Œ‚<æ?`!i¡¼’è?á4óĞS”ì?M5Àg¡ñ¿ŒcÔÁ â?WãeÎÓ±Ş¿å@³ƒ*[À¿H³§Kı÷r?ÙCåÑ?t›ùÛ÷î?
-ÎDÜ§¶à?§ã†k#Çë?`yñ‰Ùò¿RT¢%ö?\ P–ÿ¢¿\OØÈ¦
-â¿<ğøõöDı?YÎº¡ó?S·ªJp`Ø?â×Úñæ,Á?_hˆ\‹?WìfdV
-ı?¹>=‹ÁÏî?
-üeËô¿ùÆ~˜Ÿ×â?£¤÷¾("ò¿Nş¼›ú9õ¿V¾4ô©äë?è‹FúÇ	®¿F!MNÁõ?$Áíû«Ø?UXhn¹÷?,.i­
-ã¿#Ÿ”ô%=¿LĞo…«Ùû?ïÕ$ek>ñ¿tÛ5lÕ²à¿ÀÅİJ“Ù?ºÁã¿ë¿E_a”Yôâ¿ÄYÖOà©?ìúSÀF˜ê?¥àô‰ô?!F-°ù[î¿0
-ÏË¦é?ÌâLtªò?]@êm®ğ¿D`‹
-ø?Á4ÒŸ_µè¿¾Õ¶ÈÛ3Î¿*:AÊ°1ô¿—ÿ§ùj ÀŞQÎK‰÷¿³Ô-Å,ñ¿D©Š¡÷¿ı¥–¡ nİ¿®Tä)wç?“úÿJ]Yä?VfCŒí¿±¥kBhû¿l`ß…X½Ú¿¬Íg=Â™²¿'à\Ûì¿]˜2”ò?Ò8O×QùÈ¿"\÷—PkŞ?hÎ!ÏÀiâ¿i"µ¥Ì?zF­±Ô? QøK2à¿›ù]Ù8
-õ¿©ûG)Æ^÷?ã¯õÄ_ò¿dîâ–á?NIoÁqÎé?h•Í7ù´?Bş–Å}fó¿™&èbø?@ç.éÚ¿Ó‰F?	è?Lø€
-öH×¿
-X¯4CñÂ¿ 7bcé?ø›¸ó?
-;®Ümö¿†sğŠÑ¿N¿ò“>ù¿d4+Å‚OĞ¿]ÀCã²-İ?Ø?2½­È¿íÌZ3œ¤õ?…öE,£vó?’É]V©>Á¿%ÿµÜ?9ğ„äî‘ì¿yÜ,Îâù¿Ö¡ªêSÊ¿—Râæ™öà?;óGéü\ë?ç‰0—V)á?·4¹©®‹@X¨CAŠğ?şşÿ¿’ï@¬LåÖ…É¿sáûL¹&á?+Ù©Š¾h À0!ïE³„ë¿Uá\¶	Ş¿o!2Ï^Ì¿G„4AàGñ?ût¹â×¿ˆß¡À³ÁÁ?¬–È•GÔ?­İ({ı?ÙÇÎ´¦xà?ÌO%ú
-ã¿Dı?~bß¿œiãcéö¿Oy}ÈuØ÷¿÷åÓ¬‚Í¾¿ù¹–H€·¿R‡¬C¿Ş?i_ 
-ôlÔ?}&æÓãæá??ıá:¼Åí¿ø>(}C²Ê?0:×õd¹Í?>ğŠøMfÇ?­
-ÛÆwRó¿y™cÓ?!\=Õ¥KÎ?dåîÑÒ¿»…ÄGÜ¿Ó¼ÙX’ÿÈ?™¾åmL¶Ö?fºá´nmä¿pL‰[¯Î¿(Ó³Û«œÊ?/rÃ2& À~¾V:åñ¿v”¾ß~f×?•ë•¯
-ıâ?AIûíÙ/â?øa•¡zñ?<Épêú?Š%|*â¿uÎ§ ²Ù¿‘Òul÷?ó?Öb@ôfÖ¿¨‚	0ùá¿I90/ù†Ø?ô—MÖâ}ñ¿'zß¬Ëîà¿¨æ/×ê…ú¿Z2<”‘İ?µWà!0ÈÍ?¶íußÏ?ø[ƒæ
-•Ï?Q—öÙ×à¿L6(L;İ¿È)ÌB†Õ¿	ÖWq7Xî? ®[›bÁí?åHô÷9ê?,
-D*9v×¿ÅOùcÂÉä?8
-­VZ$×?33ØT²Ãë?kDäÜè¿
-ƒÚüù¿«ç¡Œi0õ¿¦æa¿M{é?v‚úÓÍïé?-_=ã(¼°¿Õæ–dkÎ¿ŒÏ²ì¿š iİ»¹ó¿ Ã+fœ'í?-ô±ãàÊ?™ë»Ö¥¦?FşWÍdû¿ŒtÕöS¹Ñ?Õôÿ)øVÿ?/¼÷ØÑ¿@¬¢C¶Ğ¿ ˜‰ÈßÔ?ZÑ]Ÿ6êò?ùsÀÑ³uŞ¿½vÊ)¨Ü¿Yeì’…úı?ó—¬ìL¡¿ÄÚï@A6:l–vğ?’,•»i`ú?
-ƒĞ¸wèÓ¿E*§ò	Ü?´6?"šÜ?áŞôPÆú?Løn4¬ğ?âC#½3îå¿­—g—Úö¿\®I‹¾?AybiÄÛ¿¬HÊ|G7î¿…ky5Lä¿ÍSmç˜ğ?İºyĞÖ¿v#FíÃ¿üÌò²Áí¿³SDRëFÄ?„AÄZ»*ö?MFbßÖ?ìõ‹ıüÔ¿>XşßHç¿¿ÃB
-æºä?ğ0Dô¿&FèĞñ¿¤¥Qä"ç?ÿ§EñÕé¿QzUvO+í?÷ÿ¨(Hä?£}Ù¿N³iîß¿¢Ìá³½â?ÏJÈr";‡?0î‘‡šóú¿VkXÜîå?§R&Sj÷ù¿7Ùäçô¿‘P¯%eÊÄ¿N’<Â|òà?@ñÛHì¿¸ık÷Jğµ?ÔÿÃ("Õ?Gú/ÕèWı?å6:î«±Â?è(ú8úÉô?A–¬¢%ò?
-ËiZ^³ì?Hwı7xùÚ¿ˆòƒ/I÷?íØÍz:Âè¿Àâ‹Pı´»?J$ŒhéNñ¿(7_Í®Ç?[i’4œé?‰Å¹8iaŞ¿œµ‡=8î?Óu‹÷?'Ù:Ú§×ä¿/·¬SSİó¿Ô-Í¬Ïñ¿@ë¾Éæ¢?Ûn-T	Ã?GQzãüä?7\j€ë?“l[°6fÇ¿k€âIóÀŞ<‚‰Xê?ï(û¼¢­×¿îÇÏá¿ñúBÄ£¯—?ïñtBõ³¿$í—0ÓÆÁ¿á‡z–?â¢ónß?Ë¦ö÷Ğ,ö?ƒñÂ—õÀÀ¿¤j+y:Â?¬àz>Ä°ã?øæõªÆ?ï‹Ú[¦ñ?VcRÈöqİ?¿¦3 Aà¿FTªÀğ?~°ĞNÈ¬Ó¿ SİcW@0)öìÿeã¿æÅ¡ÎÊá?ëË'ësğÓ?²o7[nô?Ä£¾‚%4Ú¿²8‚sK÷ì¿ØùñîÑ÷¿wõ÷üÊó?LQ‘ó½û?#ã^{Ë?æ;3,ú?Ag±S(Y?íuÁÚ¾‰ù?/Ø³1dİá¿PFÕûA“å¿B¨5¼™[Ô?ÏâÔ…«^ò¿† ¼Á
-xÛ¿/ı¾3Æğ¿A¶A>øë¿WÑq¨4ÓÌ?×+¡¾`½ÀLmºÇÈá¿Š»hŒpÖ¿AæÉªøs?n #˜@ç¿µu¹yÒ¿XÀúVUàÀ¿© ¤Ş¼¿à6¹ Ù…õ?iœƒÈÌÂ¿ÃaĞì?\Â«à	×?FÂ ³–û?¬6U4ó[ç?şúÒÇâ?ÆEº¬.î¿öóÅ7…º?çÊ!<ªò?íŠµÌ‰+ú¿ÍFvæ&ÍÇ¿_Ô­[à6@~«Ğó°g‡¿pÂÁ:6€Ó?°R>mÔÑ¿Š"Ñæ=@`	ÑMÊ¸½¿nB,¹ì Ó?OÃ-×ˆêá?ZO(n×¿mŒÕ2UÛì¿‰{Œ\=ó?	§…
-“oõ?Ëõ<÷ÿaâ¿è È%„ô¿G ¢DŞ?Sö;6±Ÿá?í^éøb©à?É8éÖßdĞ?p;cÏvÎí?òaP‚.0×?Ëj>é˜ÿ¿PÑº\	‚ñ¿fı<;°´?`-’
-ğ?ãnä+	Ó¿Õ,VXğ¿wY½¼Çİ¿åãYáÃ?P¥×°§á?©ü9²¢úà¿¶à™L/Åú?0eVRöêÀ¿X{ˆGq{Ô¿;ÚÁÔâ?!©Ö¨àò¿;×%ÓĞv³?¼Æøv3™Å¿šûI>à¿pº"`+ì?AeÔuißô¿Óˆ¯!€"ø¿ÌX=š-@Œ;ó‰‘Ğ¿-¤š³. ò¿Ä6¼ò+Ù¿ˆÄ†¯€±ù¿„÷Ûî…ö?‡Ô¯UÉø?ŠA^à$à?p‘¢¬ZëÓ¿…ğ|6è?¶tĞo’õ¿û«ŠÿRy÷?!êuGXé²¿é£ÍsGÛ¿QÉÉY¢Û¿õÄ:Ú°×¿sÖ%¢Éñ?—ıR¤ísİ?xvš{5yç?6Q‚¡Ğ>Ú?ºœ€ò&€å?4ŸÄ;ø¿CïåO`À?øØO ¨ßÛ¿20:±ëÂä?»ïÎSÀ?2Š!CÔ?É'ª­nLù¿˜¦¿óø¿tÓáw$Ûó?*É,ãñ¿Â1Ïpo¿?Ø}X/Nİâ¿ôW½±,cÛ?4äs»a+æ¿ŠpƒIä¿T´Ùá?`t»»RçÛ¿‚^	Ò8Jã¿O+KÛ>í¿ş÷ù•Ğñ¿<Ë`¤lØ?ÃlqÀ*‹õ? Äs6]ù?wíò!ªë¿íæˆù¼¿ÛT-öË|½¿NÆÂús=¤?4bÙêÒËÔ¿ßˆ¹hí@ÊÛÓùä?D)1eğ?@½|Ã„óú?|÷¹-„mà¿QG¿‡Zú¿O¬°NÜù¿	KÁ³ø×É¿ç•®À\÷¿x€ˆa;Ü¿ØÕ)SÀ?ä"†cŒ7ô?ÿI—•Ÿ
-ß¿¤z¶R¯ã?PY÷– @§I­‚Á4â?5¿5Ú1.‡?ßE·×Ç?ş¿híÂç?,ÍQL<Ô¿áe¤]]İØ¿M³Óèê$ @éãØè
-É¿‰W àrÂ?nâ®½œø?ús©±Æã¿¯¡_ÿô¿æ¸£ó¿ji¯OÎÓ¿`¢øåyÑİ?'¡âÇîÕ?şzY=Gİ?X=À}Üÿ¿ñ÷¿jû¿ùX‰ü¿¦É¡U›M¢?pF_RÀ¦ôŞŞ@ğqÑêÊ‚ğ?%m´Ø9ğ?ZşUVú€ @×›6&Vğ¿1i(Äæ`à?x“¢™§Ñ¿qÎğb´Ó¿c†$?Ø¿# A4¥á?„£¦œ_ó?^€ã;
-ß?ß’½~Cè¿(s˜‡rï¿bXgÿt&Ü?ÔÄ«¿QÓ?‹Ô­±à¿xdC‡rÙõ?ï˜¹äĞ¿"@«ÖBí?qY,&úõ?†&-\Šô¿GƒŸ¶£@ß¿P’à^ù¿ÙİB^×ìÕ?£ƒ«„í?BÖ*×Cà¿Se ÌWâ?N1ÒÄæÃÃ?u©ÿ‹‹$Ö¿"!üä£lñ?+ë©cC5æ¿3¿rÛÿ®Ø?lGV†C/ó¿Ÿ"Qå‘Ú?ˆ¥Z˜:Ø¿€Şİİ¿`–ÓkÙ#Ö¿d¤ 
-`[â¿÷Â‘P>ä?úÙä´ä¿@¬™êÂå¿[Ü†Q³?¸º°ìÓ?Í¥6Û°?‰¼RP„Ã¿]˜Î¤SÛ¿ÓµCOnŞ?Å½ÊÏ	Ò?¾¿&®ytÜ¿‹‰Šñ?ô3]êT×?õ,¨¼cÈ?„¿5-O®÷?³­è¡’ºñ?ø‘ÓšéÒ?	g÷úÆ¸¿Â‹y›
-õ¿ü¾ -÷Â¿VPıJ÷?ÀĞş{fØ?B
-Œ†+×?x¸æ\±Ş¿®¥LBù\Ò¿É„í´2Ä÷?Ô™MOPÓ¿1Ğˆı¿5r÷S5Åï?ÅÒÎî}aë¿™¾£/éö¿GE†¤,kÖ?º;ˆô-Ø¿SoÆcy—ü¿(ğí¦:Rê¿“™ÒóÃÚ @`8…~+Kx?UÿAì1İ¿Ğ0%×à÷¿Oşé8›QÔ?«UÅ©³?ÇÈæœè?î¬!/óò?o©½mlbğ?L%ZQØ¿Æ½'Ñ¿N"Le'*à¿‚öˆÇù·?Áàã˜‘±Ài½·Ÿ2$ı?r#ıRÂCæ?Ùîü±ılÌ¿è5pŠÛî¿Ìµúyjµû?úŞP¨Ñ¿}d,?@Û›esGß¿
-gYtÆÜÆ¿šYërì¿ƒ/¯¢‡»ô?§UËÄ
-Ç?×ïËm—Ñç?ú¸.Óğ¿[¾Ñäû?ˆ£¹`±’õ?hç‘ñ,â¿ÒğŒú+ú¿3qõkÛã¿0o P°?°Ó>£Ò?Qøåò%2×?SCaønªè?La‹q¿Ò?WøG¹Lôî?xU¶ƒÜ?ˆÈø´Ú¿]ÇZ:+ğ?[#¿û-öİ¿×ÏÖeRwÜ¿Ï87
-Ó¿0ÂL…ÇÁ?9˜…$ú	Ü?rñ2™VÅ¿‹ªÀ‡:Ù?1¨Ùµoø?¸×ÉĞkûÂ?÷ÈuA}ã?«ÍF2æÕÍ?o²‘Y¦væ?º§]Äã?¬Û8X“sÎ?s·‰oÅgï¿ ¾p”ÁGà?aí‡áØ?f-Œ‘÷Åğ¿I
-QJ"õ?6ÍâÆšÕ¿["–:°í¿é·9“L‚ç?)Y‰-‘ÀÒÛ@Íuôú?:  ıàéª¿fî~z·ë?áà^{çİ?ş†æ¿Æ`É4İ?r%1,ú(›?fĞÀÍàñ?*ß? ¢³?'Â!'‚?kl *AÊ÷¿{DåŠ÷¿ªBVÚ?¾QU.­ûí?~+u	[Ò?‹Tò\"œÙ?°;’‘Î¡Ö?ft|iÚè?7®ŠËº¿Ù?gZ¨p$pĞ?ûhSéİ¿Õ¸ŠİŞô?–$Ü¤ö?Pš«	pÜ¿Pq!“ù¹Î¿Yßî2ÈÒ?æ9yÁà»à?ÏDKœiìĞ¿Ô\ ˆ:ş÷¿=	ÉÛó¿Ø†£0¡ä¿z7µÃ¸Qğ?b—£Ù@¸ß³¥Ë¿ë¤ ¯ÁÓ?¼òä
-bÎğ?)š#Â¿!ÒÚÑŞ¿¼óàL|ÕÑ¿o$"vèåõ¿Óbƒ>dDÅ¿˜°§
-»Ê¿ñ2²$ã?„h2åÎç?BhP?êñ?Ûì¯@<9í?gi>4aºõ??êcÚôÜ¿è|h‡¯Ô¿i+¤ù“Kì¿s_) ·¿‡çK aùò?y/E~ÛˆÔ¿Ü˜úSd¾¿ıè´óy?](oÕZï¿q}„RaÆî¿È*S,áè?ñÿIQBÕ¿<xâàÔü?jUãõ:Ò?"_7òSÉ¿Ø0Áıµ¾ê¿xc¨yñ¿­©Gà•Ô¿V°.˜[É¿eÏ"«ïôï¿²‘I:ûè¿ÀÒµçğë¿6]ê¹‹ö¿ÙüCk¼ë¿$a œ‡ñ¿:RÌö?ä’—ğë?%=ò–øxë¿ìß©72Ï¿¥€/-¤î?ÄxŸ‘¡ @b;çªïÜ?óc¯œ7è¿¿Ğ©á-é?€Şù5ù¿ŒÕÅIçà?óÏø2Ó¿{òaB§é?çQ&eÎ?3÷
-öu®Õ¿Ğ#àÛ›™¸?udÉJÕó¿ËƒiØÿHÊ?Ÿ†yáOãÕ¿Ñ›#%\`Ï¿Ü©GéàÒ? {!6Jşâ¿!±0 ÛÑ¿4U(›š
-ô?pusĞ®À¿—‘øÉÇÔ¿ŸY68°ã?U”9h&î¿Á?¸9	è¿ü¬ZÚ´?†°K¯õ¿ı[dş¦ã¿pÄıÉ-ñ¿[7LÛ#U@²ï½T#ë¿ˆQ1,“õğ?ÀÃ[Ì¿şRÕ‹€î²¿—O€İÆ?)·—9°\¦¿Îú7ë>Óç?~q… ]Ø?ĞóuanÀ¿4Ù¬H²jé¿+şö³¿™ò¿àr3tˆiÊ¿r+ßEIìİ?ò‘[CŒê¿._Wåòô?;Oõpp÷¿$"Ù>?é?í%İ%ÿó?jq`dq‡¿Sh[ìZOæ¿öqE\‰î¿Ğ<^Äô?ÕÔ0Öö¿º[.NC÷?ÑaOw¹^Àj¼¢y„L´¿ 1CÃ'Ó¿ãå&nı¿C‰‰pv§¿­½Ûèåñá?ï74B	ş¿¯Ì|ş%å?ú¾ª]sş¿Q¬Ç»¡?_•XÀÀı¿ƒËwı›µğ¿»ZjéÆ?’)•ßµÔö?u	¥œ³ò?KÏ*ß‘ˆõ¿­´+iì?næ÷Àô¿bæ;ñ8Û¿™Ó}Ğpñ¿ı“qØ½¿”TCY­ñ?^©—ôø=ç¿½æêÁkÑ?Ïÿú€®õ?pg]ï@k<ÏÑ³Rñ¿1”Æ¼Gô?D1s'kıË¿ŒbŞYëÕ¿ĞWæ!jê¿Œ}K½‰à?j9´5jˆØ¿øÙİîé¿ôH†*ŸÚ?¾<©‚â¿…ø%”.EÁ?µ"+Ø<ï¿Ñ-6âRéê?ÓW@,Íö¿)i1œ:ôä¿“Ë©%ÀùÓ¿[k5 ÃĞ?™íŒ)"ğ¿¾X±e¥·¿y,Cn“®Î?îÖêÆ¿xk÷ô~a¨¿äx¤ ã¿ó¦²ïá¿³İıİl6õ¿Ã`2 Øÿ?ÒÉÆé’ ¿?bÃşšò—ê¿K’òF=ûÑ?:%¥¦`¾?7ıèT,Iì¿§®Ÿñ¿ñ?~hê!]´Ş?dÉÙ<{A¹¿YJèú¾ß¿¬‡@nğ¿ö¿î4Mè?«OÒGƒä?›Òê¿<1:ãuæ¿ß`ğ¯aì¿iøÍÙ(Âó¿ƒlÏM8RÔ¿ÑNDoáĞ¿¯PñE<’á¿uÙ:$V?ì?ãù¯…ø¿KYZÏØßä¿™Ø‘Ô&!ó?‡w[¾¯Ğ?f›À Èxà?:½šfˆÓ¿C©ö×¿
-¥ñ“
-&ä¿İÑåú¿˜¤˜µeà¿Ó›saß|Ã?Ñq°—é:Ş¿ÛÔ&s¦íñ?Á0Xâñğ¿“ ™ƒ|ë?±éçAô?Š#¥öì?OTÖÆŞê¿ş†póAé¿–Ã®Ÿ@+Õ¿_Y¨ÜĞá¿„YR@Æô?«jºê8ÄÊ¿Úõ35óâ¿[)»nğ À²k¶Ø—ü?!ªPØ·?’ÑøÕ¹¿ÀìÖÉŸß?"òš¸©¿ò·Ò§ğÔ¿äf¡†1xû?n>0ùnÁ?g%ÅÀé8È¿ÄPß!ãÌ?WÎ‡şğñ¿Y¾&ûø¿µÆŸ*Fä¿C± Œâê?‹>Æu™®ó¿G{Z§†WÀ›³b†LÀ6ú¿æ#ïï?hU€ín)á?r×©í~í¿‰Š³âàø?6úš¯æî?f£úá•'æ¿B+Óš±Ğ?ô~<,ê?H¢İ«åİ?ßäëÁŞá?Ø+uvÓ÷?ã·ÑåšÖ?×·ÆÌÚ7ø?pòHi¨×¿9fÊÖD¹?®Çvó	…ÿ?
-TŒÕç,ç¿¬OÁ³ŸÂ?áh¤™}ã?æ\êäúÁ?>OüoAñã¿­Ì±-µBá?x‰å·ä?ÛFĞy¯ğ¿NŞG>ì?´ŒwGyï¿Xwş¤´µ¿& İ¶©Á?Ğo4@3Ø¿pÉa¾DÔ¤?a¸µ‡~Äå?JM-fşoÂ¿e0]‘‚„Ö?H"òÙâ¿'+k•T´ä?œ°!«%Wğ¿a³Éëè?‘hU5§0è¿&$€oú¿ÉëÔB¦„Ú¿ëõB \Ìä¿±QéI¨Ñ?#‡Å`í¿3x]‚Ïö¿unÑüBòß?õQ®Óú®×¿3Ë—v|çÿ¿ÿJùÚÙ?˜×¼iÿî?ÕêÈAÀø¿%~•ÒTİ?ŸÈ9#LIÛ?[LÇ0’Ñ?È/–ò?F@êú´òŞ?z½L-î¿`
-è{×LÊ¿^¢ÔîHÚ?ƒV,Ñíğ¿™vÕş0û¿¬Å8KÜ?œRZ®ŸÛª?Ky#…«Ê?#ASDF BLOCK INDEX
+ÓBLK 0               ¨       ¨       ¨Rœ9<Ş¶”û5·t¶‰Ø#
+–J.µ”¢á?8oµ±†Éİ?²ÿÇ®¹õ¿
+ÓœaÒñ¿vs+cÇoÓ?	¼Y¤Åß¿8ÆÂõå?D Ë¥LÅÊ?“.½Õ¿lj• »æ?F0GPÿ?½Oúç¦¿L7h3w’ô?y‘KØ¿r* c	mĞ¿¼tÕ4Ö»ú?dh§¬Çù¬?ğ¡§uÙ×à?àx?Íâ?÷…_…nÏ¿#O/„Ş³ç¿ÓBLK 0               ¨       ¨       ¨b_9'ŞŒ`BŒ#¸HêÁg½	ğoÓ?EhH9ºË?t¥C®Õı?s^>ƒ&Ùó?Zâ»s†œ·?lE¹ ³‹Ï?ÒÌÜ#Ş?ÁÊÚ]e¦?Ö#¤Ü\Ö»?é|ãìH&à?» ¸QS¤@g9	lS^?ƒÅfÃfsú?ÂÕ‘*$Â?ë¸êÕùÜ°?t?şªŠU@ıÒq»<j?ÄÇÛ»Ñ?ÿ6Œ:ÓÖ?R()kŸß®?:vå‚á?ÓBLK 0               ¨       ¨       ¨Rœ9<Ş¶”û5·t¶‰Ø#
+–J.µ”¢á?8oµ±†Éİ?²ÿÇ®¹õ¿
+ÓœaÒñ¿vs+cÇoÓ?	¼Y¤Åß¿8ÆÂõå?D Ë¥LÅÊ?“.½Õ¿lj• »æ?F0GPÿ?½Oúç¦¿L7h3w’ô?y‘KØ¿r* c	mĞ¿¼tÕ4Ö»ú?dh§¬Çù¬?ğ¡§uÙ×à?àx?Íâ?÷…_…nÏ¿#O/„Ş³ç¿ÓBLK 0               ¨       ¨       ¨Rœ9<Ş¶”û5·t¶‰Ø#
+–J.µ”¢á?8oµ±†Éİ?²ÿÇ®¹õ¿
+ÓœaÒñ¿vs+cÇoÓ?	¼Y¤Åß¿8ÆÂõå?D Ë¥LÅÊ?“.½Õ¿lj• »æ?F0GPÿ?½Oúç¦¿L7h3w’ô?y‘KØ¿r* c	mĞ¿¼tÕ4Ö»ú?dh§¬Çù¬?ğ¡§uÙ×à?àx?Íâ?÷…_…nÏ¿#O/„Ş³ç¿ÓBLK 0               ¨       ¨       ¨Rœ9<Ş¶”û5·t¶‰Ø#
+–J.µ”¢á?8oµ±†Éİ?²ÿÇ®¹õ¿
+ÓœaÒñ¿vs+cÇoÓ?	¼Y¤Åß¿8ÆÂõå?D Ë¥LÅÊ?“.½Õ¿lj• »æ?F0GPÿ?½Oúç¦¿L7h3w’ô?y‘KØ¿r* c	mĞ¿¼tÕ4Ö»ú?dh§¬Çù¬?ğ¡§uÙ×à?àx?Íâ?÷…_…nÏ¿#O/„Ş³ç¿ÓBLK 0                             Ú~ù£PÛ­O¿8?3õDË#ĞL—Ğ?Lí&]dÆ¿>D+şØ¿Ú—)ğ¿—ïkSÆİÕ?9U¤úÕ¿3Å¤Ê=á¿T'ÙÀƒş¿iıÉa5ë?Ñ›åÜ™Sç¿?Ó ^6@¶½
+UØ¿ØpÔ¼*ø¿â{Ûò¿1—#´Gøò?ªÓ]`Ï×?À,T¨Švñ¿zK{&ÇÆ¿­r›2IÉ?%  Vğ¿’1©ÑëÃ? ;ºÿò¿Á¶¹ì¿VŞTİËÛ¿-û~Z0¦ù¿³¹¦”Õ¿ ëXÎ?êù¨bl´?C÷¾6Ê?îõ±)©ë?üüdfK1Ê?°ó“,xHÑ¿İª‘«[Lì¿“8¬{-Oî?[ÌÆ?b¶G¾ÅÌ¿ıh½Z‘ŒË¿bådŠĞ?°8&¢â?Õ&Êøâ¿PBˆF Ò¿üöÚ,ã?*Ì“†7»ù¿ß†Y}×Ï¿%~MFÒÀ?{•nã¿Ioí.u±ü¿bŞ¦8¶¾é¿ôÜÅ¿šá I¢è?DUµ8©ƒé¿ ‘ĞŸ+1Ô?V…TnÑÇè?Ñ¶Ãmşœì¿ö6.3@„ˆ2„Iê¿¡áÅ<cò?²­»~juó?'8IEÖ?Õ<$†˜M÷¿¨gRÌ½?0ëß5Äå?ˆv°£šÄç?|¬CÙèÔÖ¿=âíxDÕ?Ş<@ó¿{ë1ÂÀÃ?|İ¥Æ@&î¿’R¿4¹ù?º’‹]igó?"ß&ÆÎ¿‘Dî?VÍÄwC³É¿áËd²ô?Ö,Ú—ÙÛ¿\>-j úâ?¼±Ë¶Ìã?pPÚø+Û?G¡©×/°ò?FİâáP½™¿
+İ¿¾‰¡¿eƒŞñ?[w'Q­ß?ET«¿:DÔ¿–¸–<T®ã¿•3¿î ø¿µ83Nú¿aÜ+)à¿D:¨¯[=Î¿İæ,?ò?ˆ”ÿğliô¿ÚD`$Óß¿!Ê°
+Yá¿¿ş#ŒAñå?æ Ğ‘Û¯ã¿DìÛÁw@Ò¿ğ‚Lı;û?u’'Ó?¥¿ÇÅ;ã?›A3í¿[¼CÊ#+á?#™Ív‰òµ¿ài\Kşá?°1™=¹¶ê¿–u1¿Î?ÎÑ·¥)Ú¿gŸ´	ËTñ?j‰Qºò?nb-5Å¿Z~
+hK@Š-Ì,
+Ó?/Äf[ÜCá¿"î-9ú?ˆÂ›•ò?¿Xíá¾×?YøKu•›ç¿¶pÉªáÇÀ~ª(vH?glôÃ ˜¿¥¨ÔåÜô¿Jx¤ğÓÜø¿¼lOm/Mô¿í…w×tÁ¿°Ö¬#R¹è?bÒ!µ~÷¿ÅnĞÚºÀ¿ıÒO_÷ô?â¥oÕéaÑ?„!:¦î?ŒÓ*!m»á¿î6Õ?£Â¿´.ã;ß¢ö¿£—d‡Âtã?‘,R€¤Ñ¿V¼Y×Óç? ÏÀ<ËğôğŞ?2áÛ-Ù?¶fõ_Ñæ?¥øÁSÀ<ãÃ.²8ú?ævJ?ö?ù!”´”Í¿‘[%±T,ó¿©ô¨B(vÂ?ášßÿ*ù¿É‘Å{6@ĞÈ>À¤úú¿;ù‚³ãò?4ÓÕÇı¿‡¹ùŠÖç¿€¬IÄõ¿ÚŞß†oËÜ¿ë§?=¸ó?NNŠıù¿ÃşÁ‘öÏå?I92ˆ}â¿|*ùûi®æ¿²m%á?\¼ï}MÉá¿•ÇÚD»ğ?s€lõõ¿`B­Èó¿ñ‡0´5Îğ?¢ÒÑDz @ï|ñú“?›¼Ÿxê¿8	*÷şÓå¿³î™Í $Í?›ûw"Å¿şré'Ş¿')0†Qã?ò$ÌÕeÊğ¿Kàaì?ªR¢(ş?
+²ïH÷?vÔbïßîé?Dà’lê?…J¨¾Ñç?LÌñ0éä?F,é¢ñ?é·õFmÔ?8ò“ßè?Lÿá ¤Çğ?Š®¶„½¬õ¿Síèaªó¿$ùQç’?Ô ·ÁÙç?Ä'^€jò¿+Ø1”(ê¿Øjö|¼¿º$ÇFÏJğ?fƒN'1Ø?~5L…×?¢%b—Iäê¿“lõ€¬ÆÓ?Ÿ1“Txê?ZX&•yzá?±ŠŞ¸í?}Mx¶Ö¿ŠnÛaC;§¿/BÕÚ‰Ç?à”9Õ›Ù¿ßòƒ¢ĞxÀ@m)ƒ-†è¿ƒ?,ëÂ¹?*§OÇşÔ¿~°ò;Zç¿~oïĞ2@†šÎJø¿kÊÉÈ·Ş¿±<şšLµ@ıß(à	•ò¿É‡´c`Ñ?ƒÇÍ¿à?š©&êYè¿dz}èÕú?Ä´ñ›lùÙ? áíß¿…ø8Ê@•?S<¹{ìô¿+_¿ºÈæ?7
+¨*ï¿…0´2dş¿¿Jfç €Ô?l½ƒ;áæ?æ¬j
+Xû?ÙEúßó#ñ¿x»xÕÆõ¿]Äˆ“ê?ûbóa„°ğ¿¶2Ë…¢Ñä¿L+ÕÆ§é?»¨o¦Ùµ?©Á	çrùü¿u¯ßWõ¿L'˜Sgö?ñXõ\dPé?'Ë~Ê¦¨ü?rÍÎ@â3U!ë?ë4ãgÒóŞ?h]õ¡Ü¿&ö•/·?d­!U
+÷?ïÇ7Òã? 9PÇ»¸¿à¬xğë?Ÿv¼¼¬òø¿FN£™ºbó?eŸ
+¹(ë¿õ4Á¢µHæ¿Ÿşz(ö?î ÉĞ>å¿Òõs
+¦\Á¿ûV&ƒ^Ô¿R•Í»?®æ6ÆMô?Hôˆmù&ô¿êQ¾ş¿•¿ß¥±÷î?f‹-d1#â¿ÏY>ïÄç¿ä·üø¿‹Ô+ñPEç?â33Bõ?²ÒÀÜº?Aj°ÉÇ¿¢. 3¾¿¡ö=…•Àxù9çxñì?ò8<¯èæ¿ûÖ;¼ŒË?‹º™ÙïÀ›¸¨¡Òìà?é	ÍïOÙ?¸*…}CaÚ¿PÒ¨qÁ{×?GƒLñÛÖ÷?bAÆ@Së?FÕêÚ„Eì?ªåoI¬ö?ä¡­K¾Î?Éÿ5ñíÏñ¿3êşVT
+è?—ÁU¼Dó¿¬LY¤bŞ?6ä
+	 Û¿”T Ï0bÃ?-ßşÈ¿úù¿rœ³rµä?ñïóRâ?ú—·“Ç(ğ?ş±@$·º?
+äÑ¶vè¿»CŠAÌ @ ©nUIËÜ?ïÔó4"tÒ?µ½Ûçär§¿ËÑ]Y*rç?É 5Ëåç¿’Átğá?Ôc¹hñ?\^Pè`á?m_ô_Óí¿¬&Q§+0Í¿e†bZÌØ¿;—² WÇÇ¿5åß³j“Ó¿"'˜>”ˆÄ? ô5Wuü?g
+"è±±ì¿`¦´w6â?ë;ò D¡?ƒğÄ_áÙ?ŠW™ò™uú¿A& íúí?"§à7Šö?‡Àğ•´Êü?" İ¤ö™ø¿¢%"ODî?Bsx™/Ìé¿€?tìi½â¿,,gù?ò<9 ğñ¿†U(˜x	é¿È½©&»×¿Xn&¼ğ?£ BÆ7æ¿3Œ©ÈÔ¿¶£ğûğ?–Fgh¨ËÓ¿Ixp¼ÒÚ¿¨p\¢Ú?ÀiO~–¾á?8ÊØW:
+Ô¿®‡süËìø¿³[ïu	Ö¿>)™7öø?·€ÉgWÂõ¿OP,šOÓ?›œñ³ßŠà?%¶>ğ¿G IlE&Õ¿
+¿pÛ¿wÄc&Enı¿Áu0ÀPü?KÍå?I¥â?P"Ë½á?i`ühİ?¨8.şÌñ¿gçÃÅ?Ÿ±ÍÔ’á?k½JÒó¿1 Ì’…ä?}ĞŒß‰Cè?Šk²¼ê?AéR¹¢ À‘€KUÚã?³İÅ´Ù?^ã~¥xïó¿ÃÕ’KõÌë¿´5ŸËÖæ?1:ÎÂ0Şı?Ç–
+NOêî?şN2]2Ğ¿†ƒ;'›ğÜ¿âUÊ}ãÖ?$C°6eä?l³»ÖÏ”ì?qXëØÂ‹è¿ªffõRù?«+¸—ˆæ?vT£Be¨ü?P™R;Úı¿OrØyÅï¿8‡nyè?€¢—äyÍ?ëxB\ÚĞ?k
+9Äkîé¿Dú¤Ã<
+Ş?Z¼"ºJ×±?UÜN!Ğ?—ø‰?äæÎ¿×zª¬¢r@ùİçˆ@f$¯lrVÎ¿2¿‘¨CBÒ?)Ÿm„à?/Ù«QŒõ¿¬bO
+(ú?æ(w_såÖ¿÷š2¨:Ñ¿ÌS˜¤‡*ã¿|×íñ?ñe«}\Õ¿}ht é?Y›¶v`Í?TRd¹¨tş?¢ßÑuªÜ¿6˜l¸¿ß€0º0õ?št=oÅç¿é¢,eÇ2ô?#&Ò½«\å¿ö2ˆ$Ó6ë?Á»u¸sòŞ?@ÔÔ‰ç?dÓ0ËÉã¿úg…˜Êõ¿Â‡6o½·ó?"¦ÉOFÌœ?ıüh˜9ã?\G|#\óé¿ÄvŞö	¨?.ôTIf‡È?âs¨j ¿)ı‚Â¾?WVåùMë¿ÎÀ¶U@[¥?—%BLäâø¿f K&Ö¿Ï%‡R)‚Õ?äîÍâÀê¿Û0$öYÂ¿´u¨'eÜ¿±ÁŠÕ‘7ô¿aï$'<¸¿S(¥RH1ô¿'ÿï‚jë?·Ş5£Ãfé?"*ºµzÚ¿<p~w4ì¿(?&@®Ì?«66áæ?PÕS;²ô¿æ*-İ‰ã¿­	Œg\É¿ZõiOv,@°ÜØÁ¶ñ?u‚¢èÚÙ¿ÅıƒÀßÀÖˆ†6ÕbÙ¿
+$ê¿
+é'Dø`á¿µjqÂ¨äê¿7}à‚ÄäË¿1r-ú¼Ğô¿Õ*Njæ?x„J_IÑ¿ó?²+¼Ü?dêóåÈ”Å¿°Àè"Èù?ç¬	TŠá?ªnW,‹á?”¸İÆ}¥õ¿*¢Ä§Ûô?$JÉ	Fò¿:ûd9]#Â¿“xÆ(pÊ?øùb•ê(¹?”Ÿ²'Şñù¿Î ebX(ş¿XÀÁ«dØ¿äR<•¹&õ?ç/~¾ï“?üÊyë>àË?0ÃÿUù¿ÇÕ“‘×Ô²?û«„/mä?—&Ü`™ƒõ¿£óÃò‘ÅÍ?¼ GD¥EÕ?›GKßTdÀ¿…uYÓ·À?ø•„cˆÌ¿¥_MqÆÔ¿Y\xÒÛßä?
+·Äê`ö?°Lv×z í¿²õ:mğ?W5lfü?4ÙŠïÿ^Ö¿6Ÿ>G°â?)i«Ìà?²°”—9Nç?ôŠáñö¿šE)‘òï«¿¾=Kš®À?+œ’§7ë?ãö.+Øô¿Âr&ş@Ú?$YçS­?åü[­é?¹õİ!¡?ş=µ EÓ?rÁŸ3Ö,ó?5[4Yñ?bŸJrã?b÷-¨@Br“  ¨µ?»;ºŒarÒ¿ú¡›R&jé?í¾šSÅñ?iè1×­ä?*•Ç-»P@V¨¼ŒÚ?q¿  ğ¿ Ä—TZ³ı?¾ixvXğ¿>»0'¼@Ê?Ôêû®å?½<ÃE	†ë¿­p3ˆ¶?.6Ì÷@LÒxg-ê¿›W/¤ª·?¥
+ŸWÔ?£”w‡Yå¿)¼*âè¿?”^ìgŞ¿¿,3+4O+ë¿¸ôo `Àu
+7*q˜ì¿s¿ó·¨fğ?ø(=ÌœÕ?(ÇãyÉ€ï?{ÍŞÄ”a²¿ŞŠSå—hã¿JÛ÷ ²¿|úfÖ¿>îäoÂğ¡?áŞX=©ÅÍ?ª|ÖGNÖ?qGÜZ	•?¼ò
+¥@b¬¿Éi Kh'Å¿¿ÙP¡]á¿Ài“4NÄ÷¿'¦–ö…Ó¿ãòÆ«¯Ç¿PĞ§Yíå¿‰Ÿİ'ïì¿¡ƒù^V¾ì¿üÊÜe‰Wì?h(³gİ.ş¿<ßğ`ùF¤¿Ä#F/]Xñ?ø`TÚP
+×¿‡‡æÁß¿w-êg»Ó?¤5¢HşÀ?ª¦¥?šu®¿&™®çó?|wğ¹³Í¿T¿à¼r @K^ôØbï¿û£%	ç©­¿;ĞÑró?úÆşâZ&ë?aWl2ßšó¿&Ûí¿rLæÁ7é¿%n˜ŒçêÀÔ½CÆï½Ã¿.ÌõÀŞoî¿q»`á?T @˜¬ĞÉ¿Úº.	›ã?ç¤ó¶Ô¿ÆÊo‰®Xç?&vWĞ @ŞÂ³”ìpÓ¿rRJŠ¡–ø?±oQÃâ?l¦†[Õè?cC›v,Ö?*Ê|'‡qÇ?H’ù­}Ğ?™ßÑP3Æ¿Â½
+ßÓÿ?:Ú¼Î6ğ¿qiooà?çœ9[K×è¿nµyÆíä¿&+chûëç¿ºl¬®»tã¿›E]<ù?Á(`af=é¿D¡ÇLé@ Eë¢Æé¿Ô¥zQzô¿9ï}Ò3:Å?ıZéNH´Ú¿ÛIÄ»}²¿P£ğ{øbÿ¿ÂÕdOƒ¡ò¿3$•Vò¿WFõMÕê¿çÒ(ºÂ^ü?[ä~»¡Ò¿£ûæ&õ?Xß“‘…¶à¿¥?z3Ì?­j§LºÌ¿b*>äà´¿•‘s¶Ñº @B¾(>;Hè¿á{£öÉ^í?Õ|.•Aà?Pì›s!Úü?6£ã®Oåá¿åUÆBZÀ‚¾@%¦rğ¿•(íø'Yõ?Ÿ½:çí?Ê˜SÖ]½?=2,kZäÇ¿
+9µÖ?«Bù%Çq×¿;ÿèí?•/hôÎ?¼Pé¦£‘Ò?Bp¯lâæ?tKTÉƒvÓ?Ò˜œ‹İ¬ş?ÉaÄë4Æ?ÊŠŞ…ª«ø?í\Áƒœoç¿Bzu¥å¿©ºå‰qöæ?Ñ'!‡½í¿Hæ†7´¿†õ%óğ?È5 ¾‘Îó¿w•|Q°¿Ts@æ…«ò?Ô&G“Çé¿ÁëÕ=*õ¿ o|+áş¿"ªHc/Ïù?MâÍiá?‚B‘Î'Lğ¿Ê…™4úã¿ªÃ–¼	æ¿Dâ'@iñÀ?ñ'bë¨å¿DŞ)ßˆŞš?$r-è—è¿³Œˆ^mÀúOÿfäÏ¿à#øè¿šòƒv½Ã?±Ş8ÿ¤‰é¿·Í¬Nõ¿Ë\\7¢ÈÛ?_õ×§× Ù?#şS%Aäğ?ÿqéaĞLä¿¿°uBxÜ¿y‘ÔVXá?xÇ
+_Ö?JZÍ{ë?*ããLs
+æ¿?
+½«‚Í?ŞÄo+ßú¿èY‹;1ÀŞAÙúÒ¿VD•àºdê?mz%
+Œõ¿Tî„Ä‘Ú?dª´áğ¿¬ M2q ³?Ä{L…ªOÄ?şÖVå%™Ô?´Iˆ.ÆEë¿}r|Çø?Ã·´AAÚ¿=„Œõ¿¨V³ÿ/¡?PÇGç?²&˜ƒ5Ñ¿Œ$ı¾ß÷?:¬åêõë¿EëC…m›ş¿ÖÖs¤·ô¿¯¹Å7ô¿‡Ÿ¶.8ŠÒ?Û/ÿTÄUÅ?ßş}3Âı?Ì†êomâ?6¸DÉ˜¯ä?Ï&=ÕÈà?^_n2ï?’;_jnñ¿H KlÅ?¢&oö?\¼,€àœÿ¿„I!?ù?›÷|khŠğ¿$öy¬k}ç?%©±¬Nò¿ªŸI^w¿è?òÏ±–kş¿ßûø×ş+¹?Ãşı=,@ñ¿¡U€J*ë¿²LQ©î³Ò¿x¾_pû?‚
+<şu›ö¿Õx· Ò?zM}Eñ Î¿Ãı!ØşÙ?llå"Ú¹?"XäeL<²?,ÕÛ_Şù¿
+#õ‘ñÉ¿H±ezä¿à‰ªİ/ªá?*ÎÆÎà¿:”â²×¿uWÜzĞ•Õ?ˆx:›½Bä?ôl¡i%Ã@´êÊ¨÷ñ?óCªa&õ?|º†Y5•÷?ğ´:šéå¿áÖ ¹M@éÉÉXˆ¡Ù?'ôiè?W$`Ê9§¿çªGù?U»='K¦â?E™ mJéÁ¿Èàp*’¢Ø?N©-õ…¿7:˜ÎlİÛ?D‡bL"À?Å«!x§ğ¿—Ö&†/éã?Áx¼~ZØ¿BkŞËlñ?Dí£ó‰ÿ¿&·¹öœ@&á—¾£GŞ?Ş ¤Ÿ¿@˜åKxôà?e¢Ü3Pù½?ÿäò)A…¿sl.)* @F¥Ñ¶´¸Ó?ˆ­òß?Ùæ{®ó¿qÛ=ïïuå?fU}Rç¿u-Š-#K´?ôëD}ô¿o•+Ñsù¿Ö‡
+ÑÓ?ftáŞ­ÃÆ¿–½Î¨“ó¿ÇY l[ë¿–×Ï€Óƒæ?‘Ã©ÛH8Ô?‘êuvµò?)òRtÄ¿ÃÔí=Ú¿¹TrlsÀÙlğô¿¾M`*ğÖ?Iæúö­ğ¿ˆ!Ğ ßê¿Ñá%ê°?t‚(k(è?‘ÆİL†€ü¿ ú¼_ÈôÛ?ª"ïH¿=û?Xru8W¾ğ¿ôİ“UĞöÔ¿hïwrhÙ?‡Z0J ï¿VûÕY-/·?I1<vÀè?p³‚?)Uæ¿€ò%jÄÈ¿¥\$~-ï¿–J g¯Ûú¿_‘“ÜÆí¿
+kpM×Iö¿FÕ¶e¯@ô¿.N«<BSñ¿øR²›0èá¿ê÷-¦Uç?åÕ1œ›Sç¿¯
+ Š°îñ?9ÓWnhß?GÈq¼ëá?çÌD0Şy¿ÚùªÆq'Ø¿+ç40¥¼?ƒìªâ¢øÓ¿õäiúÎˆØ?i‹ê:«¡–?Ä$ƒ*ÀUÖ<MeÜ¿0å„ôì¿d—²Ò òí¿#vvóô¿Ãt%lâ?Cwê%yú?›‘)aö¿lB	,)ÛÏ?-0Rƒ&æ¿ue˜K5î?ir.¼êÅ²?|j®>@¿+¯êÑv¶¿yGİå7à¿ìƒwhÎÍú?\Ş'A¢Ï¿âÍaÚ¿†´#L(â?Eªõg5÷Ñ?OeÙšÜ}¿Uè9*–é?!0ÈT Á?xÖ®F³gÖ¿'ÿôL«ê?f¡Ş€í;õ?ó¶m’ı?¢y¶ı,Üé¿‹ -™,
+Ğ¿,—ûp–ä¿]|<ğ?PğÔ
+ONì?7¦sO÷¿¼òÍ~+Bí?¢¢ë–ã¿RÅÛ#Ã”ù¿m0ï@ù¿¶KÙ†Øİ?‹ïìa—ªÅ?4©Ò1é¿íÇLú~]ğ?³cAygÊ¿;PNC­Ó?ÅfÊoÇñ¿p!ÚéÑ¿T…D(|fÅ¿î—€ÒN¹ı¿=0/oÒ¿ä{Îx¸¾à?òC¿NÂÎÕ¿p•­w‚ç¿~DRõ(’Ğ?~íH>ß?j´`÷÷?
+;™;± ¿u+4ŠóSù¿ƒ¸Øšüğ¿_  ö¿q=5„Ä¿YJ<ßô?c}%œÄhô?›ŠV°Ÿ:İ¿®ùÙnšô?ÁûhâÏà¿¤Î@úè§?µã6n»%ï?	ÕV,•¶ç¿…ÕQØñ½Õ¿ëé(KõŸÑ?E"'%³ğ?%—*ôİíÄ¿‹3'ì9ù?àËØVş?„yá—ğ¿¼^ø•â¿l2&Ëë³¿»œ5Ô‚«ï¿ÈßSPë¿+_**´yÜ¿¼2:Û· @Àˆ^$yÑÓ¿ÄŠĞ|›ëÕ?'†K63£Î¿ìó–›ó¿®7-ŸÎKÀñj;íû?Ï•gxÎŞ¿Nêº7çRô¿c$óÚrà¿®ß•ù¢GÍ?»|`ÊF(Õ¿Ä88WP‚À¤yê7Ã¿æ*Ö‹jVò¿dfœ"°Dü?²öJ;å¾¿ A¶¿ú²÷? )±^ş¡Ä¿»(ÂMOÂ¢¿QNØæÉï?mBW'#6£?`˜¨Ô¿–RG%»%Ù¿Æj`v¾_Â¿â$wl€àÖ?ïÆĞˆ‡øä?Œ/˜©©\Ş¿YÌø.’?¬d(ğ¿ûº~pOáü?sVŞIŠeÍ?¾¡ÏXØ?Â}¼„sÕ¶¿2uFÍÀĞ?ïITL¥_ä¿@ˆxºó¿²œÉ–†ı?¯Á7ÑwHú?Èš6É:èğ¿(z­ïd·¿É®eE½=ç¿ã°WÏşö¿O`À 9nå?ª-t§Llò?ü´i-Ñ?=ü]¥ı·ñ¿Ï–¥‹lİ@Û¿ß‹ºzç?0òx("õ?(ŒèìdÛ¿lê•2HÄ¿x Tñ/ò?·6Ş! À”Iÿ'ºè?\ö
+’àÕ?ä¢mô0ô¿R6	£¼ÃÛ?½¾C›ë?NŸRó¿à¿g× ËXê¿¨Á72ºİÖ¿ƒÂ„Ù°—Ï¿DíàxC¾ò¿fX‰yêûò?]²×RçcÆ¿!‰	É¿áñ³DuŞ¿]™œòÑİ¿t9³}^è?¯ùûj¹ı¿œbvaŸÒì?İyœ]‘Ó¿qäÿŒÍ{û?¥Ã÷tså¿?§U¸8ñ?Ş´LtƒÚ¿
+R#×‚ğÄ?:wï!i·ğ?x·ÿ¸qú¿Ï(Ïá/ø?¢»
+ÆÜ¡ï¿£S]	¨¯‰¿k‡~‰êèñ¿-|‚ñ(ŠÒ?ë!{½?S™æ$íï?z£aŸ’ë¿®·Nû0÷¿-€ï°¸gÂ¿Xtı‚ıÅô¿"&¡éXBİ?”Šo–õ9Á?×W×V3ÏØ? üú\ì]÷¿«?1ğ¿Ø€	åß±É?ØN—nÅÍÎ?Søpä8V×?Aƒœå¼,ü¿°%
+ìÈâ¿„í Š ı?Şj¹¾Q­ö¿SaeaxmÓ¿æ7¨e|ö¿¯Ø‡Iºí¿!«_"Şõ?
+ùç©°Í×¿„~G¹@ßï¿#ß>óâÎò?À‡<Gç	ã?v¼J˜ìGğ?˜—¤(Á—¿#ASDF BLOCK INDEX
 %YAML 1.1
 ---
-- 16868
+- 15430
+- 15652
+- 15874
+- 16096
+- 16318
+- 16540
 ...

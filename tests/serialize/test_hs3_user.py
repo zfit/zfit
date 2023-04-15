@@ -24,7 +24,7 @@ def test_dumpload_hs3_pdf(request):
     gauss3 = zfit.pdf.Gauss(mu=mu3, sigma=sigma3, obs=obs)
     model = zfit.pdf.SumPDF([gauss1, gauss2, gauss3], fracs=[frac1, frac2])
 
-    hs3model = zfit.hs3.dump(model)
+    hs3model = zfit.hs3.dumps(model)
     hs3model["metadata"]["serializer"]["version"] = "ZFIT_ARBITRARY_VALUE"
     hs3model_true = pytest.helpers.get_truth("hs3", "sum3gauss.json", request, hs3model)
     hs3model_cleaned, hs3model_true = pytest.helpers.cleanup_hs3(
@@ -32,18 +32,18 @@ def test_dumpload_hs3_pdf(request):
     )
     assert hs3model_cleaned == hs3model_true
 
-    model_loaded = zfit.hs3.load(hs3model)
+    model_loaded = zfit.hs3.loads(hs3model)
     assert model_loaded is not model
-    hs3model = zfit.hs3.dump(model_loaded["distributions"].values())
+    hs3model = zfit.hs3.dumps(model_loaded["distributions"].values())
     hs3model_cleaned, hs3model_true = pytest.helpers.cleanup_hs3(
         hs3model, hs3model_true
     )
     assert hs3model_cleaned == hs3model_true
     # second time, no loop to better check if failure in unittest
-    model_loaded = zfit.hs3.load(hs3model)
+    model_loaded = zfit.hs3.loads(hs3model)
     assert model_loaded is not model
     model_load = list(model_loaded["distributions"].values())
-    hs3model = zfit.hs3.dump(model_load)
+    hs3model = zfit.hs3.dumps(model_load)
 
     x = np.linspace(-4, 5, 100)
     np.testing.assert_allclose(model.pdf(x), model_load[0].pdf(x))
@@ -94,7 +94,7 @@ def test_dumpload_hs3_loss(request):
     original_lossval = loss.value()
     original_loss = loss
 
-    hs3model = zfit.hs3.dump(loss)
+    hs3model = zfit.hs3.dumps(loss)
     print(hs3model)
     hs3model["metadata"]["serializer"]["version"] = "ZFIT_ARBITRARY_VALUE"
     hs3model_asdf = asdf.AsdfFile(hs3model)
@@ -124,7 +124,7 @@ def test_dumpload_hs3_loss(request):
                     else:
                         if not is_equal:
                             assert v == val[k]  # make sure the diff is shown by pytest
-    model_loaded = zfit.hs3.load(hs3model)
+    model_loaded = zfit.hs3.loads(hs3model)
     loss = list(model_loaded["loss"].values())[0]
     assert pytest.approx(loss.value(), rel=1e-3) == original_lossval
     for k, v in hs3model_cleaned.items():
@@ -146,14 +146,14 @@ def test_dumpload_hs3_loss(request):
 
     # assert hs3model_cleaned == hs3model_true
 
-    model_loaded = zfit.hs3.load(hs3model)
+    model_loaded = zfit.hs3.loads(hs3model)
     assert model_loaded is not model
     models_load = list(model_loaded["distributions"].values())
     loss_loaded = list(model_loaded["loss"].values())[0]
     x = np.linspace(-4, 5, 100)
     for modelload, modeltrue in zip(loss_loaded.model, original_loss.model):
         np.testing.assert_allclose(modelload.pdf(x), modeltrue.pdf(x))
-    hs3model = zfit.hs3.dump(models_load)
+    hs3model = zfit.hs3.dumps(models_load)
     hs3model_cleaned, hs3model_true = pytest.helpers.cleanup_hs3(
         hs3model, hs3model_true
     )
@@ -173,9 +173,9 @@ def test_dumpload_hs3_loss(request):
                         if not is_equal:
                             assert v == val[k]
     # second time, no loop to better check if failure in unittest
-    model_loaded = zfit.hs3.load(hs3model)
+    model_loaded = zfit.hs3.loads(hs3model)
     assert model_loaded is not model
-    hs3model = zfit.hs3.dump(model_loaded["distributions"].values())
+    hs3model = zfit.hs3.dumps(model_loaded["distributions"].values())
 
     hs3model_cleaned, hs3model_true = pytest.helpers.cleanup_hs3(
         hs3model, hs3model_true

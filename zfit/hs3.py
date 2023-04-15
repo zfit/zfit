@@ -12,11 +12,14 @@ from __future__ import annotations
 
 from .core.serialmixin import ZfitSerializable
 from .serialization import Serializer
+from .util.exception import WorkInProgressError
 from .util.warnings import warn_experimental_feature
+
+__all__ = ["dumps", "loads"]
 
 
 @warn_experimental_feature
-def dump(obj: ZfitSerializable):
+def dumps(obj: ZfitSerializable):
     """Serialize a PDF or a list of PDFs to a JSON string according to the HS3 standard.
 
     .. warning::
@@ -42,7 +45,7 @@ def dump(obj: ZfitSerializable):
 
 
 @warn_experimental_feature
-def load(string: str):
+def loads(string: str):
     """Load a zfit object from a string representation in the HS3 format.
 
     .. warning::
@@ -64,3 +67,15 @@ def load(string: str):
         ZfitSerializable: The object.
     """
     return Serializer.from_hs3(string)
+
+
+def dump(*_, **__):
+    raise WorkInProgressError(
+        "Not yet implemented, use `dumps` and manually dump the string."
+    )
+
+
+def load(*_, **__):
+    raise WorkInProgressError(
+        "Not yet implemented, use `loads` and manually load the string."
+    )

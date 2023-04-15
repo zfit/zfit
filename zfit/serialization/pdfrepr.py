@@ -18,6 +18,7 @@ class BasePDFRepr(BaseRepr):
     _owndict = pydantic.PrivateAttr(default_factory=dict)
     hs3_type: Literal["BasePDF"] = Field("BasePDF", alias="type")
     extended: Union[bool, None, Serializer.types.ParamTypeDiscriminated] = None
+    # TODO: add norm?
     name: Optional[str] = None
 
     @root_validator(pre=True)

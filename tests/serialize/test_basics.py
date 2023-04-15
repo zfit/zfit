@@ -1,5 +1,6 @@
 #  Copyright (c) 2023 zfit
 import copy
+from contextlib import suppress
 
 import numpy as np
 import pytest
@@ -161,6 +162,135 @@ def hermite(extended=None, **kwargs):
     return zfit.pdf.Hermite(obs=obs, coeffs=coeffs, extended=extended)
 
 
+def kde1dimexact(pdfs=None, extended=None, **kwargs):
+    data = np.array(
+        [
+            0.5510963,
+            0.46542518,
+            -1.3578327,
+            -1.1137842,
+            0.30369744,
+            -0.49643811,
+            0.68624974,
+            0.2091461,
+            -0.32975698,
+            0.71040372,
+            1.95709914,
+            -0.0430226,
+            1.28575821,
+            -0.37646677,
+            -0.25665507,
+            1.67085858,
+            0.05659317,
+            0.52634881,
+            0.58759272,
+            -0.24556029,
+            -0.74070669,
+        ]
+    )
+    import zfit
+
+    obs = zfit.Space("obs", (-3, 3))
+    return zfit.pdf.KDE1DimExact(data, obs=obs, extended=extended)
+
+
+def kde1dgrid(pdfs=None, extended=None, **kwargs):
+    data = np.array(
+        [
+            0.5510963,
+            0.46542518,
+            -1.3578327,
+            -1.1137842,
+            0.30369744,
+            -0.49643811,
+            0.68624974,
+            0.2091461,
+            -0.32975698,
+            0.71040372,
+            1.95709914,
+            -0.0430226,
+            1.28575821,
+            -0.37646677,
+            -0.25665507,
+            1.67085858,
+            0.05659317,
+            0.52634881,
+            0.58759272,
+            -0.24556029,
+            -0.74070669,
+        ]
+    )
+    import zfit
+
+    obs = zfit.Space("obs", (-3, 3))
+    return zfit.pdf.KDE1DimGrid(data, obs=obs, extended=extended, num_grid_points=512)
+
+
+def kde1dfft(pdfs=None, extended=None, **kwargs):
+    data = np.array(
+        [
+            0.5510963,
+            0.46542518,
+            -1.3578327,
+            -1.1137842,
+            0.30369744,
+            -0.49643811,
+            0.68624974,
+            0.2091461,
+            -0.32975698,
+            0.71040372,
+            1.95709914,
+            -0.0430226,
+            1.28575821,
+            -0.37646677,
+            -0.25665507,
+            1.67085858,
+            0.05659317,
+            0.52634881,
+            0.58759272,
+            -0.24556029,
+            -0.74070669,
+        ]
+    )
+    import zfit
+
+    obs = zfit.Space("obs", (-3, 3))
+    return zfit.pdf.KDE1DimFFT(data=data, obs=obs, extended=extended, weights=data**2)
+
+
+def kde1disj(pdfs=None, extended=None, **kwargs):
+    data = np.array(
+        [
+            0.5510963,
+            0.46542518,
+            -1.3578327,
+            -1.1137842,
+            0.30369744,
+            -0.49643811,
+            0.68624974,
+            0.2091461,
+            -0.32975698,
+            0.71040372,
+            1.95709914,
+            -0.0430226,
+            1.28575821,
+            -0.37646677,
+            -0.25665507,
+            1.67085858,
+            0.05659317,
+            0.52634881,
+            0.58759272,
+            -0.24556029,
+            -0.74070669,
+        ]
+    )
+    import zfit
+
+    obs = zfit.Space("obs", (-3, 3))
+    data = zfit.data.Data.from_numpy(obs=obs, array=data)
+    return zfit.pdf.KDE1DimFFT(data=data, extended=extended)
+
+
 basic_pdfs = [
     gauss,
     cauchy,
@@ -172,6 +302,10 @@ basic_pdfs = [
     chebyshev2,
     laguerre,
     hermite,
+    kde1dimexact,
+    kde1dgrid,
+    kde1dfft,
+    kde1disj,
 ]
 basic_pdfs.reverse()
 
@@ -471,23 +605,44 @@ def test_dumpload_pdf(pdfcreator):
     import zfit.z.numpy as znp
 
     pdf = pdfcreator()
-    param1 = list(pdf.get_params())[0]
-    json1 = pdf.to_json()
-    gauss2_raw = pdf.__class__.get_repr().parse_raw(json1)
-    gauss2 = gauss2_raw.to_orm()
+    params = list(pdf.get_params())
+    if len(params) > 0:
+        param1 = params[0]
+    else:
+        param1 = None
+    json1 = pdf.to_dict()
+    gauss2 = type(pdf).from_dict(json1)
+    try:
+        json1 = pdf.to_json()
+    except zfit.exception.NumpyArrayNotSerializableError:
+        pass  # KDEs or similar
+    else:
+        gauss2 = pdf.get_repr().parse_raw(json1).to_orm()
+
     assert str(pdf) == str(gauss2)
-    json2 = gauss2.to_json()
-    json1cleaned = json1
-    json2cleaned = json2
-    for i in range(1000, 0, -1):
-        json2cleaned = json2cleaned.replace(f"autoparam_{i}", "autoparam_ANY")
-        json1cleaned = json2cleaned.replace(f"autoparam_{i}", "autoparam_ANY")
-    assert json1cleaned == json2cleaned  # Just a technicality
-    gauss3 = pdf.__class__.get_repr().parse_raw(json2).to_orm()
+
+    json2 = gauss2.to_dict()
+    gauss3 = type(pdf).from_dict(json2)
+    try:
+        json1 = pdf.to_json()
+        json2 = gauss2.to_json()
+    except zfit.exception.NumpyArrayNotSerializableError:
+        pass  # KDEs or similarjson1
+    else:
+        gauss3 = pdf.get_repr().parse_raw(json2).to_orm()
+
+        json1cleaned = json1
+        json2cleaned = json2
+        for i in range(1000, 0, -1):
+            json2cleaned = json2cleaned.replace(f"autoparam_{i}", "autoparam_ANY")
+            json1cleaned = json2cleaned.replace(f"autoparam_{i}", "autoparam_ANY")
+        assert json1cleaned == json2cleaned  # Just a technicality
+
     x = znp.random.uniform(-3, 3, size=(100, pdf.n_obs))
     assert np.allclose(pdf.pdf(x), gauss3.pdf(x))
     assert np.allclose(gauss2.pdf(x), gauss3.pdf(x))
-    param1.set_value(0.6)
+    if param1 is not None:
+        param1.set_value(0.6)
     assert np.allclose(pdf.pdf(x), gauss3.pdf(x))
     assert np.allclose(gauss2.pdf(x), gauss3.pdf(x))
 

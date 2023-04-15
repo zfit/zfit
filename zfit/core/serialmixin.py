@@ -20,6 +20,10 @@ class ZfitSerializable:
         raise NotImplementedError
 
 
+class NumpyArrayNotSerializableError(TypeError):
+    pass
+
+
 class SerializableMixin(ZfitSerializable):
     hs3 = None
 
@@ -77,7 +81,7 @@ class SerializableMixin(ZfitSerializable):
             json_obj = orm.json(exclude_none=True, by_alias=True)
         except TypeError as error:
             if "Object of type 'ndarray' is not JSON serializable" in str(error):
-                raise TypeError(
+                raise NumpyArrayNotSerializableError(
                     "The object you are trying to serialize contains numpy arrays. "
                     "This is not supported by json. Please use `to_asdf` (or `to_dict)` instead."
                 )
