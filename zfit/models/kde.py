@@ -3,7 +3,17 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from typing import Optional
+
+import pydantic
+
+from ..serialization import Serializer, SpaceRepr
+
+from typing import Union, Optional
+
+try:
+    from typing import Literal
+except ImportError:  # Python < 3.8
+    from typing_extensions import Literal
 
 import numpy as np
 import tensorflow as tf
@@ -15,6 +25,8 @@ from .dist_tfp import WrapDistribution
 from .. import z
 from ..core.basepdf import BasePDF
 from ..core.interfaces import ZfitData, ZfitParameter, ZfitSpace
+from ..core.serialmixin import SerializableMixin
+from ..serialization.pdfrepr import BasePDFRepr
 from ..settings import ztypes
 from ..util import (
     binning as binning_util,
@@ -23,6 +35,7 @@ from ..util import (
     ztyping,
 )
 from ..util.exception import OverdefinedError, ShapeIncompatibleError
+from ..util.ztyping import ExtendedInputType, NormInputType
 from ..z.math import weighted_quantile
 
 
@@ -94,7 +107,6 @@ def bandwidth_silverman(data, weights):
     Returns:
         Estimated bandwidth
     """
-
     return bandwidth_rule_of_thumb(
         data=data, weights=weights, factor=znp.array(0.9, dtype=ztypes.float)
     )
@@ -126,7 +138,6 @@ def bandwidth_scott(data, weights):
     Returns:
         Estimated bandwidth
     """
-
     return bandwidth_rule_of_thumb(
         data=data, weights=weights, factor=znp.array(1.059, dtype=ztypes.float)
     )
@@ -160,7 +171,6 @@ def bandwidth_isj(data, weights):
     Returns:
         Estimated bandwidth
     """
-
     return isj_util.calculate_bandwidth(
         data, num_grid_points=1024, binning_method="linear", weights=weights
     )
@@ -222,7 +232,6 @@ def bandwidth_adaptive_geomV1(data, func, weights):
     Returns:
         Estimated bandwidth of size data
     """
-
     data = z.convert_to_tensor(data)
     if weights is not None:
         n = znp.sum(weights)
@@ -587,9 +596,10 @@ class GaussianKDE1DimV1(KDEHelper, WrapDistribution):
         bandwidth: ztyping.ParamTypeInput | str = None,
         weights: None | np.ndarray | tf.Tensor = None,
         truncate: bool = False,
-        name: str = "GaussianKDE1DimV1",
         *,
-        extended: ztyping.ParamTypeInput | None = None,
+        extended: ExtendedInputType = None,
+        norm: NormInputType = None,
+        name: str = "GaussianKDE1DimV1",
     ):
         r"""EXPERIMENTAL, `FEEDBACK WELCOME.
 
@@ -685,8 +695,18 @@ class GaussianKDE1DimV1(KDEHelper, WrapDistribution):
              If no weights are given, each kernel will be scaled by the same
              constant :math:`\frac{1}{n_{data}}`. |@docend:pdf.kde.init.weights|
             truncate: If a truncated Gaussian kernel should be used with the limits given by the `obs` lower and
-                upper limits. This can cause NaNs in case datapoints are outside of the limits.
-            name: |@doc:pdf.init.name||@docend:pdf.init.name|
+                upper limits. This can cause NaNs in case datapoints are outside the limits.
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+            norm: |@doc:pdf.init.norm| Normalization of the PDF.
+               By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
+            name: |@doc:pdf.init.name| Human-readable name
+               or label of
+               the PDF for better identification.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.name|
             extended: |@doc:pdf.init.extended| The overall yield of the PDF.
                If this is parameter-like, it will be used as the yield,
                the expected number of events, and the PDF will be extended.
@@ -756,8 +776,9 @@ class GaussianKDE1DimV1(KDEHelper, WrapDistribution):
             dist_params={},
             dist_kwargs=dist_kwargs,
             distribution=distribution,
-            name=name,
             extended=extended,
+            norm=norm,
+            name=name,
         )
 
         self._data_weights = weights
@@ -767,7 +788,7 @@ class GaussianKDE1DimV1(KDEHelper, WrapDistribution):
         self._truncate = truncate
 
 
-class KDE1DimExact(KDEHelper, WrapDistribution):
+class KDE1DimExact(KDEHelper, WrapDistribution, SerializableMixin):
     _bandwidth_methods = KDEHelper._bandwidth_methods.copy()
     _bandwidth_methods.update(
         {
@@ -787,8 +808,9 @@ class KDE1DimExact(KDEHelper, WrapDistribution):
         kernel: tfd.Distribution = None,
         padding: callable | str | bool | None = None,
         weights: np.ndarray | tf.Tensor | None = None,
+        extended: ExtendedInputType = None,
+        norm: NormInputType = None,
         name: str | None = "ExactKDE1DimV1",
-        extended: ztyping.ParamTypeInput | None = None,
     ):
         r"""Kernel Density Estimation is a non-parametric method to approximate the density of given points.
 
@@ -903,6 +925,13 @@ class KDE1DimExact(KDEHelper, WrapDistribution):
 
              If no weights are given, each kernel will be scaled by the same
              constant :math:`\frac{1}{n_{data}}`. |@docend:pdf.kde.init.weights|
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+            norm: |@doc:pdf.init.norm| Normalization of the PDF.
+               By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
             name: |@doc:model.init.name| Human-readable name
                or label of
                the PDF for better identification.
@@ -913,6 +942,17 @@ class KDE1DimExact(KDEHelper, WrapDistribution):
                An extended PDF has additional functionality, such as the
                ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
         """
+        original_init = {
+            "data": data,
+            "obs": obs,
+            "bandwidth": bandwidth,
+            "kernel": kernel,
+            "padding": padding,
+            "weights": weights,
+            "extended": extended,
+            "name": name,
+        }
+
         if kernel is None:
             kernel = tfd.Normal
 
@@ -972,12 +1012,46 @@ class KDE1DimExact(KDEHelper, WrapDistribution):
             dist_params={},
             dist_kwargs=dist_kwargs,
             distribution=distribution,
-            name=name,
             extended=extended,
+            norm=norm,
+            name=name,
         )
+        self.hs3.original_init.update(original_init)
 
 
-class KDE1DimGrid(KDEHelper, WrapDistribution):
+class KDE1DimExactRepr(BasePDFRepr):
+    _implementation = KDE1DimExact
+    hs3_type: Literal["KDE1DimExact"] = pydantic.Field("KDE1DimExact", alias="type")
+
+    data: Union[np.ndarray, Serializer.types.DataTypeDiscriminated]
+    obs: Optional[SpaceRepr] = None
+    bandwidth: Optional[Union[str, float]] = None
+    kernel: None = None
+    padding: Optional[Union[bool, str]] = None
+    weights: Optional[Union[np.ndarray, tf.Tensor]] = None
+    name: Optional[str] = "KDE1DimExact"
+
+    @pydantic.validator("kernel", pre=True)
+    def validate_kernel(cls, v):
+        if v is not None:
+            if v != tfd.Normal:
+                raise ValueError(
+                    "Kernel must be None for KDE1DimExact to be serialized."
+                )
+            else:
+                v = None
+        return v
+
+    @pydantic.root_validator(pre=True)
+    def validate_all(cls, values):
+        values = dict(values)
+        if cls.orm_mode(values):
+            for k, v in values["hs3"].original_init.items():
+                values[k] = v
+        return values
+
+
+class KDE1DimGrid(KDEHelper, WrapDistribution, SerializableMixin):
     _N_OBS = 1
     _bandwidth_methods = KDEHelper._bandwidth_methods.copy()
     _bandwidth_methods.update(
@@ -999,8 +1073,9 @@ class KDE1DimGrid(KDEHelper, WrapDistribution):
         binning_method: str | None = None,
         obs: ztyping.ObsTypeInput | None = None,
         weights: np.ndarray | tf.Tensor | None = None,
+        extended: ExtendedInputType = None,
+        norm: NormInputType = None,
         name: str = "GridKDE1DimV1",
-        extended: ztyping.ParamTypeInput | None = None,
     ):
         r"""Kernel Density Estimation is a non-parametric method to approximate the density of given points.
 
@@ -1115,6 +1190,13 @@ class KDE1DimGrid(KDEHelper, WrapDistribution):
 
              If no weights are given, each kernel will be scaled by the same
              constant :math:`\frac{1}{n_{data}}`. |@docend:pdf.kde.init.weights|
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+            norm: |@doc:pdf.init.norm| Normalization of the PDF.
+               By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
             name: |@doc:model.init.name| Human-readable name
                or label of
                the PDF for better identification.
@@ -1124,6 +1206,19 @@ class KDE1DimGrid(KDEHelper, WrapDistribution):
                 and the integral will be 1. If False, the integral will be the
                 number of events in the dataset. |@docend:model.init.extended|
         """
+        original_init = {
+            "data": data,
+            "bandwidth": bandwidth,
+            "kernel": kernel,
+            "binning_method": binning_method,
+            "num_grid_points": num_grid_points,
+            "obs": obs,
+            "weights": weights,
+            "padding": padding,
+            "name": name,
+            "extended": extended,
+            "norm": norm,
+        }
         if kernel is None:
             kernel = tfd.Normal
         if binning_method is None:
@@ -1210,12 +1305,48 @@ class KDE1DimGrid(KDEHelper, WrapDistribution):
             dist_params={},
             dist_kwargs=dist_kwargs,
             distribution=distribution,
-            name=name,
             extended=extended,
+            norm=norm,
+            name=name,
         )
+        self.hs3.original_init.update(original_init)
 
 
-class KDE1DimFFT(KDEHelper, BasePDF):
+class KDE1DimGridRepr(BasePDFRepr):
+    _implementation = KDE1DimGrid
+    hs3_type: Literal["KDE1DimGrid"] = pydantic.Field("KDE1DimGrid", alias="type")
+
+    data: Union[np.ndarray, Serializer.types.DataTypeDiscriminated]
+    obs: Optional[SpaceRepr] = None
+    bandwidth: Optional[Union[str, float]] = None
+    num_grid_points: Optional[int] = None
+    binning_method: Optional[str] = None
+    kernel: None = None
+    padding: Optional[Union[bool, str]] = None
+    weights: Optional[Union[np.ndarray, tf.Tensor]] = None
+    name: Optional[str] = "GridKDE1DimV1"
+
+    @pydantic.validator("kernel", pre=True)
+    def validate_kernel(cls, v):
+        if v is not None:
+            if v != tfd.Normal:
+                raise ValueError(
+                    "Kernel must be None for GridKDE1DimV1 to be serialized."
+                )
+            else:
+                v = None
+        return v
+
+    @pydantic.root_validator(pre=True)
+    def validate_all(cls, values):
+        values = dict(values)
+        if cls.orm_mode(values):
+            for k, v in values["hs3"].original_init.items():
+                values[k] = v
+        return values
+
+
+class KDE1DimFFT(KDEHelper, BasePDF, SerializableMixin):
     _N_OBS = 1
 
     def __init__(
@@ -1231,8 +1362,9 @@ class KDE1DimFFT(KDEHelper, BasePDF):
         fft_method: str | None = None,
         padding: callable | str | bool | None = None,
         weights: np.ndarray | tf.Tensor | None = None,
+        extended: ExtendedInputType = None,
+        norm: NormInputType = None,
         name: str = "KDE1DimFFT",
-        extended: ztyping.ParamTypeInput | None = None,
     ):
         r"""Kernel Density Estimation is a non-parametric method to approximate the density of given points.
 
@@ -1349,12 +1481,32 @@ class KDE1DimFFT(KDEHelper, BasePDF):
 
              If no weights are given, each kernel will be scaled by the same
              constant :math:`\frac{1}{n_{data}}`. |@docend:pdf.kde.init.weights|
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+            norm: |@doc:pdf.init.norm| Normalization of the PDF.
+               By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
             name: |@doc:model.init.name| Human-readable name
                or label of
                the PDF for better identification.
                Has no programmatical functional purpose as identification. |@docend:model.init.name|
             extended: |@doc:model.init.extended||@docend:model.init.extended|
         """
+        original_init = {
+            "data": data,
+            "bandwidth": bandwidth,
+            "num_grid_points": num_grid_points,
+            "binning_method": binning_method,
+            "support": support,
+            "fft_method": fft_method,
+            "obs": obs,
+            "weights": weights,
+            "extended": extended,
+            "norm": norm,
+            "name": name,
+        }
         if isinstance(bandwidth, ZfitParameter):
             raise TypeError("bandwidth cannot be a Parameter for the FFT KDE.")
         if num_grid_points is None:
@@ -1402,7 +1554,9 @@ class KDE1DimFFT(KDEHelper, BasePDF):
         self._bandwidth = bandwidth
 
         params = {"bandwidth": self._bandwidth}
-        super().__init__(obs=obs, name=name, params=params, extended=extended)
+        super().__init__(
+            obs=obs, name=name, params=params, extended=extended, norm=norm
+        )
         self._kernel = kernel
         self._weights = weights
         if support is None:
@@ -1427,6 +1581,7 @@ class KDE1DimFFT(KDEHelper, BasePDF):
             self._support,
             self._fft_method,
         )
+        self.hs3.original_init.update(original_init)
 
     def _unnormalized_pdf(self, x):
         x = z.unstack_x(x)
@@ -1438,7 +1593,43 @@ class KDE1DimFFT(KDEHelper, BasePDF):
         return value
 
 
-class KDE1DimISJ(KDEHelper, BasePDF):
+class KDE1DimFFTRepr(BasePDFRepr):
+    _implementation = KDE1DimFFT
+    hs3_type: Literal["KDE1DimFFT"] = pydantic.Field("KDE1DimFFT", alias="type")
+
+    data: Union[np.ndarray, Serializer.types.DataTypeDiscriminated]
+    obs: Optional[SpaceRepr] = None
+    bandwidth: Optional[Union[str, float]] = None
+    num_grid_points: Optional[int] = None
+    binning_method: Optional[str] = None
+    kernel: None = None
+    support: Optional[float] = None
+    fft_method: Optional[str] = None
+    padding: Optional[Union[bool, str]] = None
+    weights: Optional[Union[np.ndarray, tf.Tensor]] = None
+    name: Optional[str] = "KDE1DimFFT"
+
+    @pydantic.validator("kernel", pre=True)
+    def validate_kernel(cls, v):
+        if v is not None:
+            if v != tfd.Normal:
+                raise ValueError(
+                    "Kernel must be None for GridKDE1DimV1 to be serialized."
+                )
+            else:
+                v = None
+        return v
+
+    @pydantic.root_validator(pre=True)
+    def validate_all(cls, values):
+        values = dict(values)
+        if cls.orm_mode(values):
+            for k, v in values["hs3"].original_init.items():
+                values[k] = v
+        return values
+
+
+class KDE1DimISJ(KDEHelper, BasePDF, SerializableMixin):
     _N_OBS = 1
 
     def __init__(
@@ -1450,8 +1641,9 @@ class KDE1DimISJ(KDEHelper, BasePDF):
         num_grid_points: int | None = None,
         binning_method: str | None = None,
         weights: np.ndarray | tf.Tensor | None = None,
+        extended: ExtendedInputType = None,
+        norm: NormInputType = None,
         name: str = "KDE1DimISJ",
-        extended: ztyping.ParamTypeInput | None = None,
     ):
         r"""Kernel Density Estimation is a non-parametric method to approximate the density of given points.
 
@@ -1543,6 +1735,13 @@ class KDE1DimISJ(KDEHelper, BasePDF):
 
              If no weights are given, each kernel will be scaled by the same
              constant :math:`\frac{1}{n_{data}}`. |@docend:pdf.kde.init.weights|
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+            norm: |@doc:pdf.init.norm| Normalization of the PDF.
+               By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
             name: |@doc:model.init.name| Human-readable name
                or label of
                the PDF for better identification.
@@ -1553,6 +1752,17 @@ class KDE1DimISJ(KDEHelper, BasePDF):
                An extended PDF has additional functionality, such as the
                ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
         """
+        original_init = {
+            "data": data,
+            "weights": weights,
+            "num_grid_points": num_grid_points,
+            "binning_method": binning_method,
+            "obs": obs,
+            "padding": padding,
+            "name": name,
+            "norm": norm,
+            "extended": extended,
+        }
         if num_grid_points is None:
             num_grid_points = self._default_num_grid_points
         if binning_method is None:
@@ -1590,7 +1800,10 @@ class KDE1DimISJ(KDEHelper, BasePDF):
         )
 
         params = {}
-        super().__init__(obs=obs, name=name, params=params, extended=extended)
+        super().__init__(
+            obs=obs, name=name, params=params, extended=extended, norm=norm
+        )
+        self.hs3.original_init.update(original_init)
 
     def _unnormalized_pdf(self, x):
         x = z.unstack_x(x)
@@ -1600,3 +1813,37 @@ class KDE1DimISJ(KDEHelper, BasePDF):
         value = tfp.math.interp_regular_1d_grid(x, x_min, x_max, self._grid_estimations)
         value.set_shape(x.shape)
         return value
+
+
+class KDE1DimISJRepr(BasePDFRepr):
+    _implementation = KDE1DimISJ
+    hs3_type: Literal["KDE1DimISJ"] = pydantic.Field("KDE1DimISJ", alias="type")
+
+    data: Union[np.ndarray, Serializer.types.DataTypeDiscriminated]
+    obs: Optional[SpaceRepr] = None
+    bandwidth: Optional[Union[str, float]] = None
+    num_grid_points: Optional[int] = None
+    binning_method: Optional[str] = None
+    kernel: None = None
+    padding: Optional[Union[bool, str]] = None
+    weights: Optional[Union[np.ndarray, tf.Tensor]] = None
+    name: Optional[str] = "KDE1DimISJ"
+
+    @pydantic.validator("kernel", pre=True)
+    def validate_kernel(cls, v):
+        if v is not None:
+            if v != tfd.Normal:
+                raise ValueError(
+                    "Kernel must be None for GridKDE1DimV1 to be serialized."
+                )
+            else:
+                v = None
+        return v
+
+    @pydantic.root_validator(pre=True)
+    def validate_all(cls, values):
+        values = dict(values)
+        if cls.orm_mode(values):
+            for k, v in values["hs3"].original_init.items():
+                values[k] = v
+        return values

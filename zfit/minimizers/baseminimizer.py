@@ -359,9 +359,7 @@ class BaseMinimizer(ZfitMinimizer):
 
             # now extract all the independent parameters
             params = list(
-                OrderedSet.union(
-                    *(p.get_params(only_floating=floating) for p in params)
-                )
+                OrderedSet.union(*(p.get_params(floating=floating) for p in params))
             )
 
         # set the parameter values from the init

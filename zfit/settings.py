@@ -17,7 +17,6 @@ def set_seed(seed=None, numpy=None, backend=None):
         numpy (int, bool, optional): Seed to set for numpy. If `True` (default), the same seed as for zfit is used. If `False`, the seed is not set.
         backend (int, bool, optional): Seed to set for the backend. If `True` (default), the same seed as for zfit is used. If `False`, the seed is not set.
     """
-
     if seed is None:
         import os
 

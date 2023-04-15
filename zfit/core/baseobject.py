@@ -1,4 +1,4 @@
-"""Baseclass for most objects appearing in zfit."""
+""" Baseclass for most objects appearing in zfit."""
 
 #  Copyright (c) 2023 zfit
 
@@ -6,7 +6,6 @@ from __future__ import annotations
 
 import contextlib
 import itertools
-import warnings
 from collections import OrderedDict
 from collections.abc import Iterable
 
@@ -25,6 +24,7 @@ from ..util import ztyping
 from ..util.cache import GraphCachable
 from ..util.checks import NotSpecified
 from ..util.container import convert_to_container
+from ..util.exception import BreakingAPIChangeError
 
 
 class BaseObject(ZfitObject):
@@ -107,11 +107,8 @@ class BaseParametrized(BaseObject, ZfitParametrized):
             extract_independent: If the parameter is an independent parameter, i.e. if it is a ``ZfitIndependentParameter``.
         """
         if only_floating is not NotSpecified:
-            floating = only_floating
-            warnings.warn(
-                "`only_floating` is deprecated and will be removed in the future, use `floating` instead.",
-                DeprecationWarning,
-                stacklevel=2,
+            raise BreakingAPIChangeError(
+                "The argument `only_floating` has been renamed to `floating`."
             )
         return self._get_params(
             floating=floating,
@@ -121,9 +118,9 @@ class BaseParametrized(BaseObject, ZfitParametrized):
 
     def _get_params(
         self,
-        floating: bool | None = True,
-        is_yield: bool | None = None,
-        extract_independent: bool | None = True,
+        floating: bool | None,
+        is_yield: bool | None,
+        extract_independent: bool | None,
     ) -> set[ZfitParameter]:
         if (
             is_yield is True
@@ -176,8 +173,8 @@ def extract_filter_params(
 ) -> set[ZfitParameter]:
     params = convert_to_container(params, container=OrderedSet)
 
-    if extract_independent:
-        params = OrderedSet(
+    if extract_independent is not False:
+        params_indep = OrderedSet(
             itertools.chain.from_iterable(
                 param.get_params(
                     floating=floating, extract_independent=True, is_yield=None
@@ -185,7 +182,10 @@ def extract_filter_params(
                 for param in params
             )
         )
-
+        if extract_independent is True:
+            params = params_indep
+        else:  # None
+            params |= params_indep
     if floating is not None:
         if not extract_independent and not all(param.independent for param in params):
             raise ValueError(

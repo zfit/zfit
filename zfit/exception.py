@@ -1,8 +1,9 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 """..
 
 todo:: Add module docstring.
 """
+from .core.serialmixin import NumpyArrayNotSerializableError
 from .util.checks import NONE
 from .util.deprecation import deprecated
 from .util.exception import (
@@ -39,6 +40,7 @@ __all__ = [
     "ShapeIncompatibleError",
     "InitNotImplemented",
     "LogicalUndefinedOperationError",
+    "NumpyArrayNotSerializableError",
     "NONE",
 ]
 

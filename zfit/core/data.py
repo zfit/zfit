@@ -2,12 +2,24 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Union, Optional
+from typing import TYPE_CHECKING, Union, Optional, List
+
+import pydantic
+from pydantic import Field
+
+from ..serialization import SpaceRepr
+
+try:
+    from typing import Literal
+except ImportError:  # TODO(3.8): remove
+    from typing_extensions import Literal
 
 import xxhash
 from tensorflow.python.util.deprecation import deprecated_args, deprecated
 
 from .parameter import set_values
+from .serialmixin import ZfitSerializable, SerializableMixin
+from ..serialization.serializer import BaseRepr, to_orm_init
 
 if TYPE_CHECKING:
     import zfit
@@ -16,7 +28,6 @@ from collections.abc import Mapping
 from collections.abc import Callable
 
 from collections import OrderedDict
-from contextlib import ExitStack
 
 import numpy as np
 import pandas as pd
@@ -30,7 +41,7 @@ from .. import z
 from ..settings import ztypes, run
 from ..util import ztyping
 from ..util.cache import GraphCachable, invalidate_graph
-from ..util.container import convert_to_container, is_container
+from ..util.container import convert_to_container
 from ..util.exception import (
     ObsIncompatibleError,
     ShapeIncompatibleError,
@@ -41,12 +52,18 @@ from .baseobject import BaseObject
 from .coordinates import convert_to_obs_str
 from .dimension import BaseDimensional
 from .interfaces import ZfitSpace, ZfitUnbinnedData
-from .tensorlike import register_tensor_conversion, OverloadableMixin
 from .space import Space, convert_to_space
 
 
 # TODO: make cut only once, then remember
-class Data(ZfitUnbinnedData, BaseDimensional, BaseObject, GraphCachable):
+class Data(
+    ZfitUnbinnedData,
+    BaseDimensional,
+    BaseObject,
+    GraphCachable,
+    SerializableMixin,
+    ZfitSerializable,
+):
     BATCH_SIZE = 1000000  # 1 mio
 
     def __init__(
@@ -188,7 +205,10 @@ class Data(ZfitUnbinnedData, BaseDimensional, BaseObject, GraphCachable):
             weights = z.convert_to_tensor(weights)
             weights = z.to_real(weights)
             if weights.shape.ndims != 1:
-                raise ShapeIncompatibleError("Weights have to be 1-Dim objects.")
+                if weights.shape.ndims == 2 and weights.shape[1] == 1:
+                    weights = znp.reshape(weights, (-1,))
+                else:
+                    raise ShapeIncompatibleError("Weights have to be 1-Dim objects.")
         self._weights = weights
         self._update_hash()
         return weights
@@ -673,6 +693,56 @@ class Data(ZfitUnbinnedData, BaseDimensional, BaseObject, GraphCachable):
         return value
 
 
+# TODO(serialization): add to serializer
+class DataRepr(BaseRepr):
+    _implementation = Data
+    _owndict = pydantic.PrivateAttr(default_factory=dict)
+    hs3_type: Literal["Data"] = Field("Data", alias="type")
+
+    data: np.ndarray
+    space: Union[SpaceRepr, List[SpaceRepr]]
+    name: Optional[str] = None
+    weights: Optional[np.ndarray] = None
+
+    @pydantic.root_validator(pre=True)
+    def extract_data(cls, values):
+        if cls.orm_mode(values):
+            values = dict(values)
+            values["data"] = values["value"]()
+        return values
+
+    @pydantic.validator("space", pre=True)
+    def flatten_spaces(cls, v):
+        if cls.orm_mode(v):
+            v = [v.get_subspace(o) for o in v.obs]
+        return v
+
+    @pydantic.validator("data", pre=True)
+    def convert_data(cls, v):
+        v = np.asarray(v)
+        return v
+
+    @pydantic.validator("weights", pre=True)
+    def convert_weights(cls, v):
+        if v is not None:
+            v = np.asarray(v)
+        return v
+
+    @to_orm_init
+    def _to_orm(self, init):
+        dataset = LightDataset(znp.asarray(init.pop("data")))
+        init["dataset"] = dataset
+        init["obs"] = init.pop("space")
+
+        spaces = init["obs"]
+        space = spaces[0]
+        for sp in spaces[1:]:
+            space *= sp
+        init["obs"] = space
+        out = super()._to_orm(init)
+        return out
+
+
 def getitem_obs(self, item):
     if not isinstance(item, str):
         item = convert_to_obs_str(item)
@@ -707,7 +777,7 @@ class SampleData(Data):
         return counting
 
     @classmethod
-    def from_sample(
+    def from_sample(  # TODO(deprecate and remove? use normal data?
         cls,
         sample: tf.Tensor,
         obs: ztyping.ObsTypeInput,
@@ -715,9 +785,8 @@ class SampleData(Data):
         weights=None,
         use_hash: bool = None,
     ):
-        dataset = LightDataset.from_tensor(sample)
-        return SampleData(
-            dataset=dataset, obs=obs, name=name, weights=weights, use_hash=use_hash
+        return Data.from_tensor(
+            tensor=sample, obs=obs, name=name, weights=weights, use_hash=use_hash
         )
 
 

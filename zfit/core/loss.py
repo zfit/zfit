@@ -2,7 +2,18 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List, Optional, Union
+
+try:
+    from typing import Literal
+except ImportError:  # TODO(3.8): remove
+    from typing_extensions import Literal
+
+import pydantic
+from pydantic import Field
+
+from .serialmixin import SerializableMixin
+from ..serialization.serializer import BaseRepr, Serializer
 
 if TYPE_CHECKING:
     import zfit
@@ -12,7 +23,6 @@ from collections.abc import Callable
 from collections.abc import Iterable
 
 import abc
-import inspect
 import warnings
 
 import tensorflow as tf
@@ -27,7 +37,7 @@ znp = z.numpy
 from ..util import ztyping
 from ..util.checks import NONE
 from ..util.container import convert_to_container, is_container
-from ..util.deprecation import deprecated, deprecated_args
+from ..util.deprecation import deprecated_args
 from ..util.exception import (
     BehaviorUnderDiscussion,
     BreakingAPIChangeError,
@@ -122,6 +132,31 @@ def _constraint_check_convert(constraints):
                 " `SimpleConstraint`."
             )
     return checked_constraints
+
+
+# TODO(serialization): add to serializer
+class BaseLossRepr(BaseRepr):
+    _implementation = None
+    _owndict = pydantic.PrivateAttr(default_factory=dict)
+    hs3_type: Literal["BaseLoss"] = Field("BaseLoss", alias="type")
+    model: Union[
+        Serializer.types.PDFTypeDiscriminated,
+        List[Serializer.types.PDFTypeDiscriminated],
+    ]
+    data: Union[
+        Serializer.types.DataTypeDiscriminated,
+        List[Serializer.types.DataTypeDiscriminated],
+    ]
+    constraints: Optional[List[Serializer.types.ConstraintTypeDiscriminated]] = Field(
+        default_factory=list
+    )
+    options: Optional[Mapping] = Field(default_factory=dict)
+
+    @pydantic.validator("model", "data", "constraints", pre=True)
+    def _check_container(cls, v):
+        if cls.orm_mode(v):
+            v = convert_to_container(v, list)
+        return v
 
 
 class BaseLoss(ZfitLoss, BaseNumeric):
@@ -576,7 +611,7 @@ def one_two_many(values, n=3, many="multiple"):
     return values
 
 
-class UnbinnedNLL(BaseLoss):
+class UnbinnedNLL(BaseLoss, SerializableMixin):
     _name = "UnbinnedNLL"
 
     def __init__(
@@ -808,6 +843,12 @@ class UnbinnedNLL(BaseLoss):
         )
 
 
+# TODO(serialization): add to serializer
+class UnbinnedNLLRepr(BaseLossRepr):
+    _implementation = UnbinnedNLL
+    hs3_type: Literal["UnbinnedNLL"] = pydantic.Field("UnbinnedNLL", alias="type")
+
+
 class ExtendedUnbinnedNLL(UnbinnedNLL):
     def __init__(
         self,
@@ -862,7 +903,11 @@ class ExtendedUnbinnedNLL(UnbinnedNLL):
         results with profiling methods. The minimum is however fully valid. |@docend:loss.init.explain.weightednll|
         """
         super().__init__(
-            model=model, data=data, constraints=constraints, options=options
+            model=model,
+            data=data,
+            constraints=constraints,
+            options=options,
+            fit_range=fit_range,
         )
 
     @z.function(wraps="loss")
@@ -899,6 +944,14 @@ class ExtendedUnbinnedNLL(UnbinnedNLL):
     @property
     def is_extended(self):
         return True
+
+
+# TODO(serialization): add to serializer
+class ExtendedUnbinnedNLLRepr(BaseLossRepr):
+    _implementation = ExtendedUnbinnedNLL
+    hs3_type: Literal["ExtendedUnbinnedNLL"] = pydantic.Field(
+        "ExtendedUnbinnedNLL", alias="type"
+    )
 
 
 class SimpleLoss(BaseLoss):

@@ -1,0 +1,1 @@
+{"type": "PoissonConstraint", "params": [{"type": "Parameter", "name": "mu", "value": 0.10000000149011612, "min": -1.0, "max": 1.0, "step_size": 0.001, "floating": true}, {"type": "Parameter", "name": "sigma", "value": 1.0, "min": 0.0, "max": 10.0, "step_size": 0.001, "floating": true}], "observation": [0.1, 1.2]}

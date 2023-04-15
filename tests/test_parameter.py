@@ -218,14 +218,13 @@ def test_overloaded_operators():
     assert param_d_val == (param_a + param_a * param_b**2).numpy()
 
 
-# @pytest.mark.skip  # TODO: reactivate, causes segfault
 def test_equal_naming():
-    param_unique_name = zfit.Parameter("fafdsfds", 5.0)
+    unique_name = "fafdsfds"
+    param_unique_name = zfit.Parameter(unique_name, 5.0)
     with pytest.raises(NameAlreadyTakenError):
-        param_unique_name2 = zfit.Parameter("fafdsfds", 3.0)
+        param_unique_name2 = zfit.Parameter(unique_name, 3.0)
 
 
-# @pytest.mark.skip  # TODO: segfaulting?
 def test_set_value():
     value1 = 1.0
     value2 = 2.0

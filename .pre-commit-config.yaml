@@ -32,11 +32,12 @@ repos:
         always_run: true
         additional_dependencies: [ pyyaml ]
 
-  - repo: https://github.com/PyCQA/docformatter
-    rev: v1.5.1
-    hooks:
-      - id: docformatter
-        args: [ -r, --in-place, --wrap-descriptions, '120', --wrap-summaries, '120', -- ]
+  # TODO: activate once https://github.com/PyCQA/docformatter/pull/166 is fixed
+  #  - repo: https://github.com/PyCQA/docformatter
+  #    rev: v1.6.0
+  #    hooks:
+  #      - id: docformatter
+  #        args: [ -r, --in-place, --wrap-descriptions, '120', --wrap-summaries, '120', --pre-summary-space, -- ]
 
   - repo: local  # intentionally duplicated! If there is a modification from the replace
     hooks:
@@ -58,11 +59,11 @@ repos:
       - id: rst-backticks
       - id: rst-directive-colons
 
-  - repo: https://github.com/asottile/pyupgrade
-    rev: v3.3.1
-    hooks:
-      - id: pyupgrade
-        args: [ --py37-plus ]
+  #  - repo: https://github.com/asottile/pyupgrade
+  #    rev: v3.3.1
+  #    hooks:
+  #      - id: pyupgrade
+  #        args: [ --py36-plus ]  # TODO: change fro 3.8? type annotations fail...
 
   - repo: https://github.com/asottile/setup-cfg-fmt
     rev: v2.2.0
@@ -93,11 +94,12 @@ repos:
     hooks:
       - id: jupyter-notebook-cleanup
 
-  - repo: https://github.com/sondrelg/pep585-upgrade
-    rev: 'v1.0'
-    hooks:
-      - id: upgrade-type-hints
-        args: [ '--futures=true' ]
+  # TODO: 3.8+ only?
+  #  - repo: https://github.com/sondrelg/pep585-upgrade
+  #    rev: 'v1.0'
+  #    hooks:
+  #      - id: upgrade-type-hints
+  #        args: [ '--futures=true' ]
 
   - repo: https://github.com/shssoichiro/oxipng
     rev: v8.0.0

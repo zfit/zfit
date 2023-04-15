@@ -9,14 +9,13 @@ import numpy as np
 import tensorflow as tf
 import texttable as tt
 
-from ..util.container import convert_to_container
-from ..z import numpy as znp
 from .strategy import ZfitStrategy
 from ..core.interfaces import ZfitLoss
-from ..core.parameter import assign_values, assign_values_jit
-from ..settings import run
+from ..core.parameter import assign_values_jit
 from ..util import ztyping
+from ..util.container import convert_to_container
 from ..util.exception import DerivativeCalculationError, MaximumIterationReached
+from ..z import numpy as znp
 
 
 def assign_values_func(params, values):

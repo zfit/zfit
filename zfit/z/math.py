@@ -4,8 +4,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from .. import z
-
 if TYPE_CHECKING:
     import zfit
 
@@ -348,6 +346,7 @@ def log(x):
 
 def weighted_quantile(x, quantiles, weights=None, side="middle"):
     """Very close to numpy.percentile, but supports weights.
+
     NOTE: quantiles should be in [0, 1]!
     :param x: tensor with data
     :param quantiles: array-like with many quantiles needed

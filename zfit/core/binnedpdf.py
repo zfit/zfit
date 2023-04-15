@@ -17,7 +17,6 @@ from uhi.typing.plottable import PlottableHistogram
 import numpy as np
 import tensorflow as tf
 import tensorflow_probability as tfp
-import uhi
 
 import zfit
 import zfit.z.numpy as znp
@@ -31,7 +30,6 @@ from .interfaces import (
     ZfitBinnedPDF,
     ZfitParameter,
     ZfitSpace,
-    ZfitMinimalHist,
     ZfitPDF,
     ZfitBinnedData,
     ZfitUnbinnedData,
@@ -43,7 +41,7 @@ from .tensorlike import OverloadableMixinValues
 from ..util import ztyping
 from ..util.cache import GraphCachable
 from ..util.container import convert_to_container
-from ..util.deprecation import deprecated_args, deprecated, deprecated_norm_range
+from ..util.deprecation import deprecated, deprecated_norm_range
 from ..util.exception import (
     AlreadyExtendedPDFError,
     NotExtendedPDFError,
@@ -617,7 +615,7 @@ class BaseBinnedPDFV1(
         limits = self._check_convert_limits(limits)
 
         if fixed_params is True:
-            fixed_params = list(self.get_params(only_floating=False))
+            fixed_params = list(self.get_params(floating=False))
         elif fixed_params is False:
             fixed_params = []
         elif not isinstance(fixed_params, (list, tuple)):

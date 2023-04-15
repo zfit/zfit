@@ -1,5 +1,5 @@
-#  Copyright (c) 2022 zfit
-from typing import Optional
+#  Copyright (c) 2023 zfit
+from __future__ import annotations
 
 import tensorflow_addons as tfa
 
@@ -9,15 +9,17 @@ from ..core.interfaces import ZfitBinnedPDF
 from ..core.space import supports
 from ..util import ztyping
 from ..util.exception import SpecificFunctionNotImplemented
+from ..util.ztyping import ExtendedInputType, NormInputType
 
 
 class SplinePDF(BaseFunctor):
     def __init__(
         self,
         pdf: ZfitBinnedPDF,
-        order: Optional[int] = None,
+        order: int | None = None,
         obs: ztyping.ObsTypeInput = None,
-        extended: ztyping.ExtendedInputType = None,
+        extended: ExtendedInputType = None,
+        norm: NormInputType = None,
     ) -> None:
         """Spline interpolate a binned PDF in order to get a smooth, unbinned PDF.
 
@@ -30,6 +32,7 @@ class SplinePDF(BaseFunctor):
                the expected number of events, and the PDF will be extended.
                An extended PDF has additional functionality, such as the
                ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+            norm: |@doc:pdf.init.norm| The normalization of the PDF. If this is parameter-like, it will be used as the
         """
         if extended is None:
             extended = pdf.is_extended
@@ -41,7 +44,7 @@ class SplinePDF(BaseFunctor):
         if obs is None:
             obs = pdf.space
             obs = obs.with_binning(None)
-        super().__init__(pdfs=pdf, obs=obs, extended=extended)
+        super().__init__(pdfs=pdf, obs=obs, extended=extended, norm=norm)
         if order is None:
             order = 3
         self._order = order

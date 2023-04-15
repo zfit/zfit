@@ -18,9 +18,11 @@ Deprecations
 
 Bug fixes and small changes
 ---------------------------
+- ``SampleData`` is not used anymore, a ``Data`` object is returned (for simple sampling). The ``create_sampler`` will still return a ``SamplerData`` object though as this differs from ``Data``.
 
 Experimental
 ------------
+- Added support on a best-effort for human-readable serialization of objects including an HS3-like representation, find a `tutorial on serialization here<https://zfit-tutorials.readthedocs.io/en/latest/tutorials/components/README.html#serialization>`_. Most built-in unbinned PDFs are supported. This is still experimental and not yet fully supported. Dumping can be performed safely, loading maybe easily breaks (also between versions), so do not rely on it yet. Everything else - apart of trying to dump - should only be used for playing around and giving feedback purposes.
 
 Requirement changes
 -------------------

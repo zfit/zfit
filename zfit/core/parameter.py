@@ -1,30 +1,43 @@
-"""Define Parameter which holds the value."""
-#  Copyright (c) 2022 zfit
+""" Define Parameter which holds the value."""
+#  Copyright (c) 2023 zfit
 
 from __future__ import annotations
 
 import abc
 import collections
+import copy
 import functools
 import warnings
 from collections.abc import Iterable, Callable
 from contextlib import suppress
 from inspect import signature
+from typing import Optional, Dict
 from weakref import WeakValueDictionary
 
+import dill as dill
 import numpy as np
+import pydantic
 import tensorflow as tf
 import tensorflow_probability as tfp
 
 # TF backwards compatibility
 from ordered_set import OrderedSet
+from pydantic import Field, validator
 from tensorflow.python.framework import ops
 from tensorflow.python.ops import array_ops
 from tensorflow.python.ops.resource_variable_ops import ResourceVariable as TFVariable
 from tensorflow.python.ops.variables import Variable
 from tensorflow.python.types.core import Tensor as TensorType
 
+try:
+    from typing import Literal
+except ImportError:  # TODO(3.8): remove
+    from typing_extensions import Literal
+
+from .serialmixin import SerializableMixin
 from .. import z
+from ..serialization.paramrepr import make_param_constructor
+from ..serialization.serializer import BaseRepr, Serializer
 
 znp = z.numpy
 import zfit.z.numpy as znp
@@ -223,7 +236,6 @@ class WrappedVariable(metaclass=MetaBaseParameter):
         Args:
           operator: string. The operator name.
         """
-
         tensor_oper = getattr(tf.Tensor, operator)
 
         def _run_op(a, *args):
@@ -340,7 +352,11 @@ from weakref import WeakSet
 
 
 class Parameter(
-    ZfitParameterMixin, TFBaseVariable, BaseParameter, ZfitIndependentParameter
+    ZfitParameterMixin,
+    TFBaseVariable,
+    BaseParameter,
+    SerializableMixin,
+    ZfitIndependentParameter,
 ):
     """Class for fit parameters, derived from TF Variable class."""
 
@@ -448,7 +464,6 @@ class Parameter(
     @property
     def has_limits(self) -> bool:
         """If the parameter has limits set or not."""
-
         no_limits = self._lower is None and self._upper is None
         return not no_limits
 
@@ -475,11 +490,11 @@ class Parameter(
         # Adding a slight tolerance to make sure we're not tricked by numerics due to floating point comparison
         diff = znp.abs(self.upper - self.lower)  # catch if it is minus inf
         if not exact:
-            reltol = 0.00005
+            reltol = 0.005
             abstol = 1e-5
         else:
             reltol = 1e-5
-            abstol = 1e-5
+            abstol = 1e-7
         tol = znp.minimum(diff * reltol, abstol)  # if one limit is inf we would get inf
         if not exact:  # if exact, we wanna allow to set it slightly over the limit.
             tol = -tol  # If not, we wanna make sure it's inside
@@ -694,8 +709,31 @@ class Parameter(
         self.upper = value
 
 
+class ParameterRepr(BaseRepr):
+    _implementation = Parameter
+    _constructor = pydantic.PrivateAttr(make_param_constructor(Parameter))
+    hs3_type: Literal["Parameter"] = Field("Parameter", alias="type")
+    name: str
+    value: float
+    lower: Optional[float] = Field(None, alias="min")
+    upper: Optional[float] = Field(None, alias="max")
+    step_size: Optional[float] = None
+    floating: Optional[bool] = None
+
+    @validator("value", pre=True)
+    def _validate_value(cls, v):
+        if cls.orm_mode(v):
+            v = v()
+        return v
+
+    def __hash__(self):
+        return hash(self.name) + hash(type(self))
+
+
 class BaseComposedParameter(ZfitParameterMixin, OverloadableMixin, BaseParameter):
-    def __init__(self, params, value_fn, name="BaseComposedParameter", **kwargs):
+    def __init__(
+        self, params, value_fn, dtype=None, name="BaseComposedParameter", **kwargs
+    ):
         # 0.4 breaking
         if "value" in kwargs:
             raise BreakingAPIChangeError(
@@ -731,6 +769,7 @@ class BaseComposedParameter(ZfitParameterMixin, OverloadableMixin, BaseParameter
             # end legacy
 
         self._value_fn = value_fn
+        self._dtype = dtype if dtype is not None else ztypes.float
 
     def _get_dependencies(self):
         return _extract_dependencies(list(self.params.values()))
@@ -823,23 +862,24 @@ class BaseComposedParameter(ZfitParameterMixin, OverloadableMixin, BaseParameter
         )
 
 
-class ConstantParameter(OverloadableMixin, ZfitParameterMixin, BaseParameter):
+class ConstantParameter(
+    OverloadableMixin, ZfitParameterMixin, BaseParameter, SerializableMixin
+):
     """Constant parameter.
 
     Value cannot change.
     """
 
-    def __init__(self, name, value, dtype=ztypes.float):
-        """
+    def __init__(self, name, value):
+        """Constant parameter that cannot change its value.
 
         Args:
-            name:
-            value:
-            dtype:
+            name: Unique identifier of the parameter.
+            value: Constant value.
         """
-        super().__init__(name=name, params={}, dtype=dtype)
+        super().__init__(name=name, params={}, dtype=ztypes.float)
         self._value_np = tf.get_static_value(value, partial=True)
-        self._value = tf.guarantee_const(tf.convert_to_tensor(value, dtype=dtype))
+        self._value = tf.guarantee_const(tf.convert_to_tensor(value, dtype=self.dtype))
 
     @property
     def shape(self):
@@ -892,7 +932,33 @@ register_tensor_conversion(
 )
 
 
-class ComposedParameter(BaseComposedParameter):
+class ConstantParamRepr(BaseRepr):
+    _implementation = ConstantParameter
+    _constructor = pydantic.PrivateAttr(make_param_constructor(ConstantParameter))
+    hs3_type: Literal["ConstantParameter"] = pydantic.Field(
+        "ConstantParameter", alias="type"
+    )
+    name: str
+    value: float
+    floating: bool = False
+
+    # lower: Optional[float] = Field(None, alias="min")
+    # upper: Optional[float] = Field(None, alias="max")
+
+    @validator("value", pre=True)
+    def _validate_value(cls, value):
+        if cls.orm_mode(value):
+            value = value()
+        return value
+
+    def _to_orm(self, init):
+        init = copy.copy(init)
+        init.pop("floating")
+        out = super()._to_orm(init)
+        return out
+
+
+class ComposedParameter(SerializableMixin, BaseComposedParameter):
     @deprecated_args(None, "Use `params` instead.", "dependents")
     def __init__(
         self,
@@ -945,6 +1011,7 @@ class ComposedParameter(BaseComposedParameter):
                 .. deprecated:: unknown
                     use `params` instead.
         """
+        original_init = {"name": name, "value_fn": value_fn}
         if dependents is not NotSpecified:
             params = dependents
         elif params is NotSpecified:
@@ -961,7 +1028,11 @@ class ComposedParameter(BaseComposedParameter):
                 params_dict = {}
             else:
                 params_dict = {f"param_{i}": p for i, p in enumerate(params)}
+        original_init[
+            "params"
+        ] = params_dict  # needs to be here, we need the params to be a dict for the serialization
         super().__init__(params=params_dict, value_fn=value_fn, name=name, dtype=dtype)
+        self.hs3.original_init.update(original_init)
 
     def __repr__(self):
         if tf.executing_eagerly():
@@ -969,6 +1040,36 @@ class ComposedParameter(BaseComposedParameter):
         else:
             value = "graph-node"
         return f"<zfit.{self.__class__.__name__} '{self.name}' params={[(k, p.name) for k, p in self.params.items()]} value={value}>"
+
+
+class ComposedParameterRepr(BaseRepr):
+    _implementation = ComposedParameter
+    _constructor = pydantic.PrivateAttr(make_param_constructor(ComposedParameter))
+    hs3_type: Literal["ComposedParameter"] = pydantic.Field(
+        "ComposedParameter", alias="type"
+    )
+    name: str
+    value_fn: str
+    params: Dict[str, Serializer.types.ParamTypeDiscriminated]
+
+    @validator("value_fn", pre=True)
+    def _validate_value_pre(cls, value):
+        if cls.orm_mode(value):
+            value = dill.dumps(value).hex()
+        return value
+
+    @pydantic.root_validator(pre=True)
+    def validate_all_functor(cls, values):
+        if cls.orm_mode(values):
+            values = values["hs3"].original_init
+        return values
+
+    def _to_orm(self, init):
+        init = copy.copy(init)
+        value_fn = init.pop("value_fn")
+        init["value_fn"] = dill.loads(bytes.fromhex(value_fn))
+        out = super()._to_orm(init)
+        return out
 
 
 class ComplexParameter(ComposedParameter):  # TODO: change to real, imag as input?
@@ -1088,6 +1189,11 @@ def get_auto_number():
     auto_number = _auto_number
     _auto_number += 1
     return auto_number
+
+
+def _reset_auto_number():
+    global _auto_number
+    _auto_number = 0
 
 
 def convert_to_parameters(
@@ -1352,18 +1458,12 @@ def check_convert_param_values_assign(params, values, allow_partial=False):
                 raise ValueError(
                     f"Incompatible length of parameters and values: {params}, {values}"
                 )
-    not_param = [
-        param for param in params if not isinstance(param, (ZfitParameter, tf.Variable))
-    ]
+    not_param = [param for param in params if not isinstance(param, ZfitParameter)]
     if not_param:
         raise TypeError(
             f"The following are not parameters (but should be): {not_param}"
         )
-    non_independent_params = [
-        param
-        for param in params
-        if not (isinstance(param, tf.Variable) or param.independent)
-    ]
+    non_independent_params = [param for param in params if not param.independent]
     if non_independent_params:
         raise ParameterNotIndependentError(
             f"trying to set value of parameters that are not independent "

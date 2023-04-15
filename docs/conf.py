@@ -58,8 +58,8 @@ panels_add_bootstrap_css = (
 # releases_github_path = "zfit/zfit"  # TODO: use releases or similar?
 # releases_document_name = "../CHANGELOG.rst"
 
-nb_execution_mode = "force"  # use if needed and cache should be ignored
-# nb_execution_mode = "cache"
+# nb_execution_mode = "force"  # use if needed and cache should be ignored
+nb_execution_mode = "cache"
 if nb_execution_mode == "cache":
     jupyter_cache_path = project_dir.joinpath("docs", ".cache", "myst-nb")
     jupyter_cache_path.mkdir(parents=True, exist_ok=True)
@@ -144,7 +144,7 @@ rst_epilog += """
 #
 # .. |@docend| replace:: |wzw|
 # """
-with open(str(project_dir) + "/utils/api/argdocs.yaml") as replfile:
+with open(project_dir / "utils/api/argdocs.yaml") as replfile:
     replacements = yaml.load(replfile, Loader=yaml.Loader)
 for replacement_key in replacements:
     rst_epilog += f"""
@@ -335,4 +335,8 @@ intersphinx_mapping = {
         " https://raw.githubusercontent.com/GPflow/tensorflow-intersphinx/master/tfp_py_objects.inv",
     ),
     "uproot": ("https://uproot.readthedocs.io/en/latest/", None),
+    "python": ("https://docs.python.org/3", None),
+    "matplotlib": ("https://matplotlib.org/stable/", None),
+    "pandas": ("https://pandas.pydata.org/docs/", None),
+    "numpy": ("https://numpy.org/doc/stable/", None),
 }
