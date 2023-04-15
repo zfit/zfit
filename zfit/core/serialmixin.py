@@ -48,7 +48,12 @@ class SerializableMixin(ZfitSerializable):
     @warn_experimental_feature
     def to_asdf(self):
         """Convert the object to an asdf file."""
-        import asdf
+        try:
+            import asdf
+        except ImportError:
+            raise ImportError(
+                "The asdf module is not installed. Please install zfit with the extra `hs3` (i.e. `pip install zfit[sh3]` or asdf directry to use this feature."
+            )
 
         asdf_obj = asdf.AsdfFile(self.to_dict())
         return asdf_obj
