@@ -42,7 +42,11 @@ def test_dumpload_hs3_pdf(request):
     # second time, no loop to better check if failure in unittest
     model_loaded = zfit.hs3.load(hs3model)
     assert model_loaded is not model
-    hs3model = zfit.hs3.dump(model_loaded["distributions"].values())
+    model_load = list(model_loaded["distributions"].values())
+    hs3model = zfit.hs3.dump(model_load)
+
+    x = np.linspace(-4, 5, 100)
+    np.testing.assert_allclose(model.pdf(x), model_load[0].pdf(x))
 
     hs3model_cleaned, hs3model_true = pytest.helpers.cleanup_hs3(
         hs3model, hs3model_true
@@ -57,16 +61,16 @@ def test_dumpload_hs3_loss(request):
     import zfit
 
     mu = zfit.Parameter("mu", 1.2, -4.0, 5.0)
-    sigma3 = zfit.Parameter("sigma3", 0.1, 0.0, 1.0)
-    sigma2 = zfit.Parameter("sigma2", 42, 0.0, 100.0)
-    sigma4 = zfit.Parameter("sigma4", 0.1, 0.0, 1.0)
+    sigma3 = zfit.Parameter("sigma3", 0.6, 0.0, 1.0)
+    sigma2 = zfit.Parameter("sigma2", 0.4, 0.0, 100.0)
+    sigma4 = zfit.Parameter("sigma4", 0.5, 0.0, 1.0)
     sigma1_free = zfit.Parameter("sigma1_free", 422, 0.0, 1002.0)
     sigma1 = zfit.ComposedParameter("sigma1", lambda x: x + 1, params=sigma1_free)
     mu3 = zfit.Parameter("mu3", 2, -2, 3, step_size=0.1)
     mu4 = zfit.Parameter("mu4", 2, -2, 3, step_size=0.1)
     frac1 = zfit.param.ConstantParameter("frac1", 0.2)
     frac2 = zfit.Parameter("frac2", 0.3, 0.0, 1.0)
-    frac3 = zfit.Parameter("frac3", 0.3, 0.0, 1.0)
+    frac3 = zfit.Parameter("frac3", 0.4, 0.0, 1.0)
 
     obs = zfit.Space("obs1", limits=(-4, 5))
     gauss1 = zfit.pdf.Gauss(mu=mu, sigma=sigma1, obs=obs)
@@ -78,7 +82,7 @@ def test_dumpload_hs3_loss(request):
 
     data1 = zfit.data.Data.from_numpy(obs=obs, array=np.random.normal(1.2, 1, 17))
     data2 = zfit.data.Data.from_numpy(obs=obs, array=np.random.normal(1.31, 1, 9))
-    data3 = zfit.data.Data.from_numpy(obs=obs, array=np.random.normal(1.31, 1, 9))
+    data3 = zfit.data.Data.from_numpy(obs=obs, array=np.random.normal(1.4, 2, 14))
     constraint = zfit.constraint.GaussianConstraint(
         params=mu, observation=1.2, uncertainty=0.14
     )
@@ -87,6 +91,8 @@ def test_dumpload_hs3_loss(request):
         data=[data1, data2, data3],
         constraints=constraint,
     )
+    original_lossval = loss.value()
+    original_loss = loss
 
     hs3model = zfit.hs3.dump(loss)
     print(hs3model)
@@ -120,7 +126,7 @@ def test_dumpload_hs3_loss(request):
                             assert v == val[k]  # make sure the diff is shown by pytest
     model_loaded = zfit.hs3.load(hs3model)
     loss = list(model_loaded["loss"].values())[0]
-    loss.value()
+    assert pytest.approx(loss.value(), rel=1e-3) == original_lossval
     for k, v in hs3model_cleaned.items():
         if isinstance(v, np.ndarray):
             np.testing.assert_equal(v, hs3model_true[k])
@@ -142,7 +148,12 @@ def test_dumpload_hs3_loss(request):
 
     model_loaded = zfit.hs3.load(hs3model)
     assert model_loaded is not model
-    hs3model = zfit.hs3.dump(model_loaded["distributions"].values())
+    models_load = list(model_loaded["distributions"].values())
+    loss_loaded = list(model_loaded["loss"].values())[0]
+    x = np.linspace(-4, 5, 100)
+    for modelload, modeltrue in zip(loss_loaded.model, original_loss.model):
+        np.testing.assert_allclose(modelload.pdf(x), modeltrue.pdf(x))
+    hs3model = zfit.hs3.dump(models_load)
     hs3model_cleaned, hs3model_true = pytest.helpers.cleanup_hs3(
         hs3model, hs3model_true
     )

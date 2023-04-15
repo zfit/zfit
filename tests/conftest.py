@@ -136,9 +136,9 @@ def cleanup_recursive(dict1, dict2):
             dict2[key] = val2.tolist()
         elif key == "value_fn":  # We have a composed parameter
             if isinstance(val1, str):
-                dict1[key] = dill.dumps(dill.loads(bytes.fromhex(val1))).hex()
+                dict1[key] = "FUNC_IGNORED_NOT_STABLE"
             if isinstance(val2, str):
-                dict2[key] = dill.dumps(dill.loads(bytes.fromhex(val2))).hex()
+                dict2[key] = "FUNC_IGNORED_NOT_STABLE"
     return dict1, dict2
 
 

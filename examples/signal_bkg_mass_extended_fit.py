@@ -1,7 +1,8 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 
 import pprint
 import zfit
+import pickle
 
 n_bins = 50
 
@@ -60,4 +61,4 @@ result.freeze()
 dumped = pickle.dumps(result)
 loaded = pickle.loads(dumped)
 
-zfit.param.set_values(params, loaded)
+zfit.param.set_values(model.get_params(), loaded)
