@@ -26,6 +26,7 @@ Experimental
 
 Requirement changes
 -------------------
+- allow uproot 5 (remove previous restriction)
 
 Thanks
 ------
