@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 
 from __future__ import annotations
 
@@ -300,7 +300,7 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
                     )
                 if nrandom < self._nrandom_max:  # in order not to start too close
                     init_scale_isnot_none = np.asarray(
-                        [scale is not None for scale in init_scale], dtype=np.bool
+                        [scale is not None for scale in init_scale], dtype=bool
                     )
                     init_scale = np.where(
                         init_scale_isnot_none,

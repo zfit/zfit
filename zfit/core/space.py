@@ -4,14 +4,12 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from .serialmixin import SerializableMixin
+
 if TYPE_CHECKING:
     import zfit
 
-from collections.abc import Iterable
-from collections.abc import Mapping
-from collections.abc import Callable
-
-# TODO(Mayou36): update docs above
+from collections.abc import Iterable, Mapping, Callable
 
 import functools
 import inspect
@@ -876,6 +874,7 @@ class BaseSpace(ZfitSpace, BaseObject):
         """Return the number of observables/axes.
 
         Returns:
+        Returns:
             int >= 1
         """
         return self.coords.n_obs
@@ -1147,6 +1146,7 @@ class BaseSpace(ZfitSpace, BaseObject):
 # @tfp.experimental.auto_composite_tensor()
 class Space(
     BaseSpace,
+    SerializableMixin,
     # tfp.experimental.AutoCompositeTensor
 ):
     AUTO_FILL = object()
@@ -1620,40 +1620,6 @@ class Space(
         return self.rect_lower.shape[0]
 
     @property
-    @deprecated(date=None, instructions="Use `limits` instead.")
-    @fail_not_rect
-    def limit2d(self) -> tuple[float, float, float, float]:
-        """Simplified `limits` for exactly 2 obs, 1 limit: return the tuple(low_obs1, low_obs2, up_obs1, up_obs2).
-
-        Returns:
-            So `low_x, low_y, up_x, up_y = space.limit2d` for a single, 2 obs limit.
-                low_x is the lower limit in x, up_x is the upper limit in x etc.
-
-        Raises:
-            RuntimeError: if the conditions (n_obs or n_limits) are not satisfied.
-        """
-        if not self.n_obs == 2:
-            raise RuntimeError("Nobs is not two.")
-        lower, upper = self.rect_limits
-        return lower[:, 0], lower[:, 1], upper[:, 0], upper[:, 1]
-        # raise BreakingAPIChangeError("This function is gone, use .rect_limits or .inside instead")
-
-    @property
-    def limits1d(self) -> tuple[float]:
-        """Simplified `.limits` for exactly 1 obs, n limits: return the tuple(low_1, ..., low_n, up_1, ..., up_n).
-
-        Returns:
-            So `low_1, low_2, up_1, up_2 = space.limits1d` for several, 1 obs limits.
-                low_1 to up_1 is the first interval, low_2 to up_2 is the second interval etc.
-
-        Raises:
-            RuntimeError: if the conditions (n_obs or n_limits) are not satisfied.
-        """
-        raise BreakingAPIChangeError(
-            "This function is gone. Instead iterate through the space and get each limit out."
-        )
-
-    @property
     @fail_not_rect
     def lower(self) -> ztyping.LowerTypeReturn:
         """Return the lower limits.
@@ -1661,7 +1627,6 @@ class Space(
         Returns:
         """
         return self.rect_lower
-        # raise BreakingAPIChangeError("Use rect_lower")
 
     @property
     @fail_not_rect
@@ -1680,32 +1645,6 @@ class Space(
             int >= 1
         """
         return len(tuple(self))
-
-    @property
-    @deprecated(
-        date=None,
-        instructions="Iterate over the space directly and"
-        " use the limits from the spaces.",
-    )
-    def iter_limits(self, as_tuple: bool = True) -> ztyping._IterLimitsTypeReturn:
-        """REMOVED.Return the limits, either as :py:class:`~zfit.Space` objects or as pure limits-tuple.
-
-        This makes iterating over limits easier: `for limit in space.iter_limits()`
-        allows to, for example, pass `limit` to a function that can deal with simple limits
-        only or if `as_tuple` is True the `limit` can be directly used to calculate something.
-
-        Example:
-            .. code:: python
-
-                for lower, upper in space.iter_limits(as_tuple=True):
-                    integrals = integrate(lower, upper)  # calculate integral
-                integral = sum(integrals)
-
-
-        Returns:
-            List[:py:class:`~zfit.Space`] or List[limit,...]:
-        """
-        raise BreakingAPIChangeError
 
     def with_limits(
         self,
@@ -2039,18 +1978,6 @@ class Space(
         new_space = type(self)(obs=new_coords, limits=limits_dict)
         return new_space
 
-    def with_obs_axes(self, **kwargs):
-        raise BreakingAPIChangeError("What is this needed for?")
-
-    def get_obs_axes(
-        self, obs: ztyping.ObsTypeInput = None, axes: ztyping.AxesTypeInput = None
-    ):
-        raise BreakingAPIChangeError("Simply get the coords if needed")
-
-    @property
-    def obs_axes(self):
-        raise BreakingAPIChangeError
-
     @fail_not_rect
     def area(self) -> float:
         """Return the total area of all the limits and axes.
@@ -2156,13 +2083,9 @@ class Space(
         Returns:
             :py:class:`~zfit.Space`
         """
-        # TODO(v0.5):
-        # raise BreakingAPIChangeError("from_axes is not needed anymore, create a Space directly.")
-        axes = convert_to_container(value=axes, container=tuple)
-        if axes is None:
-            raise AxesNotSpecifiedError("Axes cannot be `None`")
-        new_space = cls(axes=axes, limits=limits, rect_limits=rect_limits, name=name)
-        return new_space
+        raise BreakingAPIChangeError(
+            "from_axes is not needed anymore, create a Space directly."
+        )
 
 
 def extract_limits_from_dict(limits_dict, obs=None, axes=None):
@@ -3028,12 +2951,6 @@ class MultiSpace(BaseSpace):
         """
         spaces = [space.with_autofill_axes(overwrite=overwrite) for space in self]
         return self.copy(spaces=spaces)
-
-    def iter_limits(self, as_tuple=True):
-        raise BreakingAPIChangeError("This should not be used anymore")
-
-    def iter_areas(self, rel: bool = False) -> tuple[float, ...]:
-        raise BreakingAPIChangeError("This should not be used anymore")
 
     def get_subspace(
         self,

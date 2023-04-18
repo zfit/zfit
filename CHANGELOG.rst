@@ -18,17 +18,34 @@ Deprecations
 
 Bug fixes and small changes
 ---------------------------
-- added ``extended`` as a parameter to all PDFs: a PDF can now directly be extended without the need for
-  ``create_extended`` (or ``set_yield``).
+- ``SampleData`` is not used anymore, a ``Data`` object is returned (for simple sampling). The ``create_sampler`` will still return a ``SamplerData`` object though as this differs from ``Data``.
 
 Experimental
 ------------
+- Added support on a best-effort for human-readable serialization of objects including an HS3-like representation, find a `tutorial on serialization here<https://zfit-tutorials.readthedocs.io/en/latest/tutorials/components/README.html#serialization>`_. Most built-in unbinned PDFs are supported. This is still experimental and not yet fully supported. Dumping can be performed safely, loading maybe easily breaks (also between versions), so do not rely on it yet. Everything else - apart of trying to dump - should only be used for playing around and giving feedback purposes.
 
 Requirement changes
 -------------------
 
 Thanks
 ------
+
+
+0.12.1 (1 April 2023)
+========================
+
+
+Bug fixes and small changes
+---------------------------
+- added ``extended`` as a parameter to all PDFs: a PDF can now directly be extended without the need for
+  ``create_extended`` (or ``set_yield``).
+- ``to_pandas`` and ``from_pandas`` now also support weights as columns. Default column name is ``""``.
+- add ``numpy`` and ``backend`` to options when setting the seed
+- reproducibility by fixing the seed in zfit is restored, ``zfit.run.set_seed`` now also sets the seed for the backend(numpy, tensorflow, etc.) if requested (on by default)
+
+Thanks
+------
+- Sebastian Schmitt @schmitse for reporting the bug in the non-reproducibility of the seed.
 
 0.12.0 (13 March 2023)
 ========================

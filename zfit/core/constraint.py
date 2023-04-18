@@ -6,7 +6,18 @@ import abc
 import collections
 from collections import OrderedDict
 from collections.abc import Callable
-from typing import Mapping, Iterable
+from typing import Mapping, Iterable, List
+
+import numpy as np
+import pydantic
+
+from .serialmixin import SerializableMixin
+from ..serialization.serializer import BaseRepr, Serializer
+
+try:
+    from typing import Literal
+except ImportError:  # TODO(3.8): remove
+    from typing_extensions import Literal
 
 import tensorflow as tf
 import tensorflow_probability as tfp
@@ -23,6 +34,13 @@ from ..util.container import convert_to_container
 from ..util.exception import ShapeIncompatibleError
 
 tfd = tfp.distributions
+
+
+# TODO(serialization): add to serializer
+class BaseConstraintRepr(BaseRepr):
+    _implementation = None
+    _owndict = pydantic.PrivateAttr(default_factory=dict)
+    hs3_type: Literal["BaseConstraint"] = pydantic.Field("BaseConstraint", alias="type")
 
 
 class BaseConstraint(ZfitConstraint, BaseNumeric):
@@ -171,7 +189,7 @@ class ProbabilityConstraint(BaseConstraint):
 
     @property
     def _params_array(self):
-        return z.convert_to_tensor(self._ordered_params)
+        return znp.asarray(self._ordered_params)
 
 
 class TFProbabilityConstraint(ProbabilityConstraint):
@@ -208,17 +226,19 @@ class TFProbabilityConstraint(ProbabilityConstraint):
         kwargs = self.dist_kwargs
         if callable(kwargs):
             kwargs = kwargs()
-        return self._distribution(**params, **kwargs, name=self.name + "_tfp")
+        params = {k: tf.cast(v, ztypes.float) for k, v in params.items()}
+        return self._distribution(**params, **kwargs, name=f"{self.name}_tfp")
 
     def _value(self):
-        value = -self.distribution.log_prob(self._params_array)
+        array = tf.cast(self._params_array, ztypes.float)
+        value = -self.distribution.log_prob(array)
         return tf.reduce_sum(value)
 
     def _sample(self, n):
         return self.distribution.sample(n)
 
 
-class GaussianConstraint(TFProbabilityConstraint):
+class GaussianConstraint(TFProbabilityConstraint, SerializableMixin):
     def __init__(
         self,
         params: ztyping.ParamTypeInput,
@@ -248,9 +268,23 @@ class GaussianConstraint(TFProbabilityConstraint):
 
         observation = convert_to_container(observation, tuple)
         params = convert_to_container(params, tuple)
+        uncertainty = convert_to_container(uncertainty, tuple)
+        if (
+            isinstance(uncertainty[0], (np.ndarray, tf.Tensor))
+            and len(uncertainty) == 1
+        ):
+            uncertainty = tuple(uncertainty[0])
+        original_init = {
+            "observation": observation,
+            "params": params,
+            "uncertainty": uncertainty,
+        }
 
         def create_covariance(mu, sigma):
             mu = z.convert_to_tensor(mu)
+            sigma = np.asarray(
+                sigma
+            )  # otherwise TF complains that the shape got changed from [2] to [2, 2] (if we have a tuple of two arrays)
             sigma = z.convert_to_tensor(sigma)  # TODO (Mayou36): fix as above?
             params_tensor = z.convert_to_tensor(params)
 
@@ -291,7 +325,7 @@ class GaussianConstraint(TFProbabilityConstraint):
             dist_params=dist_params,
             dist_kwargs=dist_kwargs,
         )
-
+        self.hs3.original_init.update(original_init)
         self._covariance = lambda: create_covariance(self.observation, uncertainty)
 
     @property
@@ -300,7 +334,32 @@ class GaussianConstraint(TFProbabilityConstraint):
         return self._covariance()
 
 
-class PoissonConstraint(TFProbabilityConstraint):
+class GaussianConstraintRepr(BaseConstraintRepr):
+    _implementation = GaussianConstraint
+    hs3_type: Literal["GaussianConstraint"] = pydantic.Field(
+        "GaussianConstraint", alias="type"
+    )
+
+    params: List[Serializer.types.ParamInputTypeDiscriminated]
+    observation: List[Serializer.types.ParamInputTypeDiscriminated]
+    uncertainty: List[Serializer.types.ParamInputTypeDiscriminated]
+
+    @pydantic.root_validator(pre=True)
+    def get_init_args(cls, values):
+        if cls.orm_mode(values):
+            values = values["hs3"].original_init
+        return values
+
+    @pydantic.validator("params", "observation", "uncertainty")
+    def validate_params(cls, v):
+        if isinstance(v, np.ndarray):
+            v = v.tolist()
+        else:
+            v = convert_to_container(v, list)
+        return v
+
+
+class PoissonConstraint(TFProbabilityConstraint, SerializableMixin):
     def __init__(
         self, params: ztyping.ParamTypeInput, observation: ztyping.NumericalScalarType
     ):
@@ -324,8 +383,8 @@ class PoissonConstraint(TFProbabilityConstraint):
         """
 
         observation = convert_to_container(observation, tuple)
-        # observation = tuple(convert_to_parameter(obs) for obs in observation)
         params = convert_to_container(params, tuple)
+        original_init = {"observation": observation, "params": params}
 
         distribution = tfd.Poisson
         dist_params = dict(rate=observation)
@@ -339,9 +398,34 @@ class PoissonConstraint(TFProbabilityConstraint):
             dist_params=dist_params,
             dist_kwargs=dist_kwargs,
         )
+        self.hs3.original_init.update(original_init)
 
 
-class LogNormalConstraint(TFProbabilityConstraint):
+class PoissonConstraintRepr(BaseConstraintRepr):
+    _implementation = PoissonConstraint
+    hs3_type: Literal["PoissonConstraint"] = pydantic.Field(
+        "PoissonConstraint", alias="type"
+    )
+
+    params: List[Serializer.types.ParamInputTypeDiscriminated]
+    observation: List[Serializer.types.ParamInputTypeDiscriminated]
+
+    @pydantic.root_validator(pre=True)
+    def get_init_args(cls, values):
+        if cls.orm_mode(values):
+            values = values["hs3"].original_init
+        return values
+
+    @pydantic.validator("params", "observation")
+    def validate_params(cls, v):
+        if isinstance(v, np.ndarray):
+            v = v.tolist()
+        else:
+            v = convert_to_container(v, list)
+        return v
+
+
+class LogNormalConstraint(TFProbabilityConstraint, SerializableMixin):
     def __init__(
         self,
         params: ztyping.ParamTypeInput,
@@ -372,6 +456,11 @@ class LogNormalConstraint(TFProbabilityConstraint):
         observation = convert_to_container(observation, tuple)
         params = convert_to_container(params, tuple)
         uncertainty = convert_to_container(uncertainty, tuple)
+        original_init = {
+            "observation": observation,
+            "params": params,
+            "uncertainty": uncertainty,
+        }
 
         distribution = tfd.LogNormal
         dist_params = lambda observation: dict(loc=observation, scale=uncertainty)
@@ -385,3 +474,29 @@ class LogNormalConstraint(TFProbabilityConstraint):
             dist_params=dist_params,
             dist_kwargs=dist_kwargs,
         )
+        self.hs3.original_init.update(original_init)
+
+
+class LogNormalConstraintRepr(BaseConstraintRepr):
+    _implementation = LogNormalConstraint
+    hs3_type: Literal["LogNormalConstraint"] = pydantic.Field(
+        "LogNormalConstraint", alias="type"
+    )
+
+    params: List[Serializer.types.ParamInputTypeDiscriminated]
+    observation: List[Serializer.types.ParamInputTypeDiscriminated]
+    uncertainty: List[Serializer.types.ParamInputTypeDiscriminated]
+
+    @pydantic.root_validator(pre=True)
+    def get_init_args(cls, values):
+        if cls.orm_mode(values):
+            values = values["hs3"].original_init
+        return values
+
+    @pydantic.validator("params", "observation", "uncertainty")
+    def validate_params(cls, v):
+        if isinstance(v, np.ndarray):
+            v = v.tolist()
+        else:
+            v = convert_to_container(v, list)
+        return v

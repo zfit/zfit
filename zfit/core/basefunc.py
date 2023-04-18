@@ -3,9 +3,9 @@
 
 TODO(Mayou36): subclassing?
 """
-from typing import TYPE_CHECKING
+from __future__ import annotations
 
-from zfit.core.interfaces import ZfitBinning
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     import zfit
@@ -24,7 +24,7 @@ class BaseFuncV1(BaseModel, ZfitFunc):
     def __init__(
         self,
         obs=None,
-        dtype: typing.Type = ztypes.float,
+        dtype: type = ztypes.float,
         name: str = "BaseFunc",
         params: typing.Any = None,
     ):
@@ -85,7 +85,7 @@ class BaseFuncV1(BaseModel, ZfitFunc):
                 "it received on initialization."
             ) from error
 
-    def as_pdf(self) -> "zfit.core.interfaces.ZfitPDF":
+    def as_pdf(self) -> zfit.core.interfaces.ZfitPDF:
         """Create a PDF out of the function.
 
         Returns:

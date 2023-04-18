@@ -1,4 +1,4 @@
-"""Module for caching.
+""" Module for caching.
 
 The basic concept of caching in Zfit builds on a "cacher", that caches a certain value and that
 is dependent of "cache_dependents". By implementing `ZfitGraphCachable`, an object will be able to play both
@@ -45,7 +45,7 @@ Example with a pdf that caches the normalization:
                 result = self._cache['my_name']
             return result
 """
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 
 from __future__ import annotations
 
@@ -54,9 +54,7 @@ import functools
 import weakref
 from abc import abstractmethod
 from collections.abc import Iterable
-from contextlib import suppress
 from itertools import zip_longest
-from typing import Optional
 
 import numpy as np
 import tensorflow as tf

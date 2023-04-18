@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 
 from __future__ import annotations
 
@@ -7,9 +7,8 @@ from collections.abc import Iterable
 from zfit import z
 from zfit.core.interfaces import ZfitPDF
 from zfit.util.exception import NotExtendedPDFError
-from .util.container import convert_to_container
-
 from zfit.z.random import sample_with_replacement, counts_multinomial
+from .util.container import convert_to_container
 
 __all__ = ["poisson", "sample_with_replacement", "counts_multinomial"]
 

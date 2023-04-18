@@ -1,6 +1,6 @@
 """Top-level package for zfit."""
 
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 import sys
 import warnings
 
@@ -39,6 +39,7 @@ __all__ = [
     "exception",
     "sample",
     "binned",
+    "hs3",
     "Parameter",
     "ComposedParameter",
     "ComplexParameter",
@@ -100,6 +101,8 @@ from . import (
     param,
     pdf,
     sample,
+    settings,
+    hs3,
 )
 from .core.data import Data
 from .core.parameter import (

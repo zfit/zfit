@@ -354,7 +354,6 @@ def test_importance_sampling_uniform():
     assert all(abs(bin_counts - expected_per_bin) < np.sqrt(expected_per_bin) * 5)
 
 
-# @pytest.mark.xfail  # TODO(mayou36): hacked, EventSpace, needed for phasespace sampling
 def test_sampling_fixed_eventlimits():
     n_samples1 = 500
     n_samples2 = 400  # just to make sure

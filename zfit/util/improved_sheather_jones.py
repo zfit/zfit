@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 
 import numpy as np
 import tensorflow as tf
@@ -67,7 +67,6 @@ def _fixed_point(t, N, squared_integers, grid_data_dct2):
      - Implementation by Daniel B. Smith, PhD, found at
        https://github.com/Daniel-B-Smith/KDE-for-SciPy/blob/master/kde.py
     """
-
     # ell = 7 corresponds to the 5 steps recommended in the paper
     ell = tf.constant(7, ztypes.float)
 

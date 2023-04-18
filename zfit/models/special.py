@@ -4,6 +4,7 @@ One example is a normal function `Function` that allows to simply define a non-n
 """
 
 #  Copyright (c) 2023 zfit
+from __future__ import annotations
 
 import functools
 
@@ -28,7 +29,7 @@ class SimplePDF(BasePDF):
         except TypeError:
             return self._unnormalized_prob_func(self, x)
 
-    def copy(self, **override_parameters) -> "BasePDF":
+    def copy(self, **override_parameters) -> BasePDF:
         override_parameters.update(func=self._unnormalized_prob_func)
         return super().copy(**override_parameters)
 
