@@ -1,4 +1,4 @@
-"""Functors are functions that take typically one or more other PDF. Prominent examples are a sum, convolution etc.
+""" Functors are functions that take typically one or more other PDF. Prominent examples are a sum, convolution etc.
 
 A FunctorBase class is provided to make handling the models easier.
 
@@ -12,17 +12,26 @@ import functools
 import operator
 from collections import Counter
 from collections.abc import Iterable
+from typing import List
 from typing import Optional
 
+import pydantic
 import tensorflow as tf
 
+try:
+    from typing import Literal
+except ImportError:  # TODO(3.8): remove
+    from typing_extensions import Literal
+
 import zfit.z.numpy as znp
-from .basefunctor import _preprocess_init_sum
+from .basefunctor import _preprocess_init_sum, FunctorPDFRepr
 from .. import z
 from ..core.basepdf import BasePDF
 from ..core.interfaces import ZfitData, ZfitPDF
+from ..core.serialmixin import SerializableMixin
 from ..core.space import supports
 from ..models.basefunctor import FunctorMixin, extract_daughter_input_obs
+from ..serialization import Serializer
 from ..util import ztyping
 from ..util.container import convert_to_container
 from ..util.exception import (
@@ -30,6 +39,7 @@ from ..util.exception import (
     NormRangeUnderdefinedError,
     SpecificFunctionNotImplemented,
 )
+from ..util.ztyping import ExtendedInputType, NormInputType
 from ..z.random import counts_multinomial
 
 
@@ -46,25 +56,26 @@ class BaseFunctor(FunctorMixin, BasePDF):
             norm = extract_daughter_input_obs(
                 obs=norm, spaces=[model.space for model in self.models]
             )
+            self.set_norm_range(norm)
         if not norm.limits_are_set:
             raise NormRangeUnderdefinedError(
                 f"Daughter pdfs {self.pdfs} do not agree on a `norm` and/or no `norm`"
                 "has been explicitly set."
             )
 
-        self.set_norm_range(norm)
-
     @property
     def pdfs_extended(self):
         return [pdf.is_extended for pdf in self.pdfs]
 
 
-class SumPDF(BaseFunctor):  # TODO: add extended argument
+class SumPDF(BaseFunctor, SerializableMixin):  # TODO: add extended argument
     def __init__(
         self,
         pdfs: Iterable[ZfitPDF],
         fracs: ztyping.ParamTypeInput | None = None,
         obs: ztyping.ObsTypeInput = None,
+        extended: ExtendedInputType = None,
+        norm: NormInputType = None,
         name: str = "SumPDF",
     ):
         """Create the sum of the `pdfs` with `fracs` as coefficients or the yields, if extended pdfs are given.
@@ -91,11 +102,19 @@ class SumPDF(BaseFunctor):  # TODO: add extended argument
                 - len(frac) == len(basic) - 1 results in the interpretation of a non-extended pdf.
                   The last coefficient will equal to 1 - sum(frac)
                 - len(frac) == len(pdf): the fracs will be used as is and no normalization attempt is taken.
-            name: |name_arg_descr|
+            name: |@doc:pdf.init.name| Human-readable name
+               or label of
+               the PDF for better identification.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.name|
 
         Raises
             ModelIncompatibleError: If model is incompatible.
         """
+        original_init = {
+            "fracs": convert_to_container(fracs),
+            "extended": extended,
+            "obs": obs,
+        }
         # Check user input
         self._fracs = None
 
@@ -107,14 +126,20 @@ class SumPDF(BaseFunctor):  # TODO: add extended argument
             param_fracs,
             params,
             sum_yields,
+            frac_param_created,
         ) = _preprocess_init_sum(fracs, obs, pdfs)
-
+        self._frac_param_created = frac_param_created
         self._fracs = param_fracs
         self._original_fracs = fracs_cleaned
+        self._automatically_extended = False
 
-        super().__init__(pdfs=pdfs, obs=obs, params=params, name=name)
-        if all_extended and not fracs_cleaned:
-            self.set_yield(sum_yields)
+        if extended in (None, True) and all_extended and not fracs_cleaned:
+            self._automatically_extended = True
+            extended = sum_yields
+        super().__init__(
+            pdfs=pdfs, obs=obs, params=params, name=name, extended=extended, norm=norm
+        )
+        self.hs3.original_init.update(original_init)
 
     @property
     def fracs(self):
@@ -144,6 +169,16 @@ class SumPDF(BaseFunctor):  # TODO: add extended argument
         prob = sum(probs)
         return z.convert_to_tensor(prob)
 
+    @supports(norm=True, multiple_limits=True)
+    def _ext_pdf(self, x, norm, *, norm_range=None):
+        equal_norm_ranges = len(set([pdf.norm for pdf in self.pdfs] + [norm])) == 1
+        if (norm and not equal_norm_ranges) or not self._automatically_extended:
+            raise SpecificFunctionNotImplemented
+        pdfs = self.pdfs
+        probs = [pdf.ext_pdf(x) for pdf in pdfs]
+        prob = sum(probs)
+        return z.convert_to_tensor(prob)
+
     @supports(multiple_limits=True)
     def _integrate(self, limits, norm, options):
         pdfs = self.pdfs
@@ -156,6 +191,22 @@ class SumPDF(BaseFunctor):  # TODO: add extended argument
                 limits=limits, options=options
             )  # do NOT propagate the norm_range!
             for pdf, frac in zip(pdfs, fracs)
+        ]
+        return znp.sum(integrals, axis=0)
+
+    @supports(multiple_limits=True)
+    def _ext_integrate(self, limits, norm, options):
+        if not self._automatically_extended:
+            raise SpecificFunctionNotImplemented
+        pdfs = self.pdfs
+        fracs = self.fracs
+        # TODO(SUM): why was this needed?
+        # assert norm_range not in (None, False), "Bug, who requested an unnormalized integral?"
+        integrals = [
+            pdf.ext_integrate(
+                limits=limits, options=options
+            )  # do NOT propagate the norm_range!
+            for pdf in pdfs
         ]
         return znp.sum(integrals, axis=0)
 
@@ -229,29 +280,58 @@ class SumPDF(BaseFunctor):  # TODO: add extended argument
         return sample
 
 
-class ProductPDF(BaseFunctor):
+class SumPDFRepr(FunctorPDFRepr):
+    _implementation = SumPDF
+    hs3_type: Literal["SumPDF"] = pydantic.Field("SumPDF", alias="type")
+    fracs: Optional[List[Serializer.types.ParamInputTypeDiscriminated]] = None
+
+    @pydantic.root_validator(pre=True)
+    def validate_all_sumpdf(cls, values):
+        # if cls.orm_mode(values):
+        #     init = values["hs3"].original_init
+        #     values = dict(values)
+        #     values["fracs"] = init["fracs"]
+        return values
+
+
+class ProductPDF(BaseFunctor, SerializableMixin):
     def __init__(
         self,
         pdfs: list[ZfitPDF],
         obs: ztyping.ObsTypeInput = None,
+        extended: ExtendedInputType = None,
+        norm: NormInputType = None,
         name="ProductPDF",
-        *,
-        extended: ztyping.ParamTypeInput | None = None,
     ):
-        """Product of multiple PDFs.
+        """Product of multiple PDFs in the same or different variables.
 
-        Parameters
-        ----------
-        pdfs: PDFs that are multiplied together.
-        obs: Observables the PDF is defined on.
-        name: Name of the PDF.
-        extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+        This implementation optimizes the integration: if the PDFs are in exclusive observables, the
+        integration can be factorized and the integrals can be calculated separately. This also takes into account
+        that only some PDFs might have overlapping observables.
+
+        Args:
+            pdfs: List of PDFs to multiply.
+            obs: |@doc:pdf.init.obs| Observables of the
+               model. This will be used as the default space of the PDF and,
+               if not given explicitly, as the normalization range.
+
+               The default space is used for example in the sample method: if no
+               sampling limits are given, the default space is used.
+
+               The observables are not equal to the domain as it does not restrict or
+               truncate the model outside this range. |@docend:pdf.init.obs|
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
                If this is parameter-like, it will be used as the yield,
                the expected number of events, and the PDF will be extended.
                An extended PDF has additional functionality, such as the
                ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+            norm: |@doc:pdf.init.norm| Normalization of the PDF.
+               By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
         """
-        super().__init__(pdfs=pdfs, obs=obs, name=name, extended=extended)
+        original_init = {"extended": extended, "obs": obs}
+
+        super().__init__(pdfs=pdfs, obs=obs, name=name, extended=extended, norm=norm)
+        self.hs3.original_init.update(original_init)
 
         same_obs_pdfs = []
         disjoint_obs_pdfs = []
@@ -351,3 +431,8 @@ class ProductPDF(BaseFunctor):
                 values.append(pdf.pdf(x, norm_range=norm))
         values = functools.reduce(operator.mul, values)
         return z.convert_to_tensor(values)
+
+
+class ProductPDFRepr(FunctorPDFRepr):
+    _implementation = ProductPDF
+    hs3_type: Literal["ProductPDF"] = pydantic.Field("ProductPDF", alias="type")

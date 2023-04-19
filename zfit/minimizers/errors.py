@@ -1,14 +1,11 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 
 from __future__ import annotations
 
-import time
 import warnings
 from typing import TYPE_CHECKING
 
 import jacobi
-
-from ..util.exception import BreakingAPIChangeError
 
 if TYPE_CHECKING:
     import zfit
@@ -18,7 +15,6 @@ from collections.abc import Callable
 import logging
 from functools import lru_cache, wraps
 
-import numdifftools
 import numpy as np
 import scipy.stats
 import tensorflow as tf
@@ -26,7 +22,7 @@ from scipy import optimize
 
 import zfit.z.numpy as znp
 
-from .. import settings, z
+from .. import z
 from ..core.interfaces import ZfitIndependentParameter
 from ..core.parameter import assign_values, assign_values_jit
 from ..util.container import convert_to_container

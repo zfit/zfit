@@ -273,7 +273,6 @@ def test_add():
     assert set(simult_nll.get_params()) == {param1, param2, param3}
 
 
-# @pytest.mark.xfail  # TODO(TF2): grads not supported, use numerical ones? Or calculate on the fly?
 @pytest.mark.parametrize("chunksize", [10000000, 1000])
 def test_gradients(chunksize):
     from numdifftools import Gradient
@@ -499,7 +498,6 @@ def test_iminuit_compatibility(create_loss):
     assert result_zfit.fmin == pytest.approx(result.fmin.fval, abs=0.03)
 
 
-# @pytest.mark.skip  # TODO: reactivate and make real, just mockup
 @pytest.mark.flaky(3)
 # @pytest.mark.parametrize('weights', [None, np.random.normal(loc=1., scale=0.2, size=test_values_np.shape[0])])
 @pytest.mark.parametrize("weights", [None])

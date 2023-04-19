@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 #
-# Copyright (c) 2022 zfit
+# Copyright (c) 2023 zfit
 #
 
 BASEDIR=$( dirname -- "$0"; )
@@ -11,19 +11,18 @@ pip install -U pip
 pip install "${BASEDIR}/../../[all]"
 pip install -r "${BASEDIR}/../../examples/example_requirements.txt"
 #set -e
+fail=0
 for file in ${BASEDIR}/../../examples/*.py; do
-  sucess=0
-  python "$file" && sucess=1 || break
-  #    below needed?
-  #    python $file 2>&1 | tail -n 11 && echo "file $file run sucessfully" || exit 1;
+  python "$file" || fail=1;
 done
+deactivate
+rm -rf "${BASEDIR}/.test_examples_env"
+echo "Cleaned up, finished"
 echo "========================================="
-if [ $sucess -eq 1 ]; then
+if [ $fail -eq 0 ]; then
   echo "all examples run SUCCESSFULLY"
 else
   echo "some examples FAILED"
 fi
 echo "========================================="
-deactivate
-rm -rf "${BASEDIR}/.test_examples_env"
-echo "Cleaned up, finished"
+exit $fail

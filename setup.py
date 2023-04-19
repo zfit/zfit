@@ -1,7 +1,8 @@
 """The setup script."""
 
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 import os
+import sys
 
 from setuptools import setup
 
@@ -20,6 +21,9 @@ with open(
 extras_require = {}
 extras_require["ipyopt"] = ["ipyopt>=0.12"]
 extras_require["nlopt"] = ["nlopt>=2.7.1"]
+extras_require["hs3"] = ["asdf"]
+if sys.version_info[1] > 7:  # Python 3.7 not supported anymore
+    extras_require["uproot"] = ["awkward-pandas"]
 allreq = sum(extras_require.values(), [])
 
 tests_require = [

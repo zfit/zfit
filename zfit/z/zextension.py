@@ -2,16 +2,15 @@
 
 from __future__ import annotations
 
+import collections
 import contextlib
 import functools
-import collections
-import logging
-import warnings
-from weakref import WeakSet, WeakKeyDictionary
 import math as _mt
+import warnings
 from collections import defaultdict
 from collections.abc import Callable
-from typing import Any, Optional
+from typing import Any
+from weakref import WeakSet
 
 import numpy as np
 import tensorflow as tf

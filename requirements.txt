@@ -3,9 +3,11 @@ colorama
 colored
 colorlog
 deprecated
+dill
 dotmap
+frozendict
 hist
-iminuit>=2.3,<2.21  # 2.21 is broken for type hints
+iminuit>=2.3,<2.21  # https://github.com/scikit-hep/iminuit/issues/846 annotations fail with 2.21  # 2.21 is broken for type hints
 importlib-metadata; python_version <"3.8.0"
 jacobi
 numdifftools
@@ -13,6 +15,7 @@ numpy>=1.16
 ordered-set
 pandas
 pydantic
+pyyaml
 scipy>=1.2
 tabulate
 tensorflow>=2.10, <2.12; sys_platform != 'darwin' or platform_machine != 'arm64'
@@ -21,7 +24,8 @@ tensorflow-macos>=2.10, <2.12; sys_platform == 'darwin' and platform_machine == 
 tensorflow_probability>=0.18, <0.20
 texttable
 tf_quant_finance>=v0.0.1-dev24
+typing-extensions
 uhi
-uproot>=4,<5
+uproot>=4
 xxhash
 zfit_interface

@@ -273,6 +273,25 @@ def create_gauss2d_binned(n, nbins=130):
     return prod, gauss_binned, obs2d, obs_binned
 
 
+# TODO(Jonas): add test for binned pdf with unbinned data
+# def test_binned_with_unbinned_data():
+#     n = 100000
+#
+#     mu = zfit.Parameter("mu", 1, 0, 19)
+#     sigma = zfit.Parameter("sigma", 1, 0, 19)
+#     obs = zfit.Space("x", (-5, 10))
+#     gauss = zfit.pdf.Gauss(mu=mu, sigma=sigma, obs=obs)
+#     gauss.set_yield(n)
+#     axis = zfit.binned.RegularBinning(130, -5, 10, name="x")
+#     obs_binned = zfit.Space("x", binning=[axis])
+#     gauss_binned = BinnedFromUnbinnedPDF(pdf=gauss, space=obs_binned, extended=n)
+#
+#     data = znp.random.uniform(-5, 10, size=(1000,))
+#     y_binned = gauss_binned.pdf(data)
+#     # check shape
+#     assert y_binned.shape[0] == data.shape[0]
+
+
 def test_binned_from_unbinned_2D():
     n = 100000
 

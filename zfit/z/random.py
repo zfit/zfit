@@ -6,7 +6,6 @@ from collections.abc import Iterable
 from functools import wraps
 from typing import Any
 
-import numpy as np
 import tensorflow as tf
 import tensorflow_probability as tfp
 

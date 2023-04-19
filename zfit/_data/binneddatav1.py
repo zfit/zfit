@@ -2,10 +2,9 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 from collections.abc import Callable
 from collections.abc import Mapping
+from typing import TYPE_CHECKING
 
 from ..core.parameter import set_values
 
@@ -186,8 +185,9 @@ class BinnedData(
     def to_hist(self) -> hist.Hist:
         """Convert the binned data to a :py:class:`~hist.NamedHist`.
 
-        While a binned data object can be used inside zfit (PDFs,...), it lacks many convenience features that the `hist
-        library <https://hist.readthedocs.io/>`_ offers, such as plots.
+        While a binned data object can be used inside zfit (PDFs,...), it lacks many convenience features that the
+        `hist library <https://hist.readthedocs.io/>`_
+        offers, such as plots.
         """
         binning = binning_to_histaxes(self.holder.space.binning)
         h = hist.Hist(*binning, storage=bh.storage.Weight())
@@ -329,8 +329,6 @@ class BinnedSampler(BinnedData):
         n: ztyping.NumericalScalarType | Callable,
         fixed_params: dict[zfit.Parameter, ztyping.NumericalScalarType] = None,
     ):
-        from .. import ztypes
-
         super().__init__(holder=dataset)
         if fixed_params is None:
             fixed_params = {}

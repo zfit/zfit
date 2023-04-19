@@ -21,6 +21,12 @@ model.init.name: |1+
                 or label of
                 the PDF for better identification.
                 Has no programmatical functional purpose as identification.
+
+pdf.init.name: |1+
+    Human-readable name
+                or label of
+                the PDF for better identification.
+                Has no programmatical functional purpose as identification.
 model.init.obs: |1+
     Observables of the
                 model. This will be used as the default space of the PDF and,
@@ -57,6 +63,17 @@ binnedpdf.out.problike: |1+
                 the axes corresponds to the input axes.
 
 
+
+pdf.init.obs: |1+
+  Observables of the
+                model. This will be used as the default space of the PDF and,
+                if not given explicitly, as the normalization range.
+
+                The default space is used for example in the sample method: if no
+                sampling limits are given, the default space is used.
+
+                The observables are not equal to the domain as it does not restrict or
+                truncate the model outside this range.
 
 pdf.init.norm: |1+
   Normalization of the PDF.
@@ -681,3 +698,19 @@ result.init.evaluator: |1+
 result.init.values: |1+
     Values of the parameters at the
                     found minimum.
+
+
+hs3.explain: |1+
+    HS3 is the `HEP Statistics Serialization Standard <https://github.com/hep-statistics-serialization-standard/hep-statistics-serialization-standard>`_.
+                    It is a JSON/YAML-based serialization that is a
+                    coordinated effort of the HEP community to standardize the serialization of statistical models. The standard
+                    is still in development and is not yet finalized. This function is experimental and may change in the future.
+
+hs3.layout.explain: |1+
+  The keys in the HS3 format are:
+                     - 'distributions': list of PDFs
+                     - 'variables': list of variables, i.e. ``zfit.Space`` and ``zfit.Parameter`` (or more generally parameters)
+                     - 'loss': list of losses
+                     - 'data': list of data
+                     - 'metadata': contains the version of the HS3 format and the
+                       zfit version used to create the file

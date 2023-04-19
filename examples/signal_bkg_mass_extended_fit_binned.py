@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 
 import matplotlib.pyplot as plt
 import mplhep
@@ -84,4 +84,4 @@ print(result.valid)  # check if the result is still valid
 
 plot_pdf("after fit")
 # uncomment to display plots
-# plt.show()
+plt.show()
