@@ -4,17 +4,13 @@ Changelog
 
 .. _newest-changelog:
 
-Develop
+0.13.0 (19 April 2023)
 ========================
 
 Major Features and Improvements
 -------------------------------
 
-Breaking changes
-------------------
-
-Deprecations
--------------
+last Python 3.7 version
 
 Bug fixes and small changes
 ---------------------------
@@ -30,6 +26,7 @@ Requirement changes
 
 Thanks
 ------
+- to Johannes Lade for the amazing work on the serialization, which made this HS3 implementation possible!
 
 
 0.12.1 (1 April 2023)
