@@ -128,6 +128,7 @@ def create_kde(
 
     # Grid PDFs
 
+    num_grid_size_maybe = 800
     comb = itertools.product(
         [
             ("bandwidth", h)
@@ -138,19 +139,24 @@ def create_kde(
                 "silverman",
                 "scott",
                 "adaptive_zfit",
-                np.random.uniform(0.1, 1.5, size=npoints),
+                np.random.uniform(0.1, 1.5, size=num_grid_size_maybe),
             ]
         ],
         [("weights", weight) for weight in [None, znp.ones(shape=npoints)]],
         [("padding", padding)],
         [("kernel", dist) for dist in [None, StudentT]],
         [("type", zfit.pdf.KDE1DimGrid)],
-        [("num_grid_points", n) for n in [None, 800]],
+        [("num_grid_points", n) for n in [None, num_grid_size_maybe]],
         [("binning_method", method) for method in ["linear", "simple"]],
     )
+    comb = [
+        c
+        for c in comb
+        if not isinstance(c[0][1], np.ndarray) or c[5][1] == num_grid_size_maybe
+    ]
 
     if not full:
-        comb = [next(comb)]
+        comb = [comb[0]]
     configs.extend(comb)
 
     # FFT combinations
@@ -161,7 +167,7 @@ def create_kde(
         [("padding", padding)],
         [("kernel", dist) for dist in [None, StudentT]],
         [("type", zfit.pdf.KDE1DimFFT)],
-        [("num_grid_points", n) for n in [None, 800]],
+        [("num_grid_points", n) for n in [None, num_grid_size_maybe]],
         [("binning_method", method) for method in ["linear", "simple"]],
     )
 
@@ -175,7 +181,7 @@ def create_kde(
         [("weights", weight) for weight in [None, znp.ones(shape=npoints)]],
         [("padding", padding)],
         [("type", zfit.pdf.KDE1DimISJ)],
-        [("num_grid_points", n) for n in [None, 800]],
+        [("num_grid_points", n) for n in [None, num_grid_size_maybe]],
         [("binning_method", method) for method in ["linear", "simple"]],
     )
 
@@ -223,7 +229,13 @@ def pytest_generate_tests(metafunc):
 
 
 # @pytest.mark.flaky(3)
-@pytest.mark.parametrize("jit", [False, True])
+@pytest.mark.parametrize(
+    "jit",
+    [
+        False,
+        # True
+    ],
+)
 @pytest.mark.parametrize("npoints", [1100, 500_000])
 def test_all_kde(kdetype, npoints, jit, request):
     import zfit

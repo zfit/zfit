@@ -442,7 +442,7 @@ def _bandwidth_isj_KDEV1(data, weights, *_, **__):
 
 
 def check_bw_grid_shapes(bandwidth, grid=None, n_grid=None):
-    if run.executing_eagerly() and bw_is_arraylike(bandwidth):
+    if run.executing_eagerly() and bw_is_arraylike(bandwidth, allow1d=False):
         n_grid = grid.shape[0] if grid is not None else n_grid
         if n_grid is None:
             raise ValueError("Either the grid or n_grid must be given.")
@@ -483,7 +483,7 @@ class KDEHelper:
     _default_num_grid_points = 1024
 
     def _convert_init_data_weights_size(
-        self, data, weights, padding, bandwidth=None, limits=None
+        self, data, weights, padding, limits=None, bandwidth=None
     ):
         self._original_data = data  # for copying
         if isinstance(data, ZfitData):
@@ -502,14 +502,16 @@ class KDEHelper:
             data = z.unstack_x(data)
 
         if callable(padding):
-            data, weights = padding(data=data, weights=weights, limits=limits)
+            data, weights, bandwidth = padding(
+                data=data, weights=weights, limits=limits, bandwidth=bandwidth
+            )
         elif padding is not False:
-            data, weights = padreflect_data_weights_1dim(
-                data, weights=weights, mode=padding, limits=limits
+            data, weights, bandwidth = padreflect_data_weights_1dim(
+                data, weights=weights, mode=padding, limits=limits, bandwidth=bandwidth
             )
         shape_data = tf.shape(data)
         size = tf.cast(shape_data[0], ztypes.float)
-        return data, size, weights
+        return data, size, weights, bandwidth
 
     def _convert_input_bandwidth(self, bandwidth, data, **kwargs):
         if bandwidth is None:
@@ -525,20 +527,28 @@ class KDEHelper:
                 )
         if (not isinstance(bandwidth, ZfitParameter)) and callable(bandwidth):
             bandwidth = bandwidth(constructor=type(self), data=data, **kwargs)
-        if bandwidth_param is None or bandwidth_param in (
-            "adaptiveV1",
-            "adaptive",
-            "adaptive_zfit",
-            "adaptive_std",
-            "adaptive_geom",
+        is_arraylike = bw_is_arraylike(bandwidth_param, allow1d=True)
+        if (
+            bandwidth_param is None
+            or is_arraylike
+            or bandwidth_param
+            in (
+                "adaptiveV1",
+                "adaptive",
+                "adaptive_zfit",
+                "adaptive_std",
+                "adaptive_geom",
+            )
         ):
             bandwidth_param = -999999  # dummy value, not needed. Better solution?
         else:
             bandwidth_param = bandwidth
+        if is_arraylike:
+            bandwidth = znp.asarray(bandwidth)
         return bandwidth, bandwidth_param
 
 
-def padreflect_data_weights_1dim(data, mode, weights=None, limits=None):
+def padreflect_data_weights_1dim(data, mode, weights=None, limits=None, bandwidth=None):
     if mode is False:
         return data, weights
     if mode is True:
@@ -561,6 +571,12 @@ def padreflect_data_weights_1dim(data, mode, weights=None, limits=None):
     diff = maximum - minimum
     new_data = []
     new_weights = []
+    bw_is_array = bw_is_arraylike(bandwidth, allow1d=False)
+    if bandwidth is not None:
+        if not bw_is_array:
+            bandwidth = None
+        else:
+            new_bw = []
 
     lower = mode.get("lowermirror")
     if lower is not None:
@@ -573,8 +589,12 @@ def padreflect_data_weights_1dim(data, mode, weights=None, limits=None):
         if weights is not None:
             lower_weights = tf.gather(weights, indices=lower_index)
             new_weights.append(lower_weights)
+        if bw_is_array:
+            new_bw.append(tf.gather(bandwidth, indices=lower_index))
     new_data.append(data)
     new_weights.append(weights)
+    if bw_is_array:
+        new_bw.append(bandwidth)
     upper = mode.get("uppermirror")
     if upper is not None:
         dx_upper = diff * upper
@@ -586,12 +606,15 @@ def padreflect_data_weights_1dim(data, mode, weights=None, limits=None):
         if weights is not None:
             upper_weights = tf.gather(weights, indices=upper_index)
             new_weights.append(upper_weights)
-
+        if bw_is_array:
+            new_bw.append(tf.gather(bandwidth, indices=upper_index))
     data = tf.concat(new_data, axis=0)
 
     if weights is not None:
         weights = tf.concat(new_weights, axis=0)
-    return data, weights
+    if bw_is_array:
+        bandwidth = tf.concat(new_bw, axis=0)
+    return data, weights, bandwidth
 
 
 class GaussianKDE1DimV1(KDEHelper, WrapDistribution):
@@ -726,11 +749,12 @@ class GaussianKDE1DimV1(KDEHelper, WrapDistribution):
                ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
         """
         original_data = data
-        data, size, weights = self._convert_init_data_weights_size(
+        data, size, weights, _ = self._convert_init_data_weights_size(
             data,
             weights,
             padding=False,
             limits=None,
+            bandwidth=bandwidth,
         )
 
         bandwidth, bandwidth_param = self._convert_input_bandwidth(
@@ -977,8 +1001,8 @@ class KDE1DimExact(KDEHelper, WrapDistribution, SerializableMixin):
                 )
             else:
                 obs = data.space
-        data, size, weights = self._convert_init_data_weights_size(
-            data, weights, padding=padding, limits=obs.limits
+        data, size, weights, bw = self._convert_init_data_weights_size(
+            data, weights, padding=padding, limits=obs.limits, bandwidth=bandwidth
         )
         self._padding = padding
         bandwidth, bandwidth_param = self._convert_input_bandwidth(
@@ -1255,8 +1279,8 @@ class KDE1DimGrid(KDEHelper, WrapDistribution, SerializableMixin):
                 )
             else:
                 obs = data.space
-        data, size, weights = self._convert_init_data_weights_size(
-            data, weights, padding=padding, limits=obs.limits
+        data, size, weights, _ = self._convert_init_data_weights_size(
+            data, weights, padding=padding, limits=obs.limits, bandwidth=bandwidth
         )
         self._padding = padding
 
@@ -1327,8 +1351,13 @@ class KDE1DimGrid(KDEHelper, WrapDistribution, SerializableMixin):
         self.hs3.original_init.update(original_init)
 
 
-def bw_is_arraylike(bw):
-    return hasattr(bw, "shape") and bw.shape and bw.shape[0] > 1
+def bw_is_arraylike(bw, allow1d):
+    return (
+        hasattr(bw, "shape")
+        and bw.shape
+        and len(bw.shape) > 0
+        and (bw.shape[0] is None or (bw.shape[0] > 1 or allow1d))
+    )
 
 
 class KDE1DimGridRepr(BasePDFRepr):
@@ -1546,8 +1575,8 @@ class KDE1DimFFT(KDEHelper, BasePDF, SerializableMixin):
                 )
             else:
                 obs = data.space
-        data, size, weights = self._convert_init_data_weights_size(
-            data, weights, padding=padding, limits=obs.limits
+        data, size, weights, _ = self._convert_init_data_weights_size(
+            data, weights, padding=padding, limits=obs.limits, bandwidth=bandwidth
         )
         self._padding = padding
 
@@ -1796,8 +1825,8 @@ class KDE1DimISJ(KDEHelper, BasePDF, SerializableMixin):
                 )
             else:
                 obs = data.space
-        data, size, weights = self._convert_init_data_weights_size(
-            data, weights, padding=padding, limits=obs.limits
+        data, size, weights, _ = self._convert_init_data_weights_size(
+            data, weights, padding=padding, limits=obs.limits, bandwidth=None
         )
         self._padding = padding
 
