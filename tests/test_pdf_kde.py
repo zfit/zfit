@@ -76,7 +76,17 @@ def create_kde(
         else:
             hparam1 = zfit.Parameter("h1", 0.9)
     comb = itertools.product(
-        [("bandwidth", h) for h in [None, hparam1, "adaptive", "silverman", "scott"]],
+        [
+            ("bandwidth", h)
+            for h in [
+                None,
+                hparam1,
+                "adaptive",
+                "silverman",
+                "scott",
+                np.random.uniform(0.1, 1.5, size=npoints_lim),
+            ]
+        ],
         [("truncate", bo) for bo in [False, True]],
         [("type", zfit.pdf.GaussianKDE1DimV1)],
         [("npoints", npoints_lim)],
@@ -103,6 +113,7 @@ def create_kde(
                 "silverman",
                 "scott",
                 "isj",
+                np.random.uniform(0.1, 1.5, size=npoints_lim),
             ]
         ],
         [("weights", weight) for weight in [None, znp.ones(shape=npoints_lim)]],
@@ -127,6 +138,7 @@ def create_kde(
                 "silverman",
                 "scott",
                 "adaptive_zfit",
+                np.random.uniform(0.1, 1.5, size=npoints),
             ]
         ],
         [("weights", weight) for weight in [None, znp.ones(shape=npoints)]],

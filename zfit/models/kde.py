@@ -3,12 +3,11 @@
 from __future__ import annotations
 
 from collections.abc import Callable
+from typing import Union, Optional
 
 import pydantic
 
 from ..serialization import Serializer, SpaceRepr
-
-from typing import Union, Optional
 
 try:
     from typing import Literal
@@ -27,7 +26,7 @@ from ..core.basepdf import BasePDF
 from ..core.interfaces import ZfitData, ZfitParameter, ZfitSpace
 from ..core.serialmixin import SerializableMixin
 from ..serialization.pdfrepr import BasePDFRepr
-from ..settings import ztypes
+from ..settings import ztypes, run
 from ..util import (
     binning as binning_util,
     convolution as convolution_util,
@@ -442,6 +441,17 @@ def _bandwidth_isj_KDEV1(data, weights, *_, **__):
     return bandwidth_isj(data, weights=weights)
 
 
+def check_bw_grid_shapes(bandwidth, grid=None, n_grid=None):
+    if run.executing_eagerly() and bw_is_arraylike(bandwidth):
+        n_grid = grid.shape[0] if grid is not None else n_grid
+        if n_grid is None:
+            raise ValueError("Either the grid or n_grid must be given.")
+        if bandwidth.shape[0] != n_grid:
+            raise ShapeIncompatibleError(
+                "The bandwidth array must have the same length as the grid"
+            )
+
+
 @z.function(wraps="tensor")
 def min_std_or_iqr(x, weights):
     if weights is not None:
@@ -472,7 +482,9 @@ class KDEHelper:
     _default_padding = False
     _default_num_grid_points = 1024
 
-    def _convert_init_data_weights_size(self, data, weights, padding, limits=None):
+    def _convert_init_data_weights_size(
+        self, data, weights, padding, bandwidth=None, limits=None
+    ):
         self._original_data = data  # for copying
         if isinstance(data, ZfitData):
             if data.weights is not None:
@@ -1285,6 +1297,9 @@ class KDE1DimGrid(KDEHelper, WrapDistribution, SerializableMixin):
         )
 
         mixture_distribution = tfd.Categorical(probs=self._grid_data)
+
+        check_bw_grid_shapes(self._bandwidth, self._grid)
+
         components_distribution = components_distribution_generator(
             loc=self._grid, scale=self._bandwidth
         )
@@ -1310,6 +1325,10 @@ class KDE1DimGrid(KDEHelper, WrapDistribution, SerializableMixin):
             name=name,
         )
         self.hs3.original_init.update(original_init)
+
+
+def bw_is_arraylike(bw):
+    return hasattr(bw, "shape") and bw.shape and bw.shape[0] > 1
 
 
 class KDE1DimGridRepr(BasePDFRepr):
@@ -1546,6 +1565,7 @@ class KDE1DimFFT(KDEHelper, BasePDF, SerializableMixin):
         num_grid_points = tf.minimum(
             tf.cast(size, ztypes.int), tf.constant(num_grid_points, ztypes.int)
         )
+        check_bw_grid_shapes(bandwidth, n_grid=num_grid_points)
         self._num_grid_points = num_grid_points
         self._binning_method = binning_method
         self._fft_method = fft_method
