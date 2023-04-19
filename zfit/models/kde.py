@@ -572,11 +572,8 @@ def padreflect_data_weights_1dim(data, mode, weights=None, limits=None, bandwidt
     new_data = []
     new_weights = []
     bw_is_array = bw_is_arraylike(bandwidth, allow1d=False)
-    if bandwidth is not None:
-        if not bw_is_array:
-            bandwidth = None
-        else:
-            new_bw = []
+    if bw_is_array:
+        new_bw = []
 
     lower = mode.get("lowermirror")
     if lower is not None:
