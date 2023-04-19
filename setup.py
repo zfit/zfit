@@ -21,6 +21,7 @@ extras_require = {}
 extras_require["ipyopt"] = ["ipyopt>=0.12"]
 extras_require["nlopt"] = ["nlopt>=2.7.1"]
 extras_require["hs3"] = ["asdf"]
+extras_require["uproot"] = ["awkward-pandas"]
 allreq = sum(extras_require.values(), [])
 
 tests_require = [
