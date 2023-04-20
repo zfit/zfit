@@ -18,13 +18,26 @@ Deprecations
 
 Bug fixes and small changes
 ---------------------------
-- array bandwidth for KDE works now correctly
 
 Experimental
 ------------
 
 Requirement changes
 -------------------
+
+Thanks
+------
+
+0.13.1 (20 Apr 2023)
+========================
+
+Bug fixes and small changes
+---------------------------
+- array bandwidth for KDE works now correctly
+
+Requirement changes
+-------------------
+- fixed uproot for Python 3.7 to <5
 
 Thanks
 ------
