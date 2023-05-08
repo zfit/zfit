@@ -18,6 +18,41 @@ Deprecations
 
 Bug fixes and small changes
 ---------------------------
+
+Experimental
+------------
+
+Requirement changes
+-------------------
+
+Thanks
+------
+
+0.13.1 (20 Apr 2023)
+========================
+
+Bug fixes and small changes
+---------------------------
+- array bandwidth for KDE works now correctly
+
+Requirement changes
+-------------------
+- fixed uproot for Python 3.7 to <5
+
+Thanks
+------
+- @schmitse for reporting and solving the bug in the KDE bandwidth with arrays
+
+0.13.0 (19 April 2023)
+========================
+
+Major Features and Improvements
+-------------------------------
+
+last Python 3.7 version
+
+Bug fixes and small changes
+---------------------------
 - ``SampleData`` is not used anymore, a ``Data`` object is returned (for simple sampling). The ``create_sampler`` will still return a ``SamplerData`` object though as this differs from ``Data``.
 
 Experimental
@@ -26,9 +61,11 @@ Experimental
 
 Requirement changes
 -------------------
+- allow uproot 5 (remove previous restriction)
 
 Thanks
 ------
+- to Johannes Lade for the amazing work on the serialization, which made this HS3 implementation possible!
 
 
 0.12.1 (1 April 2023)

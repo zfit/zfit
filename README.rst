@@ -61,6 +61,23 @@ It is, however, mostly ready for production, and is being used in analyses proje
 If you want to use it for your project and you are not sure if all the needed functionality is there,
 feel free to `contact`_.
 
+Installation
+=============
+
+zfit is available on pip. To install it (recommended: use a virtual/conda env!) with all the dependencies (minimizers, uproot, ...), use
+
+.. code-block:: bash
+
+   pip install -U zfit[all]
+   
+(the ``-U`` just indicates to upgrade zfit, in case you have it already installed)
+or for minimal dependencies
+
+.. code-block:: bash
+
+   pip install zfit
+
+
 
 Why?
 ====
