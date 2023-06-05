@@ -18,6 +18,8 @@ Deprecations
 
 Bug fixes and small changes
 ---------------------------
+- fix a caching problem with parameters (could cause issues with larger PDFs as params would be "remembered" wrongly)
+
 
 Experimental
 ------------

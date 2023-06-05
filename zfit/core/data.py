@@ -406,6 +406,7 @@ class Data(
             )
         if dtype is None:
             dtype = ztypes.float
+        array = znp.asarray(array)
         tensor = tf.cast(array, dtype=dtype)
         return Data.from_tensor(  # *not* class, if subclass, keep constructor
             obs=obs,
