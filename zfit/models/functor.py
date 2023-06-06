@@ -199,7 +199,6 @@ class SumPDF(BaseFunctor, SerializableMixin):  # TODO: add extended argument
         if not self._automatically_extended:
             raise SpecificFunctionNotImplemented
         pdfs = self.pdfs
-        fracs = self.fracs
         # TODO(SUM): why was this needed?
         # assert norm_range not in (None, False), "Bug, who requested an unnormalized integral?"
         integrals = [

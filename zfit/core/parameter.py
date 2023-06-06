@@ -708,6 +708,33 @@ class Parameter(
     def upper_limit(self, value):
         self.upper = value
 
+    def __tf_tracing_type__(self, signature_context):
+        return ParameterSpec(name=self.name)
+
+
+class ParameterSpec:
+    def __init__(self, name):
+        self.name = name
+
+    def is_subtype_of(self, other) -> bool:
+        """Returns True if `self` is a subtype of `other`.
+
+        Implements the tf.types.experimental.func.TraceType interface.
+
+        If not overridden by a subclass, the default behavior is to assume the
+        TypeSpec is covariant upon attributes that implement TraceType and
+        invariant upon rest of the attributes as well as the structure and type
+        of the TypeSpec.
+
+        Args:
+          other: A TraceType object.
+        """
+
+        if type(self) is not type(other):
+            return False
+
+        return self.name == other.name
+
 
 class ParameterRepr(BaseRepr):
     _implementation = Parameter
