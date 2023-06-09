@@ -26,7 +26,7 @@ def _powerlaw(x, a, k):
     return a * znp.power(x, k)
 
 
-@z.function(wraps="zfit_tensor", stateless_args=True)
+@z.function(wraps="zfit_tensor")
 def crystalball_func(x, mu, sigma, alpha, n):
     t = (x - mu) / sigma * tf.sign(alpha)
     abs_alpha = znp.abs(alpha)
@@ -36,15 +36,15 @@ def crystalball_func(x, mu, sigma, alpha, n):
     func = z.safe_where(
         cond,
         lambda t: _powerlaw(b - t, a, -n),
-        lambda t: znp.exp(-0.5 * tf.square(t)),
+        lambda t: znp.exp(-0.5 * znp.square(t)),
         values=t,
-        value_safer=lambda t: tf.ones_like(t) * (b - 2),
+        value_safer=lambda t: znp.ones_like(t) * (b - 2),
     )
-    func = znp.maximum(func, tf.zeros_like(func))
+    func = znp.maximum(func, znp.zeros_like(func))
     return func
 
 
-@z.function(wraps="zfit_tensor", stateless_args=True)
+@z.function(wraps="zfit_tensor", stateless_args=False)
 def double_crystalball_func(x, mu, sigma, alphal, nl, alphar, nr):
     cond = tf.less(x, mu)
 
@@ -70,7 +70,7 @@ def crystalball_integral(limits, params, model):
     return integral
 
 
-# @z.function(wraps='zfit_tensor')
+@z.function(wraps="zfit_tensor")
 # @tf.function  # BUG? TODO: problem with tf.function and input signature
 def crystalball_integral_func(mu, sigma, alpha, n, lower, upper):
     sqrt_pi_over_two = np.sqrt(np.pi / 2)
@@ -93,59 +93,52 @@ def crystalball_integral_func(mu, sigma, alpha, n, lower, upper):
         * (tf.math.erf(tmax / sqrt2) - tf.math.erf(tmin / sqrt2))
     )
 
-    result_6 = 0.0
-
-    result_3 = result_6
     a = znp.power(n / abs_alpha, n) * znp.exp(-0.5 * tf.square(abs_alpha))
     b = n / abs_alpha - abs_alpha
 
-    (result_1,) = (result_3,)
-    result_1 += a * abs_sigma * (znp.log(b - tmin) - znp.log(b - tmax))
-    if_true_1 = result_1
+    safe_logarg1 = znp.where(b - tmin > 0, b - tmin, znp.ones_like(b - tmin))
+    safe_logarg2 = znp.where(b - tmax > 0, b - tmax, znp.ones_like(b - tmax))
+    if_true_1 = a * abs_sigma * (znp.log(safe_logarg1) - znp.log(safe_logarg2))
 
-    (result_2,) = (result_3,)
-    result_2 += (
+    if_false_1 = (
         a
         * abs_sigma
         / (1.0 - n)
         * (1.0 / znp.power(b - tmin, n - 1.0) - 1.0 / znp.power(b - tmax, n - 1.0))
     )
-    if_false_1 = result_2
 
-    result_3 = tf.where(use_log, if_true_1, if_false_1)
-    if_true_3 = result_3
+    if_true_3 = tf.where(use_log, if_true_1, if_false_1)
 
-    (result_4,) = (result_6,)
     a = znp.power(n / abs_alpha, n) * znp.exp(-0.5 * tf.square(abs_alpha))
     b = n / abs_alpha - abs_alpha
 
-    if_true_2 = a * abs_sigma * (znp.log(b - tmin) - znp.log(n / abs_alpha))
-
-    term1 = (
-        a
-        * abs_sigma
-        / (1.0 - n)
-        * (1.0 / znp.power(b - tmin, n - 1.0) - 1.0 / znp.power(n / abs_alpha, n - 1.0))
-    )
-    if_false_2 = term1
-
-    term1 = tf.where(use_log, if_true_2, if_false_2)
+    if_false_2 = conditional2(a, abs_alpha, abs_sigma, b, n, tmin, use_log)
     term2 = (
         abs_sigma
         * sqrt_pi_over_two
         * (tf.math.erf(tmax / sqrt2) - tf.math.erf(-abs_alpha / sqrt2))
     )
-    result_4 += term1 + term2
-    if_false_3 = result_4
+    if_false_3 = if_false_2 + term2
 
-    result_6 = tf.where(tf.less_equal(tmax, -abs_alpha), if_true_3, if_false_3)
-    if_false_4 = result_6
+    if_false_4 = tf.where(tf.less_equal(tmax, -abs_alpha), if_true_3, if_false_3)
 
     # if_false_4()
     result = tf.where(tf.greater_equal(tmin, -abs_alpha), if_true_4, if_false_4)
     if not result.shape.rank == 0:
         result = tf.gather(result, 0, axis=-1)  # remove last dim, should vanish
     return result
+
+
+def conditional2(a, abs_alpha, abs_sigma, b, n, tmin, use_log):
+    if_true_2 = a * abs_sigma * (znp.log(b - tmin) - znp.log(n / abs_alpha))
+    if_false_2 = (
+        a
+        * abs_sigma
+        / (1.0 - n)
+        * (1.0 / znp.power(b - tmin, n - 1.0) - 1.0 / znp.power(n / abs_alpha, n - 1.0))
+    )
+    if_false_2 = tf.where(use_log, if_true_2, if_false_2)
+    return if_false_2
 
 
 def double_crystalball_mu_integral(limits, params, model):
