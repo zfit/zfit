@@ -321,7 +321,15 @@ def covariance_with_weights(method, result, params):
     params_dict = {p.name: p for p in params}
 
     if run.get_autograd_mode():
-        jacobian = autodiff_pdf_jacobian(func=func, params=params_dict)
+        try:
+            jacobian = autodiff_pdf_jacobian(func=func, params=params_dict)
+        except ValueError as error:
+            raise ValueError(
+                "The autodiff could not be performed for the jacobian matrix. This can have a natural cause (see error above)"
+                " or be a bug in the autodiff. In the latter case, you can try to use the numerical jacobian instead using:\n"
+                "with zfit.run.set_autograd_mode(False):\n"
+                "    # calculate here, i.e. result.errors()"
+            ) from error
     else:
 
         def wrapped_func(values):

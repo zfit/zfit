@@ -19,6 +19,7 @@ Deprecations
 Bug fixes and small changes
 ---------------------------
 - fix a caching problem with parameters (could cause issues with larger PDFs as params would be "remembered" wrongly)
+- more helpful error message when jacobian (as used for weighted corrections) is analytically asked but fails
 
 
 Experimental
