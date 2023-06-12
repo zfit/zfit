@@ -510,6 +510,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
     def gradient(self, params: ztyping.ParamTypeInput = None) -> list[tf.Tensor]:
         params = self._input_check_params(params)
         numgrad = self._options["numgrad"]
+        params = {p.name: p for p in params}
         return self._gradient(params=params, numgrad=numgrad)
 
     def gradients(self, *args, **kwargs):
@@ -519,6 +520,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
 
     @z.function(wraps="loss")
     def _gradient(self, params, numgrad):
+        params = tuple(params.values())
         if numgrad:
             gradient = numerical_gradient(self.value, params=params)
         else:
@@ -526,7 +528,8 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         return gradient
 
     def value_gradient(
-        self, params: ztyping.ParamTypeInput = None
+        self,
+        params: ztyping.ParamTypeInput = None,
     ) -> tuple[tf.Tensor, tf.Tensor]:
         params = self._input_check_params(params)
         numgrad = self._options["numgrad"]

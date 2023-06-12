@@ -83,9 +83,8 @@ def crystalball_integral_func(mu, sigma, alpha, n, lower, upper):
     tmax = (upper - mu) / abs_sigma
 
     alpha_negative = tf.less(alpha, 0)
-    tmax, tmin = znp.where(alpha_negative, -tmin, tmax), znp.where(
-        alpha_negative, -tmax, tmin
-    )
+    tmax = znp.where(alpha_negative, -tmin, tmax)
+    tmin = znp.where(alpha_negative, -tmax, tmin)
 
     if_true_4 = (
         abs_sigma
@@ -96,15 +95,23 @@ def crystalball_integral_func(mu, sigma, alpha, n, lower, upper):
     a = znp.power(n / abs_alpha, n) * znp.exp(-0.5 * tf.square(abs_alpha))
     b = n / abs_alpha - abs_alpha
 
-    safe_logarg1 = znp.where(b - tmin > 0, b - tmin, znp.ones_like(b - tmin))
-    safe_logarg2 = znp.where(b - tmax > 0, b - tmax, znp.ones_like(b - tmax))
+    # gradients from tf.where can be NaN if the non-selected branch is NaN
+    # https://github.com/tensorflow/tensorflow/issues/42889
+    # solution is to provide save values for the non-selected branch to never make them become NaNs
+    b_tmin = b - tmin
+    safe_logarg1 = znp.where(b_tmin > 0, b_tmin, znp.ones_like(b_tmin))
+    b_tmax = b - tmax
+    safe_logarg2 = znp.where(b_tmax > 0, b_tmax, znp.ones_like(b_tmax))
     if_true_1 = a * abs_sigma * (znp.log(safe_logarg1) - znp.log(safe_logarg2))
 
     if_false_1 = (
         a
         * abs_sigma
         / (1.0 - n)
-        * (1.0 / znp.power(b - tmin, n - 1.0) - 1.0 / znp.power(b - tmax, n - 1.0))
+        * (
+            1.0 / znp.power(safe_logarg1, n - 1.0)
+            - 1.0 / znp.power(safe_logarg2, n - 1.0)
+        )
     )
 
     if_true_3 = tf.where(use_log, if_true_1, if_false_1)
