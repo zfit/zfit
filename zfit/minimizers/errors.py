@@ -279,6 +279,17 @@ def numerical_pdf_jacobian(func, params):  # TODO: jit?
 # @z.function(wraps="autodiff")
 def autodiff_pdf_jacobian(func, params):
     params = list(params.values())
+
+    # with tf.GradientTape(watch_accessed_variables=False) as t2:
+    #     t2.watch(params)
+    #     with tf.GradientTape(watch_accessed_variables=False) as t1:
+    #         t1.watch(params)
+    #         values = func()
+    #
+    #     grad = t1.gradient(values, params)
+    #     grad = tf.convert_to_tensor(grad)
+    # jacobian = t2.jacobian(grad, params)
+
     columns = []
 
     for p in params:
