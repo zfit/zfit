@@ -205,7 +205,7 @@ def test_params_at_limit():
     old_lower = param_a.lower
     param_a.lower = param_a.upper
     param_a.assign(param_a.upper + 5)
-    minimizer = zfit.minimize.Minuit(gradient=True, tol=10.0)
+    minimizer = zfit.minimize.Minuit(owngrad=True, tol=10.0)
     result = minimizer.minimize(loss)
     param_a.assign(100)
     assert param_a.at_limit

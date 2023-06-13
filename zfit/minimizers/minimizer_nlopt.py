@@ -42,7 +42,7 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
         self,
         algorithm: int,
         tol: float | None = None,
-        gradient: Callable | str | NOT_SUPPORTED | None = NOT_SUPPORTED,
+        owngrad: Callable | str | NOT_SUPPORTED | None = NOT_SUPPORTED,
         hessian: Callable | str | NOT_SUPPORTED | None = NOT_SUPPORTED,
         maxiter: int | str | None = None,
         minimizer_options: Mapping[str, object] | None = None,
@@ -51,6 +51,7 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
         strategy: ZfitStrategy | None = None,
         criterion: ConvergenceCriterion | None = None,
         name: str = "NLopt Base Minimizer V1",
+        gradient=None,
     ):
         """NLopt is a library that contains multiple different optimization algorithms.
 
@@ -100,7 +101,7 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
                    convergence/stopping criterion of the algorithm
                    in order to determine if the minimum has
                    been found. Defaults to 1e-3. |@docend:minimizer.tol|
-             gradient: Gradient that will be given to the minimizer if supported.
+             owngrad: Gradient that will be given to the minimizer if supported.
              hessian: Hessian that will be given to the minimizer if supported.
              internal_tols: Tolerances for the minimizer. Has to contain possible tolerance criteria.
              verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10.
@@ -135,6 +136,10 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
              minimizer_options: Additional options that will be set in the minimizer.
              name: |@doc:minimizer.name| Human-readable name of the minimizer. |@docend:minimizer.name|
         """
+        # legacy
+        if gradient is not None:
+            owngrad = gradient
+        # legacy end
         try:
             import nlopt
         except ImportError:
@@ -147,10 +152,10 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
             minimizer_options = {}
         minimizer_options = copy.copy(minimizer_options)
 
-        if gradient is not NOT_SUPPORTED:
-            if gradient is False:
+        if owngrad is not NOT_SUPPORTED:
+            if owngrad is False:
                 raise ValueError("grad cannot be False for NLopt minimizer.")
-            minimizer_options["gradient"] = gradient
+            minimizer_options["gradient"] = owngrad
         if hessian is not NOT_SUPPORTED:
             minimizer_options["hessian"] = hessian
 
@@ -497,7 +502,7 @@ class NLoptLBFGSV1(NLoptBaseMinimizerV1):
             name=name,
             algorithm=nlopt.LD_LBFGS,
             tol=tol,
-            gradient=NOT_SUPPORTED,
+            owngrad=NOT_SUPPORTED,
             hessian=NOT_SUPPORTED,
             criterion=criterion,
             verbosity=verbosity,
@@ -607,7 +612,7 @@ class NLoptShiftVarV1(NLoptBaseMinimizerV1):
             name=name,
             algorithm=algorithm,
             tol=tol,
-            gradient=NOT_SUPPORTED,
+            owngrad=NOT_SUPPORTED,
             hessian=NOT_SUPPORTED,
             criterion=criterion,
             verbosity=verbosity,
@@ -708,7 +713,7 @@ class NLoptTruncNewtonV1(NLoptBaseMinimizerV1):
             name=name,
             algorithm=nlopt.LD_TNEWTON_PRECOND_RESTART,
             tol=tol,
-            gradient=NOT_SUPPORTED,
+            owngrad=NOT_SUPPORTED,
             hessian=NOT_SUPPORTED,
             criterion=criterion,
             verbosity=verbosity,
@@ -822,7 +827,7 @@ class NLoptSLSQPV1(NLoptBaseMinimizerV1):
             name=name,
             algorithm=nlopt.LD_SLSQP,
             tol=tol,
-            gradient=NOT_SUPPORTED,
+            owngrad=NOT_SUPPORTED,
             hessian=NOT_SUPPORTED,
             criterion=criterion,
             verbosity=verbosity,
@@ -917,7 +922,7 @@ class NLoptBOBYQAV1(NLoptBaseMinimizerV1):
             name=name,
             algorithm=nlopt.LN_BOBYQA,
             tol=tol,
-            gradient=NOT_SUPPORTED,
+            owngrad=NOT_SUPPORTED,
             hessian=NOT_SUPPORTED,
             criterion=criterion,
             verbosity=verbosity,
@@ -1013,7 +1018,7 @@ class NLoptMMAV1(NLoptBaseMinimizerV1):
             name=name,
             algorithm=nlopt.LD_MMA,
             tol=tol,
-            gradient=NOT_SUPPORTED,
+            owngrad=NOT_SUPPORTED,
             hessian=NOT_SUPPORTED,
             criterion=criterion,
             verbosity=verbosity,
@@ -1100,7 +1105,7 @@ class NLoptCCSAQV1(NLoptBaseMinimizerV1):
             name=name,
             algorithm=nlopt.LD_CCSAQ,
             tol=tol,
-            gradient=NOT_SUPPORTED,
+            owngrad=NOT_SUPPORTED,
             hessian=NOT_SUPPORTED,
             criterion=criterion,
             verbosity=verbosity,
@@ -1216,7 +1221,7 @@ class NLoptCOBYLAV1(NLoptBaseMinimizerV1):
             name=name,
             algorithm=nlopt.LN_COBYLA,
             tol=tol,
-            gradient=NOT_SUPPORTED,
+            owngrad=NOT_SUPPORTED,
             hessian=NOT_SUPPORTED,
             criterion=criterion,
             verbosity=verbosity,
@@ -1314,7 +1319,7 @@ class NLoptSubplexV1(NLoptBaseMinimizerV1):
             name=name,
             algorithm=nlopt.LN_SBPLX,
             tol=tol,
-            gradient=NOT_SUPPORTED,
+            owngrad=NOT_SUPPORTED,
             hessian=NOT_SUPPORTED,
             criterion=criterion,
             verbosity=verbosity,
@@ -1446,7 +1451,7 @@ class NLoptMLSLV1(NLoptBaseMinimizerV1):
             name=name,
             algorithm=algorithm,
             tol=tol,
-            gradient=NOT_SUPPORTED,
+            owngrad=NOT_SUPPORTED,
             hessian=NOT_SUPPORTED,
             criterion=criterion,
             verbosity=verbosity,
@@ -1550,7 +1555,7 @@ class NLoptStoGOV1(NLoptBaseMinimizerV1):
             name=name,
             algorithm=algorithm,
             tol=tol,
-            gradient=NOT_SUPPORTED,
+            owngrad=NOT_SUPPORTED,
             hessian=NOT_SUPPORTED,
             criterion=criterion,
             verbosity=verbosity,
@@ -1658,7 +1663,7 @@ class NLoptESCHV1(NLoptBaseMinimizerV1):
             name=name,
             algorithm=algorithm,
             tol=tol,
-            gradient=NOT_SUPPORTED,
+            owngrad=NOT_SUPPORTED,
             hessian=NOT_SUPPORTED,
             criterion=criterion,
             verbosity=verbosity,
@@ -1763,7 +1768,7 @@ class NLoptISRESV1(NLoptBaseMinimizerV1):
             name=name,
             algorithm=algorithm,
             tol=tol,
-            gradient=NOT_SUPPORTED,
+            owngrad=NOT_SUPPORTED,
             hessian=NOT_SUPPORTED,
             criterion=criterion,
             verbosity=verbosity,

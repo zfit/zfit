@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 
 import mplhep
 import numpy as np
@@ -263,7 +263,7 @@ def test_binned_template_pdf_bbfull(TemplateLikePDF):
     # for i in progressbar.progressbar(range(1000000)):
     loss.value()
     loss.gradient()
-    minimizer = zfit.minimize.Minuit(gradient=False, mode=0)
+    minimizer = zfit.minimize.Minuit(owngrad=False, mode=0)
     # minimizer = zfit.minimize.ScipyTrustConstrV1(verbosity=8)
     minimizer.minimize(loss)
 

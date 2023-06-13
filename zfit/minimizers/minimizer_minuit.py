@@ -29,11 +29,12 @@ class Minuit(BaseMinimizer, GraphCachable):
     @deprecated_args(None, "Use `mode` instead.", "minimize_strategy")
     @deprecated_args(None, "Use `gradient` instead.", "minuit_grad")
     @deprecated_args(None, "Use `gradient` instead.", "use_minuit_grad")
+    @deprecated_args(None, "Use `owngrad` instead.", "gradient")
     def __init__(
         self,
         tol: float | None = None,
         mode: int | None = None,
-        gradient: bool | None = None,
+        owngrad: bool | None = None,
         verbosity: int | None = None,
         options: Mapping[str, object] | None = None,
         maxiter: int | None = None,
@@ -46,6 +47,7 @@ class Minuit(BaseMinimizer, GraphCachable):
         minimize_strategy=None,
         ncall=None,
         minimizer_options=None,
+        gradient: bool | None = None,
     ):
         """Minuit is a longstanding and well proven algorithm of the L-BFGS-B class implemented in `iminuit`_.
 
@@ -75,7 +77,7 @@ class Minuit(BaseMinimizer, GraphCachable):
                      if Minuit detects significant correlations between parameters.
                 - 2 same quadratic scaling as strategy 1 but is even slower. The Hesse matrix is
                     always explicitly computed in each Newton step.
-            gradient: If True, iminuit uses its internal numerical gradient calculation instead of the
+            owngrad: If True, iminuit uses its internal numerical gradient calculation instead of the
                 (analytic/numerical) gradient provided by TensorFlow/zfit. If False or ``'zfit'``, the latter
                 is used. For smaller datasets with less stable losses, the internal Minuit gradient often performs
                 better while the zfit provided gradient improves the convergence rate for larger (10'000+) datasets.
@@ -135,12 +137,17 @@ class Minuit(BaseMinimizer, GraphCachable):
             use_minuit_grad if use_minuit_grad is not None else minuit_grad
         )
         if use_grad_legacy is not None:
-            gradient = use_grad_legacy
+            raise BreakingAPIChangeError(
+                "The use_minuit_grad and minuit_grad arguments have been deprecated since a long time and have now been removed."
+                " Use owngrad instead."
+            )
+        if gradient is not None:
+            owngrad = gradient
         # end legacy
 
-        if gradient == "zfit":
-            gradient = False
-        gradient = True if gradient is None else gradient
+        if owngrad == "zfit":
+            owngrad = False
+        owngrad = True if owngrad is None else owngrad
 
         self._internal_maxiter = 20
 
@@ -162,8 +169,8 @@ class Minuit(BaseMinimizer, GraphCachable):
             minimizer_options=options,
         )
         self._minuit_minimizer = None
-        self._use_tfgrad_internal = not gradient
-        self.minuit_grad = gradient
+        self._use_tfgrad_internal = not owngrad
+        self.minuit_grad = owngrad
 
     # TODO 0.7: legacy, remove `_use_tfgrad`
     @property

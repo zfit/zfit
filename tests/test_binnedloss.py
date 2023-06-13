@@ -204,7 +204,7 @@ def test_binned_loss(weights, Loss, simultaneous):
     #     loss.gradient()
     # print(f"Needed: {time.time() - start}")
 
-    minimizer = zfit.minimize.Minuit(gradient=False)
+    minimizer = zfit.minimize.Minuit(owngrad=False)
     result = minimizer.minimize(loss=loss)
 
     params = result.params
@@ -261,7 +261,7 @@ def test_binned_loss(weights, Loss, simultaneous):
     )
     loss = Loss(model=gaussian2, data=test_values_binned, constraints=constraints)
 
-    minimizer = zfit.minimize.Minuit(gradient=False)
+    minimizer = zfit.minimize.Minuit(owngrad=False)
     result = minimizer.minimize(loss=loss, params=[mu2, sigma2])
     params = result.params
     if weights is None:

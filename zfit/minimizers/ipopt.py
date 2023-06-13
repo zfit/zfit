@@ -36,7 +36,7 @@ class IpyoptV1(BaseMinimizer):
     ) -> None:
         """Ipopt is a gradient-based minimizer that performs large scale nonlinear optimization of continuous systems.
 
-        This implemenation uses the `IPyOpt wrapper <https://gitlab.com/g-braeunlich/ipyopt>`_
+        This implementation uses the `IPyOpt wrapper <https://gitlab.com/g-braeunlich/ipyopt>`_
 
          `Ipopt <https://coin-or.github.io/Ipopt/index.html>`_
          (Interior Point Optimizer, pronounced "Eye-Pea-Opt") is an open source software package for

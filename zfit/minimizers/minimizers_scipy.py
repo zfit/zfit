@@ -36,7 +36,7 @@ class ScipyBaseMinimizerV1(BaseMinimizer):
         method: str,
         tol: float | None,
         internal_tol: Mapping[str, float | None],
-        gradient: Callable | str | NOT_SUPPORTED | None,
+        owngrad: Callable | str | NOT_SUPPORTED | None,
         hessian: None
         | (Callable | str | scipy.optimize.HessianUpdateStrategy | NOT_SUPPORTED),
         maxiter: int | str | None = None,
@@ -98,6 +98,7 @@ class ScipyBaseMinimizerV1(BaseMinimizer):
             verbosity_setter:
             name: |@doc:minimizer.name| Human-readable name of the minimizer. |@docend:minimizer.name|
         """
+
         self._minimize_func = (
             scipy.optimize.minimize if minimize_func is None else minimize_func
         )
@@ -123,7 +124,7 @@ class ScipyBaseMinimizerV1(BaseMinimizer):
         if "options" not in minimizer_options:
             minimizer_options["options"] = {}
 
-        if gradient in (True, "2-point", "3-point") and not (
+        if owngrad in (True, "2-point", "3-point") and not (
             isinstance(hessian, HessianUpdateStrategy) or hessian is NOT_SUPPORTED
         ):
             raise ValueError(
@@ -131,21 +132,21 @@ class ScipyBaseMinimizerV1(BaseMinimizer):
                 "the Hessian has to be estimated using one of the quasi-Newton strategies."
             )
 
-        if gradient is not NOT_SUPPORTED:
+        if owngrad is not NOT_SUPPORTED:
             if (
                 self._VALID_SCIPY_GRADIENT is not None
-                and gradient not in self._VALID_SCIPY_GRADIENT
+                and owngrad not in self._VALID_SCIPY_GRADIENT
             ):
                 raise ValueError(
-                    f"Requested gradient {gradient} is not a valid choice. Possible"
+                    f"Requested gradient {owngrad} is not a valid choice. Possible"
                     f" gradient methods are {self._VALID_SCIPY_GRADIENT}"
                 )
-            if gradient is False or gradient is None:
-                gradient = "zfit"
+            if owngrad is False or owngrad is None:
+                owngrad = "zfit"
 
-            elif gradient is True:
-                gradient = None
-            minimizer_options["grad"] = gradient
+            elif owngrad is True:
+                owngrad = None
+            minimizer_options["grad"] = owngrad
 
         if hessian is not NOT_SUPPORTED:
             if (
@@ -421,11 +422,12 @@ class ScipyLBFGSBV1(ScipyBaseMinimizerV1):
         maxcor: int | None = None,
         maxls: int | None = None,
         verbosity: int | None = None,
-        gradient: Callable | str | None = None,
+        owngrad: Callable | str | None = None,
         maxiter: int | str | None = None,
         criterion: ConvergenceCriterion | None = None,
         strategy: ZfitStrategy | None = None,
         name: str = "SciPy L-BFGS-B V1",
+        gradient: bool = None,
     ) -> None:
         """Local, gradient based quasi-Newton algorithm using the limited-memory BFGS approximation.
 
@@ -466,7 +468,7 @@ class ScipyLBFGSBV1(ScipyBaseMinimizerV1):
                distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
 
               Increasing the verbosity will gradually increase the output.
-            gradient: |@doc:minimizer.scipy.gradient| Define the method to use for the gradient computation
+            owngrad: |@doc:minimizer.scipy.gradient| Define the method to use for the gradient computation
                    that the minimizer should use. This can be the
                    gradient provided by the loss itself or
                    method from the minimizer.
@@ -504,6 +506,10 @@ class ScipyLBFGSBV1(ScipyBaseMinimizerV1):
                    NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
             name: |@doc:minimizer.name| Human-readable name of the minimizer. |@docend:minimizer.name|
         """
+        # legacy
+        if gradient is not None:
+            owngrad = gradient
+        # legacy end
         options = {}
         if maxcor is not None:
             options["maxcor"] = maxcor
@@ -526,7 +532,7 @@ class ScipyLBFGSBV1(ScipyBaseMinimizerV1):
         super().__init__(
             method="L-BFGS-B",
             internal_tol=scipy_tols,
-            gradient=gradient,
+            owngrad=owngrad,
             hessian=NOT_SUPPORTED,
             minimizer_options=minimizer_options,
             tol=tol,
@@ -558,13 +564,14 @@ class ScipyTrustKrylovV1(ScipyBaseMinimizerV1):
         self,
         tol: float | None = None,
         inexact: bool | None = None,
-        gradient: Callable | str | None = None,
+        owngrad: Callable | str | None = None,
         hessian: None | (Callable | str | scipy.optimize.HessianUpdateStrategy) = None,
         verbosity: int | None = None,
         maxiter: int | str | None = None,
         criterion: ConvergenceCriterion | None = None,
         strategy: ZfitStrategy | None = None,
         name: str = "SciPy trust-krylov V1",
+        gradient: None | str | Callable = None,
     ) -> None:
         """PERFORMS POORLY! Local, gradient based (nearly) exact trust-region algorithm using matrix vector products
         with the hessian.
@@ -579,7 +586,7 @@ class ScipyTrustKrylovV1(ScipyBaseMinimizerV1):
                    been found. Defaults to 1e-3. |@docend:minimizer.tol|
             inexact: Accuracy to solve subproblems.
                 If True requires less nonlinear iterations, but more vector products.
-            gradient: |@doc:minimizer.scipy.gradient| Define the method to use for the gradient computation
+            owngrad: |@doc:minimizer.scipy.gradient| Define the method to use for the gradient computation
                    that the minimizer should use. This can be the
                    gradient provided by the loss itself or
                    method from the minimizer.
@@ -655,6 +662,10 @@ class ScipyTrustKrylovV1(ScipyBaseMinimizerV1):
                    NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
             name: |@doc:minimizer.name| Human-readable name of the minimizer. |@docend:minimizer.name|
         """
+        # legacy
+        if gradient is not None:
+            owngrad = gradient
+        # legacy end
         options = {}
         if inexact is not None:
             options["inexact"] = inexact
@@ -668,7 +679,7 @@ class ScipyTrustKrylovV1(ScipyBaseMinimizerV1):
         super().__init__(
             method="trust-krylov",
             internal_tol=scipy_tols,
-            gradient=gradient,
+            owngrad=owngrad,
             hessian=hessian,
             minimizer_options=minimizer_options,
             tol=tol,
@@ -710,13 +721,14 @@ class ScipyTrustNCGV1(ScipyBaseMinimizerV1):
         init_trust_radius: float | None = None,
         eta: float | None = None,
         max_trust_radius: int | None = None,
-        gradient: Callable | str | None = None,
+        owngrad: Callable | str | None = None,
         hessian: None | (Callable | str | scipy.optimize.HessianUpdateStrategy) = None,
         verbosity: int | None = None,
         maxiter: int | str | None = None,
         criterion: ConvergenceCriterion | None = None,
         strategy: ZfitStrategy | None = None,
         name: str = "SciPy trust-ncg V1",
+        gradient=None,
     ) -> None:
         """PERFORMS POORLY! Local Newton conjugate gradient trust-region algorithm.
 
@@ -734,7 +746,7 @@ class ScipyTrustNCGV1(ScipyBaseMinimizerV1):
             init_trust_radius: |@doc:minimizer.trust.init_trust_radius| Initial trust-region radius. |@docend:minimizer.trust.init_trust_radius|
             max_trust_radius: |@doc:minimizer.trust.max_trust_radius| Maximum value of the trust-region radius.
                    No steps that are longer than this value will be proposed. |@docend:minimizer.trust.max_trust_radius|
-            gradient: |@doc:minimizer.scipy.gradient| Define the method to use for the gradient computation
+            owngrad: |@doc:minimizer.scipy.gradient| Define the method to use for the gradient computation
                    that the minimizer should use. This can be the
                    gradient provided by the loss itself or
                    method from the minimizer.
@@ -804,6 +816,10 @@ class ScipyTrustNCGV1(ScipyBaseMinimizerV1):
                    NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
             name: |@doc:minimizer.name| Human-readable name of the minimizer. |@docend:minimizer.name|
         """
+        # legacy
+        if gradient is not None:
+            owngrad = gradient
+        # legacy end
         options = {}
         if eta is not None:
             options["eta"] = eta
@@ -834,7 +850,7 @@ class ScipyTrustNCGV1(ScipyBaseMinimizerV1):
         super().__init__(
             method="trust-ncg",
             internal_tol=scipy_tols,
-            gradient=gradient,
+            owngrad=owngrad,
             hessian=hessian,
             minimizer_options=minimizer_options,
             tol=tol,
@@ -873,13 +889,14 @@ class ScipyTrustConstrV1(ScipyBaseMinimizerV1):
         self,
         tol: float | None = None,
         init_trust_radius: int | None = None,
-        gradient: Callable | str | None = None,
+        owngrad: Callable | str | None = None,
         hessian: None | (Callable | str | scipy.optimize.HessianUpdateStrategy) = None,
         verbosity: int | None = None,
         maxiter: int | str | None = None,
         criterion: ConvergenceCriterion | None = None,
         strategy: ZfitStrategy | None = None,
         name: str = "SciPy trust-constr V1",
+        gradient=None,
     ) -> None:
         """Trust-region based local minimizer.
 
@@ -893,7 +910,7 @@ class ScipyTrustConstrV1(ScipyBaseMinimizerV1):
                    in order to determine if the minimum has
                    been found. Defaults to 1e-3. |@docend:minimizer.tol|
             init_trust_radius: |@doc:minimizer.trust.init_trust_radius| Initial trust-region radius. |@docend:minimizer.trust.init_trust_radius|
-            gradient: |@doc:minimizer.scipy.gradient| Define the method to use for the gradient computation
+            owngrad: |@doc:minimizer.scipy.gradient| Define the method to use for the gradient computation
                    that the minimizer should use. This can be the
                    gradient provided by the loss itself or
                    method from the minimizer.
@@ -983,6 +1000,10 @@ class ScipyTrustConstrV1(ScipyBaseMinimizerV1):
                    NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
             name: |@doc:minimizer.name| Human-readable name of the minimizer. |@docend:minimizer.name|
         """
+        # legacy
+        if gradient is not None:
+            owngrad = gradient
+        # legacy end
         options = {}
         if init_trust_radius is not None:
             options["initial_tr_radius"] = init_trust_radius
@@ -1023,7 +1044,7 @@ class ScipyTrustConstrV1(ScipyBaseMinimizerV1):
         super().__init__(
             method="trust-constr",
             internal_tol=scipy_tols,
-            gradient=gradient,
+            owngrad=owngrad,
             hessian=hessian,
             minimizer_options=minimizer_options,
             tol=tol,
@@ -1066,13 +1087,14 @@ class ScipyNewtonCGV1(ScipyBaseMinimizerV1):
     def __init__(
         self,
         tol: float | None = None,
-        gradient: Callable | str | None = None,
+        owngrad: Callable | str | None = None,
         hessian: None | (Callable | str | scipy.optimize.HessianUpdateStrategy) = None,
         verbosity: int | None = None,
         maxiter: int | str | None = None,
         criterion: ConvergenceCriterion | None = None,
         strategy: ZfitStrategy | None = None,
         name: str = "SciPy Newton-CG V1",
+        gradient: None | (Callable | str) = None,
     ) -> None:
         """WARNING! This algorithm seems unstable and may does not perform well!
 
@@ -1085,7 +1107,7 @@ class ScipyNewtonCGV1(ScipyBaseMinimizerV1):
                    convergence/stopping criterion of the algorithm
                    in order to determine if the minimum has
                    been found. Defaults to 1e-3. |@docend:minimizer.tol|
-            gradient: |@doc:minimizer.scipy.gradient| Define the method to use for the gradient computation
+            owngrad: |@doc:minimizer.scipy.gradient| Define the method to use for the gradient computation
                    that the minimizer should use. This can be the
                    gradient provided by the loss itself or
                    method from the minimizer.
@@ -1174,6 +1196,10 @@ class ScipyNewtonCGV1(ScipyBaseMinimizerV1):
                    NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
             name: |@doc:minimizer.name| Human-readable name of the minimizer. |@docend:minimizer.name|
         """
+        # legacy
+        if gradient is not None:
+            owngrad = gradient
+        # legacy end
         options = {}
 
         minimizer_options = {}
@@ -1188,7 +1214,7 @@ class ScipyNewtonCGV1(ScipyBaseMinimizerV1):
         super().__init__(
             method=method,
             internal_tol=scipy_tols,
-            gradient=gradient,
+            owngrad=owngrad,
             hessian=hessian,
             minimizer_options=minimizer_options,
             tol=tol,
@@ -1232,12 +1258,13 @@ class ScipyTruncNCV1(ScipyBaseMinimizerV1):
         maxls: int | None = None,  # stepmx
         eta: float | None = None,
         rescale: float | None = None,
-        gradient: Callable | str | None = None,
+        owngrad: Callable | str | None = None,
         verbosity: int | None = None,
         maxiter: int | str | None = None,
         criterion: ConvergenceCriterion | None = None,
         strategy: ZfitStrategy | None = None,
         name: str = "SciPy Truncated Newton Conjugate V1",
+        gradient=None,
     ) -> None:
         """Local, gradient based minimization algorithm using a truncated Newton method.
 
@@ -1261,7 +1288,7 @@ class ScipyTruncNCV1(ScipyBaseMinimizerV1):
             rescale: Scaling factor (in log10) used to trigger loss value rescaling.
                  If set to 0, rescale at each iteration.
                  If it is a very large value, never rescale.
-            gradient: |@doc:minimizer.scipy.gradient| Define the method to use for the gradient computation
+            owngrad: |@doc:minimizer.scipy.gradient| Define the method to use for the gradient computation
                    that the minimizer should use. This can be the
                    gradient provided by the loss itself or
                    method from the minimizer.
@@ -1313,6 +1340,10 @@ class ScipyTruncNCV1(ScipyBaseMinimizerV1):
                    NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
             name: |@doc:minimizer.name| Human-readable name of the minimizer. |@docend:minimizer.name|
         """
+        # legacy
+        if gradient is not None:
+            owngrad = gradient
+        # end legacy
         options = {}
         if maxcg is not None:
             options["maxiter_cg"] = maxcg
@@ -1341,7 +1372,7 @@ class ScipyTruncNCV1(ScipyBaseMinimizerV1):
             tol=tol,
             verbosity=verbosity,
             strategy=strategy,
-            gradient=gradient,
+            owngrad=owngrad,
             hessian=NOT_SUPPORTED,
             criterion=criterion,
             internal_tol=scipy_tols,
@@ -1437,7 +1468,7 @@ class ScipyDoglegV1(ScipyBaseMinimizerV1):
         super().__init__(
             method="dogleg",
             internal_tol=scipy_tols,
-            gradient="zfit",
+            owngrad="zfit",
             hessian="zfit",
             minimizer_options=minimizer_options,
             tol=tol,
@@ -1521,7 +1552,7 @@ class ScipyPowellV1(ScipyBaseMinimizerV1):
         super().__init__(
             method=method,
             internal_tol=scipy_tols,
-            gradient=NOT_SUPPORTED,
+            owngrad=NOT_SUPPORTED,
             hessian=NOT_SUPPORTED,
             minimizer_options=minimizer_options,
             tol=tol,
@@ -1538,12 +1569,13 @@ class ScipySLSQPV1(ScipyBaseMinimizerV1):
     def __init__(
         self,
         tol: float | None = None,
-        gradient: Callable | str | None = None,
+        owngrad: Callable | str | None = None,
         verbosity: int | None = None,
         maxiter: int | str | None = None,
         criterion: ConvergenceCriterion | None = None,
         strategy: ZfitStrategy | None = None,
         name: str = "SciPy SLSQP V1",
+        gradient=None,
     ) -> None:
         """Local, gradient-based minimizer using tho  Sequential Least Squares Programming algorithm.name.
 
@@ -1558,7 +1590,7 @@ class ScipySLSQPV1(ScipyBaseMinimizerV1):
                    convergence/stopping criterion of the algorithm
                    in order to determine if the minimum has
                    been found. Defaults to 1e-3. |@docend:minimizer.tol|
-            gradient: |@doc:minimizer.scipy.gradient| Define the method to use for the gradient computation
+            owngrad: |@doc:minimizer.scipy.gradient| Define the method to use for the gradient computation
                    that the minimizer should use. This can be the
                    gradient provided by the loss itself or
                    method from the minimizer.
@@ -1610,6 +1642,10 @@ class ScipySLSQPV1(ScipyBaseMinimizerV1):
                    NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
             name: |@doc:minimizer.name| Human-readable name of the minimizer. |@docend:minimizer.name|
         """
+        # legacy
+        if gradient is not None:
+            owngrad = gradient
+        # end legacy
         options = {}
         minimizer_options = {}
         if options:
@@ -1621,7 +1657,7 @@ class ScipySLSQPV1(ScipyBaseMinimizerV1):
         super().__init__(
             method=method,
             internal_tol=scipy_tols,
-            gradient=gradient,
+            owngrad=owngrad,
             hessian=NOT_SUPPORTED,
             minimizer_options=minimizer_options,
             tol=tol,
@@ -1712,7 +1748,7 @@ class ScipyCOBYLAV1(ScipyBaseMinimizerV1):
         super().__init__(
             method=method,
             internal_tol=scipy_tols,
-            gradient=NOT_SUPPORTED,
+            owngrad=NOT_SUPPORTED,
             hessian=NOT_SUPPORTED,
             minimizer_options=minimizer_options,
             tol=tol,
@@ -1802,7 +1838,7 @@ class ScipyNelderMeadV1(ScipyBaseMinimizerV1):
         super().__init__(
             method=method,
             internal_tol=scipy_tols,
-            gradient=NOT_SUPPORTED,
+            owngrad=NOT_SUPPORTED,
             hessian=NOT_SUPPORTED,
             minimizer_options=minimizer_options,
             tol=tol,

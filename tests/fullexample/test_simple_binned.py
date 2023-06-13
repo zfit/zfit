@@ -29,33 +29,33 @@ def test_simple_examples_1D():
               "data": {signp},
               """
         """
-                                                              "modifiers": [ { "name": "mu", "type": "normfactor", "data": null} ]
-                                                            },
-                                                            { "name": "background",
-                                                            """
+                                                                "modifiers": [ { "name": "mu", "type": "normfactor", "data": null} ]
+                                                              },
+                                                              { "name": "background",
+                                                              """
         f'"data": {bkgnp},'
         """
-                                                              "modifiers": [ {"name": "uncorr_bkguncrt", "type": "shapesys",
-                                                              """
+                                                                "modifiers": [ {"name": "uncorr_bkguncrt", "type": "shapesys",
+                                                                """
         f'"data": {uncnp}'
         """
-                                                          } ]
-                                                        }
-                                                      ]
-                                                    }
-                                                ],
-                                                "observations": [
-                                                    {
-                                                    """
+                                                            } ]
+                                                          }
+                                                        ]
+                                                      }
+                                                  ],
+                                                  "observations": [
+                                                      {
+                                                      """
         f'"name": "singlechannel", "data": {datanp}'
         """
-                                                            }
-                                                        ],
-                                                        "measurements": [
-                                                            { "name": "Measurement", "config": {"poi": "mu", "parameters": []} }
-                                                        ],
-                                                        "version": "1.0.0"
-                                                        }"""
+                                                              }
+                                                          ],
+                                                          "measurements": [
+                                                              { "name": "Measurement", "config": {"poi": "mu", "parameters": []} }
+                                                          ],
+                                                          "version": "1.0.0"
+                                                          }"""
     )
 
     obs = zfit.Space(
@@ -91,7 +91,7 @@ def test_simple_examples_1D():
     # print(nll.gradient())
     # minimizer = zfit.minimize.ScipyLBFGSBV1()
     # minimizer = zfit.minimize.IpyoptV1()
-    minimizer = zfit.minimize.Minuit(tol=1e-5, gradient=False)
+    minimizer = zfit.minimize.Minuit(tol=1e-5, owngrad=False)
     result = minimizer.minimize(nll)
     result.hesse(method="hesse_np")
     # result.errors()
