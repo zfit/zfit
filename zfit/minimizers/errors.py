@@ -280,6 +280,12 @@ def numerical_pdf_jacobian(func, params):  # TODO: jit?
 def autodiff_pdf_jacobian(func, params):
     params = list(params.values())
 
+    # the below fails for some cases (i.e. CB) with an internal error
+    # ValueError: Internal error: Tried to take gradients (or similar) of a variable without handle data:
+    # Tensor("Placeholder_1:0", shape=(), dtype=resource)
+
+    # we didn't report that yet, it's too hard to reproduce with a minimal example currently.
+
     # with tf.GradientTape(watch_accessed_variables=False) as t2:
     #     t2.watch(params)
     #     with tf.GradientTape(watch_accessed_variables=False) as t1:

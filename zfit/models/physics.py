@@ -83,8 +83,10 @@ def crystalball_integral_func(mu, sigma, alpha, n, lower, upper):
     tmax = (upper - mu) / abs_sigma
 
     alpha_negative = tf.less(alpha, 0)
-    tmax = znp.where(alpha_negative, -tmin, tmax)
-    tmin = znp.where(alpha_negative, -tmax, tmin)
+    # do not move on two lines, logic will fail...
+    tmax, tmin = znp.where(alpha_negative, -tmin, tmax), znp.where(
+        alpha_negative, -tmax, tmin
+    )
 
     if_true_4 = (
         abs_sigma
@@ -99,33 +101,41 @@ def crystalball_integral_func(mu, sigma, alpha, n, lower, upper):
     # https://github.com/tensorflow/tensorflow/issues/42889
     # solution is to provide save values for the non-selected branch to never make them become NaNs
     b_tmin = b - tmin
-    safe_logarg1 = znp.where(b_tmin > 0, b_tmin, znp.ones_like(b_tmin))
+    safe_b_tmin_ones = znp.where(b_tmin > 0, b_tmin, znp.ones_like(b_tmin))
     b_tmax = b - tmax
-    safe_logarg2 = znp.where(b_tmax > 0, b_tmax, znp.ones_like(b_tmax))
-    if_true_1 = a * abs_sigma * (znp.log(safe_logarg1) - znp.log(safe_logarg2))
+    safe_b_tmax_ones = znp.where(b_tmax > 0, b_tmax, znp.ones_like(b_tmax))
+
+    if_true_1 = a * abs_sigma * (znp.log(safe_b_tmin_ones) - znp.log(safe_b_tmax_ones))
 
     if_false_1 = (
         a
         * abs_sigma
         / (1.0 - n)
         * (
-            1.0 / znp.power(safe_logarg1, n - 1.0)
-            - 1.0 / znp.power(safe_logarg2, n - 1.0)
+            1.0 / znp.power(safe_b_tmin_ones, n - 1.0)
+            - 1.0 / znp.power(safe_b_tmax_ones, n - 1.0)
         )
     )
 
     if_true_3 = tf.where(use_log, if_true_1, if_false_1)
 
-    a = znp.power(n / abs_alpha, n) * znp.exp(-0.5 * tf.square(abs_alpha))
-    b = n / abs_alpha - abs_alpha
-
-    if_false_2 = conditional2(a, abs_alpha, abs_sigma, b, n, tmin, use_log)
+    if_true_2 = a * abs_sigma * (znp.log(safe_b_tmin_ones) - znp.log(n / abs_alpha))
+    if_false_2 = (
+        a
+        * abs_sigma
+        / (1.0 - n)
+        * (
+            1.0 / znp.power(safe_b_tmin_ones, n - 1.0)
+            - 1.0 / znp.power(n / abs_alpha, n - 1.0)
+        )
+    )
+    term1 = tf.where(use_log, if_true_2, if_false_2)
     term2 = (
         abs_sigma
         * sqrt_pi_over_two
         * (tf.math.erf(tmax / sqrt2) - tf.math.erf(-abs_alpha / sqrt2))
     )
-    if_false_3 = if_false_2 + term2
+    if_false_3 = term1 + term2
 
     if_false_4 = tf.where(tf.less_equal(tmax, -abs_alpha), if_true_3, if_false_3)
 
@@ -134,18 +144,6 @@ def crystalball_integral_func(mu, sigma, alpha, n, lower, upper):
     if not result.shape.rank == 0:
         result = tf.gather(result, 0, axis=-1)  # remove last dim, should vanish
     return result
-
-
-def conditional2(a, abs_alpha, abs_sigma, b, n, tmin, use_log):
-    if_true_2 = a * abs_sigma * (znp.log(b - tmin) - znp.log(n / abs_alpha))
-    if_false_2 = (
-        a
-        * abs_sigma
-        / (1.0 - n)
-        * (1.0 / znp.power(b - tmin, n - 1.0) - 1.0 / znp.power(n / abs_alpha, n - 1.0))
-    )
-    if_false_2 = tf.where(use_log, if_true_2, if_false_2)
-    return if_false_2
 
 
 def double_crystalball_mu_integral(limits, params, model):
@@ -283,7 +281,7 @@ class CrystalBallPDFRepr(BasePDFRepr):
 crystalball_integral_limits = Space(
     axes=(0,), limits=(((ANY_LOWER,),), ((ANY_UPPER,),))
 )
-# TODO uncomment, dependency: bug in TF (31.1.19) # 25339 that breaks gradient of resource var in cond
+
 CrystalBall.register_analytic_integral(
     func=crystalball_integral, limits=crystalball_integral_limits
 )
