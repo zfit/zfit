@@ -238,8 +238,6 @@ class FunctionWrapperRegistry:
         from ..util.cache import FunctionCacheHolder
 
         def concrete_func(*args, **kwargs):
-            # TODO: add limited cache side, maybe check if inside big function, grow cache.
-
             if not self.do_jit or func in self.currently_traced:
                 return func(*args, **kwargs)
 
