@@ -21,7 +21,6 @@ with open(
 extras_require = {}
 extras_require["ipyopt"] = ["ipyopt>=0.12"]
 if sys.version_info[1] < 11:
-    print(f"DEBUG: adding the nlopt, version info {sys.version_info}")
     extras_require["nlopt"] = ["nlopt>=2.7.1"]
 extras_require["hs3"] = ["asdf"]
 extras_require["kde"] = ["tf_quant_finance>=v0.0.1-dev24"]
