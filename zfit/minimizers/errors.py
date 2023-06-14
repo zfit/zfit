@@ -279,6 +279,23 @@ def numerical_pdf_jacobian(func, params):  # TODO: jit?
 # @z.function(wraps="autodiff")
 def autodiff_pdf_jacobian(func, params):
     params = list(params.values())
+
+    # the below fails for some cases (i.e. CB) with an internal error
+    # ValueError: Internal error: Tried to take gradients (or similar) of a variable without handle data:
+    # Tensor("Placeholder_1:0", shape=(), dtype=resource)
+
+    # we didn't report that yet, it's too hard to reproduce with a minimal example currently.
+
+    # with tf.GradientTape(watch_accessed_variables=False) as t2:
+    #     t2.watch(params)
+    #     with tf.GradientTape(watch_accessed_variables=False) as t1:
+    #         t1.watch(params)
+    #         values = func()
+    #
+    #     grad = t1.gradient(values, params)
+    #     grad = tf.convert_to_tensor(grad)
+    # jacobian = t2.jacobian(grad, params)
+
     columns = []
 
     for p in params:
@@ -321,7 +338,15 @@ def covariance_with_weights(method, result, params):
     params_dict = {p.name: p for p in params}
 
     if run.get_autograd_mode():
-        jacobian = autodiff_pdf_jacobian(func=func, params=params_dict)
+        try:
+            jacobian = autodiff_pdf_jacobian(func=func, params=params_dict)
+        except ValueError as error:
+            raise ValueError(
+                "The autodiff could not be performed for the jacobian matrix. This can have a natural cause (see error above)"
+                " or be a bug in the autodiff. In the latter case, you can try to use the numerical jacobian instead using:\n"
+                "with zfit.run.set_autograd_mode(False):\n"
+                "    # calculate here, i.e. result.errors()"
+            ) from error
     else:
 
         def wrapped_func(values):

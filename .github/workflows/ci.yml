@@ -172,7 +172,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install wheel
           pip install -U .[all]
-          pip install nbval
+          pip install nbval pytest-helpers-namespace
           pip install -r zfit-tutorials/requirements.txt
           pip install -U --force-reinstall .[all]  # yep. Needed. Otherwise i.e. numpy needs to be upgraded
 
