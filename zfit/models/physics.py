@@ -26,7 +26,7 @@ def _powerlaw(x, a, k):
     return a * znp.power(x, k)
 
 
-@z.function(wraps="zfit_tensor", stateless_args=True)
+@z.function(wraps="zfit_tensor")
 def crystalball_func(x, mu, sigma, alpha, n):
     t = (x - mu) / sigma * tf.sign(alpha)
     abs_alpha = znp.abs(alpha)
@@ -36,15 +36,15 @@ def crystalball_func(x, mu, sigma, alpha, n):
     func = z.safe_where(
         cond,
         lambda t: _powerlaw(b - t, a, -n),
-        lambda t: znp.exp(-0.5 * tf.square(t)),
+        lambda t: znp.exp(-0.5 * znp.square(t)),
         values=t,
-        value_safer=lambda t: tf.ones_like(t) * (b - 2),
+        value_safer=lambda t: znp.ones_like(t) * (b - 2),
     )
-    func = znp.maximum(func, tf.zeros_like(func))
+    func = znp.maximum(func, znp.zeros_like(func))
     return func
 
 
-@z.function(wraps="zfit_tensor", stateless_args=True)
+@z.function(wraps="zfit_tensor", stateless_args=False)
 def double_crystalball_func(x, mu, sigma, alphal, nl, alphar, nr):
     cond = tf.less(x, mu)
 
@@ -70,7 +70,7 @@ def crystalball_integral(limits, params, model):
     return integral
 
 
-# @z.function(wraps='zfit_tensor')
+@z.function(wraps="zfit_tensor")
 # @tf.function  # BUG? TODO: problem with tf.function and input signature
 def crystalball_integral_func(mu, sigma, alpha, n, lower, upper):
     sqrt_pi_over_two = np.sqrt(np.pi / 2)
@@ -83,6 +83,7 @@ def crystalball_integral_func(mu, sigma, alpha, n, lower, upper):
     tmax = (upper - mu) / abs_sigma
 
     alpha_negative = tf.less(alpha, 0)
+    # do not move on two lines, logic will fail...
     tmax, tmin = znp.where(alpha_negative, -tmin, tmax), znp.where(
         alpha_negative, -tmax, tmin
     )
@@ -93,53 +94,50 @@ def crystalball_integral_func(mu, sigma, alpha, n, lower, upper):
         * (tf.math.erf(tmax / sqrt2) - tf.math.erf(tmin / sqrt2))
     )
 
-    result_6 = 0.0
-
-    result_3 = result_6
     a = znp.power(n / abs_alpha, n) * znp.exp(-0.5 * tf.square(abs_alpha))
     b = n / abs_alpha - abs_alpha
 
-    (result_1,) = (result_3,)
-    result_1 += a * abs_sigma * (znp.log(b - tmin) - znp.log(b - tmax))
-    if_true_1 = result_1
+    # gradients from tf.where can be NaN if the non-selected branch is NaN
+    # https://github.com/tensorflow/tensorflow/issues/42889
+    # solution is to provide save values for the non-selected branch to never make them become NaNs
+    b_tmin = b - tmin
+    safe_b_tmin_ones = znp.where(b_tmin > 0, b_tmin, znp.ones_like(b_tmin))
+    b_tmax = b - tmax
+    safe_b_tmax_ones = znp.where(b_tmax > 0, b_tmax, znp.ones_like(b_tmax))
 
-    (result_2,) = (result_3,)
-    result_2 += (
+    if_true_1 = a * abs_sigma * (znp.log(safe_b_tmin_ones) - znp.log(safe_b_tmax_ones))
+
+    if_false_1 = (
         a
         * abs_sigma
         / (1.0 - n)
-        * (1.0 / znp.power(b - tmin, n - 1.0) - 1.0 / znp.power(b - tmax, n - 1.0))
+        * (
+            1.0 / znp.power(safe_b_tmin_ones, n - 1.0)
+            - 1.0 / znp.power(safe_b_tmax_ones, n - 1.0)
+        )
     )
-    if_false_1 = result_2
 
-    result_3 = tf.where(use_log, if_true_1, if_false_1)
-    if_true_3 = result_3
+    if_true_3 = tf.where(use_log, if_true_1, if_false_1)
 
-    (result_4,) = (result_6,)
-    a = znp.power(n / abs_alpha, n) * znp.exp(-0.5 * tf.square(abs_alpha))
-    b = n / abs_alpha - abs_alpha
-
-    if_true_2 = a * abs_sigma * (znp.log(b - tmin) - znp.log(n / abs_alpha))
-
-    term1 = (
+    if_true_2 = a * abs_sigma * (znp.log(safe_b_tmin_ones) - znp.log(n / abs_alpha))
+    if_false_2 = (
         a
         * abs_sigma
         / (1.0 - n)
-        * (1.0 / znp.power(b - tmin, n - 1.0) - 1.0 / znp.power(n / abs_alpha, n - 1.0))
+        * (
+            1.0 / znp.power(safe_b_tmin_ones, n - 1.0)
+            - 1.0 / znp.power(n / abs_alpha, n - 1.0)
+        )
     )
-    if_false_2 = term1
-
     term1 = tf.where(use_log, if_true_2, if_false_2)
     term2 = (
         abs_sigma
         * sqrt_pi_over_two
         * (tf.math.erf(tmax / sqrt2) - tf.math.erf(-abs_alpha / sqrt2))
     )
-    result_4 += term1 + term2
-    if_false_3 = result_4
+    if_false_3 = term1 + term2
 
-    result_6 = tf.where(tf.less_equal(tmax, -abs_alpha), if_true_3, if_false_3)
-    if_false_4 = result_6
+    if_false_4 = tf.where(tf.less_equal(tmax, -abs_alpha), if_true_3, if_false_3)
 
     # if_false_4()
     result = tf.where(tf.greater_equal(tmin, -abs_alpha), if_true_4, if_false_4)
@@ -283,7 +281,7 @@ class CrystalBallPDFRepr(BasePDFRepr):
 crystalball_integral_limits = Space(
     axes=(0,), limits=(((ANY_LOWER,),), ((ANY_UPPER,),))
 )
-# TODO uncomment, dependency: bug in TF (31.1.19) # 25339 that breaks gradient of resource var in cond
+
 CrystalBall.register_analytic_integral(
     func=crystalball_integral, limits=crystalball_integral_limits
 )
