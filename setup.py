@@ -21,6 +21,7 @@ with open(
 extras_require = {}
 extras_require["ipyopt"] = ["ipyopt>=0.12"]
 if sys.version_info[1] < 11:
+    print(f"DEBUG: adding the nlopt, version info {sys.version_info}")
     extras_require["nlopt"] = ["nlopt>=2.7.1"]
 extras_require["hs3"] = ["asdf"]
 extras_require["kde"] = ["tf_quant_finance>=v0.0.1-dev24"]
@@ -41,7 +42,7 @@ tests_require = [
     "matplotlib",  # for plots in examples
 ]
 extras_require["all"] = allreq
-extras_require["tests-nonlinux"] = tests_require + extras_require["nlopt"]
+extras_require["tests-nonlinux"] = tests_require + extras_require.get("nlopt", [])
 extras_require["tests"] = extras_require["tests-nonlinux"] + extras_require["ipyopt"]
 extras_require["dev"] = requirements_dev + extras_require["tests"]
 extras_require["dev-nonlinux"] = requirements_dev + extras_require["tests-nonlinux"]
