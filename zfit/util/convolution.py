@@ -1,8 +1,6 @@
 #  Copyright (c) 2023 zfit
 
 import tensorflow as tf
-from tf_quant_finance.math import root_search
-from tf_quant_finance.math.root_search.utils import default_relative_root_tolerance
 
 from ..settings import ztypes
 
@@ -12,6 +10,15 @@ def find_practical_support_bandwidth(kernel, bandwidth, absolute_tolerance=10e-5
 
     Used to find a support value for computations for kernel functions without finite (bounded) support.
     """
+    try:
+        from tf_quant_finance.math import root_search
+        from tf_quant_finance.math.root_search.utils import (
+            default_relative_root_tolerance,
+        )
+    except ImportError:
+        raise ImportError(
+            "tf_quant_finance is required (optional dependency) to use this function. Please install it first using `pip install tf-quant-finance`. "
+        )
     absolute_root_tolerance = 1e-3
     relative_root_tolerance = default_relative_root_tolerance(ztypes.float)
     function_tolerance = 0

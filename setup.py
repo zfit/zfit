@@ -22,6 +22,8 @@ extras_require = {}
 extras_require["ipyopt"] = ["ipyopt>=0.12"]
 extras_require["nlopt"] = ["nlopt>=2.7.1"]
 extras_require["hs3"] = ["asdf"]
+extras_require["kde"] = ["tf_quant_finance>=v0.0.1-dev24"]
+extras_require["hs3"] = ["asdf"]
 if sys.version_info[1] > 7:  # Python 3.7 not supported anymore
     extras_require["uproot"] = ["awkward-pandas"]
 allreq = sum(extras_require.values(), [])

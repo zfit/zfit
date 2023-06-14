@@ -2,7 +2,6 @@
 
 import numpy as np
 import tensorflow as tf
-from tf_quant_finance.math import root_search
 
 from . import binning as binning_util
 from .. import z
@@ -122,6 +121,12 @@ def _find_root(function, N, squared_integers, grid_data_dct2):
     >>> np.allclose(ans, 9.237610787616029e-05)
     True
     """
+    try:
+        from tf_quant_finance.math import root_search
+    except ImportError:
+        raise ImportError(
+            "tf_quant_finance is required (optional dependency) to use this function. Please install it first using `pip install tf-quant-finance`. "
+        )
     # From the implementation by Botev, the original paper author
     # Rule of thumb of obtaining a feasible solution
     N2 = tf.math.maximum(
