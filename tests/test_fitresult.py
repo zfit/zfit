@@ -1,6 +1,7 @@
 #  Copyright (c) 2023 zfit
 import pickle
 import platform
+import sys
 
 import numpy as np
 import pytest
@@ -138,10 +139,14 @@ def test_set_values_fitresult(do_pickle):
 
 
 minimizers = [
-    (zfit.minimize.NLoptLBFGSV1, {}, True),
     (zfit.minimize.ScipyTrustConstrV1, {}, True),
     (zfit.minimize.Minuit, {}, True),
 ]
+if sys.version_info[1] < 11:
+    minimizers.append(
+        (zfit.minimize.NLoptLBFGSV1, {}, True)
+    )  # TODO: nlopt for Python 3.11
+    # https://github.com/DanielBok/nlopt-python/issues/19
 if not platform.system() in (
     "Darwin",
     "Windows",
