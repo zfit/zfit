@@ -24,6 +24,7 @@ Experimental
 
 Requirement changes
 -------------------
+- moved tf_quant_finance to optional dependency as it doesn't support Python 3.11
 
 Thanks
 ------
