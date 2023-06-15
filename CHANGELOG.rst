@@ -21,10 +21,6 @@ Deprecations
 
 Bug fixes and small changes
 ---------------------------
-- fix a caching problem with parameters (could cause issues with larger PDFs as params would be "remembered" wrongly)
-- more helpful error message when jacobian (as used for weighted corrections) is analytically asked but fails
-- make analytical gradient for CB integral work
-
 
 Experimental
 ------------
@@ -36,6 +32,16 @@ Requirement changes
 
 Thanks
 ------
+
+0.13.2 (15. June 2023)
+========================
+
+Bug fixes and small changes
+---------------------------
+- fix a caching problem with parameters (could cause issues with larger PDFs as params would be "remembered" wrongly)
+- more helpful error message when jacobian (as used for weighted corrections) is analytically asked but fails
+- make analytical gradient for CB integral work
+
 
 0.13.1 (20 Apr 2023)
 ========================
