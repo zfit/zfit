@@ -4,17 +4,10 @@ Changelog
 
 .. _newest-changelog:
 
-Develop
+
+
+0.13.2 (15. June 2023)
 ========================
-
-Major Features and Improvements
--------------------------------
-
-Breaking changes
-------------------
-
-Deprecations
--------------
 
 Bug fixes and small changes
 ---------------------------
@@ -22,15 +15,6 @@ Bug fixes and small changes
 - more helpful error message when jacobian (as used for weighted corrections) is analytically asked but fails
 - make analytical gradient for CB integral work
 
-
-Experimental
-------------
-
-Requirement changes
--------------------
-
-Thanks
-------
 
 0.13.1 (20 Apr 2023)
 ========================
