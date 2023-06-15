@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 import numpy as np
 import pytest
 from scipy.stats import crystalball
@@ -50,10 +50,10 @@ def eval_testing(pdf, x):
 def test_cb_integral():
     obs = zfit.Space("x", limits=bounds)
 
-    mu_ = zfit.Parameter("mu_cb5", mu)
-    sigma_ = zfit.Parameter("sigma_cb5", sigma)
-    alphal_ = zfit.Parameter("alphal_cb5", alphal)
-    nl_ = zfit.Parameter("nl_cb5", nl)
+    mu_ = zfit.Parameter("mu", mu)
+    sigma_ = zfit.Parameter("sigma", sigma)
+    alphal_ = zfit.Parameter("alphal", alphal)
+    nl_ = zfit.Parameter("nl", nl)
 
     cbl = CrystalBall(obs=obs, mu=mu_, sigma=sigma_, alpha=alphal_, n=nl_)
     int_limits = (-1, 3)
@@ -79,12 +79,12 @@ def test_cb_integral():
 def test_cb_dcb():
     obs = zfit.Space("x", limits=bounds)
 
-    mu_ = zfit.Parameter("mu_cb5", mu)
-    sigma_ = zfit.Parameter("sigma_cb5", sigma)
-    alphal_ = zfit.Parameter("alphal_cb5", alphal)
-    nl_ = zfit.Parameter("nl_cb5", nl)
-    alphar_ = zfit.Parameter("alphar_cb5", alphar)
-    nr_ = zfit.Parameter("nr_cb5", nr)
+    mu_ = zfit.Parameter("mu", mu)
+    sigma_ = zfit.Parameter("sigma", sigma)
+    alphal_ = zfit.Parameter("alphal", alphal)
+    nl_ = zfit.Parameter("nl", nl)
+    alphar_ = zfit.Parameter("alphar", alphar)
+    nr_ = zfit.Parameter("nr", nr)
 
     cbl = CrystalBall(obs=obs, mu=mu_, sigma=sigma_, alpha=alphal_, n=nl_)
     cbr = CrystalBall(obs=obs, mu=mu_, sigma=sigma_, alpha=-alphar_, n=nr_)
