@@ -718,8 +718,11 @@ class Parameter(
     def upper_limit(self, value):
         self.upper = value
 
-    def __tf_tracing_type__(self, signature_context):
-        return ParameterType(parameter=self)
+    # def __tf_tracing_type__(self, signature_context):
+    #     return ParameterType(parameter=self)
+
+
+# delattr(Parameter, "__tf_tracing_type__")
 
 
 class ParameterType(VariableSpec):

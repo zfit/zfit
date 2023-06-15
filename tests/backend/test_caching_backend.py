@@ -5,6 +5,7 @@ import zfit
 def test_parameter_caching():
     # this is to ensure that we fixed the bug (https://github.com/tensorflow/tensorflow/issues/57365) internally
     import tensorflow as tf
+    from zfit import z
 
     x1 = zfit.Parameter("x1", 2.0)
     x2 = zfit.Parameter("x2", 4.0)
@@ -19,7 +20,8 @@ def test_parameter_caching():
             value = f()
         return tape.gradient(value, param)
 
-    jitted_grad = tf.function(grad)
+    jitted_grad = z.function(grad)
+    # jitted_grad = tf.function(grad)
 
     y1 = grad(x1)
     y1_jit = jitted_grad(x1)
@@ -29,4 +31,5 @@ def test_parameter_caching():
     y2_jit = jitted_grad(x2)
 
     assert abs(y2 - 4.0) < 1e-5  # because d / dx x**2/2 = x -> 4
+    assert abs(y2_jit - y2) < 1e-5
     assert abs(y2_jit - 4.0) < 1e-5

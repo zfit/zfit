@@ -32,7 +32,7 @@ Experimental
 Requirement changes
 -------------------
 - update to TensorFlow 2.12
-- moved tf_quant_finance to optional dependency as it doesn't support Python 3.11
+- removed tf_quant_finance
 
 Thanks
 ------
