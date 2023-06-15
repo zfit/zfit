@@ -246,7 +246,15 @@ class Data(
             weights = ""
         if obs is None:
             obs = list(df.columns)
-        space = convert_to_space(obs)
+        if isinstance(df, pd.Series):
+            df = df.to_frame()
+        obs = convert_to_space(obs)
+        not_in_df = set(obs.obs) - set(df.columns)
+        if not_in_df:
+            raise ValueError(
+                f"Observables {not_in_df} not in dataframe with columns {df.columns}"
+            )
+        space = obs
         if isinstance(weights, str):  # it's in the df
             if weights not in df.columns:
                 if weights_requested:

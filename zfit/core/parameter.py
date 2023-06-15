@@ -25,7 +25,10 @@ from ordered_set import OrderedSet
 from pydantic import Field, validator
 from tensorflow.python.framework import ops
 from tensorflow.python.ops import array_ops
-from tensorflow.python.ops.resource_variable_ops import ResourceVariable as TFVariable
+from tensorflow.python.ops.resource_variable_ops import (
+    ResourceVariable as TFVariable,
+    VariableSpec,
+)
 from tensorflow.python.ops.variables import Variable
 from tensorflow.python.types.core import Tensor as TensorType
 
@@ -429,6 +432,13 @@ class Parameter(
         super().__init_subclass__(**kwargs)
         cls._independent = True  # overwriting independent only for subclass/instance
 
+    @classmethod
+    def _from_name(cls, name):
+        for param in cls._independent_params:
+            if name == param.name:
+                return param
+        raise ValueError(f"Parameter {name} does not exist, please create it first.")
+
     @property
     def lower(self):
         limit = self._lower
@@ -708,32 +718,140 @@ class Parameter(
     def upper_limit(self, value):
         self.upper = value
 
-    def __tf_tracing_type__(self, signature_context):
-        return ParameterSpec(name=self.name)
+    # def __tf_tracing_type__(self, signature_context):
+    #     return ParameterType(parameter=self)
 
 
-class ParameterSpec:
-    def __init__(self, name):
-        self.name = name
+# delattr(Parameter, "__tf_tracing_type__")
 
-    def is_subtype_of(self, other) -> bool:
-        """Returns True if `self` is a subtype of `other`.
 
-        Implements the tf.types.experimental.func.TraceType interface.
+class ParameterType(VariableSpec):
+    value_type = property(lambda self: Parameter)
 
-        If not overridden by a subclass, the default behavior is to assume the
-        TypeSpec is covariant upon attributes that implement TraceType and
-        invariant upon rest of the attributes as well as the structure and type
-        of the TypeSpec.
+    def __init__(
+        self, shape=None, dtype=None, trainable=True, alias_id=None, *, parameter=None
+    ):
+        if parameter is None:
+            raise RuntimeError("DEBUGGING HERE")
+        if parameter is not None:  # initialize from parameter
+            shape = parameter.shape
+            dtype = parameter.dtype
+            trainable = True
+            alias_id = None
+        self.parameter_value = parameter
+        self._name = parameter.name
+        self.parameter_type = type(self)
+        if dtype is None:
+            dtype = tf.float64
+        super().__init__(
+            shape=shape, dtype=dtype, trainable=trainable, alias_id=alias_id
+        )
+        self.hash = hash(self.name)
 
-        Args:
-          other: A TraceType object.
-        """
+    @classmethod
+    def from_value(cls, value):
+        return cls(parameter=value)
 
-        if type(self) is not type(other):
-            return False
+    def _to_components(self, value):
+        return super()._to_components(value)
 
-        return self.name == other.name
+    def _from_components(self, components):
+        _ = super()._from_components(components)  # checking that there is no error
+        return Parameter._from_name(self.name)
+
+    def _to_tensors(self, value):
+        return [value]
+
+    # def __init__(self, parameter):
+    #     self.parameter_type = type(parameter)
+    #     self.parameter_value = parameter
+    #     self.name = parameter.name
+
+    def is_subtype_of(self, other):
+        return (
+            type(other) is ParameterType
+            and self.parameter_type is other.fruit_type
+            and self.name == other.name
+        )
+
+    def most_specific_common_supertype(self, others):
+        return self if all(self == other for other in others) else None
+
+    def placeholder_value(self, placeholder_context=None):
+        return self.parameter_value
+
+    def __eq__(self, other) -> bool:
+        return self.parameter_type == type(other) and self.name == other.name
+
+    def __hash__(self):
+        return self.hash
+
+
+# class ParameterType(VariableSpec):
+#     value_type = property(lambda self: Parameter)
+#
+#     def __init__(self, shape=None, dtype=None, trainable=True, alias_id=None, *, parameter=None):
+#         if parameter is not None:  # initialize from parameter
+#             shape = parameter.shape
+#             dtype = parameter.dtype
+#             trainable = True
+#             alias_id = None
+#         self.parameter_value = parameter
+#         if dtype is None:
+#             dtype = tf.float64
+#         super().__init__(shape=shape, dtype=dtype, trainable=trainable, alias_id=alias_id)
+#
+#     def is_compatible_with(self, spec_or_value):
+#         return super().is_compatible_with(spec_or_value) and self.name == spec_or_value.name
+#
+#     def is_subtype_of(self, other):
+#         return super().is_subtype_of(other) and self.name == other.name
+#
+#     def most_specific_compatible_type(self, other: "TypeSpec") -> "TypeSpec":
+#         if self.is_subtype_of(self, other):
+#             return self
+#
+#     def placeholder_value(self, placeholder_context):
+#         return self.parameter_value
+#         # return super().placeholder_value(placeholder_context) if self.parameter_value is None else self.parameter_value
+
+
+# class ParameterType(tf.types.experimental.TraceType):
+#     def __init__(self, parameter):
+#         self.name = parameter.name
+#         self.parameter_value = parameter
+#         self.parameter_type = type(parameter)
+#
+#     def is_subtype_of(self, other) -> bool:
+#         """Returns True if `self` is a subtype of `other`.
+#
+#         Implements the tf.types.experimental.func.TraceType interface.
+#
+#         If not overridden by a subclass, the default behavior is to assume the
+#         TypeSpec is covariant upon attributes that implement TraceType and
+#         invariant upon rest of the attributes as well as the structure and type
+#         of the TypeSpec.
+#
+#         Args:
+#           other: A TraceType object.
+#         """
+#
+#         if self.parameter_type is not type(other):
+#             return False
+#
+#         return self.name == other.name
+#
+#     def most_specific_common_supertype(self, others):
+#         if self.name == others.name:
+#             return self.name
+#         else:
+#             return None
+#
+#     def placeholder_value(self, placeholder_context=None):
+#         return self.parameter_value
+#
+#     def __eq__(self, other):
+#         return type(other) == self.parameter_type and self.name == other.name
 
 
 class ParameterRepr(BaseRepr):

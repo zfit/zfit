@@ -10,6 +10,9 @@ Develop
 Major Features and Improvements
 -------------------------------
 
+- support for Python 3.11, dropped support for Python 3.7
+
+
 Breaking changes
 ------------------
 
@@ -24,6 +27,8 @@ Experimental
 
 Requirement changes
 -------------------
+- update to TensorFlow 2.12
+- removed tf_quant_finance
 
 Thanks
 ------

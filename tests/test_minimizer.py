@@ -1,6 +1,7 @@
 #  Copyright (c) 2023 zfit
 import itertools
 import platform
+import sys
 from collections import OrderedDict
 
 import numpy as np
@@ -171,7 +172,9 @@ minimizers = [
         },
         {"error": do_errors_most},
     ),
-    # NLopt minimizer
+]
+# NLopt minimizer
+nlopt_minimizers = [
     (
         zfit.minimize.NLoptLBFGSV1,
         {
@@ -264,6 +267,12 @@ minimizers = [
         {"error": do_errors_most},
     ),
 ]
+if (
+    sys.version_info[1] < 11
+):  # TODO: remove all of this conditions once NLopt is available for Python 3.11
+    # see also https://github.com/DanielBok/nlopt-python/issues/19
+    minimizers.extend(nlopt_minimizers)
+
 # To run individual minimizers
 # minimizers = [(zfit.minimize.Minuit, {"verbosity": verbosity, 'gradient': True}, {'error': True, 'longtests': True})]
 # minimizers = [(zfit.minimize.IpyoptV1, {'verbosity': 7}, True)]
@@ -295,10 +304,11 @@ minimizers = [
 
 
 minimizers_small = [
-    (zfit.minimize.NLoptLBFGSV1, {}, True),
     (zfit.minimize.ScipyTrustConstrV1, {}, True),
     (zfit.minimize.Minuit, {}, True),
 ]
+if sys.version_info[1] < 11:
+    minimizers_small.append((zfit.minimize.NLoptLBFGSV1, {}, True))
 if platform.system() not in (
     "Darwin",
     "Windows",

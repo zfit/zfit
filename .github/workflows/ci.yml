@@ -32,20 +32,20 @@ jobs:
       fail-fast: False
       matrix:
         use-graph: [ 1 ]
-        python-version: [ "3.7", "3.8", "3.9", "3.10" ]
+        python-version: [ "3.8", "3.9", "3.10", "3.11" ]
         os: [ ubuntu-latest ]
         extras: [ alldev ]
         include:
           - os: ubuntu-latest
             extras: alldev
-            python-version: "3.10"
+            python-version: "3.11"
             use-graph: 0
           - os: macos-latest
-            python-version: "3.10"
+            python-version: "3.11"
             use-graph: 1
             extras: alldev-nonlinux
           - os: windows-latest
-            python-version: "3.10"
+            python-version: "3.11"
             use-graph: 1
             extras: alldev-windows
 
@@ -96,7 +96,7 @@ jobs:
     timeout-minutes: 10
     strategy:
       matrix:
-        python-version: [ "3.10" ]
+        python-version: [ "3.11" ]
     name: Testbuild docs
     steps:
       - uses: actions/checkout@v3
@@ -136,7 +136,7 @@ jobs:
       fail-fast: False
       matrix:
         use-graph: [ 0, 1 ]
-        python-version: [ "3.7", "3.10" ]
+        python-version: [ "3.8", "3.11" ]
     name: Run tutorials, Python ${{ matrix.python-version }}, compiled = ${{ matrix.use-graph }}
     env:
       ZFIT_DO_JIT: ${{ matrix.use-graph }}
@@ -187,7 +187,7 @@ jobs:
       fail-fast: False
       matrix:
         use-graph: [ 0, 1 ]
-        python-version: [ "3.7", "3.10" ]
+        python-version: [ "3.8", "3.11" ]
     name: Run examples, Python ${{ matrix.python-version }}, compiled = ${{ matrix.use-graph }}
     env:
       ZFIT_DO_JIT: ${{ matrix.use-graph }}

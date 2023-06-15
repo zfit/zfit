@@ -18,13 +18,11 @@ pydantic
 pyyaml
 scipy>=1.2
 tabulate
-tensorflow>=2.10, <2.12; sys_platform != 'darwin' or platform_machine != 'arm64'
-tensorflow-addons
-tensorflow-macos>=2.10, <2.12; sys_platform == 'darwin' and platform_machine == 'arm64'
-tensorflow_probability>=0.18, <0.20
+tensorflow>=2.12, <2.13; sys_platform != 'darwin' or platform_machine != 'arm64'
+tensorflow-addons>=0.20
+tensorflow-macos>=2.11, <2.13; sys_platform == 'darwin' and platform_machine == 'arm64'
+tensorflow_probability>=0.20, <0.21
 texttable
-tf_quant_finance>=v0.0.1-dev24
-typing-extensions
 uhi
 uproot>=4; python_version >="3.8.0"
 uproot>=4, <5; python_version <"3.8.0"
