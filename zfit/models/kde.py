@@ -9,10 +9,7 @@ import pydantic
 
 from ..serialization import Serializer, SpaceRepr
 
-try:
-    from typing import Literal
-except ImportError:  # Python < 3.8
-    from typing_extensions import Literal
+from typing import Literal
 
 import numpy as np
 import tensorflow as tf

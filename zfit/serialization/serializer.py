@@ -17,10 +17,7 @@ from pydantic import Field
 
 from zfit.util.container import convert_to_container
 
-try:
-    from typing import Literal, Annotated
-except ImportError:  # TODO(3.8): remove
-    from typing_extensions import Literal, Annotated
+from typing import Literal, Annotated
 
 from zfit.core.interfaces import (
     ZfitParameter,
@@ -72,7 +69,7 @@ class Types:
             raise NameError(
                 "Internal error, should always be caught! If you see this, most likely the annotation"
                 " evaluation was not postponed. To fix this, add a `from __future__ import annotations`"
-                " and make sure to use Python 3.7+"
+                " and make sure to use Python 3.8+"
             )
         if len(repr) == 0:
             return None

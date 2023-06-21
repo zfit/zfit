@@ -24,7 +24,6 @@ tensorflow-macos>=2.11, <2.13; sys_platform == 'darwin' and platform_machine == 
 tensorflow_probability>=0.20, <0.21
 texttable
 uhi
-uproot>=4; python_version >="3.8.0"
-uproot>=4, <5; python_version <"3.8.0"
+uproot>=4
 xxhash
 zfit_interface

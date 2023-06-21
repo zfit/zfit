@@ -32,12 +32,11 @@ repos:
         always_run: true
         additional_dependencies: [ pyyaml ]
 
-  # TODO: activate once https://github.com/PyCQA/docformatter/pull/166 is fixed
-  #  - repo: https://github.com/PyCQA/docformatter
-  #    rev: v1.6.0
-  #    hooks:
-  #      - id: docformatter
-  #        args: [ -r, --in-place, --wrap-descriptions, '120', --wrap-summaries, '120', --pre-summary-space, -- ]
+  - repo: https://github.com/PyCQA/docformatter
+    rev: v1.7.2
+    hooks:
+      - id: docformatter
+        args: [ -r, --in-place, --wrap-descriptions, '120', --wrap-summaries, '120', --pre-summary-space, --black, -- ]
 
   - repo: local  # intentionally duplicated! If there is a modification from the replace
     hooks:
@@ -66,7 +65,7 @@ repos:
   #        args: [ --py36-plus ]  # TODO: change fro 3.8? type annotations fail...
 
   - repo: https://github.com/asottile/setup-cfg-fmt
-    rev: v2.2.0
+    rev: v2.3.0
     hooks:
       - id: setup-cfg-fmt
         args: [ --max-py-version=3.10, --include-version-classifiers ]
@@ -113,31 +112,31 @@ repos:
         language_version: python3
 
   - repo: https://github.com/python-jsonschema/check-jsonschema
-    rev: 0.22.0
+    rev: 0.23.2
     hooks:
       - id: check-github-workflows
       - id: check-github-actions
       - id: check-dependabot
       - id: check-readthedocs
 
-  - repo: https://github.com/jonasbb/pre-commit-latex-hooks
-    rev: v1.4.0
-    hooks:
-      - id: american-eg-ie
-      - id: cleveref-capitalization
-      - id: consistent-spelling
-        args:
-          [
-            "--emph=et al.",
-            "--emph=a priori",
-            "--emph=a posteriori",
-            '--regex=naive=\bna(i|\\"i)ve',
-          ]
-      - id: csquotes
-      - id: ensure-labels-for-sections
-      - id: no-space-in-cite
-      - id: tilde-cite
-      - id: unique-labels
+  #  - repo: https://github.com/jonasbb/pre-commit-latex-hooks
+  #    rev: v1.4.2
+  #    hooks:
+  #      - id: american-eg-ie
+  #      - id: cleveref-capitalization
+  #      - id: consistent-spelling
+  #        args:
+  #          [
+  #            "--emph=et al.",
+  #            "--emph=a priori",
+  #            "--emph=a posteriori",
+  #            '--regex=naive=\bna(i|\\"i)ve',
+  #          ]
+  #      - id: csquotes
+  #      - id: ensure-labels-for-sections
+  #      - id: no-space-in-cite
+  #      - id: tilde-cite
+  #      - id: unique-labels
 
   - repo: https://github.com/dannysepler/rm_unneeded_f_str
     rev: v0.2.0

@@ -1,4 +1,4 @@
-""" Define Parameter which holds the value."""
+"""Define Parameter which holds the value."""
 #  Copyright (c) 2023 zfit
 
 from __future__ import annotations
@@ -32,10 +32,7 @@ from tensorflow.python.ops.resource_variable_ops import (
 from tensorflow.python.ops.variables import Variable
 from tensorflow.python.types.core import Tensor as TensorType
 
-try:
-    from typing import Literal
-except ImportError:  # TODO(3.8): remove
-    from typing_extensions import Literal
+from typing import Literal
 
 from .serialmixin import SerializableMixin
 from .. import z
