@@ -14,10 +14,7 @@ import pydantic
 from .serialmixin import SerializableMixin
 from ..serialization.serializer import BaseRepr, Serializer
 
-try:
-    from typing import Literal
-except ImportError:  # TODO(3.8): remove
-    from typing_extensions import Literal
+from typing import Literal
 
 import tensorflow as tf
 import tensorflow_probability as tfp

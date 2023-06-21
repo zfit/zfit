@@ -1,4 +1,4 @@
-""" Basic PDFs are provided here.
+"""Basic PDFs are provided here.
 
 Gauss, exponential... that can be used together with Functors to build larger models.
 """
@@ -9,10 +9,7 @@ from __future__ import annotations
 #  Copyright (c) 2023 zfit
 import contextlib
 
-try:
-    from typing import Literal
-except ImportError:  # TODO(3.8): remove
-    from typing_extensions import Literal
+from typing import Literal
 
 import tensorflow as tf
 from pydantic import Field

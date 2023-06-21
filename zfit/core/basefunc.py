@@ -28,7 +28,7 @@ class BaseFuncV1(BaseModel, ZfitFunc):
         name: str = "BaseFunc",
         params: typing.Any = None,
     ):
-        """TODO(docs): explain subclassing"""
+        """TODO(docs): explain subclassing."""
         super().__init__(obs=obs, dtype=dtype, name=name, params=params)
 
     def _func_to_integrate(self, x: ztyping.XType):

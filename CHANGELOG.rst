@@ -21,6 +21,7 @@ Deprecations
 
 Bug fixes and small changes
 ---------------------------
+-fix longstanding bug in parameters caching
 
 Experimental
 ------------

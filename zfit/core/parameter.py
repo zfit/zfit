@@ -1,4 +1,4 @@
-""" Define Parameter which holds the value."""
+"""Define Parameter which holds the value."""
 #  Copyright (c) 2023 zfit
 
 from __future__ import annotations
@@ -32,10 +32,7 @@ from tensorflow.python.ops.resource_variable_ops import (
 from tensorflow.python.ops.variables import Variable
 from tensorflow.python.types.core import Tensor as TensorType
 
-try:
-    from typing import Literal
-except ImportError:  # TODO(3.8): remove
-    from typing_extensions import Literal
+from typing import Literal
 
 from .serialmixin import SerializableMixin
 from .. import z
@@ -290,6 +287,7 @@ class ZfitParameterMixin(BaseNumeric):
             )
         self._existing_params.update({name: self})
         self._name = name
+
         super().__init__(name=name, **kwargs)
 
     # property needed here to overwrite the name of tf.Variable
@@ -339,7 +337,10 @@ class ZfitParameterMixin(BaseNumeric):
         return id(self) == id(other)
 
     def __hash__(self):
-        return id(self)
+        if not hasattr(self, "_cached_hash"):
+            self._cached_hash = hash(id(self))
+        hash_value = self._cached_hash
+        return hash_value
 
 
 class TFBaseVariable(TFVariable, metaclass=MetaBaseParameter):
@@ -718,8 +719,8 @@ class Parameter(
     def upper_limit(self, value):
         self.upper = value
 
-    # def __tf_tracing_type__(self, signature_context):
-    #     return ParameterType(parameter=self)
+    def __tf_tracing_type__(self, signature_context):
+        return ParameterType(parameter=self)
 
 
 # delattr(Parameter, "__tf_tracing_type__")
@@ -762,15 +763,10 @@ class ParameterType(VariableSpec):
     def _to_tensors(self, value):
         return [value]
 
-    # def __init__(self, parameter):
-    #     self.parameter_type = type(parameter)
-    #     self.parameter_value = parameter
-    #     self.name = parameter.name
-
     def is_subtype_of(self, other):
         return (
             type(other) is ParameterType
-            and self.parameter_type is other.fruit_type
+            and self.parameter_type is other.parameter_type
             and self.name == other.name
         )
 
