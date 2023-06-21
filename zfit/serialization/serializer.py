@@ -17,8 +17,6 @@ from pydantic import Field
 
 from zfit.util.container import convert_to_container
 
-from typing import Literal, Annotated
-
 try:
     from typing import Annotated
 except ImportError:  # TODO(3.9): remove
