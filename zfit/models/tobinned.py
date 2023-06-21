@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -106,10 +106,15 @@ class BinnedFromUnbinnedPDF(BaseBinnedFunctorPDF):
             return pdf.integrate(limits_space, norm=False, options=options)
 
         limits = znp.stack([lower_flat, upper_flat], axis=1)
+        from zfit import run
+
         try:
+            if run.executing_eagerly():
+                raise TypeError("Just stearing the eager execution")
             values = tf.vectorized_map(integrate_one, limits)[:, 0]
         except (ValueError, TypeError):
-            values = tf.map_fn(integrate_one, limits)
+            with run.aquire_cpu(-1) as cpus:
+                values = tf.map_fn(integrate_one, limits, parallel_iterations=len(cpus))
         values = znp.reshape(values, shape)
         if norm:
             values /= pdf.normalization(norm)
@@ -155,10 +160,15 @@ class BinnedFromUnbinnedPDF(BaseBinnedFunctorPDF):
             missing_yield = True
 
         limits = znp.stack([lower_flat, upper_flat], axis=1)
+        from zfit import run
+
         try:
+            if run.executing_eagerly():
+                raise TypeError("Just stearing the eager execution")
             values = tf.vectorized_map(integrate_one, limits)[:, 0]
         except (ValueError, TypeError):
-            values = tf.map_fn(integrate_one, limits)
+            with run.aquire_cpu(-1) as cpus:
+                values = tf.map_fn(integrate_one, limits, parallel_iterations=len(cpus))
         values = znp.reshape(values, shape)
         if missing_yield:
             values *= self.get_yield()

@@ -7,7 +7,18 @@ import copy
 import functools
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Union, Mapping, Iterable, Dict, List, TypeVar, Optional, Tuple
+from typing import (
+    Any,
+    Union,
+    Mapping,
+    Iterable,
+    Dict,
+    List,
+    TypeVar,
+    Optional,
+    Tuple,
+    Literal,
+)
 
 import numpy as np
 import pydantic
@@ -18,9 +29,9 @@ from pydantic import Field
 from zfit.util.container import convert_to_container
 
 try:
-    from typing import Literal, Annotated
-except ImportError:  # TODO(3.8): remove
-    from typing_extensions import Literal, Annotated
+    from typing import Annotated
+except ImportError:  # TODO(3.9): remove
+    from typing_extensions import Annotated
 
 from zfit.core.interfaces import (
     ZfitParameter,
@@ -72,7 +83,7 @@ class Types:
             raise NameError(
                 "Internal error, should always be caught! If you see this, most likely the annotation"
                 " evaluation was not postponed. To fix this, add a `from __future__ import annotations`"
-                " and make sure to use Python 3.7+"
+                " and make sure to use Python 3.8+"
             )
         if len(repr) == 0:
             return None

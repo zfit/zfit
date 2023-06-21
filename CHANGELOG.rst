@@ -6,6 +6,50 @@ Changelog
 
 
 
+Develop
+========================
+
+Major Features and Improvements
+-------------------------------
+
+
+Breaking changes
+------------------
+
+Deprecations
+-------------
+
+Bug fixes and small changes
+---------------------------
+
+Experimental
+------------
+
+Requirement changes
+-------------------
+
+Thanks
+------
+
+0.14.0 (22 June 2023)
+========================
+
+Major Features and Improvements
+-------------------------------
+
+- support for Python 3.11, dropped support for Python 3.7
+
+Bug fixes and small changes
+---------------------------
+-fix longstanding bug in parameters caching
+
+
+Requirement changes
+-------------------
+- update to TensorFlow 2.12
+- removed tf_quant_finance
+
+
 0.13.2 (15. June 2023)
 ========================
 

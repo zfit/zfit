@@ -1306,9 +1306,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
                 "Currently, analytic sampling with Tensors not supported."
                 " Needs implementation of analytic integrals with Tensors."
             ) from err
-        neg_infinities = (
-            tuple((-float("inf"),) * limits.n_obs),
-        )  # py34 change float("inf") to math.inf
+        neg_infinities = (tuple((-math.inf,) * limits.n_obs),)
         # to the cdf to get the limits for the inverse analytic integral
         try:
             lower_prob_lim = self._norm_analytic_integrate(

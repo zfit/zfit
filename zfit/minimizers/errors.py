@@ -164,7 +164,7 @@ def compute_errors(
             @z.function(wraps="gradient")
             def optimized_loss_gradient(values, index):
                 assert isinstance(index, int)
-                assign_values_jit(all_params, values)
+                assign_values(all_params, values)
                 loss_value, gradient = loss.value_gradient(params=all_params)
                 if isinstance(gradient, (tuple, list)):
                     gradient = znp.asarray(gradient)
@@ -279,6 +279,8 @@ def numerical_pdf_jacobian(func, params):  # TODO: jit?
 # @z.function(wraps="autodiff")
 def autodiff_pdf_jacobian(func, params):
     params = list(params.values())
+    # TODO(WrappedVariable): this is needed if we want to use wrapped Variables
+    # params = z.math._extract_tfparams(params)
 
     # the below fails for some cases (i.e. CB) with an internal error
     # ValueError: Internal error: Tried to take gradients (or similar) of a variable without handle data:

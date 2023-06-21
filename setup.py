@@ -20,10 +20,11 @@ with open(
 
 extras_require = {}
 extras_require["ipyopt"] = ["ipyopt>=0.12"]
-extras_require["nlopt"] = ["nlopt>=2.7.1"]
+if sys.version_info[1] < 11:
+    extras_require["nlopt"] = ["nlopt>=2.7.1"]
 extras_require["hs3"] = ["asdf"]
-if sys.version_info[1] > 7:  # Python 3.7 not supported anymore
-    extras_require["uproot"] = ["awkward-pandas"]
+# Python 3.7 not supported anymore
+extras_require["uproot"] = ["awkward-pandas"]
 allreq = sum(extras_require.values(), [])
 
 tests_require = [
@@ -38,7 +39,7 @@ tests_require = [
     "matplotlib",  # for plots in examples
 ]
 extras_require["all"] = allreq
-extras_require["tests-nonlinux"] = tests_require + extras_require["nlopt"]
+extras_require["tests-nonlinux"] = tests_require + extras_require.get("nlopt", [])
 extras_require["tests"] = extras_require["tests-nonlinux"] + extras_require["ipyopt"]
 extras_require["dev"] = requirements_dev + extras_require["tests"]
 extras_require["dev-nonlinux"] = requirements_dev + extras_require["tests-nonlinux"]

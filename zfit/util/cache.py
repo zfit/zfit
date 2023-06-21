@@ -1,4 +1,4 @@
-""" Module for caching.
+"""Module for caching.
 
 The basic concept of caching in Zfit builds on a "cacher", that caches a certain value and that
 is dependent of "cache_dependents". By implementing `ZfitGraphCachable`, an object will be able to play both

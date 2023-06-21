@@ -1,15 +1,12 @@
 #  Copyright (c) 2023 zfit
-""" Recurrent polynomials."""
+"""Recurrent polynomials."""
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Optional
 
 import pydantic
 
-try:
-    from typing import Literal
-except ImportError:  # TODO(3.8): remove
-    from typing_extensions import Literal
+from typing import Literal
 
 from ..core.serialmixin import SerializableMixin
 from ..serialization import SpaceRepr, Serializer
@@ -122,7 +119,7 @@ class RecursivePolynomial(BasePDF):
 
     @property
     def degree(self):
-        """int: degree of the polynomial, starting from 0."""
+        """Int: degree of the polynomial, starting from 0."""
         return self._degree
 
     def _unnormalized_pdf(self, x):

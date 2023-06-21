@@ -3135,7 +3135,10 @@ def check_norm(supports=None):
     supports = convert_to_container(supports, convert_none=True)
 
     def no_norm_range(func):
-        """Decorator: Catch the 'norm' kwargs. If not None, raise `NormNotImplemented`."""
+        """Decorator: Catch the 'norm' kwargs.
+
+        If not None, raise `NormNotImplemented`.
+        """
         parameters = inspect.signature(func).parameters
         keys = list(parameters.keys())
         norm_range_index = None
@@ -3225,7 +3228,10 @@ def check_norm(supports=None):
 
 
 def no_multiple_limits(func):
-    """Decorator: Catch the 'limits' kwargs. If it contains multiple limits, raise MultipleLimitsNotImplementedError."""
+    """Decorator: Catch the 'limits' kwargs.
+
+    If it contains multiple limits, raise MultipleLimitsNotImplementedError.
+    """
     parameters = inspect.signature(func).parameters
     keys = list(parameters.keys())
     if "limits" in keys:

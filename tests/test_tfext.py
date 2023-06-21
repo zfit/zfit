@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 
 
 # deactivating CUDA capable gpus
@@ -23,9 +23,7 @@ prec = 0.00001
 def test_polynomial():
     coeffs = [5.3, 1.2, complex(1.3, 0.4), -42, 32.4, 529.3, -0.93]
     x = tf.constant(5.0)
-    polynom_tf = zfit.z.math.poly_complex(
-        *(coeffs + [x])
-    )  # py34 comp: *x, y does not work
+    polynom_tf = zfit.z.math.poly_complex(*coeffs, x)
     polynom_np = np.polyval(coeffs[::-1], 5.0)
 
     result = polynom_tf.numpy()

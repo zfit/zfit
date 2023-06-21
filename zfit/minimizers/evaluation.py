@@ -10,8 +10,9 @@ import tensorflow as tf
 import texttable as tt
 
 from .strategy import ZfitStrategy
+from .. import z
 from ..core.interfaces import ZfitLoss
-from ..core.parameter import assign_values_jit
+from ..core.parameter import assign_values_jit, assign_values
 from ..util import ztyping
 from ..util.container import convert_to_container
 from ..util.exception import DerivativeCalculationError, MaximumIterationReached
@@ -19,6 +20,8 @@ from ..z import numpy as znp
 
 
 def assign_values_func(params, values):
+    # TODO(WrappedVariable): this is needed if we want to use wrapped Variables
+    # params = z.math._extract_tfparams(params)
     return assign_values_jit(params, znp.asarray(values))
 
 

@@ -1,4 +1,4 @@
-""" A rich selection of analytically implemented Distributions (models) are available in `TensorFlow Probability.
+"""A rich selection of analytically implemented Distributions (models) are available in `TensorFlow Probability.
 
 <https://github.com/tensorflow/probability>`_. While their API is slightly different from the zfit models, it is similar
 enough to be easily wrapped.
@@ -15,10 +15,7 @@ import tensorflow_probability as tfp
 import tensorflow_probability.python.distributions as tfd
 from pydantic import Field
 
-try:
-    from typing import Literal
-except ImportError:  # TODO(3.8): remove
-    from typing_extensions import Literal
+from typing import Literal
 
 from zfit import z
 from zfit.util.exception import (

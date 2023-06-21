@@ -1,5 +1,6 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 import math
+import sys
 
 import pytest
 
@@ -32,13 +33,15 @@ def test_fail_on_nan_strategy():
 
 
 def minimizers():
-    return [
+    minimizers = [
         zfit.minimize.Adam,
-        zfit.minimize.NLoptMMAV1,
         zfit.minimize.IpyoptV1,
         zfit.minimize.Minuit,
         zfit.minimize.ScipySLSQPV1,
     ]
+    if sys.version_info[1] < 11:
+        minimizers.append(zfit.minimize.NLoptMMAV1)
+    return minimizers
 
 
 # sort for xdist: https://github.com/pytest-dev/pytest-xdist/issues/432
