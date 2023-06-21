@@ -7,7 +7,18 @@ import copy
 import functools
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Union, Mapping, Iterable, Dict, List, TypeVar, Optional, Tuple
+from typing import (
+    Any,
+    Union,
+    Mapping,
+    Iterable,
+    Dict,
+    List,
+    TypeVar,
+    Optional,
+    Tuple,
+    Literal,
+)
 
 import numpy as np
 import pydantic
