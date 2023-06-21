@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 
 from __future__ import annotations
 
@@ -75,5 +75,8 @@ class WrapOptimizer(BaseStepMinimizer):
         params: Iterable[ZfitIndependentParameter],
         init: zfit.result.FitResult | None,
     ) -> tf.Tensor:
+        # TODO(WrappedVariable): this is needed if we want to use wrapped Variables
+        # import zfit
+        # params = zfit.z.math._extract_tfparams(params)
         self._optimizer_tf.minimize(loss=loss.value, var_list=params)
         return loss.value()

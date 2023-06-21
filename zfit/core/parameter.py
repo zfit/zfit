@@ -290,6 +290,7 @@ class ZfitParameterMixin(BaseNumeric):
             )
         self._existing_params.update({name: self})
         self._name = name
+
         super().__init__(name=name, **kwargs)
 
     # property needed here to overwrite the name of tf.Variable
@@ -339,7 +340,10 @@ class ZfitParameterMixin(BaseNumeric):
         return id(self) == id(other)
 
     def __hash__(self):
-        return id(self)
+        if not hasattr(self, "_cached_hash"):
+            self._cached_hash = hash(id(self))
+        hash_value = self._cached_hash
+        return hash_value
 
 
 class TFBaseVariable(TFVariable, metaclass=MetaBaseParameter):
@@ -718,8 +722,8 @@ class Parameter(
     def upper_limit(self, value):
         self.upper = value
 
-    # def __tf_tracing_type__(self, signature_context):
-    #     return ParameterType(parameter=self)
+    def __tf_tracing_type__(self, signature_context):
+        return ParameterType(parameter=self)
 
 
 # delattr(Parameter, "__tf_tracing_type__")
@@ -762,15 +766,10 @@ class ParameterType(VariableSpec):
     def _to_tensors(self, value):
         return [value]
 
-    # def __init__(self, parameter):
-    #     self.parameter_type = type(parameter)
-    #     self.parameter_value = parameter
-    #     self.name = parameter.name
-
     def is_subtype_of(self, other):
         return (
             type(other) is ParameterType
-            and self.parameter_type is other.fruit_type
+            and self.parameter_type is other.parameter_type
             and self.name == other.name
         )
 

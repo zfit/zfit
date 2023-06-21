@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 
 if TYPE_CHECKING:
     import zfit
@@ -43,7 +43,7 @@ def poly_complex(*args, real_x=False):
     )
 
 
-def numerical_gradient(func: Callable, params: Iterable[zfit.Parameter]) -> tf.Tensor:
+def numerical_gradient(func: Callable, params: Iterable["zfit.Parameter"]) -> tf.Tensor:
     """Calculate numerically the gradient of func() with respect to ``params``.
 
     Args:
@@ -209,6 +209,37 @@ def autodiff_gradient(func: Callable, params: Iterable[zfit.Parameter]) -> tf.Te
     return autodiff_value_gradients(func, params)[1]
 
 
+def _extract_tfparams(
+    params: Iterable[zfit.Parameter] | zfit.Parameter,
+) -> List[tf.Variable]:
+    """Extract the tf.Variable from the parameters.
+
+    Args:
+        params:
+
+    Returns:
+        tf.Variable
+    """
+    return params
+    # TODO(WrappedVariable): this is needed if we want to use wrapped Variables
+    # import zfit
+    # params = convert_to_container(params)
+    # tf_params = []
+    # for param in params:
+    #     if isinstance(param, tf.Variable):
+    #
+    #         # TODO: reactivate if WrappedVariables are used
+    #         # if isinstance(param, zfit.Parameter):
+    #         #     raise ValueError("The parameter cannot be a tf.Variable and a zfit.Parameter at the same time.")
+    #         variable = param
+    #     else:
+    #         if not isinstance(param, zfit.Parameter):
+    #             raise ValueError("The parameter has to be either a tf.Variable or a zfit.Parameter.")
+    #         variable = param.variable
+    #     tf_params.append(variable)
+    # return tf_params
+
+
 def autodiff_value_gradient(
     func: Callable, params: Iterable[zfit.Parameter]
 ) -> [tf.Tensor, tf.Tensor]:
@@ -226,6 +257,8 @@ def autodiff_value_gradient(
         Returns:
             Value and gradient
     """
+    # TODO(WrappedVariable): this is needed if we want to use wrapped Variables
+    # params = _extract_tfparams(params)
     with tf.GradientTape(
         persistent=False,  # needs to be persistent for a call from hessian.
         watch_accessed_variables=False,
@@ -293,6 +326,8 @@ def automatic_value_gradient_hessian(
     persistant = (
         hessian == "diag" or tf.executing_eagerly()
     )  # currently needed, TODO: can we better parallelize that?
+    # TODO(WrappedVariable): this is needed if we want to use wrapped Variables
+    # params = _extract_tfparams(params)
     with tf.GradientTape(persistent=persistant, watch_accessed_variables=False) as tape:
         tape.watch(params)
         if callable(value_grad_func):
