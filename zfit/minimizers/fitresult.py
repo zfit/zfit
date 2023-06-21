@@ -1480,8 +1480,7 @@ class FitResult(ZfitResult):
     def freeze(self):
         """Freeze the result to make it pickleable and convert all TensorFlow elements to names (parameters) or arrays.
 
-        After this, no more uncertainties or covariances can be calculated. The already calculated ones
-        remain however.
+        After this, no more uncertainties or covariances can be calculated. The already calculated ones remain however.
 
         Parameters can be accessed by their string name.
         """

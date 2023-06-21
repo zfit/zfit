@@ -19,6 +19,11 @@ from zfit.util.container import convert_to_container
 
 from typing import Literal, Annotated
 
+try:
+    from typing import Annotated
+except ImportError:  # TODO(3.9): remove
+    from typing_extensions import Annotated
+
 from zfit.core.interfaces import (
     ZfitParameter,
     ZfitPDF,

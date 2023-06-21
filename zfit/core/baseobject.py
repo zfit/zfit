@@ -1,4 +1,4 @@
-""" Baseclass for most objects appearing in zfit."""
+"""Baseclass for most objects appearing in zfit."""
 
 #  Copyright (c) 2023 zfit
 
