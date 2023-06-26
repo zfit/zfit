@@ -16,7 +16,7 @@
 """Polyharmonic spline interpolation."""
 from __future__ import annotations
 
-from typing import Union
+from typing import Union, Tuple, List
 
 import numpy as np
 import tensorflow as tf
@@ -38,8 +38,8 @@ Number = Union[
 ]
 
 TensorLike = Union[
-    list[Union[Number, list]],
-    tuple,
+    List[Union[Number, list]],
+    Tuple,
     Number,
     np.ndarray,
     tf.Tensor,
