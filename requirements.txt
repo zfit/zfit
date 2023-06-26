@@ -7,7 +7,7 @@ dill
 dotmap
 frozendict
 hist
-iminuit>=2.3,<2.21  # https://github.com/scikit-hep/iminuit/issues/846 annotations fail with 2.21  # 2.21 is broken for type hints
+iminuit>=2.3
 jacobi
 numdifftools
 numpy>=1.16
