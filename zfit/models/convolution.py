@@ -5,7 +5,6 @@ from typing import Optional, Union
 
 import pydantic
 import tensorflow as tf
-import tensorflow_addons as tfa
 import tensorflow_probability as tfp
 
 from typing import Literal
@@ -23,6 +22,7 @@ from ..serialization.pdfrepr import BasePDFRepr
 from ..util import ztyping
 from ..util.exception import ShapeIncompatibleError, WorkInProgressError
 from ..util.ztyping import ExtendedInputType, NormInputType
+from ..z.interpolate_spline import interpolate_spline
 
 LimitsTypeInput = Optional[Union[ztyping.LimitsType, float]]
 
@@ -354,7 +354,7 @@ class FFTConvPDFV1(BaseFunctor, SerializableMixin):
         query_points = znp.expand_dims(x.value(), axis=0)
         if self.conv_interpolation == "spline":
             conv_points = znp.reshape(conv, (1, -1, 1))
-            prob = tfa.image.interpolate_spline(
+            prob = interpolate_spline(
                 train_points=train_points,
                 train_values=conv_points,
                 query_points=query_points,

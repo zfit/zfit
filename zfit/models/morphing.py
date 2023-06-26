@@ -1,11 +1,10 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 
 from __future__ import annotations
 
 from collections.abc import Mapping, Iterable
 
 import tensorflow as tf
-import tensorflow_addons as tfa
 from uhi.typing.plottable import PlottableHistogram
 
 import zfit.z.numpy as znp
@@ -15,6 +14,7 @@ from ..core import parameter
 from ..core.interfaces import ZfitBinnedPDF
 from ..util import ztyping
 from ..util.exception import SpecificFunctionNotImplemented
+from ..z.interpolate_spline import interpolate_spline
 
 
 @z.function(wraps="tensor")
@@ -24,7 +24,8 @@ def spline_interpolator(alpha, alphas, densities):
     densities_flat = [znp.reshape(density, [-1]) for density in densities]
     densities_flat = znp.stack(densities_flat, axis=0)
     alpha_shaped = znp.reshape(alpha, [1, -1, 1])
-    y_flat = tfa.image.interpolate_spline(
+
+    y_flat = interpolate_spline(
         train_points=alphas,
         train_values=densities_flat[None, ...],
         query_points=alpha_shaped,
