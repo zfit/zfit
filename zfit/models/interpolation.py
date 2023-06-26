@@ -1,8 +1,6 @@
 #  Copyright (c) 2023 zfit
 from __future__ import annotations
 
-import tensorflow_addons as tfa
-
 import zfit.z.numpy as znp
 from .functor import BaseFunctor
 from ..core.interfaces import ZfitBinnedPDF
@@ -10,6 +8,7 @@ from ..core.space import supports
 from ..util import ztyping
 from ..util.exception import SpecificFunctionNotImplemented
 from ..util.ztyping import ExtendedInputType, NormInputType
+from ..z.interpolate_spline import interpolate_spline
 
 
 class SplinePDF(BaseFunctor):
@@ -64,7 +63,7 @@ class SplinePDF(BaseFunctor):
         centers_list_flat = [znp.reshape(cent, (-1,)) for cent in centers_list]
         centers = znp.stack(centers_list_flat, axis=-1)
         # [None, :, None]  # TODO: only 1 dim now
-        probs = tfa.image.interpolate_spline(
+        probs = interpolate_spline(
             train_points=centers[None, ...],
             train_values=density_flat[None, :, None],
             query_points=x.value()[None, ...],
@@ -79,7 +78,7 @@ class SplinePDF(BaseFunctor):
             x.space, norm=norm
         )  # TODO: order? Give obs, pdf makes order and binning herself?
         centers = pdf.space.binning.centers[0][None, :, None]  # TODO: only 1 dim now
-        probs = tfa.image.interpolate_spline(
+        probs = interpolate_spline(
             train_points=centers,
             train_values=density[None, :, None],
             query_points=x.value()[None, ...],
