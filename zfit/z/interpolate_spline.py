@@ -14,6 +14,8 @@
 # ==============================================================================
 # This was copied from TensorFlow addons, which is deprecated by now.
 """Polyharmonic spline interpolation."""
+from __future__ import annotations
+
 from typing import Union
 
 import numpy as np
