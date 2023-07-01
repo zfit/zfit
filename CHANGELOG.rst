@@ -31,6 +31,19 @@ Requirement changes
 Thanks
 ------
 
+0.14.1 (1 July 2023)
+========================
+
+Major Features and Improvements
+-------------------------------
+
+- zfit broke for pydantic 2, which upgraded.
+
+
+Requirement changes
+-------------------
+- restrict pydantic to <2.0.0
+
 0.14.0 (22 June 2023)
 ========================
 

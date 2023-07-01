@@ -7,18 +7,17 @@ dill
 dotmap
 frozendict
 hist
-iminuit>=2.3,<2.21  # https://github.com/scikit-hep/iminuit/issues/846 annotations fail with 2.21  # 2.21 is broken for type hints
+iminuit>=2.3
 jacobi
 numdifftools
 numpy>=1.16
 ordered-set
 pandas
-pydantic
+pydantic<2.0.0  # fails with not a "subclass", won't fix
 pyyaml
 scipy>=1.2
 tabulate
 tensorflow>=2.12, <2.13; sys_platform != 'darwin' or platform_machine != 'arm64'
-tensorflow-addons>=0.20
 tensorflow-macos>=2.11, <2.13; sys_platform == 'darwin' and platform_machine == 'arm64'
 tensorflow_probability>=0.20, <0.21
 texttable
