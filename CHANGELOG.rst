@@ -27,6 +27,7 @@ Experimental
 
 Requirement changes
 -------------------
+- TensorFlow 2.13
 
 Thanks
 ------
