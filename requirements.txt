@@ -17,8 +17,7 @@ pydantic<2.0.0  # fails with not a "subclass", won't fix
 pyyaml
 scipy>=1.2
 tabulate
-tensorflow>=2.13, <2.14; sys_platform != 'darwin' or platform_machine != 'arm64'
-tensorflow-macos>=2.11, <2.13; sys_platform == 'darwin' and platform_machine == 'arm64'
+tensorflow>=2.13, <2.14
 tensorflow_probability>=0.20, <0.22
 texttable
 typing_extensions; python_version <"3.9.0"
