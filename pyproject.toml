@@ -22,6 +22,7 @@ collect_ignore = "setup.py"
 
 [tool.coverage.run]
 branch = true
+relative_files = true
 omit = [
     # omit anything in a .local directory anywhere
     ".tox/*",

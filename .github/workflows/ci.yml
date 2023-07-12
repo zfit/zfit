@@ -83,14 +83,17 @@ jobs:
         #            echo "PYTEST_ADDOPTS=--longtests-kde --longtests" >> "$GITHUB_ENV"
         #          fi
         run: |
-          pytest --cov=. --cov-config=pyproject.toml -n2  # TODO(jonas): fix coverage report?
+          pytest --cov=. --cov-config=pyproject.toml -n4
+          # convert to lcov format
+
       #          mkdir coverage && coverage-lcov --output_file_path ./coverage/lcov.info
-      - name: Coveralls Parallel
-        uses: coverallsapp/github-action@v2.2.0
-        with:
-          github-token: ${{ secrets.github_token }}
-          flag-name: run-${{ matrix.use-graph }}-${{ matrix.python-version }}-ubuntu
-          parallel: true
+      # TODO(jonas): fix coverage report? Needs converter to lcov format
+  #      - name: Coveralls Parallel
+  #        uses: coverallsapp/github-action@v2.2.0
+  #        with:
+  #          github-token: ${{ secrets.github_token }}
+  #          flag-name: run-${{ matrix.use-graph }}-${{ matrix.python-version }}-ubuntu
+  #          parallel: true
   docs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
