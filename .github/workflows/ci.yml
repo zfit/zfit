@@ -50,6 +50,9 @@ jobs:
             extras: alldev-windows
 
     steps:
+      - name: Get number of CPU cores
+        uses: SimenB/github-actions-cpu-cores@v1
+        id: cpu-cores
       - uses: actions/checkout@v3
       - name: Get history and tags for SCM versioning to work
         run: |
@@ -83,7 +86,7 @@ jobs:
         #            echo "PYTEST_ADDOPTS=--longtests-kde --longtests" >> "$GITHUB_ENV"
         #          fi
         run: |
-          pytest --cov=. --cov-config=pyproject.toml -n4
+          pytest --cov=. --cov-config=pyproject.toml -n${{ steps.cpu-cores.outputs.count }}
           # convert to lcov format
 
       #          mkdir coverage && coverage-lcov --output_file_path ./coverage/lcov.info
@@ -144,6 +147,9 @@ jobs:
     env:
       ZFIT_DO_JIT: ${{ matrix.use-graph }}
     steps:
+      - name: Get number of CPU cores
+        uses: SimenB/github-actions-cpu-cores@v1
+        id: cpu-cores
       - uses: actions/checkout@v3
       - name: Get history and tags for SCM versioning to work
         run: |
@@ -181,7 +187,7 @@ jobs:
 
       - name: Run notebooks
         run: |
-          pytest --nbval-lax zfit-tutorials --ignore=zfit-tutorials/experimental --ignore=zfit-tutorials/_unused --ignore=zfit-tutorials/_website --ignore=zfit-tutorials/ -n2
+          pytest --nbval-lax zfit-tutorials --dist loadscope --ignore=zfit-tutorials/experimental --ignore=zfit-tutorials/_unused --ignore=zfit-tutorials/_website -n${{ steps.cpu-cores.outputs.count }}
   examples:
     runs-on: ubuntu-latest
     timeout-minutes: 60
