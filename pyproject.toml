@@ -31,16 +31,17 @@ omit = [
 ]
 
 [tool.coverage.report]
-# Regexes for lines to exclude from consideration
-exclude_also = [
-    # Don't complain if tests don't hit defensive assertion code:
-    "raise AssertionError",
-    "raise NotImplementedError",
-    # Don't complain if non-runnable code isn't run:
-    "if __name__ == .__main__.:",
-    # Don't complain about abstract methods, they aren't run:
-    "@(abc\\.)?abstractmethod",
-]
+# fails in CI? not known config?
+## Regexes for lines to exclude from consideration
+#exclude_also = [
+#    # Don't complain if tests don't hit defensive assertion code:
+#    "raise AssertionError",
+#    "raise NotImplementedError",
+#    # Don't complain if non-runnable code isn't run:
+#    "if __name__ == .__main__.:",
+#    # Don't complain about abstract methods, they aren't run:
+#    "@(abc\\.)?abstractmethod",
+#]
 
 ignore_errors = true
 
