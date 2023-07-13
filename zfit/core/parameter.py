@@ -80,7 +80,7 @@ def register_tensor_conversion(
     def _dense_var_to_tensor(var, dtype=None, name=None, as_ref=False):
         return var._dense_var_to_tensor(dtype=dtype, name=name, as_ref=as_ref)
 
-    ops.register_tensor_conversion_function(
+    tf.register_tensor_conversion_function(
         convertable, _dense_var_to_tensor, priority=priority
     )
     if name:

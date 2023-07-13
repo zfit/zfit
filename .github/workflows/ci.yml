@@ -23,7 +23,7 @@ on:
 jobs:
   unittests:
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 180 # for eager mode
+    timeout-minutes: 240 # for eager mode
     name: tests on ${{ matrix.os }} with ${{ matrix.python-version }} compiled = ${{ matrix.use-graph }}
     env:
       ZFIT_DO_JIT: ${{ matrix.use-graph }}
@@ -50,6 +50,9 @@ jobs:
             extras: alldev-windows
 
     steps:
+      - name: Get number of CPU cores
+        uses: SimenB/github-actions-cpu-cores@v1
+        id: cpu-cores
       - uses: actions/checkout@v3
       - name: Get history and tags for SCM versioning to work
         run: |
@@ -75,7 +78,7 @@ jobs:
         # move coverage-lcov to requirements once https://github.com/TheCleric/coverage-lcov/issues/6 resolved
         run: |
           python -m pip install --upgrade pip
-          pip install coverage-lcov
+          pip install coverage-lcov pytest-xdist pytest-cov
           pip install .[${{ matrix.extras }}]
       - name: Test with pytest
         # TODO: maybe reactivate long tests?
@@ -83,14 +86,17 @@ jobs:
         #            echo "PYTEST_ADDOPTS=--longtests-kde --longtests" >> "$GITHUB_ENV"
         #          fi
         run: |
-          coverage run --source=. --omit=".tox/*,*/test*,*/minimizers/interface.py,*/core/testing.py" --branch -m pytest .
-          mkdir coverage && coverage-lcov --output_file_path ./coverage/lcov.info
-      - name: Coveralls Parallel
-        uses: coverallsapp/github-action@v2.1.2
-        with:
-          github-token: ${{ secrets.github_token }}
-          flag-name: run-${{ matrix.use-graph }}-${{ matrix.python-version }}-ubuntu
-          parallel: true
+          pytest --cov=. --cov-config=pyproject.toml -n${{ steps.cpu-cores.outputs.count }}
+          # convert to lcov format
+
+      #          mkdir coverage && coverage-lcov --output_file_path ./coverage/lcov.info
+      # TODO(jonas): fix coverage report? Needs converter to lcov format
+  #      - name: Coveralls Parallel
+  #        uses: coverallsapp/github-action@v2.2.0
+  #        with:
+  #          github-token: ${{ secrets.github_token }}
+  #          flag-name: run-${{ matrix.use-graph }}-${{ matrix.python-version }}-ubuntu
+  #          parallel: true
   docs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -141,6 +147,9 @@ jobs:
     env:
       ZFIT_DO_JIT: ${{ matrix.use-graph }}
     steps:
+      - name: Get number of CPU cores
+        uses: SimenB/github-actions-cpu-cores@v1
+        id: cpu-cores
       - uses: actions/checkout@v3
       - name: Get history and tags for SCM versioning to work
         run: |
@@ -172,13 +181,13 @@ jobs:
           python -m pip install --upgrade pip
           pip install wheel
           pip install -U .[all]
-          pip install nbval pytest-helpers-namespace
+          pip install nbval pytest-helpers-namespace pytest-xdist
           pip install -r zfit-tutorials/requirements.txt
           pip install -U --force-reinstall .[all]  # yep. Needed. Otherwise i.e. numpy needs to be upgraded
 
       - name: Run notebooks
         run: |
-          pytest --nbval-lax zfit-tutorials --ignore=zfit-tutorials/experimental --ignore=zfit-tutorials/_unused --ignore=zfit-tutorials/_website --ignore=zfit-tutorials/
+          pytest --nbval-lax zfit-tutorials --dist loadscope --ignore=zfit-tutorials/experimental --ignore=zfit-tutorials/_unused --ignore=zfit-tutorials/_website -n${{ steps.cpu-cores.outputs.count }}
   examples:
     runs-on: ubuntu-latest
     timeout-minutes: 60
@@ -222,7 +231,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Coveralls Finished
-        uses: coverallsapp/github-action@v2.1.2
+        uses: coverallsapp/github-action@v2.2.0
         with:
           github-token: ${{ secrets.github_token }}
           parallel-finished: true

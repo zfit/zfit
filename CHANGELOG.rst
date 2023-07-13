@@ -5,7 +5,6 @@ Changelog
 .. _newest-changelog:
 
 
-
 Develop
 ========================
 
@@ -30,6 +29,21 @@ Requirement changes
 
 Thanks
 ------
+
+
+0.15.0 (13 July 2023)
+========================
+
+Update to TensorFlow 2.13.x
+
+Requirement changes
+-------------------
+- TensorFlow upgraded to ~=2.13.0
+- as TF 2.13.0 ships with the arm64 macos wheels, the requirement of ``tensorflow_macos`` is removed
+
+Thanks
+------
+- Iason Krommydas for helping with the macos requirements for TF
 
 0.14.1 (1 July 2023)
 ========================

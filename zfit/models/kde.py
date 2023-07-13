@@ -1256,13 +1256,18 @@ class KDE1DimGrid(KDEHelper, WrapDistribution, SerializableMixin):
         if num_grid_points is None:
             num_grid_points = self._default_num_grid_points
 
-        if bandwidth == "isj":
-            raise ValueError("isj not supported in GridKDE, use directly 'KDE1DimISJ'")
-        if bandwidth == "adaptive_std":
-            raise ValueError(
-                "adaptive_std not supported in GridKDE due to very bad results. This is maybe caused"
-                " by an issue regarding weights of the underlaying implementation."
-            )
+        if isinstance(
+            bandwidth, str
+        ):  # numpy arrays cannot be compared with equal-> "use any, all"
+            if bandwidth == "isj":
+                raise ValueError(
+                    "isj not supported in GridKDE, use directly 'KDE1DimISJ'"
+                )
+            if bandwidth == "adaptive_std":
+                raise ValueError(
+                    "adaptive_std not supported in GridKDE due to very bad results. This is maybe caused"
+                    " by an issue regarding weights of the underlaying implementation."
+                )
 
         if padding is None:
             padding = self._default_padding

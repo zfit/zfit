@@ -33,7 +33,7 @@ repos:
         additional_dependencies: [ pyyaml ]
 
   - repo: https://github.com/PyCQA/docformatter
-    rev: v1.7.2
+    rev: v1.7.3
     hooks:
       - id: docformatter
         args: [ -r, --in-place, --wrap-descriptions, '120', --wrap-summaries, '120', --pre-summary-space, --black, -- ]
@@ -65,7 +65,7 @@ repos:
   #        args: [ --py36-plus ]  # TODO: change fro 3.8? type annotations fail...
 
   - repo: https://github.com/asottile/setup-cfg-fmt
-    rev: v2.3.0
+    rev: v2.4.0
     hooks:
       - id: setup-cfg-fmt
         args: [ --max-py-version=3.10, --include-version-classifiers ]
