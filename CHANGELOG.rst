@@ -5,7 +5,6 @@ Changelog
 .. _newest-changelog:
 
 
-
 Develop
 ========================
 
@@ -24,6 +23,18 @@ Bug fixes and small changes
 
 Experimental
 ------------
+
+Requirement changes
+-------------------
+
+Thanks
+------
+
+
+0.15.0 (13 July 2023)
+========================
+
+Update to TensorFlow 2.13.x
 
 Requirement changes
 -------------------
