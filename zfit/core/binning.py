@@ -38,7 +38,15 @@ def histogramdd(sample, bins=10, range=None, weights=None, density=None):
         new_kwargs = {}
         for key, value in kwargs.items():
             value = value
-            if value == b"NONE_TENSOR":
+            is_empty = value == b"NONE_TENSOR"
+            try:
+                is_empty = bool(is_empty)
+            except (
+                ValueError
+            ):  # if it's a numpy array we need the "all" method, otherwise it's ambiguous
+                is_empty = is_empty.all()
+
+            if is_empty:
                 value = None
 
             new_kwargs[key] = value

@@ -118,9 +118,9 @@ def cleanup_recursive(dict1, dict2):
     for key in set(dict1.keys()) | set(dict2.keys()):
         val1 = dict1.get(key)
         val2 = dict2.get(key)
-        if val1 == ARBITRARY_VALUE:
+        if isinstance(val1, str) and val1 == ARBITRARY_VALUE:
             dict2[key] = ARBITRARY_VALUE
-        elif val2 == ARBITRARY_VALUE:
+        elif isinstance(val2, str) and val2 == ARBITRARY_VALUE:
             dict1[key] = ARBITRARY_VALUE
         elif isinstance(val1, collections.abc.Mapping) or isinstance(
             val2, collections.abc.Mapping
