@@ -616,7 +616,7 @@ loss.init.options: |1+
 
 
 loss.value.full: |1+
-    If True, return the full loss value, otherwise 
+    If True, return the full loss value, otherwise
                 allow for the removal of constants and only return
                 the part that depends on the parameters. Constants
                 don't matter for the task of optimization, but
