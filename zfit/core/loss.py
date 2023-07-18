@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, List, Optional, Union
-
+from functools import partial
 from typing import Literal
+from typing import TYPE_CHECKING, List, Optional, Union
 
 import pydantic
 from pydantic import Field
@@ -56,8 +56,10 @@ from .dependents import _extract_dependencies
 from .interfaces import ZfitData, ZfitLoss, ZfitPDF, ZfitSpace
 from .parameter import convert_to_parameters, set_values
 
+DEFAULT_FULL_ARG = False
 
-# @z.function
+
+@z.function(wraps="loss")
 def _unbinned_nll_tf(
     model: ztyping.PDFInputType,
     data: ztyping.DataInputType,
@@ -131,7 +133,6 @@ def _constraint_check_convert(constraints):
     return checked_constraints
 
 
-# TODO(serialization): add to serializer
 class BaseLossRepr(BaseRepr):
     _implementation = None
     _owndict = pydantic.PrivateAttr(default_factory=dict)
@@ -342,7 +343,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
                         # so the loss will decrease
                         log_offset=z.convert_to_tensor(0.0),
                     )
-                    - 1000.0
+                    - 10000.0
                 )
                 log_offset = tf.stop_gradient(-znp.divide(log_offset_sum, nevents_tot))
                 self._options["subtr_const_value"] = log_offset
@@ -454,8 +455,27 @@ class BaseLoss(ZfitLoss, BaseNumeric):
             with set_values(params, _x):
                 return self.value()
 
-    def value(self):
-        log_offset = self._options.get("subtr_const_value")
+    def value(self, *, full: bool = None) -> znp.ndarray:
+        """Calculate the loss value with the current values of the free parameters.
+
+        Args:
+            full: |@doc:loss.value.full| If True, return the full loss value, otherwise
+               allow for the removal of constants and only return
+               the part that depends on the parameters. Constants
+               don't matter for the task of optimization, but
+               they can greatly help with the numerical stability of the loss function. |@docend:loss.value.full|
+
+
+        Returns:
+            Calculated loss value as a scalar.
+        """
+        if full is None:
+            full = DEFAULT_FULL_ARG
+
+        if full:
+            log_offset = None
+        else:
+            log_offset = self._options.get("subtr_const_value")
 
         value = self._call_value(
             self.model, self.data, self.fit_range, self.constraints, log_offset
@@ -479,6 +499,8 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         # value = value_substracted[0] - value_substracted[1]
 
     def _value(self, model, data, fit_range, constraints, log_offset):
+        if log_offset is None:
+            log_offset = 0.0
         return self._loss_func(
             model=model,
             data=data,
@@ -496,7 +518,6 @@ class BaseLoss(ZfitLoss, BaseNumeric):
             raise ValueError("cannot safely add two different kind of loss.")
         model = self.model + other.model
         data = self.data + other.data
-        fit_range = None
         fit_range = self.fit_range + other.fit_range
         constraints = self.constraints + other.constraints
         kwargs = dict(model=model, data=data, constraints=constraints)
@@ -505,6 +526,15 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         return type(self)(**kwargs)
 
     def gradient(self, params: ztyping.ParamTypeInput = None) -> list[tf.Tensor]:
+        """Calculate the gradient of the loss with respect to the given parameters.
+
+        Args:
+            params: The parameters with respect to which the gradient is calculated. If `None`, all parameters
+                are used.
+
+        Returns:
+            The gradient of the loss with respect to the given parameters.
+        """
         params = self._input_check_params(params)
         numgrad = self._options["numgrad"]
         params = {p.name: p for p in params}
@@ -518,21 +548,39 @@ class BaseLoss(ZfitLoss, BaseNumeric):
     @z.function(wraps="loss")
     def _gradient(self, params, numgrad):
         params = tuple(params.values())
+        self_value = partial(self.value, full=False)
         if numgrad:
-            gradient = numerical_gradient(self.value, params=params)
+            gradient = numerical_gradient(self_value, params=params)
         else:
-            gradient = autodiff_gradient(self.value, params=params)
+            gradient = autodiff_gradient(self_value, params=params)
         return gradient
 
     def value_gradient(
         self,
         params: ztyping.ParamTypeInput = None,
+        *,
+        full: bool = None,
     ) -> tuple[tf.Tensor, tf.Tensor]:
+        """Calculate the loss value and the gradient with the current values of the free parameters.
+
+        Args:
+            params: The parameters to calculate the gradient for. If not given, all free parameters are used.
+            full: |@doc:loss.value.full| If True, return the full loss value, otherwise
+               allow for the removal of constants and only return
+               the part that depends on the parameters. Constants
+               don't matter for the task of optimization, but
+               they can greatly help with the numerical stability of the loss function. |@docend:loss.value.full|
+
+        Returns:
+            Calculated loss value as a scalar and the gradient as a tensor.
+        """
         params = self._input_check_params(params)
         numgrad = self._options["numgrad"]
         params = {p.name: p for p in params}
+        if full is None:
+            full = DEFAULT_FULL_ARG
 
-        return self._value_gradient(params=params, numgrad=numgrad)
+        return self._value_gradient(params=params, numgrad=numgrad, full=full)
 
     def value_gradients(self, *args, **kwargs):
         raise BreakingAPIChangeError(
@@ -540,26 +588,57 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         )
 
     @z.function(wraps="loss")
-    def _value_gradient(self, params, numgrad=False):
+    def _value_gradient(self, params, numgrad=False, *, full: bool = None):
         params = tuple(params.values())
+        if full is None:
+            full = DEFAULT_FULL_ARG
+        self_value = partial(self.value, full=full)
         if numgrad:
-            value, gradient = numerical_value_gradient(self.value, params=params)
+            value, gradient = numerical_value_gradient(self_value, params=params)
         else:
-            value, gradient = autodiff_value_gradients(self.value, params=params)
+            value, gradient = autodiff_value_gradients(self_value, params=params)
         return value, gradient
 
     def hessian(self, params: ztyping.ParamTypeInput = None, hessian=None):
         params = self._input_check_params(params)
-        return self.value_gradient_hessian(params=params, hessian=hessian)[2]
+        return self.value_gradient_hessian(params=params, hessian=hessian, full=False)[
+            2
+        ]
 
     def value_gradient_hessian(
-        self, params: ztyping.ParamTypeInput = None, hessian=None, numgrad=None
+        self,
+        params: ztyping.ParamTypeInput = None,
+        hessian=None,
+        numgrad=None,
+        *,
+        full: bool = None,
     ) -> tuple[tf.Tensor, tf.Tensor, tf.Tensor]:
+        """Calculate the loss value, the gradient and the hessian with the current values of the free parameters.
+
+        Args:
+            params: The parameters to calculate the gradient for. If not given, all free parameters are used.
+            hessian: Can be 'full' or 'diag'.
+            numgrad: |@doc:loss.args.numgrad| If ``True``, calculate the numerical gradient/Hessian
+               instead of using the automatic one. This is
+               usually slower if called repeatedly but can
+               be used if the automatic gradient fails (e.g. if
+               the model is not differentiable, written not in znp.* etc). |@docend:loss.args.numgrad|
+            full: |@doc:loss.value.full| If True, return the full loss value, otherwise
+               allow for the removal of constants and only return
+               the part that depends on the parameters. Constants
+               don't matter for the task of optimization, but
+               they can greatly help with the numerical stability of the loss function. |@docend:loss.value.full|
+
+        Returns:
+            Calculated loss value as a scalar, the gradient as a tensor and the hessian as a tensor.
+        """
         params = self._input_check_params(params)
         numgrad = self._options["numhess"] if numgrad is None else numgrad
         params = {p.name: p for p in params}
+        if full is None:
+            full = DEFAULT_FULL_ARG
         vals = self._value_gradient_hessian(
-            params=params, hessian=hessian, numerical=numgrad
+            params=params, hessian=hessian, numerical=numgrad, full=full
         )
 
         vals = vals[0], z.convert_to_tensor(vals[1]), vals[2]
@@ -571,15 +650,18 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         )
 
     @z.function(wraps="loss")
-    def _value_gradient_hessian(self, params, hessian, numerical=False):
+    def _value_gradient_hessian(
+        self, params, hessian, numerical=False, *, full: bool = None
+    ):
         params = tuple(params.values())
+        self_value = partial(self.value, full=full)
         if numerical:
             return numerical_value_gradients_hessian(
-                func=self.value, gradient=self.gradient, params=params, hessian=hessian
+                func=self_value, gradient=self.gradient, params=params, hessian=hessian
             )
         else:
             return automatic_value_gradients_hessian(
-                self.value, params=params, hessian=hessian
+                self_value, params=params, hessian=hessian
             )
 
     def __repr__(self) -> str:

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from functools import partial
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -78,5 +79,6 @@ class WrapOptimizer(BaseStepMinimizer):
         # TODO(WrappedVariable): this is needed if we want to use wrapped Variables
         # import zfit
         # params = zfit.z.math._extract_tfparams(params)
-        self._optimizer_tf.minimize(loss=loss.value, var_list=params)
-        return loss.value()
+        value = partial(loss.value, full=False)
+        self._optimizer_tf.minimize(loss=value, var_list=params)
+        return value()

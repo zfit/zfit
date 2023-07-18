@@ -89,7 +89,7 @@ class LossEval:
         if grad_fn is not None:
 
             def value_gradients_fn(params):
-                return loss.value(), grad_fn(params)
+                return loss.value(full=False), grad_fn(params)
 
         else:
             value_gradients_fn = self.loss.value_gradient
@@ -244,7 +244,7 @@ class LossEval:
         is_nan = False
 
         try:
-            loss_value = self.loss.value()
+            loss_value = self.loss.value(full=False)
             loss_value, _, _ = self.strategy.callback(
                 value=loss_value,
                 gradient=None,
