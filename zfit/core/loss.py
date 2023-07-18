@@ -426,7 +426,9 @@ class BaseLoss(ZfitLoss, BaseNumeric):
     def errordef(self) -> float | int:
         return self._errordef
 
-    def __call__(self, _x: ztyping.DataInputType = None) -> tf.Tensor:
+    def __call__(
+        self, _x: ztyping.DataInputType = None, *, full: bool = None
+    ) -> znp.array:
         """Calculate the loss value with the given input for the free parameters.
 
         Args:
@@ -448,12 +450,14 @@ class BaseLoss(ZfitLoss, BaseNumeric):
             raise TypeError(
                 "Dicts are not supported when calling a loss, only array-like values."
             )
+        if full is None:
+            full = DEFAULT_FULL_ARG
         if _x is None:
             return self.value()
         else:
             params = self.get_params()
             with set_values(params, _x):
-                return self.value()
+                return self.value(full=full)
 
     def value(self, *, full: bool = None) -> znp.ndarray:
         """Calculate the loss value with the current values of the free parameters.
@@ -774,9 +778,10 @@ class UnbinnedNLL(BaseLoss, SerializableMixin):
                  The subtraction should not affect the minimum as the absolute
                  value of the NLL is meaningless. However,
                  with this switch on, one cannot directly compare
-                 different likelihoods ablolute value as the constant
+                 different likelihoods absolute value as the constant
                  may differ! Use ``create_new`` in order to have a comparable likelihood
-                 between different losses
+                 between different losses or use the ``full`` argument in the value function
+                 to calculate the full loss with all constants.
 
 
                These settings may extend over time. In order to make sure that a loss is the
@@ -891,9 +896,10 @@ class UnbinnedNLL(BaseLoss, SerializableMixin):
                  The subtraction should not affect the minimum as the absolute
                  value of the NLL is meaningless. However,
                  with this switch on, one cannot directly compare
-                 different likelihoods ablolute value as the constant
+                 different likelihoods absolute value as the constant
                  may differ! Use ``create_new`` in order to have a comparable likelihood
-                 between different losses
+                 between different losses or use the ``full`` argument in the value function
+                 to calculate the full loss with all constants.
 
 
                These settings may extend over time. In order to make sure that a loss is the
