@@ -167,9 +167,10 @@ class BaseBinned(BaseLoss):
                  The subtraction should not affect the minimum as the absolute
                  value of the NLL is meaningless. However,
                  with this switch on, one cannot directly compare
-                 different likelihoods ablolute value as the constant
+                 different likelihoods absolute value as the constant
                  may differ! Use ``create_new`` in order to have a comparable likelihood
-                 between different losses
+                 between different losses or use the ``full`` argument in the value function
+                 to calculate the full loss with all constants.
 
 
                These settings may extend over time. In order to make sure that a loss is the
@@ -275,9 +276,10 @@ class ExtendedBinnedNLL(BaseBinned):
                  The subtraction should not affect the minimum as the absolute
                  value of the NLL is meaningless. However,
                  with this switch on, one cannot directly compare
-                 different likelihoods ablolute value as the constant
+                 different likelihoods absolute value as the constant
                  may differ! Use ``create_new`` in order to have a comparable likelihood
-                 between different losses
+                 between different losses or use the ``full`` argument in the value function
+                 to calculate the full loss with all constants.
 
 
                These settings may extend over time. In order to make sure that a loss is the
@@ -410,9 +412,10 @@ class BinnedNLL(BaseBinned):
                  The subtraction should not affect the minimum as the absolute
                  value of the NLL is meaningless. However,
                  with this switch on, one cannot directly compare
-                 different likelihoods ablolute value as the constant
+                 different likelihoods absolute value as the constant
                  may differ! Use ``create_new`` in order to have a comparable likelihood
-                 between different losses
+                 between different losses or use the ``full`` argument in the value function
+                 to calculate the full loss with all constants.
 
 
                These settings may extend over time. In order to make sure that a loss is the
@@ -580,9 +583,10 @@ class BinnedChi2(BaseBinned):
                  The subtraction should not affect the minimum as the absolute
                  value of the NLL is meaningless. However,
                  with this switch on, one cannot directly compare
-                 different likelihoods ablolute value as the constant
+                 different likelihoods absolute value as the constant
                  may differ! Use ``create_new`` in order to have a comparable likelihood
-                 between different losses
+                 between different losses or use the ``full`` argument in the value function
+                 to calculate the full loss with all constants.
 
 
                These settings may extend over time. In order to make sure that a loss is the
@@ -741,9 +745,10 @@ class ExtendedBinnedChi2(BaseBinned):
                  The subtraction should not affect the minimum as the absolute
                  value of the NLL is meaningless. However,
                  with this switch on, one cannot directly compare
-                 different likelihoods ablolute value as the constant
+                 different likelihoods absolute value as the constant
                  may differ! Use ``create_new`` in order to have a comparable likelihood
-                 between different losses
+                 between different losses or use the ``full`` argument in the value function
+                 to calculate the full loss with all constants.
 
 
                These settings may extend over time. In order to make sure that a loss is the
