@@ -29,10 +29,10 @@ Requirement changes
 Thanks
 ------
 
-0.15.1 (20 July 2023)
+0.15.2 (20 July 2023)
 ========================
 
-Fix missing ``attr`` dependency
+Fix missing ``attrs`` dependency
 
 Major Features and Improvements
 -------------------------------
