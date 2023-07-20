@@ -369,6 +369,10 @@ def test_simple_loss():
     assert loss.value().numpy() == pytest.approx(loss_value_np)
     assert loss_deps.value().numpy() == pytest.approx(loss_value_np)
 
+    assert loss.value(full=True).numpy() == pytest.approx(
+        loss_deps.value(full=True).numpy()
+    )
+
     with pytest.raises(IntentionAmbiguousError):
         _ = loss + loss_deps
 
@@ -460,6 +464,7 @@ def test_callable_loss(create_loss):
     value_loss = loss(x)
     with zfit.param.set_values(params, x):
         true_val = zfit.run(loss.value())
+        _ = zfit.run(loss.value(full=True))
         assert true_val == pytest.approx(zfit.run(value_loss))
         with pytest.raises(BehaviorUnderDiscussion):
             assert true_val == pytest.approx(zfit.run(loss()))

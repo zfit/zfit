@@ -5,30 +5,16 @@ Changelog
 .. _newest-changelog:
 
 
-Develop
+
+0.15.1 (20 July 2023)
 ========================
+
+Fix missing ``attr`` dependency
 
 Major Features and Improvements
 -------------------------------
+- add option ``full`` in loss to return the full, unoptimized value (currently not default), allowing for easier statistical tests using the loss
 
-
-Breaking changes
-------------------
-
-Deprecations
--------------
-
-Bug fixes and small changes
----------------------------
-
-Experimental
-------------
-
-Requirement changes
--------------------
-
-Thanks
-------
 
 
 0.15.0 (13 July 2023)
