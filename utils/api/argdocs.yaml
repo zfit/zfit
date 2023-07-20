@@ -604,9 +604,10 @@ loss.init.options: |1+
                   The subtraction should not affect the minimum as the absolute
                   value of the NLL is meaningless. However,
                   with this switch on, one cannot directly compare
-                  different likelihoods ablolute value as the constant
+                  different likelihoods absolute value as the constant
                   may differ! Use ``create_new`` in order to have a comparable likelihood
-                  between different losses
+                  between different losses or use the ``full`` argument in the value function
+                  to calculate the full loss with all constants.
 
 
                 These settings may extend over time. In order to make sure that a loss is the
@@ -615,7 +616,19 @@ loss.init.options: |1+
                 and behavior.
 
 
+loss.value.full: |1+
+    If True, return the full loss value, otherwise
+                allow for the removal of constants and only return
+                the part that depends on the parameters. Constants
+                don't matter for the task of optimization, but
+                they can greatly help with the numerical stability of the loss function.
 
+loss.args.numgrad: |1+
+    If ``True``, calculate the numerical gradient/Hessian
+                instead of using the automatic one. This is
+                usually slower if called repeatedly but can
+                be used if the automatic gradient fails (e.g. if
+                the model is not differentiable, written not in znp.* etc).
 
 result.init.loss: |1+
     The loss function that was minimized.
