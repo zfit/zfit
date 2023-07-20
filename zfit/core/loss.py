@@ -427,7 +427,8 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         return self._errordef
 
     def __call__(
-        self, _x: ztyping.DataInputType = None, *, full: bool = None
+        self,
+        _x: ztyping.DataInputType = None,  # *, full: bool = None  # Not added, breaks iminuit.
     ) -> znp.array:
         """Calculate the loss value with the given input for the free parameters.
 
@@ -450,14 +451,12 @@ class BaseLoss(ZfitLoss, BaseNumeric):
             raise TypeError(
                 "Dicts are not supported when calling a loss, only array-like values."
             )
-        if full is None:
-            full = DEFAULT_FULL_ARG
         if _x is None:
             return self.value()
         else:
             params = self.get_params()
             with set_values(params, _x):
-                return self.value(full=full)
+                return self.value(full=False)
 
     def value(self, *, full: bool = None) -> znp.ndarray:
         """Calculate the loss value with the current values of the free parameters.
