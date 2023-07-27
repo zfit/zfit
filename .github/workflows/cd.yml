@@ -11,6 +11,9 @@ on:
       - "release/*"
       - "hotfix/*"
   pull_request:
+  release:
+    types:
+      - published
 
 jobs:
   dist:

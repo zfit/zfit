@@ -29,7 +29,7 @@ Requirement changes
 Thanks
 ------
 
-0.15.4 (26 July 2023)
+0.15.5 (26 July 2023)
 ========================
 
 Bug fixes and small changes
