@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 
 from __future__ import annotations
 
@@ -70,24 +70,30 @@ class BinwiseScaleModifier(BaseBinnedFunctorPDF):
                 import zfit
 
                 def sumfunc(params):
-                    values = self.pdfs[0].counts(obs)
-                    sysshape = list(params.values())
-                    if sysshape:
-                        sysshape_flat = tf.stack(sysshape)
-                        sysshape = znp.reshape(sysshape_flat, values.shape)
-                        values = values * sysshape
+                    values = self.counts()
                     return znp.sum(values)
 
                 from zfit.core.parameter import get_auto_number
 
+                params_sumfunc = modifiers.copy()
+                dep_params = {}
+                for p in pdf.get_params():
+                    while True:
+                        i = get_auto_number()
+                        name_tmp = f"DUMMPY_PARAM_{i}"
+                        if name_tmp not in params_sumfunc:
+                            dep_params[name_tmp] = p
+                            break
+
+                params_sumfunc.update(dep_params)
                 extended = zfit.ComposedParameter(
                     f"AUTO_binwise_modifier_{get_auto_number()}",
                     sumfunc,
-                    params=modifiers,
+                    params=params_sumfunc,
                 )
 
             else:
-                extended = self.pdfs[0].get_yield()
+                extended = pdf.get_yield()
         elif extended is not False:
             self._automatically_extended = False
         super().__init__(
