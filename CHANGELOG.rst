@@ -19,7 +19,6 @@ Deprecations
 
 Bug fixes and small changes
 ---------------------------
-- fix a bug in histmodifier that would not properly take into account the yield of the wrapped PDF
 
 Experimental
 ------------
@@ -29,6 +28,13 @@ Requirement changes
 
 Thanks
 ------
+
+0.15.3 (26 July 2023)
+========================
+
+Bug fixes and small changes
+---------------------------
+- fix a bug in histmodifier that would not properly take into account the yield of the wrapped PDF
 
 0.15.2 (20 July 2023)
 ========================
