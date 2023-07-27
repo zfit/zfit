@@ -19,6 +19,7 @@ Deprecations
 
 Bug fixes and small changes
 ---------------------------
+- fix a bug in histmodifier that would not properly take into account the yield of the wrapped PDF
 
 Experimental
 ------------
