@@ -14,6 +14,7 @@ class BinnedTemplatePDFV1(BaseBinnedPDFV1):
     def __init__(
         self, data, sysshape=None, extended=None, norm=None, name="BinnedTemplatePDF"
     ):
+        # TODO: use scalemodifier instead
         obs = data.space
         if extended is None:
             extended = True
