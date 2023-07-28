@@ -658,8 +658,8 @@ class Data(
         axes: ztyping.AxesTypeInput = None,
         limits: ztyping.LimitsTypeInput = None,
     ) -> Space | None:
-        """Convert the inputs (using eventually ``obs``, ``axes``) to
-        :py:class:`~zfit.Space` and sort them according to own `obs`.
+        """Convert the inputs (using eventually ``obs``, ``axes``) to :py:class:`~zfit.Space` and sort them according to
+        own `obs`.
 
         Args:
             obs:

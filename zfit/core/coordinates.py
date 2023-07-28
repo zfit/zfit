@@ -438,8 +438,7 @@ def _reorder_indices(old: list | tuple, new: list | tuple) -> tuple[int]:
 
 
 def convert_to_axes(axes, container=tuple):
-    """Convert `obs` to the list of obs, also if it is a
-    :py:class:`~ZfitSpace`. Return None if axes is None.
+    """Convert `obs` to the list of obs, also if it is a :py:class:`~ZfitSpace`. Return None if axes is None.
 
     Raises
         TypeError: if the axes are not int
@@ -461,8 +460,7 @@ def convert_to_axes(axes, container=tuple):
 
 
 def convert_to_obs_str(obs, container=tuple):
-    """Convert `obs` to the list of obs, also if it is a
-    :py:class:`~ZfitSpace`. Return None if obs is None.
+    """Convert `obs` to the list of obs, also if it is a :py:class:`~ZfitSpace`. Return None if obs is None.
 
     Raises:
         TypeError: if the observable is not a string

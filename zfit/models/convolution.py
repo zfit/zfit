@@ -42,7 +42,7 @@ class FFTConvPDFV1(BaseFunctor, SerializableMixin):
         norm: NormInputType = None,
         name: str = "FFTConvV1",
     ):
-        r"""*EXPERIMENTAL* Numerical Convolution pdf of `func` convoluted with `kernel` using FFT
+        r"""*EXPERIMENTAL* Numerical Convolution pdf of `func` convoluted with `kernel` using FFT.
 
         CURRENTLY ONLY 1 DIMENSIONAL!
 

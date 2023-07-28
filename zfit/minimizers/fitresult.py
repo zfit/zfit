@@ -631,8 +631,8 @@ class FitResult(ZfitResult):
         evaluator: zfit.minimizers.evaluation.LossEval | None = None,
     ) -> FitResult:
         """Create a `FitResult` from a :py:class:`~iminuit.util.MigradResult` returned by
-        :py:meth:`iminuit.Minuit.migrad` and a iminuit :py:class:`~iminuit.Minuit` instance with the corresponding
-        zfit objects.
+        :py:meth:`iminuit.Minuit.migrad` and a iminuit :py:class:`~iminuit.Minuit` instance with the corresponding zfit
+        objects.
 
         Args:
             loss: zfit Loss that was minimized.
