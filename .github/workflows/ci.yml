@@ -92,7 +92,7 @@ jobs:
       #          mkdir coverage && coverage-lcov --output_file_path ./coverage/lcov.info
       # TODO(jonas): fix coverage report? Needs converter to lcov format
   #      - name: Coveralls Parallel
-  #        uses: coverallsapp/github-action@v2.2.0
+  #        uses: coverallsapp/github-action@v2.2.1
   #        with:
   #          github-token: ${{ secrets.github_token }}
   #          flag-name: run-${{ matrix.use-graph }}-${{ matrix.python-version }}-ubuntu
@@ -231,7 +231,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Coveralls Finished
-        uses: coverallsapp/github-action@v2.2.0
+        uses: coverallsapp/github-action@v2.2.1
         with:
           github-token: ${{ secrets.github_token }}
           parallel-finished: true
