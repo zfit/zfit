@@ -995,7 +995,7 @@ class KDE1DimExact(KDEHelper, WrapDistribution, SerializableMixin):
                 )
             else:
                 obs = data.space
-        data, size, weights, bw = self._convert_init_data_weights_size(
+        data, size, weights, bandwidth = self._convert_init_data_weights_size(
             data, weights, padding=padding, limits=obs.limits, bandwidth=bandwidth
         )
         self._padding = padding

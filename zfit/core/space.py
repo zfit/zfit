@@ -149,7 +149,7 @@ def calculate_rect_area(rect_limits):
 
 @z.function(wraps="tensor")
 def inside_rect_limits(x, rect_limits):
-    if not x.get_shape().ndims > 1:
+    if (ndims := x.get_shape().ndims) is not None and ndims <= 1:
         raise ValueError(
             "x has ndims <= 1, which is most probably not wanted. The default shape for array-like"
             " structures is (nevents, n_obs)."

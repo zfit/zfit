@@ -19,6 +19,7 @@ Deprecations
 
 Bug fixes and small changes
 ---------------------------
+- bandwidth preprocessing was ignored in KDE
 
 Experimental
 ------------
@@ -28,6 +29,7 @@ Requirement changes
 
 Thanks
 ------
+@schmitse for reporting the bug in the KDE bandwidth preprocessing
 
 0.15.5 (26 July 2023)
 ========================
