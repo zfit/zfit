@@ -85,6 +85,11 @@ def unstack_x(
     except AttributeError:
         unstacked_x = tf.unstack(value=value, num=num, axis=axis, name=name)
     if len(unstacked_x) == 1 and not always_list:
+        assert isinstance(unstacked_x, list), (
+            "unstacked_x has to be a list, otherwise this is a bug. Please report on github: "
+            "https://github.com/zfit/zfit/issues/new?assignees=&labels=bug&projects=&template="
+            "bug_report.md&title=[ASSERT]%20unstack_x%20does%20not%20provide%20a%20list,%20internal%20error"
+        )
         unstacked_x = unstacked_x[0]
     return unstacked_x
 

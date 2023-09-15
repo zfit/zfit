@@ -20,6 +20,7 @@ Deprecations
 Bug fixes and small changes
 ---------------------------
 - bandwidth preprocessing was ignored in KDE
+- ``unstack_x`` with an ``obs`` as argument did return the wrong shape
 
 Experimental
 ------------
