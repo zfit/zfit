@@ -519,12 +519,16 @@ class Data(
         """Return the unstacked data: a list of tensors or a single Tensor.
 
         Args:
-            obs: which observables to return
+            obs: Observables to return. If ``None``, all observables are returned. Can be a subset of the original
+            always_list: If ``True``, always return a list, even if only one observable is requested.
 
         Returns:
             List(tf.Tensor)
         """
-        return z.unstack_x(self.value(obs=obs), always_list=always_list)
+        value = self.value(obs=obs)
+        if len(value.shape) == 1:
+            value = znp.expand_dims(value, -1)  # to make sure we can unstack it again
+        return z.unstack_x(value, always_list=always_list)
 
     def value(self, obs: ztyping.ObsTypeInput = None):
         """Return the data as a numpy-like object in ``obs`` order.

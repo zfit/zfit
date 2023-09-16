@@ -376,14 +376,26 @@ def test_data_range(weights_factory):
 
 
 def test_multidim_data_range():
-    data1 = np.linspace((0, 5), (10, 15), num=11)
-    data_true = np.linspace(10, 15, num=6)
+    nevents1 = 11
+    neventstrue1 = 6
+    data1 = np.linspace((0, 5), (10, 15), num=nevents1)
+    data_true = np.linspace(10, 15, num=neventstrue1)
     lower = ((5, 5),)
     upper = ((10, 15),)
     obs1 = "x"
     obs2 = "y"
     data_range = zfit.Space([obs1, obs2], limits=(lower, upper))
     dataset = zfit.Data.from_numpy(array=data1, obs=data_range)
+    xdata = dataset.unstack_x("x")
+    assert tf.is_tensor(xdata)
+    xdatalist = dataset.unstack_x("x", always_list=True)
+    assert len(xdatalist) == 1
+    assert isinstance(xdatalist, list)
+    assert tf.is_tensor(xdatalist[0])
+    yxdata = dataset.unstack_x(["y", "x"])
+    assert len(yxdata) == 2
+    assert tf.is_tensor(yxdata[0])
+    assert xdata.shape == (neventstrue1,)
     assert dataset.nevents.numpy() == 6
     with dataset.sort_by_obs(obs=obs1):
         assert dataset.nevents.numpy() == 6
