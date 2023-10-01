@@ -51,7 +51,7 @@ jobs:
 
     steps:
       - name: Get number of CPU cores
-        uses: SimenB/github-actions-cpu-cores@v1
+        uses: SimenB/github-actions-cpu-cores@v2
         id: cpu-cores
       - uses: actions/checkout@v3
       - name: Get history and tags for SCM versioning to work
@@ -148,7 +148,7 @@ jobs:
       ZFIT_DO_JIT: ${{ matrix.use-graph }}
     steps:
       - name: Get number of CPU cores
-        uses: SimenB/github-actions-cpu-cores@v1
+        uses: SimenB/github-actions-cpu-cores@v2
         id: cpu-cores
       - uses: actions/checkout@v3
       - name: Get history and tags for SCM versioning to work
