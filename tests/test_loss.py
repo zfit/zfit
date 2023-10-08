@@ -463,7 +463,7 @@ def test_callable_loss(create_loss):
     x = np.array(zfit.run(params)) + 0.1
     value_loss = loss(x)
     with zfit.param.set_values(params, x):
-        true_val = zfit.run(loss.value(full=False))
+        true_val = zfit.run(loss.value(full=True))
         _ = zfit.run(loss.value(full=True))
         assert true_val == pytest.approx(zfit.run(value_loss))
         with pytest.raises(BehaviorUnderDiscussion):

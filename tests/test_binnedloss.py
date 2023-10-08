@@ -340,7 +340,6 @@ def test_binned_loss_hist(weights, Loss):
 
     nllsum = loss + loss2  # check that sum works
     nllsum += loss2  # check that sum works
-    # TODO: this should actually work I think
-    assert nllsum.value() == pytest.approx(
-        loss.value(full=True) + loss2.value(full=True), rel=1e-3
+    assert float(nllsum.value()) == pytest.approx(
+        float(loss.value(full=True) + loss2.value(full=True)), rel=1e-3
     )
