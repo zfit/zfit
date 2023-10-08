@@ -12,7 +12,7 @@ Major Features and Improvements
 
 - add ``full`` option to loss call of ``value``, which returns the unoptimized value allowing for easier statistical tests using the loss.
   This is the default behavior and should not break any backwards compatibility, as the "not full loss" was arbitrary.
-- changed the fitresult to print both, the optimized and unoptimized value of the loss (full | internal)
+- changed the ``FitResult`` to print both loss values, the unoptimized (full) and optimized (internal)
 
 Breaking changes
 ------------------
@@ -34,6 +34,7 @@ Requirement changes
 Thanks
 ------
 @schmitse for reporting the bug in the KDE bandwidth preprocessing
+@lorenzopaolucci for bringing up the absolute value of the loss in the fitresult as an issue
 
 0.15.5 (26 July 2023)
 ========================

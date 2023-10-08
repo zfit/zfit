@@ -430,13 +430,13 @@ class FitResult(ZfitResult):
         self._valid = valid
         self._covariance_dict = {}
         try:
-            fminabs = loss.value(full=True)
+            fminfull = loss.value(full=True)
         except Exception as error:
             warnings.warn(
-                f"Could not calculate fminabs due to {error}. Setting to 0. This is a new feature and is caught to not break backwards compatibility."
+                f"Could not calculate fminfull due to {error}. Setting to 0. This is a new feature and is caught to not break backwards compatibility."
             )
-            fminabs = 0
-        self._fminabs = fminabs
+            fminfull = 0
+        self._fminfull = float(fminfull)
 
     def _input_convert_approx(self, approx, evaluator, info, params):
         """Convert approx (if a Mapping) to an `Approximation` using the information provided.
@@ -1065,12 +1065,21 @@ class FitResult(ZfitResult):
 
     @property
     def fmin(self) -> float:
-        """Function value at the minimum.
+        """Function value with possible optimizations at the minimum.
 
         Returns:
             Numeric
         """
         return self._fmin
+
+    @property
+    def fminfull(self) -> float:
+        """Function value, fully evaluated, at the minimum.
+
+        Returns:
+            Numeric
+        """
+        return self._fminfull
 
     @property
     def status(self):
@@ -1542,7 +1551,7 @@ class FitResult(ZfitResult):
                         self.params_at_limit, on_true=colored.bg(9), on_false=False
                     ),
                     format_value(self.edm, highprec=False),
-                    f"          {self._fminabs:.2f} | {format_value(self.fmin)}",
+                    f"          {self._fminfull:.2f} | {format_value(self.fmin)}",
                 ]
             ],
             [

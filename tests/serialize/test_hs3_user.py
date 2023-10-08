@@ -91,7 +91,7 @@ def test_dumpload_hs3_loss(request):
         data=[data1, data2, data3],
         constraints=constraint,
     )
-    original_lossval = loss.value()
+    original_lossval = loss.value(full=False)
     original_loss = loss
 
     hs3model = zfit.hs3.dumps(loss)
@@ -126,7 +126,7 @@ def test_dumpload_hs3_loss(request):
                             assert v == val[k]  # make sure the diff is shown by pytest
     model_loaded = zfit.hs3.loads(hs3model)
     loss = list(model_loaded["loss"].values())[0]
-    assert pytest.approx(loss.value(), rel=1e-3) == original_lossval
+    assert pytest.approx(loss.value(full=False), rel=1e-3) == original_lossval
     for k, v in hs3model_cleaned.items():
         if isinstance(v, np.ndarray):
             np.testing.assert_equal(v, hs3model_true[k])

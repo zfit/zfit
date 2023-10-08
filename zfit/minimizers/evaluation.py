@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import contextlib
 from collections.abc import Callable
+from functools import partial
 
 import numpy as np
 import tensorflow as tf
@@ -95,7 +96,7 @@ class LossEval:
                 return loss.value(full=self.full), grad_fn(params)
 
         else:
-            value_gradients_fn = self.loss.value_gradient
+            value_gradients_fn = partial(self.loss.value_gradient, full=False)
             grad_fn = self.loss.gradient
         self.gradients_fn = grad_fn
         self.value_gradients_fn = value_gradients_fn

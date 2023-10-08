@@ -60,7 +60,7 @@ def create_loss(n=15000, weights=None):
 def create_fitresult(minimizer_class_and_kwargs, n=15000, weights=None):
     loss, (a_param, b_param, c_param) = create_loss(n=n, weights=weights)
 
-    true_minimum = loss.value().numpy()
+    true_minimum = loss.value(full=False).numpy()
 
     all_params = [a_param, b_param, c_param]
     for param in all_params:
@@ -70,7 +70,7 @@ def create_fitresult(minimizer_class_and_kwargs, n=15000, weights=None):
     minimizer = minimizer_class(**minimizer_kwargs)
 
     result = minimizer.minimize(loss=loss)
-    cur_val = loss.value().numpy()
+    cur_val = loss.value(full=False).numpy()
     aval, bval, cval = (result.params[p]["value"] for p in all_params)
 
     ret = {
