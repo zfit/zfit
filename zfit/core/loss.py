@@ -56,7 +56,7 @@ from .dependents import _extract_dependencies
 from .interfaces import ZfitData, ZfitLoss, ZfitPDF, ZfitSpace
 from .parameter import convert_to_parameters, set_values
 
-DEFAULT_FULL_ARG = False
+DEFAULT_FULL_ARG = True
 
 
 @z.function(wraps="loss")

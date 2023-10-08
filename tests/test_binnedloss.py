@@ -127,7 +127,7 @@ def test_binned_extended_simple(Loss):
 
     nllsum = nll + nll2  # check that sum works
     # TODO: should this actually work I think?
-    # assert float(nllsum.value()) == pytest.approx(nll.value() + nll2.value(), rel=1e-3)
+    assert float(nllsum.value()) == pytest.approx(nll.value() + nll2.value(), rel=1e-3)
 
 
 @pytest.mark.plots
