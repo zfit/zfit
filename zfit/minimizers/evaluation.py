@@ -53,6 +53,7 @@ class LossEval:
         grad_fn: Callable | None = None,
         hesse_fn: Callable | None = None,
         numpy_converter: Callable | None = None,
+        full: bool | None = None,
     ):
         r"""Convenience wrapper for the evaluation of a loss with given parameters and strategy.
 
@@ -72,8 +73,10 @@ class LossEval:
                 Useful if the return values should be numpy arrays (and not "numpy-like" objects). This is needed
                 if the function expects something *writeable* like a numpy array as other (JAX, TensorFlow) arrays
                 are not writeable. If None, no conversion is done and a "nmupy-like" object is returned.
+            full: If True, the full loss will be calculated. Default is False. For the minimization, the full loss is usually not needed.
         """
         super().__init__()
+        full = False if full is None else full
         self.maxiter = maxiter
         self._ignoring_maxiter = False
         with self.ignore_maxiter():  # otherwise when trying to set, it gets all of them, which fails as not there
@@ -89,7 +92,7 @@ class LossEval:
         if grad_fn is not None:
 
             def value_gradients_fn(params):
-                return loss.value(full=False), grad_fn(params)
+                return loss.value(full=self.full), grad_fn(params)
 
         else:
             value_gradients_fn = self.loss.value_gradient
@@ -104,6 +107,7 @@ class LossEval:
         self.params = convert_to_container(params)
         self.strategy = strategy
         self.do_print = do_print
+        self.full = full
         self.numpy_converter = False if numpy_converter is None else numpy_converter
 
     @property
@@ -244,7 +248,7 @@ class LossEval:
         is_nan = False
 
         try:
-            loss_value = self.loss.value(full=False)
+            loss_value = self.loss.value(full=self.full)
             loss_value, _, _ = self.strategy.callback(
                 value=loss_value,
                 gradient=None,

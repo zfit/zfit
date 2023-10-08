@@ -787,7 +787,7 @@ class ZfitLoss(ZfitObject, metaclass=ABCMeta):
         raise NotImplementedError
 
     @abstractmethod
-    def value(self) -> ztyping.NumericalTypeReturn:
+    def value(self, *, full: bool = None) -> ztyping.NumericalTypeReturn:
         raise NotImplementedError
 
     @property

@@ -256,7 +256,7 @@ def compute_errors(
             print(e)
         minimizer = result.minimizer
         loss = result.loss
-        new_found_fmin = loss.value()
+        new_found_fmin = loss.value(full=False)
         new_result = minimizer.minimize(loss=loss)
         if new_result.fmin >= new_found_fmin + loss_min_tol:
             raise RuntimeError(

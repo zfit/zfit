@@ -10,6 +10,9 @@ Develop
 Major Features and Improvements
 -------------------------------
 
+- add ``full`` option to loss call of ``value``, which returns the unoptimized value allowing for easier statistical tests using the loss.
+  This is the default behavior and should not break any backwards compatibility, as the "not full loss" was arbitrary.
+- changed the fitresult to print both, the optimized and unoptimized value of the loss (full | internal)
 
 Breaking changes
 ------------------

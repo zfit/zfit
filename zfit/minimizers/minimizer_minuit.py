@@ -33,7 +33,7 @@ class Minuit(BaseMinimizer, GraphCachable):
         self,
         tol: float | None = None,
         mode: int | None = None,
-        gradient: bool | None = None,
+        gradient: bool | str | None = None,
         verbosity: int | None = None,
         options: Mapping[str, object] | None = None,
         maxiter: int | None = None,
