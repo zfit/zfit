@@ -4,7 +4,8 @@ Changelog
 
 .. _newest-changelog:
 
-Develop
+
+0.16.0 (26 July 2023)
 ========================
 
 Major Features and Improvements
@@ -14,22 +15,12 @@ Major Features and Improvements
   This is the default behavior and should not break any backwards compatibility, as the "not full loss" was arbitrary.
 - changed the ``FitResult`` to print both loss values, the unoptimized (full) and optimized (internal)
 
-Breaking changes
-------------------
-
-Deprecations
--------------
 
 Bug fixes and small changes
 ---------------------------
 - bandwidth preprocessing was ignored in KDE
 - ``unstack_x`` with an ``obs`` as argument did return the wrong shape
 
-Experimental
-------------
-
-Requirement changes
--------------------
 
 Thanks
 ------
