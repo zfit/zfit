@@ -29,6 +29,12 @@ from ordered_set import OrderedSet
 from scipy.optimize import LbfgsInvHessProduct
 from tabulate import tabulate
 
+if TYPE_CHECKING:
+    try:
+        import ipyopt  # for type checking
+    except ImportError:
+        pass
+
 from .errors import (
     compute_errors,
     covariance_with_weights,
@@ -423,6 +429,14 @@ class FitResult(ZfitResult):
         self._minimizer = minimizer
         self._valid = valid
         self._covariance_dict = {}
+        try:
+            fminfull = loss.value(full=True)
+        except Exception as error:
+            warnings.warn(
+                f"Could not calculate fminfull due to {error}. Setting to 0. This is a new feature and is caught to not break backwards compatibility."
+            )
+            fminfull = 0
+        self._fminfull = float(fminfull)
 
     def _input_convert_approx(self, approx, evaluator, info, params):
         """Convert approx (if a Mapping) to an `Approximation` using the information provided.
@@ -519,8 +533,8 @@ class FitResult(ZfitResult):
         cls,
         loss: ZfitLoss,
         params: Iterable[ZfitParameter],
-        problem: ipyopt.Problem,
-        minimizer: zfit.minimize.IpyoptV1,
+        problem: "ipyopt.Problem",
+        minimizer: "zfit.minimize.IpyoptV1",
         valid: bool,
         values: np.ndarray,
         message: str | None,
@@ -726,6 +740,7 @@ class FitResult(ZfitResult):
         if values is None:
             values = (res.value for res in params_result)
         params = dict(zip(params, values))
+        fmin
         return cls(
             params=params,
             edm=edm,
@@ -1050,12 +1065,21 @@ class FitResult(ZfitResult):
 
     @property
     def fmin(self) -> float:
-        """Function value at the minimum.
+        """Function value with possible optimizations at the minimum.
 
         Returns:
             Numeric
         """
         return self._fmin
+
+    @property
+    def fminfull(self) -> float:
+        """Function value, fully evaluated, at the minimum.
+
+        Returns:
+            Numeric
+        """
+        return self._fminfull
 
     @property
     def status(self):
@@ -1527,12 +1551,19 @@ class FitResult(ZfitResult):
                         self.params_at_limit, on_true=colored.bg(9), on_false=False
                     ),
                     format_value(self.edm, highprec=False),
-                    format_value(self.fmin),
+                    f"          {self._fminfull:.2f} | {format_value(self.fmin)}",
                 ]
             ],
-            ["valid", "converged", "param at limit", "edm", "min value"],
+            [
+                "valid",
+                "converged",
+                "param at limit",
+                "edm",
+                "approx. fmin (full | internal)",
+            ],
             tablefmt="fancy_grid",
             disable_numparse=True,
+            colalign=["center", "center", "center", "center", "right"],
         )
         string += "\n\n" + Style.BRIGHT + "Parameters\n" + Style.NORMAL
         string += str(self.params)

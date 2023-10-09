@@ -301,6 +301,8 @@ class ExtendedBinnedNLL(BaseBinned):
         constraints,
         log_offset,
     ):
+        if log_offset is False:
+            log_offset = 0
         poisson_terms = []
         for mod, dat in zip(model, data):
             values = dat.values(  # TODO: right order of model and data?

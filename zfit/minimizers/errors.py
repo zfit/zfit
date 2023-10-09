@@ -158,14 +158,16 @@ def compute_errors(
 
             index_poi = all_params.index(param)  # remember the index
             _ = loss.value_gradient(
-                params=all_params
+                params=all_params, full=False
             )  # to make sure the loss is compiled
 
             @z.function(wraps="gradient")
             def optimized_loss_gradient(values, index):
                 assert isinstance(index, int)
                 assign_values(all_params, values)
-                loss_value, gradient = loss.value_gradient(params=all_params)
+                loss_value, gradient = loss.value_gradient(
+                    params=all_params, full=False
+                )
                 if isinstance(gradient, (tuple, list)):
                     gradient = znp.asarray(gradient)
                 gradient = znp.concatenate(
@@ -256,7 +258,7 @@ def compute_errors(
             print(e)
         minimizer = result.minimizer
         loss = result.loss
-        new_found_fmin = loss.value()
+        new_found_fmin = loss.value(full=False)
         new_result = minimizer.minimize(loss=loss)
         if new_result.fmin >= new_found_fmin + loss_min_tol:
             raise RuntimeError(

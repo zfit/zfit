@@ -56,7 +56,7 @@ from .dependents import _extract_dependencies
 from .interfaces import ZfitData, ZfitLoss, ZfitPDF, ZfitSpace
 from .parameter import convert_to_parameters, set_values
 
-DEFAULT_FULL_ARG = False
+DEFAULT_FULL_ARG = True
 
 
 @z.function(wraps="loss")
@@ -428,7 +428,8 @@ class BaseLoss(ZfitLoss, BaseNumeric):
 
     def __call__(
         self,
-        _x: ztyping.DataInputType = None,  # *, full: bool = None  # Not added, breaks iminuit.
+        _x: ztyping.DataInputType = None,
+        # *, full: bool = None,  # Not added, breaks iminuit.
     ) -> znp.array:
         """Calculate the loss value with the given input for the free parameters.
 
@@ -437,6 +438,11 @@ class BaseLoss(ZfitLoss, BaseNumeric):
                 the position of the parameters in :py:meth:`~BaseLoss.get_params()` (called without any arguments).
                 For more detailed control, it is always possible to wrap :py:meth:`~BaseLoss.value()` and set the
                 desired parameters manually.
+            full: |@doc:loss.value.full| If True, return the full loss value, otherwise
+               allow for the removal of constants and only return
+               the part that depends on the parameters. Constants
+               don't matter for the task of optimization, but
+               they can greatly help with the numerical stability of the loss function. |@docend:loss.value.full|
 
         Returns:
             Calculated loss value as a scalar.
@@ -452,11 +458,11 @@ class BaseLoss(ZfitLoss, BaseNumeric):
                 "Dicts are not supported when calling a loss, only array-like values."
             )
         if _x is None:
-            return self.value()
+            return self.value(full=True)  # has to be full, otherwise iminuit breaks
         else:
             params = self.get_params()
             with set_values(params, _x):
-                return self.value(full=False)
+                return self.value(full=True)
 
     def value(self, *, full: bool = None) -> znp.ndarray:
         """Calculate the loss value with the current values of the free parameters.
@@ -476,7 +482,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
             full = DEFAULT_FULL_ARG
 
         if full:
-            log_offset = None
+            log_offset = False
         else:
             log_offset = self._options.get("subtr_const_value")
 
@@ -502,7 +508,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         # value = value_substracted[0] - value_substracted[1]
 
     def _value(self, model, data, fit_range, constraints, log_offset):
-        if log_offset is None:
+        if log_offset is False:
             log_offset = 0.0
         return self._loss_func(
             model=model,

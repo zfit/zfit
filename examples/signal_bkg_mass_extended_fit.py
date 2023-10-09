@@ -41,7 +41,7 @@ nll = zfit.loss.ExtendedUnbinnedNLL(model=model, data=data)
 # create a minimizer
 minimizer = zfit.minimize.Minuit()
 result = minimizer.minimize(nll)
-print(result.params)
+print(result)
 # do the error calculations, here with hesse, than with minos
 param_hesse = result.hesse()
 (
