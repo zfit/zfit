@@ -1455,13 +1455,11 @@ class FitResult(ZfitResult):
 
     def _covariance(self, method):
         if not callable(method):
-            try:
-                method = self._hesse_methods[method]
-            except KeyError:
+            if method not in self._hesse_methods:
                 raise KeyError(
-                    f"The following method is not a valid, implemented method: {method}"
+                    f"The following method is not a valid, implemented method: {method}. Use one of {self._hesse_methods.keys()}"
                 )
-
+            method = self._hesse_methods[method]
         params = list(self.params.keys())
 
         if any(
