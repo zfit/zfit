@@ -1029,6 +1029,7 @@ class ExtendedUnbinnedNLL(UnbinnedNLL):
             nevents_collected, znp.log(yields), compute_full_loss=True
         )
         if log_offset is not None:
+            log_offset = znp.asarray(log_offset, dtype=znp.float64)
             term_new += log_offset
         nll += znp.sum(term_new, axis=0)
         return nll

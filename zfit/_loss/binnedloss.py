@@ -70,6 +70,7 @@ def poisson_loss_calc(probs, values, log_offset=None, variances=None):
     # poisson_dist = tfp.distributions.Poisson(rate=probs)
     # poisson_term = -poisson_dist.log_prob(values)
     if log_offset is not None:
+        log_offset = znp.asarray(log_offset, dtype=znp.float64)
         poisson_term += log_offset
     return poisson_term
 
@@ -495,6 +496,7 @@ def chi2_loss_calc(probs, values, variances, log_offset=None, ignore_empty=None)
         one_over_var = tf.math.reciprocal(variances)
     chi2_term *= one_over_var
     if log_offset is not None:
+        log_offset = znp.asarray(log_offset, dtype=znp.float64)
         chi2_term += log_offset
     chi2_term = znp.sum(chi2_term)
     return chi2_term
