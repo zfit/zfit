@@ -311,7 +311,7 @@ class DoubleCB(BasePDF, SerializableMixin):
              & \\mbox{for }\\frac{x - \\mu}{\\sigma} < -\\alpha_{L} \\newline
             \\exp(- \\frac{(x - \\mu)^2}{2 \\sigma^2}),
             & -\\alpha_{L} \\leqslant \\mbox{for}\\frac{x - \\mu}{\\sigma} \\leqslant \\alpha_{R} \\newline
-            A_{R} \\cdot (B_{R} - \\frac{x - \\mu}{\\sigma})^{-n},
+            A_{R} \\cdot (B_{R} + \\frac{x - \\mu}{\\sigma})^{-n},
              & \\mbox{for }\\frac{x - \\mu}{\\sigma} > \\alpha_{R}
             \\end{cases}
 

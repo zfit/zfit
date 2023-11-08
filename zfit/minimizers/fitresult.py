@@ -1406,7 +1406,7 @@ class FitResult(ZfitResult):
                 method = self._error_methods[method]
             except KeyError:
                 raise KeyError(
-                    f"The following method is not a valid, implemented method: {method}"
+                    f"The following method is not a valid, implemented method: {method}. Use one of {self._error_methods.keys()}"
                 )
         return method(result=self, params=params, cl=cl)
 

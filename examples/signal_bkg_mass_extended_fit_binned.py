@@ -6,6 +6,8 @@ import numpy as np
 
 import zfit
 
+plt.style.use(mplhep.style.LHCb2)
+
 n_bins = 50
 
 # create space
@@ -21,8 +23,8 @@ lambd = zfit.Parameter("lambda", -0.06, -1, -0.01)
 gauss = zfit.pdf.Gauss(mu=mu, sigma=sigma, obs=obs)
 exponential = zfit.pdf.Exponential(lambd, obs=obs)
 
-n_bkg = zfit.Parameter("n_bkg", 20000)
-n_sig = zfit.Parameter("n_sig", 1000)
+n_bkg = zfit.Parameter("n_bkg", 5000 * (1 - 0.3))
+n_sig = zfit.Parameter("n_sig", 5000 * 0.3)
 gauss_extended = gauss.create_extended(n_sig)
 exp_extended = exponential.create_extended(n_bkg)
 model_unbinned = zfit.pdf.SumPDF([gauss_extended, exp_extended])
@@ -31,7 +33,7 @@ model_unbinned = zfit.pdf.SumPDF([gauss_extended, exp_extended])
 model = zfit.pdf.BinnedFromUnbinnedPDF(model_unbinned, space=obs_binned)
 
 # data
-n_sample = 21200
+n_sample = 5000
 data = model.sample(n=n_sample)
 
 n_bins = 50
@@ -43,18 +45,20 @@ x = np.linspace(-10, 10, 1000)
 
 def plot_pdf(title):
     plt.figure()
-    plt.title(title)
+    # plt.title(title)
     y = model.pdf(x).numpy()
     y_gauss = (gauss.pdf(x) * model_unbinned.params["frac_0"]).numpy()
     y_exp = (exponential.pdf(x) * model_unbinned.params["frac_1"]).numpy()
-    plt.plot(x, y * plot_scaling, label="Sum - Model")
+    plt.plot(x, y * plot_scaling, label="Sum - Binned Model")
     plt.plot(x, y_gauss * plot_scaling, label="Gauss - Signal")
     plt.plot(x, y_exp * plot_scaling, label="Exp - Background")
     # mplhep.histplot(np.histogram(data_np, bins=n_bins), yerr=True, color='black', histtype='errorbar')
-    mplhep.histplot(data.to_hist(), yerr=True, color="black", histtype="errorbar")
+    h = data.to_hist()
+    mplhep.histplot(h, yerr=h.counts() ** 0.5, color="black", histtype="errorbar")
     plt.ylabel("Counts")
     plt.xlabel("obs: $B_{mass}$")
     plt.legend()
+    plt.savefig(title + ".pdf")
 
 
 # set the values to a start value for the fit

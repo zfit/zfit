@@ -64,7 +64,7 @@ def _unbinned_nll_tf(
     model: ztyping.PDFInputType,
     data: ztyping.DataInputType,
     fit_range: ZfitSpace,
-    log_offset=None,
+    log_offset,
 ):
     """Return the unbinned negative log likelihood for a PDF.
 
@@ -110,9 +110,11 @@ def _unbinned_nll_tf(
 
 @z.function(wraps="tensor")
 def _nll_calc_unbinned_tf(log_probs, weights=None, log_offset=None):
+    if log_offset is None:
+        log_offset = False
     if weights is not None:
         log_probs *= weights  # because it's prob ** weights
-    if log_offset is not None:
+    if log_offset is not False:
         log_probs -= log_offset
     nll = -znp.sum(log_probs, axis=0)
     # nll = -tfp.math.reduce_kahan_sum(input_tensor=log_probs, axis=0)
@@ -508,8 +510,6 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         # value = value_substracted[0] - value_substracted[1]
 
     def _value(self, model, data, fit_range, constraints, log_offset):
-        if log_offset is False:
-            log_offset = 0.0
         return self._loss_func(
             model=model,
             data=data,
@@ -1026,9 +1026,9 @@ class ExtendedUnbinnedNLL(UnbinnedNLL):
         nevents_collected = znp.stack(nevents_collected, axis=0)
 
         term_new = tf.nn.log_poisson_loss(
-            nevents_collected, znp.log(yields), compute_full_loss=True
+            nevents_collected, znp.log(yields), compute_full_loss=log_offset is False
         )
-        if log_offset is not None:
+        if log_offset is not False:
             log_offset = znp.asarray(log_offset, dtype=znp.float64)
             term_new += log_offset
         nll += znp.sum(term_new, axis=0)
@@ -1163,6 +1163,8 @@ class SimpleLoss(BaseLoss):
 
     # @z.function(wraps='loss')
     def _loss_func(self, model, data, fit_range, constraints=None, log_offset=None):
+        if log_offset not in (None, False):
+            raise ValueError("log_offset is not allowed for a SimpleLoss")
         try:
             params = self._simple_func_params
             params = tuple(params)

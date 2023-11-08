@@ -19,6 +19,8 @@ Deprecations
 
 Bug fixes and small changes
 ---------------------------
+- fix issues where EDM goes negative, set to 999
+- improved stability of the loss evaluation
 
 Experimental
 ------------

@@ -107,7 +107,10 @@ class EDM(ConvergenceCriterion):
         if inv_hessian is None:
             hessian = loss.hessian(params)
             inv_hessian = np.linalg.inv(hessian)
-        return calculate_edm(grad, inv_hessian)
+        edm = calculate_edm(grad, inv_hessian)
+        if edm < 0:
+            edm = 999
+        return edm
 
 
 class CriterionNotAvailable(Singleton):
