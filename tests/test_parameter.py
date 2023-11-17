@@ -438,6 +438,57 @@ def test_set_values():
         assert param.value().numpy() == val
 
 
+@pytest.mark.parametrize("addmore", [True, False])
+def test_set_values_dict(addmore):
+    import zfit
+
+    init_values = [1, 2, 3]
+    second_values = [5, 6, 7]
+    params = [zfit.Parameter(f"param_{i}", val) for i, val in enumerate(init_values)]
+
+    setvalueparam = {p: v for p, v in zip(params, second_values)}
+    setvalue_paramname = {p.name: v for p, v in zip(params, second_values)}
+    setvaluemixed = setvalueparam.copy()
+    setvaluemixed["param_1"] = params[1]
+
+    if addmore:
+        param4 = zfit.Parameter("param4", 4)
+        setvalue_paramname[param4.name] = 4
+        setvalueparam[param4] = 4
+        setvaluemixed[param4] = 4
+
+    zfit.param.set_values(params, setvalueparam)
+    for param, val in zip(params, second_values):
+        assert pytest.approx(param.value().numpy()) == val
+
+    zfit.param.set_values(params, init_values)
+
+    zfit.param.set_values(params, setvalue_paramname)
+    for param, val in zip(params, second_values):
+        assert pytest.approx(param.value().numpy()) == val
+
+    zfit.param.set_values(params, init_values)
+    zfit.param.set_values(params, setvaluemixed)
+    for param, val in zip(params, second_values):
+        assert pytest.approx(param.value().numpy()) == val
+
+    zfit.param.set_values(params, init_values)
+
+    too_small_values = setvalueparam.copy()
+    too_small_values.pop(params[0])
+    with pytest.raises(ValueError):
+        zfit.param.set_values(params, too_small_values)
+
+    zfit.param.set_values(params, init_values)
+    # try with allow_partial
+    zfit.param.set_values(params, too_small_values, allow_partial=True)
+    assert params[0].value().numpy() == init_values[0]
+    assert params[1].value().numpy() == second_values[1]
+    assert params[2].value().numpy() == second_values[2]
+
+    zfit.param.set_values(params, init_values)
+
+
 def test_deletion():
     import gc
 
