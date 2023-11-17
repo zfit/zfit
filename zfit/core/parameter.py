@@ -11,7 +11,7 @@ import warnings
 from collections.abc import Iterable, Callable
 from contextlib import suppress
 from inspect import signature
-from typing import Optional, Dict
+from typing import Optional, Dict, Mapping, Union
 from weakref import WeakValueDictionary
 
 import dill as dill
@@ -1532,7 +1532,10 @@ def assign_values(
 def set_values(
     params: Parameter | Iterable[Parameter],
     values: (
-        ztyping.NumericalScalarType | Iterable[ztyping.NumericalScalarType] | ZfitResult
+        ztyping.NumericalScalarType
+        | Iterable[ztyping.NumericalScalarType]
+        | ZfitResult
+        | Mapping[Union[str, ZfitParameter], ztyping.NumericalScalarType],
     ),
     allow_partial: bool | None = None,
 ):
@@ -1540,7 +1543,7 @@ def set_values(
 
     Args:
         params: Parameters to set the values.
-        values: List-like object that supports indexing or a `FitResult`.
+        values: List-like object that supports indexing, a `FitResult` or a `Mapping` of parameters or parameter names to values.
         allow_partial: Allow to set only parts of the parameters in case values is a `ZfitResult`
             and not all are present in the
             *values*. If False, *params* not in *values* will raise an error.
@@ -1571,9 +1574,9 @@ def check_convert_param_values_assign(params, values, allow_partial=False):
 
     Args:
         params: Parameters to set the values.
-        values: List-like object that supports indexing or a `ZfitResult`.
-        allow_partial: Allow to set only parts of the parameters in case values is a `ZfitResult`
-
+        values: List-like object that supports indexing or a `ZfitResult` or a `Mapping`.
+        allow_partial: Allow to set only parts of the parameters in case values is a `ZfitResult` or a `Mapping`. Other parameters will not be updated.
+            More values than parameters, if they are given in a `Mapping` or `ZfitResult`, are allowed in any case.
     Returns:
         A tuple of (params, values)
     """
@@ -1592,6 +1595,24 @@ def check_convert_param_values_assign(params, values, allow_partial=False):
                     f" the parameters (only those in the result), use allow_partial"
                 )
         params = new_params
+    elif isinstance(values, Mapping):
+        new_params = []
+        new_values = []
+        for param in params:
+            if param in values:
+                new_values.append(values[param])
+                new_params.append(param)
+            elif param.name in values:
+                new_values.append(values[param.name])
+                new_params.append(param)
+            elif not allow_partial:
+                raise ValueError(
+                    f"Cannot set {param} with {repr(values)} as it is not contained. To partially set"
+                    f" the parameters (only those in the result), use allow_partial"
+                )
+        values = new_values
+        params = new_params
+
     elif len(params) > 1:
         if not tf.is_tensor(values) or isinstance(values, np.ndarray):
             values = convert_to_container(values)

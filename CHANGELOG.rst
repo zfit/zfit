@@ -21,6 +21,7 @@ Bug fixes and small changes
 ---------------------------
 - fix issues where EDM goes negative, set to 999
 - improved stability of the loss evaluation
+- allow mapping in ``zfit.param.set_values`` for values
 
 Experimental
 ------------
@@ -30,6 +31,8 @@ Requirement changes
 
 Thanks
 ------
+
+Daniel Craik for the idea of allowing a mapping in ``set_values``
 
 0.16.0 (26 July 2023)
 ========================
