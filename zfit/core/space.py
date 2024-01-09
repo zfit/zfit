@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 
 from __future__ import annotations
 
@@ -3233,8 +3233,7 @@ def no_multiple_limits(func):
     If it contains multiple limits, raise MultipleLimitsNotImplementedError.
     """
     parameters = inspect.signature(func).parameters
-    keys = list(parameters.keys())
-    if "limits" in keys:
+    if "limits" in (keys := list(parameters.keys())):
         limits_index = keys.index("limits")
     else:
         return func  # no limits as parameters -> no problem

@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 
 from __future__ import annotations
 
@@ -95,8 +95,7 @@ class EventSpace(Space):
     @property
     def limits(self) -> ztyping.LimitsTypeReturn:
         limits = super().limits
-        limits_tensor = self._limits_tensor
-        if limits_tensor is not None:
+        if (limits_tensor := self._limits_tensor) is not None:
             lower, upper = limits
             new_bounds = [[], []]
             for i, old_bounds in enumerate(lower, upper):

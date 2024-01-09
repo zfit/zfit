@@ -325,8 +325,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         return pdf, data, fit_range
 
     def _precompile(self):
-        do_subtr = self._options.get("subtr_const", False)
-        if do_subtr:
+        if do_subtr := self._options.get("subtr_const", False):
             if do_subtr is not True:
                 self._options["subtr_const_value"] = do_subtr
             log_offset = self._options.get("subtr_const_value")

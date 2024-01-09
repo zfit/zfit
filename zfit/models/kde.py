@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 
 from __future__ import annotations
 
@@ -572,8 +572,7 @@ def padreflect_data_weights_1dim(data, mode, weights=None, limits=None, bandwidt
     if bw_is_array:
         new_bw = []
 
-    lower = mode.get("lowermirror")
-    if lower is not None:
+    if (lower := mode.get("lowermirror")) is not None:
         dx_lower = diff * lower
         lower_area = data < minimum + dx_lower
         lower_index = znp.where(lower_area)[0]
@@ -589,8 +588,7 @@ def padreflect_data_weights_1dim(data, mode, weights=None, limits=None, bandwidt
     new_weights.append(weights)
     if bw_is_array:
         new_bw.append(bandwidth)
-    upper = mode.get("uppermirror")
-    if upper is not None:
+    if (upper := mode.get("uppermirror")) is not None:
         dx_upper = diff * upper
         upper_area = data > maximum - dx_upper
         upper_index = znp.where(upper_area)[0]
