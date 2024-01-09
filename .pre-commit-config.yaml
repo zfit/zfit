@@ -100,11 +100,16 @@ repos:
   #      - id: upgrade-type-hints
   #        args: [ '--futures=true' ]
 
+  - repo: https://github.com/MarcoGorelli/auto-walrus
+    rev: v0.2.2
+    hooks:
+      - id: auto-walrus
+
   - repo: https://github.com/shssoichiro/oxipng
     rev: v9.0.0
     hooks:
       - id: oxipng
-        
+
 
   - repo: https://github.com/psf/black
     rev: 23.12.1

@@ -1,5 +1,5 @@
 """Define Parameter which holds the value."""
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 
 from __future__ import annotations
 
@@ -1057,8 +1057,7 @@ class ConstantParameter(
         return self._value_np
 
     def __repr__(self):
-        value = self._value_np
-        if value is not None:
+        if (value := self._value_np) is not None:
             value_str = f"{value: .4g}"
         else:
             value_str = "symbolic"
