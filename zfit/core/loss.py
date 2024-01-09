@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 
 from __future__ import annotations
 
@@ -534,18 +534,27 @@ class BaseLoss(ZfitLoss, BaseNumeric):
             kwargs["fit_range"] = fit_range
         return type(self)(**kwargs)
 
-    def gradient(self, params: ztyping.ParamTypeInput = None) -> list[tf.Tensor]:
+    def gradient(
+        self, params: ztyping.ParamTypeInput = None, *, numgrad=None
+    ) -> list[tf.Tensor]:
         """Calculate the gradient of the loss with respect to the given parameters.
 
         Args:
             params: The parameters with respect to which the gradient is calculated. If `None`, all parameters
                 are used.
+            numgrad: |@doc:loss.args.numgrad| If ``True``, calculate the numerical gradient/Hessian
+               instead of using the automatic one. This is
+               usually slower if called repeatedly but can
+               be used if the automatic gradient fails (e.g. if
+               the model is not differentiable, written not in znp.* etc).
+               Default will fall back to what the loss is set to. |@docend:loss.args.numgrad|
+
 
         Returns:
             The gradient of the loss with respect to the given parameters.
         """
         params = self._input_check_params(params)
-        numgrad = self._options["numgrad"]
+        numgrad = self._options["numgrad"] if numgrad is None else numgrad
         params = {p.name: p for p in params}
         return self._gradient(params=params, numgrad=numgrad)
 
@@ -569,6 +578,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         params: ztyping.ParamTypeInput = None,
         *,
         full: bool = None,
+        numgrad: bool = None,
     ) -> tuple[tf.Tensor, tf.Tensor]:
         """Calculate the loss value and the gradient with the current values of the free parameters.
 
@@ -579,6 +589,12 @@ class BaseLoss(ZfitLoss, BaseNumeric):
                the part that depends on the parameters. Constants
                don't matter for the task of optimization, but
                they can greatly help with the numerical stability of the loss function. |@docend:loss.value.full|
+            numgrad: |@doc:loss.args.numgrad| If ``True``, calculate the numerical gradient/Hessian
+               instead of using the automatic one. This is
+               usually slower if called repeatedly but can
+               be used if the automatic gradient fails (e.g. if
+               the model is not differentiable, written not in znp.* etc).
+               Default will fall back to what the loss is set to. |@docend:loss.args.numgrad|
 
         Returns:
             Calculated loss value as a scalar and the gradient as a tensor.
@@ -608,7 +624,26 @@ class BaseLoss(ZfitLoss, BaseNumeric):
             value, gradient = autodiff_value_gradients(self_value, params=params)
         return value, gradient
 
-    def hessian(self, params: ztyping.ParamTypeInput = None, hessian=None):
+    def hessian(
+        self,
+        params: ztyping.ParamTypeInput = None,
+        hessian=None,
+        *,
+        numgrad: bool = None,
+    ):
+        """Calculate the hessian of the loss with respect to the given parameters.
+
+        Args:
+        params: The parameters with respect to which the hessian is calculated. If `None`, all parameters
+            are used.
+        hessian: Can be 'full' or 'diag'.
+        numgrad: |@doc:loss.args.numgrad| If ``True``, calculate the numerical gradient/Hessian
+               instead of using the automatic one. This is
+               usually slower if called repeatedly but can
+               be used if the automatic gradient fails (e.g. if
+               the model is not differentiable, written not in znp.* etc).
+               Default will fall back to what the loss is set to. |@docend:loss.args.numgrad|
+        """
         params = self._input_check_params(params)
         return self.value_gradient_hessian(params=params, hessian=hessian, full=False)[
             2
@@ -618,25 +653,26 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         self,
         params: ztyping.ParamTypeInput = None,
         hessian=None,
-        numgrad=None,
         *,
         full: bool = None,
+        numgrad=None,
     ) -> tuple[tf.Tensor, tf.Tensor, tf.Tensor]:
         """Calculate the loss value, the gradient and the hessian with the current values of the free parameters.
 
         Args:
             params: The parameters to calculate the gradient for. If not given, all free parameters are used.
             hessian: Can be 'full' or 'diag'.
-            numgrad: |@doc:loss.args.numgrad| If ``True``, calculate the numerical gradient/Hessian
-               instead of using the automatic one. This is
-               usually slower if called repeatedly but can
-               be used if the automatic gradient fails (e.g. if
-               the model is not differentiable, written not in znp.* etc). |@docend:loss.args.numgrad|
             full: |@doc:loss.value.full| If True, return the full loss value, otherwise
                allow for the removal of constants and only return
                the part that depends on the parameters. Constants
                don't matter for the task of optimization, but
                they can greatly help with the numerical stability of the loss function. |@docend:loss.value.full|
+            numgrad: |@doc:loss.args.numgrad| If ``True``, calculate the numerical gradient/Hessian
+               instead of using the automatic one. This is
+               usually slower if called repeatedly but can
+               be used if the automatic gradient fails (e.g. if
+               the model is not differentiable, written not in znp.* etc).
+               Default will fall back to what the loss is set to. |@docend:loss.args.numgrad|
 
         Returns:
             Calculated loss value as a scalar, the gradient as a tensor and the hessian as a tensor.
