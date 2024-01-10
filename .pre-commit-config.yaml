@@ -110,7 +110,6 @@ repos:
     hooks:
       - id: oxipng
 
-
   - repo: https://github.com/psf/black
     rev: 23.12.1
     hooks:

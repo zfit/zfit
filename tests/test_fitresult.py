@@ -356,7 +356,11 @@ minimizers_test_errors = [
 @pytest.mark.parametrize(
     "minimizer_class_and_kwargs", minimizers_test_errors, ids=minimizer_ids
 )
-@pytest.mark.parametrize("cl", [None, 0.683, 0.8, 0.95, 0.9])
+@pytest.mark.parametrize(
+    "cl",
+    [None, 0.683, 0.8, 0.95, 0.9],
+    ids=["cldefault", "cl0683", "cl080", "cl095", "cl090"],
+)
 # @pytest.mark.timeout(1200)  # if stuck finding new minima
 @pytest.mark.parametrize("extended", [True, False], ids=["extended", "not_extended"])
 @pytest.mark.parametrize(
