@@ -87,7 +87,7 @@ def compute_errors(
         out: a fit result is returned when a new minimum is found during the loss scan
     """
     if rtol is None:
-        rtol = 0.003
+        rtol = 0.01
     method = "hybr" if method is None else method
     if cl is None:
         if sigma is None:
