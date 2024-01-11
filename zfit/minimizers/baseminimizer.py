@@ -22,7 +22,6 @@ from .strategy import (
     FailMinimizeNaN,
     PushbackStrategy,
     ZfitStrategy,
-    DefaultToyStrategy,
 )
 from .termination import EDM, ConvergenceCriterion
 from ..core.interfaces import ZfitLoss, ZfitParameter
@@ -40,8 +39,7 @@ from ..util.exception import (
 )
 from ..util.warnings import warn_changed_feature
 
-# DefaultStrategy = PushbackStrategy
-DefaultStrategy = DefaultToyStrategy
+DefaultStrategy = PushbackStrategy
 
 status_messages = {"maxiter": "Maximum iteration reached."}
 
