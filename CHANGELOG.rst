@@ -8,6 +8,8 @@ Changelog
 Develop
 ========================
 
+TensorFlow 2.15, drop Python 3.8 support
+
 Major Features and Improvements
 -------------------------------
 
