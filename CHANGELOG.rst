@@ -10,6 +10,8 @@ Develop
 
 Major Features and Improvements
 -------------------------------
+- add correct uncertainty for unbinned, weighted fits with constraints and/or that are extended.
+- allow mapping in ``zfit.param.set_values`` for values
 
 Breaking changes
 ------------------
@@ -21,8 +23,8 @@ Bug fixes and small changes
 ---------------------------
 - fix issues where EDM goes negative, set to 999
 - improved stability of the loss evaluation
-- allow mapping in ``zfit.param.set_values`` for values
-- add correct uncertainty for unbinned, weighted fits with constraints and/or that are extended.
+- improved uncertainty calculation accuracy with ``zfit_error``
+
 
 Experimental
 ------------
