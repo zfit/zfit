@@ -87,7 +87,7 @@ def compute_errors(
         out: a fit result is returned when a new minimum is found during the loss scan
     """
     if rtol is None:
-        rtol = 0.01
+        rtol = 0.003
     method = "hybr" if method is None else method
     if cl is None:
         if sigma is None:
@@ -237,7 +237,7 @@ def compute_errors(
                         fun=func,
                         args=(swap_sign[d],),
                         x0=np.array(initial_values[d]),
-                        tol=rtol,  # we won't stop like this anyway
+                        tol=rtol * 0.1,  # we won't stop like this anyway
                         options={
                             "diag": 1 / param_scale,  # scale factor for variables
                         },

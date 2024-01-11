@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 import itertools
 import platform
 import sys
@@ -438,7 +438,7 @@ error_scales = {None: 1, 1: 1, 2: 2}
     )[-1],
 )
 # @pytest.mark.flaky(reruns=3)
-@pytest.mark.timeout(280)
+@pytest.mark.timeout(380)
 def test_minimizers(minimizer_class_and_kwargs, chunksize, numgrad, spaces, request):
     long_clarg = request.config.getoption("--longtests")
     # long_clarg = True

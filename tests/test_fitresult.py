@@ -389,7 +389,9 @@ def test_errors(minimizer_class_and_kwargs, cl, weights, extended, constraints):
     for n_trial in range(n_max_trials):
         with zfit.run.set_autograd_mode(False):
             z_errors, new_result = result.errors(
-                method="zfit_error", cl=cl, name="zfit_error"
+                method="zfit_error",
+                cl=cl,
+                name="zfit_error",
             )
         minos_errors, _ = result.errors(
             method="minuit_minos", cl=cl, name="minuit_minos"
