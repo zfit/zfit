@@ -18,8 +18,8 @@ pydantic<2.0.0  # fails with not a "subclass", won't fix soon
 pyyaml
 scipy>=1.2
 tabulate
-tensorflow>=2.15, <2.16  # don't relax to 2.12, because macos wheels are missing
-tensorflow_probability>=0.23, <0.24
+tensorflow>=2.13, <2.14  # don't relax to 2.12, because macos wheels are missing
+tensorflow_probability>=0.21, <0.22
 texttable
 typing_extensions; python_version <"3.9.0"
 uhi
