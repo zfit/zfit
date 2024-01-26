@@ -2,7 +2,7 @@
 
 Gauss, exponential... that can be used together with Functors to build larger models.
 """
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 
 from __future__ import annotations
 
@@ -31,14 +31,14 @@ class Exponential(BasePDF, SerializableMixin):
     _N_OBS = 1
 
     def __init__(
-        self,
-        lam=None,
-        obs: ztyping.ObsTypeInput = None,
-        *,
-        extended: ExtendedInputType = None,
-        norm: NormInputType = None,
-        name: str = "Exponential",
-        lambda_=None,
+            self,
+            lam=None,
+            obs: ztyping.ObsTypeInput = None,
+            *,
+            extended: ExtendedInputType = None,
+            norm: NormInputType = None,
+            name: str = "Exponential",
+            lambda_=None,
     ):
         """Exponential function exp(lambda * x).
 
@@ -92,7 +92,7 @@ class Exponential(BasePDF, SerializableMixin):
         self._set_numerics_data_shift(self.space)
 
     def _unnormalized_pdf(self, x):
-        lambda_ = self.params["lambda"]
+        lambda_ = self.params["lambda"].value()
         x = x.unstack_x()
         probs = znp.exp(lambda_ * (self._shift_x(x)))
         tf.debugging.assert_all_finite(
@@ -208,7 +208,7 @@ def _exp_integral_from_any_to_any(limits, params, model):
 def _exp_integral_func_shifting(lambd, lower, upper, model):
     def raw_integral(x):
         return (
-            z.exp(lambd * (model._shift_x(x))) / lambd
+                z.exp(lambd * (model._shift_x(x))) / lambd
         )  # needed due to overflow in exp otherwise
 
     lower = z.convert_to_tensor(lower)

@@ -48,13 +48,13 @@ class RootFound(Exception):
 
 @deprecated_args(None, "Use cl for confidence level instead.", "sigma")
 def compute_errors(
-    result: zfit.result.FitResult,
-    params: list[ZfitIndependentParameter],
-    cl: float | None = None,
-    rtol: float | None = None,
-    method: str | None = None,
-    covariance_method: str | Callable | None = None,
-    sigma: float = None,
+        result: zfit.result.FitResult,
+        params: list[ZfitIndependentParameter],
+        cl: float | None = None,
+        rtol: float | None = None,
+        method: str | None = None,
+        covariance_method: str | Callable | None = None,
+        sigma: float = None,
 ) -> tuple[
     dict[ZfitIndependentParameter, dict[str, float]],
     zfit.result.FitResult | None,
@@ -137,7 +137,7 @@ def compute_errors(
             for ap in all_params:
                 ap_value = result.params[ap]["value"]
                 error_factor = (
-                    covariance[(param, ap)] * (2 * errordef / param_error**2) ** 0.5
+                        covariance[(param, ap)] * (2 * errordef / param_error ** 2) ** 0.5
                 )
                 for d in ["lower", "upper"]:
                     step = direction[d] * error_factor * sigma
@@ -171,7 +171,7 @@ def compute_errors(
                 if isinstance(gradient, (tuple, list)):
                     gradient = znp.asarray(gradient)
                 gradient = znp.concatenate(
-                    [gradient[:index_poi], gradient[index_poi + 1 :]]
+                    [gradient[:index_poi], gradient[index_poi + 1:]]
                 )
                 return loss_value, gradient
 
@@ -213,7 +213,7 @@ def compute_errors(
                     assign_values(all_params, values)  # set values to the new minimum
                     raise NewMinimum("A new minimum is found.")
 
-                downward_shift = errordef * sigma**2
+                downward_shift = errordef * sigma ** 2
                 shifted_loss = zeroed_loss - downward_shift
 
                 if abs(shifted_loss) < rtol:
