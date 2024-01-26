@@ -268,7 +268,7 @@ nlopt_minimizers = [
     ),
 ]
 if (
-        sys.version_info[1] < 11
+    sys.version_info[1] < 11
 ):  # TODO: remove all of this conditions once NLopt is available for Python 3.11
     # see also https://github.com/DanielBok/nlopt-python/issues/19
     minimizers.extend(nlopt_minimizers)
@@ -310,8 +310,8 @@ minimizers_small = [
 if sys.version_info[1] < 11:
     minimizers_small.append((zfit.minimize.NLoptLBFGSV1, {}, True))
 if platform.system() not in (
-        "Darwin",
-        "Windows",
+    "Darwin",
+    "Windows",
 ):  # TODO: Ipyopt installation on macosx not working
     # TODO: ipyopt fails? Why
     pass
@@ -330,9 +330,9 @@ minimizers_small = sorted(minimizers_small, key=lambda val: repr(val))
 
 obs1 = zfit.Space(obs="obs1", limits=(-2.4, 9.1))
 obs1_split = (
-        zfit.Space(obs="obs1", limits=(-2.4, 1.3))
-        + zfit.Space(obs="obs1", limits=(1.3, 2.1))
-        + zfit.Space(obs="obs1", limits=(2.1, 9.1))
+    zfit.Space(obs="obs1", limits=(-2.4, 1.3))
+    + zfit.Space(obs="obs1", limits=(1.3, 2.1))
+    + zfit.Space(obs="obs1", limits=(2.1, 9.1))
 )
 
 
@@ -409,8 +409,8 @@ def test_dependent_param_extraction():
     sigma.floating = False
     params_checked = minimizer._check_convert_input(nll, params=[mu, sigma1])[1]
     assert {
-               mu,
-           } == set(params_checked)
+        mu,
+    } == set(params_checked)
 
 
 # @pytest.mark.run(order=4)
@@ -445,7 +445,6 @@ def test_minimizers(minimizer_class_and_kwargs, chunksize, numgrad, spaces, requ
     # zfit.run.chunking.active = True
     # zfit.run.chunking.max_n_points = chunksize
     with zfit.run.set_autograd_mode(not numgrad):
-
         minimizer_class, minimizer_kwargs, test_error = minimizer_class_and_kwargs
 
         if not isinstance(test_error, dict):
@@ -457,11 +456,13 @@ def test_minimizers(minimizer_class_and_kwargs, chunksize, numgrad, spaces, requ
         test_error = test_error["error"]
 
         skip_tests = (
-                not long_clarg
-                and not do_long
-                and not (
-                chunksize == chunksizes[0] and numgrad is False and spaces is spaces_all[0]
-        )
+            not long_clarg
+            and not do_long
+            and not (
+                chunksize == chunksizes[0]
+                and numgrad is False
+                and spaces is spaces_all[0]
+            )
         )
 
         if skip_tests:
@@ -495,8 +496,8 @@ def test_minimizers(minimizer_class_and_kwargs, chunksize, numgrad, spaces, requ
         assert result_lowtol.fmin == pytest.approx(result.fmin, abs=2.0)
         if not isinstance(minimizer, zfit.minimize.IpyoptV1):
             assert (
-                    result_lowtol.info["n_eval"]
-                    < 1.2 * result.info["n_eval"] + 10  # +10 if it's very small, it's hard
+                result_lowtol.info["n_eval"]
+                < 1.2 * result.info["n_eval"] + 10  # +10 if it's very small, it's hard
             )  # should not be more, surely not a lot
 
         aval, bval, cval = (zfit.run(v) for v in (mu_param, sigma_param, lambda_param))
@@ -517,13 +518,13 @@ def test_minimizers(minimizer_class_and_kwargs, chunksize, numgrad, spaces, requ
                 profile_methods.append("minuit_minos")
                 # the following minimizers should support the "approx" option as the give access to the approx Hessian
                 if isinstance(
-                        minimizer,
-                        (
-                                Minuit,
-                                zfit.minimize.ScipyLBFGSBV1,
-                                zfit.minimize.ScipyNewtonCGV1,
-                                zfit.minimize.ScipyTruncNCV1,
-                        ),
+                    minimizer,
+                    (
+                        Minuit,
+                        zfit.minimize.ScipyLBFGSBV1,
+                        zfit.minimize.ScipyNewtonCGV1,
+                        zfit.minimize.ScipyTruncNCV1,
+                    ),
                 ):
                     hesse_methods.append("approx")
 
@@ -607,7 +608,10 @@ def test_minimizers(minimizer_class_and_kwargs, chunksize, numgrad, spaces, requ
 
                     # test custom error
                     def custom_error_func(result, params, cl):
-                        return OrderedDict((param, {"myval": 42}) for param in params), None
+                        return (
+                            OrderedDict((param, {"myval": 42}) for param in params),
+                            None,
+                        )
 
                     custom_errors, _ = result.errors(
                         method=custom_error_func, name="custom_method1"

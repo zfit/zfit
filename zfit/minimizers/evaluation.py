@@ -45,16 +45,16 @@ def check_derivative_none_raise(values, params) -> None:
 
 class LossEval:
     def __init__(
-            self,
-            loss: ZfitLoss,
-            params: ztyping.ParamTypeInput,
-            strategy: ZfitStrategy,
-            do_print: bool,
-            maxiter: int,
-            grad_fn: Callable | None = None,
-            hesse_fn: Callable | None = None,
-            numpy_converter: Callable | None = None,
-            full: bool | None = None,
+        self,
+        loss: ZfitLoss,
+        params: ztyping.ParamTypeInput,
+        strategy: ZfitStrategy,
+        do_print: bool,
+        maxiter: int,
+        grad_fn: Callable | None = None,
+        hesse_fn: Callable | None = None,
+        numpy_converter: Callable | None = None,
+        full: bool | None = None,
     ):
         r"""Convenience wrapper for the evaluation of a loss with given parameters and strategy.
 

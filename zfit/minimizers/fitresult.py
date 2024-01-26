@@ -62,11 +62,11 @@ init(autoreset=True)
 
 class Approximations:
     def __init__(
-            self,
-            params: list[ZfitParameter],
-            gradient: np.ndarray | None = None,
-            hessian: np.ndarray | None = None,
-            inv_hessian: np.ndarray | None = None,
+        self,
+        params: list[ZfitParameter],
+        gradient: np.ndarray | None = None,
+        hessian: np.ndarray | None = None,
+        inv_hessian: np.ndarray | None = None,
     ) -> None:
         """Holds different approximations after the minimisation and/or calculates them.
 
@@ -87,7 +87,7 @@ class Approximations:
         return self._params
 
     def gradient(
-            self, params: ZfitParameter | Iterable[ZfitParameter] | None = None
+        self, params: ZfitParameter | Iterable[ZfitParameter] | None = None
     ) -> np.ndarray | None:
         """Return an approximation of the gradient _if available_.
 
@@ -210,8 +210,8 @@ def _covariance_minuit(result, params):
 
 def _covariance_np(result, params):
     if any(
-            isinstance(data, ZfitData) and data.weights is not None
-            for data in result.loss.data
+        isinstance(data, ZfitData) and data.weights is not None
+        for data in result.loss.data
     ):
         warnings.warn(
             "The computation of the covariance matrix with weights is still experimental.",
@@ -226,8 +226,8 @@ def _covariance_np(result, params):
 
 def _covariance_approx(result, params):
     if any(
-            isinstance(data, ZfitData) and data.weights is not None
-            for data in result.loss.data
+        isinstance(data, ZfitData) and data.weights is not None
+        for data in result.loss.data
     ):
         warnings.warn(
             "Approximate covariance/hesse estimation with weights is not supported, returning None",
@@ -299,21 +299,21 @@ class FitResult(ZfitResult):
     }
 
     def __init__(
-            self,
-            loss: ZfitLoss,
-            params: dict[ZfitParameter, float],
-            minimizer: ZfitMinimizer,
-            valid: bool,
-            edm: float,
-            fmin: float,
-            criterion: ConvergenceCriterion | None,
-            status: int | None = None,
-            converged: bool | None = None,
-            message: str | None = None,
-            info: Mapping | None = None,
-            approx: Mapping | Approximations | None = None,
-            niter: int | None = None,
-            evaluator: LossEval = None,
+        self,
+        loss: ZfitLoss,
+        params: dict[ZfitParameter, float],
+        minimizer: ZfitMinimizer,
+        valid: bool,
+        edm: float,
+        fmin: float,
+        criterion: ConvergenceCriterion | None,
+        status: int | None = None,
+        converged: bool | None = None,
+        message: str | None = None,
+        info: Mapping | None = None,
+        approx: Mapping | Approximations | None = None,
+        niter: int | None = None,
+        evaluator: LossEval = None,
     ) -> None:
         """Create a ``FitResult`` from a minimization. Store parameter values, minimization infos and calculate errors.
 
@@ -500,7 +500,7 @@ class FitResult(ZfitResult):
             errordict = self.params[p].get(method_name)
             # cl is < 1 and gets very close. The closer, the more it matters -> scale tolerance by it
             if errordict is not None and not math.isclose(
-                    errordict["cl"], cl, abs_tol=3e-3 * (1 - cl)
+                errordict["cl"], cl, abs_tol=3e-3 * (1 - cl)
             ):
                 raise NameError(
                     f"Error with name {method_name} already exists in {repr(self)} with a different"
@@ -530,21 +530,21 @@ class FitResult(ZfitResult):
 
     @classmethod
     def from_ipopt(
-            cls,
-            loss: ZfitLoss,
-            params: Iterable[ZfitParameter],
-            problem: "ipyopt.Problem",
-            minimizer: "zfit.minimize.IpyoptV1",
-            valid: bool,
-            values: np.ndarray,
-            message: str | None,
-            converged: bool | None,
-            edm: zfit.minimizers.termination.CriterionNotAvailable | float,
-            niter: int | None,
-            fmin: float | None,
-            status: int | None,
-            criterion: zfit.minimizers.termination.ConvergenceCriterion,
-            evaluator: zfit.minimizers.evaluation.LossEval | None,
+        cls,
+        loss: ZfitLoss,
+        params: Iterable[ZfitParameter],
+        problem: "ipyopt.Problem",
+        minimizer: "zfit.minimize.IpyoptV1",
+        valid: bool,
+        values: np.ndarray,
+        message: str | None,
+        converged: bool | None,
+        edm: zfit.minimizers.termination.CriterionNotAvailable | float,
+        niter: int | None,
+        fmin: float | None,
+        status: int | None,
+        criterion: zfit.minimizers.termination.ConvergenceCriterion,
+        evaluator: zfit.minimizers.evaluation.LossEval | None,
     ) -> FitResult:
         """Create a ``FitResult`` from an ipopt minimization.
 
@@ -628,21 +628,21 @@ class FitResult(ZfitResult):
 
     @classmethod
     def from_minuit(
-            cls,
-            loss: ZfitLoss,
-            params: Iterable[ZfitParameter],
-            minuit: iminuit.Minuit,
-            minimizer: ZfitMinimizer | iminuit.Minuit,
-            valid: bool | None,
-            values: np.ndarray | None = None,
-            message: str | None = None,
-            converged: bool | None = None,
-            edm: None | (zfit.minimizers.termination.CriterionNotAvailable | float) = None,
-            niter: int | None = None,
-            fmin: float | None = None,
-            status: int | None = None,
-            criterion: zfit.minimizers.termination.ConvergenceCriterion | None = None,
-            evaluator: zfit.minimizers.evaluation.LossEval | None = None,
+        cls,
+        loss: ZfitLoss,
+        params: Iterable[ZfitParameter],
+        minuit: iminuit.Minuit,
+        minimizer: ZfitMinimizer | iminuit.Minuit,
+        valid: bool | None,
+        values: np.ndarray | None = None,
+        message: str | None = None,
+        converged: bool | None = None,
+        edm: None | (zfit.minimizers.termination.CriterionNotAvailable | float) = None,
+        niter: int | None = None,
+        fmin: float | None = None,
+        status: int | None = None,
+        criterion: zfit.minimizers.termination.ConvergenceCriterion | None = None,
+        evaluator: zfit.minimizers.evaluation.LossEval | None = None,
     ) -> FitResult:
         """Create a `FitResult` from a :py:class:`~iminuit.util.MigradResult` returned by
         :py:meth:`iminuit.Minuit.migrad` and a iminuit :py:class:`~iminuit.Minuit` instance with the corresponding zfit
@@ -759,17 +759,17 @@ class FitResult(ZfitResult):
 
     @classmethod
     def from_scipy(
-            cls,
-            loss: ZfitLoss,
-            params: Iterable[ZfitParameter],
-            result: scipy.optimize.OptimizeResult,
-            minimizer: ZfitMinimizer,
-            message: str | None,
-            valid: bool,
-            criterion: ConvergenceCriterion,
-            edm: float | None = None,
-            niter: int | None = None,
-            evaluator: zfit.minimize.LossEval | None = None,
+        cls,
+        loss: ZfitLoss,
+        params: Iterable[ZfitParameter],
+        result: scipy.optimize.OptimizeResult,
+        minimizer: ZfitMinimizer,
+        message: str | None,
+        valid: bool,
+        criterion: ConvergenceCriterion,
+        edm: float | None = None,
+        niter: int | None = None,
+        evaluator: zfit.minimize.LossEval | None = None,
     ) -> FitResult:
         """Create a ``FitResult from a SciPy `~scipy.optimize.OptimizeResult`.
 
@@ -878,23 +878,23 @@ class FitResult(ZfitResult):
 
     @classmethod
     def from_nlopt(
-            cls,
-            loss: ZfitLoss,
-            opt,
-            params: Iterable[ZfitParameter],
-            minimizer: ZfitMinimizer | iminuit.Minuit,
-            valid: bool | None,
-            values: np.ndarray | None = None,
-            message: str | None = None,
-            converged: bool | None = None,
-            edm: None | (zfit.minimizers.termination.CriterionNotAvailable | float) = None,
-            niter: int | None = None,
-            fmin: float | None = None,
-            status: int | None = None,
-            criterion: zfit.minimizers.termination.ConvergenceCriterion | None = None,
-            evaluator: zfit.minimizers.evaluation.LossEval | None = None,
-            inv_hessian: np.ndarray | None = None,
-            hessian: np.ndarray | None = None,
+        cls,
+        loss: ZfitLoss,
+        opt,
+        params: Iterable[ZfitParameter],
+        minimizer: ZfitMinimizer | iminuit.Minuit,
+        valid: bool | None,
+        values: np.ndarray | None = None,
+        message: str | None = None,
+        converged: bool | None = None,
+        edm: None | (zfit.minimizers.termination.CriterionNotAvailable | float) = None,
+        niter: int | None = None,
+        fmin: float | None = None,
+        status: int | None = None,
+        criterion: zfit.minimizers.termination.ConvergenceCriterion | None = None,
+        evaluator: zfit.minimizers.evaluation.LossEval | None = None,
+        inv_hessian: np.ndarray | None = None,
+        hessian: np.ndarray | None = None,
     ) -> FitResult:
         """Create a ``FitResult`` from an NLopt optimizer.
 
@@ -1029,7 +1029,7 @@ class FitResult(ZfitResult):
 
     @property
     def params(
-            self,
+        self,
     ) -> Mapping[ZfitIndependentParameter, Mapping[str, Mapping[str, object]]]:
         return self._params
 
@@ -1127,13 +1127,13 @@ class FitResult(ZfitResult):
 
     @deprecated_args(None, "Use `name` instead", "error_name")
     def hesse(
-            self,
-            params: ParamsTypeOpt = None,
-            method: str | Callable = None,
-            cl: float | None = None,
-            name: str | bool | None = None,
-            # DEPRECATED
-            error_name: str | None = None,
+        self,
+        params: ParamsTypeOpt = None,
+        method: str | Callable = None,
+        cl: float | None = None,
+        name: str | bool | None = None,
+        # DEPRECATED
+        error_name: str | None = None,
     ) -> dict[ZfitIndependentParameter, dict]:
         r"""Calculate for `params` the symmetric error using the Hessian/covariance matrix.
 
@@ -1247,11 +1247,11 @@ class FitResult(ZfitResult):
         }
 
     def error(
-            self,
-            params: ParamsTypeOpt = None,
-            method: str | Callable = None,
-            error_name: str = None,
-            sigma: float = 1.0,
+        self,
+        params: ParamsTypeOpt = None,
+        method: str | Callable = None,
+        error_name: str = None,
+        sigma: float = 1.0,
     ) -> OrderedDict:
         r""".. deprecated:: unknown Use :func:`errors` instead.
 
@@ -1288,13 +1288,13 @@ class FitResult(ZfitResult):
 
     @deprecated_args(None, "Use name instead.", "error_name")
     def errors(
-            self,
-            params: ParamsTypeOpt = None,
-            method: str | Callable = None,
-            name: str = None,
-            cl: float | None = None,
-            sigma=None,
-            error_name: str = None,
+        self,
+        params: ParamsTypeOpt = None,
+        method: str | Callable = None,
+        name: str = None,
+        cl: float | None = None,
+        sigma=None,
+        error_name: str = None,
     ) -> tuple[OrderedDict, None | FitResult]:
         r"""Calculate and set for `params` the asymmetric error using the set error method.
 
@@ -1411,10 +1411,10 @@ class FitResult(ZfitResult):
         return method(result=self, params=params, cl=cl)
 
     def covariance(
-            self,
-            params: ParamsTypeOpt = None,
-            method: str | Callable = None,
-            as_dict: bool = False,
+        self,
+        params: ParamsTypeOpt = None,
+        method: str | Callable = None,
+        as_dict: bool = False,
     ):
         """Calculate the covariance matrix for `params`.
 
@@ -1463,18 +1463,18 @@ class FitResult(ZfitResult):
         params = list(self.params.keys())
 
         if any(
-                isinstance(data, ZfitData) and data.weights is not None
-                for data in self.loss.data
+            isinstance(data, ZfitData) and data.weights is not None
+            for data in self.loss.data
         ):
             return covariance_with_weights(method=method, result=self, params=params)
         else:
             return method(result=self, params=params)
 
     def correlation(
-            self,
-            params: ParamsTypeOpt = None,
-            method: str | Callable = None,
-            as_dict: bool = False,
+        self,
+        params: ParamsTypeOpt = None,
+        method: str | Callable = None,
+        as_dict: bool = False,
     ):
         """Calculate the correlation matrix for `params`.
 
@@ -1535,10 +1535,10 @@ class FitResult(ZfitResult):
 
     def __str__(self):
         string = (
-                Style.BRIGHT
-                + "FitResult"
-                + Style.NORMAL
-                + f" of\n{self.loss} \nwith\n{self.minimizer}\n\n"
+            Style.BRIGHT
+            + "FitResult"
+            + Style.NORMAL
+            + f" of\n{self.loss} \nwith\n{self.minimizer}\n\n"
         )
         string += tabulate(
             [
@@ -1589,7 +1589,7 @@ def format_value(value, highprec=True):
         value = f"{value:> 6.2g}"
         value = f'+/-{" " * (8 - len(value))}' + value
     if isinstance(value, m_error_class) or (
-            isinstance(value, dict) and "lower" in value and "upper" in value
+        isinstance(value, dict) and "lower" in value and "upper" in value
     ):
         if isinstance(value, m_error_class):
             lower = value.lower

@@ -26,9 +26,7 @@ def minimizer_ids(minimizer_class_and_kwargs):
 
 def create_loss(n=15000, weights=None, extended=None, constraints=None):
     avalue = 1.5
-    a_param = zfit.Parameter(
-        "variable_a15151", avalue, -1.0, 20.0, step_size=0.1
-    )
+    a_param = zfit.Parameter("variable_a15151", avalue, -1.0, 20.0, step_size=0.1)
     a_param.init_val = avalue
     bvalue = 1.9
     b_param = zfit.Parameter("variable_b15151", bvalue, 0, 20)
@@ -91,7 +89,7 @@ def create_loss(n=15000, weights=None, extended=None, constraints=None):
 
 
 def create_fitresult(
-        minimizer_class_and_kwargs, n=15000, weights=None, extended=None, constraints=None
+    minimizer_class_and_kwargs, n=15000, weights=None, extended=None, constraints=None
 ):
     loss, all_params = create_loss(
         n=n, weights=weights, extended=extended, constraints=constraints
@@ -118,7 +116,9 @@ def create_fitresult(
             for param in all_params:
                 param.assign(param.init_val + np.random.normal(scale=0.1))
     else:
-        assert False, "Tried to minimize but failed 3 times, this is treated as an error."
+        assert (
+            False
+        ), "Tried to minimize but failed 3 times, this is treated as an error."
     assert cur_val < true_minimum + 0.1, "Fit did not converge to true minimum"
     aval, bval, cval = (
         result.params[p]["value"] for p in all_params[:3]
@@ -205,8 +205,8 @@ minimizers = [
 ]
 
 if not platform.system() in (
-        "Darwin",
-        "Windows",
+    "Darwin",
+    "Windows",
 ):  # TODO: Ipyopt installation on macosx not working
     minimizers.append((zfit.minimize.IpyoptV1, {}, False))
 # sort for xdist: https://github.com/pytest-dev/pytest-xdist/issues/432
@@ -352,7 +352,7 @@ def test_correlation(minimizer_class_and_kwargs):
     b_error = hesse[b]["error"]
     assert pytest.approx(cor_mat[0, 1], rel=0.01) == cov_mat[0, 1] / (a_error * b_error)
     assert pytest.approx(cor_dict[(a, b)], rel=0.01) == cov_mat[0, 1] / (
-            a_error * b_error
+        a_error * b_error
     )
 
 
@@ -418,7 +418,7 @@ def test_errors(minimizer_class_and_kwargs, cl, weights, extended, constraints):
             continue  # TODO: fix this, somehow the uncertainty is not good for this case
         for dir in ["lower", "upper"]:
             assert (
-                    pytest.approx(z_error_param[dir], rel=relerr) == minos_errors_param[dir]
+                pytest.approx(z_error_param[dir], rel=relerr) == minos_errors_param[dir]
             )
 
     with pytest.raises(KeyError):

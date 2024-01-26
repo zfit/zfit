@@ -75,10 +75,10 @@ def test_moprhing_sum():
     result.hesse(name="hesse", params=params_to_test)
     result.errors(name="zfit", method="zfit_errors", params=params_to_test)
     result.errors(name="minos", method="minuit_minos", params=params_to_test)
-    assert pytest.approx(sig_true, abs=3 * sig_true ** 0.5) == np.array(sig_yield)
+    assert pytest.approx(sig_true, abs=3 * sig_true**0.5) == np.array(sig_yield)
     assert (
-            pytest.approx(bkg_true, abs=3 * bkg_true ** 0.5)
-            == result.params[bkg_yield]["value"]
+        pytest.approx(bkg_true, abs=3 * bkg_true**0.5)
+        == result.params[bkg_yield]["value"]
     )
     assert pytest.approx(1, abs=0.003) == np.mean(list(modifiers.values()))
     for p in params_to_test:

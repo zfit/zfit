@@ -86,9 +86,9 @@ def crystalball_integral_func(mu, sigma, alpha, n, lower, upper):
     )
 
     if_true_4 = (
-            abs_sigma
-            * sqrt_pi_over_two
-            * (tf.math.erf(tmax / sqrt2) - tf.math.erf(tmin / sqrt2))
+        abs_sigma
+        * sqrt_pi_over_two
+        * (tf.math.erf(tmax / sqrt2) - tf.math.erf(tmin / sqrt2))
     )
 
     a = znp.power(n / abs_alpha, n) * znp.exp(-0.5 * tf.square(abs_alpha))
@@ -105,32 +105,32 @@ def crystalball_integral_func(mu, sigma, alpha, n, lower, upper):
     if_true_1 = a * abs_sigma * (znp.log(safe_b_tmin_ones) - znp.log(safe_b_tmax_ones))
 
     if_false_1 = (
-            a
-            * abs_sigma
-            / (1.0 - n)
-            * (
-                    1.0 / znp.power(safe_b_tmin_ones, n - 1.0)
-                    - 1.0 / znp.power(safe_b_tmax_ones, n - 1.0)
-            )
+        a
+        * abs_sigma
+        / (1.0 - n)
+        * (
+            1.0 / znp.power(safe_b_tmin_ones, n - 1.0)
+            - 1.0 / znp.power(safe_b_tmax_ones, n - 1.0)
+        )
     )
 
     if_true_3 = tf.where(use_log, if_true_1, if_false_1)
 
     if_true_2 = a * abs_sigma * (znp.log(safe_b_tmin_ones) - znp.log(n / abs_alpha))
     if_false_2 = (
-            a
-            * abs_sigma
-            / (1.0 - n)
-            * (
-                    1.0 / znp.power(safe_b_tmin_ones, n - 1.0)
-                    - 1.0 / znp.power(n / abs_alpha, n - 1.0)
-            )
+        a
+        * abs_sigma
+        / (1.0 - n)
+        * (
+            1.0 / znp.power(safe_b_tmin_ones, n - 1.0)
+            - 1.0 / znp.power(n / abs_alpha, n - 1.0)
+        )
     )
     term1 = tf.where(use_log, if_true_2, if_false_2)
     term2 = (
-            abs_sigma
-            * sqrt_pi_over_two
-            * (tf.math.erf(tmax / sqrt2) - tf.math.erf(-abs_alpha / sqrt2))
+        abs_sigma
+        * sqrt_pi_over_two
+        * (tf.math.erf(tmax / sqrt2) - tf.math.erf(-abs_alpha / sqrt2))
     )
     if_false_3 = term1 + term2
 
@@ -169,7 +169,7 @@ def double_crystalball_mu_integral(limits, params, model):
 
 @z.function(wraps="zfit_tensor")
 def double_crystalball_mu_integral_func(
-        mu, sigma, alphal, nl, alphar, nr, lower, upper
+    mu, sigma, alphal, nl, alphar, nr, lower, upper
 ):
     # mu_broadcast =
     upper_of_lowerint = znp.minimum(mu, upper)
@@ -194,16 +194,16 @@ class CrystalBall(BasePDF, SerializableMixin):
     _N_OBS = 1
 
     def __init__(
-            self,
-            mu: ztyping.ParamTypeInput,
-            sigma: ztyping.ParamTypeInput,
-            alpha: ztyping.ParamTypeInput,
-            n: ztyping.ParamTypeInput,
-            obs: ztyping.ObsTypeInput,
-            *,
-            extended: ExtendedInputType = None,
-            norm: NormInputType = None,
-            name: str = "CrystalBall",
+        self,
+        mu: ztyping.ParamTypeInput,
+        sigma: ztyping.ParamTypeInput,
+        alpha: ztyping.ParamTypeInput,
+        n: ztyping.ParamTypeInput,
+        obs: ztyping.ObsTypeInput,
+        *,
+        extended: ExtendedInputType = None,
+        norm: NormInputType = None,
+        name: str = "CrystalBall",
     ):
         """Crystal Ball shaped PDF. A combination of a Gaussian with a powerlaw tail.
 
@@ -288,18 +288,18 @@ class DoubleCB(BasePDF, SerializableMixin):
     _N_OBS = 1
 
     def __init__(
-            self,
-            mu: ztyping.ParamTypeInput,
-            sigma: ztyping.ParamTypeInput,
-            alphal: ztyping.ParamTypeInput,
-            nl: ztyping.ParamTypeInput,
-            alphar: ztyping.ParamTypeInput,
-            nr: ztyping.ParamTypeInput,
-            obs: ztyping.ObsTypeInput,
-            *,
-            extended: ExtendedInputType = None,
-            norm: NormInputType = None,
-            name: str = "DoubleCB",
+        self,
+        mu: ztyping.ParamTypeInput,
+        sigma: ztyping.ParamTypeInput,
+        alphal: ztyping.ParamTypeInput,
+        nl: ztyping.ParamTypeInput,
+        alphar: ztyping.ParamTypeInput,
+        nr: ztyping.ParamTypeInput,
+        obs: ztyping.ObsTypeInput,
+        *,
+        extended: ExtendedInputType = None,
+        norm: NormInputType = None,
+        name: str = "DoubleCB",
     ):
         """Double-sided Crystal Ball shaped PDF. A combination of two CB using the **mu** (not a frac) on each side.
 

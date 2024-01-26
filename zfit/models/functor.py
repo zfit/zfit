@@ -67,13 +67,13 @@ class BaseFunctor(FunctorMixin, BasePDF):
 
 class SumPDF(BaseFunctor, SerializableMixin):  # TODO: add extended argument
     def __init__(
-            self,
-            pdfs: Iterable[ZfitPDF],
-            fracs: ztyping.ParamTypeInput | None = None,
-            obs: ztyping.ObsTypeInput = None,
-            extended: ExtendedInputType = None,
-            norm: NormInputType = None,
-            name: str = "SumPDF",
+        self,
+        pdfs: Iterable[ZfitPDF],
+        fracs: ztyping.ParamTypeInput | None = None,
+        obs: ztyping.ObsTypeInput = None,
+        extended: ExtendedInputType = None,
+        norm: NormInputType = None,
+        name: str = "SumPDF",
     ):
         """Create the sum of the `pdfs` with `fracs` as coefficients or the yields, if extended pdfs are given.
 
@@ -292,12 +292,12 @@ class SumPDFRepr(FunctorPDFRepr):
 
 class ProductPDF(BaseFunctor, SerializableMixin):
     def __init__(
-            self,
-            pdfs: list[ZfitPDF],
-            obs: ztyping.ObsTypeInput = None,
-            extended: ExtendedInputType = None,
-            norm: NormInputType = None,
-            name="ProductPDF",
+        self,
+        pdfs: list[ZfitPDF],
+        obs: ztyping.ObsTypeInput = None,
+        extended: ExtendedInputType = None,
+        norm: NormInputType = None,
+        name="ProductPDF",
     ):
         """Product of multiple PDFs in the same or different variables.
 
@@ -360,7 +360,7 @@ class ProductPDF(BaseFunctor, SerializableMixin):
     @supports(norm=True, multiple_limits=True)
     def _pdf(self, x, norm):
         equal_norm_ranges = (
-                len(set([pdf.norm for pdf in self.pdfs] + [norm])) == 1
+            len(set([pdf.norm for pdf in self.pdfs] + [norm])) == 1
         )  # all equal
         if not self._prod_is_same_obs_pdf and equal_norm_ranges:
             probs = [pdf.pdf(var=x, norm=norm) for pdf in self._prod_disjoint_obs_pdfs]
@@ -422,7 +422,7 @@ class ProductPDF(BaseFunctor, SerializableMixin):
                 )
             else:
                 assert (
-                        not intersection_limits and intersection_data
+                    not intersection_limits and intersection_data
                 ), "Something slipped, the logic is flawed."
                 values.append(pdf.pdf(x, norm_range=norm))
         values = functools.reduce(operator.mul, values)

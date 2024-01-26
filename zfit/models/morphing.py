@@ -40,15 +40,15 @@ class SplineMorphingPDF(BaseBinnedPDFV1):
     _morphing_interpolator = staticmethod(spline_interpolator)
 
     def __init__(
-            self,
-            alpha: ztyping.ParamTypeInput,
-            hists: (
-                    Mapping[float | int, Iterable[ZfitBinnedPDF]]
-                    | list[ZfitBinnedPDF]
-                    | tuple[ZfitBinnedPDF]
-            ),
-            extended: ztyping.ExtendedInputType = None,
-            norm: ztyping.NormInputType = None,
+        self,
+        alpha: ztyping.ParamTypeInput,
+        hists: (
+            Mapping[float | int, Iterable[ZfitBinnedPDF]]
+            | list[ZfitBinnedPDF]
+            | tuple[ZfitBinnedPDF]
+        ),
+        extended: ztyping.ExtendedInputType = None,
+        norm: ztyping.NormInputType = None,
     ):
         """Morphing a set of histograms with a spline interpolation.
 
