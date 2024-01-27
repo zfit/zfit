@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 
 import pytest
 
@@ -65,6 +65,9 @@ def test_moprhing_sum():
     loss_binned = zfit.loss.ExtendedBinnedNLL(
         model, data, constraints=[modifier_constraints, alpha_constraint]
     )
+    bkg_yield.set_value(bkg_true * 1.1)
+    sig_yield.set_value(sig_true * 0.9)
+
     result = minimizer.minimize(loss_binned)
     assert result.valid
     params_to_test = [bkg_yield, alpha] + list(modifiers.values())[::7]

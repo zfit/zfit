@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 """Definition of minimizers, wrappers etc."""
 from __future__ import annotations
 
@@ -18,7 +18,11 @@ from ordered_set import OrderedSet
 from .evaluation import LossEval
 from .fitresult import FitResult
 from .interface import ZfitMinimizer, ZfitResult
-from .strategy import FailMinimizeNaN, PushbackStrategy, ZfitStrategy
+from .strategy import (
+    FailMinimizeNaN,
+    PushbackStrategy,
+    ZfitStrategy,
+)
 from .termination import EDM, ConvergenceCriterion
 from ..core.interfaces import ZfitLoss, ZfitParameter
 from ..core.parameter import assign_values, convert_to_parameters

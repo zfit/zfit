@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 
 from __future__ import annotations
 
@@ -256,8 +256,7 @@ class ScipyBaseMinimizerV1(BaseMinimizer):
                 [0.1 if p.step_size is None else p.step_size for p in params]
             )
 
-        maxiter = self.get_maxiter(len(params))
-        if maxiter is not None:
+        if (maxiter := self.get_maxiter(len(params))) is not None:
             # stop 3 iterations earlier than we
             minimizer_options["options"]["maxiter"] = (
                 maxiter - 3 if maxiter > 10 else maxiter
@@ -1174,10 +1173,9 @@ class ScipyNewtonCGV1(ScipyBaseMinimizerV1):
                    NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
             name: |@doc:minimizer.name| Human-readable name of the minimizer. |@docend:minimizer.name|
         """
-        options = {}
 
         minimizer_options = {}
-        if options:
+        if options := {}:
             minimizer_options["options"] = options
 
         scipy_tols = {"xtol": None}
@@ -1610,9 +1608,8 @@ class ScipySLSQPV1(ScipyBaseMinimizerV1):
                    NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
             name: |@doc:minimizer.name| Human-readable name of the minimizer. |@docend:minimizer.name|
         """
-        options = {}
         minimizer_options = {}
-        if options:
+        if options := {}:
             minimizer_options["options"] = options
 
         scipy_tols = {"ftol": None}

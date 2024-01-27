@@ -88,10 +88,10 @@ repos:
         args: [ --update, --no-build-isolation ]
         additional_dependencies: [ setuptools-scm, setuptools-scm-git-archive ]
 
-  - repo: https://github.com/roy-ht/pre-commit-jupyter
-    rev: v1.2.1
+  - repo: https://github.com/kynan/nbstripout
+    rev: 0.6.1
     hooks:
-      - id: jupyter-notebook-cleanup
+      - id: nbstripout
 
   # TODO: 3.8+ only?
   #  - repo: https://github.com/sondrelg/pep585-upgrade
@@ -99,6 +99,11 @@ repos:
   #    hooks:
   #      - id: upgrade-type-hints
   #        args: [ '--futures=true' ]
+
+  - repo: https://github.com/MarcoGorelli/auto-walrus
+    rev: v0.2.2
+    hooks:
+      - id: auto-walrus
 
   - repo: https://github.com/shssoichiro/oxipng
     rev: v9.0.0

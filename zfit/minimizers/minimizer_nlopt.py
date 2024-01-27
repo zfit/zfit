@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 
 from __future__ import annotations
 
@@ -220,12 +220,10 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
             local_minimizer.set_lower_bounds(lower)
             local_minimizer.set_upper_bounds(upper)
 
-        maxcor = minimizer_options.pop("maxcor", None)
-        if maxcor is not None:
+        if (maxcor := minimizer_options.pop("maxcor", None)) is not None:
             minimizer.set_vector_storage(maxcor)
 
-        population = minimizer_options.pop("population", None)
-        if population is not None:
+        if (population := minimizer_options.pop("population", None)) is not None:
             minimizer.set_population(population)
 
         for name, value in minimizer_options.items():
@@ -388,11 +386,9 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
 
     def _set_tols_inplace(self, minimizer, internal_tol, criterion_value):
         # set all the tolerances
-        fatol = internal_tol.get("fatol")
-        if fatol is not None:
+        if (fatol := internal_tol.get("fatol")) is not None:
             minimizer.set_ftol_abs(fatol**0.5)
-        xatol = internal_tol.get("xatol")
-        if xatol is not None:
+        if (xatol := internal_tol.get("xatol")) is not None:
             # minimizer.set_xtol_abs([xatol] * len(params))
             minimizer.set_xtol_abs(xatol)
         # set relative tolerances later as it can be unstable. Just use them when approaching
