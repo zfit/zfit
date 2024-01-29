@@ -5,7 +5,8 @@ Changelog
 .. _newest-changelog:
 
 
-Develop
+
+0.17.0 (29 Jan 2024)
 ========================
 
 Major Features and Improvements
@@ -13,11 +14,6 @@ Major Features and Improvements
 - add correct uncertainty for unbinned, weighted fits with constraints and/or that are extended.
 - allow mapping in ``zfit.param.set_values`` for values
 
-Breaking changes
-------------------
-
-Deprecations
--------------
 
 Bug fixes and small changes
 ---------------------------
@@ -26,11 +22,6 @@ Bug fixes and small changes
 - improved uncertainty calculation accuracy with ``zfit_error``
 
 
-Experimental
-------------
-
-Requirement changes
--------------------
 
 Thanks
 ------
