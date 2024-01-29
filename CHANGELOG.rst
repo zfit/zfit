@@ -4,7 +4,7 @@ Changelog
 
 .. _newest-changelog:
 
-Develop
+0.18.0 (29 Jan 2024)
 ========================
 
 Major Features and Improvements
@@ -12,23 +12,6 @@ Major Features and Improvements
 - update to TensorFlow 2.15, TensorFlow Probability 0.23
 - drop Python 3.8 support
 
-Breaking changes
-------------------
-
-Deprecations
--------------
-
-Bug fixes and small changes
----------------------------
-
-Experimental
-------------
-
-Requirement changes
--------------------
-
-Thanks
-------
 
 0.17.0 (29 Jan 2024)
 ========================
