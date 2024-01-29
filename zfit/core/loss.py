@@ -1,9 +1,9 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 
 from __future__ import annotations
 
 from functools import partial
-from typing import Literal
+from typing import Literal, Iterable
 from typing import TYPE_CHECKING, List, Optional, Union
 
 import pydantic
@@ -28,7 +28,7 @@ from ordered_set import OrderedSet
 import zfit.z.numpy as znp
 
 from .. import settings, z
-from .interfaces import ZfitBinnedData, ZfitParameter
+from .interfaces import ZfitBinnedData, ZfitParameter, ZfitPDF, ZfitData
 
 znp = z.numpy
 from ..util import ztyping
@@ -56,7 +56,7 @@ from .dependents import _extract_dependencies
 from .interfaces import ZfitData, ZfitLoss, ZfitPDF, ZfitSpace
 from .parameter import convert_to_parameters, set_values
 
-DEFAULT_FULL_ARG = False
+DEFAULT_FULL_ARG = True
 
 
 @z.function(wraps="loss")
@@ -64,7 +64,7 @@ def _unbinned_nll_tf(
     model: ztyping.PDFInputType,
     data: ztyping.DataInputType,
     fit_range: ZfitSpace,
-    log_offset=None,
+    log_offset,
 ):
     """Return the unbinned negative log likelihood for a PDF.
 
@@ -110,9 +110,11 @@ def _unbinned_nll_tf(
 
 @z.function(wraps="tensor")
 def _nll_calc_unbinned_tf(log_probs, weights=None, log_offset=None):
+    if log_offset is None:
+        log_offset = False
     if weights is not None:
         log_probs *= weights  # because it's prob ** weights
-    if log_offset is not None:
+    if log_offset is not False:
         log_probs -= log_offset
     nll = -znp.sum(log_probs, axis=0)
     # nll = -tfp.math.reduce_kahan_sum(input_tensor=log_probs, axis=0)
@@ -323,8 +325,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         return pdf, data, fit_range
 
     def _precompile(self):
-        do_subtr = self._options.get("subtr_const", False)
-        if do_subtr:
+        if do_subtr := self._options.get("subtr_const", False):
             if do_subtr is not True:
                 self._options["subtr_const_value"] = do_subtr
             log_offset = self._options.get("subtr_const_value")
@@ -428,7 +429,8 @@ class BaseLoss(ZfitLoss, BaseNumeric):
 
     def __call__(
         self,
-        _x: ztyping.DataInputType = None,  # *, full: bool = None  # Not added, breaks iminuit.
+        _x: ztyping.DataInputType = None,
+        # *, full: bool = None,  # Not added, breaks iminuit.
     ) -> znp.array:
         """Calculate the loss value with the given input for the free parameters.
 
@@ -437,6 +439,11 @@ class BaseLoss(ZfitLoss, BaseNumeric):
                 the position of the parameters in :py:meth:`~BaseLoss.get_params()` (called without any arguments).
                 For more detailed control, it is always possible to wrap :py:meth:`~BaseLoss.value()` and set the
                 desired parameters manually.
+            full: |@doc:loss.value.full| If True, return the full loss value, otherwise
+               allow for the removal of constants and only return
+               the part that depends on the parameters. Constants
+               don't matter for the task of optimization, but
+               they can greatly help with the numerical stability of the loss function. |@docend:loss.value.full|
 
         Returns:
             Calculated loss value as a scalar.
@@ -452,11 +459,11 @@ class BaseLoss(ZfitLoss, BaseNumeric):
                 "Dicts are not supported when calling a loss, only array-like values."
             )
         if _x is None:
-            return self.value()
+            return self.value(full=True)  # has to be full, otherwise iminuit breaks
         else:
             params = self.get_params()
             with set_values(params, _x):
-                return self.value(full=False)
+                return self.value(full=True)
 
     def value(self, *, full: bool = None) -> znp.ndarray:
         """Calculate the loss value with the current values of the free parameters.
@@ -476,7 +483,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
             full = DEFAULT_FULL_ARG
 
         if full:
-            log_offset = None
+            log_offset = False
         else:
             log_offset = self._options.get("subtr_const_value")
 
@@ -502,8 +509,6 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         # value = value_substracted[0] - value_substracted[1]
 
     def _value(self, model, data, fit_range, constraints, log_offset):
-        if log_offset is None:
-            log_offset = 0.0
         return self._loss_func(
             model=model,
             data=data,
@@ -528,18 +533,27 @@ class BaseLoss(ZfitLoss, BaseNumeric):
             kwargs["fit_range"] = fit_range
         return type(self)(**kwargs)
 
-    def gradient(self, params: ztyping.ParamTypeInput = None) -> list[tf.Tensor]:
+    def gradient(
+        self, params: ztyping.ParamTypeInput = None, *, numgrad=None
+    ) -> list[tf.Tensor]:
         """Calculate the gradient of the loss with respect to the given parameters.
 
         Args:
             params: The parameters with respect to which the gradient is calculated. If `None`, all parameters
                 are used.
+            numgrad: |@doc:loss.args.numgrad| If ``True``, calculate the numerical gradient/Hessian
+               instead of using the automatic one. This is
+               usually slower if called repeatedly but can
+               be used if the automatic gradient fails (e.g. if
+               the model is not differentiable, written not in znp.* etc).
+               Default will fall back to what the loss is set to. |@docend:loss.args.numgrad|
+
 
         Returns:
             The gradient of the loss with respect to the given parameters.
         """
         params = self._input_check_params(params)
-        numgrad = self._options["numgrad"]
+        numgrad = self._options["numgrad"] if numgrad is None else numgrad
         params = {p.name: p for p in params}
         return self._gradient(params=params, numgrad=numgrad)
 
@@ -563,6 +577,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         params: ztyping.ParamTypeInput = None,
         *,
         full: bool = None,
+        numgrad: bool = None,
     ) -> tuple[tf.Tensor, tf.Tensor]:
         """Calculate the loss value and the gradient with the current values of the free parameters.
 
@@ -573,6 +588,12 @@ class BaseLoss(ZfitLoss, BaseNumeric):
                the part that depends on the parameters. Constants
                don't matter for the task of optimization, but
                they can greatly help with the numerical stability of the loss function. |@docend:loss.value.full|
+            numgrad: |@doc:loss.args.numgrad| If ``True``, calculate the numerical gradient/Hessian
+               instead of using the automatic one. This is
+               usually slower if called repeatedly but can
+               be used if the automatic gradient fails (e.g. if
+               the model is not differentiable, written not in znp.* etc).
+               Default will fall back to what the loss is set to. |@docend:loss.args.numgrad|
 
         Returns:
             Calculated loss value as a scalar and the gradient as a tensor.
@@ -602,7 +623,26 @@ class BaseLoss(ZfitLoss, BaseNumeric):
             value, gradient = autodiff_value_gradients(self_value, params=params)
         return value, gradient
 
-    def hessian(self, params: ztyping.ParamTypeInput = None, hessian=None):
+    def hessian(
+        self,
+        params: ztyping.ParamTypeInput = None,
+        hessian=None,
+        *,
+        numgrad: bool = None,
+    ):
+        """Calculate the hessian of the loss with respect to the given parameters.
+
+        Args:
+        params: The parameters with respect to which the hessian is calculated. If `None`, all parameters
+            are used.
+        hessian: Can be 'full' or 'diag'.
+        numgrad: |@doc:loss.args.numgrad| If ``True``, calculate the numerical gradient/Hessian
+               instead of using the automatic one. This is
+               usually slower if called repeatedly but can
+               be used if the automatic gradient fails (e.g. if
+               the model is not differentiable, written not in znp.* etc).
+               Default will fall back to what the loss is set to. |@docend:loss.args.numgrad|
+        """
         params = self._input_check_params(params)
         return self.value_gradient_hessian(params=params, hessian=hessian, full=False)[
             2
@@ -612,25 +652,26 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         self,
         params: ztyping.ParamTypeInput = None,
         hessian=None,
-        numgrad=None,
         *,
         full: bool = None,
+        numgrad=None,
     ) -> tuple[tf.Tensor, tf.Tensor, tf.Tensor]:
         """Calculate the loss value, the gradient and the hessian with the current values of the free parameters.
 
         Args:
             params: The parameters to calculate the gradient for. If not given, all free parameters are used.
             hessian: Can be 'full' or 'diag'.
-            numgrad: |@doc:loss.args.numgrad| If ``True``, calculate the numerical gradient/Hessian
-               instead of using the automatic one. This is
-               usually slower if called repeatedly but can
-               be used if the automatic gradient fails (e.g. if
-               the model is not differentiable, written not in znp.* etc). |@docend:loss.args.numgrad|
             full: |@doc:loss.value.full| If True, return the full loss value, otherwise
                allow for the removal of constants and only return
                the part that depends on the parameters. Constants
                don't matter for the task of optimization, but
                they can greatly help with the numerical stability of the loss function. |@docend:loss.value.full|
+            numgrad: |@doc:loss.args.numgrad| If ``True``, calculate the numerical gradient/Hessian
+               instead of using the automatic one. This is
+               usually slower if called repeatedly but can
+               be used if the automatic gradient fails (e.g. if
+               the model is not differentiable, written not in znp.* etc).
+               Default will fall back to what the loss is set to. |@docend:loss.args.numgrad|
 
         Returns:
             Calculated loss value as a scalar, the gradient as a tensor and the hessian as a tensor.
@@ -695,7 +736,98 @@ def one_two_many(values, n=3, many="multiple"):
     return values
 
 
-class UnbinnedNLL(BaseLoss, SerializableMixin):
+class BaseUnbinnedNLL(BaseLoss, SerializableMixin):
+    def create_new(
+        self,
+        model: ZfitPDF | Iterable[ZfitPDF] | None = NONE,
+        data: ZfitData | Iterable[ZfitData] | None = NONE,
+        fit_range=NONE,
+        constraints=NONE,
+        options=NONE,
+    ):
+        r"""Create a new loss from the current loss and replacing what is given as the arguments.
+
+        This creates a "copy" of the current loss but replaces any argument that is explicitly given.
+        Equivalent to creating a new instance but with some arguments taken.
+
+        A loss has more than a model and data (and constraints), it can have internal optimizations
+        and more that may do alter the behavior of a naive re-instantiation in unpredictable ways.
+
+        Args:
+            model: If not given, the current one will be used.
+                |@doc:loss.init.model| PDFs that return the normalized probability for
+               *data* under the given parameters.
+               If multiple model and data are given, they will be used
+               in the same order to do a simultaneous fit. |@docend:loss.init.model|
+            data: If not given, the current one will be used.
+                |@doc:loss.init.data| Dataset that will be given to the *model*.
+               If multiple model and data are given, they will be used
+               in the same order to do a simultaneous fit. |@docend:loss.init.data|
+            fit_range:
+            constraints: If not given, the current one will be used.
+                |@doc:loss.init.constraints| Auxiliary measurements ("constraints")
+               that add a likelihood term to the loss.
+
+               .. math::
+                 \mathcal{L}(\theta) = \mathcal{L}_{unconstrained} \prod_{i} f_{constr_i}(\theta)
+
+               Usually, an auxiliary measurement -- by its very nature -S  should only be added once
+               to the loss. zfit does not automatically deduplicate constraints if they are given
+               multiple times, leaving the freedom for arbitrary constructs.
+
+               Constraints can also be used to restrict the loss by adding any kinds of penalties. |@docend:loss.init.constraints|
+            options: If not given, the current one will be used.
+                |@doc:loss.init.options| Additional options (as a dict) for the loss.
+               Current possibilities include:
+
+               - 'subtr_const' (default True): subtract from each points
+                 log probability density a constant that
+                 is approximately equal to the average log probability
+                 density in the very first evaluation before
+                 the summation. This brings the initial loss value closer to 0 and increases,
+                 especially for large datasets, the numerical stability.
+
+                 The value will be stored ith 'subtr_const_value' and can also be given
+                 directly.
+
+                 The subtraction should not affect the minimum as the absolute
+                 value of the NLL is meaningless. However,
+                 with this switch on, one cannot directly compare
+                 different likelihoods absolute value as the constant
+                 may differ! Use ``create_new`` in order to have a comparable likelihood
+                 between different losses or use the ``full`` argument in the value function
+                 to calculate the full loss with all constants.
+
+
+               These settings may extend over time. In order to make sure that a loss is the
+               same under the same data, make sure to use ``create_new`` instead of instantiating
+               a new loss as the former will automatically overtake any relevant constants
+               and behavior. |@docend:loss.init.options|
+        """
+        if model is NONE:
+            model = self.model
+        if data is NONE:
+            data = self.data
+        if fit_range is NONE:
+            fit_range = self.fit_range
+        if constraints is NONE:
+            constraints = self.constraints
+            if constraints is not None:
+                constraints = constraints.copy()
+        if options is NONE:
+            options = self._options
+            if isinstance(options, dict):
+                options = options.copy()
+        return type(self)(
+            model=model,
+            data=data,
+            fit_range=fit_range,
+            constraints=constraints,
+            options=options,
+        )
+
+
+class UnbinnedNLL(BaseUnbinnedNLL):
     _name = "UnbinnedNLL"
 
     def __init__(
@@ -839,103 +971,13 @@ class UnbinnedNLL(BaseLoss, SerializableMixin):
             is_yield = False  # the loss does not depend on the yields
         return super()._get_params(floating, is_yield, extract_independent)
 
-    def create_new(
-        self,
-        model: ZfitPDF | Iterable[ZfitPDF] | None = NONE,
-        data: ZfitData | Iterable[ZfitData] | None = NONE,
-        fit_range=NONE,
-        constraints=NONE,
-        options=NONE,
-    ):
-        r"""Create a new loss from the current loss and replacing what is given as the arguments.
 
-        This creates a "copy" of the current loss but replacing any argument that is explicitly given.
-        Equivalent to creating a new instance but with some arguments taken.
-
-        A loss has more than a model and data (and constraints), it can have internal optimizations
-        and more that may do alter the behavior of a naive re-instantiation in unpredictable ways.
-
-        Args:
-            model: If not given, the current one will be used.
-                |@doc:loss.init.model| PDFs that return the normalized probability for
-               *data* under the given parameters.
-               If multiple model and data are given, they will be used
-               in the same order to do a simultaneous fit. |@docend:loss.init.model|
-            data: If not given, the current one will be used.
-                |@doc:loss.init.data| Dataset that will be given to the *model*.
-               If multiple model and data are given, they will be used
-               in the same order to do a simultaneous fit. |@docend:loss.init.data|
-            fit_range:
-            constraints: If not given, the current one will be used.
-                |@doc:loss.init.constraints| Auxiliary measurements ("constraints")
-               that add a likelihood term to the loss.
-
-               .. math::
-                 \mathcal{L}(\theta) = \mathcal{L}_{unconstrained} \prod_{i} f_{constr_i}(\theta)
-
-               Usually, an auxiliary measurement -- by its very nature -S  should only be added once
-               to the loss. zfit does not automatically deduplicate constraints if they are given
-               multiple times, leaving the freedom for arbitrary constructs.
-
-               Constraints can also be used to restrict the loss by adding any kinds of penalties. |@docend:loss.init.constraints|
-            options: If not given, the current one will be used.
-                |@doc:loss.init.options| Additional options (as a dict) for the loss.
-               Current possibilities include:
-
-               - 'subtr_const' (default True): subtract from each points
-                 log probability density a constant that
-                 is approximately equal to the average log probability
-                 density in the very first evaluation before
-                 the summation. This brings the initial loss value closer to 0 and increases,
-                 especially for large datasets, the numerical stability.
-
-                 The value will be stored ith 'subtr_const_value' and can also be given
-                 directly.
-
-                 The subtraction should not affect the minimum as the absolute
-                 value of the NLL is meaningless. However,
-                 with this switch on, one cannot directly compare
-                 different likelihoods absolute value as the constant
-                 may differ! Use ``create_new`` in order to have a comparable likelihood
-                 between different losses or use the ``full`` argument in the value function
-                 to calculate the full loss with all constants.
-
-
-               These settings may extend over time. In order to make sure that a loss is the
-               same under the same data, make sure to use ``create_new`` instead of instantiating
-               a new loss as the former will automatically overtake any relevant constants
-               and behavior. |@docend:loss.init.options|
-        """
-        if model is NONE:
-            model = self.model
-        if data is NONE:
-            data = self.data
-        if fit_range is NONE:
-            fit_range = self.fit_range
-        if constraints is NONE:
-            constraints = self.constraints
-            if constraints is not None:
-                constraints = constraints.copy()
-        if options is NONE:
-            options = self._options
-            if isinstance(options, dict):
-                options = options.copy()
-        return type(self)(
-            model=model,
-            data=data,
-            fit_range=fit_range,
-            constraints=constraints,
-            options=options,
-        )
-
-
-# TODO(serialization): add to serializer
 class UnbinnedNLLRepr(BaseLossRepr):
     _implementation = UnbinnedNLL
     hs3_type: Literal["UnbinnedNLL"] = pydantic.Field("UnbinnedNLL", alias="type")
 
 
-class ExtendedUnbinnedNLL(UnbinnedNLL):
+class ExtendedUnbinnedNLL(BaseUnbinnedNLL):
     def __init__(
         self,
         model: ZfitPDF | Iterable[ZfitPDF],
@@ -995,16 +1037,16 @@ class ExtendedUnbinnedNLL(UnbinnedNLL):
             options=options,
             fit_range=fit_range,
         )
+        self._errordef = 0.5
 
     @z.function(wraps="loss")
     def _loss_func(self, model, data, fit_range, constraints, log_offset):
-        nll = super()._loss_func(
-            model=model,
-            data=data,
-            fit_range=fit_range,
-            constraints=constraints,
-            log_offset=log_offset,
+        nll = _unbinned_nll_tf(
+            model=model, data=data, fit_range=fit_range, log_offset=log_offset
         )
+        if constraints:
+            constraints = z.reduce_sum([c.value() for c in constraints])
+            nll += constraints
         yields = []
         nevents_collected = []
         for mod, dat in zip(model, data):
@@ -1020,9 +1062,10 @@ class ExtendedUnbinnedNLL(UnbinnedNLL):
         nevents_collected = znp.stack(nevents_collected, axis=0)
 
         term_new = tf.nn.log_poisson_loss(
-            nevents_collected, znp.log(yields), compute_full_loss=True
+            nevents_collected, znp.log(yields), compute_full_loss=log_offset is False
         )
-        if log_offset is not None:
+        if log_offset is not False:
+            log_offset = znp.asarray(log_offset, dtype=znp.float64)
             term_new += log_offset
         nll += znp.sum(term_new, axis=0)
         return nll
@@ -1030,6 +1073,14 @@ class ExtendedUnbinnedNLL(UnbinnedNLL):
     @property
     def is_extended(self):
         return True
+
+    def _get_params(
+        self,
+        floating: bool | None = True,
+        is_yield: bool | None = None,
+        extract_independent: bool | None = True,
+    ) -> set[ZfitParameter]:
+        return super()._get_params(floating, is_yield, extract_independent)
 
 
 # TODO(serialization): add to serializer
@@ -1156,6 +1207,8 @@ class SimpleLoss(BaseLoss):
 
     # @z.function(wraps='loss')
     def _loss_func(self, model, data, fit_range, constraints=None, log_offset=None):
+        if log_offset not in (None, False):
+            raise ValueError("log_offset is not allowed for a SimpleLoss")
         try:
             params = self._simple_func_params
             params = tuple(params)

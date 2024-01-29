@@ -4,32 +4,53 @@ Changelog
 
 .. _newest-changelog:
 
-Develop
+
+
+0.17.0 (29 Jan 2024)
+========================
+
+Major Features and Improvements
+-------------------------------
+- add correct uncertainty for unbinned, weighted fits with constraints and/or that are extended.
+- allow mapping in ``zfit.param.set_values`` for values
+
+
+Bug fixes and small changes
+---------------------------
+- fix issues where EDM goes negative, set to 999
+- improved stability of the loss evaluation
+- improved uncertainty calculation accuracy with ``zfit_error``
+
+
+
+Thanks
+------
+
+Daniel Craik for the idea of allowing a mapping in ``set_values``
+
+0.16.0 (26 July 2023)
 ========================
 
 Major Features and Improvements
 -------------------------------
 
+- add ``full`` option to loss call of ``value``, which returns the unoptimized value allowing for easier statistical tests using the loss.
+  This is the default behavior and should not break any backwards compatibility, as the "not full loss" was arbitrary.
+- changed the ``FitResult`` to print both loss values, the unoptimized (full) and optimized (internal)
 
-Breaking changes
-------------------
-
-Deprecations
--------------
 
 Bug fixes and small changes
 ---------------------------
+- bandwidth preprocessing was ignored in KDE
+- ``unstack_x`` with an ``obs`` as argument did return the wrong shape
 
-Experimental
-------------
-
-Requirement changes
--------------------
 
 Thanks
 ------
+@schmitse for reporting the bug in the KDE bandwidth preprocessing
+@lorenzopaolucci for bringing up the absolute value of the loss in the fitresult as an issue
 
-0.15.3 (26 July 2023)
+0.15.5 (26 July 2023)
 ========================
 
 Bug fixes and small changes

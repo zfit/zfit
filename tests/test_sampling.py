@@ -97,7 +97,8 @@ def create_test_pdf_overriden_gauss1():
 gaussian_dists = [create_gauss1, create_test_gauss1]
 
 
-def test_mutlidim_sampling():
+@pytest.mark.parametrize("n", [1, 2, 3, 5, 13, 5123, 20000])
+def test_mutlidim_sampling(n):
     spaces = [zfit.Space(f"obs{i}", (i * 10, i * 10 + 6)) for i in range(4)]
     pdfs = [
         GaussNoAnalyticSampling(obs=spaces[0], mu=3, sigma=1),
@@ -106,7 +107,8 @@ def test_mutlidim_sampling():
         UniformNoAnalyticSampling(obs=spaces[3], low=32, high=34),
     ]
     prod = zfit.pdf.ProductPDF(pdfs)
-    sample = prod.sample(n=20000)
+    sample = prod.sample(n=n)
+    assert sample.value().shape == (n, 4)
     for i, space in enumerate([p.space for p in pdfs]):
         assert all(space.inside(sample.value()[:, i]))
 
@@ -266,7 +268,8 @@ def test_sampling_floating(gauss_factory):
 
 # @pytest.mark.skipif(not zfit.EXPERIMENTAL_FUNCTIONS_RUN_EAGERLY, reason="deadlock in tf.function, issue #35540")  # currently, importance sampling is not working, odd deadlock in TF
 @pytest.mark.flaky(3)  # statistical
-def test_importance_sampling():
+@pytest.mark.parametrize("n", [1, 2, 3, 5, 13, 30000])
+def test_importance_sampling(n):
     from zfit.core.sample import accept_reject_sample
 
     mu_sampler = 5.0
@@ -301,21 +304,24 @@ def test_importance_sampling():
             return gaussian_sample, thresholds, weights, weights_max, n_to_produce
 
     sample = accept_reject_sample(
-        prob=lambda x: gauss_pdf.pdf(x, norm=False), n=30000, limits=obs_pdf
+        prob=lambda x: gauss_pdf.pdf(x, norm=False), n=n, limits=obs_pdf
     )
     gauss_pdf._sample_and_weights = GaussianSampleAndWeights
-    sample2 = gauss_pdf.sample(n=30000, limits=obs_pdf)
+    sample2 = gauss_pdf.sample(n=n, limits=obs_pdf)
     assert importance_sampling_called[0]
-    sample_np, sample_np2 = [sample.numpy(), sample2.numpy()]
+    assert sample.shape == sample2.value().shape
+    assert sample.shape == (n, 1)
+    if n > 1000:
+        sample_np, sample_np2 = [sample.numpy(), sample2.numpy()]
 
-    mean = np.mean(sample_np)
-    mean2 = np.mean(sample_np2)
-    std = np.std(sample_np)
-    std2 = np.std(sample_np2)
-    assert mean == pytest.approx(mu_pdf, rel=0.02)
-    assert mean2 == pytest.approx(mu_pdf, rel=0.02)
-    assert std == pytest.approx(sigma_pdf, rel=0.02)
-    assert std2 == pytest.approx(sigma_pdf, rel=0.02)
+        mean = np.mean(sample_np)
+        mean2 = np.mean(sample_np2)
+        std = np.std(sample_np)
+        std2 = np.std(sample_np2)
+        assert mean == pytest.approx(mu_pdf, rel=0.02)
+        assert mean2 == pytest.approx(mu_pdf, rel=0.02)
+        assert std == pytest.approx(sigma_pdf, rel=0.02)
+        assert std2 == pytest.approx(sigma_pdf, rel=0.02)
 
 
 @pytest.mark.flaky(3)  # statistical
@@ -394,7 +400,8 @@ def test_sampling_fixed_eventlimits():
     #     _ = gauss1.sample(n=n_samples_tot + 1, limits=limits)  # TODO(Mayou36): catch analytic integral
 
 
-def test_sampling_seed():
+@pytest.mark.parametrize("n", [1, 2, 3, 5, 13, 30000])
+def test_sampling_seed(n):
     data_set = np.random.normal(loc=0.5, scale=0.1, size=100)
 
     zfit.settings.set_seed(123)
@@ -402,10 +409,19 @@ def test_sampling_seed():
     obs = zfit.Space("x", (0, 1))
     _data_z = zfit.Data.from_numpy(obs=obs, array=data_set)
     gauss = zfit.pdf.Gauss(1, 3, obs=obs)
+    gauss_num = GaussNoAnalyticSampling(1, 3, obs=obs)
 
-    n = 30
     sample4 = gauss.sample(n=n)
     sample5 = gauss.sample(n=n)
+    sample6 = gauss_num.sample(n=n)
+    sample7 = gauss_num.sample(n=n)
 
-    print(sample4.value(), sample5.value())
-    assert not np.allclose(sample4.value(), sample5.value())
+    assert sample4.value().shape == (n, 1)
+    assert sample5.value().shape == (n, 1)
+    assert sample6.value().shape == (n, 1)
+    assert sample7.value().shape == (n, 1)
+    if n > 4:
+        assert not np.allclose(sample4.value(), sample5.value())
+        assert not np.allclose(sample6.value(), sample7.value())
+        assert not np.allclose(sample4.value(), sample6.value())
+        assert not np.allclose(sample5.value(), sample7.value())

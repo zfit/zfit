@@ -2,7 +2,7 @@
 
 Handle integration and sampling
 """
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 
 from __future__ import annotations
 
@@ -351,8 +351,8 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         axes: ztyping.AxesTypeInput = None,
         limits: ztyping.LimitsTypeInput = None,
     ) -> ZfitSpace | None:
-        """Convert the inputs (using eventually ``obs``, ``axes``) to
-        :py:class:`~zfit.ZfitSpace` and sort them according to own `obs`.
+        """Convert the inputs (using eventually ``obs``, ``axes``) to :py:class:`~zfit.ZfitSpace` and sort them
+        according to own `obs`.
 
         Args:
             obs:
@@ -1353,8 +1353,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         """
         if cls._additional_repr is None:
             cls._additional_repr = {}
-        overwritten_keys = set(kwargs).intersection(cls._additional_repr)
-        if overwritten_keys:
+        if overwritten_keys := set(kwargs).intersection(cls._additional_repr):
             warnings.warn(
                 "The following keys have been overwritten while registering additional repr:"
                 "\n{}".format([str(k) for k in overwritten_keys])

@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 
 from __future__ import annotations
 
@@ -28,6 +28,12 @@ from colorama import Style, init
 from ordered_set import OrderedSet
 from scipy.optimize import LbfgsInvHessProduct
 from tabulate import tabulate
+
+if TYPE_CHECKING:
+    try:
+        import ipyopt  # for type checking
+    except ImportError:
+        pass
 
 from .errors import (
     compute_errors,
@@ -279,13 +285,13 @@ class NameToParamGetitem:
 
 
 class FitResult(ZfitResult):
-    _default_hesse = "hesse_np"
+    _default_hesse = "minuit_hesse"
     _hesse_methods = {
         "minuit_hesse": _covariance_minuit,
         "hesse_np": _covariance_np,
         "approx": _covariance_approx,
     }
-    _default_error = "zfit_error"
+    _default_error = "minuit_minos"
     _error_methods = {
         "minuit_minos": _minos_minuit,
         "zfit_error": compute_errors,
@@ -423,6 +429,14 @@ class FitResult(ZfitResult):
         self._minimizer = minimizer
         self._valid = valid
         self._covariance_dict = {}
+        try:
+            fminfull = loss.value(full=True)
+        except Exception as error:
+            warnings.warn(
+                f"Could not calculate fminfull due to {error}. Setting to 0. This is a new feature and is caught to not break backwards compatibility."
+            )
+            fminfull = 0
+        self._fminfull = float(fminfull)
 
     def _input_convert_approx(self, approx, evaluator, info, params):
         """Convert approx (if a Mapping) to an `Approximation` using the information provided.
@@ -519,8 +533,8 @@ class FitResult(ZfitResult):
         cls,
         loss: ZfitLoss,
         params: Iterable[ZfitParameter],
-        problem: ipyopt.Problem,
-        minimizer: zfit.minimize.IpyoptV1,
+        problem: "ipyopt.Problem",
+        minimizer: "zfit.minimize.IpyoptV1",
         valid: bool,
         values: np.ndarray,
         message: str | None,
@@ -631,8 +645,8 @@ class FitResult(ZfitResult):
         evaluator: zfit.minimizers.evaluation.LossEval | None = None,
     ) -> FitResult:
         """Create a `FitResult` from a :py:class:`~iminuit.util.MigradResult` returned by
-        :py:meth:`iminuit.Minuit.migrad` and a iminuit :py:class:`~iminuit.Minuit` instance with the corresponding
-        zfit objects.
+        :py:meth:`iminuit.Minuit.migrad` and a iminuit :py:class:`~iminuit.Minuit` instance with the corresponding zfit
+        objects.
 
         Args:
             loss: zfit Loss that was minimized.
@@ -726,6 +740,7 @@ class FitResult(ZfitResult):
         if values is None:
             values = (res.value for res in params_result)
         params = dict(zip(params, values))
+        fmin
         return cls(
             params=params,
             edm=edm,
@@ -1050,12 +1065,21 @@ class FitResult(ZfitResult):
 
     @property
     def fmin(self) -> float:
-        """Function value at the minimum.
+        """Function value with possible optimizations at the minimum.
 
         Returns:
             Numeric
         """
         return self._fmin
+
+    @property
+    def fminfull(self) -> float:
+        """Function value, fully evaluated, at the minimum.
+
+        Returns:
+            Numeric
+        """
+        return self._fminfull
 
     @property
     def status(self):
@@ -1382,7 +1406,7 @@ class FitResult(ZfitResult):
                 method = self._error_methods[method]
             except KeyError:
                 raise KeyError(
-                    f"The following method is not a valid, implemented method: {method}"
+                    f"The following method is not a valid, implemented method: {method}. Use one of {self._error_methods.keys()}"
                 )
         return method(result=self, params=params, cl=cl)
 
@@ -1431,13 +1455,11 @@ class FitResult(ZfitResult):
 
     def _covariance(self, method):
         if not callable(method):
-            try:
-                method = self._hesse_methods[method]
-            except KeyError:
+            if method not in self._hesse_methods:
                 raise KeyError(
-                    f"The following method is not a valid, implemented method: {method}"
+                    f"The following method is not a valid, implemented method: {method}. Use one of {self._hesse_methods.keys()}"
                 )
-
+            method = self._hesse_methods[method]
         params = list(self.params.keys())
 
         if any(
@@ -1527,12 +1549,19 @@ class FitResult(ZfitResult):
                         self.params_at_limit, on_true=colored.bg(9), on_false=False
                     ),
                     format_value(self.edm, highprec=False),
-                    format_value(self.fmin),
+                    f"          {self._fminfull:.2f} | {format_value(self.fmin)}",
                 ]
             ],
-            ["valid", "converged", "param at limit", "edm", "min value"],
+            [
+                "valid",
+                "converged",
+                "param at limit",
+                "edm",
+                "approx. fmin (full | internal)",
+            ],
             tablefmt="fancy_grid",
             disable_numparse=True,
+            colalign=["center", "center", "center", "center", "right"],
         )
         string += "\n\n" + Style.BRIGHT + "Parameters\n" + Style.NORMAL
         string += str(self.params)

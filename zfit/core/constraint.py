@@ -279,7 +279,7 @@ class GaussianConstraint(TFProbabilityConstraint, SerializableMixin):
 
         def create_covariance(mu, sigma):
             mu = z.convert_to_tensor(mu)
-            sigma = np.asarray(
+            sigma = znp.asarray(
                 sigma
             )  # otherwise TF complains that the shape got changed from [2] to [2, 2] (if we have a tuple of two arrays)
             sigma = z.convert_to_tensor(sigma)  # TODO (Mayou36): fix as above?
@@ -308,9 +308,10 @@ class GaussianConstraint(TFProbabilityConstraint, SerializableMixin):
             return covariance
 
         distribution = tfd.MultivariateNormalTriL
+        covariance = create_covariance(observation, uncertainty)
         dist_params = lambda observation: dict(
             loc=observation,
-            scale_tril=tf.linalg.cholesky(create_covariance(observation, uncertainty)),
+            scale_tril=tf.linalg.cholesky(covariance),
         )
         dist_kwargs = dict(validate_args=True)
 

@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 from __future__ import annotations
 
 from typing import Optional, Union
@@ -42,7 +42,7 @@ class FFTConvPDFV1(BaseFunctor, SerializableMixin):
         norm: NormInputType = None,
         name: str = "FFTConvV1",
     ):
-        r"""*EXPERIMENTAL* Numerical Convolution pdf of `func` convoluted with `kernel` using FFT
+        r"""*EXPERIMENTAL* Numerical Convolution pdf of `func` convoluted with `kernel` using FFT.
 
         CURRENTLY ONLY 1 DIMENSIONAL!
 
@@ -132,7 +132,6 @@ class FFTConvPDFV1(BaseFunctor, SerializableMixin):
         from zfit import run
 
         run.assert_executing_eagerly()
-        valid_interpolations = ("spline", "linear")
         original_init = {
             "func": func,
             "kernel": kernel,
@@ -175,7 +174,7 @@ class FFTConvPDFV1(BaseFunctor, SerializableMixin):
         if ":" in interpolation:
             interpolation, spline_order = interpolation.split(":")
             spline_order = int(spline_order)
-        if interpolation not in valid_interpolations:
+        if interpolation not in (valid_interpolations := ("spline", "linear")):
             raise ValueError(
                 f"`interpolation` {interpolation} not known. Has to be one "
                 f"of the following: {valid_interpolations}"

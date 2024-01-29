@@ -53,23 +53,31 @@ def poisson_loss_calc(probs, values, log_offset=None, variances=None):
         values: Values of the data, i.e. the number of events in each bin.
         log_offset: Optional offset to be added to the loss. Useful for adding a constant to the loss to improve
             numerical stability.
-        variances: Optional variances of the data. If not None, the Poisson loss is calculated using the
-            scaled Poisson distribution from Bohm and Zech, NIMA 748 (2014) 1-6
+        variances: (currently ignored)
     Returns:
         The Poisson log probability for the given data.
     """
-    if False and variances is not None:
+    # Optional variances of the data. If not None, the Poisson loss is calculated using the
+    #             scaled Poisson distribution from Bohm and Zech, NIMA 748 (2014) 1-6
+    if log_offset is None:
+        log_offset = False
+    use_offset = log_offset is not False
+    if (
+        False and variances is not None
+    ):  # TODO: this gives very different uncertainties?  if fixed, rechange the docs
         values, probs = _spd_transform(values, probs, variances=variances)
     values += znp.asarray(1e-307, dtype=znp.float64)
     probs += znp.asarray(1e-307, dtype=znp.float64)
     poisson_term = tf.nn.log_poisson_loss(
-        values, znp.log(probs), compute_full_loss=True  # TODO: correct offset
+        values, znp.log(probs), compute_full_loss=not use_offset  # TODO: correct offset
     )  # TODO: optimization?
+
     # cross-check
     # import tensorflow_probability as tfp
     # poisson_dist = tfp.distributions.Poisson(rate=probs)
     # poisson_term = -poisson_dist.log_prob(values)
-    if log_offset is not None:
+    if use_offset:
+        log_offset = znp.asarray(log_offset, dtype=znp.float64)
         poisson_term += log_offset
     return poisson_term
 
@@ -207,11 +215,6 @@ class ExtendedBinnedNLL(BaseBinned):
     ):
         r"""Extended binned likelihood using the expected number of events per bin with a poisson probability.
 
-            |@doc:loss.init.explain.spdtransform| A scaled Poisson distribution is
-        used as described by Bohm and Zech, NIMA 748 (2014) 1-6 if the variance
-        of the data is not ``None``. The scaling is forced to be >= 1 in order
-        to avoid issues with empty bins. |@docend:loss.init.explain.spdtransform|
-
             The binned likelihood is defined as
 
             .. math::
@@ -287,6 +290,9 @@ class ExtendedBinnedNLL(BaseBinned):
                a new loss as the former will automatically overtake any relevant constants
                and behavior. |@docend:loss.init.options|
         """
+
+        # readd below if fixed
+        #     |@doc:loss.init.explain.spdtransform| A scaled Poisson
         self._errordef = 0.5
         super().__init__(
             model=model, data=data, constraints=constraints, options=options
@@ -314,8 +320,14 @@ class ExtendedBinnedNLL(BaseBinned):
         nll = znp.sum(poisson_terms)
 
         if constraints:
+            if (
+                log_offset is False
+            ):  # we need to check identity, cannot do runtime conditional if jitted
+                log_offset_val = 0.0
+            else:
+                log_offset_val = log_offset
             constraints = z.reduce_sum(
-                [c.value() - log_offset * len(c.get_params()) for c in constraints]
+                [c.value() - log_offset_val * len(c.get_params()) for c in constraints]
             )
             nll += constraints
 
@@ -343,11 +355,6 @@ class BinnedNLL(BaseBinned):
         options: OptionsInputType = None,
     ):
         r"""Binned negative log likelihood.
-
-            |@doc:loss.init.explain.spdtransform| A scaled Poisson distribution is
-        used as described by Bohm and Zech, NIMA 748 (2014) 1-6 if the variance
-        of the data is not ``None``. The scaling is forced to be >= 1 in order
-        to avoid issues with empty bins. |@docend:loss.init.explain.spdtransform|
 
             The binned likelihood is the binned version of :py:class:`~zfit.loss.UnbinnedNLL`. It is defined as
 
@@ -423,6 +430,9 @@ class BinnedNLL(BaseBinned):
                a new loss as the former will automatically overtake any relevant constants
                and behavior. |@docend:loss.init.options|
         """
+
+        # readd below if fixed
+        #            |@doc:loss.init.explain.spdtransform| A scaled Poisson distribution is...
         self._errordef = 0.5
         super().__init__(
             model=model, data=data, constraints=constraints, options=options
@@ -460,8 +470,14 @@ class BinnedNLL(BaseBinned):
         nll = znp.sum(poisson_terms)
 
         if constraints:
+            if (
+                log_offset is False
+            ):  # we need to check identity, cannot do runtime conditional if jitted
+                log_offset_val = 0.0
+            else:
+                log_offset_val = log_offset
             constraints = z.reduce_sum(
-                [c.value() - log_offset * len(c.get_params()) for c in constraints]
+                [c.value() - log_offset_val * len(c.get_params()) for c in constraints]
             )
             nll += constraints
 
@@ -484,6 +500,22 @@ class BinnedNLL(BaseBinned):
 
 @z.function(wraps="tensor")
 def chi2_loss_calc(probs, values, variances, log_offset=None, ignore_empty=None):
+    """Calculate the chi2 for a given set of data.
+
+    Args:
+        probs: Probabilities of the data, i.e. the expected number of events in each bin.
+        values: Values of the data, i.e. the number of events in each
+            bin.
+        variances: Data variances, the variances of the counts in each bin.
+        log_offset: Optional offset to be added to the loss. Useful for adding a constant to the loss to improve
+            numerical stability.
+        ignore_empty: If True, empty bins are ignored.
+    Returns:
+        The chi2 for the given data.
+    """
+
+    if log_offset is None:
+        log_offset = False
     if ignore_empty is None:
         ignore_empty = True
     chi2_term = tf.math.squared_difference(probs, values)
@@ -492,7 +524,8 @@ def chi2_loss_calc(probs, values, variances, log_offset=None, ignore_empty=None)
     else:
         one_over_var = tf.math.reciprocal(variances)
     chi2_term *= one_over_var
-    if log_offset is not None:
+    if log_offset is not False:
+        log_offset = znp.asarray(log_offset, dtype=znp.float64)
         chi2_term += log_offset
     chi2_term = znp.sum(chi2_term)
     return chi2_term
@@ -659,7 +692,13 @@ class BinnedChi2(BaseBinned):
         chi2_term = znp.sum(chi2_terms)
 
         if constraints:
-            constraints = z.reduce_sum([c.value() for c in constraints])
+            if log_offset is False:
+                log_offset_val = 0.0
+            else:
+                log_offset_val = log_offset
+            constraints = z.reduce_sum(
+                [c.value() - log_offset_val for c in constraints]
+            )
             chi2_term += constraints
 
         return chi2_term
@@ -810,7 +849,13 @@ class ExtendedBinnedChi2(BaseBinned):
         chi2_term = znp.sum(chi2_terms)
 
         if constraints:
-            constraints = z.reduce_sum([c.value() for c in constraints])
+            if log_offset is False:
+                log_offset_val = 0.0
+            else:
+                log_offset_val = log_offset
+            constraints = z.reduce_sum(
+                [c.value() - log_offset_val for c in constraints]
+            )
             chi2_term += constraints
 
         return chi2_term

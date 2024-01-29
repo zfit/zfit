@@ -127,7 +127,7 @@ def test_binned_extended_simple(Loss):
 
     nllsum = nll + nll2  # check that sum works
     # TODO: should this actually work I think?
-    # assert float(nllsum.value()) == pytest.approx(nll.value() + nll2.value(), rel=1e-3)
+    assert float(nllsum.value()) == pytest.approx(nll.value() + nll2.value(), rel=1e-3)
 
 
 @pytest.mark.plots
@@ -336,9 +336,13 @@ def test_binned_loss_hist(weights, Loss):
     loss = Loss(model=binned_gauss, data=h)
     loss2 = Loss(model=binned_gauss, data=test_values_binned)
 
-    assert pytest.approx(float(loss.value())) == float(loss2.value())
+    assert pytest.approx(float(loss.value(full=True))) == float(loss2.value(full=True))
 
     nllsum = loss + loss2  # check that sum works
     nllsum += loss2  # check that sum works
-    # TODO: this should actually work I think
-    # assert nllsum.value() == pytest.approx(loss.value() + loss2.value(), rel=1e-3)
+    assert float(nllsum.value(full=True)) == pytest.approx(
+        float(
+            loss.value(full=True) + 2 * loss2.value(full=True)  # we add loss2 two times
+        ),
+        rel=1e-3,
+    )

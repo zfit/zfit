@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 
 from __future__ import annotations
 
@@ -149,7 +149,7 @@ def calculate_rect_area(rect_limits):
 
 @z.function(wraps="tensor")
 def inside_rect_limits(x, rect_limits):
-    if not x.get_shape().ndims > 1:
+    if (ndims := x.get_shape().ndims) is not None and ndims <= 1:
         raise ValueError(
             "x has ndims <= 1, which is most probably not wanted. The default shape for array-like"
             " structures is (nevents, n_obs)."
@@ -3233,8 +3233,7 @@ def no_multiple_limits(func):
     If it contains multiple limits, raise MultipleLimitsNotImplementedError.
     """
     parameters = inspect.signature(func).parameters
-    keys = list(parameters.keys())
-    if "limits" in keys:
+    if "limits" in (keys := list(parameters.keys())):
         limits_index = keys.index("limits")
     else:
         return func  # no limits as parameters -> no problem

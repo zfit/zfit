@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 
 from __future__ import annotations
 
@@ -87,7 +87,7 @@ def compute_errors(
         out: a fit result is returned when a new minimum is found during the loss scan
     """
     if rtol is None:
-        rtol = 0.03
+        rtol = 0.003
     method = "hybr" if method is None else method
     if cl is None:
         if sigma is None:
@@ -158,14 +158,16 @@ def compute_errors(
 
             index_poi = all_params.index(param)  # remember the index
             _ = loss.value_gradient(
-                params=all_params
+                params=all_params, full=False
             )  # to make sure the loss is compiled
 
             @z.function(wraps="gradient")
             def optimized_loss_gradient(values, index):
                 assert isinstance(index, int)
                 assign_values(all_params, values)
-                loss_value, gradient = loss.value_gradient(params=all_params)
+                loss_value, gradient = loss.value_gradient(
+                    params=all_params, full=False
+                )
                 if isinstance(gradient, (tuple, list)):
                     gradient = znp.asarray(gradient)
                 gradient = znp.concatenate(
@@ -183,6 +185,7 @@ def compute_errors(
 
             def func(values, args):
                 nonlocal ncalls, root, ntol
+
                 ncalls += 1
                 swap_sign = args
 
@@ -194,7 +197,9 @@ def compute_errors(
                         " being produced in the loss and/or its gradient. This is most probably"
                         " caused by negative values returned from the PDF."
                     )
-                    raise FailEvalLossNaN(msg)
+                    loss_value = znp.array(999999.0)
+                    gradient = z.random.normal(stddev=0.1, shape=(len(all_params) - 1,))
+                    # raise FailEvalLossNaN(msg)
                 zeroed_loss = loss_value.numpy() - fmin
 
                 gradient = znp.array(gradient)
@@ -232,7 +237,7 @@ def compute_errors(
                         fun=func,
                         args=(swap_sign[d],),
                         x0=np.array(initial_values[d]),
-                        tol=rtol,  # we won't stop like this anyway
+                        tol=rtol * 0.1,  # we won't stop like this anyway
                         options={
                             "diag": 1 / param_scale,  # scale factor for variables
                         },
@@ -256,7 +261,7 @@ def compute_errors(
             print(e)
         minimizer = result.minimizer
         loss = result.loss
-        new_found_fmin = loss.value()
+        new_found_fmin = loss.value(full=False)
         new_result = minimizer.minimize(loss=loss)
         if new_result.fmin >= new_found_fmin + loss_min_tol:
             raise RuntimeError(
@@ -317,9 +322,17 @@ def covariance_with_weights(method, result, params):
     from .. import run
 
     run.assert_executing_eagerly()
-    model = result.loss.model
-    data = result.loss.data
-    from zfit import run
+    loss = result.loss
+    model = loss.model
+    data = loss.data
+    yields = None
+    if loss.is_extended:
+        yields = []
+        for m in model:
+            yields.append(m.get_yield())
+    constraints = None
+    if loss.constraints:
+        constraints = loss.constraints
 
     old_vals = run(params)
 
@@ -330,11 +343,27 @@ def covariance_with_weights(method, result, params):
 
     def func():
         values = []
-        for m, d in zip(model, data):
+        for i, (m, d) in enumerate(zip(model, data)):
             v = m.log_pdf(d)
-            if d.weights is not None:
-                v *= d.weights
+            weights = d.weights
+            if weights is not None:
+                v *= weights
             values.append(v)
+            if yields is not None:
+                yi = yields[i]
+                nevents_collected = (
+                    tf.reduce_sum(weights) if weights is not None else d.nevents
+                )
+                term_new = tf.nn.log_poisson_loss(
+                    nevents_collected, znp.log(yi), compute_full_loss=True
+                )[
+                    ..., None
+                ]  # make it an array like the others
+                values.append(term_new)
+        if constraints is not None:
+            for constraint in constraints:
+                values.append(znp.reshape(constraint.value(), (-1,)))
+
         return znp.concatenate(values, axis=0)
 
     params_dict = {p.name: p for p in params}

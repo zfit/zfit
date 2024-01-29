@@ -51,14 +51,14 @@ jobs:
 
     steps:
       - name: Get number of CPU cores
-        uses: SimenB/github-actions-cpu-cores@v1
+        uses: SimenB/github-actions-cpu-cores@v2
         id: cpu-cores
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Get history and tags for SCM versioning to work
         run: |
           git fetch --prune --unshallow
           git fetch --depth=1 origin +refs/tags/*:refs/tags/*
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         name: Set up Python ${{ matrix.python-version }}
         with:
           python-version: ${{ matrix.python-version }}
@@ -67,7 +67,7 @@ jobs:
         run: |
           echo "::set-output name=dir::$(pip cache dir)"
       - name: pip cache
-        uses: actions/cache@v3.3.1
+        uses: actions/cache@v3.3.2
         with:
           path: ${{ steps.pip-cache.outputs.dir }}
           key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}-pip-${{ hashFiles('**/requirements_dev.txt') }}-pip-${{ hashFiles('**/pyproject.toml') }}-pip-${{ hashFiles('**/setup.cfg') }}-pip-${{ hashFiles('**/setup.py') }}
@@ -92,7 +92,7 @@ jobs:
       #          mkdir coverage && coverage-lcov --output_file_path ./coverage/lcov.info
       # TODO(jonas): fix coverage report? Needs converter to lcov format
   #      - name: Coveralls Parallel
-  #        uses: coverallsapp/github-action@v2.2.0
+  #        uses: coverallsapp/github-action@v2.2.3
   #        with:
   #          github-token: ${{ secrets.github_token }}
   #          flag-name: run-${{ matrix.use-graph }}-${{ matrix.python-version }}-ubuntu
@@ -105,12 +105,12 @@ jobs:
         python-version: [ "3.11" ]
     name: Testbuild docs
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Get history and tags for SCM versioning to work
         run: |
           git fetch --prune --unshallow
           git fetch --depth=1 origin +refs/tags/*:refs/tags/*
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         name: Set up Python ${{ matrix.python-version }}
         with:
           python-version: ${{ matrix.python-version }}
@@ -119,7 +119,7 @@ jobs:
         run: |
           echo "::set-output name=dir::$(pip cache dir)"
       - name: pip cache
-        uses: actions/cache@v3.3.1
+        uses: actions/cache@v3.3.2
         with:
           path: ${{ steps.pip-cache.outputs.dir }}
           key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}-pip-${{ hashFiles('**/requirements_dev.txt') }}-pip-${{ hashFiles('**/pyproject.toml') }}-pip-${{ hashFiles('**/setup.cfg') }}-pip-${{ hashFiles('**/setup.py') }}
@@ -148,14 +148,14 @@ jobs:
       ZFIT_DO_JIT: ${{ matrix.use-graph }}
     steps:
       - name: Get number of CPU cores
-        uses: SimenB/github-actions-cpu-cores@v1
+        uses: SimenB/github-actions-cpu-cores@v2
         id: cpu-cores
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Get history and tags for SCM versioning to work
         run: |
           git fetch --prune --unshallow
           git fetch --depth=1 origin +refs/tags/*:refs/tags/*
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         name: Set up Python ${{ matrix.python-version }}
 
         with:
@@ -170,7 +170,7 @@ jobs:
         run: |
           echo "::set-output name=dir::$(pip cache dir)"
       - name: pip cache
-        uses: actions/cache@v3.3.1
+        uses: actions/cache@v3.3.2
         with:
           path: ${{ steps.pip-cache.outputs.dir }}
           key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}-pip-${{ hashFiles('**/requirements_dev.txt') }}-pip-${{ hashFiles('**/pyproject.toml') }}-pip-${{ hashFiles('**/setup.cfg') }}-pip-${{ hashFiles('**/setup.py') }}
@@ -201,12 +201,12 @@ jobs:
     env:
       ZFIT_DO_JIT: ${{ matrix.use-graph }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Get history and tags for SCM versioning to work
         run: |
           git fetch --prune --unshallow
           git fetch --depth=1 origin +refs/tags/*:refs/tags/*
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         name: Set up Python ${{ matrix.python-version }}
         with:
           python-version: ${{ matrix.python-version }}
@@ -215,7 +215,7 @@ jobs:
         run: |
           echo "::set-output name=dir::$(pip cache dir)"
       - name: pip cache
-        uses: actions/cache@v3.3.1
+        uses: actions/cache@v3.3.2
         with:
           path: ${{ steps.pip-cache.outputs.dir }}
           key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}-pip-${{ hashFiles('**/requirements_dev.txt') }}-pip-${{ hashFiles('**/pyproject.toml') }}-pip-${{ hashFiles('**/setup.cfg') }}-pip-${{ hashFiles('**/setup.py') }}
@@ -231,7 +231,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Coveralls Finished
-        uses: coverallsapp/github-action@v2.2.0
+        uses: coverallsapp/github-action@v2.2.3
         with:
           github-token: ${{ secrets.github_token }}
           parallel-finished: true

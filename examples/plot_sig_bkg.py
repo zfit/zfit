@@ -23,7 +23,7 @@ exponential = zfit.pdf.Exponential(lambd, obs=obs)
 model = zfit.pdf.SumPDF([gauss, exponential], fracs=frac)
 
 # data
-n_sample = 10000
+n_sample = 5000
 
 exp_data = exponential.sample(n=n_sample * (1 - frac)).numpy()
 
@@ -44,6 +44,8 @@ n_bins = 50
 plot_scaling = n_sample / n_bins * obs.area()
 
 x = np.linspace(-10, 10, 1000)
+lower, upper = obs.limit1d
+edges = np.linspace(lower, upper, n_bins + 1)
 
 
 def plot_pdf(title):
@@ -56,13 +58,13 @@ def plot_pdf(title):
     plt.plot(x, y_gauss * plot_scaling, label="Gauss - Signal")
     plt.plot(x, y_exp * plot_scaling, label="Exp - Background")
     mplhep.histplot(
-        np.histogram(data_np, bins=n_bins),
+        np.histogram(data_np, bins=edges),
         yerr=True,
         color="black",
         histtype="errorbar",
     )
     plt.ylabel("Counts")
-    plt.xlabel("obs: $B_{mass}$")
+    plt.xlabel("$B_{mass}$")
 
 
 # plot the pdf BEFORE fitting

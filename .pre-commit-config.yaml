@@ -3,7 +3,7 @@ ci:
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.4.0
+    rev: v4.5.0
     hooks:
       - id: check-added-large-files
         args: [ '--maxkb=1000' ]
@@ -33,7 +33,7 @@ repos:
         additional_dependencies: [ pyyaml ]
 
   - repo: https://github.com/PyCQA/docformatter
-    rev: v1.7.3
+    rev: v1.7.5
     hooks:
       - id: docformatter
         args: [ -r, --in-place, --wrap-descriptions, '120', --wrap-summaries, '120', --pre-summary-space, --black, -- ]
@@ -65,14 +65,14 @@ repos:
   #        args: [ --py36-plus ]  # TODO: change fro 3.8? type annotations fail...
 
   - repo: https://github.com/asottile/setup-cfg-fmt
-    rev: v2.4.0
+    rev: v2.5.0
     hooks:
       - id: setup-cfg-fmt
         args: [ --max-py-version=3.11, --include-version-classifiers ]
 
   # Notebook formatting
   - repo: https://github.com/nbQA-dev/nbQA
-    rev: 1.7.0
+    rev: 1.7.1
     hooks:
       - id: nbqa-isort
         additional_dependencies: [ isort==5.6.4 ]
@@ -88,10 +88,10 @@ repos:
         args: [ --update, --no-build-isolation ]
         additional_dependencies: [ setuptools-scm, setuptools-scm-git-archive ]
 
-  - repo: https://github.com/roy-ht/pre-commit-jupyter
-    rev: v1.2.1
+  - repo: https://github.com/kynan/nbstripout
+    rev: 0.6.1
     hooks:
-      - id: jupyter-notebook-cleanup
+      - id: nbstripout
 
   # TODO: 3.8+ only?
   #  - repo: https://github.com/sondrelg/pep585-upgrade
@@ -100,19 +100,24 @@ repos:
   #      - id: upgrade-type-hints
   #        args: [ '--futures=true' ]
 
+  - repo: https://github.com/MarcoGorelli/auto-walrus
+    rev: v0.2.2
+    hooks:
+      - id: auto-walrus
+
   - repo: https://github.com/shssoichiro/oxipng
-    rev: v8.0.0
+    rev: v9.0.0
     hooks:
       - id: oxipng
 
   - repo: https://github.com/psf/black
-    rev: 23.3.0
+    rev: 23.12.1
     hooks:
       - id: black
         language_version: python3
 
   - repo: https://github.com/python-jsonschema/check-jsonschema
-    rev: 0.23.2
+    rev: 0.27.3
     hooks:
       - id: check-github-workflows
       - id: check-github-actions
@@ -120,7 +125,7 @@ repos:
       - id: check-readthedocs
 
   - repo: https://github.com/jonasbb/pre-commit-latex-hooks
-    rev: v1.4.2
+    rev: v1.4.3
     hooks:
       - id: american-eg-ie
       - id: cleveref-capitalization

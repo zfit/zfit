@@ -409,7 +409,7 @@ class RunManager:
     def assert_executing_eagerly(self):
         """Assert that the execution is eager and Python side effects are taken into account.
 
-        This can be placed inside a model _in case python side-effects are necessary_ and no other way is possible.
+        This can be placed inside a model *in case python side-effects are necessary* and no other way is possible.
         """
         if not tf.executing_eagerly():
             raise RuntimeError("This code is not supposed to run inside a graph.")
@@ -420,6 +420,11 @@ class RunManager:
         return tf.executing_eagerly()
 
     def executing_eagerly(self):
+        """Whether eager execution is enabled.
+
+        Returns:
+            True if eager execution is enabled, False if not.
+        """
         return tf.executing_eagerly()
 
     @deprecated(date=None, instructions="Use clear_graph_caches instead.")

@@ -463,7 +463,7 @@ def test_callable_loss(create_loss):
     x = np.array(zfit.run(params)) + 0.1
     value_loss = loss(x)
     with zfit.param.set_values(params, x):
-        true_val = zfit.run(loss.value())
+        true_val = zfit.run(loss.value(full=True))
         _ = zfit.run(loss.value(full=True))
         assert true_val == pytest.approx(zfit.run(value_loss))
         with pytest.raises(BehaviorUnderDiscussion):
@@ -500,12 +500,16 @@ def test_iminuit_compatibility(create_loss):
     zfit.param.set_values(params, x)
     minimizer_zfit = zfit.minimize.Minuit()
     result_zfit = minimizer_zfit.minimize(loss)
-    assert result_zfit.fmin == pytest.approx(result.fmin.fval, abs=0.03)
+    assert float(result_zfit.fminfull) == pytest.approx(
+        float(result.fmin.fval), abs=0.03
+    )
 
 
 @pytest.mark.flaky(3)
-# @pytest.mark.parametrize('weights', [None, np.random.normal(loc=1., scale=0.2, size=test_values_np.shape[0])])
-@pytest.mark.parametrize("weights", [None])
+@pytest.mark.parametrize(
+    "weights", [None, np.random.normal(loc=1.0, scale=0.1, size=10000)]
+)
+# @pytest.mark.parametrize("weights", [None])
 def test_binned_nll(weights):
     obs = zfit.Space("obs1", limits=(-15, 25))
     gaussian1, mu1, sigma1 = create_gauss1(obs=obs)

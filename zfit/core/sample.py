@@ -1,8 +1,9 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 
 from __future__ import annotations
 
 from collections.abc import Iterable, Callable
+from contextlib import suppress
 from typing import Union
 
 import tensorflow as tf
@@ -94,8 +95,7 @@ class EventSpace(Space):
     @property
     def limits(self) -> ztyping.LimitsTypeReturn:
         limits = super().limits
-        limits_tensor = self._limits_tensor
-        if limits_tensor is not None:
+        if (limits_tensor := self._limits_tensor) is not None:
             lower, upper = limits
             new_bounds = [[], []]
             for i, old_bounds in enumerate(lower, upper):
@@ -193,7 +193,7 @@ def accept_reject_sample(
         overestimate_factor_scaling = 1.25
     else:  # if an exact estimation is given
         n_min_to_produce = 0
-        overestimate_factor_scaling = 1.0
+        overestimate_factor_scaling = 1.001
 
     sample_and_weights = sample_and_weights_factory()
     n = tf.cast(n, dtype=tf.int64)
@@ -283,11 +283,11 @@ def accept_reject_sample(
         if dynamic_array_shape:
             # TODO: move all this fixed numbers out into settings
             # this section is non-trivial due to numerical issues with large numbers in n_to_produce
-            # and small numbers in the efficiency. To prevent an overflow, we scale the efficieny up
-            # and convert it to an int, effectively precision after the floaning point.
+            # and small numbers in the efficiency. To prevent an overflow, we scale the efficiency up
+            # and convert it to an int, effectively precision after the floating point.
             # Then we scale it down again.
             eff_precision: int = 100
-            one_over_eff_int = tf.cast(1 / eff * 1.01 * eff_precision, dtype=tf.int64)
+            one_over_eff_int = tf.cast(1.0 / eff * 1.01 * eff_precision, dtype=tf.int64)
             n_to_produce *= one_over_eff_int
             n_to_produce = znp.floor_divide(n_to_produce, eff_precision)
             # tf.debugging.assert_positive(n_to_produce_float, "n_to_produce went negative, overflow?")
@@ -457,7 +457,7 @@ def accept_reject_sample(
         )
 
         # efficiency (estimate) of how many samples we get
-        eff = znp.max([z.to_real(n_produced_new), z.to_real(1.0)]) / znp.max(
+        eff = znp.max([z.to_real(n_produced_new), z.to_real(0.5)]) / znp.max(
             [z.to_real(n_total_drawn), z.to_real(1.0)]
         )
         return (
@@ -512,8 +512,10 @@ def accept_reject_sample(
         new_sample = new_sample[:n, :]  # cutting away to many produced
 
     # if no failure, uncomment both for improvement of shape inference, but what if n is tensor?
-    # with suppress(AttributeError):  # if n_samples_int is not a numpy object
-    #     new_sample.set_shape((n_samples_int, n_dims))
+    if run.executing_eagerly():
+        n_dims = limits.n_obs
+        with suppress(AttributeError):  # if n_samples_int is not a numpy object
+            new_sample.set_shape((int(n), n_dims))
     return new_sample
 
 
