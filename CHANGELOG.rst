@@ -9,6 +9,8 @@ Develop
 
 Major Features and Improvements
 -------------------------------
+- update to TensorFlow 2.15, TensorFlow Probability 0.23
+- drop Python 3.8 support
 
 Breaking changes
 ------------------
@@ -30,6 +32,8 @@ Thanks
 
 0.17.0 (29 Jan 2024)
 ========================
+
+TensorFlow 2.15, drop Python 3.8 support
 
 Major Features and Improvements
 -------------------------------

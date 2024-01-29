@@ -12,7 +12,7 @@ Settings for how to run zfit.
     zfit.run.executing_eagerly
     zfit.run.assert_executing_eagerly
     zfit.run.set_n_cpu
-    zfit.run.set_cpus_explicitly
+    zfit.run.set_cpus_explicit
 
 
 Settings
