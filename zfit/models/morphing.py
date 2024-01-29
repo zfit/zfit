@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 
 from __future__ import annotations
 
@@ -137,14 +137,14 @@ class SplineMorphingPDF(BaseBinnedPDFV1):
             raise SpecificFunctionNotImplemented
         densities = [hist.counts(x, norm=norm) for hist in self.hists.values()]
         alphas = znp.array(list(self.hists.keys()), dtype=znp.float64)
-        alpha = self.params["alpha"]
+        alpha = self.params["alpha"].value()
         y = self._morphing_interpolator(alpha, alphas, densities)
         return y
 
     def _rel_counts(self, x, norm):
         densities = [hist.rel_counts(x, norm=norm) for hist in self.hists.values()]
         alphas = znp.array(list(self.hists.keys()), dtype=znp.float64)
-        alpha = self.params["alpha"]
+        alpha = self.params["alpha"].value()
         y = self._morphing_interpolator(alpha, alphas, densities)
         return y
 
@@ -153,13 +153,13 @@ class SplineMorphingPDF(BaseBinnedPDFV1):
             raise SpecificFunctionNotImplemented
         densities = [hist.ext_pdf(x, norm=norm) for hist in self.hists.values()]
         alphas = znp.array(list(self.hists.keys()), dtype=znp.float64)
-        alpha = self.params["alpha"]
+        alpha = self.params["alpha"].value()
         y = self._morphing_interpolator(alpha, alphas, densities)
         return y
 
     def _pdf(self, x, norm):
         densities = [hist.pdf(x, norm=norm) for hist in self.hists.values()]
         alphas = znp.array(list(self.hists.keys()), dtype=znp.float64)
-        alpha = self.params["alpha"]
+        alpha = self.params["alpha"].value()
         y = self._morphing_interpolator(alpha, alphas, densities)
         return y

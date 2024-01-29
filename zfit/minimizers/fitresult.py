@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 
 from __future__ import annotations
 
@@ -285,13 +285,13 @@ class NameToParamGetitem:
 
 
 class FitResult(ZfitResult):
-    _default_hesse = "hesse_np"
+    _default_hesse = "minuit_hesse"
     _hesse_methods = {
         "minuit_hesse": _covariance_minuit,
         "hesse_np": _covariance_np,
         "approx": _covariance_approx,
     }
-    _default_error = "zfit_error"
+    _default_error = "minuit_minos"
     _error_methods = {
         "minuit_minos": _minos_minuit,
         "zfit_error": compute_errors,

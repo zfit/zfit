@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 
 from __future__ import annotations
 
@@ -109,8 +109,7 @@ class BinwiseScaleModifier(BaseBinnedFunctorPDF):
 
     def _counts_with_modifiers(self, x, norm):
         values = self.pdfs[0].counts(x, norm=norm)
-        modifiers = list(self._binwise_modifiers.values())
-        if modifiers:
+        if modifiers := list(self._binwise_modifiers.values()):
             sysshape_flat = tf.stack(modifiers)
             modifiers = znp.reshape(sysshape_flat, values.shape)
             values = values * modifiers

@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 from __future__ import annotations
 
 import numpy as np
@@ -37,8 +37,7 @@ class BinnedTemplatePDFV1(BaseBinnedPDFV1):
 
                 def sumfunc(params):
                     values = self._data.values()
-                    sysshape = list(params.values())
-                    if sysshape:
+                    if sysshape := list(params.values()):
                         sysshape_flat = tf.stack(sysshape)
                         sysshape = tf.reshape(sysshape_flat, values.shape)
                         values = values * sysshape
@@ -79,8 +78,7 @@ class BinnedTemplatePDFV1(BaseBinnedPDFV1):
         if not self._automatically_extended:
             raise SpecificFunctionNotImplemented
         values = self._data.values()
-        sysshape = list(self._template_sysshape.values())
-        if sysshape:
+        if sysshape := list(self._template_sysshape.values()):
             sysshape_flat = tf.stack(sysshape)
             sysshape = tf.reshape(sysshape_flat, values.shape)
             values = values * sysshape
@@ -89,8 +87,7 @@ class BinnedTemplatePDFV1(BaseBinnedPDFV1):
     @supports(norm="norm")
     def _rel_counts(self, x, norm=None):
         values = self._data.values()
-        sysshape = list(self._template_sysshape.values())
-        if sysshape:
+        if sysshape := list(self._template_sysshape.values()):
             sysshape_flat = tf.stack(sysshape)
             sysshape = tf.reshape(sysshape_flat, values.shape)
             values = values * sysshape

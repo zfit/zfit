@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 
 from __future__ import annotations
 
@@ -51,8 +51,7 @@ class BinnedHolder(
                 message=f"Variances and values do not have the same shape:"
                 f" {variances_shape} vs {value_shape}",
             )
-        binning_rank = len(space.binning.edges)
-        if binning_rank != values_rank:
+        if (binning_rank := len(space.binning.edges)) != values_rank:
             raise ShapeIncompatibleError(
                 f"Values and binning  differ in rank: {values_rank} vs {binning_rank}"
             )

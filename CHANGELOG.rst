@@ -5,31 +5,25 @@ Changelog
 .. _newest-changelog:
 
 
-Develop
+
+0.17.0 (29 Jan 2024)
 ========================
 
 TensorFlow 2.15, drop Python 3.8 support
 
 Major Features and Improvements
 -------------------------------
+- add correct uncertainty for unbinned, weighted fits with constraints and/or that are extended.
+- allow mapping in ``zfit.param.set_values`` for values
 
-Breaking changes
-------------------
-
-Deprecations
--------------
 
 Bug fixes and small changes
 ---------------------------
 - fix issues where EDM goes negative, set to 999
 - improved stability of the loss evaluation
-- allow mapping in ``zfit.param.set_values`` for values
+- improved uncertainty calculation accuracy with ``zfit_error``
 
-Experimental
-------------
 
-Requirement changes
--------------------
 
 Thanks
 ------

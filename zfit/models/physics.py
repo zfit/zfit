@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 
 from __future__ import annotations
 
@@ -257,10 +257,10 @@ class CrystalBall(BasePDF, SerializableMixin):
         )
 
     def _unnormalized_pdf(self, x):
-        mu = self.params["mu"]
-        sigma = self.params["sigma"]
-        alpha = self.params["alpha"]
-        n = self.params["n"]
+        mu = self.params["mu"].value()
+        sigma = self.params["sigma"].value()
+        alpha = self.params["alpha"].value()
+        n = self.params["n"].value()
         x = x.unstack_x()
         return crystalball_func(x=x, mu=mu, sigma=sigma, alpha=alpha, n=n)
 
@@ -366,12 +366,12 @@ class DoubleCB(BasePDF, SerializableMixin):
         )
 
     def _unnormalized_pdf(self, x):
-        mu = self.params["mu"]
-        sigma = self.params["sigma"]
-        alphal = self.params["alphal"]
-        nl = self.params["nl"]
-        alphar = self.params["alphar"]
-        nr = self.params["nr"]
+        mu = self.params["mu"].value()
+        sigma = self.params["sigma"].value()
+        alphal = self.params["alphal"].value()
+        nl = self.params["nl"].value()
+        alphar = self.params["alphar"].value()
+        nr = self.params["nr"].value()
         x = x.unstack_x()
         return double_crystalball_func(
             x=x, mu=mu, sigma=sigma, alphal=alphal, nl=nl, alphar=alphar, nr=nr

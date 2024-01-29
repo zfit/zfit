@@ -4,7 +4,7 @@ A FunctorBase class is provided to make handling the models easier.
 
 Their implementation is often non-trivial.
 """
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 
 from __future__ import annotations
 
@@ -152,7 +152,7 @@ class SumPDF(BaseFunctor, SerializableMixin):  # TODO: add extended argument
         pdfs = self.pdfs
         fracs = self.params.values()
         probs = [pdf.pdf(x) * frac for pdf, frac in zip(pdfs, fracs)]
-        prob = sum(probs)
+        prob = sum(probs)  # to keep the broadcasting ability
         return z.convert_to_tensor(prob)
 
     @supports(norm=True, multiple_limits=True)

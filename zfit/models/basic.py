@@ -2,7 +2,7 @@
 
 Gauss, exponential... that can be used together with Functors to build larger models.
 """
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 
 from __future__ import annotations
 
@@ -92,7 +92,7 @@ class Exponential(BasePDF, SerializableMixin):
         self._set_numerics_data_shift(self.space)
 
     def _unnormalized_pdf(self, x):
-        lambda_ = self.params["lambda"]
+        lambda_ = self.params["lambda"].value()
         x = x.unstack_x()
         probs = znp.exp(lambda_ * (self._shift_x(x)))
         tf.debugging.assert_all_finite(

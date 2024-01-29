@@ -629,6 +629,7 @@ loss.args.numgrad: |1+
                 usually slower if called repeatedly but can
                 be used if the automatic gradient fails (e.g. if
                 the model is not differentiable, written not in znp.* etc).
+                Default will fall back to what the loss is set to.
 
 result.init.loss: |1+
     The loss function that was minimized.

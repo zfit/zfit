@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 
 from __future__ import annotations
 
@@ -184,7 +184,7 @@ class LossEval:
 
         try:
             loss_value, gradient = self.value_gradients_fn(params=params)
-            loss_value, gradient_values, _ = self.strategy.callback(
+            loss_value, gradient, _ = self.strategy.callback(
                 value=loss_value,
                 gradient=gradient,
                 hessian=None,
@@ -193,7 +193,7 @@ class LossEval:
             )
         except Exception as error:
             loss_value = "invalid, error occured"
-            gradient_values = ["invalid"] * len(params)
+            gradient = ["invalid"] * len(params)
             if isinstance(error, tf.errors.InvalidArgumentError):
                 is_nan = True
             else:

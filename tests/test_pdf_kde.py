@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 import itertools
 
 import numpy as np
@@ -402,8 +402,7 @@ def test_kde_border(kdetype, npoints, upper):
     ) = _run(kdetype, full=False, upper=upper, legacy=False, padding=True)
 
     plt.figure()
-    kernel_used = cfg.get("kernel")
-    if kernel_used is not None:
+    if (kernel_used := cfg.get("kernel")) is not None:
         kernel_print = f", kernel={kernel_used.__name__}"
     else:
         kernel_print = ""
@@ -415,13 +414,11 @@ def test_kde_border(kdetype, npoints, upper):
     else:
         bandwidth_print = f", h={bandwidth_printready}"
 
-    num_grid_points = cfg.get("num_grid_points")
-    if num_grid_points is not None:
+    if (num_grid_points := cfg.get("num_grid_points")) is not None:
         grid_print = f", grid={num_grid_points}"
     else:
         grid_print = ""
-    binning_method = cfg.get("binning_method")
-    if binning_method is not None:
+    if (binning_method := cfg.get("binning_method")) is not None:
         binning_print = f", binning={binning_method}"
     else:
         binning_print = ""
