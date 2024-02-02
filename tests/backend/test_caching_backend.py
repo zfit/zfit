@@ -1,11 +1,10 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 import pytest
 
 import zfit
 
 
 def test_parameter_caching():
-    zfit.run.set_graph_mode(False)
     # this is to ensure that we fixed the bug (https://github.com/tensorflow/tensorflow/issues/57365) internally
     import tensorflow as tf
     from zfit import z
