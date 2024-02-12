@@ -1,4 +1,5 @@
 """Define Parameter which holds the value."""
+
 #  Copyright (c) 2024 zfit
 
 from __future__ import annotations
@@ -1168,9 +1169,9 @@ class ComposedParameter(SerializableMixin, BaseComposedParameter):
                 params_dict = {}
             else:
                 params_dict = {f"param_{i}": p for i, p in enumerate(params)}
-        original_init[
-            "params"
-        ] = params_dict  # needs to be here, we need the params to be a dict for the serialization
+        original_init["params"] = (
+            params_dict  # needs to be here, we need the params to be a dict for the serialization
+        )
         super().__init__(params=params_dict, value_fn=value_fn, name=name, dtype=dtype)
         self.hs3.original_init.update(original_init)
 

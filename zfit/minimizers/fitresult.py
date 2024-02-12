@@ -1239,9 +1239,11 @@ class FitResult(ZfitResult):
         covariance_dict = self.covariance(params, method, as_dict=True)
         return {
             p: {
-                "error": float(covariance_dict[(p, p)]) ** 0.5 * pseudo_sigma
-                if covariance_dict[(p, p)] is not None
-                else None
+                "error": (
+                    float(covariance_dict[(p, p)]) ** 0.5 * pseudo_sigma
+                    if covariance_dict[(p, p)] is not None
+                    else None
+                )
             }
             for p in params
         }

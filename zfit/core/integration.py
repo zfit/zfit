@@ -1,5 +1,6 @@
 """This module contains functions for the numeric as well as the analytic (partial) integration."""
-#  Copyright (c) 2023 zfit
+
+#  Copyright (c) 2024 zfit
 
 from __future__ import annotations
 

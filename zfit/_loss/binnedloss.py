@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 
 from __future__ import annotations
 
@@ -95,9 +95,14 @@ class BaseBinned(BaseLoss):
         from zfit._data.binneddatav1 import BinnedData
 
         data = [
-            BinnedData.from_hist(d)
-            if (isinstance(d, PlottableHistogram) and not isinstance(d, ZfitBinnedData))
-            else d
+            (
+                BinnedData.from_hist(d)
+                if (
+                    isinstance(d, PlottableHistogram)
+                    and not isinstance(d, ZfitBinnedData)
+                )
+                else d
+            )
             for d in data
         ]
         not_binned_pdf = [mod for mod in model if not isinstance(mod, ZfitBinnedPDF)]

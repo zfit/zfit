@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2024 zfit
 import numpy as np
 import pytest
 
@@ -148,6 +148,6 @@ def test_graph_cache(graph_holder):
     assert graph1.calc(add).numpy() == new_value + add + CONST
     assert graph1.retrace_runs == 0  # no retracing must have occurred
     CONST = 40
-    FunctionWrapperRegistry.do_jit_types[
-        "something"
-    ] = True  # should be true by default
+    FunctionWrapperRegistry.do_jit_types["something"] = (
+        True  # should be true by default
+    )

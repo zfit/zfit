@@ -1,5 +1,6 @@
 """Used to make pytest functions available globally."""
-#  Copyright (c) 2023 zfit
+
+#  Copyright (c) 2024 zfit
 
 import collections.abc
 import os

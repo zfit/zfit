@@ -1,5 +1,6 @@
 """Example test for a pdf or function."""
-#  Copyright (c) 2023 zfit
+
+#  Copyright (c) 2024 zfit
 
 import matplotlib.pyplot as plt
 import numpy as np

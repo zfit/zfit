@@ -89,7 +89,7 @@ repos:
         additional_dependencies: [ setuptools-scm, setuptools-scm-git-archive ]
 
   - repo: https://github.com/kynan/nbstripout
-    rev: 0.6.1
+    rev: 0.7.1
     hooks:
       - id: nbstripout
 
@@ -111,13 +111,13 @@ repos:
       - id: oxipng
 
   - repo: https://github.com/psf/black
-    rev: 23.12.1
+    rev: 24.2.0
     hooks:
       - id: black
         language_version: python3
 
   - repo: https://github.com/python-jsonschema/check-jsonschema
-    rev: 0.27.3
+    rev: 0.28.0
     hooks:
       - id: check-github-workflows
       - id: check-github-actions
@@ -147,3 +147,11 @@ repos:
     rev: v0.2.0
     hooks:
       - id: rm-unneeded-f-str
+
+# conflicts with black, maybe config correct?
+#  - repo: https://github.com/astral-sh/ruff-pre-commit
+#    rev: "v0.2.1"
+#    hooks:
+#      - id: ruff
+#        args: [ "--fix", "--show-fixes", "--unsafe-fixes" ]
+#      - id: ruff-format

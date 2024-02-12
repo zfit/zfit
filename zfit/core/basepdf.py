@@ -50,7 +50,8 @@ True
 For more advanced methods and ways to register analytic integrals or overwrite certain methods, see
 also the advanced models in `zfit models <https://github.com/zfit/zfit-tutorials>`_
 """
-#  Copyright (c) 2023 zfit
+
+#  Copyright (c) 2024 zfit
 
 from __future__ import annotations
 

@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 
 from __future__ import annotations
 
@@ -74,10 +74,12 @@ class SimpleConstraint(BaseConstraint):
     def __init__(
         self,
         func: Callable,
-        params: Mapping[str, ztyping.ParameterType]
-        | Iterable[ztyping.ParameterType]
-        | ztyping.ParameterType
-        | None,
+        params: (
+            Mapping[str, ztyping.ParameterType]
+            | Iterable[ztyping.ParameterType]
+            | ztyping.ParameterType
+            | None
+        ),
         *,
         name: str = None,
     ):

@@ -37,8 +37,9 @@ class ScipyBaseMinimizerV1(BaseMinimizer):
         tol: float | None,
         internal_tol: Mapping[str, float | None],
         gradient: Callable | str | NOT_SUPPORTED | None,
-        hessian: None
-        | (Callable | str | scipy.optimize.HessianUpdateStrategy | NOT_SUPPORTED),
+        hessian: None | (
+            Callable | str | scipy.optimize.HessianUpdateStrategy | NOT_SUPPORTED
+        ),
         maxiter: int | str | None = None,
         minimizer_options: Mapping[str, object] | None = None,
         verbosity: int | None = None,
@@ -1006,9 +1007,9 @@ class ScipyTrustConstrV1(ScipyBaseMinimizerV1):
                 v = 1
             else:
                 v = 0
-            options[
-                "verbose"
-            ] = v  # negative is quite, goes to 100. start at verbosity > 1
+            options["verbose"] = (
+                v  # negative is quite, goes to 100. start at verbosity > 1
+            )
             return options
 
         minimizer_options = {}

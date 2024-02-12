@@ -45,7 +45,8 @@ Example with a pdf that caches the normalization:
                 result = self._cache['my_name']
             return result
 """
-#  Copyright (c) 2023 zfit
+
+#  Copyright (c) 2024 zfit
 
 from __future__ import annotations
 
@@ -200,7 +201,7 @@ class FunctionCacheHolder(GraphCachable):
         self,
         func,
         wrapped_func,
-        cachables: (ZfitGraphCachable | object | Iterable[ZfitGraphCachable]) = None,
+        cachables: ZfitGraphCachable | object | Iterable[ZfitGraphCachable] = None,
         cachables_mapping=None,
         stateless_args: bool | None = None,
         deleter=None,

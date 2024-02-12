@@ -2,6 +2,7 @@
 
 Gauss, exponential... that can be used together with Functors to build larger models.
 """
+
 #  Copyright (c) 2024 zfit
 
 from __future__ import annotations
