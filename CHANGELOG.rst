@@ -18,6 +18,7 @@ Deprecations
 
 Bug fixes and small changes
 ---------------------------
+ - use random generated seeds for numpy and TF, as they can otherwise have unwanted correlations
 
 Experimental
 ------------
