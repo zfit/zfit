@@ -205,6 +205,7 @@ class FunctionCacheHolder(GraphCachable):
         cachables_mapping=None,
         stateless_args: bool | None = None,
         deleter=None,
+        keepalive=None,
     ):
         """`tf.function` decorated function holder with caching dependencies on inputs.
 
@@ -233,12 +234,16 @@ class FunctionCacheHolder(GraphCachable):
             stateless_args: If `True`, the arguments that are normally stateful, such as `tf.Variable`s, are regarded
                 as stateless.
         """
+        if keepalive is None:
+            keepalive = False
         self.deleter = lambda x: None
         self.delete_from_cache = False
         if stateless_args is None:
             stateless_args = False
         self.stateless_args = stateless_args
-        self.wrapped_func = weakref.proxy(wrapped_func, deleter)
+        if not keepalive:
+            wrapped_func = weakref.proxy(wrapped_func, deleter)
+        self.wrapped_func = wrapped_func
 
         self.python_func = func
 
@@ -316,23 +321,25 @@ class FunctionCacheHolder(GraphCachable):
                 uhi.typing.plottable.PlottableHistogram,
             ),
         ):
-            obj = id(obj)
+            obj = self.IS_TENSOR
         elif isinstance(obj, ZfitParameter):
-            if self.stateless_args:
-                obj = (self.IS_TENSOR,)
-            else:
-                obj = (ZfitParameter, obj.name)
+            # if self.stateless_args:
+            #     obj = (self.IS_TENSOR,)
+            # else:
+            obj = (ZfitParameter, obj.name)
         elif tf.is_tensor(obj):
-            obj = (self.IS_TENSOR,)
-        elif isinstance(obj, np.ndarray):
-            obj = id(obj)
+            obj = self.IS_TENSOR
+        elif isinstance(obj, (np.ndarray, int, float)):
+            obj = self.IS_TENSOR
         elif isinstance(obj, str):
-            obj = (obj,)
+            obj = self.IS_TENSOR
         elif isinstance(obj, collections.abc.Iterable):
             obj_new = []
             for obj_i in obj:
                 obj_new.extend(self.get_immutable_repr_obj(obj_i))
             obj = tuple(obj_new)
+        else:
+            obj = self.IS_TENSOR
         if not isinstance(obj, tuple):
             obj = (obj,)
         return obj

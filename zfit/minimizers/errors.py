@@ -161,7 +161,7 @@ def compute_errors(
                 params=all_params, full=False
             )  # to make sure the loss is compiled
 
-            @z.function(wraps="gradient")
+            @z.function(wraps="gradient", keepalive=True)
             def optimized_loss_gradient(values, index):
                 assert isinstance(index, int)
                 assign_values(all_params, values)
