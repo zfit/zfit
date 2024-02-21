@@ -19,7 +19,7 @@ from ..util.ztyping import OptionsInputType, ConstraintsInputType
 from ..z import numpy as znp
 
 
-@z.function(wraps="tensor")
+@z.function(wraps="tensor", keepalive=True)
 def _spd_transform(values, probs, variances):
     """Transform the data to the SPD form.
 
@@ -505,7 +505,7 @@ class BinnedNLL(BaseBinned):
         return super()._get_params(floating, is_yield, extract_independent)
 
 
-@z.function(wraps="tensor")
+@z.function(wraps="tensor", keepalive=True)
 def chi2_loss_calc(probs, values, variances, log_offset=None, ignore_empty=None):
     """Calculate the chi2 for a given set of data.
 

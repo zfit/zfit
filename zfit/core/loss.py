@@ -110,7 +110,7 @@ def _unbinned_nll_tf(
     return nll_finished
 
 
-@z.function(wraps="tensor")
+@z.function(wraps="tensor", keepalive=True)
 def _nll_calc_unbinned_tf(log_probs, weights, log_offset):
     """Calculate the negative log likelihood from the log probabilities."""
 

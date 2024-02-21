@@ -187,6 +187,7 @@ class FunctionWrapperRegistry:
         """`tf.function`-like decorator with additional cache-invalidation functionality.
 
         Args:
+            keepalive:
             **kwargs_user: arguments to `tf.function`
         """
         super().__init__()
@@ -209,6 +210,7 @@ class FunctionWrapperRegistry:
             self.do_jit_types[wraps] = bool(run.get_graph_mode())
         self.wraps = wraps
         self.stateless_args = stateless_args
+
         self.function_cache = collections.deque()
         self.reset(**self._initial_user_kwargs)
         self.currently_traced = set()
@@ -259,10 +261,8 @@ class FunctionWrapperRegistry:
             nonlocal wrapped_func
 
             def deleter(proxy):
-                # print(f"DEBUG: being deleted, {proxy}")
-                if not keepalive:
-                    with contextlib.suppress(ValueError):
-                        cache.remove(function_holder)
+                with contextlib.suppress(ValueError):
+                    cache.remove(function_holder)
 
             function_holder = FunctionCacheHolder(
                 func,
@@ -276,7 +276,6 @@ class FunctionWrapperRegistry:
             try:
                 func_holder_index = cache.index(function_holder)
             except ValueError:
-                print(f"DEBUG: not found in cache, {function_holder}, cache is {cache}")
                 wrapped_func = self.tf_function(func)
                 func_to_run = wrapped_func
                 function_holder = FunctionCacheHolder(

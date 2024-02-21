@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 
 from __future__ import annotations
 
@@ -624,7 +624,7 @@ class Data(
 
         return TemporarilySet(value=space, setter=setter, getter=getter)
 
-    @invalidate_graph
+    # @invalidate_graph
     def sort_by_obs(self, obs: ztyping.ObsTypeInput, allow_superset: bool = False):
         if not allow_superset and not frozenset(obs) <= frozenset(self.obs):
             raise ValueError(

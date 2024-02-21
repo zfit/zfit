@@ -17,7 +17,7 @@ from ..util.exception import SpecificFunctionNotImplemented
 from ..z.interpolate_spline import interpolate_spline
 
 
-@z.function(wraps="tensor")
+@z.function(wraps="tensor", keepalive=True)
 def spline_interpolator(alpha, alphas, densities):
     alphas = alphas[None, :, None]
     shape = tf.shape(densities[0])

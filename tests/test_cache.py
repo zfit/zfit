@@ -74,7 +74,7 @@ class GraphCreator1(GraphCachable):
         self.retrace_runs += 1
         return x + self.value + CONST
 
-    @z.function(wraps="tensor")
+    @z.function(wraps="tensor", keepalive=True)
     def calc_variable(self, x):
         return x + self.value + CONST
 

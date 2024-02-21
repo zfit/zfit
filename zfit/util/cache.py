@@ -184,10 +184,10 @@ def invalidate_graph(func):
             run.clear_graph_cache()
         else:
             self.reset_cache(reseter=self)
-            # TODO: we could make the whole handling more precise and not just reset the whole graph
-            # raise RuntimeError(f"The function {func} is not supported in graph mode as it modifies pieces that invalidate"
-            #                    " the graph. If you think this should work, please open an issue on"
-            #                    " https://github.com/zfit/zfit/issues/new/choose.")
+        # TODO: we could make the whole handling more precise and not just reset the whole graph
+        # raise RuntimeError(f"The function {func} is not supported in graph mode as it modifies pieces that invalidate"
+        #                    " the graph. If you think this should work, please open an issue on"
+        #                    " https://github.com/zfit/zfit/issues/new/choose.")
 
         return func(*args, **kwargs)
 

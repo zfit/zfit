@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 import time
 
 import hist
@@ -256,7 +256,7 @@ def create_gauss_binned(n, nbins=130):
 
 def create_gauss2d_binned(n, nbins=130):
     mu = zfit.Parameter("mu", 1, 0, 19)
-    sigma = zfit.Parameter("sigma", 1, 0, 19)
+    sigma = zfit.Parameter("sigma", 1.5, 0, 19)
     obsx = zfit.Space("x", (-5, 10))
     obsy = zfit.Space("y", (50, 600))
     obs2d = obsx * obsy
