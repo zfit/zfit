@@ -136,7 +136,7 @@ jobs:
 
   tutorials:
     runs-on: ubuntu-latest
-    timeout-minutes: 90  # eager mode takes some time
+    timeout-minutes: 150  # eager mode takes some time
     strategy:
       max-parallel: 8
       fail-fast: False
@@ -190,7 +190,7 @@ jobs:
           pytest --nbval-lax zfit-tutorials --dist loadscope --ignore=zfit-tutorials/experimental --ignore=zfit-tutorials/_unused --ignore=zfit-tutorials/_website -n${{ steps.cpu-cores.outputs.count }}
   examples:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 120
     strategy:
       max-parallel: 8
       fail-fast: False
