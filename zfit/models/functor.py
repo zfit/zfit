@@ -4,6 +4,7 @@ A FunctorBase class is provided to make handling the models easier.
 
 Their implementation is often non-trivial.
 """
+
 #  Copyright (c) 2024 zfit
 
 from __future__ import annotations

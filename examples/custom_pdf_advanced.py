@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 
 import tensorflow as tf
 
@@ -33,9 +33,7 @@ class CustomPDF2D(zfit.pdf.BasePDF):
         param3 = self.params["param3"]
 
         # just a fantasy function
-        probs = (
-            param1 * tf.cos(energy**2) + tf.math.log(param2 * momentum**2) + param3
-        )
+        probs = param1 * tf.cos(energy**2) + tf.math.log(param2 * momentum**2) + param3
         return probs
 
 

@@ -2,6 +2,7 @@
 
 Handle integration and sampling
 """
+
 #  Copyright (c) 2024 zfit
 
 from __future__ import annotations

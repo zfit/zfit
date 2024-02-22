@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 
 from __future__ import annotations
 
@@ -74,9 +74,7 @@ def TmpGaussian():
 
             from zfit import z
 
-            return z.exp(
-                (-((x - mu) ** 2)) / (2 * sigma**2)
-            )  # non-normalized gaussian
+            return z.exp((-((x - mu) ** 2)) / (2 * sigma**2))  # non-normalized gaussian
 
     return TmpGaussian
 
@@ -423,11 +421,7 @@ def test_projection_pdf(test_values):
         lower, upper = limits.rect_limits
 
         def integ(x, y):
-            return (
-                0.333333333333333 * x**3
-                - 1.0 * x**2 * y**3
-                + x * (1.0 * y**6 + 0.1)
-            )
+            return 0.333333333333333 * x**3 - 1.0 * x**2 * y**3 + x * (1.0 * y**6 + 0.1)
 
         return integ(y, upper) - integ(y, lower)
 
@@ -435,11 +429,7 @@ def test_projection_pdf(test_values):
         lower, upper = limits.rect_limits
 
         def integ(x, y):
-            return (
-                -0.5 * x * y**4
-                + 0.142857142857143 * y**7
-                + y * (1.0 * x**2 + 0.1)
-            )
+            return -0.5 * x * y**4 + 0.142857142857143 * y**7 + y * (1.0 * x**2 + 0.1)
 
         return (integ(x, upper) - integ(x, lower))[0]
 

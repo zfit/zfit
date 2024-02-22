@@ -1,4 +1,5 @@
 """Define Parameter which holds the value."""
+
 #  Copyright (c) 2024 zfit
 
 from __future__ import annotations
@@ -448,7 +449,7 @@ class Parameter(
         return limit
 
     @lower.setter
-    @invalidate_graph
+    # @invalidate_graph
     def lower(self, value):
         if value is None and self._lower_limit_neg_inf is None:
             self._lower_limit_neg_inf = tf.cast(-np.infty, dtype=ztypes.float)
@@ -464,7 +465,7 @@ class Parameter(
         return limit
 
     @upper.setter
-    @invalidate_graph
+    # @invalidate_graph
     def upper(self, value):
         if value is None and self._upper_limit_neg_inf is None:
             self._upper_limit_neg_inf = tf.cast(np.infty, dtype=ztypes.float)
@@ -521,7 +522,7 @@ class Parameter(
 
     @deprecated(None, "Use `value` instead.")
     def read_value(self):
-        value = super().read_value()
+        value = super().value()
         if self.has_limits:
             value = self.constraint(value)
         return value
@@ -693,14 +694,25 @@ class Parameter(
     ) -> set[ZfitParameter]:
         return extract_filter_params(self, floating=floating, extract_independent=False)
 
-    def __repr__(self):
+    def __repr__(self):  # many try and except in case it's not fully initialized yet
         if (
             tf.executing_eagerly()
         ):  # more explicit: we check for exactly this attribute, nothing inside numpy
-            value = f"{self.numpy():.4g}"
+            try:
+                value = f"{self.numpy():.4g}"
+            except Exception as err:
+                value = f"errored {err}"
         else:
             value = "graph-node"
-        return f"<zfit.{self.__class__.__name__} '{self.name}' floating={self.floating} value={value}>"
+        try:
+            floating = self.floating
+        except Exception as err:
+            floating = f"errored {err}"
+        try:
+            name = self.name
+        except Exception as err:
+            name = f"errored {err}"
+        return f"<zfit.{self.__class__.__name__} '{name}' floating={floating} value={value}>"
 
     # LEGACY, deprecate?
     @property
@@ -733,7 +745,7 @@ class ParameterType(VariableSpec):
         self, shape=None, dtype=None, trainable=True, alias_id=None, *, parameter=None
     ):
         if parameter is None:
-            raise RuntimeError("DEBUGGING HERE")
+            raise RuntimeError("Unknown error, please report")
         if parameter is not None:  # initialize from parameter
             shape = parameter.shape
             dtype = parameter.dtype
@@ -1168,9 +1180,9 @@ class ComposedParameter(SerializableMixin, BaseComposedParameter):
                 params_dict = {}
             else:
                 params_dict = {f"param_{i}": p for i, p in enumerate(params)}
-        original_init[
-            "params"
-        ] = params_dict  # needs to be here, we need the params to be a dict for the serialization
+        original_init["params"] = (
+            params_dict  # needs to be here, we need the params to be a dict for the serialization
+        )
         super().__init__(params=params_dict, value_fn=value_fn, name=name, dtype=dtype)
         self.hs3.original_init.update(original_init)
 
@@ -1472,7 +1484,7 @@ def convert_to_parameter(
     return value
 
 
-@z.function(wraps="params")
+@z.function(wraps="params", keepalive=True)
 def assign_values_jit(
     params: Parameter | Iterable[Parameter],
     values: ztyping.NumericalScalarType | Iterable[ztyping.NumericalScalarType],

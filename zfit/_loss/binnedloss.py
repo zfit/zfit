@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 
 from __future__ import annotations
 
@@ -19,7 +19,7 @@ from ..util.ztyping import OptionsInputType, ConstraintsInputType
 from ..z import numpy as znp
 
 
-@z.function(wraps="tensor")
+@z.function(wraps="tensor", keepalive=True)
 def _spd_transform(values, probs, variances):
     """Transform the data to the SPD form.
 
@@ -44,13 +44,13 @@ def _spd_transform(values, probs, variances):
     return probs, values
 
 
-@z.function(wraps="tensor")
+@z.function(wraps="tensor", keepalive=True)
 def poisson_loss_calc(probs, values, log_offset=None, variances=None):
     """Calculate the Poisson log probability for a given set of data.
 
     Args:
-        probs: Probabilities of the data, i.e. the expected number of events in each bin.
-        values: Values of the data, i.e. the number of events in each bin.
+        probs: Probabilities of the data, i.e., the expected number of events in each bin.
+        values: Values of the data, i.e., the number of events in each bin.
         log_offset: Optional offset to be added to the loss. Useful for adding a constant to the loss to improve
             numerical stability.
         variances: (currently ignored)
@@ -95,9 +95,14 @@ class BaseBinned(BaseLoss):
         from zfit._data.binneddatav1 import BinnedData
 
         data = [
-            BinnedData.from_hist(d)
-            if (isinstance(d, PlottableHistogram) and not isinstance(d, ZfitBinnedData))
-            else d
+            (
+                BinnedData.from_hist(d)
+                if (
+                    isinstance(d, PlottableHistogram)
+                    and not isinstance(d, ZfitBinnedData)
+                )
+                else d
+            )
             for d in data
         ]
         not_binned_pdf = [mod for mod in model if not isinstance(mod, ZfitBinnedPDF)]
@@ -298,7 +303,7 @@ class ExtendedBinnedNLL(BaseBinned):
             model=model, data=data, constraints=constraints, options=options
         )
 
-    @z.function(wraps="loss")
+    @z.function(wraps="loss", keepalive=True)
     def _loss_func(
         self,
         model: Iterable[ZfitBinnedPDF],
@@ -326,6 +331,7 @@ class ExtendedBinnedNLL(BaseBinned):
                 log_offset_val = 0.0
             else:
                 log_offset_val = log_offset
+            log_offset_val = znp.asarray(log_offset_val, dtype=znp.float64)
             constraints = z.reduce_sum(
                 [c.value() - log_offset_val * len(c.get_params()) for c in constraints]
             )
@@ -447,7 +453,7 @@ class BinnedNLL(BaseBinned):
                 identifier="extended_in_BinnedNLL",
             )
 
-    @z.function(wraps="loss")
+    @z.function(wraps="loss", keepalive=True)
     def _loss_func(
         self,
         model: Iterable[ZfitBinnedPDF],
@@ -476,6 +482,7 @@ class BinnedNLL(BaseBinned):
                 log_offset_val = 0.0
             else:
                 log_offset_val = log_offset
+            log_offset_val = znp.asarray(log_offset_val, dtype=znp.float64)
             constraints = z.reduce_sum(
                 [c.value() - log_offset_val * len(c.get_params()) for c in constraints]
             )
@@ -498,7 +505,7 @@ class BinnedNLL(BaseBinned):
         return super()._get_params(floating, is_yield, extract_independent)
 
 
-@z.function(wraps="tensor")
+@z.function(wraps="tensor", keepalive=True)
 def chi2_loss_calc(probs, values, variances, log_offset=None, ignore_empty=None):
     """Calculate the chi2 for a given set of data.
 
@@ -656,7 +663,7 @@ class BinnedChi2(BaseBinned):
         data = self.data
         _check_small_counts_chi2(data, ignore_empty)
 
-    @z.function(wraps="loss")
+    @z.function(wraps="loss", keepalive=True)
     def _loss_func(
         self,
         model: Iterable[ZfitBinnedPDF],
@@ -668,6 +675,12 @@ class BinnedChi2(BaseBinned):
         del fit_range
         ignore_empty = self._options.get("empty") == "ignore"
         chi2_terms = []
+        if log_offset is False:
+            log_offset_val = 0.0
+        else:
+            log_offset_val = log_offset
+        log_offset_val = znp.asarray(log_offset_val, dtype=znp.float64)
+
         for mod, dat in zip(model, data):
             values = dat.values(  # TODO: right order of model and data?
                 # obs=mod.obs
@@ -692,10 +705,6 @@ class BinnedChi2(BaseBinned):
         chi2_term = znp.sum(chi2_terms)
 
         if constraints:
-            if log_offset is False:
-                log_offset_val = 0.0
-            else:
-                log_offset_val = log_offset
             constraints = z.reduce_sum(
                 [c.value() - log_offset_val for c in constraints]
             )
@@ -815,7 +824,7 @@ class ExtendedBinnedChi2(BaseBinned):
         data = self.data
         _check_small_counts_chi2(data, ignore_empty)
 
-    @z.function(wraps="loss")
+    @z.function(wraps="loss", keepalive=True)
     def _loss_func(
         self,
         model: Iterable[ZfitBinnedPDF],
@@ -827,6 +836,11 @@ class ExtendedBinnedChi2(BaseBinned):
         del fit_range
         ignore_empty = self._options.get("empty") == "ignore"
         chi2_terms = []
+        if log_offset is False:
+            log_offset_val = 0.0
+        else:
+            log_offset_val = log_offset
+        log_offset_val = znp.asarray(log_offset_val, dtype=znp.float64)
         for mod, dat in zip(model, data):
             values = dat.values(  # TODO: right order of model and data?
                 # obs=mod.obs
@@ -849,10 +863,6 @@ class ExtendedBinnedChi2(BaseBinned):
         chi2_term = znp.sum(chi2_terms)
 
         if constraints:
-            if log_offset is False:
-                log_offset_val = 0.0
-            else:
-                log_offset_val = log_offset
             constraints = z.reduce_sum(
                 [c.value() - log_offset_val for c in constraints]
             )

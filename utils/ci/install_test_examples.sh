@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 #
-# Copyright (c) 2023 zfit
+# Copyright (c) 2024 zfit
 #
 
 BASEDIR=$( dirname -- "$0"; )
@@ -11,6 +11,7 @@ pip install -U pip
 pip install "${BASEDIR}/../../[all]"
 pip install -r "${BASEDIR}/../../examples/example_requirements.txt"
 #set -e
+#export ZFIT_GRAPH_MODE=0
 fail=0
 for file in ${BASEDIR}/../../examples/*.py; do
   python "$file" || fail=1;

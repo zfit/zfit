@@ -93,10 +93,10 @@ class LossEval:
         if grad_fn is not None:
 
             def value_gradients_fn(params):
-                return loss.value(full=self.full), grad_fn(params)
+                return loss.value(full=full), grad_fn(params)
 
         else:
-            value_gradients_fn = partial(self.loss.value_gradient, full=False)
+            value_gradients_fn = partial(self.loss.value_gradient, full=full)
             grad_fn = self.loss.gradient
         self.gradients_fn = grad_fn
         self.value_gradients_fn = value_gradients_fn

@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 import boost_histogram as bh
 import hist
 import numpy as np
@@ -184,7 +184,5 @@ def test_variance():
     obs = zfit.Space("x", binning=binning1)
     values = znp.array([100.0, 200, 50])
     data = zfit.data.BinnedData.from_tensor(obs, values=values, variances=True)
-    data2 = zfit.data.BinnedData.from_tensor(
-        obs, values=values, variances=values**0.5
-    )
+    data2 = zfit.data.BinnedData.from_tensor(obs, values=values, variances=values**0.5)
     np.testing.assert_allclose(data.variances(), data2.variances())

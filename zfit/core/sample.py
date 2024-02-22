@@ -229,7 +229,7 @@ def accept_reject_sample(
         element_shape=(limits.n_obs,),
     )
 
-    @z.function(wraps="tensor")
+    @z.function(wraps="tensor", keepalive=True)
     def not_enough_produced(
         n,
         sample,
@@ -244,7 +244,7 @@ def accept_reject_sample(
     ):
         return tf.greater(n, n_produced)
 
-    @z.function(wraps="tensor")
+    @z.function(wraps="tensor", keepalive=True)
     def sample_body(
         n,
         sample,

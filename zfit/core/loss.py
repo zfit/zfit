@@ -99,6 +99,8 @@ def _unbinned_nll_tf(
         log_probs = znp.log(
             probs + znp.asarray(1e-307, dtype=znp.float64)
         )  # minor offset to avoid NaNs from log(0)
+        if log_offset is None:
+            log_offset = znp.array([0.0], dtype=znp.float64)
         nll = _nll_calc_unbinned_tf(
             log_probs=log_probs,
             weights=data.weights if data.weights is not None else None,
@@ -108,10 +110,10 @@ def _unbinned_nll_tf(
     return nll_finished
 
 
-@z.function(wraps="tensor")
-def _nll_calc_unbinned_tf(log_probs, weights=None, log_offset=None):
-    if log_offset is None:
-        log_offset = False
+@z.function(wraps="tensor", keepalive=True)
+def _nll_calc_unbinned_tf(log_probs, weights, log_offset):
+    """Calculate the negative log likelihood from the log probabilities."""
+
     if weights is not None:
         log_probs *= weights  # because it's prob ** weights
     if log_offset is not False:
@@ -208,7 +210,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
             convert_to_container(constraints, list)
         )
 
-        self._precompile()
+        self._is_precompiled = False
 
     def _check_init_options(self, options, data):
         try:
@@ -479,14 +481,21 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         Returns:
             Calculated loss value as a scalar.
         """
+
+        if not self._is_precompiled:
+            self._precompile()
+            self._is_precompiled = True
         if full is None:
             full = DEFAULT_FULL_ARG
-
         if full:
-            log_offset = False
+            log_offset = 0.0
         else:
             log_offset = self._options.get("subtr_const_value")
 
+        if log_offset is not None:
+            log_offset = z.convert_to_tensor(log_offset)
+
+        # log_offset = z.convert_to_tensor(log_offset)
         value = self._call_value(
             self.model, self.data, self.fit_range, self.constraints, log_offset
         )
@@ -555,6 +564,9 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         params = self._input_check_params(params)
         numgrad = self._options["numgrad"] if numgrad is None else numgrad
         params = {p.name: p for p in params}
+        if not self._is_precompiled:
+            self._precompile()
+            self._is_precompiled = True
         return self._gradient(params=params, numgrad=numgrad)
 
     def gradients(self, *args, **kwargs):
@@ -604,6 +616,9 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         if full is None:
             full = DEFAULT_FULL_ARG
 
+        if not self._is_precompiled:
+            self._precompile()
+            self._is_precompiled = True
         return self._value_gradient(params=params, numgrad=numgrad, full=full)
 
     def value_gradients(self, *args, **kwargs):
@@ -644,6 +659,9 @@ class BaseLoss(ZfitLoss, BaseNumeric):
                Default will fall back to what the loss is set to. |@docend:loss.args.numgrad|
         """
         params = self._input_check_params(params)
+        if not self._is_precompiled:
+            self._precompile()
+            self._is_precompiled = True
         return self.value_gradient_hessian(params=params, hessian=hessian, full=False)[
             2
         ]
@@ -681,6 +699,10 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         params = {p.name: p for p in params}
         if full is None:
             full = DEFAULT_FULL_ARG
+
+        if not self._is_precompiled:
+            self._precompile()
+            self._is_precompiled = True
         vals = self._value_gradient_hessian(
             params=params, hessian=hessian, numerical=numgrad, full=full
         )
@@ -1083,7 +1105,6 @@ class ExtendedUnbinnedNLL(BaseUnbinnedNLL):
         return super()._get_params(floating, is_yield, extract_independent)
 
 
-# TODO(serialization): add to serializer
 class ExtendedUnbinnedNLLRepr(BaseLossRepr):
     _implementation = ExtendedUnbinnedNLL
     hs3_type: Literal["ExtendedUnbinnedNLL"] = pydantic.Field(

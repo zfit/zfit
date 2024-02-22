@@ -1,5 +1,6 @@
 """This module contains functions for the numeric as well as the analytic (partial) integration."""
-#  Copyright (c) 2023 zfit
+
+#  Copyright (c) 2024 zfit
 
 from __future__ import annotations
 
@@ -276,7 +277,7 @@ def mc_integrate(
 
         else:
             # TODO: deal with n_obs properly?
-            @z.function(wraps="tensor")
+            @z.function(wraps="tensor", keepalive=True)
             def cond(avg, error, std, ntot, i):
                 # return i < 3
                 return znp.logical_and(error > tol, ntot < max_draws)

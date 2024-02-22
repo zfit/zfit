@@ -139,7 +139,7 @@ def fail_not_rect(func):
     return wrapped_func
 
 
-@z.function(wraps="tensor")
+@z.function(wraps="tensor", keepalive=True)
 def calculate_rect_area(rect_limits):
     lower, upper = rect_limits
     diff = upper - lower
@@ -147,7 +147,7 @@ def calculate_rect_area(rect_limits):
     return area
 
 
-@z.function(wraps="tensor")
+@z.function(wraps="tensor", keepalive=True)
 def inside_rect_limits(x, rect_limits):
     if (ndims := x.get_shape().ndims) is not None and ndims <= 1:
         raise ValueError(
@@ -163,7 +163,7 @@ def inside_rect_limits(x, rect_limits):
     return inside
 
 
-@z.function(wraps="tensor")
+@z.function(wraps="tensor", keepalive=True)
 def filter_rect_limits(x, rect_limits, axis=None):
     return tf.boolean_mask(
         tensor=x, mask=inside_rect_limits(x, rect_limits=rect_limits, axis=axis)
