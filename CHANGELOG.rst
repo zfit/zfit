@@ -10,6 +10,8 @@ Develop
 Major Features and Improvements
 -------------------------------
 
+- reduced the number of graph caching reset, resulting in significant speedups in some cases
+
 Breaking changes
 ------------------
 

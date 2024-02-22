@@ -11,3 +11,4 @@ zfit.egg-info/
 /build/
 .editorconfig
 tmp/*
+/utils/ci/.test_examples_env/
