@@ -4,32 +4,26 @@ Changelog
 
 .. _newest-changelog:
 
-Develop
+0.18.1 (22 Feb 2024)
 ========================
+
+Bug fixes in randomness and improved caching
 
 Major Features and Improvements
 -------------------------------
 
 - reduced the number of graph caching reset, resulting in significant speedups in some cases
 
-Breaking changes
-------------------
-
-Deprecations
--------------
 
 Bug fixes and small changes
 ---------------------------
  - use random generated seeds for numpy and TF, as they can otherwise have unwanted correlations
 
-Experimental
-------------
-
-Requirement changes
--------------------
 
 Thanks
 ------
+@anjabeck for the bug report and the idea to use random seeds for numpy and TF
+@acampoverde for reporting the caching issue
 
 0.18.0 (29 Jan 2024)
 ========================
