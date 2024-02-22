@@ -11,7 +11,8 @@ from ..util.checks import RuntimeDependency
 
 try:
     import nlopt
-except ImportError:
+except ImportError as error:
+    print(error)
     nlopt = RuntimeDependency("nlopt")
 
 import numpy as np
@@ -137,11 +138,11 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
         """
         try:
             import nlopt
-        except ImportError:
+        except ImportError as err:
             raise ImportError(
                 "nlopt is not installed. This is an optional dependency. To include it,you"
                 " can install zfit with `pip install zfit[nlopt]` or `pip install zfit[all]`."
-            )
+            ) from err
         self._algorithm = algorithm
         if minimizer_options is None:
             minimizer_options = {}

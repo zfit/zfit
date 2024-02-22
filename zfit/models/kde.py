@@ -35,7 +35,7 @@ from ..util.ztyping import ExtendedInputType, NormInputType
 from ..z.math import weighted_quantile
 
 
-@z.function(wraps="tensor")
+@z.function(wraps="tensor", keepalive=True)
 def bandwidth_rule_of_thumb(
     data: znp.array,
     weights: znp.array | None,
@@ -77,7 +77,7 @@ def bandwidth_rule_of_thumb(
     )
 
 
-@z.function(wraps="tensor")
+@z.function(wraps="tensor", keepalive=True)
 def bandwidth_silverman(data, weights):
     r"""Calculate the bandwidth of *data* using silvermans rule of thumb.
 
@@ -108,7 +108,7 @@ def bandwidth_silverman(data, weights):
     )
 
 
-@z.function(wraps="tensor")
+@z.function(wraps="tensor", keepalive=True)
 def bandwidth_scott(data, weights):
     r"""Calculate the bandwidth of *data* using silvermans rule of thumb.
 
@@ -449,7 +449,7 @@ def check_bw_grid_shapes(bandwidth, grid=None, n_grid=None):
             )
 
 
-@z.function(wraps="tensor")
+@z.function(wraps="tensor", keepalive=True)
 def min_std_or_iqr(x, weights):
     if weights is not None:
         return znp.minimum(
@@ -463,7 +463,7 @@ def min_std_or_iqr(x, weights):
         )
 
 
-@z.function(wraps="tensor")
+@z.function(wraps="tensor", keepalive=True)
 def calc_kernel_probs(size, weights):
     if weights is not None:
         return weights / znp.sum(weights)

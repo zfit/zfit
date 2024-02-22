@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 
 from __future__ import annotations
 
@@ -160,7 +160,7 @@ def run_no_nan(func, x):
 class FunctionWrapperRegistry:
     registries = WeakSet()
     allow_jit = True
-    DEFAULT_CACHE_SIZE = 200
+    DEFAULT_CACHE_SIZE = 40
     _DEFAULT_DO_JIT_TYPES = defaultdict(lambda: True)
     _DEFAULT_DO_JIT_TYPES.update(
         {
@@ -177,11 +177,17 @@ class FunctionWrapperRegistry:
     do_jit_types = _DEFAULT_DO_JIT_TYPES.copy()
 
     def __init__(
-        self, wraps=None, stateless_args=None, cachesize=None, **kwargs_user
+        self,
+        wraps=None,
+        stateless_args=None,
+        cachesize=None,
+        keepalive=None,
+        **kwargs_user,
     ) -> None:
         """`tf.function`-like decorator with additional cache-invalidation functionality.
 
         Args:
+            keepalive:
             **kwargs_user: arguments to `tf.function`
         """
         super().__init__()
@@ -189,6 +195,8 @@ class FunctionWrapperRegistry:
             cachesize = self.DEFAULT_CACHE_SIZE
         if stateless_args is None:
             stateless_args = False
+        if keepalive is None:
+            keepalive = False
         self._initial_user_kwargs = kwargs_user
         self._deleted_cachers = collections.Counter()
 
@@ -202,10 +210,12 @@ class FunctionWrapperRegistry:
             self.do_jit_types[wraps] = bool(run.get_graph_mode())
         self.wraps = wraps
         self.stateless_args = stateless_args
+
         self.function_cache = collections.deque()
         self.reset(**self._initial_user_kwargs)
         self.currently_traced = set()
         self.cachesize = cachesize
+        self.keepalive = keepalive
 
     @property
     def do_jit(self):
@@ -237,6 +247,7 @@ class FunctionWrapperRegistry:
         return function
 
     def __call__(self, func):
+        keepalive = self.keepalive
         wrapped_func = self.tf_function(func)
         cache = self.function_cache
         deleted_cachers = self._deleted_cachers
@@ -274,6 +285,7 @@ class FunctionWrapperRegistry:
                     kwargs,
                     deleter=deleter,
                     stateless_args=self.stateless_args,
+                    keepalive=keepalive,
                 )
                 if len(cache) >= self.cachesize:
                     popped_holder = cache.popleft()

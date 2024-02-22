@@ -316,7 +316,7 @@ class BaseMinimizer(ZfitMinimizer):
                     "If the loss is a callable, the params cannot be None."
                 )
 
-            from zfit.core.loss import SimpleLoss
+            from zfit.loss import SimpleLoss
 
             convert_to_parameters(params, prefer_constant=False)
             loss = SimpleLoss(func=loss, params=params)

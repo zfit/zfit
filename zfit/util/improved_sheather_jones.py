@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 
 import numpy as np
 import tensorflow as tf
@@ -9,7 +9,7 @@ from ..settings import ztypes
 from . import root_search
 
 
-@z.function(wraps="tensor")
+@z.function(wraps="tensor", keepalive=True)
 def calc_f(s, f, squared_integers, grid_data_dct2, N):
     # Step one: estimate t_s from |f^(s+1)|^2
     one_half = tf.constant(1.0 / 2.0, ztypes.float)

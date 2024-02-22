@@ -23,7 +23,7 @@ def _powerlaw(x, a, k):
     return a * znp.power(x, k)
 
 
-@z.function(wraps="zfit_tensor")
+@z.function(wraps="tensor", keepalive=True)
 def crystalball_func(x, mu, sigma, alpha, n):
     t = (x - mu) / sigma * tf.sign(alpha)
     abs_alpha = znp.abs(alpha)
@@ -41,7 +41,7 @@ def crystalball_func(x, mu, sigma, alpha, n):
     return func
 
 
-@z.function(wraps="zfit_tensor", stateless_args=False)
+@z.function(wraps="tensor", keepalive=True, stateless_args=False)
 def double_crystalball_func(x, mu, sigma, alphal, nl, alphar, nr):
     cond = tf.less(x, mu)
 
@@ -67,7 +67,7 @@ def crystalball_integral(limits, params, model):
     return integral
 
 
-@z.function(wraps="zfit_tensor")
+@z.function(wraps="tensor", keepalive=True)
 # @tf.function  # BUG? TODO: problem with tf.function and input signature
 def crystalball_integral_func(mu, sigma, alpha, n, lower, upper):
     sqrt_pi_over_two = np.sqrt(np.pi / 2)
@@ -167,7 +167,7 @@ def double_crystalball_mu_integral(limits, params, model):
     )
 
 
-@z.function(wraps="zfit_tensor")
+@z.function(wraps="tensor", keepalive=True)
 def double_crystalball_mu_integral_func(
     mu, sigma, alphal, nl, alphar, nr, lower, upper
 ):

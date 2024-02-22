@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 
 from __future__ import annotations
 
@@ -1082,7 +1082,7 @@ def binned_rect_integration(
     return integral
 
 
-@z.function(wraps="tensor")
+@z.function(wraps="tensor", keepalive=True)
 def cut_edges_and_bins(
     edges: Iterable[znp.array], limits: ZfitSpace, axis=None, unscaled=None
 ) -> tuple[list[znp.array], tuple[znp.array, znp.array], list | None]:
