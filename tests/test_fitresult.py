@@ -236,7 +236,7 @@ def test_freeze(minimizer_class_and_kwargs, weights, extended):
     loaded = pickle.loads(dumped)
     test = loaded
     true = result
-    assert test.fmin == true.fmin
+    assert test.fminopt == true.fminopt
     assert test.edm == true.edm
 
     for testval, trueval in zip(test.params.values(), true.params.values()):
@@ -253,7 +253,7 @@ def test_freeze(minimizer_class_and_kwargs, weights, extended):
 def test_fmin(minimizer_class_and_kwargs):
     results = create_fitresult(minimizer_class_and_kwargs=minimizer_class_and_kwargs)
     result = results["result"]
-    assert pytest.approx(results["cur_val"]) == result.fmin
+    assert pytest.approx(results["cur_val"]) == result.fminopt
 
 
 @pytest.mark.parametrize("minimizer_class_and_kwargs", minimizers, ids=minimizer_ids)
@@ -448,7 +448,7 @@ def test_new_minimum(minimizer_class_and_kwargs):
         hacked_result = FitResult(
             params=params_dict,
             edm=result.edm,
-            fmin=result.fmin,
+            fminopt=result.fminopt,
             info=result.info,
             loss=loss,
             status=result.status,

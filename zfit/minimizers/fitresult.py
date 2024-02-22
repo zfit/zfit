@@ -53,7 +53,7 @@ from ..core.interfaces import (
 from ..core.parameter import set_values
 from ..settings import run
 from ..util.container import convert_to_container
-from ..util.deprecation import deprecated_args
+from ..util.deprecation import deprecated_args, deprecated
 from ..util.warnings import ExperimentalFeatureWarning, warn_changed_feature
 from ..util.ztyping import ParamsTypeOpt
 
@@ -305,7 +305,7 @@ class FitResult(ZfitResult):
         minimizer: ZfitMinimizer,
         valid: bool,
         edm: float,
-        fmin: float,
+        fminopt: float,
         criterion: ConvergenceCriterion | None,
         status: int | None = None,
         converged: bool | None = None,
@@ -347,7 +347,7 @@ class FitResult(ZfitResult):
                    To indicate the reason for the invalidity, pass a message. |@docend:result.init.valid|
             edm: |@doc:result.init.edm| The estimated distance to minimum
                    which is the criterion value at the minimum. |@docend:result.init.edm|
-            fmin: |@doc:result.init.fmin| Value of the function at the minimum. |@docend:result.init.fmin|
+            fminopt: |@doc:result.init.fmin| Value of the function at the minimum. |@docend:result.init.fmin|
             criterion: |@doc:result.init.criterion| Criterion that was used during the minimization.
                    This determines the estimated distance to the
                    minimum (edm) |@docend:result.init.criterion|
@@ -423,7 +423,7 @@ class FitResult(ZfitResult):
         self._params_at_limit = param_at_limit
         self._edm = edm
         self._criterion = criterion
-        self._fmin = fmin
+        self._fminopt = fminopt
         self._info = info
         self._loss = loss
         self._minimizer = minimizer
@@ -436,7 +436,7 @@ class FitResult(ZfitResult):
                 f"Could not calculate fminfull due to {error}. Setting to 0. This is a new feature and is caught to not break backwards compatibility."
             )
             fminfull = 0
-        self._fminfull = float(fminfull)
+        self._fmin = float(fminfull)
 
     def _input_convert_approx(self, approx, evaluator, info, params):
         """Convert approx (if a Mapping) to an `Approximation` using the information provided.
@@ -613,7 +613,7 @@ class FitResult(ZfitResult):
         return cls(
             params=params,
             loss=loss,
-            fmin=fmin,
+            fminopt=fmin,
             edm=edm,
             message=message,
             criterion=criterion,
@@ -740,11 +740,10 @@ class FitResult(ZfitResult):
         if values is None:
             values = (res.value for res in params_result)
         params = dict(zip(params, values))
-        fmin
         return cls(
             params=params,
             edm=edm,
-            fmin=fmin,
+            fminopt=fmin,
             info=info,
             loss=loss,
             niter=niter,
@@ -861,7 +860,7 @@ class FitResult(ZfitResult):
         fitresult = cls(
             params=params,
             edm=edm,
-            fmin=fmin,
+            fminopt=fmin,
             info=info,
             approx=approx,
             converged=converged,
@@ -1010,7 +1009,7 @@ class FitResult(ZfitResult):
         return cls(
             params=param_dict,
             edm=edm,
-            fmin=fmin,
+            fminopt=fmin,
             status=status,
             converged=converged,
             info=info,
@@ -1064,8 +1063,17 @@ class FitResult(ZfitResult):
         return self._loss
 
     @property
+    def fminopt(self) -> float:
+        """Function value with possible optimizations at the minimum, namely constant subtraction.
+
+        Returns:
+            Numeric
+        """
+        return self._fminopt
+
+    @property
     def fmin(self) -> float:
-        """Function value with possible optimizations at the minimum.
+        """Function value, fully evaluated, at the minimum.
 
         Returns:
             Numeric
@@ -1073,13 +1081,17 @@ class FitResult(ZfitResult):
         return self._fmin
 
     @property
+    @deprecated(
+        None,
+        "Use `fmin` instead which now returns the full minimum value. This will be removed in the future.",
+    )
     def fminfull(self) -> float:
         """Function value, fully evaluated, at the minimum.
 
         Returns:
             Numeric
         """
-        return self._fminfull
+        return self.fmin
 
     @property
     def status(self):
@@ -1551,7 +1563,7 @@ class FitResult(ZfitResult):
                         self.params_at_limit, on_true=colored.bg(9), on_false=False
                     ),
                     format_value(self.edm, highprec=False),
-                    f"          {self._fminfull:.2f} | {format_value(self.fmin)}",
+                    f"          {self._fmin:.2f} | {format_value(self.fminopt)}",
                 ]
             ],
             [

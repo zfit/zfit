@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 
 from __future__ import annotations
 
@@ -227,7 +227,7 @@ class Minuit(BaseMinimizer, GraphCachable):
                     criterion=criterion,
                     evaluator=evaluator,
                     i=i,
-                    fmin=minimizer.fval,
+                    fminopt=minimizer.fval,
                     internal_tol=internal_tol,
                 )
 

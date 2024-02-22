@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 
 from __future__ import annotations
 
@@ -364,7 +364,7 @@ class IpyoptV1(BaseMinimizer):
                     values=xvalues,
                     minimizer=self,
                     problem=minimizer,
-                    fmin=fmin,
+                    fminopt=fmin,
                     converged=converged,
                     status=status,
                     edm=CRITERION_NOT_AVAILABLE,
@@ -387,7 +387,7 @@ class IpyoptV1(BaseMinimizer):
                     criterion=criterion,
                     evaluator=evaluator,
                     i=i,
-                    fmin=fmin,
+                    fminopt=fmin,
                     internal_tol=internal_tol,
                 )
 
@@ -416,7 +416,7 @@ class IpyoptV1(BaseMinimizer):
             minimizer=self,
             values=xvalues,
             problem=minimizer,
-            fmin=fmin,
+            fminopt=fmin,
             status=status,
             edm=edm,
             criterion=criterion,

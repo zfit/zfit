@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2024 zfit
 from __future__ import annotations
 
 import abc
@@ -55,7 +55,7 @@ class ZfitResult:
 
     @property
     @abc.abstractmethod
-    def fmin(self):
+    def fminopt(self):
         raise NotImplementedError
 
     @property

@@ -754,7 +754,7 @@ class BaseStepMinimizer(BaseMinimizer):
                 prelim_result = FitResult(
                     params=params_result,
                     edm=criterion_val,
-                    fmin=cur_val,
+                    fminopt=cur_val,
                     info=info,
                     converged=False,
                     status=status,
@@ -795,7 +795,7 @@ class BaseStepMinimizer(BaseMinimizer):
             valid=valid,
             params=params,
             criterion=criterion,
-            fmin=cur_val,
+            fminopt=cur_val,
             info=info,
             converged=success,
             status=status,

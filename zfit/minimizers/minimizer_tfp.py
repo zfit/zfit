@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 
 from __future__ import annotations
 
@@ -144,7 +144,7 @@ class BFGS(BaseMinimizer):
         result = FitResult(
             params=params,
             edm=edm,
-            fmin=fmin,
+            fminopt=fmin,
             info=info,
             loss=loss,
             status=status,
