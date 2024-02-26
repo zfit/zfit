@@ -541,7 +541,7 @@ class FitResult(ZfitResult):
         converged: bool | None,
         edm: zfit.minimizers.termination.CriterionNotAvailable | float,
         niter: int | None,
-        fmin: float | None,
+        fminopt: float | None,
         status: int | None,
         criterion: zfit.minimizers.termination.ConvergenceCriterion,
         evaluator: zfit.minimizers.evaluation.LossEval | None,
@@ -590,7 +590,7 @@ class FitResult(ZfitResult):
                    of function evaluations ~= number of gradient evaluations.
                    This is an approximated value and the exact meaning
                    can differ between different minimizers. |@docend:result.init.niter|
-            fmin: |@doc:result.init.fmin| Value of the function at the minimum. |@docend:result.init.fmin|
+            fminopt: |@doc:result.init.fmin| Value of the function at the minimum. |@docend:result.init.fmin|
             status: |@doc:result.init.status| A status code (if available) that describes
                    the minimization termination. 0 means a valid
                    termination. |@docend:result.init.status|
@@ -613,7 +613,7 @@ class FitResult(ZfitResult):
         return cls(
             params=params,
             loss=loss,
-            fminopt=fmin,
+            fminopt=fminopt,
             edm=edm,
             message=message,
             criterion=criterion,
@@ -639,7 +639,7 @@ class FitResult(ZfitResult):
         converged: bool | None = None,
         edm: None | (zfit.minimizers.termination.CriterionNotAvailable | float) = None,
         niter: int | None = None,
-        fmin: float | None = None,
+        fminopt: float | None = None,
         status: int | None = None,
         criterion: zfit.minimizers.termination.ConvergenceCriterion | None = None,
         evaluator: zfit.minimizers.evaluation.LossEval | None = None,
@@ -681,7 +681,7 @@ class FitResult(ZfitResult):
                    of function evaluations ~= number of gradient evaluations.
                    This is an approximated value and the exact meaning
                    can differ between different minimizers. |@docend:result.init.niter|
-            fmin: |@doc:result.init.fmin| Value of the function at the minimum. |@docend:result.init.fmin|
+            fminopt: |@doc:result.init.fmin| Value of the function at the minimum. |@docend:result.init.fmin|
             status: |@doc:result.init.status| A status code (if available) that describes
                    the minimization termination. 0 means a valid
                    termination. |@docend:result.init.status|
@@ -732,7 +732,7 @@ class FitResult(ZfitResult):
         if criterion is None:
             criterion = EDM(tol=minimizer.tol, loss=loss, params=params)
             criterion.last_value = edm
-        fmin = fmin_object.fval if fmin is None else fmin
+        fminopt = fmin_object.fval if fminopt is None else fminopt
         minuit_valid = fmin_object.is_valid
         valid = minuit_valid if valid is None else minuit_valid and valid
         if evaluator is not None:
@@ -743,7 +743,7 @@ class FitResult(ZfitResult):
         return cls(
             params=params,
             edm=edm,
-            fminopt=fmin,
+            fminopt=fminopt,
             info=info,
             loss=loss,
             niter=niter,
@@ -852,7 +852,7 @@ class FitResult(ZfitResult):
             approx["hessian"] = hesse
             approx["inv_hessian"] = inv_hesse
 
-        fmin = result["fun"]
+        fminopt = result["fun"]
         params = dict(zip(params, result_values))
         if evaluator is not None:
             valid = valid and not evaluator.maxiter_reached
@@ -860,7 +860,7 @@ class FitResult(ZfitResult):
         fitresult = cls(
             params=params,
             edm=edm,
-            fminopt=fmin,
+            fminopt=fminopt,
             info=info,
             approx=approx,
             converged=converged,
@@ -888,7 +888,7 @@ class FitResult(ZfitResult):
         converged: bool | None = None,
         edm: None | (zfit.minimizers.termination.CriterionNotAvailable | float) = None,
         niter: int | None = None,
-        fmin: float | None = None,
+        fminopt: float | None = None,
         status: int | None = None,
         criterion: zfit.minimizers.termination.ConvergenceCriterion | None = None,
         evaluator: zfit.minimizers.evaluation.LossEval | None = None,
@@ -939,7 +939,7 @@ class FitResult(ZfitResult):
                    of function evaluations ~= number of gradient evaluations.
                    This is an approximated value and the exact meaning
                    can differ between different minimizers. |@docend:result.init.niter|
-            fmin: |@doc:result.init.fmin| Value of the function at the minimum. |@docend:result.init.fmin|
+            fminopt: |@doc:result.init.fmin| Value of the function at the minimum. |@docend:result.init.fmin|
             status: |@doc:result.init.status| A status code (if available) that describes
                    the minimization termination. 0 means a valid
                    termination. |@docend:result.init.status|
@@ -958,8 +958,8 @@ class FitResult(ZfitResult):
         """
         converged = converged if converged is None else bool(converged)
         param_dict = {p: v for p, v in zip(params, values)}
-        if fmin is None:
-            fmin = opt.last_optimum_value()
+        if fminopt is None:
+            fminopt = opt.last_optimum_value()
         status_nlopt = opt.last_optimize_result()
         if status is None:
             status = status_nlopt
@@ -1009,7 +1009,7 @@ class FitResult(ZfitResult):
         return cls(
             params=param_dict,
             edm=edm,
-            fminopt=fmin,
+            fminopt=fminopt,
             status=status,
             converged=converged,
             info=info,
@@ -1571,7 +1571,7 @@ class FitResult(ZfitResult):
                 "converged",
                 "param at limit",
                 "edm",
-                "approx. fmin (full | internal)",
+                "approx. fmin (full | opt.)",
             ],
             tablefmt="fancy_grid",
             disable_numparse=True,
