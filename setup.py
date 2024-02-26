@@ -20,8 +20,7 @@ with open(
 
 extras_require = {}
 extras_require["ipyopt"] = ["ipyopt>=0.12"]
-if sys.version_info[1] < 11:
-    extras_require["nlopt"] = ["nlopt>=2.7.1"]
+extras_require["nlopt"] = ["nlopt>=2.7.1"]
 extras_require["hs3"] = ["asdf"]
 # Python 3.7 not supported anymore
 extras_require["uproot"] = ["awkward-pandas"]
