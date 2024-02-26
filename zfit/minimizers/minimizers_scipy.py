@@ -366,7 +366,7 @@ class ScipyBaseMinimizerV1(BaseMinimizer):
                     criterion=criterion,
                     evaluator=evaluator,
                     i=i,
-                    fmin=fmin,
+                    fminopt=fmin,
                     internal_tol=internal_tol,
                 )
 

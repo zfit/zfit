@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 import math
 import sys
 
@@ -29,7 +29,7 @@ def test_fail_on_nan_strategy():
     fitresult2 = minimizer.minimize(nll)
     assert not fitresult2.converged
     assert fitresult2.edm is None
-    assert fitresult2.fmin is None
+    assert fitresult2.fminopt is None
 
 
 def minimizers():

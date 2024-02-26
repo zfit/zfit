@@ -12,8 +12,7 @@ from ..util.checks import RuntimeDependency
 try:
     import nlopt
 except ImportError as error:
-    print(error)
-    nlopt = RuntimeDependency("nlopt")
+    nlopt = RuntimeDependency("nlopt", error_msg=str(error))
 
 import numpy as np
 
@@ -355,7 +354,7 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
                     criterion=criterion,
                     evaluator=evaluator,
                     i=i,
-                    fmin=fmin,
+                    fminopt=fmin,
                     internal_tol=internal_tol,
                 )
 

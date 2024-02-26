@@ -493,7 +493,7 @@ def test_minimizers(minimizer_class_and_kwargs, chunksize, numgrad, spaces, requ
         found_min = loss.value(full=False).numpy()
         assert true_min + max_distance_to_min >= found_min
 
-        assert result_lowtol.fmin == pytest.approx(result.fmin, abs=2.0)
+        assert result_lowtol.fminopt == pytest.approx(result.fminopt, abs=2.0)
         if not isinstance(minimizer, zfit.minimize.IpyoptV1):
             assert (
                 result_lowtol.info["n_eval"]

@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 import numpy as np
 import pytest
 import tensorflow as tf
@@ -500,9 +500,7 @@ def test_iminuit_compatibility(create_loss):
     zfit.param.set_values(params, x)
     minimizer_zfit = zfit.minimize.Minuit()
     result_zfit = minimizer_zfit.minimize(loss)
-    assert float(result_zfit.fminfull) == pytest.approx(
-        float(result.fmin.fval), abs=0.03
-    )
+    assert float(result_zfit.fmin) == pytest.approx(float(result.fmin.fval), abs=0.03)
 
 
 @pytest.mark.flaky(3)

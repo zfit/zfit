@@ -106,7 +106,7 @@ def compute_errors(
     all_params = list(result.params.keys())
     loss = result.loss
     errordef = loss.errordef
-    fmin = result.fmin
+    fmin = result.fminopt
     rtol *= errordef
     minimizer = result.minimizer
 
@@ -263,7 +263,7 @@ def compute_errors(
         loss = result.loss
         new_found_fmin = loss.value(full=False)
         new_result = minimizer.minimize(loss=loss)
-        if new_result.fmin >= new_found_fmin + loss_min_tol:
+        if new_result.fminopt >= new_found_fmin + loss_min_tol:
             raise RuntimeError(
                 "A new minimum was discovered but the minimizer was not able to find this on himself. "
                 "This behavior is currently an exception but will most likely change in the future."

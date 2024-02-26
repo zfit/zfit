@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 
 from __future__ import annotations
 
@@ -70,7 +70,7 @@ class ToyStrategyFail(BaseStrategy):
         self.fit_result = FitResult(
             params={},
             edm=None,
-            fmin=None,
+            fminopt=None,
             status=None,
             converged=False,
             info={},
@@ -92,7 +92,7 @@ class ToyStrategyFail(BaseStrategy):
         self.fit_result = FitResult(
             params=param_vals,
             edm=None,
-            fmin=None,
+            fminopt=None,
             status=9,
             converged=False,
             info={},

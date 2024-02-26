@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 
 import pytest
 
@@ -69,7 +69,7 @@ def test_roofit_vs_zfit(toy_data):
         == sigma_unc
     )
     # Compare results
-    assert pytest.approx(roofit_result.minNll(), rel=1e-3) == zfit_result.fmin
+    assert pytest.approx(roofit_result.minNll(), rel=1e-3) == zfit_result.fminopt
     assert (
         pytest.approx(
             roofit_result.floatParsFinal().find("mean").getVal(), abs=3 * mean_unc
