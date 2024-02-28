@@ -373,7 +373,7 @@ class DoubleCB(BasePDF, SerializableMixin):
 
     def _unnormalized_pdf(self, x):
         mu = self.params["mu"].value()
-        sigmal = self.params["sigmar"].value()
+        sigmal = self.params["sigmal"].value()
         alphal = self.params["alphal"].value()
         sigmar = self.params["sigmar"].value()
         nl = self.params["nl"].value()
