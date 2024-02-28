@@ -42,13 +42,13 @@ def crystalball_func(x, mu, sigma, alpha, n):
 
 
 @z.function(wraps="tensor", keepalive=True, stateless_args=False)
-def double_crystalball_func(x, mu, sigma, alphal, nl, alphar, nr):
+def double_crystalball_func(x, mu, sigmal, alphal, nl, sigmar, alphar, nr):
     cond = tf.less(x, mu)
 
     func = tf.where(
         cond,
-        crystalball_func(x, mu, sigma, alphal, nl),
-        crystalball_func(x, mu, sigma, -alphar, nr),
+        crystalball_func(x, mu, sigmal, alphal, nl),
+        crystalball_func(x, mu, sigmar, -alphar, nr),
     )
 
     return func
@@ -81,8 +81,9 @@ def crystalball_integral_func(mu, sigma, alpha, n, lower, upper):
 
     alpha_negative = tf.less(alpha, 0)
     # do not move on two lines, logic will fail...
-    tmax, tmin = znp.where(alpha_negative, -tmin, tmax), znp.where(
-        alpha_negative, -tmax, tmin
+    tmax, tmin = (
+        znp.where(alpha_negative, -tmin, tmax),
+        znp.where(alpha_negative, -tmax, tmin),
     )
 
     if_true_4 = (
@@ -145,9 +146,10 @@ def crystalball_integral_func(mu, sigma, alpha, n, lower, upper):
 
 def double_crystalball_mu_integral(limits, params, model):
     mu = params["mu"]
-    sigma = params["sigma"]
+    sigmal = params["sigmal"]
     alphal = params["alphal"]
     nl = params["nl"]
+    sigmar = params["sigmar"]
     alphar = params["alphar"]
     nr = params["nr"]
 
@@ -157,9 +159,10 @@ def double_crystalball_mu_integral(limits, params, model):
 
     return double_crystalball_mu_integral_func(
         mu=mu,
-        sigma=sigma,
+        sigmal=sigmal,
         alphal=alphal,
         nl=nl,
+        sigmar=sigmar,
         alphar=alphar,
         nr=nr,
         lower=lower,
@@ -169,18 +172,18 @@ def double_crystalball_mu_integral(limits, params, model):
 
 @z.function(wraps="tensor", keepalive=True)
 def double_crystalball_mu_integral_func(
-    mu, sigma, alphal, nl, alphar, nr, lower, upper
+    mu, sigmal, alphal, nl, sigmar, alphar, nr, lower, upper
 ):
     # mu_broadcast =
     upper_of_lowerint = znp.minimum(mu, upper)
     integral_left = crystalball_integral_func(
-        mu=mu, sigma=sigma, alpha=alphal, n=nl, lower=lower, upper=upper_of_lowerint
+        mu=mu, sigma=sigmal, alpha=alphal, n=nl, lower=lower, upper=upper_of_lowerint
     )
     left = tf.where(tf.less(mu, lower), znp.zeros_like(integral_left), integral_left)
 
     lower_of_upperint = znp.maximum(mu, lower)
     integral_right = crystalball_integral_func(
-        mu=mu, sigma=sigma, alpha=-alphar, n=nr, lower=lower_of_upperint, upper=upper
+        mu=mu, sigma=sigmar, alpha=-alphar, n=nr, lower=lower_of_upperint, upper=upper
     )
     right = tf.where(
         tf.greater(mu, upper), znp.zeros_like(integral_right), integral_right
@@ -290,10 +293,11 @@ class DoubleCB(BasePDF, SerializableMixin):
     def __init__(
         self,
         mu: ztyping.ParamTypeInput,
-        sigma: ztyping.ParamTypeInput,
+        sigmal: ztyping.ParamTypeInput,
         alphal: ztyping.ParamTypeInput,
         nl: ztyping.ParamTypeInput,
         alphar: ztyping.ParamTypeInput,
+        sigmar: ztyping.ParamTypeInput,
         nr: ztyping.ParamTypeInput,
         obs: ztyping.ObsTypeInput,
         *,
@@ -325,10 +329,11 @@ class DoubleCB(BasePDF, SerializableMixin):
 
         Args:
             mu: The mean of the gaussian
-            sigma: Standard deviation of the gaussian
+            sigmal: Standard deviation of the gaussian on the left side
             alphal: parameter where to switch from a gaussian to the powertail on the left
                 side
             nl: Exponent of the powertail on the left side
+            sigmar: Standard deviation of the gaussian on the right side
             alphar: parameter where to switch from a gaussian to the powertail on the right
                 side
             nr: Exponent of the powertail on the right side
@@ -355,9 +360,10 @@ class DoubleCB(BasePDF, SerializableMixin):
         """
         params = {
             "mu": mu,
-            "sigma": sigma,
+            "sigmal": sigmal,
             "alphal": alphal,
             "nl": nl,
+            "sigmar": sigmar,
             "alphar": alphar,
             "nr": nr,
         }
@@ -367,14 +373,22 @@ class DoubleCB(BasePDF, SerializableMixin):
 
     def _unnormalized_pdf(self, x):
         mu = self.params["mu"].value()
-        sigma = self.params["sigma"].value()
+        sigmal = self.params["sigmar"].value()
         alphal = self.params["alphal"].value()
+        sigmar = self.params["sigmar"].value()
         nl = self.params["nl"].value()
         alphar = self.params["alphar"].value()
         nr = self.params["nr"].value()
         x = x.unstack_x()
         return double_crystalball_func(
-            x=x, mu=mu, sigma=sigma, alphal=alphal, nl=nl, alphar=alphar, nr=nr
+            x=x,
+            mu=mu,
+            sigmal=sigmal,
+            alphal=alphal,
+            sigmar=sigmar,
+            nl=nl,
+            alphar=alphar,
+            nr=nr,
         )
 
 
@@ -383,8 +397,9 @@ class DoubleCBPDFRepr(BasePDFRepr):
     hs3_type: Literal["DoubleCB"] = pydantic.Field("DoubleCB", alias="type")
     x: SpaceRepr
     mu: Serializer.types.ParamTypeDiscriminated
-    sigma: Serializer.types.ParamTypeDiscriminated
+    sigmal: Serializer.types.ParamTypeDiscriminated
     alphal: Serializer.types.ParamTypeDiscriminated
+    sigmar: Serializer.types.ParamTypeDiscriminated
     nl: Serializer.types.ParamTypeDiscriminated
     alphar: Serializer.types.ParamTypeDiscriminated
     nr: Serializer.types.ParamTypeDiscriminated
