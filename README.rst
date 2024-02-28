@@ -7,6 +7,10 @@ zfit: scalable pythonic fitting
 .. image:: https://scikit-hep.org/assets/images/Scikit--HEP-Affiliated-blue.svg
    :target: https://scikit-hep.org
 
+.. image:: https://img.shields.io/badge/DOI-10.1016%2Fj.softx.2020.100508-yellow
+   :target: https://www.sciencedirect.com/science/article/pii/S2352711019303851  
+   :alt: DOI 10.1016/j.softx.2020.100508  
+
 .. image:: https://img.shields.io/pypi/pyversions/zfit
    :target: https://pypi.org/project/zfit/
    :alt: PyPI - Python Version
@@ -15,8 +19,8 @@ zfit: scalable pythonic fitting
    :target: https://pypi.python.org/pypi/zfit
 
 .. image:: https://img.shields.io/conda/vn/conda-forge/zfit
-   :alt: conda-forge
    :target: https://anaconda.org/conda-forge/zfit
+   :alt: conda-forge
 
 .. image:: https://img.shields.io/spack/v/py-zfit
    :target: https://github.com/spack/spack/blob/develop/var/spack/repos/builtin/packages/py-zfit/package.py
