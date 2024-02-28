@@ -8,6 +8,7 @@ zfit: scalable pythonic fitting
    :target: https://scikit-hep.org
 
 .. image:: https://img.shields.io/pypi/pyversions/zfit
+   :target: https://pypi.org/project/zfit/
    :alt: PyPI - Python Version
 
 .. image:: https://img.shields.io/pypi/v/zfit.svg
