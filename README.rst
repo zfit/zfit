@@ -7,6 +7,9 @@ zfit: scalable pythonic fitting
 .. image:: https://scikit-hep.org/assets/images/Scikit--HEP-Affiliated-blue.svg
    :target: https://scikit-hep.org
 
+.. image:: https://img.shields.io/pypi/pyversions/zfit
+   :alt: PyPI - Python Version
+
 .. image:: https://img.shields.io/pypi/v/zfit.svg
    :target: https://pypi.python.org/pypi/zfit
 
@@ -14,14 +17,10 @@ zfit: scalable pythonic fitting
    :alt: conda-forge
    :target: https://anaconda.org/conda-forge/zfit
 
-.. image:: https://github.com/zfit/zfit/workflows/CI/badge.svg
-   :target: https://github.com/zfit/zfit/actions
-
 .. image:: https://github.com/zfit/zfit/workflows/build/badge.svg
    :target: https://github.com/zfit/zfit/actions
 
-.. image:: https://coveralls.io/repos/github/zfit/zfit/badge.svg?branch=meta_changes
-   :target: https://coveralls.io/github/zfit/zfit?branch=meta_changes
+
 
 
 
