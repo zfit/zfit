@@ -18,6 +18,9 @@ zfit: scalable pythonic fitting
    :alt: conda-forge
    :target: https://anaconda.org/conda-forge/zfit
 
+.. image:: https://img.shields.io/spack/v/py-zfit
+   :target: https://github.com/spack/spack/blob/develop/var/spack/repos/builtin/packages/py-zfit/package.py
+
 .. image:: https://github.com/zfit/zfit/workflows/build/badge.svg
    :target: https://github.com/zfit/zfit/actions
 
