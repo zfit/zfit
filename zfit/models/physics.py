@@ -482,8 +482,8 @@ class GeneralizedCB(BasePDF, SerializableMixin):
         norm: NormInputType = None,
         name: str = "GeneralizedCB",
     ):
-        """Generalized asymetric double-sided Crystal Ball shaped PDF. A combination of two CB using the **mu** (not a frac) and a
-        different **sigma** on each side.
+        """Generalized asymmetric double-sided Crystal Ball shaped PDF. A combination of two CB using the **mu** (not a
+        frac) and a different **sigma** on each side.
 
         The function is defined as follows:
 

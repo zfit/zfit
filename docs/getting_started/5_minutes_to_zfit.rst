@@ -117,7 +117,7 @@ which will return a dictionary of the fit parameters as keys with ``error`` valu
 The errors will also be added to the result object and show up when printing the result.
 
 While the hessian approximation has many advantages, it may not hold well for certain loss functions, especially for
-asymetric uncertainties. It is also possible to use a more CPU-intensive error calculating with the ``errors`` method.
+asymmetric uncertainties. It is also possible to use a more CPU-intensive error calculating with the ``errors`` method.
 This has the advantage of taking into account all the correlations and can describe well a
 a loss minimum that is not well approximated by a quadratic function *(it is however not valid in the case of weights and takes
 considerably longer).* It estimates the lower and upper uncertainty independently.
