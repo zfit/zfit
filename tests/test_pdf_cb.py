@@ -5,7 +5,7 @@ from scipy.stats import crystalball
 
 import zfit
 from zfit.core.testing import tester
-from zfit.models.physics import CrystalBall, DoubleCB, GeneralizedDoubleCB
+from zfit.models.physics import CrystalBall, DoubleCB, GeneralizedCB
 
 mu = -0.3
 sigma = 1.1
@@ -79,7 +79,7 @@ def test_cb_integral():
     assert pytest.approx(float(integral_full)) == float(integral)
 
 
-@pytest.mark.parametrize("doublecb", ["DoubleCB", "GeneralizedDoubleCB"])
+@pytest.mark.parametrize("doublecb", ["DoubleCB", "GeneralizedCB"])
 def test_cb_dcb(doublecb):
     obs = zfit.Space("x", limits=bounds)
 
@@ -105,7 +105,7 @@ def test_cb_dcb(doublecb):
             nr=nr_,
         )
     else:
-        dcb = GeneralizedDoubleCB(
+        dcb = GeneralizedCB(
             obs=obs,
             mu=mu_,
             sigmal=sigmal_,

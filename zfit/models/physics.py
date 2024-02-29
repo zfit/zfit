@@ -407,7 +407,7 @@ DoubleCB.register_analytic_integral(
 )
 
 
-class GeneralizedDoubleCB(BasePDF, SerializableMixin):
+class GeneralizedCB(BasePDF, SerializableMixin):
     _N_OBS = 1
 
     def __init__(
@@ -423,7 +423,7 @@ class GeneralizedDoubleCB(BasePDF, SerializableMixin):
         *,
         extended: ExtendedInputType = None,
         norm: NormInputType = None,
-        name: str = "GeneralizedDoubleCB",
+        name: str = "GeneralizedCB",
     ):
         """Generalized Double-sided Crystal Ball shaped PDF. A combination of two CB using the **mu** (not a frac) on
         each side.
@@ -513,11 +513,9 @@ class GeneralizedDoubleCB(BasePDF, SerializableMixin):
         )
 
 
-class GeneralizedDoubleCBPDFRepr(BasePDFRepr):
-    _implementation = GeneralizedDoubleCB
-    hs3_type: Literal["GeneralizedDoubleCB"] = pydantic.Field(
-        "GeneralizedDoubleCB", alias="type"
-    )
+class GeneralizedCBPDFRepr(BasePDFRepr):
+    _implementation = GeneralizedCB
+    hs3_type: Literal["GeneralizedCB"] = pydantic.Field("GeneralizedCB", alias="type")
     x: SpaceRepr
     mu: Serializer.types.ParamTypeDiscriminated
     sigmal: Serializer.types.ParamTypeDiscriminated
@@ -528,6 +526,6 @@ class GeneralizedDoubleCBPDFRepr(BasePDFRepr):
     nr: Serializer.types.ParamTypeDiscriminated
 
 
-GeneralizedDoubleCB.register_analytic_integral(
+GeneralizedCB.register_analytic_integral(
     func=double_crystalball_mu_integral, limits=crystalball_integral_limits
 )
