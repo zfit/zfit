@@ -6,6 +6,7 @@ __all__ = [
     "Exponential",
     "CrystalBall",
     "DoubleCB",
+    "GeneralizedDoubleCB",
     "Gauss",
     "Uniform",
     "TruncatedGauss",
@@ -64,7 +65,7 @@ from .models.kde import (
     KDE1DimISJ,
 )
 from .models.morphing import SplineMorphingPDF
-from .models.physics import CrystalBall, DoubleCB
+from .models.physics import CrystalBall, DoubleCB, GeneralizedDoubleCB
 from .models.polynomials import (
     Chebyshev,
     Chebyshev2,

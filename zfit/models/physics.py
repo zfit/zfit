@@ -293,6 +293,126 @@ class DoubleCB(BasePDF, SerializableMixin):
     def __init__(
         self,
         mu: ztyping.ParamTypeInput,
+        sigma: ztyping.ParamTypeInput,
+        alphal: ztyping.ParamTypeInput,
+        nl: ztyping.ParamTypeInput,
+        alphar: ztyping.ParamTypeInput,
+        nr: ztyping.ParamTypeInput,
+        obs: ztyping.ObsTypeInput,
+        *,
+        extended: ExtendedInputType = None,
+        norm: NormInputType = None,
+        name: str = "DoubleCB",
+    ):
+        """Double-sided Crystal Ball shaped PDF. A combination of two CB using the **mu** (not a frac) on each side.
+
+        The function is defined as follows:
+
+        .. math::
+            f(x;\\mu, \\sigma, \\alpha_{L}, n_{L}, \\alpha_{R}, n_{R}) =  \\begin{cases}
+            A_{L} \\cdot (B_{L} - \\frac{x - \\mu}{\\sigma})^{-n},
+             & \\mbox{for }\\frac{x - \\mu}{\\sigma} < -\\alpha_{L} \\newline
+            \\exp(- \\frac{(x - \\mu)^2}{2 \\sigma^2}),
+            & -\\alpha_{L} \\leqslant \\mbox{for}\\frac{x - \\mu}{\\sigma} \\leqslant \\alpha_{R} \\newline
+            A_{R} \\cdot (B_{R} + \\frac{x - \\mu}{\\sigma})^{-n},
+             & \\mbox{for }\\frac{x - \\mu}{\\sigma} > \\alpha_{R}
+            \\end{cases}
+
+        with
+
+        .. math::
+            A_{L/R} = \\left(\\frac{n_{L/R}}{\\left| \\alpha_{L/R} \\right|}\\right)^n_{L/R} \\cdot
+            \\exp\\left(- \\frac {\\left|\\alpha_{L/R} \\right|^2}{2}\\right)
+
+            B_{L/R} = \\frac{n_{L/R}}{\\left| \\alpha_{L/R} \\right|}  - \\left| \\alpha_{L/R} \\right|
+
+        Args:
+            mu: The mean of the gaussian
+            sigmal: Standard deviation of the gaussian
+            alphal: parameter where to switch from a gaussian to the powertail on the left
+                side
+            nl: Exponent of the powertail on the left side
+            alphar: parameter where to switch from a gaussian to the powertail on the right
+                side
+            nr: Exponent of the powertail on the right side
+            obs: |@doc:pdf.init.obs| Observables of the
+               model. This will be used as the default space of the PDF and,
+               if not given explicitly, as the normalization range.
+
+               The default space is used for example in the sample method: if no
+               sampling limits are given, the default space is used.
+
+               The observables are not equal to the domain as it does not restrict or
+               truncate the model outside this range. |@docend:pdf.init.obs|
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+            norm: |@doc:pdf.init.norm| Normalization of the PDF.
+               By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
+            name: |@doc:pdf.init.name| Human-readable name
+               or label of
+               the PDF for better identification.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.name|
+        """
+        params = {
+            "mu": mu,
+            "sigmal": sigma,
+            "alphal": alphal,
+            "nl": nl,
+            "sigmar": sigma,
+            "alphar": alphar,
+            "nr": nr,
+        }
+        super().__init__(
+            obs=obs, name=name, params=params, extended=extended, norm=norm
+        )
+
+    def _unnormalized_pdf(self, x):
+        mu = self.params["mu"].value()
+        sigmal = self.params["sigmal"].value()
+        alphal = self.params["alphal"].value()
+        sigmar = self.params["sigmar"].value()
+        nl = self.params["nl"].value()
+        alphar = self.params["alphar"].value()
+        nr = self.params["nr"].value()
+        x = x.unstack_x()
+        return double_crystalball_func(
+            x=x,
+            mu=mu,
+            sigmal=sigmal,
+            alphal=alphal,
+            sigmar=sigmar,
+            nl=nl,
+            alphar=alphar,
+            nr=nr,
+        )
+
+
+class DoubleCBPDFRepr(BasePDFRepr):
+    _implementation = DoubleCB
+    hs3_type: Literal["DoubleCB"] = pydantic.Field("DoubleCB", alias="type")
+    x: SpaceRepr
+    mu: Serializer.types.ParamTypeDiscriminated
+    sigma: Serializer.types.ParamTypeDiscriminated
+    alphal: Serializer.types.ParamTypeDiscriminated
+    nl: Serializer.types.ParamTypeDiscriminated
+    alphar: Serializer.types.ParamTypeDiscriminated
+    nr: Serializer.types.ParamTypeDiscriminated
+
+
+DoubleCB.register_analytic_integral(
+    func=double_crystalball_mu_integral, limits=crystalball_integral_limits
+)
+
+
+class GeneralizedDoubleCB(BasePDF, SerializableMixin):
+    _N_OBS = 1
+
+    def __init__(
+        self,
+        mu: ztyping.ParamTypeInput,
         sigmal: ztyping.ParamTypeInput,
         alphal: ztyping.ParamTypeInput,
         nl: ztyping.ParamTypeInput,
@@ -303,9 +423,10 @@ class DoubleCB(BasePDF, SerializableMixin):
         *,
         extended: ExtendedInputType = None,
         norm: NormInputType = None,
-        name: str = "DoubleCB",
+        name: str = "GeneralizedDoubleCB",
     ):
-        """Double-sided Crystal Ball shaped PDF. A combination of two CB using the **mu** (not a frac) on each side.
+        """Generalized Double-sided Crystal Ball shaped PDF. A combination of two CB using the **mu** (not a frac) on
+        each side.
 
         The function is defined as follows:
 
@@ -392,9 +513,11 @@ class DoubleCB(BasePDF, SerializableMixin):
         )
 
 
-class DoubleCBPDFRepr(BasePDFRepr):
-    _implementation = DoubleCB
-    hs3_type: Literal["DoubleCB"] = pydantic.Field("DoubleCB", alias="type")
+class GeneralizedDoubleCBPDFRepr(BasePDFRepr):
+    _implementation = GeneralizedDoubleCB
+    hs3_type: Literal["GeneralizedDoubleCB"] = pydantic.Field(
+        "GeneralizedDoubleCB", alias="type"
+    )
     x: SpaceRepr
     mu: Serializer.types.ParamTypeDiscriminated
     sigmal: Serializer.types.ParamTypeDiscriminated
@@ -405,6 +528,6 @@ class DoubleCBPDFRepr(BasePDFRepr):
     nr: Serializer.types.ParamTypeDiscriminated
 
 
-DoubleCB.register_analytic_integral(
+GeneralizedDoubleCB.register_analytic_integral(
     func=double_crystalball_mu_integral, limits=crystalball_integral_limits
 )

@@ -5,7 +5,7 @@ from scipy.stats import crystalball
 
 import zfit
 from zfit.core.testing import tester
-from zfit.models.physics import CrystalBall, DoubleCB
+from zfit.models.physics import CrystalBall, DoubleCB, GeneralizedDoubleCB
 
 mu = -0.3
 sigma = 1.1
@@ -79,7 +79,8 @@ def test_cb_integral():
     assert pytest.approx(float(integral_full)) == float(integral)
 
 
-def test_cb_dcb():
+@pytest.mark.parametrize("doublecb", ["DoubleCB", "GeneralizedDoubleCB"])
+def test_cb_dcb(doublecb):
     obs = zfit.Space("x", limits=bounds)
 
     mu_ = zfit.Parameter("mu", mu)
@@ -92,16 +93,27 @@ def test_cb_dcb():
 
     cbl = CrystalBall(obs=obs, mu=mu_, sigma=sigmal_, alpha=alphal_, n=nl_)
     cbr = CrystalBall(obs=obs, mu=mu_, sigma=sigmar_, alpha=-alphar_, n=nr_)
-    dcb = DoubleCB(
-        obs=obs,
-        mu=mu_,
-        sigmal=sigmal_,
-        alphal=alphal_,
-        nl=nl_,
-        sigmar=sigmar_,
-        alphar=alphar_,
-        nr=nr_,
-    )
+    if doublecb == "DoubleCB":
+        dcb = DoubleCB(
+            obs=obs,
+            mu=mu_,
+            sigma=sigma,
+            alphal=alphal_,
+            nl=nl_,
+            alphar=alphar_,
+            nr=nr_,
+        )
+    else:
+        dcb = GeneralizedDoubleCB(
+            obs=obs,
+            mu=mu_,
+            sigmal=sigmal_,
+            alphal=alphal_,
+            nl=nl_,
+            sigmar=sigmar_,
+            alphar=alphar_,
+            nr=nr_,
+        )
 
     sample_testing(cbl)
     sample_testing(cbr)
