@@ -122,6 +122,30 @@ def doublecb(extended=None, **kwargs):
     )
 
 
+def generalizedcb(extended=None, **kwargs):
+    import zfit
+
+    sigmaL = zfit.Parameter("sigmaL_gcb", 0.1, 0, 1)
+    alphaL = zfit.Parameter("alphaL_gcb", 0.1, -1, 1)
+    nL = zfit.Parameter("nL_gcb", 0.1, 0, 1)
+    sigmaR = zfit.Parameter("sigmaR_gcb", 0.1, 0, 1)
+    alphaR = zfit.Parameter("alphaR_gcb", 0.1, -1, 1)
+    nR = zfit.Parameter("nR_gcb", 0.1, 0, 1)
+    mu = zfit.Parameter("mu_gcb", 0.1, -1, 1)
+    obs = zfit.Space("obs", (-3, 3))
+    return zfit.pdf.GeneralizedCB(
+        sigmal=sigmaL,
+        alphal=alphaL,
+        nl=nL,
+        sigmar=sigmaR,
+        alphar=alphaR,
+        nr=nR,
+        mu=mu,
+        obs=obs,
+        extended=extended,
+    )
+
+
 def legendre(extended=None, **kwargs):
     import zfit
 
@@ -297,6 +321,7 @@ basic_pdfs = [
     exponential,
     crystalball,
     doublecb,
+    generalizedcb,
     legendre,
     chebyshev,
     chebyshev2,
