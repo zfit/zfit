@@ -199,6 +199,7 @@ class Gauss(WrapDistribution, SerializableMixin):
         mu: ztyping.ParamTypeInput,
         sigma: ztyping.ParamTypeInput,
         obs: ztyping.ObsTypeInput,
+        *,
         extended: ExtendedInputType = None,
         norm: NormInputType = None,
         name: str = "Gauss",
