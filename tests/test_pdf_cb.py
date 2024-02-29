@@ -92,8 +92,8 @@ def test_cb_dcb(doublecb):
     alphar_ = zfit.Parameter("alphar", alphar)
     nr_ = zfit.Parameter("nr", nr)
 
-    cbl = CrystalBall(obs=obs, mu=mu_, sigma=sigma, alpha=alphal_, n=nl_)
-    cbr = CrystalBall(obs=obs, mu=mu_, sigma=sigma, alpha=-alphar_, n=nr_)
+    cbl = CrystalBall(obs=obs, mu=mu_, sigma=sigmal_, alpha=alphal_, n=nl_)
+    cbr = CrystalBall(obs=obs, mu=mu_, sigma=sigmar_, alpha=-alphar_, n=nr_)
     if doublecb == "DoubleCB":
         dcb = DoubleCB(
             obs=obs,
