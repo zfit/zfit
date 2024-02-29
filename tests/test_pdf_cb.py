@@ -84,6 +84,7 @@ def test_cb_dcb(doublecb):
     obs = zfit.Space("x", limits=bounds)
 
     mu_ = zfit.Parameter("mu", mu)
+    sigma_ = zfit.Parameter("sigma", sigma)
     sigmal_ = zfit.Parameter("sigma", sigmal)
     alphal_ = zfit.Parameter("alphal", alphal)
     nl_ = zfit.Parameter("nl", nl)
@@ -97,7 +98,7 @@ def test_cb_dcb(doublecb):
         dcb = DoubleCB(
             obs=obs,
             mu=mu_,
-            sigma=sigma,
+            sigma=sigma_,
             alphal=alphal_,
             nl=nl_,
             alphar=alphar_,
