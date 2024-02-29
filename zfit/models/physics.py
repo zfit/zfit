@@ -388,7 +388,7 @@ class DoubleCB(BasePDF, SerializableMixin):
 
         Args:
             mu: The mean of the gaussian
-            sigmal: Standard deviation of the gaussian
+            sigma: Standard deviation of the gaussian
             alphal: parameter where to switch from a gaussian to the powertail on the left
                 side
             nl: Exponent of the powertail on the left side
