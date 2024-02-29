@@ -370,11 +370,11 @@ class DoubleCB(BasePDF, SerializableMixin):
 
         .. math::
             f(x;\\mu, \\sigma, \\alpha_{L}, n_{L}, \\alpha_{R}, n_{R}) =  \\begin{cases}
-            A_{L} \\cdot (B_{L} - \\frac{x - \\mu}{\\sigma})^{-n},
+            A_{L} \\cdot (B_{L} - \\frac{x - \\mu}{\\sigma})^{-n_{L}},
              & \\mbox{for }\\frac{x - \\mu}{\\sigma} < -\\alpha_{L} \\newline
             \\exp(- \\frac{(x - \\mu)^2}{2 \\sigma^2}),
             & \\mbox{for }-\\alpha_{L} \\leqslant \\frac{x - \\mu}{\\sigma} \\leqslant \\alpha_{R} \\newline
-            A_{R} \\cdot (B_{R} + \\frac{x - \\mu}{\\sigma})^{-n},
+            A_{R} \\cdot (B_{R} + \\frac{x - \\mu}{\\sigma})^{-n_{R}},
              & \\mbox{for }\\frac{x - \\mu}{\\sigma} > \\alpha_{R}
             \\end{cases}
 
@@ -489,13 +489,13 @@ class GeneralizedCB(BasePDF, SerializableMixin):
 
         .. math::
             f(x;\\mu, \\sigma_{L}, \\alpha_{L}, n_{L}, \\sigma_{R}, \\alpha_{R}, n_{R}) =  \\begin{cases}
-            A_{L} \\cdot (B_{L} - \\frac{x - \\mu}{\\sigma_{L}})^{-n},
+            A_{L} \\cdot (B_{L} - \\frac{x - \\mu}{\\sigma_{L}})^{-n_{L}},
              & \\mbox{for }\\frac{x - \\mu}{\\sigma_{L}} < -\\alpha_{L} \\newline
             \\exp(- \\frac{(x - \\mu)^2}{2 \\sigma_{L}^2}),
             & \\mbox{for }-\\alpha_{L} \\leqslant \\frac{x - \\mu}{\\sigma_{L}} \\leqslant 0 \\newline
             \\exp(- \\frac{(x - \\mu)^2}{2 \\sigma_{R}^2}),
             & \\mbox{for }0 \\leqslant \\frac{x - \\mu}{\\sigma_{R}} \\leqslant \\alpha_{R} \\newline
-            A_{R} \\cdot (B_{R} + \\frac{x - \\mu}{\\sigma_{R}})^{-n},
+            A_{R} \\cdot (B_{R} + \\frac{x - \\mu}{\\sigma_{R}})^{-n_{R}},
              & \\mbox{for }\\frac{x - \\mu}{\\sigma_{R}} > \\alpha_{R}
             \\end{cases}
 
