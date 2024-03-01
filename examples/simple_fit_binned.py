@@ -28,4 +28,4 @@ result = minimizer.minimize(nll)
 param_errors = result.hesse()
 
 # or here with minos
-param_errors_asymetric, new_result = result.errors()
+param_errors_asymmetric, new_result = result.errors()

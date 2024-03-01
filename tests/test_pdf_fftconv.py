@@ -69,7 +69,7 @@ def test_conv_simple(interpolation):
 
 
 @pytest.mark.parametrize("interpolation", interpolation_methods)
-def test_asymetric_limits(interpolation):
+def test_asymmetric_limits(interpolation):
     from numpy import linspace
 
     import zfit

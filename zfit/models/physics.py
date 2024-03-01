@@ -54,6 +54,19 @@ def double_crystalball_func(x, mu, sigma, alphal, nl, alphar, nr):
     return func
 
 
+@z.function(wraps="tensor", keepalive=True, stateless_args=False)
+def generalized_crystalball_func(x, mu, sigmal, alphal, nl, sigmar, alphar, nr):
+    cond = tf.less(x, mu)
+
+    func = tf.where(
+        cond,
+        crystalball_func(x, mu, sigmal, alphal, nl),
+        crystalball_func(x, mu, sigmar, -alphar, nr),
+    )
+
+    return func
+
+
 # created with the help of TensorFlow autograph used on python code converted from ShapeCB of RooFit
 def crystalball_integral(limits, params, model):
     mu = params["mu"]
@@ -81,8 +94,9 @@ def crystalball_integral_func(mu, sigma, alpha, n, lower, upper):
 
     alpha_negative = tf.less(alpha, 0)
     # do not move on two lines, logic will fail...
-    tmax, tmin = znp.where(alpha_negative, -tmin, tmax), znp.where(
-        alpha_negative, -tmax, tmin
+    tmax, tmin = (
+        znp.where(alpha_negative, -tmin, tmax),
+        znp.where(alpha_negative, -tmax, tmin),
     )
 
     if_true_4 = (
@@ -181,6 +195,55 @@ def double_crystalball_mu_integral_func(
     lower_of_upperint = znp.maximum(mu, lower)
     integral_right = crystalball_integral_func(
         mu=mu, sigma=sigma, alpha=-alphar, n=nr, lower=lower_of_upperint, upper=upper
+    )
+    right = tf.where(
+        tf.greater(mu, upper), znp.zeros_like(integral_right), integral_right
+    )
+
+    integral = left + right
+    return integral
+
+
+def generalized_crystalball_mu_integral(limits, params, model):
+    mu = params["mu"]
+    sigmal = params["sigmal"]
+    alphal = params["alphal"]
+    nl = params["nl"]
+    sigmar = params["sigmar"]
+    alphar = params["alphar"]
+    nr = params["nr"]
+
+    lower, upper = limits._rect_limits_tf
+    lower = lower[:, 0]
+    upper = upper[:, 0]
+
+    return generalized_crystalball_mu_integral_func(
+        mu=mu,
+        sigmal=sigmal,
+        alphal=alphal,
+        nl=nl,
+        sigmar=sigmar,
+        alphar=alphar,
+        nr=nr,
+        lower=lower,
+        upper=upper,
+    )
+
+
+@z.function(wraps="tensor", keepalive=True)
+def generalized_crystalball_mu_integral_func(
+    mu, sigmal, alphal, nl, sigmar, alphar, nr, lower, upper
+):
+    # mu_broadcast =
+    upper_of_lowerint = znp.minimum(mu, upper)
+    integral_left = crystalball_integral_func(
+        mu=mu, sigma=sigmal, alpha=alphal, n=nl, lower=lower, upper=upper_of_lowerint
+    )
+    left = tf.where(tf.less(mu, lower), znp.zeros_like(integral_left), integral_left)
+
+    lower_of_upperint = znp.maximum(mu, lower)
+    integral_right = crystalball_integral_func(
+        mu=mu, sigma=sigmar, alpha=-alphar, n=nr, lower=lower_of_upperint, upper=upper
     )
     right = tf.where(
         tf.greater(mu, upper), znp.zeros_like(integral_right), integral_right
@@ -307,11 +370,11 @@ class DoubleCB(BasePDF, SerializableMixin):
 
         .. math::
             f(x;\\mu, \\sigma, \\alpha_{L}, n_{L}, \\alpha_{R}, n_{R}) =  \\begin{cases}
-            A_{L} \\cdot (B_{L} - \\frac{x - \\mu}{\\sigma})^{-n},
+            A_{L} \\cdot (B_{L} - \\frac{x - \\mu}{\\sigma})^{-n_{L}},
              & \\mbox{for }\\frac{x - \\mu}{\\sigma} < -\\alpha_{L} \\newline
             \\exp(- \\frac{(x - \\mu)^2}{2 \\sigma^2}),
-            & -\\alpha_{L} \\leqslant \\mbox{for}\\frac{x - \\mu}{\\sigma} \\leqslant \\alpha_{R} \\newline
-            A_{R} \\cdot (B_{R} + \\frac{x - \\mu}{\\sigma})^{-n},
+            & \\mbox{for }-\\alpha_{L} \\leqslant \\frac{x - \\mu}{\\sigma} \\leqslant \\alpha_{R} \\newline
+            A_{R} \\cdot (B_{R} + \\frac{x - \\mu}{\\sigma})^{-n_{R}},
              & \\mbox{for }\\frac{x - \\mu}{\\sigma} > \\alpha_{R}
             \\end{cases}
 
@@ -374,7 +437,13 @@ class DoubleCB(BasePDF, SerializableMixin):
         nr = self.params["nr"].value()
         x = x.unstack_x()
         return double_crystalball_func(
-            x=x, mu=mu, sigma=sigma, alphal=alphal, nl=nl, alphar=alphar, nr=nr
+            x=x,
+            mu=mu,
+            sigma=sigma,
+            alphal=alphal,
+            nl=nl,
+            alphar=alphar,
+            nr=nr,
         )
 
 
@@ -392,4 +461,130 @@ class DoubleCBPDFRepr(BasePDFRepr):
 
 DoubleCB.register_analytic_integral(
     func=double_crystalball_mu_integral, limits=crystalball_integral_limits
+)
+
+
+class GeneralizedCB(BasePDF, SerializableMixin):
+    _N_OBS = 1
+
+    def __init__(
+        self,
+        mu: ztyping.ParamTypeInput,
+        sigmal: ztyping.ParamTypeInput,
+        alphal: ztyping.ParamTypeInput,
+        nl: ztyping.ParamTypeInput,
+        sigmar: ztyping.ParamTypeInput,
+        alphar: ztyping.ParamTypeInput,
+        nr: ztyping.ParamTypeInput,
+        obs: ztyping.ObsTypeInput,
+        *,
+        extended: ExtendedInputType = None,
+        norm: NormInputType = None,
+        name: str = "GeneralizedCB",
+    ):
+        """Generalized asymmetric double-sided Crystal Ball shaped PDF. A combination of two CB using the **mu** (not a
+        frac) and a different **sigma** on each side.
+
+        The function is defined as follows:
+
+        .. math::
+            f(x;\\mu, \\sigma_{L}, \\alpha_{L}, n_{L}, \\sigma_{R}, \\alpha_{R}, n_{R}) =  \\begin{cases}
+            A_{L} \\cdot (B_{L} - \\frac{x - \\mu}{\\sigma_{L}})^{-n_{L}},
+             & \\mbox{for }\\frac{x - \\mu}{\\sigma_{L}} < -\\alpha_{L} \\newline
+            \\exp(- \\frac{(x - \\mu)^2}{2 \\sigma_{L}^2}),
+            & \\mbox{for }-\\alpha_{L} \\leqslant \\frac{x - \\mu}{\\sigma_{L}} \\leqslant 0 \\newline
+            \\exp(- \\frac{(x - \\mu)^2}{2 \\sigma_{R}^2}),
+            & \\mbox{for }0 \\leqslant \\frac{x - \\mu}{\\sigma_{R}} \\leqslant \\alpha_{R} \\newline
+            A_{R} \\cdot (B_{R} + \\frac{x - \\mu}{\\sigma_{R}})^{-n_{R}},
+             & \\mbox{for }\\frac{x - \\mu}{\\sigma_{R}} > \\alpha_{R}
+            \\end{cases}
+
+        with
+
+        .. math::
+            A_{L/R} = \\left(\\frac{n_{L/R}}{\\left| \\alpha_{L/R} \\right|}\\right)^n_{L/R} \\cdot
+            \\exp\\left(- \\frac {\\left|\\alpha_{L/R} \\right|^2}{2}\\right)
+
+            B_{L/R} = \\frac{n_{L/R}}{\\left| \\alpha_{L/R} \\right|}  - \\left| \\alpha_{L/R} \\right|
+
+        Args:
+            mu: The mean of the gaussian
+            sigmal: Standard deviation of the gaussian on the left side
+            alphal: parameter where to switch from a gaussian to the powertail on the left
+                side
+            nl: Exponent of the powertail on the left side
+            sigmar: Standard deviation of the gaussian on the right side
+            alphar: parameter where to switch from a gaussian to the powertail on the right
+                side
+            nr: Exponent of the powertail on the right side
+            obs: |@doc:pdf.init.obs| Observables of the
+               model. This will be used as the default space of the PDF and,
+               if not given explicitly, as the normalization range.
+
+               The default space is used for example in the sample method: if no
+               sampling limits are given, the default space is used.
+
+               The observables are not equal to the domain as it does not restrict or
+               truncate the model outside this range. |@docend:pdf.init.obs|
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+            norm: |@doc:pdf.init.norm| Normalization of the PDF.
+               By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
+            name: |@doc:pdf.init.name| Human-readable name
+               or label of
+               the PDF for better identification.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.name|
+        """
+        params = {
+            "mu": mu,
+            "sigmal": sigmal,
+            "alphal": alphal,
+            "nl": nl,
+            "sigmar": sigmar,
+            "alphar": alphar,
+            "nr": nr,
+        }
+        super().__init__(
+            obs=obs, name=name, params=params, extended=extended, norm=norm
+        )
+
+    def _unnormalized_pdf(self, x):
+        mu = self.params["mu"].value()
+        sigmal = self.params["sigmal"].value()
+        alphal = self.params["alphal"].value()
+        sigmar = self.params["sigmar"].value()
+        nl = self.params["nl"].value()
+        alphar = self.params["alphar"].value()
+        nr = self.params["nr"].value()
+        x = x.unstack_x()
+        return generalized_crystalball_func(
+            x=x,
+            mu=mu,
+            sigmal=sigmal,
+            alphal=alphal,
+            sigmar=sigmar,
+            nl=nl,
+            alphar=alphar,
+            nr=nr,
+        )
+
+
+class GeneralizedCBPDFRepr(BasePDFRepr):
+    _implementation = GeneralizedCB
+    hs3_type: Literal["GeneralizedCB"] = pydantic.Field("GeneralizedCB", alias="type")
+    x: SpaceRepr
+    mu: Serializer.types.ParamTypeDiscriminated
+    sigmal: Serializer.types.ParamTypeDiscriminated
+    alphal: Serializer.types.ParamTypeDiscriminated
+    sigmar: Serializer.types.ParamTypeDiscriminated
+    nl: Serializer.types.ParamTypeDiscriminated
+    alphar: Serializer.types.ParamTypeDiscriminated
+    nr: Serializer.types.ParamTypeDiscriminated
+
+
+GeneralizedCB.register_analytic_integral(
+    func=generalized_crystalball_mu_integral, limits=crystalball_integral_limits
 )
