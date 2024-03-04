@@ -3,25 +3,36 @@
 <https://github.com/tensorflow/probability>`_. While their API is slightly different from the zfit models, it is similar
 enough to be easily wrapped.
 
-Therefore a convenient wrapper as well as a lot of implementations are provided.
+Therefore, a convenient wrapper as well as a lot of implementations are provided.
 """
-#  Copyright (c) 2022 zfit
+
+#  Copyright (c) 2024 zfit
+from __future__ import annotations
 
 from collections import OrderedDict
 
 import tensorflow as tf
 import tensorflow_probability as tfp
 import tensorflow_probability.python.distributions as tfd
+from pydantic import Field
+
+from typing import Literal
 
 from zfit import z
 from zfit.util.exception import (
     AnalyticSamplingNotImplemented,
 )
 from ..core.basepdf import BasePDF
+from ..core.interfaces import ZfitData
 from ..core.parameter import convert_to_parameter
+from ..core.serialmixin import SerializableMixin
 from ..core.space import Space, supports
+from ..serialization import SpaceRepr, Serializer
+from ..serialization.pdfrepr import BasePDFRepr
 from ..settings import ztypes
 from ..util import ztyping
+from ..util.deprecation import deprecated_args
+from ..util.ztyping import ExtendedInputType, NormInputType
 
 
 # TODO: improve? while loop over `.sample`? Maybe as a fallback if not implemented?
@@ -67,7 +78,7 @@ class WrapDistribution(BasePDF):  # TODO: extend functionality of wrapper, like 
         dist_kwargs=None,
         dtype=ztypes.float,
         name=None,
-        **kwargs
+        **kwargs,
     ):
         # Check if subclass of distribution?
         if dist_kwargs is None:
@@ -92,7 +103,6 @@ class WrapDistribution(BasePDF):  # TODO: extend functionality of wrapper, like 
 
     @property
     def distribution(self):
-
         params = self.dist_params
         if callable(params):
             params = params()
@@ -101,7 +111,7 @@ class WrapDistribution(BasePDF):  # TODO: extend functionality of wrapper, like 
             kwargs = kwargs()
         return self._distribution(**params, **kwargs, name=self.name + "_tfp")
 
-    def _unnormalized_pdf(self, x: "zfit.Data"):
+    def _unnormalized_pdf(self, x: ZfitData):
         value = z.unstack_x(x)  # TODO: use this? change shaping below?
         return self.distribution.prob(value=value, name="unnormalized_pdf")
 
@@ -181,7 +191,7 @@ class WrapDistribution(BasePDF):  # TODO: extend functionality of wrapper, like 
 #         return integral  # TODO: generalize for VectorSpaces
 
 
-class Gauss(WrapDistribution):
+class Gauss(WrapDistribution, SerializableMixin):
     _N_OBS = 1
 
     def __init__(
@@ -189,6 +199,9 @@ class Gauss(WrapDistribution):
         mu: ztyping.ParamTypeInput,
         sigma: ztyping.ParamTypeInput,
         obs: ztyping.ObsTypeInput,
+        *,
+        extended: ExtendedInputType = None,
+        norm: NormInputType = None,
         name: str = "Gauss",
     ):
         """Gaussian or Normal distribution with a mean (mu) and a standartdeviation (sigma).
@@ -209,7 +222,17 @@ class Gauss(WrapDistribution):
             mu: Mean of the gaussian dist
             sigma: Standard deviation or spread of the gaussian
             obs: Observables and normalization range the pdf is defined in
-            name: Name of the pdf
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+            norm: |@doc:pdf.init.norm| Normalization of the PDF.
+               By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
+            name: |@doc:model.init.name| Human-readable name
+               or label of
+               the PDF for better identification.
+               Has no programmatical functional purpose as identification. |@docend:model.init.name|
         """
         mu, sigma = self._check_input_params(mu, sigma)
         params = OrderedDict((("mu", mu), ("sigma", sigma)))
@@ -221,7 +244,17 @@ class Gauss(WrapDistribution):
             obs=obs,
             params=params,
             name=name,
+            extended=extended,
+            norm=norm,
         )
+
+
+class GaussPDFRepr(BasePDFRepr):
+    _implementation = Gauss
+    hs3_type: Literal["Gauss"] = Field("Gauss", alias="type")
+    x: SpaceRepr
+    mu: Serializer.types.ParamInputTypeDiscriminated
+    sigma: Serializer.types.ParamInputTypeDiscriminated
 
 
 class ExponentialTFP(WrapDistribution):
@@ -254,6 +287,9 @@ class Uniform(WrapDistribution):
         low: ztyping.ParamTypeInput,
         high: ztyping.ParamTypeInput,
         obs: ztyping.ObsTypeInput,
+        *,
+        extended: ExtendedInputType = None,
+        norm: NormInputType = None,
         name: str = "Uniform",
     ):
         """Uniform distribution which is constant between `low`, `high` and zero outside.
@@ -262,7 +298,14 @@ class Uniform(WrapDistribution):
             low: Below this value, the pdf is zero.
             high: Above this value, the pdf is zero.
             obs: Observables and normalization range the pdf is defined in
-            name: Name of the pdf
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+            norm: |@doc:pdf.init.norm| Normalization of the PDF.
+               By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
+            name: |@doc:model.init.pdf||@docend:model.init.pdf|
         """
         low, high = self._check_input_params(low, high)
         params = OrderedDict((("low", low), ("high", high)))
@@ -274,6 +317,8 @@ class Uniform(WrapDistribution):
             obs=obs,
             params=params,
             name=name,
+            extended=extended,
+            norm=norm,
         )
 
 
@@ -287,6 +332,9 @@ class TruncatedGauss(WrapDistribution):
         low: ztyping.ParamTypeInput,
         high: ztyping.ParamTypeInput,
         obs: ztyping.ObsTypeInput,
+        *,
+        extended: ExtendedInputType = None,
+        norm: NormInputType = None,
         name: str = "TruncatedGauss",
     ):
         """Gaussian distribution that is 0 outside of `low`, `high`. Equivalent to the product of Gauss and Uniform.
@@ -297,7 +345,17 @@ class TruncatedGauss(WrapDistribution):
             low: Below this value, the pdf is zero.
             high: Above this value, the pdf is zero.
             obs: Observables and normalization range the pdf is defined in
-            name: Name of the pdf
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+            norm: |@doc:pdf.init.norm| Normalization of the PDF.
+               By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
+            name: |@doc:model.init.name| Human-readable name
+               or label of
+               the PDF for better identification.
+               Has no programmatical functional purpose as identification. |@docend:model.init.name|
         """
         mu, sigma, low, high = self._check_input_params(mu, sigma, low, high)
         params = OrderedDict(
@@ -313,10 +371,12 @@ class TruncatedGauss(WrapDistribution):
             obs=obs,
             params=params,
             name=name,
+            extended=extended,
+            norm=norm,
         )
 
 
-class Cauchy(WrapDistribution):
+class Cauchy(WrapDistribution, SerializableMixin):
     _N_OBS = 1
 
     def __init__(
@@ -324,6 +384,9 @@ class Cauchy(WrapDistribution):
         m: ztyping.ParamTypeInput,
         gamma: ztyping.ParamTypeInput,
         obs: ztyping.ObsTypeInput,
+        *,
+        extended: ExtendedInputType = None,
+        norm: NormInputType = None,
         name: str = "Cauchy",
     ):
         r"""Non-relativistic Breit-Wigner (Cauchy) PDF representing the energy distribution of a decaying particle.
@@ -340,7 +403,17 @@ class Cauchy(WrapDistribution):
             m: Invariant mass of the unstable particle.
             gamma: Width of the shape.
             obs: Observables and normalization range the pdf is defined in
-            name: Name of the PDF
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+            norm: |@doc:pdf.init.norm| Normalization of the PDF.
+               By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
+            name: |@doc:model.init.name| Human-readable name
+               or label of
+               the PDF for better identification.
+               Has no programmatical functional purpose as identification. |@docend:model.init.name|
         """
         m, gamma = self._check_input_params(m, gamma)
         params = OrderedDict((("m", m), ("gamma", gamma)))
@@ -352,17 +425,32 @@ class Cauchy(WrapDistribution):
             obs=obs,
             params=params,
             name=name,
+            extended=extended,
+            norm=norm,
         )
 
 
-class Poisson(WrapDistribution):
+class CauchyPDFRepr(BasePDFRepr):
+    _implementation = Cauchy
+    hs3_type: Literal["Cauchy"] = Field("Cauchy", alias="type")
+    x: SpaceRepr
+    m: Serializer.types.ParamTypeDiscriminated
+    gamma: Serializer.types.ParamTypeDiscriminated
+
+
+class Poisson(WrapDistribution, SerializableMixin):
     _N_OBS = 1
 
+    @deprecated_args(None, "Use lam instead", "lamb")
     def __init__(
         self,
-        lamb: ztyping.ParamTypeInput,
-        obs: ztyping.ObsTypeInput,
+        lam: ztyping.ParamTypeInput = None,
+        obs: ztyping.ObsTypeInput = None,
+        *,
+        extended: ExtendedInputType = None,
+        norm: NormInputType = None,
         name: str = "Poisson",
+        lamb=None,
     ):
         """Poisson distribution, parametrized with an event rate parameter (lamb).
 
@@ -374,11 +462,21 @@ class Poisson(WrapDistribution):
         Args:
             lamb: the event rate
             obs: Observables and normalization range the pdf is defined in
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+            norm: |@doc:pdf.init.norm| Normalization of the PDF.
+               By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
             name: Name of the PDF
         """
-        (lamb,) = self._check_input_params(lamb)
-        params = OrderedDict((("lamb", lamb),))
-        dist_params = lambda: dict(rate=lamb.value())
+        if lamb is not None:
+            lam = lamb
+        del lamb
+        (lam,) = self._check_input_params(lam)
+        params = {"lam": lam}
+        dist_params = lambda: dict(rate=lam.value())
         distribution = tfp.distributions.Poisson
         super().__init__(
             distribution=distribution,
@@ -386,4 +484,13 @@ class Poisson(WrapDistribution):
             obs=obs,
             params=params,
             name=name,
+            extended=extended,
+            norm=norm,
         )
+
+
+class PoissonPDFRepr(BasePDFRepr):
+    _implementation = Poisson
+    hs3_type: Literal["Poisson"] = Field("Poisson", alias="type")
+    x: SpaceRepr
+    lam: Serializer.types.ParamTypeDiscriminated

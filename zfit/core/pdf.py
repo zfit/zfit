@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 
 from __future__ import annotations
 
@@ -79,7 +79,6 @@ class PDF(Func, ZfitPDF):
         norm: typing.Mapping[str, ZfitSpace] = None,
         label: str | None = None,
     ):
-
         self.supports = supports
         if norm is None:
             norm = obs.values()  # TODO: preprocess
@@ -124,10 +123,10 @@ class PDF(Func, ZfitPDF):
         *,
         options=None,
     ) -> ztyping.PDFReturnType:
-        """Probability density function, normalized over `norm`.
+        """Probability density function, normalized over ``norm``.
 
         Args:
-          var: `float` or `double` `Tensor`.
+          var: ``float`` or ``double`` ``Tensor``.
           norm: :py:class:`~zfit.Space` to normalize over
 
         Returns:
@@ -159,10 +158,10 @@ class PDF(Func, ZfitPDF):
         *,
         options=None,
     ) -> ztyping.PDFReturnType:
-        """Probability density function, normalized over `norm`.OneDim.
+        """Probability density function, normalized over ``norm``.OneDim.
 
         Args:
-          var: `float` or `double` `Tensor`.
+          var: ``float`` or ``double`` ``Tensor``.
           norm: :py:class:`~zfit.Space` to normalize over
 
         Returns:

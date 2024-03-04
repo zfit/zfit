@@ -73,7 +73,4 @@ for filepath in cfg.files:
             if needs_replacement:
                 with open(filepath, "w") as file:
                     file.write(filedata)
-                print(f"Written to {filename}.")
-
-            else:
-                print(f"Match in {filename}, {replace_msg}, not writing as not needed")
+                print(f"Modified {filename}.")

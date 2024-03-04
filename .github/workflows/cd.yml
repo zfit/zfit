@@ -11,16 +11,19 @@ on:
       - "release/*"
       - "hotfix/*"
   pull_request:
+  release:
+    types:
+      - published
 
 jobs:
   dist:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: actions/setup-python@v3
+      - uses: actions/setup-python@v5
 
       - name: Build SDist and wheel
         run: pipx run --spec build pyproject-build
@@ -28,21 +31,20 @@ jobs:
       - name: Check metadata
         run: pipx run twine check dist/*
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           path: dist/*
-
   publish:
     needs: [ dist ]
+    environment: pypi
+    permissions:
+      id-token: write
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
-
+    if: github.event_name == 'release' && github.event.action == 'published'
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: artifact
           path: dist
 
-      - uses: pypa/gh-action-pypi-publish@v1.5.0
-        with:
-          password: ${{ secrets.PYPI_ZFIT_TOKEN }}
+      - uses: pypa/gh-action-pypi-publish@release/v1

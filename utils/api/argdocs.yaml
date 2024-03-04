@@ -8,7 +8,8 @@ space.init.limits: |1+
 space.init.binning: |1+
     Binning of the space.
                 Currently, only regular and variable binning *with a name* is supported.
-                If an integer is given, it is interpreted as the number of bins and
+                If an integer or a list of integers is given with lengths equal to the number of observables,
+                it is interpreted as the number of bins and
                 a regular binning is automatically created using the limits as the
                 start and end points.
 
@@ -20,8 +21,51 @@ model.init.name: |1+
                 or label of
                 the PDF for better identification.
                 Has no programmatical functional purpose as identification.
+
+pdf.init.name: |1+
+    Human-readable name
+                or label of
+                the PDF for better identification.
+                Has no programmatical functional purpose as identification.
 model.init.obs: |1+
     Observables of the
+                model. This will be used as the default space of the PDF and,
+                if not given explicitly, as the normalization range.
+
+                The default space is used for example in the sample method: if no
+                sampling limits are given, the default space is used.
+
+                The observables are not equal to the domain as it does not restrict or
+                truncate the model outside this range.
+binneddata.param.space: |1+
+    Binned space of the data.
+                The space is used to define the binning and the limits of the data.
+binneddata.param.values: |1+
+    Corresponds to the counts of the histogram.
+                Follows the definition of the
+                `Unified Histogram Interface (UHI) <https://uhi.readthedocs.io/en/latest/plotting.html#plotting>`_.
+
+binneddata.param.variances: |1+
+    Corresponds to the uncertainties of the histogram.
+                If ``True``, the uncertainties are created assuming that ``values``
+                have been drawn from a Poisson distribution. Follows the definition of the
+                `Unified Histogram Interface (UHI) <https://uhi.readthedocs.io/en/latest/plotting.html#plotting>`_.
+
+binnedpdf.pdf.x: |1+
+    Values to evaluate the PDF at.
+                If this is a ``ZfitBinnedData``-like object, a histogram of *densities*
+                will be returned. If x is a ``ZfitUnbinnedData``-like object, the densities will be
+                evaluated at the points of ``x``.
+
+binnedpdf.out.problike: |1+
+  If the input was unbinned, it returns an array
+                of shape (nevents,). If the input was binned, the dimensions and ordering of
+                the axes corresponds to the input axes.
+
+
+
+pdf.init.obs: |1+
+  Observables of the
                 model. This will be used as the default space of the PDF and,
                 if not given explicitly, as the normalization range.
 
@@ -37,19 +81,31 @@ pdf.init.norm: |1+
 
 pdf.pdf.norm: |1+
   Normalization of the function.
-                By default, this is the `norm` of the PDF (which by default is the same as
+                By default, this is the ``norm`` of the PDF (which by default is the same as
                 the space of the PDF).
+
+pdf.param.norm: |1+
+  Normalization of the function.
+                By default, this is the ``norm`` of the PDF (which by default is the same as
+                the space of the PDF). Should be ``ZfitSpace`` to define the space
+                to normalize over.
+
+pdf.param.x: |1+
+  Data to evaluate the method on. Should be ``ZfitData``
+                or a mapping of *obs* to numpy-like arrays.
+                If an array is given, the first dimension is interpreted as the events while
+                the second is meant to be the dimensionality of a single event.
 
 pdf.init.extended: |1+
   The overall yield of the PDF.
                 If this is parameter-like, it will be used as the yield,
                 the expected number of events, and the PDF will be extended.
                 An extended PDF has additional functionality, such as the
-                `ext_*` methods and the `counts` (for binned PDFs).
+                ``ext_*`` methods and the ``counts`` (for binned PDFs).
 
 
 pdf.init.extended.auto: |1+
-                If `True`,
+                If ``True``,
                 the PDF will be extended automatically if the PDF is extended
                 using the total number of events in the histogram.
                 This is the default.
@@ -57,17 +113,27 @@ pdf.init.extended.auto: |1+
 pdf.integrate.limits: |1+
   Limits of the integration.
 
-
+pdf.partial_integrate.limits: |1+
+  Limits of the integration that will be integrated out.
+                Has to be a subset of the PDFs observables.
 pdf.integrate.norm: |1+
   Normalization of the integration.
                 By default, this is the same as the default space of the PDF.
-                `False` means no normalization and returns the unnormed integral.
+                ``False`` means no normalization and returns the unnormed integral.
 pdf.integrate.options: |1+
   Options for the integration.
                 Additional options for the integration. Currently supported options are:
-                - type: one of (`bins`)
+                - type: one of (``bins``)
                   This hints that bins are integrated. A method that is vectorizable, non-dynamic and
                   therefore less suitable for complicated functions is chosen.
+
+pdf.param.yield: |1+
+  Yield (expected number of events) of the PDF.
+                This is the expected number of events.
+                If this is parameter-like, it will be used as the yield,
+                the expected number of events, and the PDF will be extended.
+                An extended PDF has additional functionality, such as the
+                ``ext_*`` methods and the ``counts`` (for binned PDFs).
 
 pdf.sample.n: |1+
   Number of samples to draw.
@@ -80,12 +146,28 @@ pdf.sample.limits: |1+
 
 pdf.binned.counts.x: |1+
   Data for the binned PDF.
-                The returned counts correspond to the binned axis in `x`.
+                The returned counts correspond to the binned axis in ``x``.
 
 pdf.binned.counts.norm: |1+
   Normalization of the counts.
                 This normalizes the counts so that the actual sum of all counts is
                 equal to the yield.
+
+pdf.polynomial.init.coeff0: |1+
+  Coefficient of the constant term.
+                This is the coefficient of the constant term, i.e. the term
+                :math:`x^0`. If None, set to 1.
+
+pdf.polynomial.init.coeffs: |1+
+  Coefficients of the sum of the polynomial.
+                The coefficients of the polynomial, starting with the first order
+                term. To set the constant term, use ``coeff0``.
+
+pdf.polynomial.init.apply_scaling: |1+
+  Rescale the data so that the actual limits represent (-1, 1).
+                This is usually wanted as the polynomial is defined in this range.
+                Default is ``True``.
+
 
 
 pdf.kde.bandwidth.weights: |1+
@@ -295,14 +377,14 @@ minimizer.criterion: |1+
                     stopps and it is assumed that the minimum
                     has been found.
 minimizer.strategy: |1+
-    A class of type `ZfitStrategy` that takes no
+    A class of type ``ZfitStrategy`` that takes no
                     input arguments in the init. Determines the behavior of the minimizer in
                     certain situations, most notably when encountering
                     NaNs. It can also implement a callback function.
 minimizer.maxiter: |1+
     Approximate number of iterations.
                     This corresponds to roughly the maximum number of
-                    evaluations of the `value`, 'gradient` or `hessian`.
+                    evaluations of the ``value``, 'gradient`` or ``hessian``.
 minimizer.name: |1+
     Human-readable name of the minimizer.
 minimizer.maxcor: |1+
@@ -411,7 +493,7 @@ minimizer.nlopt.info: |1+
 
 loss.binned.init.model: |1+
    Binned PDF(s) that return the normalized probability
-                (`rel_counts` or `counts`) for
+                (``rel_counts`` or ``counts``) for
                 *data* under the given parameters.
                 If multiple model and data are given, they will be used
                 in the same order to do a simultaneous fit.
@@ -460,7 +542,7 @@ loss.init.explain.extendedterm: |1+
 
          and the extended likelihood is the product of both.
 loss.init.explain.simultaneous: |1+
-    A simultaneous fit can be performed by giving one or more `model`, `data`, to the loss. The
+    A simultaneous fit can be performed by giving one or more ``model``, ``data``, to the loss. The
          length of each has to match the length of the others
 
          .. math::
@@ -482,7 +564,9 @@ loss.init.explain.negativelog: |1+
 
 loss.init.explain.spdtransform: |1+
     A scaled Poisson distribution is
-         used as described by Bohm and Zech, NIMA 748 (2014) 1-6
+         used as described by Bohm and Zech, NIMA 748 (2014) 1-6 if the variance
+         of the data is not ``None``. The scaling is forced to be >= 1 in order
+         to avoid issues with empty bins.
 
 loss.init.explain.weightednll: |1+
     If the dataset has weights, a weighted likelihood will be constructed instead
@@ -520,18 +604,32 @@ loss.init.options: |1+
                   The subtraction should not affect the minimum as the absolute
                   value of the NLL is meaningless. However,
                   with this switch on, one cannot directly compare
-                  different likelihoods ablolute value as the constant
-                  may differ! Use `create_new` in order to have a comparable likelihood
-                  between different losses
+                  different likelihoods absolute value as the constant
+                  may differ! Use ``create_new`` in order to have a comparable likelihood
+                  between different losses or use the ``full`` argument in the value function
+                  to calculate the full loss with all constants.
 
 
                 These settings may extend over time. In order to make sure that a loss is the
-                same under the same data, make sure to use `create_new` instead of instantiating
+                same under the same data, make sure to use ``create_new`` instead of instantiating
                 a new loss as the former will automatically overtake any relevant constants
                 and behavior.
 
 
+loss.value.full: |1+
+    If True, return the full loss value, otherwise
+                allow for the removal of constants and only return
+                the part that depends on the parameters. Constants
+                don't matter for the task of optimization, but
+                they can greatly help with the numerical stability of the loss function.
 
+loss.args.numgrad: |1+
+    If ``True``, calculate the numerical gradient/Hessian
+                instead of using the automatic one. This is
+                usually slower if called repeatedly but can
+                be used if the automatic gradient fails (e.g. if
+                the model is not differentiable, written not in znp.* etc).
+                Default will fall back to what the loss is set to.
 
 result.init.loss: |1+
     The loss function that was minimized.
@@ -543,10 +641,10 @@ result.init.params: |1+
                 value from the minimum found by the minimizer.
 
 result.init.minimizer: |1+
-    Minimizer that was used to obtain this `FitResult` and will be used to
+    Minimizer that was used to obtain this ``FitResult`` and will be used to
                     calculate certain errors. If the minimizer
                     is state-based (like "iminuit"), then this is a copy
-                    and the state of other `FitResults` or of the *actual*
+                    and the state of other ``FitResults`` or of the *actual*
                     minimizer that performed the minimization
                     won't be altered.
 result.init.valid: |1+
@@ -614,3 +712,19 @@ result.init.evaluator: |1+
 result.init.values: |1+
     Values of the parameters at the
                     found minimum.
+
+
+hs3.explain: |1+
+    HS3 is the `HEP Statistics Serialization Standard <https://github.com/hep-statistics-serialization-standard/hep-statistics-serialization-standard>`_.
+                    It is a JSON/YAML-based serialization that is a
+                    coordinated effort of the HEP community to standardize the serialization of statistical models. The standard
+                    is still in development and is not yet finalized. This function is experimental and may change in the future.
+
+hs3.layout.explain: |1+
+  The keys in the HS3 format are:
+                     - 'distributions': list of PDFs
+                     - 'variables': list of variables, i.e. ``zfit.Space`` and ``zfit.Parameter`` (or more generally parameters)
+                     - 'loss': list of losses
+                     - 'data': list of data
+                     - 'metadata': contains the version of the HS3 format and the
+                       zfit version used to create the file

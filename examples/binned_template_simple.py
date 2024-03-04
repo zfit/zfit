@@ -17,15 +17,15 @@ mplhep.histplot(
     histos, stack=True, histtype="fill", label=[f"process {i + 1}" for i in range(5)]
 )
 plt.legend()
-plt.show()
 pdfs = [zfit.pdf.HistogramPDF(h) for h in histos]
 sumpdf = zfit.pdf.BinnedSumPDF(pdfs)
+
 
 h_back = sumpdf.to_hist()
 pdf_syst = zfit.pdf.BinwiseScaleModifier(sumpdf, modifiers=True)
 
 mplhep.histplot(h_back)
-# plt.legend()
 
-plt.show()
 print(h_back)
+# uncomment to show plots
+# plt.show()

@@ -1,10 +1,11 @@
 """Baseclass for most objects appearing in zfit."""
-#  Copyright (c) 2022 zfit
+
+#  Copyright (c) 2023 zfit
 
 from __future__ import annotations
 
+import contextlib
 import itertools
-import warnings
 from collections import OrderedDict
 from collections.abc import Iterable
 
@@ -23,6 +24,7 @@ from ..util import ztyping
 from ..util.cache import GraphCachable
 from ..util.checks import NotSpecified
 from ..util.container import convert_to_container
+from ..util.exception import BreakingAPIChangeError
 
 
 class BaseObject(ZfitObject):
@@ -46,7 +48,6 @@ class BaseObject(ZfitObject):
     def copy(
         self, deep: bool = False, name: str = None, **overwrite_params
     ) -> ZfitObject:
-
         new_object = self._copy(deep=deep, name=name, overwrite_params=overwrite_params)
         return new_object
 
@@ -56,13 +57,12 @@ class BaseObject(ZfitObject):
     def __eq__(self, other: object) -> bool:
         if not isinstance(self, type(other)):
             return False
-        try:
+        with contextlib.suppress(AttributeError):
             for key, own_element in self._repr.items():
-                if not own_element == other._repr.get(key):  # TODO: make repr better
+                if not own_element == other._repr.get(key):
                     return False
-        except AttributeError:
-            return self is other
-        return True  # no break occurred
+        return self is other
+        # return True  # no break occurred
 
     def __hash__(self):
         return object.__hash__(self)
@@ -70,8 +70,6 @@ class BaseObject(ZfitObject):
 
 class BaseParametrized(BaseObject, ZfitParametrized):
     def __init__(self, params, **kwargs) -> None:
-        # print(f"DEBUG: {kwargs}")  # TODO REMOVE!
-        # raise RuntimeError("DEBUG needs to be removed")
         super().__init__(**kwargs)
         from zfit.core.parameter import convert_to_parameter
 
@@ -93,10 +91,10 @@ class BaseParametrized(BaseObject, ZfitParametrized):
         """Recursively collect parameters that this object depends on according to the filter criteria.
 
         Which parameters should be included can be steered using the arguments as a filter.
-         - **None**: do not filter on this. E.g. `floating=None` will return parameters that are floating as well as
+         - **None**: do not filter on this. E.g. ``floating=None`` will return parameters that are floating as well as
             parameters that are fixed.
          - **True**: only return parameters that fulfil this criterion
-         - **False**: only return parameters that do not fulfil this criterion. E.g. `floating=False` will return
+         - **False**: only return parameters that do not fulfil this criterion. E.g. ``floating=False`` will return
             only parameters that are not floating.
 
         Args:
@@ -106,14 +104,11 @@ class BaseParametrized(BaseObject, ZfitParametrized):
                model depends on other yields (or also non-yields), this will be included. If, however, just submodels
                depend on a yield (as their yield) and it is not correlated to the output of our model, they won't be
                included.
-            extract_independent: If the parameter is an independent parameter, i.e. if it is a `ZfitIndependentParameter`.
+            extract_independent: If the parameter is an independent parameter, i.e. if it is a ``ZfitIndependentParameter``.
         """
         if only_floating is not NotSpecified:
-            floating = only_floating
-            warnings.warn(
-                "`only_floating` is deprecated and will be removed in the future, use `floating` instead.",
-                DeprecationWarning,
-                stacklevel=2,
+            raise BreakingAPIChangeError(
+                "The argument `only_floating` has been renamed to `floating`."
             )
         return self._get_params(
             floating=floating,
@@ -123,11 +118,10 @@ class BaseParametrized(BaseObject, ZfitParametrized):
 
     def _get_params(
         self,
-        floating: bool | None = True,
-        is_yield: bool | None = None,
-        extract_independent: bool | None = True,
+        floating: bool | None,
+        is_yield: bool | None,
+        extract_independent: bool | None,
     ) -> set[ZfitParameter]:
-
         if (
             is_yield is True
         ):  # we want exclusively yields, we don't have them by default
@@ -179,8 +173,8 @@ def extract_filter_params(
 ) -> set[ZfitParameter]:
     params = convert_to_container(params, container=OrderedSet)
 
-    if extract_independent:
-        params = OrderedSet(
+    if extract_independent is not False:
+        params_indep = OrderedSet(
             itertools.chain.from_iterable(
                 param.get_params(
                     floating=floating, extract_independent=True, is_yield=None
@@ -188,7 +182,10 @@ def extract_filter_params(
                 for param in params
             )
         )
-
+        if extract_independent is True:
+            params = params_indep
+        else:  # None
+            params |= params_indep
     if floating is not None:
         if not extract_independent and not all(param.independent for param in params):
             raise ValueError(

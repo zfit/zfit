@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2024 zfit
 
 from __future__ import annotations
 
@@ -19,11 +19,13 @@ from ..util.ztyping import OptionsInputType, ConstraintsInputType
 from ..z import numpy as znp
 
 
-@z.function(wraps="tensor")
+@z.function(wraps="tensor", keepalive=True)
 def _spd_transform(values, probs, variances):
     """Transform the data to the SPD form.
 
     Scaled Poisson distribution from Bohm and Zech, NIMA 748 (2014) 1-6
+
+    The scale is >= 1 to ensure that empty data bins are handled correctly.
 
     Args:
         values: Data values, the counts in each bin.
@@ -34,32 +36,48 @@ def _spd_transform(values, probs, variances):
         The transformed probabilities and values.
     """
     # Scaled Poisson distribution from Bohm and Zech, NIMA 748 (2014) 1-6
-    scale = values * tf.math.reciprocal_no_nan(variances)
-    return values * scale, probs * scale
+    scale = znp.maximum(
+        values * tf.math.reciprocal_no_nan(variances), znp.ones_like(values)
+    )
+    probs = probs * scale
+    values = values * scale
+    return probs, values
 
 
-@z.function(wraps="tensor")
+@z.function(wraps="tensor", keepalive=True)
 def poisson_loss_calc(probs, values, log_offset=None, variances=None):
     """Calculate the Poisson log probability for a given set of data.
 
     Args:
-        probs: Probabilities of the data, i.e. the expected number of events in each bin.
-        values: Values of the data, i.e. the number of events in each bin.
+        probs: Probabilities of the data, i.e., the expected number of events in each bin.
+        values: Values of the data, i.e., the number of events in each bin.
         log_offset: Optional offset to be added to the loss. Useful for adding a constant to the loss to improve
             numerical stability.
-        variances: Optional variances of the data. If not None, the Poisson loss is calculated using the
-            scaled Poisson distribution from Bohm and Zech, NIMA 748 (2014) 1-6
+        variances: (currently ignored)
     Returns:
         The Poisson log probability for the given data.
     """
-    if variances is not None:
+    # Optional variances of the data. If not None, the Poisson loss is calculated using the
+    #             scaled Poisson distribution from Bohm and Zech, NIMA 748 (2014) 1-6
+    if log_offset is None:
+        log_offset = False
+    use_offset = log_offset is not False
+    if (
+        False and variances is not None
+    ):  # TODO: this gives very different uncertainties?  if fixed, rechange the docs
         values, probs = _spd_transform(values, probs, variances=variances)
     values += znp.asarray(1e-307, dtype=znp.float64)
     probs += znp.asarray(1e-307, dtype=znp.float64)
     poisson_term = tf.nn.log_poisson_loss(
-        values, znp.log(probs), compute_full_loss=False  # TODO: correct offset
+        values, znp.log(probs), compute_full_loss=not use_offset  # TODO: correct offset
     )  # TODO: optimization?
-    if log_offset is not None:
+
+    # cross-check
+    # import tensorflow_probability as tfp
+    # poisson_dist = tfp.distributions.Poisson(rate=probs)
+    # poisson_term = -poisson_dist.log_prob(values)
+    if use_offset:
+        log_offset = znp.asarray(log_offset, dtype=znp.float64)
         poisson_term += log_offset
     return poisson_term
 
@@ -77,9 +95,14 @@ class BaseBinned(BaseLoss):
         from zfit._data.binneddatav1 import BinnedData
 
         data = [
-            BinnedData.from_hist(d)
-            if (isinstance(d, PlottableHistogram) and not isinstance(d, ZfitBinnedData))
-            else d
+            (
+                BinnedData.from_hist(d)
+                if (
+                    isinstance(d, PlottableHistogram)
+                    and not isinstance(d, ZfitBinnedData)
+                )
+                else d
+            )
             for d in data
         ]
         not_binned_pdf = [mod for mod in model if not isinstance(mod, ZfitBinnedPDF)]
@@ -123,7 +146,7 @@ class BaseBinned(BaseLoss):
 
         Args:
             model: |@doc:loss.binned.init.model| Binned PDF(s) that return the normalized probability
-               (`rel_counts` or `counts`) for
+               (``rel_counts`` or ``counts``) for
                *data* under the given parameters.
                If multiple model and data are given, they will be used
                in the same order to do a simultaneous fit. |@docend:loss.binned.init.model|
@@ -157,13 +180,14 @@ class BaseBinned(BaseLoss):
                  The subtraction should not affect the minimum as the absolute
                  value of the NLL is meaningless. However,
                  with this switch on, one cannot directly compare
-                 different likelihoods ablolute value as the constant
-                 may differ! Use `create_new` in order to have a comparable likelihood
-                 between different losses
+                 different likelihoods absolute value as the constant
+                 may differ! Use ``create_new`` in order to have a comparable likelihood
+                 between different losses or use the ``full`` argument in the value function
+                 to calculate the full loss with all constants.
 
 
                These settings may extend over time. In order to make sure that a loss is the
-               same under the same data, make sure to use `create_new` instead of instantiating
+               same under the same data, make sure to use ``create_new`` instead of instantiating
                a new loss as the former will automatically overtake any relevant constants
                and behavior. |@docend:loss.init.options|
 
@@ -196,9 +220,6 @@ class ExtendedBinnedNLL(BaseBinned):
     ):
         r"""Extended binned likelihood using the expected number of events per bin with a poisson probability.
 
-            |@doc:loss.init.explain.spdtransform| A scaled Poisson distribution is
-        used as described by Bohm and Zech, NIMA 748 (2014) 1-6 |@docend:loss.init.explain.spdtransform|
-
             The binned likelihood is defined as
 
             .. math::
@@ -209,7 +230,7 @@ class ExtendedBinnedNLL(BaseBinned):
             where :math:`databin_i` is the :math:`i^{th}` bin in the data and
             :math:`modelbin_i` is the :math:`i^{th}` bin of the model, the expected counts.
 
-            |@doc:loss.init.explain.simultaneous| A simultaneous fit can be performed by giving one or more `model`, `data`, to the loss. The
+            |@doc:loss.init.explain.simultaneous| A simultaneous fit can be performed by giving one or more ``model``, ``data``, to the loss. The
         length of each has to match the length of the others
 
         .. math::
@@ -229,7 +250,7 @@ class ExtendedBinnedNLL(BaseBinned):
 
             Args:
                 model: |@doc:loss.binned.init.model| Binned PDF(s) that return the normalized probability
-               (`rel_counts` or `counts`) for
+               (``rel_counts`` or ``counts``) for
                *data* under the given parameters.
                If multiple model and data are given, they will be used
                in the same order to do a simultaneous fit. |@docend:loss.binned.init.model|
@@ -263,22 +284,26 @@ class ExtendedBinnedNLL(BaseBinned):
                  The subtraction should not affect the minimum as the absolute
                  value of the NLL is meaningless. However,
                  with this switch on, one cannot directly compare
-                 different likelihoods ablolute value as the constant
-                 may differ! Use `create_new` in order to have a comparable likelihood
-                 between different losses
+                 different likelihoods absolute value as the constant
+                 may differ! Use ``create_new`` in order to have a comparable likelihood
+                 between different losses or use the ``full`` argument in the value function
+                 to calculate the full loss with all constants.
 
 
                These settings may extend over time. In order to make sure that a loss is the
-               same under the same data, make sure to use `create_new` instead of instantiating
+               same under the same data, make sure to use ``create_new`` instead of instantiating
                a new loss as the former will automatically overtake any relevant constants
                and behavior. |@docend:loss.init.options|
         """
+
+        # readd below if fixed
+        #     |@doc:loss.init.explain.spdtransform| A scaled Poisson
         self._errordef = 0.5
         super().__init__(
             model=model, data=data, constraints=constraints, options=options
         )
 
-    @z.function(wraps="loss")
+    @z.function(wraps="loss", keepalive=True)
     def _loss_func(
         self,
         model: Iterable[ZfitBinnedPDF],
@@ -300,7 +325,16 @@ class ExtendedBinnedNLL(BaseBinned):
         nll = znp.sum(poisson_terms)
 
         if constraints:
-            constraints = z.reduce_sum([c.value() for c in constraints])
+            if (
+                log_offset is False
+            ):  # we need to check identity, cannot do runtime conditional if jitted
+                log_offset_val = 0.0
+            else:
+                log_offset_val = log_offset
+            log_offset_val = znp.asarray(log_offset_val, dtype=znp.float64)
+            constraints = z.reduce_sum(
+                [c.value() - log_offset_val * len(c.get_params()) for c in constraints]
+            )
             nll += constraints
 
         return nll
@@ -315,7 +349,6 @@ class ExtendedBinnedNLL(BaseBinned):
         is_yield: bool | None = None,
         extract_independent: bool | None = True,
     ) -> set[ZfitParameter]:
-
         return super()._get_params(floating, is_yield, extract_independent)
 
 
@@ -329,9 +362,6 @@ class BinnedNLL(BaseBinned):
     ):
         r"""Binned negative log likelihood.
 
-            |@doc:loss.init.explain.spdtransform| A scaled Poisson distribution is
-        used as described by Bohm and Zech, NIMA 748 (2014) 1-6 |@docend:loss.init.explain.spdtransform|
-
             The binned likelihood is the binned version of :py:class:`~zfit.loss.UnbinnedNLL`. It is defined as
 
             .. math::
@@ -341,7 +371,7 @@ class BinnedNLL(BaseBinned):
             where :math:`databin_i` is the :math:`i^{th}` bin in the data and
             :math:`modelbin_i` is the :math:`i^{th}` bin of the model multiplied by the total number of events in data.
 
-            |@doc:loss.init.explain.simultaneous| A simultaneous fit can be performed by giving one or more `model`, `data`, to the loss. The
+            |@doc:loss.init.explain.simultaneous| A simultaneous fit can be performed by giving one or more ``model``, ``data``, to the loss. The
         length of each has to match the length of the others
 
         .. math::
@@ -361,7 +391,7 @@ class BinnedNLL(BaseBinned):
 
             Args:
                 model: |@doc:loss.binned.init.model| Binned PDF(s) that return the normalized probability
-               (`rel_counts` or `counts`) for
+               (``rel_counts`` or ``counts``) for
                *data* under the given parameters.
                If multiple model and data are given, they will be used
                in the same order to do a simultaneous fit. |@docend:loss.binned.init.model|
@@ -395,16 +425,20 @@ class BinnedNLL(BaseBinned):
                  The subtraction should not affect the minimum as the absolute
                  value of the NLL is meaningless. However,
                  with this switch on, one cannot directly compare
-                 different likelihoods ablolute value as the constant
-                 may differ! Use `create_new` in order to have a comparable likelihood
-                 between different losses
+                 different likelihoods absolute value as the constant
+                 may differ! Use ``create_new`` in order to have a comparable likelihood
+                 between different losses or use the ``full`` argument in the value function
+                 to calculate the full loss with all constants.
 
 
                These settings may extend over time. In order to make sure that a loss is the
-               same under the same data, make sure to use `create_new` instead of instantiating
+               same under the same data, make sure to use ``create_new`` instead of instantiating
                a new loss as the former will automatically overtake any relevant constants
                and behavior. |@docend:loss.init.options|
         """
+
+        # readd below if fixed
+        #            |@doc:loss.init.explain.spdtransform| A scaled Poisson distribution is...
         self._errordef = 0.5
         super().__init__(
             model=model, data=data, constraints=constraints, options=options
@@ -419,7 +453,7 @@ class BinnedNLL(BaseBinned):
                 identifier="extended_in_BinnedNLL",
             )
 
-    @z.function(wraps="loss")
+    @z.function(wraps="loss", keepalive=True)
     def _loss_func(
         self,
         model: Iterable[ZfitBinnedPDF],
@@ -442,7 +476,16 @@ class BinnedNLL(BaseBinned):
         nll = znp.sum(poisson_terms)
 
         if constraints:
-            constraints = z.reduce_sum([c.value() for c in constraints])
+            if (
+                log_offset is False
+            ):  # we need to check identity, cannot do runtime conditional if jitted
+                log_offset_val = 0.0
+            else:
+                log_offset_val = log_offset
+            log_offset_val = znp.asarray(log_offset_val, dtype=znp.float64)
+            constraints = z.reduce_sum(
+                [c.value() - log_offset_val * len(c.get_params()) for c in constraints]
+            )
             nll += constraints
 
         return nll
@@ -462,8 +505,24 @@ class BinnedNLL(BaseBinned):
         return super()._get_params(floating, is_yield, extract_independent)
 
 
-@z.function(wraps="tensor")
+@z.function(wraps="tensor", keepalive=True)
 def chi2_loss_calc(probs, values, variances, log_offset=None, ignore_empty=None):
+    """Calculate the chi2 for a given set of data.
+
+    Args:
+        probs: Probabilities of the data, i.e. the expected number of events in each bin.
+        values: Values of the data, i.e. the number of events in each
+            bin.
+        variances: Data variances, the variances of the counts in each bin.
+        log_offset: Optional offset to be added to the loss. Useful for adding a constant to the loss to improve
+            numerical stability.
+        ignore_empty: If True, empty bins are ignored.
+    Returns:
+        The chi2 for the given data.
+    """
+
+    if log_offset is None:
+        log_offset = False
     if ignore_empty is None:
         ignore_empty = True
     chi2_term = tf.math.squared_difference(probs, values)
@@ -472,9 +531,10 @@ def chi2_loss_calc(probs, values, variances, log_offset=None, ignore_empty=None)
     else:
         one_over_var = tf.math.reciprocal(variances)
     chi2_term *= one_over_var
-    chi2_term = znp.sum(chi2_term)
-    if log_offset is not None:
+    if log_offset is not False:
+        log_offset = znp.asarray(log_offset, dtype=znp.float64)
         chi2_term += log_offset
+    chi2_term = znp.sum(chi2_term)
     return chi2_term
 
 
@@ -529,7 +589,7 @@ class BinnedChi2(BaseBinned):
 
             Args:
                 model: |@doc:loss.binned.init.model| Binned PDF(s) that return the normalized probability
-               (`rel_counts` or `counts`) for
+               (``rel_counts`` or ``counts``) for
                *data* under the given parameters.
                If multiple model and data are given, they will be used
                in the same order to do a simultaneous fit. |@docend:loss.binned.init.model|
@@ -563,13 +623,14 @@ class BinnedChi2(BaseBinned):
                  The subtraction should not affect the minimum as the absolute
                  value of the NLL is meaningless. However,
                  with this switch on, one cannot directly compare
-                 different likelihoods ablolute value as the constant
-                 may differ! Use `create_new` in order to have a comparable likelihood
-                 between different losses
+                 different likelihoods absolute value as the constant
+                 may differ! Use ``create_new`` in order to have a comparable likelihood
+                 between different losses or use the ``full`` argument in the value function
+                 to calculate the full loss with all constants.
 
 
                These settings may extend over time. In order to make sure that a loss is the
-               same under the same data, make sure to use `create_new` instead of instantiating
+               same under the same data, make sure to use ``create_new`` instead of instantiating
                a new loss as the former will automatically overtake any relevant constants
                and behavior. |@docend:loss.init.options|
         """
@@ -602,7 +663,7 @@ class BinnedChi2(BaseBinned):
         data = self.data
         _check_small_counts_chi2(data, ignore_empty)
 
-    @z.function(wraps="loss")
+    @z.function(wraps="loss", keepalive=True)
     def _loss_func(
         self,
         model: Iterable[ZfitBinnedPDF],
@@ -614,6 +675,12 @@ class BinnedChi2(BaseBinned):
         del fit_range
         ignore_empty = self._options.get("empty") == "ignore"
         chi2_terms = []
+        if log_offset is False:
+            log_offset_val = 0.0
+        else:
+            log_offset_val = log_offset
+        log_offset_val = znp.asarray(log_offset_val, dtype=znp.float64)
+
         for mod, dat in zip(model, data):
             values = dat.values(  # TODO: right order of model and data?
                 # obs=mod.obs
@@ -638,7 +705,9 @@ class BinnedChi2(BaseBinned):
         chi2_term = znp.sum(chi2_terms)
 
         if constraints:
-            constraints = z.reduce_sum([c.value() for c in constraints])
+            constraints = z.reduce_sum(
+                [c.value() - log_offset_val for c in constraints]
+            )
             chi2_term += constraints
 
         return chi2_term
@@ -690,7 +759,7 @@ class ExtendedBinnedChi2(BaseBinned):
 
         Args:
             model: |@doc:loss.binned.init.model| Binned PDF(s) that return the normalized probability
-               (`rel_counts` or `counts`) for
+               (``rel_counts`` or ``counts``) for
                *data* under the given parameters.
                If multiple model and data are given, they will be used
                in the same order to do a simultaneous fit. |@docend:loss.binned.init.model|
@@ -724,13 +793,14 @@ class ExtendedBinnedChi2(BaseBinned):
                  The subtraction should not affect the minimum as the absolute
                  value of the NLL is meaningless. However,
                  with this switch on, one cannot directly compare
-                 different likelihoods ablolute value as the constant
-                 may differ! Use `create_new` in order to have a comparable likelihood
-                 between different losses
+                 different likelihoods absolute value as the constant
+                 may differ! Use ``create_new`` in order to have a comparable likelihood
+                 between different losses or use the ``full`` argument in the value function
+                 to calculate the full loss with all constants.
 
 
                These settings may extend over time. In order to make sure that a loss is the
-               same under the same data, make sure to use `create_new` instead of instantiating
+               same under the same data, make sure to use ``create_new`` instead of instantiating
                a new loss as the former will automatically overtake any relevant constants
                and behavior. |@docend:loss.init.options|
         """
@@ -754,7 +824,7 @@ class ExtendedBinnedChi2(BaseBinned):
         data = self.data
         _check_small_counts_chi2(data, ignore_empty)
 
-    @z.function(wraps="loss")
+    @z.function(wraps="loss", keepalive=True)
     def _loss_func(
         self,
         model: Iterable[ZfitBinnedPDF],
@@ -766,6 +836,11 @@ class ExtendedBinnedChi2(BaseBinned):
         del fit_range
         ignore_empty = self._options.get("empty") == "ignore"
         chi2_terms = []
+        if log_offset is False:
+            log_offset_val = 0.0
+        else:
+            log_offset_val = log_offset
+        log_offset_val = znp.asarray(log_offset_val, dtype=znp.float64)
         for mod, dat in zip(model, data):
             values = dat.values(  # TODO: right order of model and data?
                 # obs=mod.obs
@@ -788,7 +863,9 @@ class ExtendedBinnedChi2(BaseBinned):
         chi2_term = znp.sum(chi2_terms)
 
         if constraints:
-            constraints = z.reduce_sum([c.value() for c in constraints])
+            constraints = z.reduce_sum(
+                [c.value() - log_offset_val for c in constraints]
+            )
             chi2_term += constraints
 
         return chi2_term

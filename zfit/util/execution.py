@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 
 from __future__ import annotations
 
@@ -35,9 +35,8 @@ class RunManager:
         self.set_n_cpu(n_cpu=n_cpu)
         self._hashing_enabled = True
 
-        # HACK
+        # TODO: keep this?
         self._enable_parameter_autoconversion = True
-        # HACK END
 
         # set default values
         self.chunking.active = False  # not yet implemented the chunking...
@@ -140,7 +139,6 @@ class RunManager:
 
         This can BREAK in the future.
         """
-
         from .graph import jit
 
         jit._set_all(not eager)
@@ -242,6 +240,9 @@ class RunManager:
                 "Cannot change the execution mode of graph inside a `z.function`"
                 " decorated function. Only possible in an eager context."
             )
+        return self._force_set_graph_mode(graph)
+
+    def _force_set_graph_mode(self, graph):
         if graph is None:
             graph = "auto"
         return TemporarilySet(
@@ -307,10 +308,12 @@ class RunManager:
             self._mode["autograd"] = autograd
 
     def _set_graph_mode(self, graph):
+        if graph is None:
+            graph = "auto"
         from .graph import jit as jit_obj
 
         # only run eagerly if no graph
-        tf.config.run_functions_eagerly(graph is False)
+        # tf.config.run_functions_eagerly(graph is False)
         if graph is True:
             jit_obj._set_all(True)
         elif graph is False:
@@ -360,7 +363,6 @@ class RunManager:
 
     def set_mode_default(self):
         """Reset the mode to the default of `graph` = 'auto' and `autograd` = True."""
-
         return TemporarilySet(
             value=self.DEFAULT_MODE,
             setter=lambda v: self.set_mode(**v),
@@ -370,22 +372,44 @@ class RunManager:
     def clear_graph_cache(self):
         """Clear all generated graphs and effectively reset. Should not affect execution, only performance.
 
-        In a simple fit scenario, this is not used. But if several fits are performed with different python objects
-        such as a scan over a range (by changing the norm_range and creating a new dataset), doing minimization and
-        therefore invoking the loss (by default creating a graph) will leave the graphs in the cache, even tough
-        the already scanned ranges are not needed anymore.
+        In a simple fit scenario, this is not used. But if several fits are performed with different python objects such
+        as a scan over a range (by changing the norm_range and creating a new dataset), doing minimization and therefore
+        invoking the loss (by default creating a graph) will leave the graphs in the cache, even tough the already
+        scanned ranges are not needed anymore.
 
-        To clean, this function can be invoked. The only effect should be to speed up things, but should not have
-        any side-effects other than that.
+        To clean, this function can be invoked. The only effect should be to speed up things, but should not have any
+        side-effects other than that.
         """
         from zfit.util.cache import clear_graph_cache
 
         clear_graph_cache()
 
+    def set_graph_cache_size(self, size: int | None = None):
+        """Set the size of the graph cache to the same value for all.
+
+        Whenever a function, decorated with `z.function` is called, it is first compiled to a graph, which is cached.
+        For different reasons, there can be different compiled functions of the same Python function (such as changed
+        internal parameters). The cache determines how many compiled functions are kept in memory.
+
+        Args:
+            size:(default=10) The size of the cache. If None, the default size is used. With a lower number, a
+                smaller memory footprint *can* be achieved in some cases, but the runtime *can* be slower in some cases
+                (they do not need to be the same). Potentially, the cache should be at least of the size as the number
+                of calls to a function *with different arguments* is expected to happen *outside of any loop*/within
+                one execution of a loop.
+        """
+        from zfit.z.zextension import FunctionWrapperRegistry
+
+        if size is not None and size < 1:
+            raise ValueError("The size of the cache must be at least 1.")
+
+        for registry in FunctionWrapperRegistry.registries:
+            registry.set_graph_cache_size(size)
+
     def assert_executing_eagerly(self):
         """Assert that the execution is eager and Python side effects are taken into account.
 
-        This can be placed inside a model _in case python side-effects are necessary_ and no other way is possible.
+        This can be placed inside a model *in case python side-effects are necessary* and no other way is possible.
         """
         if not tf.executing_eagerly():
             raise RuntimeError("This code is not supposed to run inside a graph.")
@@ -396,6 +420,11 @@ class RunManager:
         return tf.executing_eagerly()
 
     def executing_eagerly(self):
+        """Whether eager execution is enabled.
+
+        Returns:
+            True if eager execution is enabled, False if not.
+        """
         return tf.executing_eagerly()
 
     @deprecated(date=None, instructions="Use clear_graph_caches instead.")

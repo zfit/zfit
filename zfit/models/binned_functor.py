@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 
 from __future__ import annotations
 
@@ -43,7 +43,9 @@ class BinnedSumPDF(BaseBinnedFunctorPDF):
             param_fracs,
             params,
             sum_yields,
+            frac_param_created,
         ) = _preprocess_init_sum(fracs, obs, pdfs)
+        del frac_param_created  # currently actually not used
 
         self._fracs = param_fracs
         self._original_fracs = fracs_cleaned
@@ -65,8 +67,10 @@ class BinnedSumPDF(BaseBinnedFunctorPDF):
             raise NormNotImplemented
         pdfs = self.pdfs
         fracs = self.params.values()
-        probs = [pdf.pdf(x) * frac for pdf, frac in zip(pdfs, fracs)]
-        prob = znp.sum(probs)
+        probs = []
+        for pdf, frac in zip(pdfs, fracs):
+            probs.append(pdf.pdf(x) * frac)
+        prob = znp.sum(probs, axis=0)
         return z.convert_to_tensor(prob)
 
     @deprecated_norm_range

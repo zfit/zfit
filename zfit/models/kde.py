@@ -1,8 +1,15 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2024 zfit
 
 from __future__ import annotations
 
 from collections.abc import Callable
+from typing import Union, Optional
+
+import pydantic
+
+from ..serialization import Serializer, SpaceRepr
+
+from typing import Literal
 
 import numpy as np
 import tensorflow as tf
@@ -14,7 +21,9 @@ from .dist_tfp import WrapDistribution
 from .. import z
 from ..core.basepdf import BasePDF
 from ..core.interfaces import ZfitData, ZfitParameter, ZfitSpace
-from ..settings import ztypes
+from ..core.serialmixin import SerializableMixin
+from ..serialization.pdfrepr import BasePDFRepr
+from ..settings import ztypes, run
 from ..util import (
     binning as binning_util,
     convolution as convolution_util,
@@ -22,10 +31,11 @@ from ..util import (
     ztyping,
 )
 from ..util.exception import OverdefinedError, ShapeIncompatibleError
+from ..util.ztyping import ExtendedInputType, NormInputType
 from ..z.math import weighted_quantile
 
 
-@z.function(wraps="tensor")
+@z.function(wraps="tensor", keepalive=True)
 def bandwidth_rule_of_thumb(
     data: znp.array,
     weights: znp.array | None,
@@ -67,7 +77,7 @@ def bandwidth_rule_of_thumb(
     )
 
 
-@z.function(wraps="tensor")
+@z.function(wraps="tensor", keepalive=True)
 def bandwidth_silverman(data, weights):
     r"""Calculate the bandwidth of *data* using silvermans rule of thumb.
 
@@ -93,13 +103,12 @@ def bandwidth_silverman(data, weights):
     Returns:
         Estimated bandwidth
     """
-
     return bandwidth_rule_of_thumb(
         data=data, weights=weights, factor=znp.array(0.9, dtype=ztypes.float)
     )
 
 
-@z.function(wraps="tensor")
+@z.function(wraps="tensor", keepalive=True)
 def bandwidth_scott(data, weights):
     r"""Calculate the bandwidth of *data* using silvermans rule of thumb.
 
@@ -125,7 +134,6 @@ def bandwidth_scott(data, weights):
     Returns:
         Estimated bandwidth
     """
-
     return bandwidth_rule_of_thumb(
         data=data, weights=weights, factor=znp.array(1.059, dtype=ztypes.float)
     )
@@ -159,7 +167,6 @@ def bandwidth_isj(data, weights):
     Returns:
         Estimated bandwidth
     """
-
     return isj_util.calculate_bandwidth(
         data, num_grid_points=1024, binning_method="linear", weights=weights
     )
@@ -221,7 +228,6 @@ def bandwidth_adaptive_geomV1(data, func, weights):
     Returns:
         Estimated bandwidth of size data
     """
-
     data = z.convert_to_tensor(data)
     if weights is not None:
         n = znp.sum(weights)
@@ -372,7 +378,7 @@ def adaptive_factory(func, grid):
             kde_silverman = constructor(
                 bandwidth="silverman",
                 data=data,
-                name=f"INTERNAL_for_adaptive_kde",
+                name="INTERNAL_for_adaptive_kde",
                 **kwargs,
             )
             grid = kde_silverman._grid
@@ -390,7 +396,7 @@ def adaptive_factory(func, grid):
             kde_silverman = constructor(
                 bandwidth="silverman",
                 data=data,
-                name=f"INTERNAL_for_adaptive_kde",
+                name="INTERNAL_for_adaptive_kde",
                 **kwargs,
             )
             return func(data=data, func=kde_silverman.pdf, weights=weights)
@@ -432,7 +438,18 @@ def _bandwidth_isj_KDEV1(data, weights, *_, **__):
     return bandwidth_isj(data, weights=weights)
 
 
-@z.function(wraps="tensor")
+def check_bw_grid_shapes(bandwidth, grid=None, n_grid=None):
+    if run.executing_eagerly() and bw_is_arraylike(bandwidth, allow1d=False):
+        n_grid = grid.shape[0] if grid is not None else n_grid
+        if n_grid is None:
+            raise ValueError("Either the grid or n_grid must be given.")
+        if bandwidth.shape[0] != n_grid:
+            raise ShapeIncompatibleError(
+                "The bandwidth array must have the same length as the grid"
+            )
+
+
+@z.function(wraps="tensor", keepalive=True)
 def min_std_or_iqr(x, weights):
     if weights is not None:
         return znp.minimum(
@@ -446,7 +463,7 @@ def min_std_or_iqr(x, weights):
         )
 
 
-@z.function(wraps="tensor")
+@z.function(wraps="tensor", keepalive=True)
 def calc_kernel_probs(size, weights):
     if weights is not None:
         return weights / znp.sum(weights)
@@ -462,7 +479,9 @@ class KDEHelper:
     _default_padding = False
     _default_num_grid_points = 1024
 
-    def _convert_init_data_weights_size(self, data, weights, padding, limits=None):
+    def _convert_init_data_weights_size(
+        self, data, weights, padding, limits=None, bandwidth=None
+    ):
         self._original_data = data  # for copying
         if isinstance(data, ZfitData):
             if data.weights is not None:
@@ -480,14 +499,16 @@ class KDEHelper:
             data = z.unstack_x(data)
 
         if callable(padding):
-            data, weights = padding(data=data, weights=weights, limits=limits)
+            data, weights, bandwidth = padding(
+                data=data, weights=weights, limits=limits, bandwidth=bandwidth
+            )
         elif padding is not False:
-            data, weights = padreflect_data_weights_1dim(
-                data, weights=weights, mode=padding, limits=limits
+            data, weights, bandwidth = padreflect_data_weights_1dim(
+                data, weights=weights, mode=padding, limits=limits, bandwidth=bandwidth
             )
         shape_data = tf.shape(data)
         size = tf.cast(shape_data[0], ztypes.float)
-        return data, size, weights
+        return data, size, weights, bandwidth
 
     def _convert_input_bandwidth(self, bandwidth, data, **kwargs):
         if bandwidth is None:
@@ -503,20 +524,28 @@ class KDEHelper:
                 )
         if (not isinstance(bandwidth, ZfitParameter)) and callable(bandwidth):
             bandwidth = bandwidth(constructor=type(self), data=data, **kwargs)
-        if bandwidth_param is None or bandwidth_param in (
-            "adaptiveV1",
-            "adaptive",
-            "adaptive_zfit",
-            "adaptive_std",
-            "adaptive_geom",
+        is_arraylike = bw_is_arraylike(bandwidth_param, allow1d=True)
+        if (
+            bandwidth_param is None
+            or is_arraylike
+            or bandwidth_param
+            in (
+                "adaptiveV1",
+                "adaptive",
+                "adaptive_zfit",
+                "adaptive_std",
+                "adaptive_geom",
+            )
         ):
-            bandwidth_param = -999
+            bandwidth_param = -999999  # dummy value, not needed. Better solution?
         else:
             bandwidth_param = bandwidth
+        if is_arraylike:
+            bandwidth = znp.asarray(bandwidth)
         return bandwidth, bandwidth_param
 
 
-def padreflect_data_weights_1dim(data, mode, weights=None, limits=None):
+def padreflect_data_weights_1dim(data, mode, weights=None, limits=None, bandwidth=None):
     if mode is False:
         return data, weights
     if mode is True:
@@ -539,9 +568,11 @@ def padreflect_data_weights_1dim(data, mode, weights=None, limits=None):
     diff = maximum - minimum
     new_data = []
     new_weights = []
+    bw_is_array = bw_is_arraylike(bandwidth, allow1d=False)
+    if bw_is_array:
+        new_bw = []
 
-    lower = mode.get("lowermirror")
-    if lower is not None:
+    if (lower := mode.get("lowermirror")) is not None:
         dx_lower = diff * lower
         lower_area = data < minimum + dx_lower
         lower_index = znp.where(lower_area)[0]
@@ -551,10 +582,13 @@ def padreflect_data_weights_1dim(data, mode, weights=None, limits=None):
         if weights is not None:
             lower_weights = tf.gather(weights, indices=lower_index)
             new_weights.append(lower_weights)
+        if bw_is_array:
+            new_bw.append(tf.gather(bandwidth, indices=lower_index))
     new_data.append(data)
     new_weights.append(weights)
-    upper = mode.get("uppermirror")
-    if upper is not None:
+    if bw_is_array:
+        new_bw.append(bandwidth)
+    if (upper := mode.get("uppermirror")) is not None:
         dx_upper = diff * upper
         upper_area = data > maximum - dx_upper
         upper_index = znp.where(upper_area)[0]
@@ -564,12 +598,15 @@ def padreflect_data_weights_1dim(data, mode, weights=None, limits=None):
         if weights is not None:
             upper_weights = tf.gather(weights, indices=upper_index)
             new_weights.append(upper_weights)
-
+        if bw_is_array:
+            new_bw.append(tf.gather(bandwidth, indices=upper_index))
     data = tf.concat(new_data, axis=0)
 
     if weights is not None:
         weights = tf.concat(new_weights, axis=0)
-    return data, weights
+    if bw_is_array:
+        bandwidth = tf.concat(new_bw, axis=0)
+    return data, weights, bandwidth
 
 
 class GaussianKDE1DimV1(KDEHelper, WrapDistribution):
@@ -586,10 +623,15 @@ class GaussianKDE1DimV1(KDEHelper, WrapDistribution):
         bandwidth: ztyping.ParamTypeInput | str = None,
         weights: None | np.ndarray | tf.Tensor = None,
         truncate: bool = False,
+        *,
+        extended: ExtendedInputType = None,
+        norm: NormInputType = None,
         name: str = "GaussianKDE1DimV1",
     ):
-        r"""EXPERIMENTAL, `FEEDBACK WELCOME <https://github.com/zfit/zfit/issues/new?assignees=&labels=&template=other.md&title=>`_
-        Exact, one dimensional, (truncated) Kernel Density Estimation with a Gaussian Kernel.
+        r"""EXPERIMENTAL, `FEEDBACK WELCOME.
+
+        <https://github.com/zfit/zfit/issues/new?assignees=&labels=&template=other.md&title=>`_ Exact, one dimensional,
+        (truncated) Kernel Density Estimation with a Gaussian Kernel.
 
         This implementation features an exact implementation as is preferably used for smaller (max. ~ a few thousand
         points) data sets. For larger data sets, methods such as :py:class:`~zfit.pdf.KDE1DimGrid`
@@ -680,12 +722,31 @@ class GaussianKDE1DimV1(KDEHelper, WrapDistribution):
              If no weights are given, each kernel will be scaled by the same
              constant :math:`\frac{1}{n_{data}}`. |@docend:pdf.kde.init.weights|
             truncate: If a truncated Gaussian kernel should be used with the limits given by the `obs` lower and
-                upper limits. This can cause NaNs in case datapoints are outside of the limits.
-            name: |@doc:pdf.kde.init.name||@docend:pdf.kde.init.name|
+                upper limits. This can cause NaNs in case datapoints are outside the limits.
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+            norm: |@doc:pdf.init.norm| Normalization of the PDF.
+               By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
+            name: |@doc:pdf.init.name| Human-readable name
+               or label of
+               the PDF for better identification.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.name|
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
         """
         original_data = data
-        data, size, weights = self._convert_init_data_weights_size(
-            data, weights, padding=False, limits=None
+        data, size, weights, _ = self._convert_init_data_weights_size(
+            data,
+            weights,
+            padding=False,
+            limits=None,
+            bandwidth=bandwidth,
         )
 
         bandwidth, bandwidth_param = self._convert_input_bandwidth(
@@ -705,7 +766,7 @@ class GaussianKDE1DimV1(KDEHelper, WrapDistribution):
         if truncate:
             if not isinstance(obs, ZfitSpace):
                 raise ValueError(
-                    f"`obs` has to be a `ZfitSpace` if `truncated` is True."
+                    "`obs` has to be a `ZfitSpace` if `truncated` is True."
                 )
             inside = obs.inside(data)
             all_inside = znp.all(inside)
@@ -743,6 +804,8 @@ class GaussianKDE1DimV1(KDEHelper, WrapDistribution):
             dist_params={},
             dist_kwargs=dist_kwargs,
             distribution=distribution,
+            extended=extended,
+            norm=norm,
             name=name,
         )
 
@@ -753,7 +816,7 @@ class GaussianKDE1DimV1(KDEHelper, WrapDistribution):
         self._truncate = truncate
 
 
-class KDE1DimExact(KDEHelper, WrapDistribution):
+class KDE1DimExact(KDEHelper, WrapDistribution, SerializableMixin):
     _bandwidth_methods = KDEHelper._bandwidth_methods.copy()
     _bandwidth_methods.update(
         {
@@ -773,10 +836,11 @@ class KDE1DimExact(KDEHelper, WrapDistribution):
         kernel: tfd.Distribution = None,
         padding: callable | str | bool | None = None,
         weights: np.ndarray | tf.Tensor | None = None,
+        extended: ExtendedInputType = None,
+        norm: NormInputType = None,
         name: str | None = "ExactKDE1DimV1",
     ):
-        r"""
-        Kernel Density Estimation is a non-parametric method to approximate the density of given points.
+        r"""Kernel Density Estimation is a non-parametric method to approximate the density of given points.
 
         For a more in-depth explanation, see also in the section about Kernel Density Estimation
         :ref:`section-exact-kdes`
@@ -889,11 +953,34 @@ class KDE1DimExact(KDEHelper, WrapDistribution):
 
              If no weights are given, each kernel will be scaled by the same
              constant :math:`\frac{1}{n_{data}}`. |@docend:pdf.kde.init.weights|
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+            norm: |@doc:pdf.init.norm| Normalization of the PDF.
+               By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
             name: |@doc:model.init.name| Human-readable name
                or label of
                the PDF for better identification.
                Has no programmatical functional purpose as identification. |@docend:model.init.name|
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
         """
+        original_init = {
+            "data": data,
+            "obs": obs,
+            "bandwidth": bandwidth,
+            "kernel": kernel,
+            "padding": padding,
+            "weights": weights,
+            "extended": extended,
+            "name": name,
+        }
+
         if kernel is None:
             kernel = tfd.Normal
 
@@ -906,8 +993,8 @@ class KDE1DimExact(KDEHelper, WrapDistribution):
                 )
             else:
                 obs = data.space
-        data, size, weights = self._convert_init_data_weights_size(
-            data, weights, padding=padding, limits=obs.limits
+        data, size, weights, bandwidth = self._convert_init_data_weights_size(
+            data, weights, padding=padding, limits=obs.limits, bandwidth=bandwidth
         )
         self._padding = padding
         bandwidth, bandwidth_param = self._convert_input_bandwidth(
@@ -953,11 +1040,46 @@ class KDE1DimExact(KDEHelper, WrapDistribution):
             dist_params={},
             dist_kwargs=dist_kwargs,
             distribution=distribution,
+            extended=extended,
+            norm=norm,
             name=name,
         )
+        self.hs3.original_init.update(original_init)
 
 
-class KDE1DimGrid(KDEHelper, WrapDistribution):
+class KDE1DimExactRepr(BasePDFRepr):
+    _implementation = KDE1DimExact
+    hs3_type: Literal["KDE1DimExact"] = pydantic.Field("KDE1DimExact", alias="type")
+
+    data: Union[np.ndarray, Serializer.types.DataTypeDiscriminated]
+    obs: Optional[SpaceRepr] = None
+    bandwidth: Optional[Union[str, float]] = None
+    kernel: None = None
+    padding: Optional[Union[bool, str]] = None
+    weights: Optional[Union[np.ndarray, tf.Tensor]] = None
+    name: Optional[str] = "KDE1DimExact"
+
+    @pydantic.validator("kernel", pre=True)
+    def validate_kernel(cls, v):
+        if v is not None:
+            if v != tfd.Normal:
+                raise ValueError(
+                    "Kernel must be None for KDE1DimExact to be serialized."
+                )
+            else:
+                v = None
+        return v
+
+    @pydantic.root_validator(pre=True)
+    def validate_all(cls, values):
+        values = dict(values)
+        if cls.orm_mode(values):
+            for k, v in values["hs3"].original_init.items():
+                values[k] = v
+        return values
+
+
+class KDE1DimGrid(KDEHelper, WrapDistribution, SerializableMixin):
     _N_OBS = 1
     _bandwidth_methods = KDEHelper._bandwidth_methods.copy()
     _bandwidth_methods.update(
@@ -979,10 +1101,11 @@ class KDE1DimGrid(KDEHelper, WrapDistribution):
         binning_method: str | None = None,
         obs: ztyping.ObsTypeInput | None = None,
         weights: np.ndarray | tf.Tensor | None = None,
+        extended: ExtendedInputType = None,
+        norm: NormInputType = None,
         name: str = "GridKDE1DimV1",
     ):
-        r"""
-        Kernel Density Estimation is a non-parametric method to approximate the density of given points.
+        r"""Kernel Density Estimation is a non-parametric method to approximate the density of given points.
 
         For a more in-depth explanation, see also in the section about Kernel Density Estimation
         :ref:`sec-grid-kdes`
@@ -1095,11 +1218,35 @@ class KDE1DimGrid(KDEHelper, WrapDistribution):
 
              If no weights are given, each kernel will be scaled by the same
              constant :math:`\frac{1}{n_{data}}`. |@docend:pdf.kde.init.weights|
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+            norm: |@doc:pdf.init.norm| Normalization of the PDF.
+               By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
             name: |@doc:model.init.name| Human-readable name
                or label of
                the PDF for better identification.
                Has no programmatical functional purpose as identification. |@docend:model.init.name|
+            extended: |@doc:model.init.extended| Whether the PDF is extended
+                or not. If True, the PDF can be integrated over the full space
+                and the integral will be 1. If False, the integral will be the
+                number of events in the dataset. |@docend:model.init.extended|
         """
+        original_init = {
+            "data": data,
+            "bandwidth": bandwidth,
+            "kernel": kernel,
+            "binning_method": binning_method,
+            "num_grid_points": num_grid_points,
+            "obs": obs,
+            "weights": weights,
+            "padding": padding,
+            "name": name,
+            "extended": extended,
+            "norm": norm,
+        }
         if kernel is None:
             kernel = tfd.Normal
         if binning_method is None:
@@ -1107,13 +1254,18 @@ class KDE1DimGrid(KDEHelper, WrapDistribution):
         if num_grid_points is None:
             num_grid_points = self._default_num_grid_points
 
-        if bandwidth == "isj":
-            raise ValueError("isj not supported in GridKDE, use directly 'KDE1DimISJ'")
-        if bandwidth == "adaptive_std":
-            raise ValueError(
-                "adaptive_std not supported in GridKDE due to very bad results. This is maybe caused"
-                " by an issue regarding weights of the underlaying implementation."
-            )
+        if isinstance(
+            bandwidth, str
+        ):  # numpy arrays cannot be compared with equal-> "use any, all"
+            if bandwidth == "isj":
+                raise ValueError(
+                    "isj not supported in GridKDE, use directly 'KDE1DimISJ'"
+                )
+            if bandwidth == "adaptive_std":
+                raise ValueError(
+                    "adaptive_std not supported in GridKDE due to very bad results. This is maybe caused"
+                    " by an issue regarding weights of the underlaying implementation."
+                )
 
         if padding is None:
             padding = self._default_padding
@@ -1124,8 +1276,8 @@ class KDE1DimGrid(KDEHelper, WrapDistribution):
                 )
             else:
                 obs = data.space
-        data, size, weights = self._convert_init_data_weights_size(
-            data, weights, padding=padding, limits=obs.limits
+        data, size, weights, _ = self._convert_init_data_weights_size(
+            data, weights, padding=padding, limits=obs.limits, bandwidth=bandwidth
         )
         self._padding = padding
 
@@ -1166,6 +1318,9 @@ class KDE1DimGrid(KDEHelper, WrapDistribution):
         )
 
         mixture_distribution = tfd.Categorical(probs=self._grid_data)
+
+        check_bw_grid_shapes(self._bandwidth, self._grid)
+
         components_distribution = components_distribution_generator(
             loc=self._grid, scale=self._bandwidth
         )
@@ -1186,11 +1341,57 @@ class KDE1DimGrid(KDEHelper, WrapDistribution):
             dist_params={},
             dist_kwargs=dist_kwargs,
             distribution=distribution,
+            extended=extended,
+            norm=norm,
             name=name,
         )
+        self.hs3.original_init.update(original_init)
 
 
-class KDE1DimFFT(KDEHelper, BasePDF):
+def bw_is_arraylike(bw, allow1d):
+    return (
+        hasattr(bw, "shape")
+        and bw.shape
+        and len(bw.shape) > 0
+        and (bw.shape[0] is None or (bw.shape[0] > 1 or allow1d))
+    )
+
+
+class KDE1DimGridRepr(BasePDFRepr):
+    _implementation = KDE1DimGrid
+    hs3_type: Literal["KDE1DimGrid"] = pydantic.Field("KDE1DimGrid", alias="type")
+
+    data: Union[np.ndarray, Serializer.types.DataTypeDiscriminated]
+    obs: Optional[SpaceRepr] = None
+    bandwidth: Optional[Union[str, float]] = None
+    num_grid_points: Optional[int] = None
+    binning_method: Optional[str] = None
+    kernel: None = None
+    padding: Optional[Union[bool, str]] = None
+    weights: Optional[Union[np.ndarray, tf.Tensor]] = None
+    name: Optional[str] = "GridKDE1DimV1"
+
+    @pydantic.validator("kernel", pre=True)
+    def validate_kernel(cls, v):
+        if v is not None:
+            if v != tfd.Normal:
+                raise ValueError(
+                    "Kernel must be None for GridKDE1DimV1 to be serialized."
+                )
+            else:
+                v = None
+        return v
+
+    @pydantic.root_validator(pre=True)
+    def validate_all(cls, values):
+        values = dict(values)
+        if cls.orm_mode(values):
+            for k, v in values["hs3"].original_init.items():
+                values[k] = v
+        return values
+
+
+class KDE1DimFFT(KDEHelper, BasePDF, SerializableMixin):
     _N_OBS = 1
 
     def __init__(
@@ -1206,6 +1407,8 @@ class KDE1DimFFT(KDEHelper, BasePDF):
         fft_method: str | None = None,
         padding: callable | str | bool | None = None,
         weights: np.ndarray | tf.Tensor | None = None,
+        extended: ExtendedInputType = None,
+        norm: NormInputType = None,
         name: str = "KDE1DimFFT",
     ):
         r"""Kernel Density Estimation is a non-parametric method to approximate the density of given points.
@@ -1323,13 +1526,34 @@ class KDE1DimFFT(KDEHelper, BasePDF):
 
              If no weights are given, each kernel will be scaled by the same
              constant :math:`\frac{1}{n_{data}}`. |@docend:pdf.kde.init.weights|
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+            norm: |@doc:pdf.init.norm| Normalization of the PDF.
+               By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
             name: |@doc:model.init.name| Human-readable name
                or label of
                the PDF for better identification.
                Has no programmatical functional purpose as identification. |@docend:model.init.name|
+            extended: |@doc:model.init.extended||@docend:model.init.extended|
         """
+        original_init = {
+            "data": data,
+            "bandwidth": bandwidth,
+            "num_grid_points": num_grid_points,
+            "binning_method": binning_method,
+            "support": support,
+            "fft_method": fft_method,
+            "obs": obs,
+            "weights": weights,
+            "extended": extended,
+            "norm": norm,
+            "name": name,
+        }
         if isinstance(bandwidth, ZfitParameter):
-            raise TypeError(f"bandwidth cannot be a Parameter for the FFT KDE.")
+            raise TypeError("bandwidth cannot be a Parameter for the FFT KDE.")
         if num_grid_points is None:
             num_grid_points = self._default_num_grid_points
         if binning_method is None:
@@ -1348,8 +1572,8 @@ class KDE1DimFFT(KDEHelper, BasePDF):
                 )
             else:
                 obs = data.space
-        data, size, weights = self._convert_init_data_weights_size(
-            data, weights, padding=padding, limits=obs.limits
+        data, size, weights, _ = self._convert_init_data_weights_size(
+            data, weights, padding=padding, limits=obs.limits, bandwidth=bandwidth
         )
         self._padding = padding
 
@@ -1367,6 +1591,7 @@ class KDE1DimFFT(KDEHelper, BasePDF):
         num_grid_points = tf.minimum(
             tf.cast(size, ztypes.int), tf.constant(num_grid_points, ztypes.int)
         )
+        check_bw_grid_shapes(bandwidth, n_grid=num_grid_points)
         self._num_grid_points = num_grid_points
         self._binning_method = binning_method
         self._fft_method = fft_method
@@ -1375,7 +1600,9 @@ class KDE1DimFFT(KDEHelper, BasePDF):
         self._bandwidth = bandwidth
 
         params = {"bandwidth": self._bandwidth}
-        super().__init__(obs=obs, name=name, params=params)
+        super().__init__(
+            obs=obs, name=name, params=params, extended=extended, norm=norm
+        )
         self._kernel = kernel
         self._weights = weights
         if support is None:
@@ -1400,9 +1627,9 @@ class KDE1DimFFT(KDEHelper, BasePDF):
             self._support,
             self._fft_method,
         )
+        self.hs3.original_init.update(original_init)
 
     def _unnormalized_pdf(self, x):
-
         x = z.unstack_x(x)
         x_min = self._grid[0]
         x_max = self._grid[-1]
@@ -1412,7 +1639,43 @@ class KDE1DimFFT(KDEHelper, BasePDF):
         return value
 
 
-class KDE1DimISJ(KDEHelper, BasePDF):
+class KDE1DimFFTRepr(BasePDFRepr):
+    _implementation = KDE1DimFFT
+    hs3_type: Literal["KDE1DimFFT"] = pydantic.Field("KDE1DimFFT", alias="type")
+
+    data: Union[np.ndarray, Serializer.types.DataTypeDiscriminated]
+    obs: Optional[SpaceRepr] = None
+    bandwidth: Optional[Union[str, float]] = None
+    num_grid_points: Optional[int] = None
+    binning_method: Optional[str] = None
+    kernel: None = None
+    support: Optional[float] = None
+    fft_method: Optional[str] = None
+    padding: Optional[Union[bool, str]] = None
+    weights: Optional[Union[np.ndarray, tf.Tensor]] = None
+    name: Optional[str] = "KDE1DimFFT"
+
+    @pydantic.validator("kernel", pre=True)
+    def validate_kernel(cls, v):
+        if v is not None:
+            if v != tfd.Normal:
+                raise ValueError(
+                    "Kernel must be None for GridKDE1DimV1 to be serialized."
+                )
+            else:
+                v = None
+        return v
+
+    @pydantic.root_validator(pre=True)
+    def validate_all(cls, values):
+        values = dict(values)
+        if cls.orm_mode(values):
+            for k, v in values["hs3"].original_init.items():
+                values[k] = v
+        return values
+
+
+class KDE1DimISJ(KDEHelper, BasePDF, SerializableMixin):
     _N_OBS = 1
 
     def __init__(
@@ -1424,6 +1687,8 @@ class KDE1DimISJ(KDEHelper, BasePDF):
         num_grid_points: int | None = None,
         binning_method: str | None = None,
         weights: np.ndarray | tf.Tensor | None = None,
+        extended: ExtendedInputType = None,
+        norm: NormInputType = None,
         name: str = "KDE1DimISJ",
     ):
         r"""Kernel Density Estimation is a non-parametric method to approximate the density of given points.
@@ -1516,11 +1781,34 @@ class KDE1DimISJ(KDEHelper, BasePDF):
 
              If no weights are given, each kernel will be scaled by the same
              constant :math:`\frac{1}{n_{data}}`. |@docend:pdf.kde.init.weights|
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+            norm: |@doc:pdf.init.norm| Normalization of the PDF.
+               By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
             name: |@doc:model.init.name| Human-readable name
                or label of
                the PDF for better identification.
                Has no programmatical functional purpose as identification. |@docend:model.init.name|
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
         """
+        original_init = {
+            "data": data,
+            "weights": weights,
+            "num_grid_points": num_grid_points,
+            "binning_method": binning_method,
+            "obs": obs,
+            "padding": padding,
+            "name": name,
+            "norm": norm,
+            "extended": extended,
+        }
         if num_grid_points is None:
             num_grid_points = self._default_num_grid_points
         if binning_method is None:
@@ -1534,8 +1822,8 @@ class KDE1DimISJ(KDEHelper, BasePDF):
                 )
             else:
                 obs = data.space
-        data, size, weights = self._convert_init_data_weights_size(
-            data, weights, padding=padding, limits=obs.limits
+        data, size, weights, _ = self._convert_init_data_weights_size(
+            data, weights, padding=padding, limits=obs.limits, bandwidth=None
         )
         self._padding = padding
 
@@ -1558,7 +1846,10 @@ class KDE1DimISJ(KDEHelper, BasePDF):
         )
 
         params = {}
-        super().__init__(obs=obs, name=name, params=params)
+        super().__init__(
+            obs=obs, name=name, params=params, extended=extended, norm=norm
+        )
+        self.hs3.original_init.update(original_init)
 
     def _unnormalized_pdf(self, x):
         x = z.unstack_x(x)
@@ -1568,3 +1859,37 @@ class KDE1DimISJ(KDEHelper, BasePDF):
         value = tfp.math.interp_regular_1d_grid(x, x_min, x_max, self._grid_estimations)
         value.set_shape(x.shape)
         return value
+
+
+class KDE1DimISJRepr(BasePDFRepr):
+    _implementation = KDE1DimISJ
+    hs3_type: Literal["KDE1DimISJ"] = pydantic.Field("KDE1DimISJ", alias="type")
+
+    data: Union[np.ndarray, Serializer.types.DataTypeDiscriminated]
+    obs: Optional[SpaceRepr] = None
+    bandwidth: Optional[Union[str, float]] = None
+    num_grid_points: Optional[int] = None
+    binning_method: Optional[str] = None
+    kernel: None = None
+    padding: Optional[Union[bool, str]] = None
+    weights: Optional[Union[np.ndarray, tf.Tensor]] = None
+    name: Optional[str] = "KDE1DimISJ"
+
+    @pydantic.validator("kernel", pre=True)
+    def validate_kernel(cls, v):
+        if v is not None:
+            if v != tfd.Normal:
+                raise ValueError(
+                    "Kernel must be None for GridKDE1DimV1 to be serialized."
+                )
+            else:
+                v = None
+        return v
+
+    @pydantic.root_validator(pre=True)
+    def validate_all(cls, values):
+        values = dict(values)
+        if cls.orm_mode(values):
+            for k, v in values["hs3"].original_init.items():
+                values[k] = v
+        return values

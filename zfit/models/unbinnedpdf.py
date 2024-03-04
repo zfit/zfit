@@ -1,4 +1,6 @@
 #  Copyright (c) 2022 zfit
+from __future__ import annotations
+
 import pydantic
 import tensorflow as tf
 
@@ -7,25 +9,47 @@ from zfit.core.binning import unbinned_to_binindex
 from zfit.core.interfaces import ZfitSpace
 from zfit.core.space import supports
 from zfit.models.functor import BaseFunctor
+from zfit.util.ztyping import ExtendedInputType, NormInputType
 from zfit.z import numpy as znp
 
 
 class UnbinnedFromBinnedPDF(BaseFunctor):
-    def __init__(self, pdf, obs=None):
+    def __init__(
+        self,
+        pdf,
+        obs=None,
+        *,
+        extended: ExtendedInputType = None,
+        norm: NormInputType = None,
+    ):
         """Create a unbinned pdf from a binned pdf.
 
         Args:
-            pdf:
-            obs:
+            pdf: Binned PDF that will be used as a step function.
+            obs: |@doc:pdf.init.obs| Observables of the
+               model. This will be used as the default space of the PDF and,
+               if not given explicitly, as the normalization range.
+
+               The default space is used for example in the sample method: if no
+               sampling limits are given, the default space is used.
+
+               The observables are not equal to the domain as it does not restrict or
+               truncate the model outside this range. |@docend:pdf.init.obs|
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+            norm: |@doc:pdf.init.norm| Normalization of the PDF.
+               By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
         """
-        if pdf.is_extended:
-            extended = pdf.get_yield()
-        else:
-            extended = None
+        if extended is None:
+            if extended is not False and pdf.is_extended:
+                extended = pdf.get_yield()
         if obs is None:
             obs = pdf.space
             obs = obs.with_binning(None)
-        super().__init__(pdfs=pdf, obs=obs, extended=extended)
+        super().__init__(pdfs=pdf, obs=obs, extended=extended, norm=norm)
         self._binned_space = self.pdfs[0].space.with_obs(self.space)
         self._binned_norm = self.pdfs[0].norm.with_obs(self.space)
 
@@ -74,7 +98,9 @@ class UnbinnedFromBinnedPDF(BaseFunctor):
         return self.pdfs[0].ext_integrate(limits, norm=binned_norm, options=options)
 
     @supports(norm=True, multiple_limits=True)
-    def _sample(self, n, limits: ZfitSpace):
+    def _sample(self, n, limits: ZfitSpace, *, prng=None):
+        if prng is None:
+            prng = z.random.get_prng()
 
         pdf = self.pdfs[0]
         # TODO: use real limits, currently not supported in binned sample
@@ -103,7 +129,7 @@ class UnbinnedFromBinnedPDF(BaseFunctor):
         )  # TODO: what if we have fractions?
         lower_flat_repeated = tf.repeat(lower_flat, counts_flat, axis=0)
         upper_flat_repeated = tf.repeat(upper_flat, counts_flat, axis=0)
-        sample_unbinned = tf.random.uniform(
+        sample_unbinned = prng.uniform(
             (znp.sum(counts_flat), ndim),
             minval=lower_flat_repeated,
             maxval=upper_flat_repeated,

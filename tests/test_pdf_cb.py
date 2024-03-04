@@ -1,14 +1,17 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 import numpy as np
 import pytest
 from scipy.stats import crystalball
 
 import zfit
 from zfit.core.testing import tester
-from zfit.models.physics import CrystalBall, DoubleCB
+from zfit.models.physics import CrystalBall, DoubleCB, GeneralizedCB
 
 mu = -0.3
 sigma = 1.1
+
+sigmal = 1.1
+sigmar = 1.1
 
 alphal = 0.8
 nl = 2.0
@@ -22,10 +25,10 @@ rbounds = (mu, bounds[1])
 
 
 def _cb_params_factory(name_add=""):
-    mu_ = zfit.Parameter("mu_cb" + name_add, mu)
-    sigma_ = zfit.Parameter("sigma_cb" + name_add, sigma)
-    alphal_ = zfit.Parameter("alphal_cb" + name_add, alphal)
-    nl_ = zfit.Parameter("nl_cb" + name_add, nl)
+    mu_ = zfit.Parameter(f"mu_cb{name_add}", mu)
+    sigma_ = zfit.Parameter(f"sigma_cb{name_add}", sigma)
+    alphal_ = zfit.Parameter(f"alphal_cb{name_add}", alphal)
+    nl_ = zfit.Parameter(f"nl_cb{name_add}", nl)
     return {"mu": mu_, "sigma": sigma_, "alpha": alphal_, "n": nl_}
 
 
@@ -50,10 +53,10 @@ def eval_testing(pdf, x):
 def test_cb_integral():
     obs = zfit.Space("x", limits=bounds)
 
-    mu_ = zfit.Parameter("mu_cb5", mu)
-    sigma_ = zfit.Parameter("sigma_cb5", sigma)
-    alphal_ = zfit.Parameter("alphal_cb5", alphal)
-    nl_ = zfit.Parameter("nl_cb5", nl)
+    mu_ = zfit.Parameter("mu", mu)
+    sigma_ = zfit.Parameter("sigma", sigma)
+    alphal_ = zfit.Parameter("alphal", alphal)
+    nl_ = zfit.Parameter("nl", nl)
 
     cbl = CrystalBall(obs=obs, mu=mu_, sigma=sigma_, alpha=alphal_, n=nl_)
     int_limits = (-1, 3)
@@ -63,33 +66,55 @@ def test_cb_integral():
     integral_numeric = zfit.run(integral_numeric)
     integral = zfit.run(integral)
 
-    assert pytest.approx(integral_numeric, integral, 1e-5)
+    assert pytest.approx(integral_numeric, 1e-5) == integral
 
-    rnd_limits = sorted(np.random.uniform(*bounds, 13))
-    integrals = []
-    for low, up in zip(rnd_limits[:-1], rnd_limits[1:]):
-        integrals.append(cbl.integrate((low, up), norm=False))
+    rnd_limits = sorted(list(np.random.uniform(*bounds, 13)) + list(bounds))
+    integrals = [
+        cbl.integrate((low, up), norm=False)
+        for low, up in zip(rnd_limits[:-1], rnd_limits[1:])
+    ]
 
     integral = np.sum(integrals)
     integral_full = zfit.run(cbl.integrate(bounds, norm=False))
-    assert pytest.approx(integral_full, integral)
+    assert pytest.approx(float(integral_full)) == float(integral)
 
 
-def test_cb_dcb():
+@pytest.mark.parametrize("doublecb", ["DoubleCB", "GeneralizedCB"])
+def test_cb_dcb(doublecb):
     obs = zfit.Space("x", limits=bounds)
 
-    mu_ = zfit.Parameter("mu_cb5", mu)
-    sigma_ = zfit.Parameter("sigma_cb5", sigma)
-    alphal_ = zfit.Parameter("alphal_cb5", alphal)
-    nl_ = zfit.Parameter("nl_cb5", nl)
-    alphar_ = zfit.Parameter("alphar_cb5", alphar)
-    nr_ = zfit.Parameter("nr_cb5", nr)
+    mu_ = zfit.Parameter("mu", mu)
+    sigma_ = zfit.Parameter("sigma", sigma)
+    sigmal_ = zfit.Parameter("sigmal", sigmal)
+    alphal_ = zfit.Parameter("alphal", alphal)
+    nl_ = zfit.Parameter("nl", nl)
+    sigmar_ = zfit.Parameter("sigmar", sigmar)
+    alphar_ = zfit.Parameter("alphar", alphar)
+    nr_ = zfit.Parameter("nr", nr)
 
-    cbl = CrystalBall(obs=obs, mu=mu_, sigma=sigma_, alpha=alphal_, n=nl_)
-    cbr = CrystalBall(obs=obs, mu=mu_, sigma=sigma_, alpha=-alphar_, n=nr_)
-    dcb = DoubleCB(
-        obs=obs, mu=mu_, sigma=sigma_, alphal=alphal_, nl=nl_, alphar=alphar_, nr=nr_
-    )
+    cbl = CrystalBall(obs=obs, mu=mu_, sigma=sigmal_, alpha=alphal_, n=nl_)
+    cbr = CrystalBall(obs=obs, mu=mu_, sigma=sigmar_, alpha=-alphar_, n=nr_)
+    if doublecb == "DoubleCB":
+        dcb = DoubleCB(
+            obs=obs,
+            mu=mu_,
+            sigma=sigma_,
+            alphal=alphal_,
+            nl=nl_,
+            alphar=alphar_,
+            nr=nr_,
+        )
+    else:
+        dcb = GeneralizedCB(
+            obs=obs,
+            mu=mu_,
+            sigmal=sigmal_,
+            alphal=alphal_,
+            nl=nl_,
+            sigmar=sigmar_,
+            alphar=alphar_,
+            nr=nr_,
+        )
 
     sample_testing(cbl)
     sample_testing(cbr)
@@ -142,11 +167,11 @@ def test_cb_dcb():
     assert np.allclose(ratio_l, ratio_l[0])
     assert np.allclose(ratio_r, ratio_r[0])
 
-    rnd_limits = sorted(np.random.uniform(*bounds, 130))
+    rnd_limits = sorted(list(np.random.uniform(*bounds, 130)) + list(bounds))
     integrals = []
     for low, up in zip(rnd_limits[:-1], rnd_limits[1:]):
         integrals.append(dcb.integrate((low, up), norm=False))
 
-        integral = np.sum(integrals)
-        integral_full = zfit.run(dcb.integrate((bounds[0], up), norm=False))
-        assert pytest.approx(integral_full, integral)
+    integral = np.sum(integrals)
+    integral_full = zfit.run(dcb.integrate((bounds[0], up), norm=False))
+    assert pytest.approx(float(integral_full)) == float(integral)

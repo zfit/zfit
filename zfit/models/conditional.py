@@ -1,10 +1,10 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from ..core.basepdf import BasePDF
+from ..util.ztyping import ExtendedInputType, NormInputType
 
 if TYPE_CHECKING:
     pass
@@ -25,6 +25,7 @@ from ..core.interfaces import (
     ZfitSpace,
     ZfitParameter,
 )
+from ..core.basepdf import BasePDF
 from ..core.parameter import set_values
 from ..core.space import combine_spaces, convert_to_space, supports
 from ..util.exception import WorkInProgressError
@@ -38,8 +39,10 @@ class ConditionalPDFV1(BaseFunctor):
         self,
         pdf: ZfitPDF,
         cond: Mapping[ZfitIndependentParameter, ZfitSpace],
-        name: str = "ConditionalPDF",
         *,
+        name: str = "ConditionalPDF",
+        extended: ExtendedInputType = None,
+        norm: NormInputType = None,
         use_vectorized_map: bool = False,
         sample_with_replacement: bool = True,
     ) -> None:
@@ -60,15 +63,28 @@ class ConditionalPDFV1(BaseFunctor):
                or label of
                the PDF for better identification.
                Has no programmatical functional purpose as identification. |@docend:model.init.name|
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+            norm: |@doc:model.init.norm| The normalization of the PDF. |@docend:model.init.norm|
             use_vectorized_map ():
             sample_with_replacement ():
         """
+        # TODO: add to serializer, see below repr for problem
+        # original_init = {'pdf': pdf, 'cond': cond, 'name': name, 'extended': extended, 'norm': norm,
+        #                  'use_vectorized_map': use_vectorized_map, 'sample_with_replacement': sample_with_replacement}
         self._sample_with_replacement = sample_with_replacement
         self._use_vectorized_map = use_vectorized_map
         self._cond, cond_obs = self._check_input_cond(cond)
         obs = pdf.space * cond_obs
-        super().__init__(pdfs=pdf, obs=obs, name=name)
-        self.set_norm_range(pdf.norm)
+        super().__init__(pdfs=pdf, obs=obs, name=name, extended=extended, norm=norm)
+        # self.hs3.original_init.update(original_init)  # TODO: add to serializer
+
+    @property
+    def cond(self) -> dict[ZfitIndependentParameter, ZfitSpace]:
+        return self._cond
 
     def _check_input_cond(self, cond):
         spaces = []
@@ -191,3 +207,31 @@ class ConditionalPDFV1(BaseFunctor):
         raise WorkInProgressError(
             "Currently copying not possible. " "Use `set_yield` to set a yield inplace."
         )
+
+
+# NOT working, logic wrong: the parameter of Gauss is not added to overall variables...
+# class ConditionalPDFV1Repr(BasePDFRepr):
+#     _implementation = ConditionalPDFV1
+#     hs3_type: Literal["ConditionalPDFV1"] = pydantic.Field("ConditionalPDFV1", alias="type")
+#
+#     pdf: List[Serializer.types.PDFTypeDiscriminated]
+#     cond: Dict[Serializer.types.ParamTypeDiscriminated, Union[SpaceRepr, Tuple[str]]]
+#     obs: Optional[Union[SpaceRepr, Tuple[str]]] = None
+#     extended: Serializer.types.ParamInputTypeDiscriminated = None
+#
+#     #
+#     @pydantic.root_validator(pre=True)
+#     def validate_all(cls, values):
+#         if cls.orm_mode(values):
+#             values = dict(values)
+#             for k, v in values['hs3'].original_init.items():
+#                 values[k] = v
+#             values['pdf'] = [values['pdf']]
+#             values['obs'] = values['space']
+#         return values
+#
+#     def _to_orm(self, init):
+#         init = dict(init)
+#         init['pdf'] = init['pdf'][0]
+#         out = super()._to_orm(init)
+#         return out

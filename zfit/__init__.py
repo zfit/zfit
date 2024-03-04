@@ -1,6 +1,6 @@
 """Top-level package for zfit."""
 
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 import sys
 import warnings
 
@@ -39,6 +39,7 @@ __all__ = [
     "exception",
     "sample",
     "binned",
+    "hs3",
     "Parameter",
     "ComposedParameter",
     "ComplexParameter",
@@ -50,12 +51,8 @@ __all__ = [
     "settings",
 ]
 
+
 #  Copyright (c) 2019 zfit
-warnings.warn(
-    "This is an ALPHA version of zfit for feature testing, do NOT use it in production! "
-    "It is NOT stable and contains bugs and untested features. "
-    "For production use, please use the last beta stable version of zfit."
-)
 
 
 def _maybe_disable_warnings():
@@ -70,7 +67,7 @@ def _maybe_disable_warnings():
             " In order to suppress the TensorFlow warnings AND this warning,"
             " set ZFIT_DISABLE_TF_WARNINGS=1."
         )
-    elif disable_warnings == "0":
+    elif disable_warnings == "0":  # just ignore and do nothing
         return
 
     os.environ["KMP_AFFINITY"] = "noverbose"
@@ -104,6 +101,8 @@ from . import (
     param,
     pdf,
     sample,
+    settings,
+    hs3,
 )
 from .core.data import Data
 from .core.parameter import (

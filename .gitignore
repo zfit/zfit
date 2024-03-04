@@ -9,3 +9,6 @@ zfit.egg-info/
 /.cache/
 /.pytest_cache/
 /build/
+.editorconfig
+tmp/*
+/utils/ci/.test_examples_env/

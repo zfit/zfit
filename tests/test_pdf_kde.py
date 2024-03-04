@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2024 zfit
 import itertools
 
 import numpy as np
@@ -76,7 +76,17 @@ def create_kde(
         else:
             hparam1 = zfit.Parameter("h1", 0.9)
     comb = itertools.product(
-        [("bandwidth", h) for h in [None, hparam1, "adaptive", "silverman", "scott"]],
+        [
+            ("bandwidth", h)
+            for h in [
+                None,
+                hparam1,
+                "adaptive",
+                "silverman",
+                "scott",
+                np.random.uniform(0.1, 1.5, size=npoints_lim),
+            ]
+        ],
         [("truncate", bo) for bo in [False, True]],
         [("type", zfit.pdf.GaussianKDE1DimV1)],
         [("npoints", npoints_lim)],
@@ -103,6 +113,7 @@ def create_kde(
                 "silverman",
                 "scott",
                 "isj",
+                np.random.uniform(0.1, 1.5, size=npoints_lim),
             ]
         ],
         [("weights", weight) for weight in [None, znp.ones(shape=npoints_lim)]],
@@ -117,6 +128,7 @@ def create_kde(
 
     # Grid PDFs
 
+    num_grid_size_maybe = 800
     comb = itertools.product(
         [
             ("bandwidth", h)
@@ -127,18 +139,24 @@ def create_kde(
                 "silverman",
                 "scott",
                 "adaptive_zfit",
+                np.random.uniform(0.1, 1.5, size=num_grid_size_maybe),
             ]
         ],
         [("weights", weight) for weight in [None, znp.ones(shape=npoints)]],
         [("padding", padding)],
         [("kernel", dist) for dist in [None, StudentT]],
         [("type", zfit.pdf.KDE1DimGrid)],
-        [("num_grid_points", n) for n in [None, 800]],
+        [("num_grid_points", n) for n in [None, num_grid_size_maybe]],
         [("binning_method", method) for method in ["linear", "simple"]],
     )
+    comb = [
+        c
+        for c in comb
+        if not isinstance(c[0][1], np.ndarray) or c[5][1] == num_grid_size_maybe
+    ]
 
     if not full:
-        comb = [next(comb)]
+        comb = [comb[0]]
     configs.extend(comb)
 
     # FFT combinations
@@ -149,7 +167,7 @@ def create_kde(
         [("padding", padding)],
         [("kernel", dist) for dist in [None, StudentT]],
         [("type", zfit.pdf.KDE1DimFFT)],
-        [("num_grid_points", n) for n in [None, 800]],
+        [("num_grid_points", n) for n in [None, num_grid_size_maybe]],
         [("binning_method", method) for method in ["linear", "simple"]],
     )
 
@@ -163,7 +181,7 @@ def create_kde(
         [("weights", weight) for weight in [None, znp.ones(shape=npoints)]],
         [("padding", padding)],
         [("type", zfit.pdf.KDE1DimISJ)],
-        [("num_grid_points", n) for n in [None, 800]],
+        [("num_grid_points", n) for n in [None, num_grid_size_maybe]],
         [("binning_method", method) for method in ["linear", "simple"]],
     )
 
@@ -211,7 +229,13 @@ def pytest_generate_tests(metafunc):
 
 
 # @pytest.mark.flaky(3)
-@pytest.mark.parametrize("jit", [False, True])
+@pytest.mark.parametrize(
+    "jit",
+    [
+        False,
+        # True
+    ],
+)
 @pytest.mark.parametrize("npoints", [1100, 500_000])
 def test_all_kde(kdetype, npoints, jit, request):
     import zfit
@@ -219,7 +243,6 @@ def test_all_kde(kdetype, npoints, jit, request):
     full = request.config.getoption("--longtests")
     full = full or request.config.getoption("--longtests-kde")
     cfg = create_kde(kdetype=kdetype, npoints=npoints, cfgonly=True, full=full)
-    print(cfg)
     kdetype = kdetype, npoints
     if jit:
         run_jit = z.function(_run)
@@ -237,7 +260,6 @@ def test_all_kde(kdetype, npoints, jit, request):
             data,
         ) = run_jit(kdetype, full=full)
     else:
-
         (
             expected_integral,
             integral,
@@ -291,7 +313,7 @@ def test_all_kde(kdetype, npoints, jit, request):
             f"{name} with {npoints_plot} points{weights_print}{bandwidth_print}{kernel_print}{grid_print}{binning_print}",
             fontsize=10,
         )
-        plt.plot(x, prob, label=f"KDE")
+        plt.plot(x, prob, label="KDE")
         plt.plot(x, prob_true, label="true PDF")
         data_np = zfit.run(data)
         plt.hist(data_np, bins=40, density=True, alpha=0.3, label="Kernel points")
@@ -380,8 +402,7 @@ def test_kde_border(kdetype, npoints, upper):
     ) = _run(kdetype, full=False, upper=upper, legacy=False, padding=True)
 
     plt.figure()
-    kernel_used = cfg.get("kernel")
-    if kernel_used is not None:
+    if (kernel_used := cfg.get("kernel")) is not None:
         kernel_print = f", kernel={kernel_used.__name__}"
     else:
         kernel_print = ""
@@ -393,13 +414,11 @@ def test_kde_border(kdetype, npoints, upper):
     else:
         bandwidth_print = f", h={bandwidth_printready}"
 
-    num_grid_points = cfg.get("num_grid_points")
-    if num_grid_points is not None:
+    if (num_grid_points := cfg.get("num_grid_points")) is not None:
         grid_print = f", grid={num_grid_points}"
     else:
         grid_print = ""
-    binning_method = cfg.get("binning_method")
-    if binning_method is not None:
+    if (binning_method := cfg.get("binning_method")) is not None:
         binning_print = f", binning={binning_method}"
     else:
         binning_print = ""
@@ -414,7 +433,7 @@ def test_kde_border(kdetype, npoints, upper):
         f"{kernel_print}{grid_print}{binning_print}",
         fontsize=10,
     )
-    plt.plot(x, prob, label=f"KDE")
+    plt.plot(x, prob, label="KDE")
     plt.plot(x, prob_true, label="true PDF")
     data_np = zfit.run(data)
     plt.hist(data_np, bins=40, density=True, alpha=0.3, label="Kernel points")

@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2024 zfit
 
 from __future__ import annotations
 
@@ -69,9 +69,9 @@ class ToyStrategyFail(BaseStrategy):
         super().__init__()
         self.fit_result = FitResult(
             params={},
-            edm=-999,
-            fmin=-999,
-            status=-999,
+            edm=None,
+            fminopt=None,
+            status=None,
             converged=False,
             info={},
             valid=False,
@@ -91,8 +91,8 @@ class ToyStrategyFail(BaseStrategy):
         )
         self.fit_result = FitResult(
             params=param_vals,
-            edm=-999,
-            fmin=-999,
+            edm=None,
+            fminopt=None,
             status=9,
             converged=False,
             info={},
@@ -139,7 +139,6 @@ def make_pushback_strategy(
                 if last_grad is not None:
                     last_grad = -last_grad
                 if last_loss is not None:
-
                     loss_evaluated = last_loss + self.nan_penalty * nan_counter
                 else:
                     loss_evaluated = values.get("loss")

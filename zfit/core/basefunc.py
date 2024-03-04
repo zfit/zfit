@@ -1,11 +1,11 @@
-#  Copyright (c) 2022 zfit
-"""Baseclass for `Function`. Inherits from Model.
+#  Copyright (c) 2023 zfit
+"""Baseclass for ``Function``. Inherits from Model.
 
 TODO(Mayou36): subclassing?
 """
-from typing import TYPE_CHECKING
+from __future__ import annotations
 
-from zfit.core.interfaces import ZfitBinning
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     import zfit
@@ -24,11 +24,11 @@ class BaseFuncV1(BaseModel, ZfitFunc):
     def __init__(
         self,
         obs=None,
-        dtype: typing.Type = ztypes.float,
+        dtype: type = ztypes.float,
         name: str = "BaseFunc",
         params: typing.Any = None,
     ):
-        """TODO(docs): explain subclassing"""
+        """TODO(docs): explain subclassing."""
         super().__init__(obs=obs, dtype=dtype, name=name, params=params)
 
     def _func_to_integrate(self, x: ztyping.XType):
@@ -57,7 +57,7 @@ class BaseFuncV1(BaseModel, ZfitFunc):
         raise SpecificFunctionNotImplemented
 
     def func(self, x: ztyping.XType, name: str = "value") -> ztyping.XType:
-        """The function evaluated at `x`.
+        """The function evaluated at ``x``.
 
         Args:
             x:
@@ -76,7 +76,6 @@ class BaseFuncV1(BaseModel, ZfitFunc):
         return self._call_value(x=x, name=name)
 
     def _call_value(self, x, name):
-
         try:
             return self._func(x=x)
         except ValueError as error:
@@ -84,10 +83,9 @@ class BaseFuncV1(BaseModel, ZfitFunc):
                 "Most probably, the number of obs the func was designed for"
                 "does not coincide with the `n_obs` from the `space`/`obs`"
                 "it received on initialization."
-                "Original Error: {}".format(error)
-            )
+            ) from error
 
-    def as_pdf(self) -> "zfit.core.interfaces.ZfitPDF":
+    def as_pdf(self) -> zfit.core.interfaces.ZfitPDF:
         """Create a PDF out of the function.
 
         Returns:
@@ -100,5 +98,4 @@ class BaseFuncV1(BaseModel, ZfitFunc):
     def _check_input_norm_range_default(
         self, norm_range, caller_name="", none_is_error=True
     ):  # TODO(Mayou36): default
-
         return self._check_input_norm(norm=norm_range, none_is_error=none_is_error)

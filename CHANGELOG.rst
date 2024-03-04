@@ -5,15 +5,326 @@ Changelog
 .. _newest-changelog:
 
 Develop
-========
+========================
 
 Major Features and Improvements
 -------------------------------
+- add ``GeneralizedCB` PDF which is similar to the ``DoubleCB`` PDF but with different standard deviations for the left and right side.
 - Added functor for PDF caching `CacheablePDF`: `pdf`, `integrate` PDF methods can be cacheable now
-- improved data handling in constructors `from_pandas` (which allows now to
+
+Breaking changes
+------------------
+
+Deprecations
+-------------
+- ``result.fminfull`` is deprecated and will be removed in the future. Use ``result.fmin`` instead.
+
+Bug fixes and small changes
+---------------------------
+- ``result.fmin`` now returns the full likelihood, while ``result.fminopt`` returns the optimized likelihood with potential constant subtraction. The latter is mostly used by the minimizer and other libraries. This behavior is consistent with the behavior of other methods in the loss that return by default the full, unoptimized value.
+
+Experimental
+------------
+
+Requirement changes
+-------------------
+
+Thanks
+------
+
+0.18.1 (22 Feb 2024)
+========================
+
+Bug fixes in randomness and improved caching
+
+Major Features and Improvements
+-------------------------------
+
+- reduced the number of graph caching reset, resulting in significant speedups in some cases
+
+
+Bug fixes and small changes
+---------------------------
+ - use random generated seeds for numpy and TF, as they can otherwise have unwanted correlations
+
+
+Thanks
+------
+@anjabeck for the bug report and the idea to use random seeds for numpy and TF
+@acampoverde for reporting the caching issue
+
+0.18.0 (29 Jan 2024)
+========================
+
+Major Features and Improvements
+-------------------------------
+- update to TensorFlow 2.15, TensorFlow Probability 0.23
+- drop Python 3.8 support
+
+
+0.17.0 (29 Jan 2024)
+========================
+
+TensorFlow 2.15, drop Python 3.8 support
+
+Major Features and Improvements
+-------------------------------
+- add correct uncertainty for unbinned, weighted fits with constraints and/or that are extended.
+- allow mapping in ``zfit.param.set_values`` for values
+
+
+Bug fixes and small changes
+---------------------------
+- fix issues where EDM goes negative, set to 999
+- improved stability of the loss evaluation
+- improved uncertainty calculation accuracy with ``zfit_error``
+
+
+
+Thanks
+------
+
+Daniel Craik for the idea of allowing a mapping in ``set_values``
+
+0.16.0 (26 July 2023)
+========================
+
+Major Features and Improvements
+-------------------------------
+
+- add ``full`` option to loss call of ``value``, which returns the unoptimized value allowing for easier statistical tests using the loss.
+  This is the default behavior and should not break any backwards compatibility, as the "not full loss" was arbitrary.
+- changed the ``FitResult`` to print both loss values, the unoptimized (full) and optimized (internal)
+
+
+Bug fixes and small changes
+---------------------------
+- bandwidth preprocessing was ignored in KDE
+- ``unstack_x`` with an ``obs`` as argument did return the wrong shape
+
+
+Thanks
+------
+@schmitse for reporting the bug in the KDE bandwidth preprocessing
+@lorenzopaolucci for bringing up the absolute value of the loss in the fitresult as an issue
+
+0.15.5 (26 July 2023)
+========================
+
+Bug fixes and small changes
+---------------------------
+- fix a bug in histmodifier that would not properly take into account the yield of the wrapped PDF
+
+0.15.2 (20 July 2023)
+========================
+
+Fix missing ``attrs`` dependency
+
+Major Features and Improvements
+-------------------------------
+- add option ``full`` in loss to return the full, unoptimized value (currently not default), allowing for easier statistical tests using the loss
+
+
+
+0.15.0 (13 July 2023)
+========================
+
+Update to TensorFlow 2.13.x
+
+Requirement changes
+-------------------
+- TensorFlow upgraded to ~=2.13.0
+- as TF 2.13.0 ships with the arm64 macos wheels, the requirement of ``tensorflow_macos`` is removed
+
+Thanks
+------
+- Iason Krommydas for helping with the macos requirements for TF
+
+0.14.1 (1 July 2023)
+========================
+
+Major Features and Improvements
+-------------------------------
+
+- zfit broke for pydantic 2, which upgraded.
+
+
+Requirement changes
+-------------------
+- restrict pydantic to <2.0.0
+
+0.14.0 (22 June 2023)
+========================
+
+Major Features and Improvements
+-------------------------------
+
+- support for Python 3.11, dropped support for Python 3.7
+
+Bug fixes and small changes
+---------------------------
+-fix longstanding bug in parameters caching
+
+
+Requirement changes
+-------------------
+- update to TensorFlow 2.12
+- removed tf_quant_finance
+
+
+0.13.2 (15. June 2023)
+========================
+
+Bug fixes and small changes
+---------------------------
+- fix a caching problem with parameters (could cause issues with larger PDFs as params would be "remembered" wrongly)
+- more helpful error message when jacobian (as used for weighted corrections) is analytically asked but fails
+- make analytical gradient for CB integral work
+
+
+0.13.1 (20 Apr 2023)
+========================
+
+Bug fixes and small changes
+---------------------------
+- array bandwidth for KDE works now correctly
+
+Requirement changes
+-------------------
+- fixed uproot for Python 3.7 to <5
+
+Thanks
+------
+- @schmitse for reporting and solving the bug in the KDE bandwidth with arrays
+
+0.13.0 (19 April 2023)
+========================
+
+Major Features and Improvements
+-------------------------------
+
+last Python 3.7 version
+
+Bug fixes and small changes
+---------------------------
+- ``SampleData`` is not used anymore, a ``Data`` object is returned (for simple sampling). The ``create_sampler`` will still return a ``SamplerData`` object though as this differs from ``Data``.
+
+Experimental
+------------
+- Added support on a best-effort for human-readable serialization of objects including an HS3-like representation, find a `tutorial on serialization here<https://zfit-tutorials.readthedocs.io/en/latest/tutorials/components/README.html#serialization>`_. Most built-in unbinned PDFs are supported. This is still experimental and not yet fully supported. Dumping can be performed safely, loading maybe easily breaks (also between versions), so do not rely on it yet. Everything else - apart of trying to dump - should only be used for playing around and giving feedback purposes.
+
+Requirement changes
+-------------------
+- allow uproot 5 (remove previous restriction)
+
+Thanks
+------
+- to Johannes Lade for the amazing work on the serialization, which made this HS3 implementation possible!
+
+
+0.12.1 (1 April 2023)
+========================
+
+
+Bug fixes and small changes
+---------------------------
+- added ``extended`` as a parameter to all PDFs: a PDF can now directly be extended without the need for
+  ``create_extended`` (or ``set_yield``).
+- ``to_pandas`` and ``from_pandas`` now also support weights as columns. Default column name is ``""``.
+- add ``numpy`` and ``backend`` to options when setting the seed
+- reproducibility by fixing the seed in zfit is restored, ``zfit.run.set_seed`` now also sets the seed for the backend(numpy, tensorflow, etc.) if requested (on by default)
+
+Thanks
+------
+- Sebastian Schmitt @schmitse for reporting the bug in the non-reproducibility of the seed.
+
+0.12.0 (13 March 2023)
+========================
+
+Bug fixes and small changes
+---------------------------
+- ``create_extended`` added ``None`` to the name, removed.
+- ``SimpleConstraint`` now also takes a function that has an explicit ``params`` argument.
+- add ``name`` argument to ``create_extended``.
+- adding binned losses would error due to the removed ``fit_range`` argument.
+- setting a global seed made the sampler return constant values, fixed (unoptimized but correct). If you ran
+  a fit with a global seed, you might want to rerun it.
+- histogramming and limit checks failed due to a stricter Numpy check, fixed.
+
+
+Thanks
+------
+- @P-H-Wagner for finding the bug in ``SimpleConstraint``.
+- Dan Johnson for finding the bug in the binned loss that would fail to sum them up.
+- Hanae Tilquin for spotting the bug with TensorFlows changed behavior or random states inside a tf.function,
+  leading to biased samples whenever a global seed was set.
+
+0.11.1 (20 Nov 2022)
+=========================
+
+Hotfix for wrong import
+
+0.11.0 (29 Nov 2022)
+========================
+
+Major Features and Improvements
+-------------------------------
+- columns of unbinned ``data`` can be accessed with the obs like a mapping (like a dataframe)
+- speedup builtin ``errors`` method and make it more robust
+
+Breaking changes
+------------------
+- ``Data`` can no longer be used directly as an array-like object but got mapping-like behavior.
+- some old deprecated methods were removed
+
+Bug fixes and small changes
+---------------------------
+- improved caching speed, reduced tradeoff against memory
+- yields were not added correctly in some (especially binned) PDFs and the fit would fail
+
+Requirement changes
+-------------------
+- add jacobi (many thanks at @HansDembinski for the package)
+
+
+0.10.1 (31 Aug 2022)
+========================
+
+Major Features and Improvements
+-------------------------------
+- reduce the memory footprint on (some) fits, especially repetitive (loops) ones.
+  Reduces the number of cached compiled functions. The cachesize can be set with
+  ``zfit.run.set_cache_size(int)``
+  and specifies the number of compiled functions that are kept in memory. The default is 10, but
+  this can be tuned. Lower values can reduce memory usage, but potentially increase runtime.
+
+
+Bug fixes and small changes
+---------------------------
+- Enable uniform binning for n-dimensional distributions with integer(s).
+- Sum of histograms failed for calling the pdf method (can be indirectly), integrated over wrong axis.
+- Binned PDFs expected binned spaces for limits, now unbinned limits are also allowed and automatically
+    converted to binned limits using the PDFs binning.
+- Speedup sampling of binned distributions.
+- add ``to_binned`` and ``to_unbinned`` methods to PDF
+
+
+Thanks
+------
+- Justin Skorupa for finding the bug in the sum of histograms and the missing automatic
+  conversion of unbinned spaces to binned spaces.
+
+0.10.0 (22. August 2022)
+========================
+
+Public release of binned fits and upgrade to Python 3.10 and TensorFlow 2.9.
+
+Major Features and Improvements
+-------------------------------
+- improved data handling in constructors ``from_pandas`` (which allows now to
   have weights as columns, dataframes that are a superset of the obs) and
-  `from_root` (obs can now be spaces and therefore cuts can be direcly applied)
-- add hashing of unbinned datasets with a `hashint` attribute. None if no hash was possible.
+  ``from_root`` (obs can now be spaces and therefore cuts can be direcly applied)
+- add hashing of unbinned datasets with a ``hashint`` attribute. None if no hash was possible.
 
 Breaking changes
 ------------------
@@ -30,6 +341,14 @@ Bug fixes and small changes
 - ``ConstantParameter`` errored when converted to numpy.
 - Simultaneous binned fits could error with different binning due to a missing sum over
   a dimension.
+- improved stability in loss evaluation of constraints and poisson/chi2 loss.
+- reduce gradient evaluation time in ``errors`` for many parameters.
+- Speedup Parameter value assignement in fits, which is most notably when the parameter update time is
+  comparably large to the fit evaluation time, such as is the case for binned fits with many nuisance
+  parameters.
+- fix ipyopt was not pickleable in a fitresult
+- treat parameters sometimes as "stateless", possibly reducing the number of retraces and reducing the
+  memory footprint.
 
 Experimental
 ------------
@@ -37,6 +356,9 @@ Experimental
 Requirement changes
 -------------------
 - nlopt and ipyopt are now optional dependencies.
+- Python 3.10 added
+- TensorFlow >= 2.9.0, <2.11 is now required and the corresponding TensorFlow-Probability
+  version >= 0.17.0, <0.19.0
 
 Thanks
 ------
@@ -48,14 +370,14 @@ Thanks
 
 Major Features and Improvements
 -------------------------------
-- Save results by pickling, unpickling a frozen (`FitResult.freeze()`) result and using
-  `zfit.param.set_values(params, result)` to set the values of `params`.
+- Save results by pickling, unpickling a frozen (``FitResult.freeze()``) result and using
+  ``zfit.param.set_values(params, result)`` to set the values of ``params``.
 
 
 
 Deprecations
 -------------
-- the default name of the uncertainty methods `hesse` and `errors` depended on
+- the default name of the uncertainty methods ``hesse`` and ``errors`` depended on
   the method used (such as 'minuit_hesse', 'zfit_errors' etc.) and would be the exact method name.
   New names are now 'hesse' and 'errors', independent of the method used. This reflects better that the
   methods, while internally different, produce the same result.
@@ -87,14 +409,14 @@ Major Features and Improvements
   binned losses. TODO: extend to include changes/point to binned introduction.
 - new Poisson PDF
 - added Poisson constraint, LogNormal Constraint
-- Save results by pickling, unpickling a frozen (`FitResult.freeze()`) result and using
-  `zfit.param.set_values(params, result)` to set the values of `params`.
+- Save results by pickling, unpickling a frozen (``FitResult.freeze()``) result and using
+  ``zfit.param.set_values(params, result)`` to set the values of ``params``.
 
 Breaking changes
 ------------------
 
 - params given in ComposedParameters are not sorted anymore. Rely on their name instead.
-- `norm_range` is now called `norm` and should be replaced everywhere if possible. This will break in
+- ``norm_range`` is now called ``norm`` and should be replaced everywhere if possible. This will break in
   the future.
 
 Deprecation
@@ -102,7 +424,7 @@ Deprecation
 
 Bug fixes and small changes
 ---------------------------
-- remove warning when using `rect_limits` or similar.
+- remove warning when using ``rect_limits`` or similar.
 - gauss integral accepts now also tensor inputs in limits
 - parameters at limits is now shown correctly
 
@@ -111,6 +433,7 @@ Experimental
 
 Requirement changes
 -------------------
+- add TensorFlow 2.7 support
 
 Thanks
 ------
@@ -135,7 +458,7 @@ Bug fixes and small changes
 Major Features and Improvements
 -------------------------------
 
-- allow `FitResult` to `freeze()`, making it pickleable. The parameters
+- allow ``FitResult`` to ``freeze()``, making it pickleable. The parameters
   are replaced by their name, the objects such as loss and minimizer as well.
 - improve the numerical integration by adding a one dimensional efficient integrator, testing for the accuracy of
   multidimensional integrals. If there is a sharp peak, this maybe fails to integrate and the number of points
@@ -157,7 +480,7 @@ Breaking changes
 ------------------
 - the numerical integration improved with more sensible values for tolerance. This means however that some fits will
   greatly increase the runtime. To restore the old behavior globally, do
-  for each instance `pdf.update_integration_options(draws_per_dim=40_000, max_draws=40_000, tol=1)`
+  for each instance ``pdf.update_integration_options(draws_per_dim=40_000, max_draws=40_000, tol=1)``
   This will integrate regardless of the chosen precision and it may be non-optimal.
   However, the precision estimate in the integrator is also not perfect and maybe overestimates the error, so that
   the integration by default takes longer than necessary. Feel free to play around with the parameters and report back.
@@ -188,7 +511,7 @@ Thanks
 
 Bug fixes and small changes
 ---------------------------
-- fix wrong arguments to `minimize`
+- fix wrong arguments to ``minimize``
 - make BaseMinimizer arguments optional
 
 0.7.1 (6. July 2021)
@@ -211,7 +534,7 @@ Major Features and Improvements
 
 Bug fixes and small changes
 ---------------------------
-- Scipy minimizers with hessian arguments use now `BFGS` as default
+- Scipy minimizers with hessian arguments use now ``BFGS`` as default
 
 
 Requirement changes
@@ -231,8 +554,8 @@ Update ipyopt requirement < 0.12 to allow numpy compatible with TensorFlow
 ==================
 
 - hotfix for wrong argument in exponential PDF
-- removed requirement ipyopt, can be installed with `pip install zfit[ipyopt]`
-  or by manually installing `pip install ipyopt`
+- removed requirement ipyopt, can be installed with ``pip install zfit[ipyopt]``
+  or by manually installing ``pip install ipyopt``
 
 
 
@@ -307,7 +630,7 @@ Major Features and Improvements
 - Completely new and overhauled minimizers design, including:
 
   - minimizers can now be used with arbitrary Python functions and an initial array independent of zfit
-  - a minimization can be 'continued' by passing `init` to `minimize`
+  - a minimization can be 'continued' by passing ``init`` to ``minimize``
   - more streamlined arguments for minimizers, harmonized names and behavior.
   - Adding a flexible criterion (currently EDM) that will terminate the minimization.
   - Making the minimizer fully stateless.
@@ -316,10 +639,10 @@ Major Features and Improvements
 
 - Major overhaul of the ``FitResult``, including:
 
-  - improved `zfit_error` (equivalent of `MINOS`)
-  - `minuit_hesse` and `minuit_minos` are now available with all minimizers as well thanks to an great
+  - improved ``zfit_error`` (equivalent of ``MINOS``)
+  - ``minuit_hesse`` and ``minuit_minos`` are now available with all minimizers as well thanks to an great
     improvement in iminuit.
-  - Added an `approx` hesse that returns the approximate hessian (if available, otherwise empty)
+  - Added an ``approx`` hesse that returns the approximate hessian (if available, otherwise empty)
 
 - upgrade to iminuit v2 changes the way it works and also the Minuit minimizer in zfit,
   including a new step size heuristic.
@@ -331,11 +654,11 @@ Major Features and Improvements
 
 Breaking changes
 ------------------
-- NLL (and extended) subtracts now by default a constant value. This can be changed with a new `options` argument.
+- NLL (and extended) subtracts now by default a constant value. This can be changed with a new ``options`` argument.
   COMPARISON OF DIFFEREN NLLs (their absolute values) fails now! (flag can be deactivated)
 - BFGS (from TensorFlow Probability) has been removed as it is not working properly. There are many alternatives
   such as ScipyLBFGSV1 or NLoptLBFGSV1
-- Scipy (the minimizer) has been removed. Use specialized `Scipy*` minimizers instead.
+- Scipy (the minimizer) has been removed. Use specialized ``Scipy*`` minimizers instead.
 - Creating a ``zfit.Parameter``, usign ``set_value`` or ``set_values`` now raises a ``ValueError``
   if the value is outside the limits. Use ``assign`` to suppress it.
 
@@ -349,7 +672,7 @@ Bug fixes and small changes
 - FFTconv was shifted if the kernel limits were not symetrical, now properly taken into account.
 - circumvent overflow error in sampling
 - shuffle samples from sum pdfs to ensure uniformity and remove conv sampling bias
-- `create_sampler` now samples immediately to allow for precompile, a new hook that will allow objects to optimize
+- ``create_sampler`` now samples immediately to allow for precompile, a new hook that will allow objects to optimize
   themselves.
 
 

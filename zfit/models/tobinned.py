@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -29,12 +29,20 @@ class BinnedFromUnbinnedPDF(BaseBinnedFunctorPDF):
 
         Args:
             pdf: The unbinned pdf to be binned.
-            space: |@doc:pdf.init.obs||@docend:pdf.init.obs|
+            space: |@doc:pdf.init.obs| Observables of the
+               model. This will be used as the default space of the PDF and,
+               if not given explicitly, as the normalization range.
+
+               The default space is used for example in the sample method: if no
+               sampling limits are given, the default space is used.
+
+               The observables are not equal to the domain as it does not restrict or
+               truncate the model outside this range. |@docend:pdf.init.obs|
             extended: |@doc:pdf.init.extended| The overall yield of the PDF.
                If this is parameter-like, it will be used as the yield,
                the expected number of events, and the PDF will be extended.
                An extended PDF has additional functionality, such as the
-               `ext_*` methods and the `counts` (for binned PDFs). |@docend:pdf.init.extended|
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
             norm: |@doc:pdf.init.norm| Normalization of the PDF.
                By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
         """
@@ -47,6 +55,13 @@ class BinnedFromUnbinnedPDF(BaseBinnedFunctorPDF):
                 )
             else:
                 extended = pdf.get_yield()
+        if not isinstance(space, ZfitSpace):
+            try:
+                space = pdf.space.with_binning(space)
+            except Exception as error:
+                raise ValueError(
+                    f"Could not create space {space} from pdf {pdf} with binning {space}"
+                ) from error
         super().__init__(
             obs=space,
             extended=extended,
@@ -91,13 +106,21 @@ class BinnedFromUnbinnedPDF(BaseBinnedFunctorPDF):
             return pdf.integrate(limits_space, norm=False, options=options)
 
         limits = znp.stack([lower_flat, upper_flat], axis=1)
-        values = tf.vectorized_map(integrate_one, limits)
+        from zfit import run
+
+        try:
+            if run.executing_eagerly():
+                raise TypeError("Just stearing the eager execution")
+            values = tf.vectorized_map(integrate_one, limits)[:, 0]
+        except (ValueError, TypeError):
+            with run.aquire_cpu(-1) as cpus:
+                values = tf.map_fn(integrate_one, limits, parallel_iterations=len(cpus))
         values = znp.reshape(values, shape)
         if norm:
             values /= pdf.normalization(norm)
         return values
 
-    @z.function
+    @z.function(wraps="model_binned")
     def _counts(self, x, norm):
         pdf = self.pdfs[0]
         edges = [znp.array(edge) for edge in self.axes.edges]
@@ -137,10 +160,15 @@ class BinnedFromUnbinnedPDF(BaseBinnedFunctorPDF):
             missing_yield = True
 
         limits = znp.stack([lower_flat, upper_flat], axis=1)
+        from zfit import run
+
         try:
+            if run.executing_eagerly():
+                raise TypeError("Just stearing the eager execution")
             values = tf.vectorized_map(integrate_one, limits)[:, 0]
-        except ValueError:
-            values = tf.map_fn(integrate_one, limits)
+        except (ValueError, TypeError):
+            with run.aquire_cpu(-1) as cpus:
+                values = tf.map_fn(integrate_one, limits, parallel_iterations=len(cpus))
         values = znp.reshape(values, shape)
         if missing_yield:
             values *= self.get_yield()

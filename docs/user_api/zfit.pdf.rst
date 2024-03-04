@@ -4,7 +4,7 @@ PDF
 Basic PDFs
 ##########
 
-Basic shapes are fundamendal PDFs, with often well-known functional form.
+Basic shapes are fundamental PDFs, with often well-known functional form.
 They are usually fully analytically implemented and often a thin
 wrapper around :py:class:`~tensorflow_probability.distribution.Distribution`.
 Any missing shape can be easily wrapped using :py:class:`~zfit.pdf.WrapDistribution`.
@@ -16,12 +16,13 @@ Any missing shape can be easily wrapped using :py:class:`~zfit.pdf.WrapDistribut
 
 
 Binned PDFs
-##########
+###########
 
 Binned PDFs extend the functionality of unbinned PDFs by providing more histogram-like features in
-addition to the basic unbinned PDFs. They interface well with the
-`boost-histogram <https://boost-histogram.readthedocs.io/en/latest/>`_ and especially
-`Hist <https://github.com/scikit-hep/hist>`_ libraries.
+addition to the basic unbinned PDFs. They interface with the
+`Unified Histogram Interface (uhi) <https://uhi.readthedocs.io/en/latest/?badge=latest>`_
+that is provided `boost-histogram <https://boost-histogram.readthedocs.io/en/latest/>`_ and especially
+`Hist <https://github.com/scikit-hep/hist>`_.
 
 .. toctree::
     :maxdepth: 2
@@ -42,7 +43,7 @@ They constitute a sum of different degrees.
 
     pdf/polynomials
 
-Kernel Density Estimtations
+Kernel Density Estimations
 #############################
 
 KDEs provide a means of non-parametric density estimation.

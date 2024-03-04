@@ -1,12 +1,11 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-
 if TYPE_CHECKING:
-    import zfit
+    pass
 
 from collections.abc import Callable
 from collections.abc import Iterable
@@ -29,6 +28,10 @@ def convert_to_container(
             be a list of types. As an example, if `non_containers` is [list, tuple] and the value
             is [5, 3] (-> a list with two entries),this won't be converted to the `container` but end
             up as (if the container is e.g. a tuple): ([5, 3],) (a tuple with one entry).
+
+            By default, the following types are added to `non_containers`:
+            [str, tf.Tensor, ZfitData, ZfitLoss, ZfitModel, ZfitSpace, ZfitParameter, ZfitBinnedData,
+            ZfitBinning, PlottableHistogram]
 
     Returns:
     """

@@ -1,5 +1,9 @@
-#  Copyright (c) 2022 zfit
-""".. todo:: Add module docstring."""
+#  Copyright (c) 2023 zfit
+"""..
+
+todo:: Add module docstring.
+"""
+from .core.serialmixin import NumpyArrayNotSerializableError
 from .util.checks import NONE
 from .util.deprecation import deprecated
 from .util.exception import (
@@ -17,6 +21,7 @@ from .util.exception import (
     SpecificFunctionNotImplemented,
     VectorizedLimitsNotImplemented,
     ShapeIncompatibleError,
+    LogicalUndefinedOperationError,
 )
 
 __all__ = [
@@ -34,6 +39,8 @@ __all__ = [
     "MaximumIterationReached",
     "ShapeIncompatibleError",
     "InitNotImplemented",
+    "LogicalUndefinedOperationError",
+    "NumpyArrayNotSerializableError",
     "NONE",
 ]
 

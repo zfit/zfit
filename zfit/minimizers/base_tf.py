@@ -1,7 +1,8 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 
 from __future__ import annotations
 
+from functools import partial
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -31,8 +32,8 @@ class WrapOptimizer(BaseStepMinimizer):
 
         .. note:: Different behavior of minimize
 
-          While the `minimize` method in TensorFlow optimizers executes a single step of the minimization,
-          the `minimize` method of a :class:`ZfitMinimizer` fully minimizes a function until convergence
+          While the ``minimize`` method in TensorFlow optimizers executes a single step of the minimization,
+          the ``minimize`` method of a :class:`ZfitMinimizer` fully minimizes a function until convergence
           is reached. In order to execute a single step, use the :meth:`~WrapOptimizer.step` method (however,
           this is in general not necessary to do and rather inefficient).
 
@@ -75,5 +76,9 @@ class WrapOptimizer(BaseStepMinimizer):
         params: Iterable[ZfitIndependentParameter],
         init: zfit.result.FitResult | None,
     ) -> tf.Tensor:
-        self._optimizer_tf.minimize(loss=loss.value, var_list=params)
-        return loss.value()
+        # TODO(WrappedVariable): this is needed if we want to use wrapped Variables
+        # import zfit
+        # params = zfit.z.math._extract_tfparams(params)
+        value = partial(loss.value, full=False)
+        self._optimizer_tf.minimize(loss=value, var_list=params)
+        return value()

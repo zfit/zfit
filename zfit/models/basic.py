@@ -3,27 +3,41 @@
 Gauss, exponential... that can be used together with Functors to build larger models.
 """
 
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2024 zfit
+
+from __future__ import annotations
+
+#  Copyright (c) 2023 zfit
 import contextlib
 
+from typing import Literal
+
 import tensorflow as tf
+from pydantic import Field
 
 import zfit.z.numpy as znp
 from zfit import z
 from ..core.basepdf import BasePDF
+from ..core.serialmixin import SerializableMixin
 from ..core.space import ANY_LOWER, ANY_UPPER, Space
+from ..serialization import SpaceRepr, Serializer
+from ..serialization.pdfrepr import BasePDFRepr
 from ..util import ztyping
 from ..util.exception import BreakingAPIChangeError
 from ..util.warnings import warn_advanced_feature
+from ..util.ztyping import ExtendedInputType, NormInputType
 
 
-class Exponential(BasePDF):
+class Exponential(BasePDF, SerializableMixin):
     _N_OBS = 1
 
     def __init__(
         self,
         lam=None,
         obs: ztyping.ObsTypeInput = None,
+        *,
+        extended: ExtendedInputType = None,
+        norm: NormInputType = None,
         name: str = "Exponential",
         lambda_=None,
     ):
@@ -33,10 +47,27 @@ class Exponential(BasePDF):
         defined as :math:`\\frac{ e^{\\lambda \\cdot x}}{ \\int_{lower}^{upper} e^{\\lambda \\cdot x} dx}`
 
         Args:
-            lam: Accessed as parameter "lambda".
-            obs: The :py:class:`~zfit.Space` the pdf is defined in.
-            name: Name of the pdf.
-            dtype:
+            lam: Lambda parameter of the exponential.
+            obs: |@doc:pdf.init.obs| Observables of the
+               model. This will be used as the default space of the PDF and,
+               if not given explicitly, as the normalization range.
+
+               The default space is used for example in the sample method: if no
+               sampling limits are given, the default space is used.
+
+               The observables are not equal to the domain as it does not restrict or
+               truncate the model outside this range. |@docend:pdf.init.obs|
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+            norm: |@doc:pdf.init.norm| Normalization of the PDF.
+               By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
+            name: |@doc:pdf.init.name| Human-readable name
+               or label of
+               the PDF for better identification.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.name|
         """
         if lambda_ is not None:
             if lam is None:
@@ -45,8 +76,8 @@ class Exponential(BasePDF):
                 raise BreakingAPIChangeError(
                     "The 'lambda' parameter has been renamed from 'lambda_' to 'lam'."
                 )
-        params = {"lambda": lam}
-        super().__init__(obs, name=name, params=params)
+        params = {"lambda": lam, "lam": lam}
+        super().__init__(obs, name=name, params=params, extended=extended, norm=norm)
 
         self._calc_numerics_data_shift = lambda: z.constant(0.0)
 
@@ -62,7 +93,7 @@ class Exponential(BasePDF):
         self._set_numerics_data_shift(self.space)
 
     def _unnormalized_pdf(self, x):
-        lambda_ = self.params["lambda"]
+        lambda_ = self.params["lambda"].value()
         x = x.unstack_x()
         probs = znp.exp(lambda_ * (self._shift_x(x)))
         tf.debugging.assert_all_finite(
@@ -203,3 +234,10 @@ limits = Space(axes=0, limits=(ANY_LOWER, ANY_UPPER))
 Exponential.register_analytic_integral(
     func=_exp_integral_from_any_to_any, limits=limits
 )
+
+
+class ExponentialPDFRepr(BasePDFRepr):
+    _implementation = Exponential
+    hs3_type: Literal["Exponential"] = Field("Exponential", alias="type")
+    x: SpaceRepr
+    lam: Serializer.types.ParamTypeDiscriminated

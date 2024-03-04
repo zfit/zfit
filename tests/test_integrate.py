@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 from contextlib import suppress
 
 import numpy as np
@@ -299,7 +299,6 @@ def test_mc_partial_integration():
 
     integral = num_integral.numpy()
     integral2 = num_integral2.numpy()
-    # print("DEBUG", value:", vals_reshaped)
     assert len(integral) == len(func4_values)
     assert len(integral2) == len(func4_2values[0])
     assert func4_3deps_0and2_integrated(

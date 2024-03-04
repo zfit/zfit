@@ -3,7 +3,8 @@
 One example is a normal function `Function` that allows to simply define a non-normalizable function.
 """
 
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
+from __future__ import annotations
 
 import functools
 
@@ -28,7 +29,7 @@ class SimplePDF(BasePDF):
         except TypeError:
             return self._unnormalized_prob_func(self, x)
 
-    def copy(self, **override_parameters) -> "BasePDF":
+    def copy(self, **override_parameters) -> BasePDF:
         override_parameters.update(func=self._unnormalized_prob_func)
         return super().copy(**override_parameters)
 
@@ -45,7 +46,9 @@ def raise_error_if_norm_range(func):
     def wrapped(*args, **kwargs):
         try:
             return func(*args, **kwargs)
-        except NormRangeNotImplemented:  # TODO: silently remove norm_range? Or loudly fail?
+        except (
+            NormRangeNotImplemented
+        ):  # TODO: silently remove norm_range? Or loudly fail?
             raise tf.errors.InvalidArgumentError(
                 "Norm_range given to Function: cannot be normalized."
             )

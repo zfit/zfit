@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 import copy
 
 import numpy as np
@@ -6,6 +6,7 @@ import pytest
 import tensorflow as tf
 
 import zfit
+from zfit import z
 
 obs1_random = zfit.Space(obs="obs1", limits=(-1.5, 1.2))
 obs1 = zfit.Space(obs="obs1", limits=(-1, 1))
@@ -93,7 +94,7 @@ def test_polynomials(poly_cfg, coeffs):
     )
 
     lower, upper = obs1_random.limit1d
-    sample = tf.random.uniform((n_sampling, 1), lower, upper, dtype=tf.float64)
+    sample = z.random.uniform((n_sampling, 1), lower, upper, dtype=tf.float64)
     test_integral = (
         np.average(polynomial.pdf(sample, norm=False)) * obs1_random.rect_area()
     )

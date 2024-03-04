@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 import numpy as np
 import pytest
 import tensorflow as tf
@@ -6,8 +6,8 @@ from ordered_set import OrderedSet
 
 import zfit
 from zfit import Parameter, z
-from zfit.core.parameter import ComplexParameter, ComposedParameter
-from zfit.util.exception import NameAlreadyTakenError
+from zfit.exception import NameAlreadyTakenError, LogicalUndefinedOperationError
+from zfit.param import ComplexParameter, ComposedParameter
 
 
 def test_complex_param():
@@ -129,19 +129,24 @@ def test_composed_param():
     assert a_changed == param_a.numpy()
     assert a_changed != a_unchanged
 
-    print(param_a)
+    # Test param representation
+    str(param_a)
+    repr(param_a)
 
     @z.function
     def print_param(p):
-        print(p)
+        _ = str(p)
+        _ = repr(p)
 
     print_param(param_a)
 
     # TODO(params): reactivate to check?
-    # with pytest.raises(LogicalUndefinedOperationError):
-    #     param_a.assign(value=5.)
-    # with pytest.raises(LogicalUndefinedOperationError):
-    #     param_a.assign(value=5.)
+    with pytest.raises(LogicalUndefinedOperationError):
+        param_a.set_value(value=5.0)
+    with pytest.raises(LogicalUndefinedOperationError):
+        param_a.assign(value=5.0)
+    with pytest.raises(LogicalUndefinedOperationError):
+        param_a.randomize()
 
 
 def test_shape_parameter():
@@ -213,14 +218,13 @@ def test_overloaded_operators():
     assert param_d_val == (param_a + param_a * param_b**2).numpy()
 
 
-# @pytest.mark.skip  # TODO: reactivate, causes segfault
 def test_equal_naming():
-    param_unique_name = zfit.Parameter("fafdsfds", 5.0)
+    unique_name = "fafdsfds"
+    param_unique_name = zfit.Parameter(unique_name, 5.0)
     with pytest.raises(NameAlreadyTakenError):
-        param_unique_name2 = zfit.Parameter("fafdsfds", 3.0)
+        param_unique_name2 = zfit.Parameter(unique_name, 3.0)
 
 
-# @pytest.mark.skip  # TODO: segfaulting?
 def test_set_value():
     value1 = 1.0
     value2 = 2.0
@@ -434,11 +438,62 @@ def test_set_values():
         assert param.value().numpy() == val
 
 
+@pytest.mark.parametrize("addmore", [True, False])
+def test_set_values_dict(addmore):
+    import zfit
+
+    init_values = [1, 2, 3]
+    second_values = [5, 6, 7]
+    params = [zfit.Parameter(f"param_{i}", val) for i, val in enumerate(init_values)]
+
+    setvalueparam = {p: v for p, v in zip(params, second_values)}
+    setvalue_paramname = {p.name: v for p, v in zip(params, second_values)}
+    setvaluemixed = setvalueparam.copy()
+    setvaluemixed["param_1"] = params[1]
+
+    if addmore:
+        param4 = zfit.Parameter("param4", 4)
+        setvalue_paramname[param4.name] = 4
+        setvalueparam[param4] = 4
+        setvaluemixed[param4] = 4
+
+    zfit.param.set_values(params, setvalueparam)
+    for param, val in zip(params, second_values):
+        assert pytest.approx(param.value().numpy()) == val
+
+    zfit.param.set_values(params, init_values)
+
+    zfit.param.set_values(params, setvalue_paramname)
+    for param, val in zip(params, second_values):
+        assert pytest.approx(param.value().numpy()) == val
+
+    zfit.param.set_values(params, init_values)
+    zfit.param.set_values(params, setvaluemixed)
+    for param, val in zip(params, second_values):
+        assert pytest.approx(param.value().numpy()) == val
+
+    zfit.param.set_values(params, init_values)
+
+    too_small_values = setvalueparam.copy()
+    too_small_values.pop(params[0])
+    with pytest.raises(ValueError):
+        zfit.param.set_values(params, too_small_values)
+
+    zfit.param.set_values(params, init_values)
+    # try with allow_partial
+    zfit.param.set_values(params, too_small_values, allow_partial=True)
+    assert params[0].value().numpy() == init_values[0]
+    assert params[1].value().numpy() == second_values[1]
+    assert params[2].value().numpy() == second_values[2]
+
+    zfit.param.set_values(params, init_values)
+
+
 def test_deletion():
     import gc
 
     def func():
-        a = zfit.Parameter(f"param", 42)
+        a = zfit.Parameter("param", 42)
         return True
 
     assert func()
@@ -450,7 +505,7 @@ def test_deletion():
 def test_to_numpy():
     import zfit
 
-    param = zfit.Parameter(f"param", 42)
+    param = zfit.Parameter("param", 42)
     assert zfit.run(param) == 42
 
     p1 = zfit.param.ConstantParameter("aoeu1", 15)

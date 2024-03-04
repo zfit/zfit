@@ -25,5 +25,6 @@ insufficient!
     zfit.minimize
     zfit.result
     zfit.settings
+    zfit.hs3
     zfit.exception
-    zfit.util.typing
+    zfit.run

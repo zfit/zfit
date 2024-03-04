@@ -3,23 +3,24 @@ colorama
 colored
 colorlog
 deprecated
+dill
 dotmap
+frozendict
 hist
 iminuit>=2.3
-importlib-metadata; python_version <"3.8.0"
+jacobi
 numdifftools
 numpy>=1.16
 ordered-set
 pandas
-pydantic
+pydantic<2.0.0  # fails with not a "subclass", won't fix soon
+pyyaml
 scipy>=1.2
 tabulate
-tensorflow>=2.6,<2.7  # `deprecated` won't work properly in <2.6
-tensorflow-addons
-tensorflow_probability>=0.12,<0.14
+tensorflow>=2.15, <2.16
+tensorflow_probability>=0.23, <0.24
 texttable
-tf_quant_finance>=v0.0.1-dev24
 uhi
-uproot>=4,<5
+uproot>=4
 xxhash
 zfit_interface

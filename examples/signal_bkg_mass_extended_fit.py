@@ -1,9 +1,8 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 
-import matplotlib.pyplot as plt
-import numpy as np
-
+import pprint
 import zfit
+import pickle
 
 n_bins = 50
 
@@ -42,7 +41,7 @@ nll = zfit.loss.ExtendedUnbinnedNLL(model=model, data=data)
 # create a minimizer
 minimizer = zfit.minimize.Minuit()
 result = minimizer.minimize(nll)
-print(result.params)
+print(result)
 # do the error calculations, here with hesse, than with minos
 param_hesse = result.hesse()
 (
@@ -50,3 +49,16 @@ param_hesse = result.hesse()
     _,
 ) = result.errors()  # this returns a new FitResult if a new minimum was found
 print(result.valid)  # check if the result is still valid
+
+# EXPERIMENTAL: we can serialize the model to a human-readable format with HS3
+# or we can simply pickle the result (first freezing it)
+import zfit.serialization as zserial
+
+# human readable representation
+pprint.pprint(zfit.hs3.dumps(model))
+
+result.freeze()
+dumped = pickle.dumps(result)
+loaded = pickle.loads(dumped)
+
+zfit.param.set_values(model.get_params(), loaded)

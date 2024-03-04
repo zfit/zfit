@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2024 zfit
 
 import functools
 from typing import Any
@@ -29,7 +29,9 @@ def convert_to_tensor(
 def random_normal(
     shape, mean=0.0, stddev=1.0, dtype=ztypes.float, seed=None, name=None
 ):
-    return tf.random.normal(
+    from zfit import z
+
+    return z.random.get_prng().normal(
         shape=shape, mean=mean, stddev=stddev, dtype=dtype, seed=seed, name=name
     )
 
@@ -38,7 +40,9 @@ def random_normal(
 def random_uniform(
     shape, minval=0, maxval=None, dtype=ztypes.float, seed=None, name=None
 ):
-    return tf.random.uniform(
+    from zfit import z
+
+    return z.random.get_prng().uniform(
         shape=shape, minval=minval, maxval=maxval, dtype=dtype, seed=seed, name=name
     )
 

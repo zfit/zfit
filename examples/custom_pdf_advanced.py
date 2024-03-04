@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2024 zfit
 
 import tensorflow as tf
 
@@ -33,13 +33,12 @@ class CustomPDF2D(zfit.pdf.BasePDF):
         param3 = self.params["param3"]
 
         # just a fantasy function
-        probs = (
-            param1 * tf.cos(energy**2) + tf.math.log(param2 * momentum**2) + param3
-        )
+        probs = param1 * tf.cos(energy**2) + tf.math.log(param2 * momentum**2) + param3
         return probs
 
 
 # add an analytic integral
+
 
 # define the integral function
 def integral_full(limits, norm_range, params, model):

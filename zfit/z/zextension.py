@@ -1,12 +1,16 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2024 zfit
 
 from __future__ import annotations
 
+import collections
+import contextlib
 import functools
 import math as _mt
+import warnings
 from collections import defaultdict
 from collections.abc import Callable
 from typing import Any
+from weakref import WeakSet
 
 import numpy as np
 import tensorflow as tf
@@ -18,11 +22,6 @@ from ..util.warnings import warn_advanced_feature
 
 
 def constant(value, dtype=ztypes.float, shape=None, name="Const", verify_shape=None):
-    # TODO(tf2): remove this legacy thing below
-    if verify_shape is not None:
-        raise RuntimeError(
-            "'verify_shape' is not a valid argument anymore. It's always true. Please remove."
-        )
     return tf.constant(value, dtype=dtype, shape=shape, name=name)
 
 
@@ -86,6 +85,11 @@ def unstack_x(
     except AttributeError:
         unstacked_x = tf.unstack(value=value, num=num, axis=axis, name=name)
     if len(unstacked_x) == 1 and not always_list:
+        assert isinstance(unstacked_x, list), (
+            "unstacked_x has to be a list, otherwise this is a bug. Please report on github: "
+            "https://github.com/zfit/zfit/issues/new?assignees=&labels=bug&projects=&template="
+            "bug_report.md&title=[ASSERT]%20unstack_x%20does%20not%20provide%20a%20list,%20internal%20error"
+        )
         unstacked_x = unstacked_x[0]
     return unstacked_x
 
@@ -154,9 +158,9 @@ def run_no_nan(func, x):
 
 
 class FunctionWrapperRegistry:
-    all_wrapped_functions = []
-    registries = []
+    registries = WeakSet()
     allow_jit = True
+    DEFAULT_CACHE_SIZE = 40
     _DEFAULT_DO_JIT_TYPES = defaultdict(lambda: True)
     _DEFAULT_DO_JIT_TYPES.update(
         {
@@ -172,92 +176,160 @@ class FunctionWrapperRegistry:
 
     do_jit_types = _DEFAULT_DO_JIT_TYPES.copy()
 
-    @classmethod
-    def all_wrapped_functions_registered(cls):
-        return all(
-            func.zfit_graph_cache_registered for func in cls.all_wrapped_functions
-        )
-
-    def __init__(self, wraps=None, **kwargs_user) -> None:
+    def __init__(
+        self,
+        wraps=None,
+        stateless_args=None,
+        cachesize=None,
+        keepalive=None,
+        **kwargs_user,
+    ) -> None:
         """`tf.function`-like decorator with additional cache-invalidation functionality.
 
         Args:
+            keepalive:
             **kwargs_user: arguments to `tf.function`
         """
         super().__init__()
+        if cachesize is None:
+            cachesize = self.DEFAULT_CACHE_SIZE
+        if stateless_args is None:
+            stateless_args = False
+        if keepalive is None:
+            keepalive = False
         self._initial_user_kwargs = kwargs_user
+        self._deleted_cachers = collections.Counter()
 
-        self.registries.append(self)
+        self.registries.add(self)  # TODO: remove?
+        self.python_func = None
         self.wrapped_func = None
 
         if wraps not in self.do_jit_types:
-            # raise RuntimeError(f"Currently custom 'wraps' category ({wraps}) not allowed, set explicitly in `do_jit_types`")
-            self.do_jit_types[wraps] = True
+            from ..settings import run
+
+            self.do_jit_types[wraps] = bool(run.get_graph_mode())
         self.wraps = wraps
-        self.function_cache = defaultdict(list)
+        self.stateless_args = stateless_args
+
+        self.function_cache = collections.deque()
         self.reset(**self._initial_user_kwargs)
         self.currently_traced = set()
+        self.cachesize = cachesize
+        self.keepalive = keepalive
 
     @property
     def do_jit(self):
         return self.do_jit_types[self.wraps] and self.allow_jit
 
     def reset(self, **kwargs_user):
-        kwargs = dict(
-            autograph=False,
-            experimental_relax_shapes=True,
-        )
+        kwargs = dict(autograph=False, reduce_retracing=False)
         kwargs.update(self._initial_user_kwargs)
         kwargs.update(kwargs_user)
+        self.tf_function_kwargs = kwargs
+        self.function_cache.clear()
 
-        self.tf_function = tf.function(**kwargs)
-        for cache in self.function_cache.values():
-            cache.clear()
+    def set_graph_cache_size(self, cachesize: int | None = None):
+        """Set the size of the graph cache.
+
+        Args:
+            cachesize: Size of the cache. If None, the default size is used.
+        """
+        if cachesize is None:
+            cachesize = self.DEFAULT_CACHE_SIZE
+        self.cachesize = cachesize
+        while len(self.function_cache) >= self.cachesize:
+            self.function_cache.popleft()
+
+    @property
+    def tf_function(self):
+        function = tf.function(**self.tf_function_kwargs)
+
+        return function
 
     def __call__(self, func):
+        keepalive = self.keepalive
         wrapped_func = self.tf_function(func)
-        cache = self.function_cache[func]
+        cache = self.function_cache
+        deleted_cachers = self._deleted_cachers
         from ..util.cache import FunctionCacheHolder
 
         def concrete_func(*args, **kwargs):
-
             if not self.do_jit or func in self.currently_traced:
                 return func(*args, **kwargs)
 
-            assert self.all_wrapped_functions_registered()
-
             self.currently_traced.add(func)
             nonlocal wrapped_func
-            function_holder = FunctionCacheHolder(func, wrapped_func, args, kwargs)
 
-            if function_holder in cache:
+            def deleter(proxy):
+                with contextlib.suppress(ValueError):
+                    cache.remove(function_holder)
+
+            function_holder = FunctionCacheHolder(
+                func,
+                wrapped_func,
+                args,
+                kwargs,
+                deleter=deleter,
+                stateless_args=self.stateless_args,
+            )
+            #
+            try:
                 func_holder_index = cache.index(function_holder)
-                func_holder_cached = cache[func_holder_index]
-                if func_holder_cached.is_valid:
-                    function_holder = func_holder_cached
-                else:
-                    wrapped_func = self.tf_function(
-                        func
-                    )  # update nonlocal wrapped function
-                    function_holder = FunctionCacheHolder(
-                        func, wrapped_func, args, kwargs
-                    )
-                    cache[func_holder_index] = function_holder
-            else:
+            except ValueError:
+                wrapped_func = self.tf_function(func)
+                func_to_run = wrapped_func
+                function_holder = FunctionCacheHolder(
+                    func,
+                    wrapped_func,
+                    args,
+                    kwargs,
+                    deleter=deleter,
+                    stateless_args=self.stateless_args,
+                    keepalive=keepalive,
+                )
+                if len(cache) >= self.cachesize:
+                    popped_holder = cache.popleft()
+                    hash_popped_holder = hash(popped_holder)
+                    deleted_cachers.update((hash_popped_holder,))
+                    if self._deleted_cachers[hash_popped_holder] > 3:
+                        warnings.warn(
+                            f"Function {function_holder.python_func} was removed from the cache more than 3"
+                            f" times (and getting recompiled). Maybe consider increasing the cache size"
+                            f" using `zfit.run.set_graph_cache_size(...)`, the current size is {self.cachesize}."
+                        )
+
+                        self._deleted_cachers - collections.Counter(
+                            {hash(function_holder): int(-1e100)}
+                        )  # won't be warned again
+                    del popped_holder
                 cache.append(function_holder)
-            func_to_run = function_holder.wrapped_func
+            else:
+                func_to_run = cache[func_holder_index].wrapped_func
+
             try:
                 result = func_to_run(*args, **kwargs)
             finally:
                 self.currently_traced.remove(func)
             return result
 
-        concrete_func.zfit_graph_cache_registered = False
         return concrete_func
 
 
 # equivalent to tf.function
-def function(func=None, **kwargs):
+def function(func=None, *, stateless_args=None, cachesize=None, **kwargs):
+    """JIT/Graph compilation of functions, `tf.function`-like with additional cache-invalidation functionality.
+
+    Args:
+        func: Function to be compiled.
+        stateless_args: If True, the function is assumed to be stateless and *does not depend on the name of tf.Variables*
+            but only needs the values of the variables. This is not the case for taking gradients, for example.
+        cachesize: Size of the cache. If None, the default size is used.
+        **kwargs: arguments to `tf.function`
+
+    Returns:
+    """
+    if stateless_args is None:
+        stateless_args = False
     if callable(func):
         wrapper = FunctionWrapperRegistry()
         return wrapper(func)
@@ -266,7 +338,7 @@ def function(func=None, **kwargs):
             "All argument have to be key-word only. `func` must not be used"
         )
     else:
-        return FunctionWrapperRegistry(**kwargs)
+        return FunctionWrapperRegistry(**kwargs, stateless_args=stateless_args)
 
 
 # legacy, remove 0.6

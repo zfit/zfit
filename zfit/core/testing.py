@@ -2,7 +2,8 @@
 
 Contains a singleton instance to register new PDFs and let them be tested.
 """
-#  Copyright (c) 2022 zfit
+
+#  Copyright (c) 2024 zfit
 
 from __future__ import annotations
 
@@ -45,7 +46,7 @@ class AutoTester:
 
         if isinstance(analytic_int_axes, tuple):
             raise TypeError(
-                f"`analytic_int_axes` is either a number or a list of tuples."
+                "`analytic_int_axes` is either a number or a list of tuples."
             )
         analytic_int_axes = convert_to_container(
             analytic_int_axes, non_containers=[tuple]

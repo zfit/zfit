@@ -1,10 +1,20 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2024 zfit
 
 from __future__ import annotations
 
 import abc
+import collections
 from collections import OrderedDict
 from collections.abc import Callable
+from typing import Mapping, Iterable, List
+
+import numpy as np
+import pydantic
+
+from .serialmixin import SerializableMixin
+from ..serialization.serializer import BaseRepr, Serializer
+
+from typing import Literal
 
 import tensorflow as tf
 import tensorflow_probability as tfp
@@ -21,6 +31,13 @@ from ..util.container import convert_to_container
 from ..util.exception import ShapeIncompatibleError
 
 tfd = tfp.distributions
+
+
+# TODO(serialization): add to serializer
+class BaseConstraintRepr(BaseRepr):
+    _implementation = None
+    _owndict = pydantic.PrivateAttr(default_factory=dict)
+    hs3_type: Literal["BaseConstraint"] = pydantic.Field("BaseConstraint", alias="type")
 
 
 class BaseConstraint(ZfitConstraint, BaseNumeric):
@@ -52,29 +69,53 @@ class BaseConstraint(ZfitConstraint, BaseNumeric):
         return _extract_dependencies(self.get_params(floating=None))
 
 
+# TODO: improve arbitrary constraints, should we allow only functions that have a `params` argument?
 class SimpleConstraint(BaseConstraint):
-    def __init__(self, func: Callable, params: ztyping.ParameterType | None):
+    def __init__(
+        self,
+        func: Callable,
+        params: (
+            Mapping[str, ztyping.ParameterType]
+            | Iterable[ztyping.ParameterType]
+            | ztyping.ParameterType
+            | None
+        ),
+        *,
+        name: str = None,
+    ):
         """Constraint from a (function returning a) Tensor.
 
-        The parameters are named "param_{i}" with i starting from 0 and corresponding to the index of params.
-
         Args:
-            func: Callable that constructs the constraint and returns a tensor.
-            params: The dependents (independent `zfit.Parameter`) of the loss. If not given, the
-                dependents are figured out automatically.
+            func: Callable that constructs the constraint and returns a tensor. For the expected signature,
+                see below in ``params``.
+            params: The parameters of the loss. If given as a list, the parameters are named "param_{i}"
+                and the function does not take any arguments. If given as a dict, the function expects
+                the parameter as the first argument (``params``).
         """
+        if name is None:
+            name = "SimpleConstraint"
         self._simple_func = func
+        self._func_params = None
+        if isinstance(params, collections.abc.Mapping):
+            self._func_params = params
+            params = list(params.values())
         self._simple_func_dependents = convert_to_container(
             params, container=OrderedSet
         )
 
         params = convert_to_container(params, container=list)
-        params = OrderedDict((f"param_{i}", p) for i, p in enumerate(params))
+        if self._func_params is None:
+            params = OrderedDict((f"param_{i}", p) for i, p in enumerate(params))
+        else:
+            params = self._func_params
 
-        super().__init__(name="SimpleConstraint", params=params)
+        super().__init__(name=name, params=params)
 
     def _value(self):
-        return self._simple_func()
+        if self._func_params is None:
+            return self._simple_func()
+        else:
+            return self._simple_func(self._func_params)
 
 
 class ProbabilityConstraint(BaseConstraint):
@@ -132,7 +173,7 @@ class ProbabilityConstraint(BaseConstraint):
         return _extract_dependencies(self.get_params())
 
     def sample(self, n):
-        """Sample `n` points from the probability density function for the observed value of the parameters.
+        """Sample ``n`` points from the probability density function for the observed value of the parameters.
 
         Args:
             n: The number of samples to be generated.
@@ -147,7 +188,7 @@ class ProbabilityConstraint(BaseConstraint):
 
     @property
     def _params_array(self):
-        return z.convert_to_tensor(self._ordered_params)
+        return znp.asarray(self._ordered_params)
 
 
 class TFProbabilityConstraint(ProbabilityConstraint):
@@ -162,7 +203,7 @@ class TFProbabilityConstraint(ProbabilityConstraint):
         dtype=ztypes.float,
         **kwargs,
     ):
-        """Base class for constraints using a probability density function from `tensorflow_probability`.
+        """Base class for constraints using a probability density function from ``tensorflow_probability``.
 
         Args:
             distribution: The probability density function
@@ -184,17 +225,19 @@ class TFProbabilityConstraint(ProbabilityConstraint):
         kwargs = self.dist_kwargs
         if callable(kwargs):
             kwargs = kwargs()
-        return self._distribution(**params, **kwargs, name=self.name + "_tfp")
+        params = {k: tf.cast(v, ztypes.float) for k, v in params.items()}
+        return self._distribution(**params, **kwargs, name=f"{self.name}_tfp")
 
     def _value(self):
-        value = -self.distribution.log_prob(self._params_array)
+        array = tf.cast(self._params_array, ztypes.float)
+        value = -self.distribution.log_prob(array)
         return tf.reduce_sum(value)
 
     def _sample(self, n):
         return self.distribution.sample(n)
 
 
-class GaussianConstraint(TFProbabilityConstraint):
+class GaussianConstraint(TFProbabilityConstraint, SerializableMixin):
     def __init__(
         self,
         params: ztyping.ParamTypeInput,
@@ -203,7 +246,7 @@ class GaussianConstraint(TFProbabilityConstraint):
     ):
         r"""Gaussian constraints on a list of parameters to some observed values with uncertainties.
 
-        A Gaussian constraint is defined as the likelihood of `params` given the `observations` and `uncertainty` from
+        A Gaussian constraint is defined as the likelihood of ``params`` given the ``observations`` and ``uncertainty`` from
         a different measurement.
 
         .. math::
@@ -224,9 +267,23 @@ class GaussianConstraint(TFProbabilityConstraint):
 
         observation = convert_to_container(observation, tuple)
         params = convert_to_container(params, tuple)
+        uncertainty = convert_to_container(uncertainty, tuple)
+        if (
+            isinstance(uncertainty[0], (np.ndarray, tf.Tensor))
+            and len(uncertainty) == 1
+        ):
+            uncertainty = tuple(uncertainty[0])
+        original_init = {
+            "observation": observation,
+            "params": params,
+            "uncertainty": uncertainty,
+        }
 
         def create_covariance(mu, sigma):
             mu = z.convert_to_tensor(mu)
+            sigma = znp.asarray(
+                sigma
+            )  # otherwise TF complains that the shape got changed from [2] to [2, 2] (if we have a tuple of two arrays)
             sigma = z.convert_to_tensor(sigma)  # TODO (Mayou36): fix as above?
             params_tensor = z.convert_to_tensor(params)
 
@@ -253,9 +310,10 @@ class GaussianConstraint(TFProbabilityConstraint):
             return covariance
 
         distribution = tfd.MultivariateNormalTriL
+        covariance = create_covariance(observation, uncertainty)
         dist_params = lambda observation: dict(
             loc=observation,
-            scale_tril=tf.linalg.cholesky(create_covariance(observation, uncertainty)),
+            scale_tril=tf.linalg.cholesky(covariance),
         )
         dist_kwargs = dict(validate_args=True)
 
@@ -267,7 +325,7 @@ class GaussianConstraint(TFProbabilityConstraint):
             dist_params=dist_params,
             dist_kwargs=dist_kwargs,
         )
-
+        self.hs3.original_init.update(original_init)
         self._covariance = lambda: create_covariance(self.observation, uncertainty)
 
     @property
@@ -276,7 +334,32 @@ class GaussianConstraint(TFProbabilityConstraint):
         return self._covariance()
 
 
-class PoissonConstraint(TFProbabilityConstraint):
+class GaussianConstraintRepr(BaseConstraintRepr):
+    _implementation = GaussianConstraint
+    hs3_type: Literal["GaussianConstraint"] = pydantic.Field(
+        "GaussianConstraint", alias="type"
+    )
+
+    params: List[Serializer.types.ParamInputTypeDiscriminated]
+    observation: List[Serializer.types.ParamInputTypeDiscriminated]
+    uncertainty: List[Serializer.types.ParamInputTypeDiscriminated]
+
+    @pydantic.root_validator(pre=True)
+    def get_init_args(cls, values):
+        if cls.orm_mode(values):
+            values = values["hs3"].original_init
+        return values
+
+    @pydantic.validator("params", "observation", "uncertainty")
+    def validate_params(cls, v):
+        if isinstance(v, np.ndarray):
+            v = v.tolist()
+        else:
+            v = convert_to_container(v, list)
+        return v
+
+
+class PoissonConstraint(TFProbabilityConstraint, SerializableMixin):
     def __init__(
         self, params: ztyping.ParamTypeInput, observation: ztyping.NumericalScalarType
     ):
@@ -300,8 +383,8 @@ class PoissonConstraint(TFProbabilityConstraint):
         """
 
         observation = convert_to_container(observation, tuple)
-        # observation = tuple(convert_to_parameter(obs) for obs in observation)
         params = convert_to_container(params, tuple)
+        original_init = {"observation": observation, "params": params}
 
         distribution = tfd.Poisson
         dist_params = dict(rate=observation)
@@ -315,9 +398,34 @@ class PoissonConstraint(TFProbabilityConstraint):
             dist_params=dist_params,
             dist_kwargs=dist_kwargs,
         )
+        self.hs3.original_init.update(original_init)
 
 
-class LogNormalConstraint(TFProbabilityConstraint):
+class PoissonConstraintRepr(BaseConstraintRepr):
+    _implementation = PoissonConstraint
+    hs3_type: Literal["PoissonConstraint"] = pydantic.Field(
+        "PoissonConstraint", alias="type"
+    )
+
+    params: List[Serializer.types.ParamInputTypeDiscriminated]
+    observation: List[Serializer.types.ParamInputTypeDiscriminated]
+
+    @pydantic.root_validator(pre=True)
+    def get_init_args(cls, values):
+        if cls.orm_mode(values):
+            values = values["hs3"].original_init
+        return values
+
+    @pydantic.validator("params", "observation")
+    def validate_params(cls, v):
+        if isinstance(v, np.ndarray):
+            v = v.tolist()
+        else:
+            v = convert_to_container(v, list)
+        return v
+
+
+class LogNormalConstraint(TFProbabilityConstraint, SerializableMixin):
     def __init__(
         self,
         params: ztyping.ParamTypeInput,
@@ -348,6 +456,11 @@ class LogNormalConstraint(TFProbabilityConstraint):
         observation = convert_to_container(observation, tuple)
         params = convert_to_container(params, tuple)
         uncertainty = convert_to_container(uncertainty, tuple)
+        original_init = {
+            "observation": observation,
+            "params": params,
+            "uncertainty": uncertainty,
+        }
 
         distribution = tfd.LogNormal
         dist_params = lambda observation: dict(loc=observation, scale=uncertainty)
@@ -361,3 +474,29 @@ class LogNormalConstraint(TFProbabilityConstraint):
             dist_params=dist_params,
             dist_kwargs=dist_kwargs,
         )
+        self.hs3.original_init.update(original_init)
+
+
+class LogNormalConstraintRepr(BaseConstraintRepr):
+    _implementation = LogNormalConstraint
+    hs3_type: Literal["LogNormalConstraint"] = pydantic.Field(
+        "LogNormalConstraint", alias="type"
+    )
+
+    params: List[Serializer.types.ParamInputTypeDiscriminated]
+    observation: List[Serializer.types.ParamInputTypeDiscriminated]
+    uncertainty: List[Serializer.types.ParamInputTypeDiscriminated]
+
+    @pydantic.root_validator(pre=True)
+    def get_init_args(cls, values):
+        if cls.orm_mode(values):
+            values = values["hs3"].original_init
+        return values
+
+    @pydantic.validator("params", "observation", "uncertainty")
+    def validate_params(cls, v):
+        if isinstance(v, np.ndarray):
+            v = v.tolist()
+        else:
+            v = convert_to_container(v, list)
+        return v

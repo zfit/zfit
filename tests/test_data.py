@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 
 import copy
 
@@ -167,6 +167,7 @@ def test_from_numpy(weights_factory, obs3d):
 def test_from_to_pandas(obs3d):
     dtype = np.float32
     example_data_np = np.random.random(size=(1000, len(obs3d)))
+    example_weights = np.random.random(size=(1000,))
     example_data = pd.DataFrame(data=example_data_np, columns=obs3d)
     data = zfit.Data.from_pandas(obs=obs3d, df=example_data, dtype=dtype)
     x = data.value()
@@ -182,7 +183,15 @@ def test_from_to_pandas(obs3d):
     x2 = data2.value()
     x_np2 = x2.numpy()
     np.testing.assert_array_equal(example_data_np, x_np2)
+    assert len(data2.obs) == len(obs3d)
+    assert len(data2.obs) == len(data2.to_pandas().columns)
 
+    data2w = zfit.Data.from_pandas(df=example_data2, weights=example_weights)
+    df2w = data2w.to_pandas()
+    data2w2 = zfit.Data.from_pandas(df=df2w)
+    assert data2w2.obs == obs3d
+    np.testing.assert_allclose(data2w2.weights.numpy(), example_weights)
+    np.testing.assert_allclose(data2w2.value().numpy(), example_data_np)
     df = data2.to_pandas()
     assert all(df == example_data)
 
@@ -251,17 +260,19 @@ def test_from_tensors(weights_factory):
     else:
         assert weights is None
 
+    df = data.to_pandas()
+    data_new = zfit.Data.from_pandas(df=df)
+    assert data_new.obs == data.obs
+    assert np.allclose(data_new.value().numpy(), data.value().numpy())
+    if weights is not None:
+        assert np.allclose(data_new.weights.numpy(), data.weights.numpy())
+    else:
+        assert data_new.weights is None
+
 
 def test_overloaded_operators(data1):
-    a = data1 * 5.0
-    example_data1 = data1.value().numpy()
-    np.testing.assert_array_equal(5 * example_data1, a.numpy())
-    np.testing.assert_array_equal(example_data1, data1.numpy())
-    data_squared = data1 * data1
-    np.testing.assert_allclose(example_data1**2, data_squared.numpy(), rtol=1e-8)
-    np.testing.assert_allclose(
-        np.log(example_data1), tf.math.log(data1).numpy(), rtol=1e-8
-    )
+    with pytest.raises(TypeError):
+        a = data1 * 5.0
 
 
 def test_sort_by_obs(data1, obs3d):
@@ -284,6 +295,24 @@ def test_sort_by_obs(data1, obs3d):
 
     assert data1.obs == obs3d
     np.testing.assert_array_equal(example_data1, data1.value().numpy())
+
+
+def test_data_axis_access(obs3d, data1):
+    import zfit.z.numpy as znp
+
+    true_mapping = {
+        obs: znp.reshape(arr, (-1, 1))
+        for obs, arr in zip(obs3d, data1.value().numpy().T)
+    }
+    for obs in obs3d:
+        np.testing.assert_allclose(data1.value(obs), true_mapping[obs][:, 0])
+        np.testing.assert_allclose(data1.value([obs]), true_mapping[obs])
+        np.testing.assert_allclose(data1[obs], true_mapping[obs][:, 0])
+        np.testing.assert_allclose(data1[[obs]], true_mapping[obs])
+    obs2d = [obs3d[2], obs3d[1]]
+    array2d = znp.concatenate([true_mapping[obs] for obs in obs2d], axis=1)
+    np.testing.assert_allclose(data1[obs2d], array2d)
+    np.testing.assert_allclose(data1.value(obs2d), array2d)
 
 
 def test_subdata(obs3d, data1):
@@ -347,14 +376,26 @@ def test_data_range(weights_factory):
 
 
 def test_multidim_data_range():
-    data1 = np.linspace((0, 5), (10, 15), num=11)
-    data_true = np.linspace(10, 15, num=6)
+    nevents1 = 11
+    neventstrue1 = 6
+    data1 = np.linspace((0, 5), (10, 15), num=nevents1)
+    data_true = np.linspace(10, 15, num=neventstrue1)
     lower = ((5, 5),)
     upper = ((10, 15),)
     obs1 = "x"
     obs2 = "y"
     data_range = zfit.Space([obs1, obs2], limits=(lower, upper))
     dataset = zfit.Data.from_numpy(array=data1, obs=data_range)
+    xdata = dataset.unstack_x("x")
+    assert tf.is_tensor(xdata)
+    xdatalist = dataset.unstack_x("x", always_list=True)
+    assert len(xdatalist) == 1
+    assert isinstance(xdatalist, list)
+    assert tf.is_tensor(xdatalist[0])
+    yxdata = dataset.unstack_x(["y", "x"])
+    assert len(yxdata) == 2
+    assert tf.is_tensor(yxdata[0])
+    assert xdata.shape == (neventstrue1,)
     assert dataset.nevents.numpy() == 6
     with dataset.sort_by_obs(obs=obs1):
         assert dataset.nevents.numpy() == 6
@@ -370,8 +411,6 @@ def test_multidim_data_range():
 
 
 def test_data_hashing(space2d):
-    import zfit.z.numpy as znp
-
     npdata1 = np.random.uniform(size=(3352, 2))
     # data1 = data1.transpose()
     data1 = zfit.Data.from_numpy(obs=space2d, array=npdata1)
@@ -387,14 +426,14 @@ def test_data_hashing(space2d):
     assert oldhashint != testhashpdf.lasthash
     assert data1.hashint == testhashpdf.lasthash
 
-    zfit.run.set_graph_mode(
+    with zfit.run.set_graph_mode(
         True
-    )  # meaning integration is now done in graph and has "None"
-    oldhashint = data1.hashint
-    data1.set_weights(np.random.uniform(size=data1.nevents))
-    testhashpdf.pdf(data1)
-    assert oldhashint != testhashpdf.lasthash
-    assert None == testhashpdf.lasthash
+    ):  # meaning integration is now done in graph and has "None"
+        oldhashint = data1.hashint
+        data1.set_weights(np.random.uniform(size=data1.nevents))
+        testhashpdf.pdf(data1)
+        assert oldhashint != testhashpdf.lasthash
+        assert None == testhashpdf.lasthash
 
 
 def test_hashing_resample(space2d):

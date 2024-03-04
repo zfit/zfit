@@ -8,7 +8,6 @@ Copyright (c) 2021 zfit
 #  Copyright (c) 2022 zfit
 
 import numpy as np
-import tensorflow as tf
 
 import zfit
 
@@ -27,12 +26,15 @@ minimizer = zfit.minimize.IpyoptV1()
 
 
 def func(x):
-    x = np.array(x)  # make sure it's an array
+    x = np.asarray(x)  # make sure it's an array
     return np.sum((x - 0.1) ** 2 + x[1] ** 4)
 
 
 # We can use the same in pure TF, then we can also use
 # the analytic gradient
+#
+# import tensorflow as tf
+#
 # @tf.function
 # def func(x):
 #     x = tf.convert_to_tensor(x)  # make sure it's an array
@@ -60,6 +62,6 @@ params = [1, -3, 2, 1.4, 11]
 result = minimizer.minimize(func, params)
 
 # estimate errors
-result.hesse()
-result.errors()
+result.hesse(name="hesse")
+result.errors(name="errors")
 print(result)

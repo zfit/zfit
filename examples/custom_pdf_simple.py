@@ -2,6 +2,7 @@
 
 import zfit
 from zfit import z
+import zfit.z.numpy as znp
 
 
 class CustomPDF(zfit.pdf.ZPDF):
@@ -13,7 +14,7 @@ class CustomPDF(zfit.pdf.ZPDF):
         data = z.unstack_x(x)
         alpha = self.params["alpha"]
 
-        return z.exp(alpha * data)
+        return znp.exp(alpha * data)
 
 
 obs = zfit.Space("obs1", limits=(-4, 4))

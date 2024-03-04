@@ -1,7 +1,7 @@
-#  Copyright (c) 2022 zfit
-import tensorflow as tf
+#  Copyright (c) 2023 zfit
 
 import zfit
+from zfit import z
 
 mean1_true = 1.0
 width1_true = 1.4
@@ -14,7 +14,7 @@ obs1 = zfit.Space(obs1, limits=limits1)
 
 
 def test_breitwigner1():
-    test_values = tf.random.uniform(minval=-2, maxval=4, shape=(100,))
+    test_values = z.random.uniform(minval=-2, maxval=4, shape=(100,))
     mean = zfit.Parameter("mean", mean1_true, -10, 10)
     width = zfit.Parameter("width", width1_true)
     bw1 = zfit.pdf.Cauchy(m=mean, gamma=width, obs=obs1)

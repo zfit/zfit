@@ -1,0 +1,123 @@
+{
+  "metadata": {
+    "HS3": {
+      "version": "experimental"
+    },
+    "serializer": {
+      "lib": "zfit",
+      "version": "ZFIT_ARBITRARY_VALUE"
+    }
+  },
+  "distributions": {
+    "SumPDF": {
+      "type": "SumPDF",
+      "name": "SumPDF",
+      "pdfs": [
+        {
+          "type": "Gauss",
+          "name": "Gauss",
+          "x": "obs1",
+          "mu": "mu",
+          "sigma": "sigma1"
+        },
+        {
+          "type": "Gauss",
+          "name": "Gauss",
+          "x": "obs1",
+          "mu": "mu",
+          "sigma": "sigma2"
+        },
+        {
+          "type": "Gauss",
+          "name": "Gauss",
+          "x": "obs1",
+          "mu": "mu3",
+          "sigma": "sigma3"
+        }
+      ],
+      "fracs": [
+        "frac1",
+        "frac2",
+        "Composed_autoparam_0"
+      ]
+    }
+  },
+  "variables": {
+    "frac1": {
+      "name": "frac1",
+      "value": 0.2,
+      "floating": false
+    },
+    "frac2": {
+      "name": "frac2",
+      "value": 0.30000001192092896,
+      "min": 0.0,
+      "max": 1.0,
+      "step_size": 0.001,
+      "floating": true
+    },
+    "Composed_autoparam_0": {
+      "name": "Composed_autoparam_0",
+      "value_fn": "800495de010000000000008c0a64696c6c2e5f64696c6c948c105f6372656174655f66756e6374696f6e9493942868008c0c5f6372656174655f636f6465949394284306000112010aff944b014b004b004b014b064a53000001432274006a01640174026a0364028d027400a00474057c00a006a1008301a10118005300944e473ff00000000000008c0564747970659485948794288c027466948c08636f6e7374616e74948c067a7479706573948c05666c6f6174948c056164645f6e948c046c697374948c0676616c7565739474948c06706172616d739485948c582f686f6d652f6a6f6e61732f446f63756d656e74732f706879736963732f736f6674776172652f7a6669745f70726f6a6563742f7a6669745f7265706f2f7a6669742f6d6f64656c732f6261736566756e63746f722e7079948c1372656d61696e696e675f667261635f66756e63944bcc430612010a0106ff94292974945294637a6669742e6d6f64656c732e6261736566756e63746f720a5f5f646963745f5f0a68154e4e749452947d947d94288c0f5f5f616e6e6f746174696f6e735f5f947d948c0c5f5f7175616c6e616d655f5f948c315f70726570726f636573735f696e69745f73756d2e3c6c6f63616c733e2e72656d61696e696e675f667261635f66756e6394758694622e",
+      "params": {
+        "frac_0": "frac1",
+        "frac_1": "frac2"
+      }
+    },
+    "mu": {
+      "name": "mu",
+      "value": 1.2000000476837158,
+      "min": -4.0,
+      "max": 5.0,
+      "step_size": 0.001,
+      "floating": true
+    },
+    "sigma1": {
+      "name": "sigma1",
+      "value_fn": "8004954d010000000000008c0a64696c6c2e5f64696c6c948c105f6372656174655f66756e6374696f6e9493942868008c0c5f6372656174655f636f6465949394284300944b014b004b004b014b024b5343087c00640117005300944e4b018694298c01789485948c5e2f686f6d652f6a6f6e61732f446f63756d656e74732f706879736963732f736f6674776172652f7a6669745f70726f6a6563742f7a6669745f7265706f2f74657374732f73657269616c697a652f746573745f6873335f757365722e7079948c083c6c616d6264613e944b10430208009429297494529463746573745f6873335f757365720a5f5f646963745f5f0a680b4e4e749452947d947d94288c0f5f5f616e6e6f746174696f6e735f5f947d948c0c5f5f7175616c6e616d655f5f948c27746573745f64756d706c6f61645f6873335f7064662e3c6c6f63616c733e2e3c6c616d6264613e94758694622e",
+      "params": {
+        "param_0": "sigma1_free"
+      }
+    },
+    "sigma1_free": {
+      "name": "sigma1_free",
+      "value": 422.0,
+      "min": 0.0,
+      "max": 1002.0,
+      "step_size": 0.001,
+      "floating": true
+    },
+    "sigma2": {
+      "name": "sigma2",
+      "value": 42.0,
+      "min": 0.0,
+      "max": 100.0,
+      "step_size": 0.001,
+      "floating": true
+    },
+    "mu3": {
+      "name": "mu3",
+      "value": 2.0,
+      "min": -2.0,
+      "max": 3.0,
+      "step_size": 0.1,
+      "floating": true
+    },
+    "sigma3": {
+      "name": "sigma3",
+      "value": 0.10000000149011612,
+      "min": 0.0,
+      "max": 1.0,
+      "step_size": 0.001,
+      "floating": true
+    },
+    "obs1": {
+      "name": "obs1",
+      "min": -4.0,
+      "max": 5.0
+    }
+  },
+  "loss": {},
+  "data": {},
+  "constraints": {}
+}

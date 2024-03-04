@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2024 zfit
 
 from __future__ import annotations
 
@@ -33,7 +33,7 @@ class Minuit(BaseMinimizer, GraphCachable):
         self,
         tol: float | None = None,
         mode: int | None = None,
-        gradient: bool | None = None,
+        gradient: bool | str | None = None,
         verbosity: int | None = None,
         options: Mapping[str, object] | None = None,
         maxiter: int | None = None,
@@ -65,7 +65,7 @@ class Minuit(BaseMinimizer, GraphCachable):
             mode: A number used by minuit to define the internal minimization strategy, either 0, 1 or 2.
                 As `explained in the iminuit docs <https://iminuit.readthedocs.io/en/stable/faq.html#what-happens-when-i-change-the-strategy>`_
                 , they mean:
-                - 0 (default with zfit gradient): the fastest and the number of function calls required to minimise
+                - 0 The fastest and the number of function calls required to minimise
                     scales linearly with the number of fitted parameters. The Hesse matrix is not computed during the
                     minimisation (only an approximation that is continuously updated).
                     When the number of fitted parameters > 10, you should prefer this strategy.
@@ -73,7 +73,7 @@ class Minuit(BaseMinimizer, GraphCachable):
                     scales quadratically with the number of fitted parameters. The different scales comes from the fact
                      that the Hesse matrix is explicitly computed in a Newton step,
                      if Minuit detects significant correlations between parameters.
-                - 2: same quadratic scaling as strategy 1 but is even slower. The Hesse matrix is
+                - 2 same quadratic scaling as strategy 1 but is even slower. The Hesse matrix is
                     always explicitly computed in each Newton step.
             gradient: If True, iminuit uses its internal numerical gradient calculation instead of the
                 (analytic/numerical) gradient provided by TensorFlow/zfit. If False or ``'zfit'``, the latter
@@ -96,7 +96,7 @@ class Minuit(BaseMinimizer, GraphCachable):
             options: Additional options that will be directly passsed into :meth:`~iminuitMinuit.migrad`
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
-                   evaluations of the `value`, 'gradient` or `hessian`. |@docend:minimizer.maxiter|
+                   evaluations of the ``value``, 'gradient`` or ``hessian``. |@docend:minimizer.maxiter|
             criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
                    estimated measure for the distance to the
                    minimum and can include the relative
@@ -106,7 +106,7 @@ class Minuit(BaseMinimizer, GraphCachable):
                    than ``loss.errordef * tol``, the algorithm
                    stopps and it is assumed that the minimum
                    has been found. |@docend:minimizer.criterion|
-            strategy: |@doc:minimizer.strategy| A class of type `ZfitStrategy` that takes no
+            strategy: |@doc:minimizer.strategy| A class of type ``ZfitStrategy`` that takes no
                    input arguments in the init. Determines the behavior of the minimizer in
                    certain situations, most notably when encountering
                    NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
@@ -147,9 +147,7 @@ class Minuit(BaseMinimizer, GraphCachable):
         options = {} if options is None else options
         options["ncall"] = 0 if maxiter is None else maxiter
         if mode is None:
-            mode = 0 if not gradient else 1
-        else:
-            mode = mode
+            mode = 1
         if mode not in range(3):
             raise ValueError(f"mode has to be 0, 1 or 2, not {mode}.")
         options["strategy"] = mode
@@ -191,7 +189,6 @@ class Minuit(BaseMinimizer, GraphCachable):
         message = ""
         maxiter_reached = False
         for i in range(self._internal_maxiter):
-
             # perform minimization
             try:
                 minimizer = minimizer.migrad(**minimize_options)
@@ -230,7 +227,7 @@ class Minuit(BaseMinimizer, GraphCachable):
                     criterion=criterion,
                     evaluator=evaluator,
                     i=i,
-                    fmin=minimizer.fval,
+                    fminopt=minimizer.fval,
                     internal_tol=internal_tol,
                 )
 
@@ -254,7 +251,6 @@ class Minuit(BaseMinimizer, GraphCachable):
         return fitresult
 
     def _make_minuit(self, loss, params, init):
-
         evaluator = self.create_evaluator(loss, params)
 
         # create options

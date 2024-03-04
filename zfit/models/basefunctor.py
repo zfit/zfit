@@ -1,10 +1,12 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 
 from __future__ import annotations
 
 from collections import OrderedDict
 from collections.abc import Iterable
+from typing import List, Optional
 
+import pydantic
 import tensorflow as tf
 
 from ..core.coordinates import convert_to_obs_str
@@ -13,6 +15,9 @@ from ..core.dimension import get_same_obs
 from ..core.interfaces import ZfitFunctorMixin, ZfitModel, ZfitSpace, ZfitParameter
 from ..core.parameter import convert_to_parameter
 from ..core.space import Space, combine_spaces
+from ..serialization import SpaceRepr
+from ..serialization.pdfrepr import BasePDFRepr
+from ..serialization.serializer import Serializer
 from ..settings import ztypes, run
 from ..util import ztyping
 from ..util.container import convert_to_container
@@ -135,6 +140,21 @@ class FunctorMixin(ZfitFunctorMixin):
         return self._check_input_norm_range(norm=norm, none_is_error=none_is_error)
 
 
+class FunctorPDFRepr(BasePDFRepr):
+    _implementation = None
+    pdfs: List[Serializer.types.PDFTypeDiscriminated]
+    obs: Optional[SpaceRepr] = None
+
+    @pydantic.root_validator(pre=True)
+    def validate_all_functor(cls, values):
+        if cls.orm_mode(values):
+            init = values["hs3"].original_init
+            values = dict(values)
+            values["obs"] = init["obs"]
+            values["extended"] = init["extended"]
+        return values
+
+
 def _extract_common_obs(obs: tuple[tuple[str] | Space]) -> tuple[str]:
     obs_iter = [space.obs if isinstance(space, Space) else space for space in obs]
     unique_obs = []
@@ -146,11 +166,12 @@ def _extract_common_obs(obs: tuple[tuple[str] | Space]) -> tuple[str]:
 
 
 def _preprocess_init_sum(fracs, obs, pdfs):
+    frac_param_created = False
     if len(pdfs) < 2:
         raise ValueError(f"Cannot build a sum of less than two pdfs {pdfs}")
     common_obs = obs if obs is not None else pdfs[0].obs
     common_obs = convert_to_obs_str(common_obs)
-    if not all(frozenset(pdf.obs) == frozenset(common_obs) for pdf in pdfs):
+    if any(frozenset(pdf.obs) != frozenset(common_obs) for pdf in pdfs):
         raise ObsIncompatibleError(
             "Currently, sums are only supported in the same observables"
         )
@@ -177,17 +198,24 @@ def _preprocess_init_sum(fracs, obs, pdfs):
     if fracs:
         # create fracs if one is missing
         if len(fracs) == len(pdfs) - 1:
-            remaining_frac_func = lambda: tf.constant(
-                1.0, dtype=ztypes.float
-            ) - tf.add_n(fracs)
-            remaining_frac = convert_to_parameter(remaining_frac_func, params=fracs)
+            frac_param_created = True
+            frac_params_tmp = {f"frac_{i}": frac for i, frac in enumerate(fracs)}
+
+            def remaining_frac_func(params):
+                return tf.constant(1.0, dtype=ztypes.float) - tf.add_n(
+                    list(params.values())
+                )
+
+            remaining_frac = convert_to_parameter(
+                remaining_frac_func, params=frac_params_tmp
+            )
             if run.numeric_checks:
                 tf.debugging.assert_non_negative(
                     remaining_frac,
                     f"The remaining fraction is negative, the sum of fracs is > 0. Fracs: {fracs}",
                 )  # check fractions
 
-            # IMPORTANT! Otherwise, recursion due to namespace capture in the lambda
+            # IMPORTANT to change the name! Otherwise, recursion due to namespace capture in the lambda
             fracs_cleaned = fracs + [remaining_frac]
 
         elif len(fracs) == len(pdfs):
@@ -230,4 +258,11 @@ def _preprocess_init_sum(fracs, obs, pdfs):
     params = OrderedDict()
     for i, frac in enumerate(param_fracs):
         params[f"frac_{i}"] = frac
-    return all_extended, fracs_cleaned, param_fracs, params, sum_yields
+    return (
+        all_extended,
+        fracs_cleaned,
+        param_fracs,
+        params,
+        sum_yields,
+        frac_param_created,
+    )

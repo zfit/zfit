@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 
 import mplhep
 import numpy as np
@@ -122,7 +122,12 @@ def test_binned_extended_simple(Loss):
     pdf_sum = BinnedSumPDF(pdfs=[pdf, pdf2, pdf3], obs=obs)
 
     nll = Loss(pdf_sum, data=observed_data)
+    nll2 = Loss(pdf_sum, data=observed_data)
     nll.value(), nll.gradient()  # TODO: add some check?
+
+    nllsum = nll + nll2  # check that sum works
+    # TODO: should this actually work I think?
+    assert float(nllsum.value()) == pytest.approx(nll.value() + nll2.value(), rel=1e-3)
 
 
 @pytest.mark.plots
@@ -130,6 +135,7 @@ def test_binned_extended_simple(Loss):
 @pytest.mark.parametrize(
     "weights",
     [None, np.random.normal(loc=1.0, scale=0.2, size=test_values_np.shape[0])],
+    ids=["no_weights", "weights_normal"],
 )
 @pytest.mark.parametrize(
     "Loss",
@@ -140,7 +146,9 @@ def test_binned_extended_simple(Loss):
         zfit.loss.ExtendedBinnedChi2,
     ],
 )
-@pytest.mark.parametrize("simultaneous", [True, False])
+@pytest.mark.parametrize(
+    "simultaneous", [True, False], ids=["simultaneous", "sequential"]
+)
 def test_binned_loss(weights, Loss, simultaneous):
     obs = zfit.Space("obs1", limits=(-15, 25))
     gaussian1, mu1, sigma1 = create_gauss1(obs=obs)
@@ -151,10 +159,16 @@ def test_binned_loss(weights, Loss, simultaneous):
     test_values = zfit.Data.from_tensor(obs=obs, tensor=test_values, weights=weights)
     init_yield = test_values_np.shape[0] * 1.2
     scale = zfit.Parameter("yield", init_yield, 0, init_yield * 4, step_size=1)
-    binning = zfit.binned.RegularBinning(32, obs.lower[0], obs.upper[0], name="obs1")
+    binning = zfit.binned.RegularBinning(92, obs.lower[0], obs.upper[0], name="obs1")
     obs_binned = obs.with_binning(binning)
     test_values_binned = test_values.to_binned(obs_binned)
     binned_gauss = zfit.pdf.BinnedFromUnbinnedPDF(gaussian1, obs_binned, extended=scale)
+    binned_gauss_alt = gaussian2.to_binned(obs_binned, extended=scale)
+    counts = binned_gauss.counts()
+    counts_alt = binned_gauss_alt.counts()
+    assert np.allclose(counts, counts_alt)
+    binned_gauss_closure = binned_gauss.to_binned(obs_binned)
+    assert np.allclose(counts, binned_gauss_closure.counts())
     if simultaneous:
         obs_binned2 = obs.with_binning(14)
         test_values_binned2 = test_values.to_binned(obs_binned2)
@@ -200,7 +214,7 @@ def test_binned_loss(weights, Loss, simultaneous):
 
     result.hesse(name="hesse")
     result.errors(name="asymerr")
-    print(result)
+    str(result)  # check if no error
     rel_tol_errors = 0.1
     mu_error = 0.03 if not simultaneous else 0.021
     sigma_error = 0.0156 if simultaneous else 0.022
@@ -256,8 +270,14 @@ def test_binned_loss(weights, Loss, simultaneous):
 
 
 @pytest.mark.parametrize("Loss", [zfit.loss.BinnedChi2, zfit.loss.ExtendedBinnedChi2])
-@pytest.mark.parametrize("empty", [None, "ignore", False])
-@pytest.mark.parametrize("errors", [None, "expected", "data"])
+@pytest.mark.parametrize(
+    "empty", [None, "ignore", False], ids=["empty", "ignore", "False"]
+)
+@pytest.mark.parametrize(
+    "errors",
+    [None, "expected", "data"],
+    ids=["error_default", "error_expected", "error_data"],
+)
 def test_binned_chi2_loss(Loss, empty, errors):  # TODO: add test with zeros in bins
     obs = zfit.Space("obs1", limits=(-1, 2))
     gaussian1, mu1, sigma1 = create_gauss1(obs=obs)
@@ -285,6 +305,7 @@ def test_binned_chi2_loss(Loss, empty, errors):  # TODO: add test with zeros in 
 @pytest.mark.parametrize(
     "weights",
     [None, np.random.normal(loc=1.0, scale=0.2, size=test_values_np.shape[0])],
+    ids=["weights_none", "weights_random"],
 )
 @pytest.mark.parametrize(
     "Loss",
@@ -315,4 +336,13 @@ def test_binned_loss_hist(weights, Loss):
     loss = Loss(model=binned_gauss, data=h)
     loss2 = Loss(model=binned_gauss, data=test_values_binned)
 
-    assert pytest.approx(float(loss.value()), float(loss2.value()))
+    assert pytest.approx(float(loss.value(full=True))) == float(loss2.value(full=True))
+
+    nllsum = loss + loss2  # check that sum works
+    nllsum += loss2  # check that sum works
+    assert float(nllsum.value(full=True)) == pytest.approx(
+        float(
+            loss.value(full=True) + 2 * loss2.value(full=True)  # we add loss2 two times
+        ),
+        rel=1e-3,
+    )

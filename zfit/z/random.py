@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 
 from __future__ import annotations
 
@@ -16,11 +16,25 @@ __all__ = ["counts_multinomial", "sample_with_replacement"]
 from ..settings import ztypes
 from ..z import numpy as znp
 
+generator = None
+
+
+def get_prng():
+    """Get the global random number generator.
+
+    Returns:
+        zfit random number generator
+    """
+    global generator
+    if generator is None:  # initialization
+        generator = tf.random.Generator.from_non_deterministic_state()
+    return generator
+
 
 def sample_with_replacement(
     a: tf.Tensor, axis: int, sample_shape: tuple[int]
 ) -> tf.Tensor:
-    """Sample from `a` with replacement to return a Tensor with `sample_shape`.
+    """Sample from ``a`` with replacement to return a Tensor with ``sample_shape``.
 
     Args:
         a (): Tensor to sample from
@@ -45,7 +59,7 @@ def sample_with_replacement(
     """
 
     dim = tf.shape(a)[axis]
-    choice_indices = tf.random.uniform(
+    choice_indices = get_prng().uniform(
         sample_shape, minval=0, maxval=dim, dtype=tf.int32
     )
     samples = tf.gather(a, choice_indices, axis=axis)
@@ -111,16 +125,16 @@ def _wrapped_multinomial_func(dtype, logits, probs, total_count):
 
 
 @wraps(tf.random.normal)
-def normal(shape, mean=0.0, stddev=1.0, dtype=ztypes.float, seed=None, name=None):
-    return tf.random.normal(
-        shape=shape, mean=mean, stddev=stddev, dtype=dtype, seed=seed, name=name
+def normal(shape, mean=0.0, stddev=1.0, dtype=ztypes.float, name=None):
+    return get_prng().normal(
+        shape=shape, mean=mean, stddev=stddev, dtype=dtype, name=name
     )
 
 
 @wraps(tf.random.uniform)
-def uniform(shape, minval=0, maxval=None, dtype=ztypes.float, seed=None, name=None):
-    return tf.random.uniform(
-        shape=shape, minval=minval, maxval=maxval, dtype=dtype, seed=seed, name=name
+def uniform(shape, minval=0, maxval=None, dtype=ztypes.float, name=None):
+    return get_prng().uniform(
+        shape=shape, minval=minval, maxval=maxval, dtype=dtype, name=name
     )
 
 
@@ -128,8 +142,18 @@ def uniform(shape, minval=0, maxval=None, dtype=ztypes.float, seed=None, name=No
 def poisson(
     lam: Any,
     shape: Any,
-    dtype: tf.DType = ztypes.float,
     seed: Any = None,
+    dtype: tf.DType = ztypes.float,
     name: Any = None,
 ):
-    return tf.random.poisson(lam=lam, shape=shape, dtype=dtype, seed=seed, name=name)
+    if seed is None:
+        seed = get_prng().make_seeds(1)[:, 0]
+    return tf.random.stateless_poisson(
+        lam=lam, seed=seed, shape=shape, dtype=dtype, name=name
+    )
+
+
+def shuffle(value, seed=None, name=None):
+    if seed is None:
+        seed = get_prng().make_seeds(1)[:, 0]
+    return tf.random.experimental.stateless_shuffle(value, seed=seed, name=name)

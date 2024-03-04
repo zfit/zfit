@@ -1,8 +1,9 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2024 zfit
 
 from __future__ import annotations
 
 from collections.abc import Iterable, Callable
+from contextlib import suppress
 from typing import Union
 
 import tensorflow as tf
@@ -20,7 +21,9 @@ from ..util.exception import WorkInProgressError
 
 
 class UniformSampleAndWeights:
-    def __call__(self, n_to_produce: int | tf.Tensor, limits: Space, dtype):
+    def __call__(self, n_to_produce: int | tf.Tensor, limits: Space, dtype, prng=None):
+        if prng is None:
+            prng = z.random.get_prng()
         rnd_samples = []
         thresholds_unscaled_list = []
         weights = tf.broadcast_to(z.constant(1.0, shape=(1,)), shape=(n_to_produce,))
@@ -41,7 +44,7 @@ class UniformSampleAndWeights:
                     z.to_real(n_to_produce) * z.to_real(frac), dtype=tf.int64
                 )  # TODO(Mayou36): split right!
 
-            sample_drawn = tf.random.uniform(
+            sample_drawn = prng.uniform(
                 shape=(n_partial_to_produce, limits.n_obs + 1),
                 # + 1 dim for the function value
                 dtype=ztypes.float,
@@ -51,8 +54,7 @@ class UniformSampleAndWeights:
                 sample_drawn[:, :-1] * (upper - lower) + lower
             )  # -1: all except func value
             thresholds_unscaled = sample_drawn[:, -1]
-            # if not multiple_limits:
-            #     return rnd_sample, thresholds_unscaled
+
             rnd_samples.append(rnd_sample)
             thresholds_unscaled_list.append(thresholds_unscaled)
             n_produced += n_partial_to_produce
@@ -93,8 +95,7 @@ class EventSpace(Space):
     @property
     def limits(self) -> ztyping.LimitsTypeReturn:
         limits = super().limits
-        limits_tensor = self._limits_tensor
-        if limits_tensor is not None:
+        if (limits_tensor := self._limits_tensor) is not None:
             lower, upper = limits
             new_bounds = [[], []]
             for i, old_bounds in enumerate(lower, upper):
@@ -154,7 +155,7 @@ def accept_reject_sample(
         n: Number of samples to produce
         limits: The limits to sample from
         sample_and_weights_factory: An (immutable!) factory function that returns the following function:
-            A function that returns the sample to insert into `prob` and the weights
+            A function that returns the sample to insert into ``prob`` and the weights
             (probability density) of each sample together with the random thresholds. The API looks as follows:
 
             - Parameters:
@@ -166,7 +167,7 @@ def accept_reject_sample(
             - Return:
                 A tuple of length 5:
                 - proposed sample (tf.Tensor with shape=(n_to_produce, n_obs)): The new (proposed) sample
-                    whose values are inside `limits`.
+                    whose values are inside ``limits``.
                 - thresholds_unscaled (tf.Tensor with shape=(n_to_produce,): Uniformly distributed
                     random values **between 0 and 1**.
                 - weights (tf.Tensor with shape=(n_to_produce)): (Proportional to the) probability
@@ -192,7 +193,7 @@ def accept_reject_sample(
         overestimate_factor_scaling = 1.25
     else:  # if an exact estimation is given
         n_min_to_produce = 0
-        overestimate_factor_scaling = 1.0
+        overestimate_factor_scaling = 1.001
 
     sample_and_weights = sample_and_weights_factory()
     n = tf.cast(n, dtype=tf.int64)
@@ -228,7 +229,7 @@ def accept_reject_sample(
         element_shape=(limits.n_obs,),
     )
 
-    @z.function(wraps="tensor")
+    @z.function(wraps="tensor", keepalive=True)
     def not_enough_produced(
         n,
         sample,
@@ -243,7 +244,7 @@ def accept_reject_sample(
     ):
         return tf.greater(n, n_produced)
 
-    @z.function(wraps="tensor")
+    @z.function(wraps="tensor", keepalive=True)
     def sample_body(
         n,
         sample,
@@ -282,11 +283,11 @@ def accept_reject_sample(
         if dynamic_array_shape:
             # TODO: move all this fixed numbers out into settings
             # this section is non-trivial due to numerical issues with large numbers in n_to_produce
-            # and small numbers in the efficiency. To prevent an overflow, we scale the efficieny up
-            # and convert it to an int, effectively precision after the floaning point.
+            # and small numbers in the efficiency. To prevent an overflow, we scale the efficiency up
+            # and convert it to an int, effectively precision after the floating point.
             # Then we scale it down again.
             eff_precision: int = 100
-            one_over_eff_int = tf.cast(1 / eff * 1.01 * eff_precision, dtype=tf.int64)
+            one_over_eff_int = tf.cast(1.0 / eff * 1.01 * eff_precision, dtype=tf.int64)
             n_to_produce *= one_over_eff_int
             n_to_produce = znp.floor_divide(n_to_produce, eff_precision)
             # tf.debugging.assert_positive(n_to_produce_float, "n_to_produce went negative, overflow?")
@@ -326,12 +327,12 @@ def accept_reject_sample(
             n_to_produce=n_to_produce, limits=new_limits, dtype=dtype
         )
 
-        rnd_sample = Data.from_tensor(obs=new_limits, tensor=rnd_sample)
+        rnd_sample_data = Data.from_tensor(obs=new_limits, tensor=rnd_sample)
         n_drawn = tf.cast(n_drawn, dtype=tf.int64)
         if run.numeric_checks:
             tf.debugging.assert_non_negative(n_drawn)
         n_total_drawn += n_drawn
-        probabilities = prob(rnd_sample)
+        probabilities = prob(rnd_sample_data)
         shape_rnd_sample = tf.shape(input=rnd_sample)[0]
         if run.numeric_checks:
             tf.debugging.assert_equal(tf.shape(input=probabilities), shape_rnd_sample)
@@ -339,7 +340,6 @@ def accept_reject_sample(
         if (
             prob_max_init is None or weights_max is None
         ):  # TODO(performance): estimate prob_max, after enough estimations -> fix it?
-
             # safety margin, predicting future, improve for small samples?
             weights_maximum_new = znp.max(weights)
             weights_maximum = znp.maximum(weights_maximum, weights_maximum_new)
@@ -457,7 +457,7 @@ def accept_reject_sample(
         )
 
         # efficiency (estimate) of how many samples we get
-        eff = znp.max([z.to_real(n_produced_new), z.to_real(1.0)]) / znp.max(
+        eff = znp.max([z.to_real(n_produced_new), z.to_real(0.5)]) / znp.max(
             [z.to_real(n_total_drawn), z.to_real(1.0)]
         )
         return (
@@ -505,15 +505,17 @@ def accept_reject_sample(
     new_sample = tf.stop_gradient(new_sample)  # stopping backprop
 
     if multiple_limits:
-        new_sample = tf.random.shuffle(
+        new_sample = z.random.shuffle(
             new_sample
         )  # to make sure, randomly remove and not biased.
     if dynamic_array_shape:  # if not dynamic we produced exact n -> no need to cut
         new_sample = new_sample[:n, :]  # cutting away to many produced
 
     # if no failure, uncomment both for improvement of shape inference, but what if n is tensor?
-    # with suppress(AttributeError):  # if n_samples_int is not a numpy object
-    #     new_sample.set_shape((n_samples_int, n_dims))
+    if run.executing_eagerly():
+        n_dims = limits.n_obs
+        with suppress(AttributeError):  # if n_samples_int is not a numpy object
+            new_sample.set_shape((int(n), n_dims))
     return new_sample
 
 
@@ -564,7 +566,7 @@ def extended_sampling(pdfs: Iterable[ZfitPDF] | ZfitPDF, limits: Space) -> tf.Te
     pdfs = extract_extended_pdfs(pdfs)
 
     for pdf in pdfs:
-        n = tf.random.poisson(lam=pdf.get_yield(), shape=(), dtype=ztypes.float)
+        n = z.random.poisson(lam=pdf.get_yield(), shape=(), dtype=ztypes.float)
         n = tf.cast(n, dtype=tf.int64)
         sample = pdf.sample(limits=limits, n=n)
         # sample.set_shape((n, limits.n_obs))

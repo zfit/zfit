@@ -1,4 +1,6 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
+from __future__ import annotations
+
 import functools
 
 import tensorflow as tf
@@ -26,7 +28,6 @@ def register_tensor_conversion(
 
 
 class OverloadableMixin:
-
     # Conversion to tensor.
     @staticmethod
     def _TensorConversionFunction(
@@ -74,7 +75,7 @@ class OverloadableMixin:
 
     @staticmethod
     def _OverloadOperator(cls, operator):  # pylint: disable=invalid-name
-        """Defer an operator overload to `ops.Tensor`.
+        """Defer an operator overload to ``ops.Tensor``.
 
         We pull the operator out of ops.Tensor dynamically to avoid ordering issues.
         Args:
@@ -98,7 +99,6 @@ class OverloadableMixin:
 
 
 class OverloadableMixinValues:
-
     # Conversion to tensor.
     @staticmethod
     def _TensorConversionFunction(
@@ -146,7 +146,7 @@ class OverloadableMixinValues:
 
     @staticmethod
     def _OverloadOperator(cls, operator):  # pylint: disable=invalid-name
-        """Defer an operator overload to `ops.Tensor`.
+        """Defer an operator overload to ``ops.Tensor``.
 
         We pull the operator out of ops.Tensor dynamically to avoid ordering issues.
         Args:

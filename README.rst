@@ -7,25 +7,29 @@ zfit: scalable pythonic fitting
 .. image:: https://scikit-hep.org/assets/images/Scikit--HEP-Affiliated-blue.svg
    :target: https://scikit-hep.org
 
+.. image:: https://img.shields.io/badge/DOI-10.1016%2Fj.softx.2020.100508-yellow
+   :target: https://www.sciencedirect.com/science/article/pii/S2352711019303851  
+   :alt: DOI 10.1016/j.softx.2020.100508  
+
+.. image:: https://img.shields.io/pypi/pyversions/zfit
+   :target: https://pypi.org/project/zfit/
+   :alt: PyPI - Python Version
+
 .. image:: https://img.shields.io/pypi/v/zfit.svg
    :target: https://pypi.python.org/pypi/zfit
 
 .. image:: https://img.shields.io/conda/vn/conda-forge/zfit
-   :alt: conda-forge
    :target: https://anaconda.org/conda-forge/zfit
+   :alt: conda-forge
 
-.. image:: https://github.com/zfit/zfit/workflows/CI/badge.svg
-   :target: https://github.com/zfit/zfit/actions
+.. image:: https://img.shields.io/spack/v/py-zfit
+   :target: https://github.com/spack/spack/blob/develop/var/spack/repos/builtin/packages/py-zfit/package.py
 
 .. image:: https://github.com/zfit/zfit/workflows/build/badge.svg
    :target: https://github.com/zfit/zfit/actions
 
-.. image:: https://coveralls.io/repos/github/zfit/zfit/badge.svg?branch=meta_changes
-   :target: https://coveralls.io/github/zfit/zfit?branch=meta_changes
 
-.. image:: https://www.codefactor.io/repository/github/zfit/zfit/badge
-   :target: https://www.codefactor.io/repository/github/zfit/zfit
-   :alt: CodeFactor
+
 
 
 .. |zfit_logo| image:: docs/images/zfit-logo_hires.png
@@ -36,9 +40,8 @@ zfit: scalable pythonic fitting
    :target: https://scikit-hep.org/affiliated
    :alt: scikit-hep logo
 
-zfit is a highly scalable and customizable model manipulation and fitting library. It uses
-`TensorFlow <https://www.tensorflow.org/>`_ as its computational backend
-and is optimised for simple and direct manipulation of probability density functions. The project is affiliated with
+zfit is a highly scalable and customizable model manipulation and likelihood fitting library. It uses the same computational backend as
+`TensorFlow <https://www.tensorflow.org/>`_ and is optimised for simple and direct manipulation of probability density functions. The project is affiliated with
 and well integrated into `Scikit-HEP <https://scikit-hep.org/>`_, the HEP Python ecosystem.
 
 - **Tutorials**: `Interactive introduction and tutorials <https://zfit-tutorials.readthedocs.io/en/latest/>`_
@@ -60,6 +63,31 @@ some may still be missing and bugs may be encountered.
 It is, however, mostly ready for production, and is being used in analyses projects.
 If you want to use it for your project and you are not sure if all the needed functionality is there,
 feel free to `contact`_.
+
+Installation
+=============
+
+zfit is available on pip and conda-forge. To install it (recommended: use a virtual/conda env!) with all the dependencies (minimizers, uproot, ...), use
+
+.. code-block:: bash
+
+   pip install -U zfit[all]
+   
+(the ``-U`` just indicates to upgrade zfit, in case you have it already installed)
+or for minimal dependencies
+
+.. code-block:: bash
+
+   pip install zfit
+
+For conda/mamba, use
+
+.. code-block:: bash
+
+   conda install -c conda-forge zfit
+
+
+
 
 
 Why?

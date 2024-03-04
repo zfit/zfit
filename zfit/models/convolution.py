@@ -1,9 +1,13 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2024 zfit
+from __future__ import annotations
+
 from typing import Optional, Union
 
+import pydantic
 import tensorflow as tf
-import tensorflow_addons as tfa
 import tensorflow_probability as tfp
+
+from typing import Literal
 
 import zfit.z.numpy as znp
 from .functor import BaseFunctor
@@ -11,24 +15,34 @@ from .. import exception, z
 from ..core.data import Data, sum_samples
 from ..core.interfaces import ZfitPDF
 from ..core.sample import accept_reject_sample
+from ..core.serialmixin import SerializableMixin
 from ..core.space import supports
+from ..serialization import Serializer, SpaceRepr
+from ..serialization.pdfrepr import BasePDFRepr
 from ..util import ztyping
 from ..util.exception import ShapeIncompatibleError, WorkInProgressError
+from ..util.ztyping import ExtendedInputType, NormInputType
+from ..z.interpolate_spline import interpolate_spline
+
+LimitsTypeInput = Optional[Union[ztyping.LimitsType, float]]
 
 
-class FFTConvPDFV1(BaseFunctor):
+class FFTConvPDFV1(BaseFunctor, SerializableMixin):
     def __init__(
         self,
         func: ZfitPDF,
         kernel: ZfitPDF,
-        n: Optional[int] = None,
-        limits_func: Union[ztyping.LimitsType, float] = None,
-        limits_kernel: ztyping.LimitsType = None,
-        interpolation: Optional[str] = None,
-        obs: Optional[ztyping.ObsTypeInput] = None,
+        n: int | None = None,
+        limits_func: LimitsTypeInput | None = None,
+        limits_kernel: ztyping.LimitsType | None = None,
+        interpolation: str | None = None,
+        obs: ztyping.ObsTypeInput | None = None,
+        *,
+        extended: ExtendedInputType = None,
+        norm: NormInputType = None,
         name: str = "FFTConvV1",
     ):
-        r"""*EXPERIMENTAL* Numerical Convolution pdf of `func` convoluted with `kernel` using FFT
+        r"""*EXPERIMENTAL* Numerical Convolution pdf of `func` convoluted with `kernel` using FFT.
 
         CURRENTLY ONLY 1 DIMENSIONAL!
 
@@ -106,15 +120,41 @@ class FFTConvPDFV1(BaseFunctor):
                   than for a linear interpolation.
 
             obs: Observables of the class. If not specified, automatically taken from `func`
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+            norm: |@doc:pdf.init.norm| Normalization of the PDF.
+               By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
             name: Human readable name of the PDF
         """
         from zfit import run
 
         run.assert_executing_eagerly()
-        valid_interpolations = ("spline", "linear")
+        original_init = {
+            "func": func,
+            "kernel": kernel,
+            "n": n,
+            "limits_func": limits_func,
+            "limits_kernel": limits_kernel,
+            "interpolation": interpolation,
+            "obs": obs,
+            "extended": extended,
+            "norm": norm,
+            "name": name,
+        }
 
         obs = func.space if obs is None else obs
-        super().__init__(obs=obs, pdfs=[func, kernel], params={}, name=name)
+        super().__init__(
+            obs=obs,
+            pdfs=[func, kernel],
+            params={},
+            name=name,
+            extended=extended,
+            norm=norm,
+        )
+        self.hs3.original_init.update(original_init)
 
         if self.n_obs > 1:
             raise WorkInProgressError(
@@ -128,13 +168,13 @@ class FFTConvPDFV1(BaseFunctor):
             )
 
         if interpolation is None:
-            interpolation = "spline" if self.n_obs == 1 else "linear"
+            interpolation = "linear"  # "spline" if self.n_obs == 1 else "linear"  # TODO: spline is very inefficient, why?
 
         spline_order = 3  # default
         if ":" in interpolation:
             interpolation, spline_order = interpolation.split(":")
             spline_order = int(spline_order)
-        if interpolation not in valid_interpolations:
+        if interpolation not in (valid_interpolations := ("spline", "linear")):
             raise ValueError(
                 f"`interpolation` {interpolation} not known. Has to be one "
                 f"of the following: {valid_interpolations}"
@@ -199,7 +239,7 @@ class FFTConvPDFV1(BaseFunctor):
                 "Simply switch the two should resolve the problem."
             )
 
-        # get finest resolution. Find the dimensions with the largest kernel-space to func-space ratio
+        # get the finest resolution. Find the dimensions with the largest kernel-space to func-space ratio
         # We take the binwidth of the kernel as the overall binwidth and need to have the same binning in
         # the function as well
         area_ratios = (upper_sample - lower_sample) / (
@@ -212,13 +252,14 @@ class FFTConvPDFV1(BaseFunctor):
         # guarantee that we add one bin (e.g. if we hit exactly the boundaries, we add one.
         nbins_kernel = n
         # n = max(n, npoints_scaling)
-        tf.assert_less(
-            n - 1,  # so that for three dimension it's 999'999, not 10^6
-            tf.cast(1e6, tf.int32),
-            message="Number of points automatically calculated to be used for the FFT"
-            " based convolution exceeds 1e6. If you want to use this number - "
-            "or an even higher value - use explicitly the `n` argument.",
-        )
+        # TODO: below needed if we try to estimate the number of points
+        # tf.assert_less(
+        #     n - 1,  # so that for three dimension it's 999'999, not 10^6
+        #     tf.cast(1e6, tf.int32),
+        #     message="Number of points automatically calculated to be used for the FFT"
+        #     " based convolution exceeds 1e6. If you want to use this number - "
+        #     "or an even higher value - use explicitly the `n` argument.",
+        # )
 
         binwidth = (upper_kernel - lower_kernel) / nbins_kernel
         to_extend = (
@@ -239,9 +280,8 @@ class FFTConvPDFV1(BaseFunctor):
             "nbins_func": nbins_func,
         }
 
-    @z.function(wraps="model")
+    @z.function(wraps="model_convolution")
     def _unnormalized_pdf(self, x):
-
         lower_func, upper_func = self._conv_limits["func"]
         nbins_func = self._conv_limits["nbins_func"]
         x_funcs = tf.linspace(lower_func, upper_func, tf.cast(nbins_func, tf.int32))
@@ -313,7 +353,7 @@ class FFTConvPDFV1(BaseFunctor):
         query_points = znp.expand_dims(x.value(), axis=0)
         if self.conv_interpolation == "spline":
             conv_points = znp.reshape(conv, (1, -1, 1))
-            prob = tfa.image.interpolate_spline(
+            prob = interpolate_spline(
                 train_points=train_points,
                 train_values=conv_points,
                 query_points=query_points,
@@ -321,13 +361,13 @@ class FFTConvPDFV1(BaseFunctor):
             )
             prob = prob[0, ..., 0]
         elif self.conv_interpolation == "linear":
-            prob = tfp.math.batch_interp_regular_nd_grid(
-                x=query_points[0],
-                x_ref_min=lower_func,
-                x_ref_max=upper_func,
+            prob = tfp.math.batch_interp_regular_1d_grid(
+                x=query_points[0, ..., 0],
+                x_ref_min=lower_func[..., 0],
+                x_ref_max=upper_func[..., 0],
                 y_ref=conv[0, ..., 0],
                 # y_ref=tf.reverse(conv[0, ..., 0], axis=[0]),
-                axis=-self.n_obs,
+                axis=0,
             )
             prob = prob[0]
 
@@ -362,7 +402,9 @@ class FFTConvPDFV1(BaseFunctor):
         )
 
         return accept_reject_sample(
-            lambda x: tf.ones(shape=tf.shape(x)[0], dtype=self.dtype),  # use inside?
+            lambda x: tf.ones(
+                shape=tf.shape(x.value())[0], dtype=self.dtype
+            ),  # use inside?
             # all the points are inside
             n=n,
             limits=limits,
@@ -373,6 +415,27 @@ class FFTConvPDFV1(BaseFunctor):
         )
 
 
+class FFTConvPDFV1Repr(BasePDFRepr):
+    _implementation = FFTConvPDFV1
+    hs3_type: Literal["FFTConvPDFV1"] = pydantic.Field("FFTConvPDFV1", alias="type")
+    func: Serializer.types.PDFTypeDiscriminated
+
+    kernel: Serializer.types.PDFTypeDiscriminated
+    n: Optional[int] = None
+    limits_func: Optional[SpaceRepr] = None
+    limits_kernel: Optional[SpaceRepr] = None
+    interpolation: Optional[str] = None
+    obs: Optional[SpaceRepr] = None
+
+    @pydantic.root_validator(pre=True)
+    def validate_all(cls, values):
+        values = dict(values)
+        if cls.orm_mode(values):
+            for k, v in values["hs3"].original_init.items():
+                values[k] = v
+        return values
+
+
 class AddingSampleAndWeights:
     def __init__(self, func, kernel, limits_func, limits_kernel) -> None:
         super().__init__()
@@ -381,7 +444,7 @@ class AddingSampleAndWeights:
         self.limits_func = limits_func
         self.limits_kernel = limits_kernel
 
-    def __call__(self, n_to_produce: Union[int, tf.Tensor], limits, dtype):
+    def __call__(self, n_to_produce: int | tf.Tensor, limits, dtype):
         kernel_lower, kernel_upper = self.kernel.space.rect_limits
         sample_lower, sample_upper = limits.rect_limits
 

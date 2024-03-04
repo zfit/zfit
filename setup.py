@@ -1,7 +1,8 @@
 """The setup script."""
 
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 import os
+import sys
 
 from setuptools import setup
 
@@ -18,12 +19,15 @@ with open(
     requirements_dev = requirements_dev_file.read().splitlines()
 
 extras_require = {}
-extras_require["ipyopt"] = ["ipyopt<0.12"]
-extras_require["nlopt"] = ["nlopt<=2.7.0"]
+extras_require["ipyopt"] = ["ipyopt>=0.12"]
+extras_require["nlopt"] = ["nlopt>=2.7.1"]
+extras_require["hs3"] = ["asdf"]
+# Python 3.7 not supported anymore
+extras_require["uproot"] = ["awkward-pandas"]
 allreq = sum(extras_require.values(), [])
 
 tests_require = [
-    "pytest>=3.4.2,<5.4",  # breaks unittests
+    "pytest>=3.4.2",  # breaks unittests
     "pytest-runner>=2.11.1",
     "pytest-rerunfailures>=6",
     "pytest-xdist",
@@ -34,7 +38,7 @@ tests_require = [
     "matplotlib",  # for plots in examples
 ]
 extras_require["all"] = allreq
-extras_require["tests-nonlinux"] = tests_require + extras_require["nlopt"]
+extras_require["tests-nonlinux"] = tests_require + extras_require.get("nlopt", [])
 extras_require["tests"] = extras_require["tests-nonlinux"] + extras_require["ipyopt"]
 extras_require["dev"] = requirements_dev + extras_require["tests"]
 extras_require["dev-nonlinux"] = requirements_dev + extras_require["tests-nonlinux"]
@@ -44,6 +48,11 @@ alldev_nonlinux.pop(
     alldev_nonlinux.index(extras_require["ipyopt"][0])
 )  # ipyopt is not available on non linux systems
 extras_require["alldev-nonlinux"] = alldev_nonlinux
+alldev_windows = alldev_nonlinux.copy()
+alldev_windows.pop(
+    alldev_windows.index("jaxlib")
+)  # not available on Windows: https://github.com/google/jax/issues/438#issuecomment-939866186
+extras_require["alldev-windows"] = alldev_windows
 
 setup(
     install_requires=requirements,

@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 
 from __future__ import annotations
 
@@ -85,7 +85,7 @@ class Coordinates(ZfitOrderableDimensional):
         allow_superset: bool = True,
         allow_subset: bool = True,
     ) -> Coordinates:
-        """Create a new instance that has `obs`; sorted by or set or dropped.
+        """Create a new instance that has ``obs``; sorted by or set or dropped.
 
         The behavior is as follows:
 
@@ -117,7 +117,7 @@ class Coordinates(ZfitOrderableDimensional):
 
         Raises:
             CoordinatesUnderdefinedError: if obs is None and the instance does not have axes
-            ObsIncompatibleError: if `obs` is a superset and allow_superset is False or a subset and
+            ObsIncompatibleError: if ``obs`` is a superset and allow_superset is False or a subset and
                 allow_allow_subset is False
         """
         obs = convert_to_obs_str(obs)
@@ -139,7 +139,6 @@ class Coordinates(ZfitOrderableDimensional):
                     )
 
                 if not frozenset(obs) == frozenset(self.obs):
-
                     if not allow_superset and frozenset(obs) - frozenset(self.obs):
                         raise ObsIncompatibleError(
                             f"Obs {obs} are a superset of {self.obs}, not allowed according to flag."
@@ -161,7 +160,7 @@ class Coordinates(ZfitOrderableDimensional):
         allow_superset: bool = True,
         allow_subset: bool = True,
     ) -> Coordinates:
-        """Create a new instance that has `axes`; sorted by or set or dropped.
+        """Create a new instance that has ``axes``; sorted by or set or dropped.
 
         The behavior is as follows:
 
@@ -192,7 +191,7 @@ class Coordinates(ZfitOrderableDimensional):
             A copy of the object with the new ordering/axes
         Raises:
             CoordinatesUnderdefinedError: if obs is None and the instance does not have axes
-            AxesIncompatibleError: if `axes` is a superset and allow_superset is False or a subset and
+            AxesIncompatibleError: if ``axes`` is a superset and allow_superset is False or a subset and
                 allow_allow_subset is False
         """
         axes = convert_to_axes(axes)
@@ -203,7 +202,6 @@ class Coordinates(ZfitOrderableDimensional):
                 )
             new_coords = type(self)(obs=self.obs, axes=axes)
         else:
-
             axes = _convert_axes_to_int(axes)
             if not self.axes and not len(axes) == len(self.obs):
                 raise AxesIncompatibleError(
@@ -237,7 +235,7 @@ class Coordinates(ZfitOrderableDimensional):
         """Overwrite the axes of the current object with axes corresponding to range(len(n_obs)).
 
         This effectively fills with (0, 1, 2,...) and can be used mostly when an object enters a PDF or
-        similar. `overwrite` allows to remove the axis first in case there are already some set.
+        similar. ``overwrite`` allows to remove the axis first in case there are already some set.
 
         .. code-block::
 
@@ -252,13 +250,13 @@ class Coordinates(ZfitOrderableDimensional):
 
         Args:
             overwrite: If axes are already set, replace the axes with the autofilled ones.
-                If axes is already set and `overwrite` is False, raise an error.
+                If axes is already set and ``overwrite`` is False, raise an error.
 
         Returns:
             The object with the new axes
 
         Raises:
-            AxesIncompatibleError: if the axes are already set and `overwrite` is False.
+            AxesIncompatibleError: if the axes are already set and ``overwrite`` is False.
         """
         if self.axes and not overwrite:
             raise AxesIncompatibleError(
@@ -282,7 +280,7 @@ class Coordinates(ZfitOrderableDimensional):
     def get_reorder_indices(
         self, obs: ztyping.ObsTypeInput = None, axes: ztyping.AxesTypeInput = None
     ) -> tuple[int]:
-        """Indices that would order the instances obs as `obs` respectively the instances axes as `axes`.
+        """Indices that would order the instances obs as ``obs`` respectively the instances axes as ``axes``.
 
         Args:
             obs: Observables that the instances obs should be ordered to. Does not reorder, but just
@@ -294,7 +292,7 @@ class Coordinates(ZfitOrderableDimensional):
             New indices that would reorder the instances obs to be obs respectively axes.
 
         Raises:
-            CoordinatesUnderdefinedError: If neither `obs` nor `axes` is given
+            CoordinatesUnderdefinedError: If neither ``obs`` nor ``axes`` is given
         """
         obs_none = obs is None
         axes_none = axes is None
@@ -327,12 +325,12 @@ class Coordinates(ZfitOrderableDimensional):
 
         There are two obs or axes around: the one associated with this Coordinate object and the one associated with x.
         If x_obs or x_axes is given, then this is assumed to be the obs resp. the axes of x and x will be reordered
-        according to `self.obs` resp. `self.axes`.
+        according to ``self.obs`` resp. ``self.axes``.
 
-        If func_obs resp. func_axes is given, then x is assumed to have `self.obs` resp. `self.axes` and will be
-        reordered to align with a function ordered with `func_obs` resp. `func_axes`.
+        If func_obs resp. func_axes is given, then x is assumed to have ``self.obs`` resp. ``self.axes`` and will be
+        reordered to align with a function ordered with ``func_obs`` resp. ``func_axes``.
 
-        Switching `func_obs` for `x_obs` resp. `func_axes` for `x_axes` inverts the reordering of x.
+        Switching ``func_obs`` for ``x_obs`` resp. ``func_axes`` for ``x_axes`` inverts the reordering of x.
 
         Args:
             x: Tensor to be reordered, last dimension should be n_obs resp. n_axes
@@ -340,7 +338,7 @@ class Coordinates(ZfitOrderableDimensional):
                 latter.
             x_axes: Axes associated with x.
             func_obs: Observables associated with a function that x will be given to. Reorders x accordingly and assumes
-                self.obs to be the obs of x. If both, `func_obs` and `func_axes` are given, this has precedency over the
+                self.obs to be the obs of x. If both, ``func_obs`` and ``func_axes`` are given, this has precedency over the
                 latter.
             func_axes: Axe associated with a function that x will be given to. Reorders x accordingly and assumes
                 self.axes to be the axes of x.
@@ -440,8 +438,7 @@ def _reorder_indices(old: list | tuple, new: list | tuple) -> tuple[int]:
 
 
 def convert_to_axes(axes, container=tuple):
-    """Convert `obs` to the list of obs, also if it is a
-    :py:class:`~ZfitSpace`. Return None if axes is None.
+    """Convert `obs` to the list of obs, also if it is a :py:class:`~ZfitSpace`. Return None if axes is None.
 
     Raises
         TypeError: if the axes are not int
@@ -463,8 +460,7 @@ def convert_to_axes(axes, container=tuple):
 
 
 def convert_to_obs_str(obs, container=tuple):
-    """Convert `obs` to the list of obs, also if it is a
-    :py:class:`~ZfitSpace`. Return None if obs is None.
+    """Convert `obs` to the list of obs, also if it is a :py:class:`~ZfitSpace`. Return None if obs is None.
 
     Raises:
         TypeError: if the observable is not a string
@@ -478,7 +474,6 @@ def convert_to_obs_str(obs, container=tuple):
         obs = convert_to_container(value=obs, container=container)
         new_obs = []
         for ob in obs:
-
             if not isinstance(ob, str):
                 raise TypeError(f"Observables have to be string, not {ob} as in {obs}")
             else:

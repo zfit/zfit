@@ -1,17 +1,15 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2024 zfit
 
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from .serialmixin import SerializableMixin
+
 if TYPE_CHECKING:
     import zfit
 
-from collections.abc import Iterable
-from collections.abc import Mapping
-from collections.abc import Callable
-
-# TODO(Mayou36): update docs above
+from collections.abc import Iterable, Mapping, Callable
 
 import functools
 import inspect
@@ -36,7 +34,13 @@ from .coordinates import (
     convert_to_obs_str,
 )
 from .dimension import common_axes, common_obs, limits_overlap
-from .interfaces import ZfitLimit, ZfitOrderableDimensional, ZfitSpace, ZfitPDF
+from .interfaces import (
+    ZfitLimit,
+    ZfitOrderableDimensional,
+    ZfitSpace,
+    ZfitPDF,
+    ZfitData,
+)
 from .. import z
 from .._variables.axis import Binnings, RegularBinning
 from ..settings import ztypes
@@ -135,7 +139,7 @@ def fail_not_rect(func):
     return wrapped_func
 
 
-@z.function(wraps="tensor", experimental_relax_shapes=True)
+@z.function(wraps="tensor", keepalive=True)
 def calculate_rect_area(rect_limits):
     lower, upper = rect_limits
     diff = upper - lower
@@ -143,9 +147,9 @@ def calculate_rect_area(rect_limits):
     return area
 
 
-@z.function(wraps="tensor", experimental_relax_shapes=True)
+@z.function(wraps="tensor", keepalive=True)
 def inside_rect_limits(x, rect_limits):
-    if not x.shape.ndims > 1:
+    if (ndims := x.get_shape().ndims) is not None and ndims <= 1:
         raise ValueError(
             "x has ndims <= 1, which is most probably not wanted. The default shape for array-like"
             " structures is (nevents, n_obs)."
@@ -153,13 +157,13 @@ def inside_rect_limits(x, rect_limits):
     lower, upper = z.unstack_x(rect_limits, axis=0)
     lower = z.convert_to_tensor(lower)
     upper = z.convert_to_tensor(upper)
-    below_upper = znp.all(tf.less_equal(x, upper), axis=-1)  # if all obs inside
-    above_lower = znp.all(tf.greater_equal(x, lower), axis=-1)
-    inside = tf.logical_and(above_lower, below_upper)
+    below_upper = znp.all(znp.less_equal(x, upper), axis=-1)  # if all obs inside
+    above_lower = znp.all(znp.greater_equal(x, lower), axis=-1)
+    inside = znp.logical_and(above_lower, below_upper)
     return inside
 
 
-@z.function(wraps="tensor", experimental_relax_shapes=True)
+@z.function(wraps="tensor", keepalive=True)
 def filter_rect_limits(x, rect_limits, axis=None):
     return tf.boolean_mask(
         tensor=x, mask=inside_rect_limits(x, rect_limits=rect_limits, axis=axis)
@@ -168,7 +172,7 @@ def filter_rect_limits(x, rect_limits, axis=None):
 
 def convert_to_tensor_or_numpy(obj, dtype=ztypes.float):
     if contains_tensor(obj):
-        return z.convert_to_tensor(obj, dtype=dtype)
+        return znp.asarray(obj, dtype=dtype)
     else:
         with suppress(AttributeError):
             dtype = dtype.as_numpy_dtype
@@ -176,6 +180,8 @@ def convert_to_tensor_or_numpy(obj, dtype=ztypes.float):
 
 
 def _sanitize_x_input(x, n_obs):
+    if isinstance(x, ZfitData):
+        x = x.value()
     x = z.convert_to_tensor(x)
     if not x.shape.ndims > 1 and n_obs > 1:
         raise ValueError(
@@ -223,12 +229,12 @@ class Limit(
         """Specify a limit with rectangular limits (and possiblty an arbitrary function).
 
         Args:
-            limit_fn: Function that works as `inside`: return true if a point is inside of the limits.
+            limit_fn: Function that works as ``inside``: return true if a point is inside of the limits.
                 The function should take one tensor-like argument with shape (..., n_obs) and should return
                 a shape without the last dimension.
             rect_limits: Rectangular limits, a tuple of tensor-like objects with shape (typically) (1, n_obs) or similar
                 such as only a tuple/list of values that will be interpreted as the last dimension. They should cover an
-                area that includes `limit_fn` fully.
+                area that includes ``limit_fn`` fully.
             n_obs: dimensionality of the Limits, the last dimension.
         """
         super().__init__()
@@ -394,14 +400,14 @@ class Limit(
 
     @property
     def rect_limits(self) -> ztyping.RectLimitsReturnType:
-        """Return the rectangular limits as `np.ndarray``tf.Tensor` if they are set and not false.
+        """Return the rectangular limits as ``np.ndarray``tf.Tensor`` if they are set and not false.
 
             The rectangular limits can be used for sampling. They do not in general represent the limits
             of the object as a functional limit can be set and to check if something is inside the limits,
             the method :py:meth:`~Limit.inside` should be used.
 
             In order to test if the limits are False or None, it is recommended to use the appropriate methods
-            `limits_are_false` and `limits_are_set`.
+            ``limits_are_false`` and ``limits_are_set``.
 
         Returns:
             The lower and upper limits.
@@ -410,7 +416,7 @@ class Limit(
         """
         if not self.has_limits:
             raise LimitsNotSpecifiedError(
-                f"Limits are False or not set, cannot return the rectangular limits."
+                "Limits are False or not set, cannot return the rectangular limits."
             )
         rect_limits = self._rect_limits
         return rect_limits
@@ -426,16 +432,16 @@ class Limit(
 
     @property
     def rect_limits_np(self) -> ztyping.RectLimitsNPReturnType:
-        """Return the rectangular limits as `np.ndarray`. Raise error if not possible.
+        """Return the rectangular limits as ``np.ndarray``. Raise error if not possible.
 
         Rectangular limits are returned as numpy arrays which can be useful when doing checks that do not
         need to be involved in the computation later on as they allow direct interaction with Python as
-        compared to `tf.Tensor` inside a graph function.
+        compared to ``tf.Tensor`` inside a graph function.
 
 
         Returns:
-            A tuple of two `np.ndarray` with shape (1, n_obs) typically. The last
-                dimension is always `n_obs`, the first can be vectorized. This allows unstacking
+            A tuple of two ``np.ndarray`` with shape (1, n_obs) typically. The last
+                dimension is always ``n_obs``, the first can be vectorized. This allows unstacking
                 with `z.unstack_x()` as can be done with data.
 
         Raises:
@@ -465,7 +471,7 @@ class Limit(
         """
         return self.rect_limits[1]
 
-    def rect_area(self) -> float | np.ndarray | tf.Tensor:
+    def rect_area(self) -> float | np.ndarray | znp.array:
         """Calculate the total rectangular area of all the limits and axes.
 
         Useful, for example, for MC integration.
@@ -609,7 +615,7 @@ class Limit(
             return 1
         return self.rect_lower.shape[0]
 
-    def equal(self, other: object, allow_graph: bool = True) -> bool | tf.Tensor:
+    def equal(self, other: object, allow_graph: bool = True) -> znp.array:
         """Compare the limits on equality. For ANY objects, this also returns true.
 
         If called inside a graph context *and* the limits are tensors, this will return a symbolic `tf.Tensor`.
@@ -619,12 +625,12 @@ class Limit(
             allow_graph: If False and the function returns a symbolic tensor, raise IllegalInGraphModeError instead.
 
         Returns:
-            Either a Python boolean or a `tf.Tensor`
+            A ``znp.array`` with the result of the comparison.
          Raises:
              IllegalInGraphModeError: if `allow_graph`
         """
         if not isinstance(other, ZfitLimit):
-            return False
+            return np.array(False)
         return equal_limits(self, other, allow_graph=allow_graph)
 
     def __eq__(self, other: object) -> bool:
@@ -647,7 +653,7 @@ class Limit(
         #                   " identity tests. To prevent this, use numpy objects, not tensors, for limits if not needed.")
         #     return self is other
 
-    def less_equal(self, other: object, allow_graph: bool = True) -> bool | tf.Tensor:
+    def less_equal(self, other: object, allow_graph: bool = True) -> znp.array:
         """Set-like comparison for compatibility. If an object is less_equal to another, the limits are combatible.
 
         This can be used to determine whether a fitting range specification can handle another limit.
@@ -666,7 +672,7 @@ class Limit(
              IllegalInGraphModeError: it the comparison happens with tensors in a graph context.
         """
         if not isinstance(other, ZfitLimit):
-            return False
+            return np.array(False)
         return less_equal_limits(self, other, allow_graph=allow_graph)
 
     def __le__(self, other: object) -> bool:
@@ -727,9 +733,9 @@ def rect_limits_are_any(limit: ZfitLimit) -> bool:
         return False
 
 
-def less_equal_limits(limit1: Limit, limit2: Limit, allow_graph=True) -> bool:
+def less_equal_limits(limit1: Limit, limit2: Limit, allow_graph=True) -> znp.array:
     if rect_limits_are_any(limit1) or rect_limits_are_any(limit2):
-        return True
+        return np.array(True)
 
     try:
         lower1, upper1 = limit1.rect_limits_np
@@ -753,7 +759,7 @@ def less_equal_limits(limit1: Limit, limit2: Limit, allow_graph=True) -> bool:
 
     # if one is functional, one is rect: the bigger one can be rect
     elif not limit1.has_rect_limits and limit2.has_rect_limits:
-        funcs_equal = True
+        funcs_equal = np.array(True)
     else:
         funcs_equal = limit1.limit_fn == limit2.limit_fn
     return z.unstable.logical_and(rect_limits_le, funcs_equal)
@@ -762,11 +768,11 @@ def less_equal_limits(limit1: Limit, limit2: Limit, allow_graph=True) -> bool:
 def equal_limits(limit1: Limit, limit2: Limit, allow_graph=True) -> bool:
     # if both are functional, we just need to compare their functions; the rect limits are "irrelevant"
     if not (limit1.has_rect_limits or limit2.has_rect_limits):
-        return limit1.limit_fn == limit2.limit_fn
+        return np.array(limit1.limit_fn == limit2.limit_fn)
 
     # if one is functional, one is rect: they are not the same
     elif limit1.has_rect_limits ^ limit2.has_rect_limits:
-        return False
+        return np.array(False)
 
     try:
         lower, upper = limit1.rect_limits_np
@@ -856,6 +862,8 @@ class BaseSpace(ZfitSpace, BaseObject):
         return filtered
 
     def _filter(self, x, guarantee_limits):
+        if isinstance(x, ZfitData):
+            x = x.value()
         filtered = tf.boolean_mask(
             tensor=x, mask=self.inside(x, guarantee_limits=guarantee_limits)
         )
@@ -865,6 +873,7 @@ class BaseSpace(ZfitSpace, BaseObject):
     def n_obs(self) -> int:
         """Return the number of observables/axes.
 
+        Returns:
         Returns:
             int >= 1
         """
@@ -975,7 +984,6 @@ class BaseSpace(ZfitSpace, BaseObject):
             coord = frozenset(coord)
             self_coord = frozenset(self_coord)
             if coord != self_coord:
-
                 if not allow_superset and coord.issuperset(self_coord):
                     raise CoordinatesIncompatibleError(
                         f"Superset is not allowed, but {coord} is a superset"
@@ -1052,7 +1060,7 @@ class BaseSpace(ZfitSpace, BaseObject):
             return NotImplemented
         return equal_space(self, other)
 
-    def equal(self, other: object, allow_graph: bool) -> bool | tf.Tensor:
+    def equal(self, other: object, allow_graph: bool) -> znp.array:
         """Compare the limits on equality. For ANY objects, this also returns true.
 
         If called inside a graph context *and* the limits are tensors, this will return a symbolic `tf.Tensor`.
@@ -1138,6 +1146,7 @@ class BaseSpace(ZfitSpace, BaseObject):
 # @tfp.experimental.auto_composite_tensor()
 class Space(
     BaseSpace,
+    SerializableMixin,
     # tfp.experimental.AutoCompositeTensor
 ):
     AUTO_FILL = object()
@@ -1173,14 +1182,24 @@ class Space(
                These are the lower and upper limits. |@docend:space.init.limits|
             binning: |@doc:space.init.binning| Binning of the space.
                Currently, only regular and variable binning *with a name* is supported.
-               If an integer is given, it is interpreted as the number of bins and
+               If an integer or a list of integers is given with lengths equal to the number of observables,
+               it is interpreted as the number of bins and
                a regular binning is automatically created using the limits as the
                start and end points. |@docend:space.init.binning|
             name: |@doc:space.init.name| Human-readable name of the space. |@docend:space.init.name|
+
+        Raises
+            TypeError: If the axes in the binning do not have a name.
+            ObsIncompatibleError: If the obs do not agree with the name of the binning.
+            ShapeIncompatibleError: If the shape of the limits or the binnings do not match the shape of the obs.
         """
         if name is None:
             name = "Space"
-        if not isinstance(binning, int):
+        integer_autobinning = isinstance(binning, int) or (
+            isinstance(binning, (list, tuple))
+            and all(isinstance(b, int) for b in binning)
+        )
+        if not integer_autobinning:
             if not isinstance(binning, Binnings):
                 binning = convert_to_container(binning)
                 if binning is not None:
@@ -1195,7 +1214,6 @@ class Space(
         super().__init__(obs=obs, axes=axes, name=name)
 
         if binning is not None and not isinstance(binning, int):
-
             if limits is None and rect_limits is None:
                 limits = [[], []]
                 for axis in binning:
@@ -1212,28 +1230,50 @@ class Space(
         self._limits_dict = limits_dict
 
         if isinstance(binning, int):
-            if not self.n_obs == 1:
-                raise ValueError("Can only use integer as binning with 1D spaces")
-            if binning < 1:
-                raise ValueError("If binning is an integer, it must be > 0")
-            lower = self.lower[0][0]
-            upper = self.upper[0][0]
-            binning = Binnings(
-                [
-                    RegularBinning(
-                        bins=binning, start=lower, stop=upper, name=self.obs[0]
-                    )
-                ]
-            )
+            binning = [binning]
+        if integer_autobinning:
+            if len(binning) != self.n_obs:
+                raise ShapeIncompatibleError(
+                    f"Wrong number ({len(binning)}) of integers given for regular binning"
+                    f" ({binning}) with {self.n_obs} observables ({self.obs})."
+                    f" Numbers have to match the number of observables."
+                )
+            regular_binnings = []
+            for i, nbins in enumerate(binning):
+                if nbins < 1:
+                    raise ValueError("If binning is an integer, it must be > 0")
 
+                lower = self.lower[0][i]
+                upper = self.upper[0][i]
+                regular_binnings.append(
+                    RegularBinning(
+                        bins=nbins, start=lower, stop=upper, name=self.obs[i]
+                    )
+                )
+
+            binning = Binnings(regular_binnings)
+        if binning is not None:
+            bining_names = set(binning.name)
+            obs = set(self.obs)
+            wrong_names = bining_names - obs
+            if wrong_names:
+                raise ObsIncompatibleError(
+                    f"Binning names ({wrong_names}) do not match observables ({obs}), {wrong_names} not in space."
+                )
+            missing_obs = obs - bining_names
+            if missing_obs:
+                raise ObsIncompatibleError(
+                    f"Binning names ({missing_obs}) do not match observables ({obs}), missing {missing_obs}."
+                )
+            binning = Binnings([binning[ob] for ob in self.obs])
         self._binning = binning
 
     # TODO(Mayou36): put it everywhere, multilimits
     @property
     def binning(self):
         binning_out = self._binning
-        if binning_out is not None:
-            binning_out = Binnings([binning_out[ob] for ob in self.obs])
+        # if binning_out is not None:
+        #     binning_out =
         return binning_out
 
     @property
@@ -1411,7 +1451,7 @@ class Space(
         """
         if not self.has_limits:
             raise LimitsNotSpecifiedError(
-                f"Limits are False or not set, cannot return the rectangular limits."
+                "Limits are False or not set, cannot return the rectangular limits."
             )
         lower_ordered, upper_ordered = self._rect_limits_z()
         rect_limits = lower_ordered, upper_ordered
@@ -1425,12 +1465,10 @@ class Space(
         """
         if not self.has_limits:
             raise LimitsNotSpecifiedError(
-                f"Limits are False or not set, cannot return the rectangular limits."
+                "Limits are False or not set, cannot return the rectangular limits."
             )
         lower_ordered, upper_ordered = self._rect_limits_z()
-        rect_limits = z.convert_to_tensor(lower_ordered), z.convert_to_tensor(
-            upper_ordered
-        )
+        rect_limits = znp.asarray(lower_ordered), znp.asarray(upper_ordered)
         return rect_limits
 
     @property
@@ -1505,7 +1543,7 @@ class Space(
         upper_ordered = self.reorder_x(upper_stacked, **reorder_kwargs)
         return lower_ordered, upper_ordered
 
-    def rect_area(self) -> float | np.ndarray | tf.Tensor:
+    def rect_area(self) -> float | np.ndarray | znp.array:
         """Calculate the total rectangular area of all the limits and axes.
 
         Useful, for example, for MC integration.
@@ -1582,40 +1620,6 @@ class Space(
         return self.rect_lower.shape[0]
 
     @property
-    @deprecated(date=None, instructions="Use `limits` instead.")
-    @fail_not_rect
-    def limit2d(self) -> tuple[float, float, float, float]:
-        """Simplified `limits` for exactly 2 obs, 1 limit: return the tuple(low_obs1, low_obs2, up_obs1, up_obs2).
-
-        Returns:
-            So `low_x, low_y, up_x, up_y = space.limit2d` for a single, 2 obs limit.
-                low_x is the lower limit in x, up_x is the upper limit in x etc.
-
-        Raises:
-            RuntimeError: if the conditions (n_obs or n_limits) are not satisfied.
-        """
-        if not self.n_obs == 2:
-            raise RuntimeError("Nobs is not two.")
-        lower, upper = self.rect_limits
-        return lower[:, 0], lower[:, 1], upper[:, 0], upper[:, 1]
-        # raise BreakingAPIChangeError("This function is gone, use .rect_limits or .inside instead")
-
-    @property
-    def limits1d(self) -> tuple[float]:
-        """Simplified `.limits` for exactly 1 obs, n limits: return the tuple(low_1, ..., low_n, up_1, ..., up_n).
-
-        Returns:
-            So `low_1, low_2, up_1, up_2 = space.limits1d` for several, 1 obs limits.
-                low_1 to up_1 is the first interval, low_2 to up_2 is the second interval etc.
-
-        Raises:
-            RuntimeError: if the conditions (n_obs or n_limits) are not satisfied.
-        """
-        raise BreakingAPIChangeError(
-            "This function is gone. Instead iterate through the space and get each limit out."
-        )
-
-    @property
     @fail_not_rect
     def lower(self) -> ztyping.LowerTypeReturn:
         """Return the lower limits.
@@ -1623,7 +1627,6 @@ class Space(
         Returns:
         """
         return self.rect_lower
-        # raise BreakingAPIChangeError("Use rect_lower")
 
     @property
     @fail_not_rect
@@ -1642,32 +1645,6 @@ class Space(
             int >= 1
         """
         return len(tuple(self))
-
-    @property
-    @deprecated(
-        date=None,
-        instructions="Iterate over the space directly and"
-        " use the limits from the spaces.",
-    )
-    def iter_limits(self, as_tuple: bool = True) -> ztyping._IterLimitsTypeReturn:
-        """REMOVED.Return the limits, either as :py:class:`~zfit.Space` objects or as pure limits-tuple.
-
-        This makes iterating over limits easier: `for limit in space.iter_limits()`
-        allows to, for example, pass `limit` to a function that can deal with simple limits
-        only or if `as_tuple` is True the `limit` can be directly used to calculate something.
-
-        Example:
-            .. code:: python
-
-                for lower, upper in space.iter_limits(as_tuple=True):
-                    integrals = integrate(lower, upper)  # calculate integral
-                integral = sum(integrals)
-
-
-        Returns:
-            List[:py:class:`~zfit.Space`] or List[limit,...]:
-        """
-        raise BreakingAPIChangeError
 
     def with_limits(
         self,
@@ -1852,7 +1829,6 @@ class Space(
                     )
                 new_space = self.copy(axes=axes, limits=self._limits_dict)
             else:
-
                 coords = self.coords.with_axes(
                     axes=axes, allow_superset=allow_superset, allow_subset=allow_subset
                 )
@@ -2002,18 +1978,6 @@ class Space(
         new_space = type(self)(obs=new_coords, limits=limits_dict)
         return new_space
 
-    def with_obs_axes(self, **kwargs):
-        raise BreakingAPIChangeError("What is this needed for?")
-
-    def get_obs_axes(
-        self, obs: ztyping.ObsTypeInput = None, axes: ztyping.AxesTypeInput = None
-    ):
-        raise BreakingAPIChangeError("Simply get the coords if needed")
-
-    @property
-    def obs_axes(self):
-        raise BreakingAPIChangeError
-
     @fail_not_rect
     def area(self) -> float:
         """Return the total area of all the limits and axes.
@@ -2119,13 +2083,9 @@ class Space(
         Returns:
             :py:class:`~zfit.Space`
         """
-        # TODO(v0.5):
-        # raise BreakingAPIChangeError("from_axes is not needed anymore, create a Space directly.")
-        axes = convert_to_container(value=axes, container=tuple)
-        if axes is None:
-            raise AxesNotSpecifiedError("Axes cannot be `None`")
-        new_space = cls(axes=axes, limits=limits, rect_limits=rect_limits, name=name)
-        return new_space
+        raise BreakingAPIChangeError(
+            "from_axes is not needed anymore, create a Space directly."
+        )
 
 
 def extract_limits_from_dict(limits_dict, obs=None, axes=None):
@@ -2558,7 +2518,7 @@ def compare_limits_coords_dict(
         equal.append(
             compare_limits_dict(limit1_dict, limit2_dict, comparator=comparator)
         )
-    return z.unstable.reduce_all(equal, axis=0)
+    return z.unstable.reduce_all(equal)
 
 
 def compare_limits_dict(dict1: Mapping, dict2: Mapping, comparator: Callable) -> bool:
@@ -2574,7 +2534,7 @@ def compare_limits_dict(dict1: Mapping, dict2: Mapping, comparator: Callable) ->
 
         else:  # no break, nothing matched
             return False
-    return z.unstable.reduce_all(comparison, axis=0)
+    return z.unstable.reduce_all(comparison)
 
 
 def flatten_spaces(spaces):
@@ -2992,12 +2952,6 @@ class MultiSpace(BaseSpace):
         spaces = [space.with_autofill_axes(overwrite=overwrite) for space in self]
         return self.copy(spaces=spaces)
 
-    def iter_limits(self, as_tuple=True):
-        raise BreakingAPIChangeError("This should not be used anymore")
-
-    def iter_areas(self, rel: bool = False) -> tuple[float, ...]:
-        raise BreakingAPIChangeError("This should not be used anymore")
-
     def get_subspace(
         self,
         obs: ztyping.ObsTypeInput = None,
@@ -3060,7 +3014,6 @@ class MultiSpace(BaseSpace):
             limits = False
         elif self.has_rect_limits:
             if self.n_obs < 3 and not self.n_events > 1 and self.n_limits <= 3:
-
                 limits = [lim.rect_limits for lim in self]
             else:
                 limits = "rectangular"
@@ -3182,7 +3135,10 @@ def check_norm(supports=None):
     supports = convert_to_container(supports, convert_none=True)
 
     def no_norm_range(func):
-        """Decorator: Catch the 'norm' kwargs. If not None, raise `NormNotImplemented`."""
+        """Decorator: Catch the 'norm' kwargs.
+
+        If not None, raise `NormNotImplemented`.
+        """
         parameters = inspect.signature(func).parameters
         keys = list(parameters.keys())
         norm_range_index = None
@@ -3272,10 +3228,12 @@ def check_norm(supports=None):
 
 
 def no_multiple_limits(func):
-    """Decorator: Catch the 'limits' kwargs. If it contains multiple limits, raise MultipleLimitsNotImplementedError."""
+    """Decorator: Catch the 'limits' kwargs.
+
+    If it contains multiple limits, raise MultipleLimitsNotImplementedError.
+    """
     parameters = inspect.signature(func).parameters
-    keys = list(parameters.keys())
-    if "limits" in keys:
+    if "limits" in (keys := list(parameters.keys())):
         limits_index = keys.index("limits")
     else:
         return func  # no limits as parameters -> no problem
@@ -3341,7 +3299,6 @@ def supports(
 def contains_tensor(objects):
     tensor_found = tf.is_tensor(objects)
     with suppress(TypeError):
-
         for obj in objects:
             if tensor_found:
                 break

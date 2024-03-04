@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 import json
 
 # In[2]:
@@ -29,33 +29,33 @@ def test_simple_examples_1D():
               "data": {signp},
               """
         """
-                                                          "modifiers": [ { "name": "mu", "type": "normfactor", "data": null} ]
-                                                        },
-                                                        { "name": "background",
-                                                        """
+                                                              "modifiers": [ { "name": "mu", "type": "normfactor", "data": null} ]
+                                                            },
+                                                            { "name": "background",
+                                                            """
         f'"data": {bkgnp},'
         """
-                                                          "modifiers": [ {"name": "uncorr_bkguncrt", "type": "shapesys",
-                                                          """
+                                                              "modifiers": [ {"name": "uncorr_bkguncrt", "type": "shapesys",
+                                                              """
         f'"data": {uncnp}'
         """
-                                                      } ]
+                                                          } ]
+                                                        }
+                                                      ]
                                                     }
-                                                  ]
-                                                }
-                                            ],
-                                            "observations": [
-                                                {
-                                                """
+                                                ],
+                                                "observations": [
+                                                    {
+                                                    """
         f'"name": "singlechannel", "data": {datanp}'
         """
-                                                        }
-                                                    ],
-                                                    "measurements": [
-                                                        { "name": "Measurement", "config": {"poi": "mu", "parameters": []} }
-                                                    ],
-                                                    "version": "1.0.0"
-                                                    }"""
+                                                            }
+                                                        ],
+                                                        "measurements": [
+                                                            { "name": "Measurement", "config": {"poi": "mu", "parameters": []} }
+                                                        ],
+                                                        "version": "1.0.0"
+                                                        }"""
     )
 
     obs = zfit.Space(
@@ -95,10 +95,10 @@ def test_simple_examples_1D():
     result = minimizer.minimize(nll)
     result.hesse(method="hesse_np")
     # result.errors()
-    print(result)
+    _ = str(result)
     # mu_z = sigmodel.get_yield() / znp.sum(zmcsig.values())
-    zbestfit = zfit.run(result.params)
-    errors = [p["hesse"]["error"] for p in result.params.values()]
+    zbestfit = np.asarray(result.params)
+    errors = np.array([p["hesse"]["error"] for p in result.params.values()])
     # print('minval actual:', nll.value(), nll.gradient())
     # errors = np.ones(3) * 0.1
     # print('mu:', mu_z)
@@ -162,24 +162,35 @@ def hypotest_zfit(minimizer, nll):
 
 bins = [
     # 1,
+    3,
     # 10,
     # 50,
-    100,
+    # 100,
     # 200,
     # 400,
+    # 1000,
 ]
 bin_ids = [f"{n_bins}_bins" for n_bins in bins]
 
 
+@pytest.mark.benchmark(
+    # group="group-name",
+    # min_time=0.1,
+    max_time=20,
+    min_rounds=1,
+    # timer=time.time,
+    disable_gc=True,
+    warmup=True,
+    warmup_iterations=1,
+)
 @pytest.mark.parametrize("n_bins", bins, ids=bin_ids)
 @pytest.mark.parametrize(
     "hypotest",
-    [
-        # 'pyhf',
-        "zfit"
-    ],
+    ["pyhf", "zfit"],
 )
-@pytest.mark.parametrize("eager", [False, True])
+@pytest.mark.parametrize(
+    "eager", [False, True], ids=lambda x: "eager" if x else "graph"
+)
 def test_hypotest(benchmark, n_bins, hypotest, eager):
     """Benchmark the performance of pyhf.utils.hypotest() for various numbers of bins and different backends.
 
@@ -203,15 +214,23 @@ def test_hypotest(benchmark, n_bins, hypotest, eager):
         if eager:
             pyhf.set_backend("numpy")
         else:
-            pyhf.set_backend("jax")
+            try:
+                import jax
+            except ImportError:
+                return
+            else:
+                pyhf.set_backend("jax")
 
         pdf = uncorrelated_background(signp, bkgnp, uncnp)
         data = datanp + pdf.config.auxdata
+
+        # warmup
+        pyhf.infer.mle.fit(
+            data, pdf, pdf.config.suggested_init(), pdf.config.suggested_bounds()
+        )
         benchmark(hypotest, pdf, data)
     elif hypotest == "zfit":
-
         with zfit.run.set_graph_mode(not eager):
-
             hypotest = hypotest_zfit
             obs = zfit.Space(
                 "signal",
@@ -242,13 +261,24 @@ def test_hypotest(benchmark, n_bins, hypotest, eager):
             constraint = zfit.constraint.GaussianConstraint(
                 list(shapesys.values()), np.ones_like(unc).tolist(), unc
             )
-            nll = zfit.loss.ExtendedBinnedNLL(zmodel, zdata, constraints=constraint)
+            nll = zfit.loss.ExtendedBinnedNLL(
+                zmodel,
+                zdata,
+                constraints=constraint,
+                # options={"numhess": False}
+            )
 
-            minimizer = zfit.minimize.Minuit(tol=1e-3, gradient=False)
+            # minimizer = zfit.minimize.Minuit(tol=1e-3, gradient=True, mode=0, verbosity=8)
+            # minimizer = zfit.minimize.NLoptMMAV1(tol=1e-3, verbosity=8)
+            # minimizer = zfit.minimize.NLoptLBFGSV1()
+            # minimizer = zfit.minimize.ScipyLBFGSBV1()
+            minimizer = zfit.minimize.ScipyTrustConstrV1()
+            # minimizer = zfit.minimize.IpyoptV1()
 
             nll.value()
             nll.value()
             nll.gradient()
             nll.gradient()
+            nll.value_gradient_hessian(params=nll.get_params())
             benchmark(hypotest, minimizer, nll)
     assert True

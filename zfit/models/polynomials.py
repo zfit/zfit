@@ -1,13 +1,22 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2024 zfit
 """Recurrent polynomials."""
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
+
+import pydantic
+
+from typing import Literal
+
+from ..core.serialmixin import SerializableMixin
+from ..serialization import SpaceRepr, Serializer
+from ..serialization.pdfrepr import BasePDFRepr
+from ..util.ztyping import ExtendedInputType, NormInputType
 
 if TYPE_CHECKING:
     import zfit
 
-from collections.abc import Mapping
+from typing import Mapping
 import abc
 
 import tensorflow as tf
@@ -47,16 +56,40 @@ class RecursivePolynomial(BasePDF):
         coeffs: list,
         apply_scaling: bool = True,
         coeff0: tf.Tensor | None = None,
+        *,
+        extended: ExtendedInputType = None,
+        norm: NormInputType = None,
         name: str = "Polynomial",
     ):  # noqa
         """Base class to create 1 dimensional recursive polynomials that can be rescaled. Overwrite _poly_func.
 
         Args:
-            coeffs: Coefficients for each polynomial. Used to calculate the degree.
-            apply_scaling: Rescale the data so that the actual limits represent (-1, 1).
+            obs: |@doc:pdf.init.obs| Observables of the
+               model. This will be used as the default space of the PDF and,
+               if not given explicitly, as the normalization range.
+
+               The default space is used for example in the sample method: if no
+               sampling limits are given, the default space is used.
+
+               The observables are not equal to the domain as it does not restrict or
+               truncate the model outside this range. |@docend:pdf.init.obs|
+            coeffs: |@doc:pdf.polynomial.init.coeffs| Coefficients of the sum of the polynomial.
+               The coefficients of the polynomial, starting with the first order
+               term. To set the constant term, use ``coeff0``. |@docend:pdf.polynomial.init.coeffs|
+            apply_scaling: |@doc:pdf.polynomial.init.apply_scaling| Rescale the data so that the actual limits represent (-1, 1).
+               This is usually wanted as the polynomial is defined in this range.
+               Default is ``True``. |@docend:pdf.polynomial.init.apply_scaling|
 
                 .. math::
                    x_{n+1} = recurrence(x_{n}, x_{n-1}, n)
+
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+            norm: |@doc:pdf.init.norm| Normalization of the PDF.
+               By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
         """
         # 0th coefficient set to 1 by default
         coeff0 = (
@@ -66,21 +99,27 @@ class RecursivePolynomial(BasePDF):
         coeffs.insert(0, coeff0)
         params = {f"c_{i}": coeff for i, coeff in enumerate(coeffs)}
         self._degree = len(coeffs) - 1  # 1 coeff -> 0th degree
-        self._do_scale = apply_scaling
+        self._apply_scale = apply_scaling
         if apply_scaling and not (isinstance(obs, Space) and obs.n_limits == 1):
             raise ValueError(
                 "obs need to be a Space with exactly one limit if rescaling is requested."
             )
-        super().__init__(obs=obs, name=name, params=params)
+        super().__init__(
+            obs=obs, name=name, params=params, extended=extended, norm=norm
+        )
 
     def _polynomials_rescale(self, x):
-        if self._do_scale:
+        if self._apply_scale:
             x = rescale_minus_plus_one(x, limits=self.space)
         return x
 
     @property
+    def apply_scaling(self):
+        return self._apply_scale
+
+    @property
     def degree(self):
-        """int: degree of the polynomial, starting from 0."""
+        """Int: degree of the polynomial, starting from 0."""
         return self._degree
 
     def _unnormalized_pdf(self, x):
@@ -91,6 +130,25 @@ class RecursivePolynomial(BasePDF):
     @abc.abstractmethod
     def _poly_func(self, x):
         raise SpecificFunctionNotImplemented
+
+
+class BaseRecursivePolynomialRepr(BasePDFRepr):
+    x: SpaceRepr
+    params: Mapping[str, Serializer.types.ParamTypeDiscriminated] = pydantic.Field(
+        alias="coeffs"
+    )
+    apply_scaling: Optional[bool]
+
+    @pydantic.root_validator(pre=True)
+    def convert_params(cls, values):  # does not propagate `params` into the fields
+        if cls.orm_mode(values):
+            values = dict(values)
+            values["x"] = values.pop("space")
+        return values
+
+    def _to_orm(self, init):
+        init["coeff0"], *init["coeffs"] = init.pop("params").values()
+        return super()._to_orm(init)
 
 
 def create_poly(x, polys, coeffs, recurrence):
@@ -110,7 +168,7 @@ def do_recurrence(x, polys, degree, recurrence):
 legendre_polys = [lambda x: tf.ones_like(x), lambda x: x]
 
 
-@z.function(wraps="zfit_tensor")
+@z.function(wraps="tensor", keepalive=True, stateless_args=False)
 def legendre_recurrence(p1, p2, n, x):
     """Recurrence relation for Legendre polynomials.
 
@@ -142,7 +200,7 @@ def legendre_integral(
     lower = z.convert_to_tensor(lower_rescaled)
     upper = z.convert_to_tensor(upper_rescaled)
 
-    integral_0 = model.params[f"c_0"] * (upper - lower)  # if polynomial 0 is 1
+    integral_0 = model.params["c_0"] * (upper - lower)  # if polynomial 0 is 1
     if model.degree == 0:
         integral = integral_0
     else:
@@ -174,13 +232,16 @@ def legendre_integral(
     return integral
 
 
-class Legendre(RecursivePolynomial):
+class Legendre(RecursivePolynomial, SerializableMixin):
     def __init__(
         self,
         obs: ztyping.ObsTypeInput,
         coeffs: list[ztyping.ParamTypeInput],
         apply_scaling: bool = True,
         coeff0: ztyping.ParamTypeInput | None = None,
+        *,
+        extended: ExtendedInputType = None,
+        norm: NormInputType = None,
         name: str = "Legendre",
     ):  # noqa
         """Linear combination of Legendre polynomials of order len(coeffs), the coeffs are overall scaling factors.
@@ -203,11 +264,29 @@ class Legendre(RecursivePolynomial):
 
 
         Args:
-            obs: The default space the PDF is defined in.
+            obs: |@doc:pdf.init.obs| Observables of the
+               model. This will be used as the default space of the PDF and,
+               if not given explicitly, as the normalization range.
+
+               The default space is used for example in the sample method: if no
+               sampling limits are given, the default space is used.
+
+               The observables are not equal to the domain as it does not restrict or
+               truncate the model outside this range. |@docend:pdf.init.obs|
             coeffs: A list of the coefficients for the polynomials of order 1+ in the sum.
             apply_scaling: Rescale the data so that the actual limits represent (-1, 1).
             coeff0: The scaling factor of the 0th order polynomial. If not given, it is set to 1.
-            name: Name of the polynomial
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+            norm: |@doc:pdf.init.norm| Normalization of the PDF.
+               By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
+            name: |@doc:pdf.init.name| Human-readable name
+               or label of
+               the PDF for better identification.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.name|
         """
         super().__init__(
             obs=obs,
@@ -215,11 +294,18 @@ class Legendre(RecursivePolynomial):
             coeffs=coeffs,
             apply_scaling=apply_scaling,
             coeff0=coeff0,
+            extended=extended,
+            norm=norm,
         )
 
     def _poly_func(self, x):
         coeffs = convert_coeffs_dict_to_list(self.params)
         return legendre_shape(x=x, coeffs=coeffs)
+
+
+class LegendreRepr(BaseRecursivePolynomialRepr):
+    _implementation = Legendre
+    hs3_type: Literal["Legendre"] = pydantic.Field("Legendre", alias="type")
 
 
 legendre_limits = Space(axes=0, limits=(Space.ANY_LOWER, Space.ANY_UPPER))
@@ -228,7 +314,7 @@ Legendre.register_analytic_integral(func=legendre_integral, limits=legendre_limi
 chebyshev_polys = [lambda x: tf.ones_like(x), lambda x: x]
 
 
-@z.function(wraps="zfit_tensor")
+@z.function(wraps="tensor", keepalive=True, stateless_args=False)
 def chebyshev_recurrence(p1, p2, _, x):
     """Recurrence relation for Chebyshev polynomials.
 
@@ -243,13 +329,16 @@ def chebyshev_shape(x, coeffs):
     )
 
 
-class Chebyshev(RecursivePolynomial):
+class Chebyshev(RecursivePolynomial, SerializableMixin):
     def __init__(
         self,
         obs,
         coeffs: list,
         apply_scaling: bool = True,
         coeff0: ztyping.ParamTypeInput | None = None,
+        *,
+        extended: ExtendedInputType = None,
+        norm: NormInputType = None,
         name: str = "Chebyshev",
     ):  # noqa
         """Linear combination of Chebyshev (first kind) polynomials of order len(coeffs), coeffs are scaling factors.
@@ -273,11 +362,29 @@ class Chebyshev(RecursivePolynomial):
         Notice that :math:`T_1` is x as opposed to 2x in Chebyshev polynomials of the second kind.
 
         Args:
-            obs: The default space the PDF is defined in.
+            obs: |@doc:pdf.init.obs| Observables of the
+               model. This will be used as the default space of the PDF and,
+               if not given explicitly, as the normalization range.
+
+               The default space is used for example in the sample method: if no
+               sampling limits are given, the default space is used.
+
+               The observables are not equal to the domain as it does not restrict or
+               truncate the model outside this range. |@docend:pdf.init.obs|
             coeffs: A list of the coefficients for the polynomials of order 1+ in the sum.
             apply_scaling: Rescale the data so that the actual limits represent (-1, 1).
             coeff0: The scaling factor of the 0th order polynomial. If not given, it is set to 1.
-            name: Name of the polynomial
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+            norm: |@doc:pdf.init.norm| Normalization of the PDF.
+               By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
+            name: |@doc:pdf.init.name| Human-readable name
+               or label of
+               the PDF for better identification.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.name|
         """
         super().__init__(
             obs=obs,
@@ -285,11 +392,18 @@ class Chebyshev(RecursivePolynomial):
             coeffs=coeffs,
             coeff0=coeff0,
             apply_scaling=apply_scaling,
+            extended=extended,
+            norm=norm,
         )
 
     def _poly_func(self, x):
         coeffs = convert_coeffs_dict_to_list(self.params)
         return chebyshev_shape(x=x, coeffs=coeffs)
+
+
+class ChebyshevRepr(BaseRecursivePolynomialRepr):
+    _implementation = Chebyshev
+    hs3_type: Literal["Chebyshev"] = pydantic.Field("Chebyshev", alias="type")
 
 
 def func_integral_chebyshev1(limits, norm, params, model):
@@ -300,12 +414,12 @@ def func_integral_chebyshev1(limits, norm, params, model):
     lower = z.convert_to_tensor(lower_rescaled)
     upper = z.convert_to_tensor(upper_rescaled)
 
-    integral = model.params[f"c_0"] * (
+    integral = model.params["c_0"] * (
         upper - lower
     )  # if polynomial 0 is defined as T_0 = 1
     if model.degree >= 1:
         integral += (
-            model.params[f"c_1"] * 0.5 * (upper**2 - lower**2)
+            model.params["c_1"] * 0.5 * (upper**2 - lower**2)
         )  # if polynomial 0 is defined as T_0 = 1
     if model.degree >= 2:
 
@@ -348,13 +462,16 @@ def chebyshev2_shape(x, coeffs):
     )
 
 
-class Chebyshev2(RecursivePolynomial):
+class Chebyshev2(RecursivePolynomial, SerializableMixin):
     def __init__(
         self,
         obs,
         coeffs: list,
         apply_scaling: bool = True,
         coeff0: ztyping.ParamTypeInput | None = None,
+        *,
+        extended: ExtendedInputType = None,
+        norm: NormInputType = None,
         name: str = "Chebyshev2",
     ):  # noqa
         """Linear combination of Chebyshev (second kind) polynomials of order len(coeffs), coeffs are scaling factors.
@@ -384,6 +501,13 @@ class Chebyshev2(RecursivePolynomial):
             coeffs: A list of the coefficients for the polynomials of order 1+ in the sum.
             apply_scaling: Rescale the data so that the actual limits represent (-1, 1).
             coeff0: The scaling factor of the 0th order polynomial. If not given, it is set to 1.
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+            norm: |@doc:pdf.init.norm| Normalization of the PDF.
+               By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
             name: Name of the polynomial
         """
         super().__init__(
@@ -392,11 +516,18 @@ class Chebyshev2(RecursivePolynomial):
             coeffs=coeffs,
             coeff0=coeff0,
             apply_scaling=apply_scaling,
+            extended=extended,
+            norm=norm,
         )
 
     def _poly_func(self, x):
         coeffs = convert_coeffs_dict_to_list(self.params)
         return chebyshev2_shape(x=x, coeffs=coeffs)
+
+
+class Chebyshev2Repr(BaseRecursivePolynomialRepr):
+    _implementation = Chebyshev2
+    hs3_type: Literal["Chebyshev2"] = pydantic.Field("Chebyshev2", alias="type")
 
 
 def func_integral_chebyshev2(limits, norm, params, model):
@@ -442,7 +573,7 @@ laguerre_polys = generalized_laguerre_polys_factory(alpha=0.0)
 
 
 def generalized_laguerre_recurrence_factory(alpha=0.0):
-    @z.function(wraps="zfit_tensor")
+    @z.function(wraps="tensor", keepalive=True, stateless_args=False)
     def generalized_laguerre_recurrence(p1, p2, n, x):
         """Recurrence relation for Laguerre polynomials.
 
@@ -472,13 +603,16 @@ laguerre_shape_alpha_minusone = generalized_laguerre_shape_factory(
 )  # for integral
 
 
-class Laguerre(RecursivePolynomial):
+class Laguerre(RecursivePolynomial, SerializableMixin):
     def __init__(
         self,
         obs,
         coeffs: list,
         apply_scaling: bool = True,
         coeff0: ztyping.ParamTypeInput | None = None,
+        *,
+        extended: ExtendedInputType = None,
+        norm: NormInputType = None,
         name: str = "Laguerre",
     ):  # noqa
         """Linear combination of Laguerre polynomials of order len(coeffs), the coeffs are overall scaling factors.
@@ -506,6 +640,13 @@ class Laguerre(RecursivePolynomial):
             coeffs: A list of the coefficients for the polynomials of order 1+ in the sum.
             apply_scaling: Rescale the data so that the actual limits represent (-1, 1).
             coeff0: The scaling factor of the 0th order polynomial. If not given, it is set to 1.
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+            norm: |@doc:pdf.init.norm| Normalization of the PDF.
+               By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
             name: Name of the polynomial
         """
         super().__init__(
@@ -514,11 +655,18 @@ class Laguerre(RecursivePolynomial):
             coeffs=coeffs,
             coeff0=coeff0,
             apply_scaling=apply_scaling,
+            extended=extended,
+            norm=norm,
         )
 
     def _poly_func(self, x):
         coeffs = convert_coeffs_dict_to_list(self.params)
         return laguerre_shape(x=x, coeffs=coeffs)
+
+
+class LaguerreRepr(BaseRecursivePolynomialRepr):
+    _implementation = Laguerre
+    hs3_type: Literal["Laguerre"] = pydantic.Field("Laguerre", alias="type")
 
 
 def func_integral_laguerre(limits, norm, params: dict, model):
@@ -566,7 +714,7 @@ Laguerre.register_analytic_integral(
 hermite_polys = [lambda x: tf.ones_like(x), lambda x: 2 * x]
 
 
-@z.function(wraps="zfit_tensor")
+@z.function(wraps="tensor", keepalive=True, stateless_args=False)
 def hermite_recurrence(p1, p2, n, x):
     """Recurrence relation for Hermite polynomials (physics).
 
@@ -581,13 +729,16 @@ def hermite_shape(x, coeffs):
     )
 
 
-class Hermite(RecursivePolynomial):
+class Hermite(RecursivePolynomial, SerializableMixin):
     def __init__(
         self,
         obs,
         coeffs: list,
         apply_scaling: bool = True,
         coeff0: ztyping.ParamTypeInput | None = None,
+        *,
+        extended: ExtendedInputType = None,
+        norm: NormInputType = None,
         name: str = "Hermite",
     ):  # noqa
         """Linear combination of Hermite polynomials (for physics) of order len(coeffs), with coeffs as scaling factors.
@@ -614,6 +765,13 @@ class Hermite(RecursivePolynomial):
             coeffs: A list of the coefficients for the polynomials of order 1+ in the sum.
             apply_scaling: Rescale the data so that the actual limits represent (-1, 1).
             coeff0: The scaling factor of the 0th order polynomial. If not given, it is set to 1.
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+            norm: |@doc:pdf.init.norm| Normalization of the PDF.
+               By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
             name: Name of the polynomial
         """
         super().__init__(
@@ -622,11 +780,18 @@ class Hermite(RecursivePolynomial):
             coeffs=coeffs,
             coeff0=coeff0,
             apply_scaling=apply_scaling,
+            extended=extended,
+            norm=norm,
         )
 
     def _poly_func(self, x):
         coeffs = convert_coeffs_dict_to_list(self.params)
         return hermite_shape(x=x, coeffs=coeffs)
+
+
+class HermiteRepr(BaseRecursivePolynomialRepr):
+    _implementation = Hermite
+    hs3_type: Literal["Hermite"] = pydantic.Field("Hermite", alias="type")
 
 
 def func_integral_hermite(limits, norm, params, model):
@@ -669,7 +834,9 @@ def convert_coeffs_dict_to_list(coeffs: Mapping) -> list:
     for i in range(len(coeffs)):
         try:
             coeffs_list.append(coeffs[f"c_{i}"])
-        except KeyError:  # happens, if there are other parameters in there, such as a yield
+        except (
+            KeyError
+        ):  # happens, if there are other parameters in there, such as a yield
             break
     return coeffs_list
 

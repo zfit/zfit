@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 import numpy as np
 import pytest
 
@@ -15,7 +15,7 @@ test_values = np.random.uniform(low=0, high=100, size=100)
 
 def create_poisson():
     N = Parameter("N", lamb_true)
-    poisson = Poisson(obs=obs, lamb=N)
+    poisson = Poisson(obs=obs, lam=N)
     return poisson
 
 
@@ -24,7 +24,7 @@ def create_poisson_composed_rate():
     N2 = Parameter("N2", lamb_true / 2)
     N = zfit.param.ComposedParameter("N", lambda n1, n2: n1 + n2, params=[N1, N2])
 
-    poisson = Poisson(obs=obs, lamb=N)
+    poisson = Poisson(obs=obs, lam=N)
     return poisson
 
 

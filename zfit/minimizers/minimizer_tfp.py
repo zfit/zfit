@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2024 zfit
 
 from __future__ import annotations
 
@@ -64,7 +64,7 @@ class BFGS(BaseMinimizer):
         def update_params_value_grad(loss, params, values):
             for param, value in zip(params, tf.unstack(values, axis=0)):
                 param.set_value(value)
-            value, gradients = loss.value_gradient(params=params)
+            value, gradients = loss.value_gradient(params=params, full=False)
             return gradients, value
 
         def to_minimize_func(values):
@@ -136,15 +136,15 @@ class BFGS(BaseMinimizer):
             "grad": run(result.objective_gradient),
             "original": result,
         }
-        edm = -999
+        edm = None
         fmin = run(result.objective_value)
-        status = -999
+        status = None
         converged = run(result.converged)
         params = OrderedDict((p, val) for p, val in zip(params, params_result))
         result = FitResult(
             params=params,
             edm=edm,
-            fmin=fmin,
+            fminopt=fmin,
             info=info,
             loss=loss,
             status=status,

@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2024 zfit
 
 
 class Singleton:
@@ -32,17 +32,23 @@ class ZfitNotImplemented:
 
 
 class RuntimeDependency:
-    def __init__(self, name, how=None):
+    def __init__(self, name, how=None, error_msg=None):
         if how is None:
             how = ""
         self.__name = name
         self.__how = how
+        self.__error_msg = error_msg
 
     def __getattr__(self, item):
         if item in self.__dict__:
             return self.__dict__[item]
         raise ImportError(
-            f"This requires {self.__name}"
+            (
+                f"Original import error{self.__error_msg}.\n"
+                if self.__error_msg is not None
+                else ""
+            )
+            + f"This requires {self.__name}"
             " to be installed. You can usually install it with"
             f"`pip install zfit[{self.__name}]` or"
             f"`pip install zfit[all]`."

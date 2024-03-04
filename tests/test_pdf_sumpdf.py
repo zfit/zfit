@@ -1,4 +1,5 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
+import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 import scipy.stats
@@ -45,8 +46,8 @@ def test_frac_behavior(yields):
         assert not sumpdf1.is_extended
 
         frac2_val = 1 - frac1.value()
-        assert pytest.approx(
-            frac2_val.numpy(), sumpdf1.params["frac_1"].value().numpy()
+        assert (
+            pytest.approx(frac2_val.numpy()) == sumpdf1.params["frac_1"].value().numpy()
         )
         if isinstance(fracs, list) and len(fracs) == 2:
             assert sumpdf1.params["frac_1"] == frac2
@@ -61,8 +62,9 @@ def test_frac_behavior(yields):
         assert len(sumpdf2.params) == 3
         assert sumpdf2.params["frac_0"] == frac1
         assert sumpdf2.params["frac_1"] == frac2
-        assert pytest.approx(
-            frac3.value().numpy(), sumpdf2.params["frac_2"].value().numpy()
+        assert (
+            pytest.approx(frac3.value().numpy())
+            == sumpdf2.params["frac_2"].value().numpy()
         )
         assert not sumpdf1.is_extended
 
@@ -99,7 +101,13 @@ def test_sampling():
     assert true_mu == pytest.approx(np.mean(sample), abs=tol)
     assert np.std(sample_true) == pytest.approx(np.std(sample), abs=tol)
 
-    assert scipy.stats.ks_2samp(sample_true, sample).pvalue > 0.05
+    plt.figure()
+    plt.title("Sampling of SumPDF")
+    plt.hist(sample, bins=100, density=True, label="sampled")
+    plt.hist(sample_true, bins=100, density=True, label="sampled true")
+    plt.legend()
+    pytest.zfit_savefig(folder="sampling")
+    assert scipy.stats.mannwhitneyu(sample, sample_true).pvalue > 0.05
 
 
 @pytest.mark.flaky(2)  # mc integration
@@ -107,7 +115,7 @@ def test_integrate():
     class SimpleSampleSumPDF(zfit.pdf.SumPDF):
         @zfit.supports()
         def _integrate(self, limits, norm, options):
-            raise SpecificFunctionNotImplemented  # fallback to the default sampling
+            raise SpecificFunctionNotImplemented  # force fallback to the default sampling
 
         @zfit.supports()
         def _analytic_integrate(self, limits, norm):
@@ -120,8 +128,8 @@ def test_integrate():
     mu1, mu2 = 0, 1.7
     frac = 0.7
 
-    lower = mu1 - 0.5
-    upper = mu2 + 1
+    lower = mu1 - 2.5
+    upper = mu2 + 3
     obs = zfit.Space("obs1", (lower, upper))
     limits = zfit.Space("obs1", (mu1 - 0.3, mu2 + 0.1))
     gauss1 = zfit.pdf.Gauss(obs=obs, mu=mu1, sigma=0.93)
@@ -143,7 +151,9 @@ def test_integrate():
         limits=limits,
         norm=False,
     ).numpy()
-    integral_manual_true = gauss1.integrate(limits,) * frac + gauss2.integrate(
+    integral_manual_true = gauss1.integrate(
+        limits,
+    ) * frac + gauss2.integrate(
         limits,
     ) * (1 - frac)
 
@@ -155,11 +165,12 @@ def test_integrate():
 
     assert integral_true == pytest.approx(analytic_integral, rel=0.03)
 
-    rnd_limits = sorted(np.random.uniform(lower, upper, 10))
-    integrals = []
-    for low, up in zip(rnd_limits[:-1], rnd_limits[1:]):
-        integrals.append(sumpdf.integrate((low, up), norm=False))
+    rnd_limits = [lower] + sorted(np.random.uniform(lower, upper, 16)) + [upper]
+    integrals = [
+        sumpdf.integrate((low, up), norm=False)
+        for low, up in zip(rnd_limits[:-1], rnd_limits[1:])
+    ]
 
     integral = np.sum(integrals)
     integral_full = zfit.run(sumpdf.integrate((lower, upper), norm=False))
-    assert pytest.approx(integral_full, integral)
+    assert pytest.approx(float(integral_full)) == float(integral)

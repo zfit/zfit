@@ -1,5 +1,9 @@
 name: tests
 
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
 on:
   workflow_dispatch:
   push:
@@ -11,43 +15,50 @@ on:
       - "release/*"
       - "hotfix/*"
   pull_request:
+    branches-ignore:
+      - "docs/*"
+      - "doc/*"
+
 
 jobs:
   unittests:
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 240 # for eager mode
+    name: tests on ${{ matrix.os }} with ${{ matrix.python-version }} compiled = ${{ matrix.use-graph }}
     env:
       ZFIT_DO_JIT: ${{ matrix.use-graph }}
-    timeout-minutes: 240
     strategy:
       max-parallel: 15
       fail-fast: False
       matrix:
-        use-graph: [ 1 ]  # TODO: reactivate eager, this was weirdly slow
-        python-version: [ 3.7, 3.8, 3.9 ]
+        use-graph: [ 1 ]
+        python-version: [ "3.9", "3.10", "3.11" ]
         os: [ ubuntu-latest ]
         extras: [ alldev ]
         include:
-#          - os: macos-latest
-          #            python-version: 3.9
-          #            use-graph: 0
+          - os: ubuntu-latest
+            extras: alldev
+            python-version: "3.11"
+            use-graph: 0
           - os: macos-latest
-            python-version: 3.9
+            python-version: "3.11"
             use-graph: 1
             extras: alldev-nonlinux
-          #          - os: windows-latest
-          #            python-version: 3.9
-          #            use-graph: 0
           - os: windows-latest
-            python-version: 3.9
+            python-version: "3.11"
             use-graph: 1
-            extras: alldev-nonlinux
+            extras: alldev-windows
 
-    name: tests on ${{ matrix.os }} with ${{ matrix.python-version }} compiled = ${{ matrix.use-graph }}
-    #    env:
-    #      ZFIT_DO_JIT: ${{ matrix.use-graph }}
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v3
+      - name: Get number of CPU cores
+        uses: SimenB/github-actions-cpu-cores@v2
+        id: cpu-cores
+      - uses: actions/checkout@v4
+      - name: Get history and tags for SCM versioning to work
+        run: |
+          git fetch --prune --unshallow
+          git fetch --depth=1 origin +refs/tags/*:refs/tags/*
+      - uses: actions/setup-python@v5
         name: Set up Python ${{ matrix.python-version }}
         with:
           python-version: ${{ matrix.python-version }}
@@ -56,7 +67,7 @@ jobs:
         run: |
           echo "::set-output name=dir::$(pip cache dir)"
       - name: pip cache
-        uses: actions/cache@v3.0.3
+        uses: actions/cache@v4.0.1
         with:
           path: ${{ steps.pip-cache.outputs.dir }}
           key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}-pip-${{ hashFiles('**/requirements_dev.txt') }}-pip-${{ hashFiles('**/pyproject.toml') }}-pip-${{ hashFiles('**/setup.cfg') }}-pip-${{ hashFiles('**/setup.py') }}
@@ -64,33 +75,42 @@ jobs:
             ${{ runner.os }}-pip-
 
       - name: Install dependencies
+        # move coverage-lcov to requirements once https://github.com/TheCleric/coverage-lcov/issues/6 resolved
         run: |
           python -m pip install --upgrade pip
+          pip install coverage-lcov pytest-xdist pytest-cov
           pip install .[${{ matrix.extras }}]
       - name: Test with pytest
-#        TODO: how to run below on windows?
-#          if [[ $GITHUB_REF == 'refs/heads/develop' ]]; then
-#          echo "PYTEST_ADDOPTS=--longtests-kde" >> "$GITHUB_ENV"
-#          fi
+        # TODO: maybe reactivate long tests?
+        #          if [ "$GITHUB_REF" == 'refs/heads/develop' ]; then
+        #            echo "PYTEST_ADDOPTS=--longtests-kde --longtests" >> "$GITHUB_ENV"
+        #          fi
         run: |
-          coverage run --source=. --omit=".tox/*,*/test*,*/minimizers/interface.py,*/core/testing.py" --branch -m pytest .
-          mkdir coverage && coverage-lcov --output_file_path ./coverage/lcov.info
-      - name: Coveralls Parallel
-        uses: coverallsapp/github-action@1.1.3
-        with:
-          github-token: ${{ secrets.github_token }}
-          flag-name: run-${{ matrix.use-graph }}-${{ matrix.python-version }}-ubuntu
-          parallel: true
+          pytest --cov=. --cov-config=pyproject.toml -n${{ steps.cpu-cores.outputs.count }}
+          # convert to lcov format
+
+      #          mkdir coverage && coverage-lcov --output_file_path ./coverage/lcov.info
+      # TODO(jonas): fix coverage report? Needs converter to lcov format
+  #      - name: Coveralls Parallel
+  #        uses: coverallsapp/github-action@v2.2.3
+  #        with:
+  #          github-token: ${{ secrets.github_token }}
+  #          flag-name: run-${{ matrix.use-graph }}-${{ matrix.python-version }}-ubuntu
+  #          parallel: true
   docs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     strategy:
       matrix:
-        python-version: [ 3.9 ]
+        python-version: [ "3.11" ]
     name: Testbuild docs
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v3
+      - uses: actions/checkout@v4
+      - name: Get history and tags for SCM versioning to work
+        run: |
+          git fetch --prune --unshallow
+          git fetch --depth=1 origin +refs/tags/*:refs/tags/*
+      - uses: actions/setup-python@v5
         name: Set up Python ${{ matrix.python-version }}
         with:
           python-version: ${{ matrix.python-version }}
@@ -99,7 +119,7 @@ jobs:
         run: |
           echo "::set-output name=dir::$(pip cache dir)"
       - name: pip cache
-        uses: actions/cache@v3.0.3
+        uses: actions/cache@v4.0.1
         with:
           path: ${{ steps.pip-cache.outputs.dir }}
           key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}-pip-${{ hashFiles('**/requirements_dev.txt') }}-pip-${{ hashFiles('**/pyproject.toml') }}-pip-${{ hashFiles('**/setup.cfg') }}-pip-${{ hashFiles('**/setup.py') }}
@@ -114,21 +134,28 @@ jobs:
         run: |
           bash utils/ci/testbuild_docs.sh
 
-  examples:
+  tutorials:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 150  # eager mode takes some time
     strategy:
       max-parallel: 8
       fail-fast: False
       matrix:
         use-graph: [ 0, 1 ]
-        python-version: [ 3.8, 3.9 ]  # no 3.7 because cannot install correct numpy version... pep517 problems https://github.com/pypa/pip/issues/9542
-    name: Run examples, Python ${{ matrix.python-version }}, compiled = ${{ matrix.use-graph }}
+        python-version: [ "3.9", "3.11" ]
+    name: Run tutorials, Python ${{ matrix.python-version }}, compiled = ${{ matrix.use-graph }}
     env:
       ZFIT_DO_JIT: ${{ matrix.use-graph }}
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v3
+      - name: Get number of CPU cores
+        uses: SimenB/github-actions-cpu-cores@v2
+        id: cpu-cores
+      - uses: actions/checkout@v4
+      - name: Get history and tags for SCM versioning to work
+        run: |
+          git fetch --prune --unshallow
+          git fetch --depth=1 origin +refs/tags/*:refs/tags/*
+      - uses: actions/setup-python@v5
         name: Set up Python ${{ matrix.python-version }}
 
         with:
@@ -143,7 +170,7 @@ jobs:
         run: |
           echo "::set-output name=dir::$(pip cache dir)"
       - name: pip cache
-        uses: actions/cache@v3.0.3
+        uses: actions/cache@v4.0.1
         with:
           path: ${{ steps.pip-cache.outputs.dir }}
           key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}-pip-${{ hashFiles('**/requirements_dev.txt') }}-pip-${{ hashFiles('**/pyproject.toml') }}-pip-${{ hashFiles('**/setup.cfg') }}-pip-${{ hashFiles('**/setup.py') }}
@@ -152,15 +179,48 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install wheel "numpy<1.20"  # to fix the ci. pip cannot find the correct numpy version otherwise
+          pip install wheel
           pip install -U .[all]
-          pip install nbval
+          pip install nbval pytest-helpers-namespace pytest-xdist
           pip install -r zfit-tutorials/requirements.txt
-          pip install -U --force-reinstall .
+          pip install -U --force-reinstall .[all]  # yep. Needed. Otherwise i.e. numpy needs to be upgraded
 
       - name: Run notebooks
         run: |
-          pytest --nbval-lax zfit-tutorials --ignore=zfit-tutorials/experimental --ignore=zfit-tutorials/_unused
+          pytest --nbval-lax zfit-tutorials --dist loadscope --ignore=zfit-tutorials/experimental --ignore=zfit-tutorials/_unused --ignore=zfit-tutorials/_website -n${{ steps.cpu-cores.outputs.count }}
+  examples:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      max-parallel: 8
+      fail-fast: False
+      matrix:
+        use-graph: [ 0, 1 ]
+        python-version: [ "3.9", "3.11" ]
+    name: Run examples, Python ${{ matrix.python-version }}, compiled = ${{ matrix.use-graph }}
+    env:
+      ZFIT_DO_JIT: ${{ matrix.use-graph }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Get history and tags for SCM versioning to work
+        run: |
+          git fetch --prune --unshallow
+          git fetch --depth=1 origin +refs/tags/*:refs/tags/*
+      - uses: actions/setup-python@v5
+        name: Set up Python ${{ matrix.python-version }}
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Get pip cache dir
+        id: pip-cache
+        run: |
+          echo "::set-output name=dir::$(pip cache dir)"
+      - name: pip cache
+        uses: actions/cache@v4.0.1
+        with:
+          path: ${{ steps.pip-cache.outputs.dir }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}-pip-${{ hashFiles('**/requirements_dev.txt') }}-pip-${{ hashFiles('**/pyproject.toml') }}-pip-${{ hashFiles('**/setup.cfg') }}-pip-${{ hashFiles('**/setup.py') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
 
       - name: Run examples
         run: |
@@ -171,7 +231,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Coveralls Finished
-        uses: coverallsapp/github-action@1.1.3
+        uses: coverallsapp/github-action@v2.2.3
         with:
           github-token: ${{ secrets.github_token }}
           parallel-finished: true

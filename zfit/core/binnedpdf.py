@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2024 zfit
 
 from __future__ import annotations
 
@@ -12,16 +12,16 @@ from collections.abc import Iterable, Callable
 
 from contextlib import suppress
 from functools import reduce
+from uhi.typing.plottable import PlottableHistogram
 
 import numpy as np
 import tensorflow as tf
 import tensorflow_probability as tfp
-import uhi
 
 import zfit
 import zfit.z.numpy as znp
 from zfit import z
-from zfit._data.binneddatav1 import BinnedData, move_axis_obs
+from zfit._data.binneddatav1 import BinnedData, move_axis_obs, BinnedSampler
 from .baseobject import BaseNumeric, extract_filter_params
 from .binning import unbinned_to_binindex
 from .data import Data
@@ -30,10 +30,10 @@ from .interfaces import (
     ZfitBinnedPDF,
     ZfitParameter,
     ZfitSpace,
-    ZfitMinimalHist,
     ZfitPDF,
     ZfitBinnedData,
     ZfitUnbinnedData,
+    ZfitBinning,
 )
 from .parameter import convert_to_parameter
 from .space import supports, convert_to_space
@@ -41,7 +41,7 @@ from .tensorlike import OverloadableMixinValues
 from ..util import ztyping
 from ..util.cache import GraphCachable
 from ..util.container import convert_to_container
-from ..util.deprecation import deprecated_args, deprecated, deprecated_norm_range
+from ..util.deprecation import deprecated, deprecated_norm_range
 from ..util.exception import (
     AlreadyExtendedPDFError,
     NotExtendedPDFError,
@@ -57,17 +57,17 @@ _BaseModel_USER_IMPL_METHODS_TO_CHECK = {}
 
 
 def _BinnedPDF_register_check_support(has_support: bool):
-    """Marks a method that the subclass either *has* to or *can't* use the `@supports` decorator.
+    """Marks a method that the subclass either *has* to or *can't* use the ``@supports`` decorator.
 
     Args:
-        has_support (bool): If True, flags that it **requires** the `@supports` decorator. If False,
-            flags that the `@supports` decorator is **not allowed**.
+        has_support (bool): If True, flags that it **requires** the ``@supports`` decorator. If False,
+            flags that the ``@supports`` decorator is **not allowed**.
     """
     if not isinstance(has_support, bool):
         raise TypeError("Has to be boolean.")
 
     def register(func):
-        """Register a method to be checked to (if True) *has* `support` or (if False) has *no* `support`.
+        """Register a method to be checked to (if True) *has* ``support`` or (if False) has *no* ``support``.
 
         Args:
             func (function):
@@ -87,12 +87,11 @@ class BaseBinnedPDFV1(
     GraphCachable,
     BaseDimensional,
     OverloadableMixinValues,
-    ZfitMinimalHist,
     ZfitBinnedPDF,
 ):
     def __init__(self, obs, extended=None, norm=None, name=None, **kwargs):
-        super().__init__(dtype=znp.float64, **kwargs)
-        self._name = name  # TODO: why is this needed?
+        super().__init__(dtype=znp.float64, name=name, **kwargs)
+        # self._name = name  # TODO: why is this needed?
 
         self._space = self._check_convert_obs_init(obs)
         self._yield = None
@@ -158,10 +157,10 @@ class BaseBinnedPDFV1(
         return self.space.binning
 
     def to_binneddata(self, **kwargs) -> zfit.data.BinnedData:
-        """Create an Asimov dataset as `BinnedData` using either `counts` (for extended) or `rel_counts`
+        """Create an Asimov dataset as ``BinnedData`` using either ``counts`` (for extended) or ``rel_counts``.
 
         Args:
-            **kwargs (): arguments to `counts` or `rel_counts`.
+            **kwargs (): arguments to ``counts`` or ``rel_counts``.
 
         Returns:
             BinnedData: Binned data representing the Asimov dataset of this PDF.
@@ -171,10 +170,10 @@ class BaseBinnedPDFV1(
         return data
 
     def to_hist(self, **kwargs):
-        """Create an Asimov histogram as `Hist` using either `counts` (for extended) or `rel_counts`.
+        """Create an Asimov histogram as ``Hist`` using either ``counts`` (for extended) or ``rel_counts``.
 
         Args:
-            **kwargs (): arguments to `counts` or `rel_counts`.
+            **kwargs (): arguments to ``counts`` or ``rel_counts``.
 
         Returns:
             ``hist.Hist``: Histogram representing the Asimov dataset of this PDF.
@@ -201,7 +200,6 @@ class BaseBinnedPDFV1(
         is_yield: bool | None = None,
         extract_independent: bool | None = True,
     ) -> set[ZfitParameter]:
-
         params = super()._get_params(
             floating, is_yield=is_yield, extract_independent=extract_independent
         )
@@ -224,9 +222,7 @@ class BaseBinnedPDFV1(
     def _convert_input_binned_x(self, x, none_is_space=None):
         if x is None and none_is_space:
             return self.space
-        if isinstance(x, uhi.typing.plottable.PlottableHistogram) and not isinstance(
-            x, ZfitBinnedData
-        ):
+        if isinstance(x, PlottableHistogram) and not isinstance(x, ZfitBinnedData):
             x = BinnedData.from_hist(x)
         if not isinstance(x, ZfitBinnedData):
             if not isinstance(x, ZfitSpace):
@@ -234,10 +230,9 @@ class BaseBinnedPDFV1(
                     try:
                         x = Data.from_tensor(obs=self.obs, tensor=x)
                     except Exception as error:
-
                         raise TypeError(
                             f"Data to {self} has to be Binned Data, not {x}. (It can also be unbinned Data)"
-                            + f" but conversion to it failed (see also above) with the following error:"
+                            + " but conversion to it failed (see also above) with the following error:"
                             + f" {error})"
                         ) from error
 
@@ -249,9 +244,11 @@ class BaseBinnedPDFV1(
             norm = self.norm
         if norm is None:
             if none_is_error:
-                raise ValueError(f"norm cannot be None for this function.")
-        elif (norm is not False) and (not isinstance(norm, ZfitSpace)):
+                raise ValueError("norm cannot be None for this function.")
+        elif norm is not False and not isinstance(norm, ZfitSpace):
             raise TypeError(f"`norm` needs to be a binned ZfitSpace, not {norm}.")
+        elif norm is not False and not norm.is_binned:
+            norm = norm.with_binning(self.space.binning)
         return norm
 
     def _check_convert_limits(self, limits):
@@ -259,6 +256,8 @@ class BaseBinnedPDFV1(
             limits = self.space
         if not isinstance(limits, ZfitSpace):
             limits = convert_to_space(obs=self.obs, limits=limits)
+        if isinstance(limits, ZfitSpace) and not limits.is_binned:
+            limits = limits.with_binning(self.space.binning)
         return limits
 
     @_BinnedPDF_register_check_support(True)
@@ -267,25 +266,26 @@ class BaseBinnedPDFV1(
             self.space.binning.widths, axis=0
         )
 
-    @deprecated_args(None, "Use `norm` instead.", "norm_range")
+    @deprecated_norm_range
     def pdf(
         self, x: ztyping.XType, norm: ztyping.LimitsType = None, *, norm_range=None
     ) -> ztyping.XType:
-        """Probability density function, evaluated at `x` or in the bins of `x`
+        """Probability density function, evaluated at ``x`` or in the bins of ``x``
 
         Args:
-            x: values to evaluate the PDF at. If this is a `ZfitBinnedData`-like object, a histogram of *densities*
-                will be returned. If x is a `ZfitUnbinnedData`-like object, the densities will be evaluated at the
-                points of `x`.
+            x: |@doc:binnedpdf.pdf.x| Values to evaluate the PDF at.
+               If this is a ``ZfitBinnedData``-like object, a histogram of *densities*
+               will be returned. If x is a ``ZfitUnbinnedData``-like object, the densities will be
+               evaluated at the points of ``x``. |@docend:binnedpdf.pdf.x|
             norm: |@doc:pdf.pdf.norm| Normalization of the function.
-               By default, this is the `norm` of the PDF (which by default is the same as
+               By default, this is the ``norm`` of the PDF (which by default is the same as
                the space of the PDF). |@docend:pdf.pdf.norm|
 
         Returns:
-            `Array-like`: probability density
+            ``Array-like``: probability density
         """
-        if norm_range is not None:
-            norm = norm_range
+        assert norm_range is None
+        del norm_range  # taken care of in the deprecation decorator
 
         # convert the input argument to a standardized form
         x = self._convert_input_binned_x(x, none_is_space=True)
@@ -317,7 +317,7 @@ class BaseBinnedPDFV1(
             ordered_values = move_axis_obs(self.space, original_space, values)
         return znp.asarray(ordered_values)
 
-    @z.function(wraps="model")
+    @z.function(wraps="model_binned")
     def _call_pdf(self, x, norm):
         with suppress(SpecificFunctionNotImplemented):
             return self._auto_pdf(x, norm)
@@ -352,12 +352,27 @@ class BaseBinnedPDFV1(
     def _ext_pdf(self, x, norm):
         raise SpecificFunctionNotImplemented
 
-    @deprecated_args(None, "Use `norm` instead.", "norm_range")
+    @deprecated_norm_range
     def ext_pdf(
         self, x: ztyping.XType, norm: ztyping.LimitsType = None, *, norm_range=None
     ) -> ztyping.XType:
-        if norm_range is not None:
-            norm = norm_range
+        """Probability density function scaled by yield, evaluated at ``x`` or in the bins of ``x``
+
+        Args:
+            x: |@doc:binnedpdf.pdf.x| Values to evaluate the PDF at.
+               If this is a ``ZfitBinnedData``-like object, a histogram of *densities*
+               will be returned. If x is a ``ZfitUnbinnedData``-like object, the densities will be
+               evaluated at the points of ``x``. |@docend:binnedpdf.pdf.x|
+            norm: |@doc:pdf.pdf.norm| Normalization of the function.
+               By default, this is the ``norm`` of the PDF (which by default is the same as
+               the space of the PDF). |@docend:pdf.pdf.norm|
+
+        Returns:
+            |@doc:binnedpdf.out.problike| If the input was unbinned, it returns an array
+               of shape (nevents,). If the input was binned, the dimensions and ordering of
+               the axes corresponds to the input axes. |@docend:binnedpdf.out.problike|
+        """
+        del norm_range  # should be taken care of by deprecation decorator
         if not self.is_extended:
             raise NotExtendedPDFError
         # convert the input argument to a standardized form
@@ -389,7 +404,7 @@ class BaseBinnedPDFV1(
             ordered_values = move_axis_obs(self.space, original_space, values)
         return znp.asarray(ordered_values)
 
-    @z.function(wraps="model")
+    @z.function(wraps="model_binned")
     def _call_ext_pdf(self, x, norm):
         with suppress(SpecificFunctionNotImplemented):
             return self._auto_ext_pdf(x, norm)
@@ -448,7 +463,7 @@ class BaseBinnedPDFV1(
         limits = self._check_convert_limits(limits)
         return self._call_integrate(limits, norm, options)
 
-    @z.function(wraps="model")
+    @z.function(wraps="model_binned")
     def _call_integrate(self, limits, norm, options=None):
         if options is None:
             options = {}
@@ -489,24 +504,26 @@ class BaseBinnedPDFV1(
         limits: ztyping.LimitsType,
         norm: ztyping.LimitsType = None,
         *,
-        norm_range=None,
         options=None,
+        norm_range=None,
     ) -> ztyping.XType:
-        """Extended integral of the PDF, i.e. the expected counts.
+        """Extended integral of the PDF, i.e. the expected counts or the integral scaled by the yield.
 
         Args:
             limits: |@doc:pdf.integrate.limits| Limits of the integration. |@docend:pdf.integrate.limits|
             norm: |@doc:pdf.integrate.norm| Normalization of the integration.
                By default, this is the same as the default space of the PDF.
-               `False` means no normalization and returns the unnormed integral. |@docend:pdf.integrate.norm|
+               ``False`` means no normalization and returns the unnormed integral. |@docend:pdf.integrate.norm|
             options: |@doc:pdf.integrate.options| Options for the integration.
                Additional options for the integration. Currently supported options are:
-               - type: one of (`bins`)
+               - type: one of (``bins``)
                  This hints that bins are integrated. A method that is vectorizable, non-dynamic and
                  therefore less suitable for complicated functions is chosen. |@docend:pdf.integrate.options|
 
         Returns:
+            Scalar integration value.
         """
+        del norm_range  # taken care of by deprecation decorator
         if not self.is_extended:
             raise NotExtendedPDFError
         if options is None:
@@ -515,7 +532,7 @@ class BaseBinnedPDFV1(
         limits = self._check_convert_limits(limits)
         return self._call_ext_integrate(limits, norm, options=options)
 
-    @z.function(wraps="model")
+    @z.function(wraps="model_binned")
     def _call_ext_integrate(self, limits, norm, *, options):
         with suppress(SpecificFunctionNotImplemented):
             return self._auto_ext_integrate(limits, norm, options=options)
@@ -552,6 +569,78 @@ class BaseBinnedPDFV1(
     def _ext_integrate(self, limits, norm, *, options):
         raise SpecificFunctionNotImplemented
 
+    def create_sampler(
+        self,
+        n: ztyping.nSamplingTypeIn = None,
+        limits: ztyping.LimitsType = None,
+        fixed_params: bool | list[ZfitParameter] | tuple[ZfitParameter] = True,
+    ) -> BinnedSampler:
+        """Create a :py:class:`Sampler` that acts as `Data` but can be resampled, also with changed parameters and n.
+
+            If `limits` is not specified, `space` is used (if the space contains limits).
+            If `n` is None and the model is an extended pdf, 'extended' is used by default.
+
+
+        Args:
+            n: The number of samples to be generated. Can be a Tensor that will be
+                or a valid string. Currently implemented:
+
+                    - 'extended': samples `poisson(yield)` from each pdf that is extended.
+
+            limits: From which space to sample.
+            fixed_params: A list of `Parameters` that will be fixed during several `resample` calls.
+                If True, all are fixed, if False, all are floating. If a :py:class:`~zfit.Parameter` is not fixed and
+                its
+                value gets updated (e.g. by a `Parameter.set_value()` call), this will be reflected in
+                `resample`. If fixed, the Parameter will still have the same value as the `Sampler` has
+                been created with when it resamples.
+
+        Returns:
+            :py:class:`~zfit.core.data.BinnedSampler`
+
+        Raises:
+            NotExtendedPDFError: if 'extended' is chosen (implicitly by default or explicitly) as an
+                option for `n` but the pdf itself is not extended.
+            ValueError: if n is an invalid string option.
+            InvalidArgumentError: if n is not specified and pdf is not extended.
+        """
+
+        if n is None:
+            if self.is_extended:
+                n = znp.random.poisson(self.get_yield(), size=1)
+            else:
+                raise ValueError(
+                    f"n cannot be None for sampling of {self} or needs to be extended."
+                )
+        limits = self._check_convert_limits(limits)
+
+        if fixed_params is True:
+            fixed_params = list(self.get_params(floating=False))
+        elif fixed_params is False:
+            fixed_params = []
+        elif not isinstance(fixed_params, (list, tuple)):
+            raise TypeError("`Fixed_params` has to be a list, tuple or a boolean.")
+
+        def sample_func(n=n):
+            n = znp.array(n)
+            sample = self._create_sampler_tensor(limits=limits, n=n)
+            return sample
+
+        sample_data = BinnedSampler.from_sample(
+            sample_func=sample_func,
+            n=n,
+            obs=limits,
+            fixed_params=fixed_params,
+            dtype=self.dtype,
+        )
+
+        return sample_data
+
+    @z.function(wraps="sampler")
+    def _create_sampler_tensor(self, limits, n):
+        sample = self._call_sample(n=n, limits=limits)
+        return sample
+
     def sample(
         self, n: int = None, limits: ztyping.LimitsType = None
     ) -> ZfitBinnedData:
@@ -583,7 +672,7 @@ class BaseBinnedPDFV1(
             values = values.with_obs(original_limits)
         return values
 
-    @z.function(wraps="model")
+    @z.function(wraps="sample")
     def _call_sample(self, n, limits):
         with suppress(SpecificFunctionNotImplemented):
             self._sample(n, limits)
@@ -651,10 +740,10 @@ class BaseBinnedPDFV1(
         *,
         supports_norm: bool = False,
         supports_multiple_limits: bool = False,
-        supports_norm_range,
     ):
         raise RuntimeError("analytic integral not available for BinnedPDF")
 
+    @deprecated_norm_range
     def partial_integrate(
         self,
         x: ztyping.XType,
@@ -702,8 +791,8 @@ class BaseBinnedPDFV1(
         axes: ztyping.AxesTypeInput = None,
         limits: ztyping.LimitsTypeInput = None,
     ) -> ZfitSpace | None:
-        """Convert the inputs (using eventually `obs`, `axes`) to :py:class:`~zfit.ZfitSpace` and sort them according to
-        own `obs`.
+        """Convert the inputs (using eventually ``obs``, ``axes``) to :py:class:`~zfit.ZfitSpace` and sort them
+        according to own ``obs``.
 
         Args:
             obs:
@@ -727,7 +816,6 @@ class BaseBinnedPDFV1(
             )
         return space
 
-    @z.function(wraps="model")
     def counts(
         self, x: ztyping.BinnedDataInputType = None, norm: ztyping.NormInputType = None
     ) -> ZfitBinnedData:
@@ -737,7 +825,7 @@ class BaseBinnedPDFV1(
 
         Args:
             x: |@doc:pdf.binned.counts.x| Data for the binned PDF.
-               The returned counts correspond to the binned axis in `x`. |@docend:pdf.binned.counts.x|
+               The returned counts correspond to the binned axis in ``x``. |@docend:pdf.binned.counts.x|
             norm: |@doc:pdf.binned.counts.norm| Normalization of the counts.
                This normalizes the counts so that the actual sum of all counts is
                equal to the yield. |@docend:pdf.binned.counts.norm|
@@ -756,7 +844,7 @@ class BaseBinnedPDFV1(
         counts = self._call_counts(x, norm)
         return move_axis_obs(self.space, space, counts)
 
-    @z.function(wraps="model")
+    @z.function(wraps="model_binned")
     def _call_counts(self, x, norm):
         with suppress(SpecificFunctionNotImplemented):
             return self._auto_counts(x, norm)
@@ -795,7 +883,6 @@ class BaseBinnedPDFV1(
     def _counts(self, x, norm):
         raise SpecificFunctionNotImplemented
 
-    @z.function(wraps="model")
     def rel_counts(
         self, x: ztyping.BinnedDataInputType = None, norm: ztyping.NormInputType = None
     ) -> ZfitBinnedData:
@@ -806,7 +893,7 @@ class BaseBinnedPDFV1(
 
         Args:
             x: |@doc:pdf.binned.counts.x| Data for the binned PDF.
-               The returned counts correspond to the binned axis in `x`. |@docend:pdf.binned.counts.x|
+               The returned counts correspond to the binned axis in ``x``. |@docend:pdf.binned.counts.x|
             norm: |@doc:pdf.binned.counts.norm| Normalization of the counts.
                This normalizes the counts so that the actual sum of all counts is
                equal to the yield. |@docend:pdf.binned.counts.norm|
@@ -823,7 +910,7 @@ class BaseBinnedPDFV1(
         values = self._call_rel_counts(x, norm)
         return move_axis_obs(self.space, space, values)
 
-    @z.function(wraps="model")
+    @z.function(wraps="model_binned")
     def _call_rel_counts(self, x, norm):
         with suppress(SpecificFunctionNotImplemented):
             return self._auto_rel_counts(x, norm=norm)
@@ -852,6 +939,36 @@ class BaseBinnedPDFV1(
     def set_norm_range(self):
         raise RuntimeError("set_norm_range is removed and should not be used anymore.")
 
+    def to_binned(self, space, *, extended=None, norm=None):
+        """Convert the PDF to a binned PDF, returns self.
+
+        For compatibility with unbinned PDFs.
+        """
+        if isinstance(space, ZfitBinning):
+            if space != self.space.binning:
+                raise ValueError(
+                    "The binning of the PDF and the binning of the space must be equal."
+                )
+        if space != self.space:
+            raise ValueError(
+                f"Space must be the same as the PDF's space, as {self} is already a binned PDF."
+            )
+        if extended is not None:
+            raise WorkInProgressError(
+                "extended is not implemented yet. Create an extended PDF manually."
+            )
+        if norm is not None:
+            raise WorkInProgressError(
+                "norm is not implemented yet. Create a pdf with a different norm range manually."
+            )
+        return self
+
+    def to_unbinned(self):
+        """Convert the PDF to an unbinned PDF."""
+        from zfit.models.unbinnedpdf import UnbinnedFromBinnedPDF
+
+        return UnbinnedFromBinnedPDF(self, self.space.with_binning(None))
+
 
 def binned_rect_integration(
     *,
@@ -867,8 +984,8 @@ def binned_rect_integration(
 
     Args:
         limits: Limits to integrate over. A possible binning is ignored.
-        edges: The edges per axis. They should have the shape `(1,..., 1, n, 1, ..., 1)`, where n is the *ith* axis.
-            `ZfitBinning` provides this format on the `edges` attribute.
+        edges: The edges per axis. They should have the shape ``(1,..., 1, n, 1, ..., 1)``, where n is the *ith* axis.
+            ``ZfitBinning`` provides this format on the ``edges` attribute.
         counts: Counts of the histogram. This is what most histograms have and is equal to the density multiplied by
             the binwidth.
             Exactly one of counts or density has to be provided.
@@ -955,16 +1072,17 @@ def binned_rect_integration(
 
     binareas = reduce(
         operator.mul, binwidths
-    )  # needs to be np as znp or tf can't broadcast otherwise
+    )  # needs to be python as znp or tf can't broadcast otherwise
     if not is_density:  # scale the counts by the fraction. This is mostly one.
-        binareas_uncut = np.prod(binwidths_unscaled, axis=0)
+        binareas_uncut = reduce(operator.mul, binwidths_unscaled)
+        # binareas_uncut = znp.prod(binwidths_unscaled, axis=0)
         binareas /= binareas_uncut
     values_cut *= binareas
     integral = tf.reduce_sum(values_cut, axis=axis)
     return integral
 
 
-@z.function(wraps="tensor")
+@z.function(wraps="tensor", keepalive=True)
 def cut_edges_and_bins(
     edges: Iterable[znp.array], limits: ZfitSpace, axis=None, unscaled=None
 ) -> tuple[list[znp.array], tuple[znp.array, znp.array], list | None]:
@@ -1025,7 +1143,6 @@ def cut_edges_and_bins(
         edge = znp.asarray(edge)
         edge = znp.reshape(edge, (-1,))
         if axis is None or i in axis:
-
             lower_i = lower_all[current_axis, None]
             edge_minimum = edge[0]
             # edge_minimum = tf.gather(edge, indices=0, axis=i)

@@ -53,7 +53,7 @@ def test_param_func():
     param3 = Parameter("param3", 3.0, floating=False)
     param4 = Parameter("param4", 4.0)
     a = z.math.log(3.0 * param1) * tf.square(param2) - param3
-    func = SimpleFuncV1(func=lambda self, x: a * x, obs=obs1)
+    func = SimpleFuncV1(func=lambda self, x: a * x.value()[:, 0], obs=obs1)
 
     new_func = param4 * func
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2023 zfit
 
 #
 #
@@ -58,12 +58,12 @@ panels_add_bootstrap_css = (
 # releases_github_path = "zfit/zfit"  # TODO: use releases or similar?
 # releases_document_name = "../CHANGELOG.rst"
 
-jupyter_execute_notebooks = "force"  # use if needed and cache should be ignored
-# jupyter_execute_notebooks = "cache"
-if jupyter_execute_notebooks == "cache":
+# nb_execution_mode = "force"  # use if needed and cache should be ignored
+nb_execution_mode = "cache"
+if nb_execution_mode == "cache":
     jupyter_cache_path = project_dir.joinpath("docs", ".cache", "myst-nb")
     jupyter_cache_path.mkdir(parents=True, exist_ok=True)
-    jupyter_cache = str(jupyter_cache_path)
+    nb_execution_cache_path = str(jupyter_cache_path)
 
 source_suffix = {
     ".ipynb": "myst-nb",
@@ -83,7 +83,13 @@ zfit_tutorials_path = project_dir.joinpath("docs", "_tmp", "zfit-tutorials")
 atexit.register(lambda path=zfit_tutorials_path: shutil.rmtree(path))
 pygit2.clone_repository("https://github.com/zfit/zfit-tutorials", zfit_tutorials_path)
 
-execution_in_temp = True
+zfit_images_path = project_dir.joinpath("docs", "images")
+docs_images_path = project_dir.joinpath("docs", "_static", "images")
+docs_images_path.mkdir(parents=True, exist_ok=True)
+atexit.register(lambda path=docs_images_path: shutil.rmtree(path))
+shutil.copytree(zfit_images_path, docs_images_path, dirs_exist_ok=True)
+
+nb_execution_in_temp = True
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -129,7 +135,7 @@ with open("subst_types.txt") as subst_types:
     rst_epilog = subst_types.read()
 
 # add whitespaces to the internal commands. Maybe move to preprocessing?
-rst_epilog += f"""
+rst_epilog += """
 .. |wzw| unicode:: U+200B
    :trim:
 
@@ -138,7 +144,7 @@ rst_epilog += f"""
 #
 # .. |@docend| replace:: |wzw|
 # """
-with open(str(project_dir) + "/utils/api/argdocs.yaml") as replfile:
+with open(project_dir / "utils/api/argdocs.yaml") as replfile:
     replacements = yaml.load(replfile, Loader=yaml.Loader)
 for replacement_key in replacements:
     rst_epilog += f"""
@@ -232,15 +238,21 @@ html_css_files = [
 
 # Theme options are theme-specific and customize the look and feel of a
 # theme further.
-html_logo = "images/zfit-logo-light_400x168.png"
 
 html_theme_options = {
+    "logo": {
+        "image_light": "images/zfit-logo_400x168.png",
+        "image_dark": "images/zfit-logo-light_400x168.png",
+    },
     "github_url": "https://github.com/zfit/zfit",
     "use_edit_page_button": True,
     "navigation_depth": 3,
     "search_bar_text": "Search zfit...",
     "navigation_with_keys": True,
     "search_bar_position": "sidebar",
+    "icon_links": [
+        {}
+    ],  # temporary fix for https://github.com/pydata/pydata-sphinx-theme/issues/1220
     # "repository_url": "https://github.com/zfit/zfit",  # adding jupyter book somehow?
     # "repository_branch": "develop",
     # "path_to_docs": "docs",
@@ -323,4 +335,8 @@ intersphinx_mapping = {
         " https://raw.githubusercontent.com/GPflow/tensorflow-intersphinx/master/tfp_py_objects.inv",
     ),
     "uproot": ("https://uproot.readthedocs.io/en/latest/", None),
+    "python": ("https://docs.python.org/3", None),
+    "matplotlib": ("https://matplotlib.org/stable/", None),
+    "pandas": ("https://pandas.pydata.org/docs/", None),
+    "numpy": ("https://numpy.org/doc/stable/", None),
 }
