@@ -52,6 +52,26 @@ from .interfaces import ZfitSpace, ZfitUnbinnedData
 from .space import Space, convert_to_space
 
 
+def convert_to_data(data, obs=None):
+    if isinstance(data, ZfitUnbinnedData):
+        return data
+    elif isinstance(data, (tf.data.Dataset, LightDataset)):
+        return Data(dataset=data)
+    elif isinstance(data, pd.DataFrame):
+        return Data.from_pandas(df=data, obs=obs)
+
+    if obs is None:
+        raise ValueError(
+            f"If data is not a Data-like object, obs has to be specified. Data is {data} and obs is {obs}."
+        )
+    if isinstance(data, np.ndarray):
+        return Data.from_numpy(obs=obs, array=data)
+    if isinstance(data, (tf.Tensor, znp.ndarray, tf.Variable)):
+        return Data.from_tensor(obs=obs, tensor=data)
+
+    raise TypeError(f"Cannot convert {data} to a Data object.")
+
+
 # TODO: make cut only once, then remember
 class Data(
     ZfitUnbinnedData,

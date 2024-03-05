@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, List, Optional, Union
 import pydantic
 from pydantic import Field
 
+from .data import convert_to_data
 from .serialmixin import SerializableMixin
 from ..serialization.serializer import BaseRepr, Serializer
 
@@ -363,17 +364,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
                         "Fit range should not be used if data is not ZfitData."
                     )
 
-                if not isinstance(dat, (tf.Tensor, tf.Variable)):
-                    try:
-                        dat = z.convert_to_tensor(value=dat)
-                    except TypeError:
-                        raise TypeError(
-                            f"Wrong type of dat ({type(dat)}). Has to be a `ZfitData` or convertible to a tf.Tensor"
-                        )
-                # check dimension
-                from zfit import Data
-
-                dat = Data.from_tensor(obs=mod.space, tensor=dat)
+                dat = convert_to_data(data=dat, obs=mod.obs)
             model_checked.append(mod)
             data_checked.append(dat)
         return model_checked, data_checked
