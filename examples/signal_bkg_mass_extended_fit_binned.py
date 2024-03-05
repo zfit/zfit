@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 
 import matplotlib.pyplot as plt
 import mplhep
@@ -21,6 +21,11 @@ lambd = zfit.Parameter("lambda", -0.06, -1, -0.01)
 
 # model building, pdf creation
 gauss = zfit.pdf.Gauss(mu=mu, sigma=sigma, obs=obs)
+nr = zfit.Parameter("nr", 2, 0, 5)
+alpha = zfit.Parameter("alpha", 1.5, 0, 5)
+gauss = zfit.pdf.DoubleCB(
+    mu=mu, sigma=sigma, nl=nr, nr=nr, alphal=alpha, alphar=0.5, obs=obs
+)
 exponential = zfit.pdf.Exponential(lambd, obs=obs)
 
 n_bkg = zfit.Parameter("n_bkg", 5000 * (1 - 0.3))
