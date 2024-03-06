@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import functools
 from functools import partial
 from typing import Literal, Iterable
 from typing import TYPE_CHECKING, List, Optional, Union
@@ -17,7 +18,6 @@ if TYPE_CHECKING:
 
 from collections.abc import Mapping
 from collections.abc import Callable
-from collections.abc import Iterable
 
 import abc
 import warnings
@@ -53,7 +53,7 @@ from ..z.math import (
 from .baseobject import BaseNumeric, extract_filter_params
 from .constraint import BaseConstraint
 from .dependents import _extract_dependencies
-from .interfaces import ZfitData, ZfitLoss, ZfitPDF, ZfitSpace
+from .interfaces import ZfitLoss, ZfitSpace
 from .parameter import convert_to_parameters, set_values
 
 DEFAULT_FULL_ARG = True
@@ -1261,3 +1261,11 @@ class SimpleLoss(BaseLoss):
             errordef = self.errordef
 
         return type(self)(func=func, params=params, errordef=errordef)
+
+
+@functools.wraps(SimpleLoss)
+def createsimple(params):
+    def decorator(func):
+        return SimpleLoss(func, params)
+
+    return decorator
