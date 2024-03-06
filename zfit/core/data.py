@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Literal
+from typing import Literal, Iterable
 from typing import TYPE_CHECKING, Union, Optional, List
 
 import pydantic
@@ -63,6 +63,8 @@ def convert_to_data(data, obs=None):
         )
     if isinstance(data, (int, float)):
         data = znp.array([data])
+    if isinstance(data, Iterable):
+        data = znp.array(data)
     if isinstance(data, np.ndarray):
         return Data.from_numpy(obs=obs, array=data)
     if isinstance(data, (tf.Tensor, znp.ndarray, tf.Variable)):

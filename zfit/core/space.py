@@ -18,7 +18,6 @@ import warnings
 from abc import abstractmethod
 from collections import defaultdict
 from contextlib import suppress
-from typing import Union
 
 import numpy as np
 import tensorflow as tf
@@ -195,7 +194,7 @@ def _sanitize_x_input(x, n_obs):
             x = znp.expand_dims(x, axis=-1)
     if tf.get_static_value(x.shape[-1]) != n_obs:
         raise ShapeIncompatibleError(
-            "n_obs and the last dim of x do not agree. Assuming x has shape (..., n_obs)"
+            f"n_obs ({n_obs}) and the last dim of x (shape: {x.shape}) do not agree. Assuming x has shape (..., n_obs)"
         )
     return x
 
@@ -1345,7 +1344,7 @@ class Space(
         elif isinstance(rect_limits, dict):
             input_limits = rect_limits.copy()
 
-        if not "axes" in input_limits and not "obs" in input_limits:
+        if "axes" not in input_limits and "obs" not in input_limits:
             raise ValueError("Probably internal error: wrong format of limits_dict")
 
         # check if obs is in the limits dict. If not, copy it from the axes
@@ -1604,7 +1603,7 @@ class Space(
         return all(
             limit.limits_are_set
             for limit in self._limits_dict["obs" if self.obs else "axes"].values()
-            if not limit is self
+            if limit is not self
         )
 
     @property
@@ -3179,7 +3178,7 @@ def check_norm(supports=None):
             #         kwargs['norm'] = False
 
             # assume it's not supported. Switch if we find that it is supported.
-            norm_not_supported = not supports[0] is True
+            norm_not_supported = supports[0] is not True
             if isinstance(norm, ZfitSpace):
                 if (
                     "space" in supports

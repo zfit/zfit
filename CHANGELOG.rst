@@ -10,6 +10,7 @@ Develop
 Major Features and Improvements
 -------------------------------
 - add ``GeneralizedCB` PDF which is similar to the ``DoubleCB`` PDF but with different standard deviations for the left and right side.
+- allow to use pandas DataFrame as input where zfit Data objects are expected
 
 Breaking changes
 ------------------
