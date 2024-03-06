@@ -32,3 +32,8 @@ def test_basic():
     # af = asdf.AsdfFile(data.obj_to_repr())
     # with io.BytesIO(b'file') as f:
     #     af.write_to(f)
+
+
+def test_data_conversion():
+
+    from zfit.data import convert_data
