@@ -10,18 +10,17 @@ Therefore, a convenient wrapper as well as a lot of implementations are provided
 from __future__ import annotations
 
 from collections import OrderedDict
+from typing import Literal
 
 import tensorflow as tf
 import tensorflow_probability as tfp
 import tensorflow_probability.python.distributions as tfd
 from pydantic import Field
-
-from typing import Literal
-
-from zfit import z
 from zfit.util.exception import (
     AnalyticSamplingNotImplemented,
 )
+
+from zfit import z
 from ..core.basepdf import BasePDF
 from ..core.interfaces import ZfitData
 from ..core.parameter import convert_to_parameter

@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import pydantic
 import yaml
-
 from zfit.util.warnings import warn_experimental_feature
 
 

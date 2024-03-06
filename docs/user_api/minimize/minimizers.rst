@@ -1,4 +1,3 @@
-
 zfit supplies wrappers for different minimizers from multiple libraries. Most of the are local
 minimizers (such as :class:`~zfit.minimize.Minuit`, :class:`~zfit.minimize.IpyoptV1` or
 :class:`~zfit.minimize.ScipyLBFGSBV1` are) while there are also a few global ones such as

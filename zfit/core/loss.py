@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from functools import partial
-from typing import Literal, Iterable
+from typing import Literal
 from typing import TYPE_CHECKING, List, Optional, Union
 
 import pydantic
@@ -29,7 +29,7 @@ from ordered_set import OrderedSet
 import zfit.z.numpy as znp
 
 from .. import settings, z
-from .interfaces import ZfitBinnedData, ZfitParameter, ZfitPDF, ZfitData
+from .interfaces import ZfitBinnedData, ZfitParameter
 
 znp = z.numpy
 from ..util import ztyping

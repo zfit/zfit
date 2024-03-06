@@ -8,7 +8,6 @@ import itertools
 from collections.abc import Iterable
 
 from ordered_set import OrderedSet
-
 from zfit.core.interfaces import ZfitDependenciesMixin, ZfitObject
 from zfit.util import ztyping
 from zfit.util.container import convert_to_container

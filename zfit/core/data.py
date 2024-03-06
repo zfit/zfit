@@ -2,20 +2,17 @@
 
 from __future__ import annotations
 
+from typing import Literal
 from typing import TYPE_CHECKING, Union, Optional, List
 
 import pydantic
-from pydantic import Field
-
-from ..serialization import SpaceRepr
-
-from typing import Literal
-
 import xxhash
+from pydantic import Field
 from tensorflow.python.util.deprecation import deprecated_args, deprecated
 
 from .parameter import set_values
 from .serialmixin import ZfitSerializable, SerializableMixin
+from ..serialization import SpaceRepr
 from ..serialization.serializer import BaseRepr, to_orm_init
 
 if TYPE_CHECKING:
@@ -64,6 +61,8 @@ def convert_to_data(data, obs=None):
         raise ValueError(
             f"If data is not a Data-like object, obs has to be specified. Data is {data} and obs is {obs}."
         )
+    if isinstance(data, (int, float)):
+        data = znp.array([data])
     if isinstance(data, np.ndarray):
         return Data.from_numpy(obs=obs, array=data)
     if isinstance(data, (tf.Tensor, znp.ndarray, tf.Variable)):

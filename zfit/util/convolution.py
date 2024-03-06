@@ -2,8 +2,8 @@
 
 import tensorflow as tf
 
-from ..settings import ztypes
 from . import root_search
+from ..settings import ztypes
 
 
 def find_practical_support_bandwidth(kernel, bandwidth, absolute_tolerance=10e-5):

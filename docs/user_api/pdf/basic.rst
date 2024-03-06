@@ -1,5 +1,3 @@
-
-
 Basic shapes are fundamendal PDFs, with often well-known functional form.
 They are usually fully analytically implemented and often a thin
 wrapper around :py:class:`~tensorflow_probability.distribution.Distribution`.

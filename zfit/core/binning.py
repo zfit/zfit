@@ -7,11 +7,11 @@ import hist
 import numpy as np
 import tensorflow as tf
 import tensorflow_probability as tfp
-
 import zfit.z.numpy as znp
-from zfit import z
 from zfit.core.interfaces import ZfitData, ZfitRectBinning, ZfitSpace
 from zfit.util.ztyping import XTypeInput
+
+from zfit import z
 
 
 def rect_binning_histogramdd(data: XTypeInput, binning: ZfitRectBinning):

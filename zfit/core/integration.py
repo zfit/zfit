@@ -22,7 +22,7 @@ import tensorflow_probability as tfp
 import zfit.z.numpy as znp
 from zfit import z
 from .dimension import BaseDimensional
-from .interfaces import ZfitData, ZfitModel, ZfitSpace
+from .interfaces import ZfitModel, ZfitSpace, ZfitUnbinnedData
 from ..util.container import convert_to_container
 from ..util.temporary import TemporarilySet
 
@@ -607,7 +607,7 @@ def chunked_average(func, x, num_batches, batch_size, space, mc_sampler):
         return dummy_func(fake_x)
 
 
-class PartialIntegralSampleData(BaseDimensional, ZfitData):
+class PartialIntegralSampleData(BaseDimensional, ZfitUnbinnedData):
     def __init__(self, sample: list[tf.Tensor], space: ZfitSpace):
         """Takes a list of tensors and "fakes" a dataset. Useful for tensors with non-matching shapes.
 

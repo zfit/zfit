@@ -14,14 +14,13 @@ import operator
 from collections import Counter
 from collections.abc import Iterable
 from typing import List
+from typing import Literal
 from typing import Optional
 
 import pydantic
 import tensorflow as tf
-
-from typing import Literal
-
 import zfit.z.numpy as znp
+
 from .basefunctor import _preprocess_init_sum, FunctorPDFRepr
 from .. import z
 from ..core.basepdf import BasePDF

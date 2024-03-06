@@ -8,10 +8,6 @@ from contextlib import suppress
 
 import tensorflow_probability as tfp
 import zfit_interface.typing as ztyping
-from zfit_interface.pdf import ZfitPDF
-from zfit_interface.variables import ZfitVar, ZfitSpace, ZfitParam
-
-from zfit import convert_to_parameter, z
 from zfit._variables.varsupport import VarSupports
 from zfit.core.func import Func
 from zfit.core.values import ValueHolder
@@ -21,6 +17,10 @@ from zfit.util.exception import (
     NotExtendedPDFError,
     WorkInProgressError,
 )
+from zfit_interface.pdf import ZfitPDF
+from zfit_interface.variables import ZfitVar, ZfitSpace, ZfitParam
+
+from zfit import convert_to_parameter, z
 
 
 class Integration:

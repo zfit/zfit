@@ -14,8 +14,8 @@ from weakref import WeakSet
 
 import numpy as np
 import tensorflow as tf
-
 import zfit.z.numpy as znp
+
 from ..settings import ztypes
 from ..util.exception import BreakingAPIChangeError
 from ..util.warnings import warn_advanced_feature

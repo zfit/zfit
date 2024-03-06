@@ -12,6 +12,7 @@ import warnings
 from collections.abc import Iterable, Callable
 from contextlib import suppress
 from inspect import signature
+from typing import Literal
 from typing import Optional, Dict, Mapping, Union
 from weakref import WeakValueDictionary
 
@@ -24,7 +25,6 @@ import tensorflow_probability as tfp
 # TF backwards compatibility
 from ordered_set import OrderedSet
 from pydantic import Field, validator
-from tensorflow.python.framework import ops
 from tensorflow.python.ops import array_ops
 from tensorflow.python.ops.resource_variable_ops import (
     ResourceVariable as TFVariable,
@@ -32,8 +32,6 @@ from tensorflow.python.ops.resource_variable_ops import (
 )
 from tensorflow.python.ops.variables import Variable
 from tensorflow.python.types.core import Tensor as TensorType
-
-from typing import Literal
 
 from .serialmixin import SerializableMixin
 from .. import z
@@ -48,7 +46,6 @@ from ..core.baseobject import BaseNumeric, extract_filter_params
 from ..minimizers.interface import ZfitResult
 from ..settings import run, ztypes
 from ..util import ztyping
-from ..util.cache import invalidate_graph
 from ..util.checks import NotSpecified
 from ..util.container import convert_to_container
 from ..util.deprecation import deprecated, deprecated_args

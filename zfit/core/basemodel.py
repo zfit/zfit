@@ -51,7 +51,6 @@ from ..util.exception import (
     FunctionNotImplemented,
     MultipleLimitsNotImplemented,
     NormRangeNotImplemented,
-    ShapeIncompatibleError,
     SpaceIncompatibleError,
     SpecificFunctionNotImplemented,
     SubclassingError,
@@ -230,9 +229,8 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
                 raise ValueError(f"x {x} given to {self} must be non-empty (not None).")
             else:
                 yield None
-
-        x = convert_to_data(x)
-        if isinstance(x, ZfitData):
+        else:
+            x = convert_to_data(x, obs=self.obs)
             if x.obs is not None:
                 with x.sort_by_obs(obs=self.obs, allow_superset=True):
                     yield x
@@ -241,35 +239,6 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
                     yield x
             else:
                 assert False, "Neither the `obs` nor the `axes` are specified in `Data`"
-        else:  # TODO: remove below?
-            # if not isinstance(x, (tf.Tensor, tf.Variable)):
-            #     try:
-            #         x = z.convert_to_tensor(value=x)
-            #     except TypeError:
-            #         raise TypeError(
-            #             f"Wrong type of x ({type(x)}). Has to be a `Data` or convertible to a tf.Tensor"
-            #         )
-            # # check dimension
-            # x = self._add_dim_to_x(x=x)
-            # x_shape = x.shape.as_list()[-1]
-            # if not partial and x_shape != self.n_obs:
-            #     raise ShapeIncompatibleError(
-            #         "The shape of x (={}) (in the last dim) does not"
-            #         "match the shape (={})of the model".format(x_shape, self.n_obs)
-            #     )
-            # x = Data.from_tensor(obs=self.obs, tensor=x)
-            yield x
-
-    # TODO: remove below?
-    # def _add_dim_to_x(
-    #         self, x
-    # ):  # TODO(Mayou36): remove function? unnecessary? dealt with in `Data`?
-    #     if self.n_obs == 1:
-    #         if len(x.shape.as_list()) == 0:
-    #             x = znp.expand_dims(x, -1)
-    #         if len(x.shape.as_list()) == 1:
-    #             x = znp.expand_dims(x, -1)
-    #     return x
 
     def update_integration_options(
         self,
