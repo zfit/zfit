@@ -3,12 +3,12 @@ from __future__ import annotations
 
 from contextlib import suppress
 
+from zfit.core.values import ValueHolder
+from zfit.util.exception import SpecificFunctionNotImplemented, WorkInProgressError
 from zfit_interface.func import ZfitFunc
 from zfit_interface.variables import ZfitParam, ZfitAxis
 
 from zfit import Data
-from zfit.core.values import ValueHolder
-from zfit.util.exception import SpecificFunctionNotImplemented, WorkInProgressError
 
 
 def to_value_holder(var):

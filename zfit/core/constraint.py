@@ -6,25 +6,22 @@ import abc
 import collections
 from collections import OrderedDict
 from collections.abc import Callable
+from typing import Literal
 from typing import Mapping, Iterable, List
 
 import numpy as np
 import pydantic
-
-from .serialmixin import SerializableMixin
-from ..serialization.serializer import BaseRepr, Serializer
-
-from typing import Literal
-
 import tensorflow as tf
 import tensorflow_probability as tfp
+import zfit.z.numpy as znp
 from ordered_set import OrderedSet
 
-import zfit.z.numpy as znp
 from zfit import z
 from .baseobject import BaseNumeric
 from .dependents import _extract_dependencies
 from .interfaces import ZfitConstraint, ZfitParameter
+from .serialmixin import SerializableMixin
+from ..serialization.serializer import BaseRepr, Serializer
 from ..settings import ztypes
 from ..util import ztyping
 from ..util.container import convert_to_container

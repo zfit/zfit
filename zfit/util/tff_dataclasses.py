@@ -16,6 +16,7 @@
 """Data class objects that works with tf.function."""
 
 from typing import Type, Any
+
 import attr
 
 __all__ = ["dataclass"]

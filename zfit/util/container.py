@@ -1,8 +1,10 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
+
+import pandas as pd
 
 if TYPE_CHECKING:
     pass
@@ -63,6 +65,7 @@ def convert_to_container(
                 ZfitBinnedData,
                 ZfitBinning,
                 PlottableHistogram,
+                pd.DataFrame,
             ]
         )
         non_containers = tuple(non_containers)

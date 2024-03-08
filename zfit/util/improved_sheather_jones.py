@@ -4,9 +4,9 @@ import numpy as np
 import tensorflow as tf
 
 from . import binning as binning_util
+from . import root_search
 from .. import z
 from ..settings import ztypes
-from . import root_search
 
 
 @z.function(wraps="tensor", keepalive=True)

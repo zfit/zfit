@@ -6,10 +6,9 @@ import collections
 from collections.abc import Mapping
 
 import tensorflow_probability as tfp
-from zfit_interface.variables import ZfitVar
-
 from zfit.core.interfaces import ZfitParameter, ZfitSpace, ZfitData
 from zfit.util.container import convert_to_container
+from zfit_interface.variables import ZfitVar
 
 
 @tfp.experimental.auto_composite_tensor()

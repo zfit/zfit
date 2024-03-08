@@ -9,13 +9,12 @@ from __future__ import annotations
 
 #  Copyright (c) 2023 zfit
 import contextlib
-
 from typing import Literal
 
 import tensorflow as tf
+import zfit.z.numpy as znp
 from pydantic import Field
 
-import zfit.z.numpy as znp
 from zfit import z
 from ..core.basepdf import BasePDF
 from ..core.serialmixin import SerializableMixin

@@ -2,9 +2,9 @@
 from __future__ import annotations
 
 import numpy as np
+import zfit.z.numpy as znp
 from uhi.typing.plottable import PlottableHistogram
 
-import zfit.z.numpy as znp
 from ..core.binnedpdf import BaseBinnedPDFV1
 from ..core.interfaces import ZfitBinnedData
 from ..core.space import supports

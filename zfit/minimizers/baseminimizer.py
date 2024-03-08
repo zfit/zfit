@@ -834,13 +834,13 @@ def print_minimization_status(
     criterion,
     evaluator,
     i,
-    fmin,
+    fminopt,
     internal_tol: Mapping[str, float] | None = None,
 ):
     internal_tol = {} if internal_tol is None else internal_tol
     tols_str = ", ".join(f"{tol}={val:.3g}" for tol, val in internal_tol.items())
     print(
         f"{f'CONVERGED{os.linesep}' if converged else ''}"
-        f"Finished iteration {i}, niter={evaluator.niter}, fmin={fmin:.7g},"
+        f"Finished iteration {i}, niter={evaluator.niter}, fmin={fminopt:.7g},"
         f" {criterion.name}={criterion.last_value:.3g} {tols_str}"
     )

@@ -5,11 +5,11 @@ from __future__ import annotations
 from collections.abc import Mapping, Iterable
 
 import tensorflow as tf
-from uhi.typing.plottable import PlottableHistogram
-
 import zfit.z.numpy as znp
-from zfit import z
+from uhi.typing.plottable import PlottableHistogram
 from zfit.core.binnedpdf import BaseBinnedPDFV1
+
+from zfit import z
 from ..core import parameter
 from ..core.interfaces import ZfitBinnedPDF
 from ..util import ztyping
