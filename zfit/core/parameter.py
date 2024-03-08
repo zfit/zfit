@@ -26,7 +26,7 @@ import tensorflow_probability as tfp
 # TF backwards compatibility
 from ordered_set import OrderedSet
 from pydantic import Field, validator
-from tensorflow.python.ops import array_ops
+from tensorflow.python.ops import array_ops, tensor_getitem_override
 from tensorflow.python.ops.resource_variable_ops import (
     ResourceVariable as TFVariable,
     VariableSpec,
@@ -133,7 +133,7 @@ class OverloadableMixin(ZfitParameter):
         # For slicing, bind getitem differently than a tensor (use SliceHelperVar
         # instead)
         # pylint: disable=protected-access
-        setattr(cls, "__getitem__", array_ops._SliceHelperVar)
+        setattr(cls, "__getitem__", tensor_getitem_override._slice_helper_var)
 
     @classmethod
     def _OverloadOperator(cls, operator):  # pylint: disable=invalid-name
@@ -224,7 +224,9 @@ class WrappedVariable(metaclass=MetaBaseParameter):
         # For slicing, bind getitem differently than a tensor (use SliceHelperVar
         # instead)
         # pylint: disable=protected-access
-        setattr(WrappedVariable, "__getitem__", array_ops._SliceHelperVar)
+        setattr(
+            WrappedVariable, "__getitem__", tensor_getitem_override._slice_helper_var
+        )
 
     @staticmethod
     def _OverloadOperator(operator):  # pylint: disable=invalid-name
