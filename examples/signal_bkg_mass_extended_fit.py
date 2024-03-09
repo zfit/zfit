@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 
 import pprint
 import zfit
@@ -13,15 +13,13 @@ obs = zfit.Space("x", limits=(-10, 10))
 mu = zfit.Parameter("mu", 1.0, -4, 6)
 sigma = zfit.Parameter("sigma", 1.0, 0.1, 10)
 lambd = zfit.Parameter("lambda", -0.06, -1, -0.01)
-
-# model building, pdf creation
-gauss = zfit.pdf.Gauss(mu=mu, sigma=sigma, obs=obs)
-exponential = zfit.pdf.Exponential(lambd, obs=obs)
-
 n_bkg = zfit.Parameter("n_bkg", 20000)
 n_sig = zfit.Parameter("n_sig", 1000)
-gauss_extended = gauss.create_extended(n_sig)
-exp_extended = exponential.create_extended(n_bkg)
+
+# model building, pdf creation
+gauss = zfit.pdf.Gauss(mu=sigma2, sigma=sigma, obs=obs, extended=n_sig)
+exponential = zfit.pdf.Exponential(lambd, obs=obs, extended=n_bkg)
+
 model = zfit.pdf.SumPDF([gauss_extended, exp_extended])
 
 # data

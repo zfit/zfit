@@ -14,7 +14,8 @@ from contextlib import suppress
 from inspect import signature
 from typing import Literal
 from typing import Optional, Dict, Mapping, Union
-from weakref import WeakValueDictionary
+from collections import defaultdict
+from weakref import WeakValueDictionary, WeakSet
 
 import dill as dill
 import numpy as np
@@ -275,15 +276,15 @@ class BaseParameter(Variable, ZfitParameter, TensorType, metaclass=MetaBaseParam
 
 
 class ZfitParameterMixin(BaseNumeric):
-    _existing_params = WeakValueDictionary()
+    _existing_params = defaultdict(WeakSet)
 
     def __init__(self, name, **kwargs):
         if name in self._existing_params:
-            raise NameAlreadyTakenError(
-                "Another parameter is already named {}. "
-                "Use a different, unique one.".format(name)
-            )
-        self._existing_params.update({name: self})
+            self._existing_params[name].add(self)
+            # raise NameAlreadyTakenError(
+            #     "Another parameter is already named {}. "
+            #     "Use a different, unique one.".format(name)
+            # )
         self._name = name
 
         super().__init__(name=name, **kwargs)

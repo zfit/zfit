@@ -132,12 +132,16 @@ class BasePDF(ZfitPDF, BaseModel):
         norm: NormInputType = None,
         **kwargs,
     ):
+        self._yield = None
+
         super().__init__(obs=obs, dtype=dtype, name=name, params=params, **kwargs)
 
-        self._yield = None
         self._norm = norm
         if extended is not False and extended is not None:
             self._set_yield(extended)
+
+        # not ideal, should be in parametrized. But we don't have too many base classes, so this should work
+        self._assert_params_unique()
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
@@ -544,13 +548,14 @@ class BasePDF(ZfitPDF, BaseModel):
         """Make the model extended by setting a yield.
 
         This does not alter the general behavior of the PDF. If there is a
-        ``norm_range`` given, the output of the above functions does not represent a normalized
+        ``norm`` given, the output of the above functions does not represent a normalized
         probability density function anymore but corresponds to a number probability.
 
         Args:
             value:
         """
         self._set_yield(value=value)
+        self._assert_params_unique()
 
     def create_extended(
         self,
