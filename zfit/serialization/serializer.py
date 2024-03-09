@@ -7,6 +7,7 @@ import copy
 import functools
 from dataclasses import dataclass
 from enum import Enum
+from weakref import WeakSet, WeakValueDictionary
 from typing import (
     Any,
     Union,
@@ -169,6 +170,8 @@ class Serializer:
     type_repr = {}
     _deserializing = False
 
+    _existing_params = WeakSet()
+
     @classmethod
     def register(own_cls, repr: ZfitSerializable) -> None:
         """Register a repr to be used in the HS3 serialization.
@@ -213,6 +216,9 @@ class Serializer:
                     **{"Union": Union, "List": List, "Literal": Literal}
                 )
             cls.is_initialized = True
+
+        # create list of parameters that will be filled during loading
+        cls._existing_params = WeakValueDictionary()
 
     @classmethod
     @warn_experimental_feature

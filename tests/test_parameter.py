@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 import numpy as np
 import pytest
 import tensorflow as tf
@@ -221,8 +221,8 @@ def test_overloaded_operators():
 def test_equal_naming():
     unique_name = "fafdsfds"
     param_unique_name = zfit.Parameter(unique_name, 5.0)
-    with pytest.raises(NameAlreadyTakenError):
-        param_unique_name2 = zfit.Parameter(unique_name, 3.0)
+    param_unique_name2 = zfit.Parameter(unique_name, 3.0)
+    assert True, "This is new and has to work now :)"
 
 
 def test_set_value():

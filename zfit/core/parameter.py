@@ -9,6 +9,7 @@ import collections
 import copy
 import functools
 import warnings
+import weakref
 from collections.abc import Iterable, Callable
 from contextlib import suppress
 from inspect import signature
@@ -55,7 +56,6 @@ from ..util.exception import (
     FunctionNotImplemented,
     IllegalInGraphModeError,
     LogicalUndefinedOperationError,
-    NameAlreadyTakenError,
     ParameterNotIndependentError,
 )
 from ..util.temporary import TemporarilySet
@@ -100,8 +100,8 @@ class OverloadableMixin(ZfitParameter):
         _ = name
         if dtype and not dtype.is_compatible_with(v.dtype):
             raise ValueError(
-                "Incompatible type conversion requested to type '%s' for variable "
-                "of type '%s'" % (dtype.name, v.dtype.name)
+                "Incompatible type conversion requested to type '{}' for variable "
+                "of type '{}'".format(dtype.name, v.dtype.name)
             )
         if as_ref:
             return v._ref()  # pylint: disable=protected-access
@@ -112,8 +112,8 @@ class OverloadableMixin(ZfitParameter):
         del name
         if dtype and not dtype.is_compatible_with(self.dtype):
             raise ValueError(
-                "Incompatible type conversion requested to type '%s' for variable "
-                "of type '%s'" % (dtype.name, self.dtype.name)
+                "Incompatible type conversion requested to type '{}' for variable "
+                "of type '{}'".format(dtype.name, self.dtype.name)
             )
         if as_ref:
             if hasattr(self, "_ref"):
@@ -276,18 +276,19 @@ class BaseParameter(Variable, ZfitParameter, TensorType, metaclass=MetaBaseParam
 
 
 class ZfitParameterMixin(BaseNumeric):
-    _existing_params = defaultdict(WeakSet)
+    _existing_params = {}
 
     def __init__(self, name, **kwargs):
-        if name in self._existing_params:
-            self._existing_params[name].add(self)
-            # raise NameAlreadyTakenError(
-            #     "Another parameter is already named {}. "
-            #     "Use a different, unique one.".format(name)
-            # )
+        if name not in self._existing_params:
+            weak_set = WeakSet()
+            # Is an alternative arg for pop needed in case it fails? Why would it fail?
+            weakref.finalize(self, self._existing_params.pop, name)
+            self._existing_params[name] = weak_set
+        self._existing_params[name].add(self)
         self._name = name
 
         super().__init__(name=name, **kwargs)
+        self._assert_params_unique()
 
     # property needed here to overwrite the name of tf.Variable
     @property
@@ -1185,10 +1186,13 @@ class ComposedParameter(SerializableMixin, BaseComposedParameter):
         self.hs3.original_init.update(original_init)
 
     def __repr__(self):
-        if tf.executing_eagerly():
-            value = f"{self.numpy():.4g}"
-        else:
-            value = "graph-node"
+        try:
+            if tf.executing_eagerly():
+                value = f"{self.numpy():.4g}"
+            else:
+                value = "graph-node"
+        except Exception:
+            value = "ERROR OCCURRED"
         return f"<zfit.{self.__class__.__name__} '{self.name}' params={[(k, p.name) for k, p in self.params.items()]} value={value}>"
 
 

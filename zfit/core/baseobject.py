@@ -24,7 +24,7 @@ from ..util import ztyping
 from ..util.cache import GraphCachable
 from ..util.checks import NotSpecified
 from ..util.container import convert_to_container
-from ..util.exception import BreakingAPIChangeError
+from ..util.exception import BreakingAPIChangeError, ParamNameNotUniqueError
 
 
 class BaseObject(ZfitObject):
@@ -95,7 +95,7 @@ class BaseParametrized(BaseObject, ZfitParametrized):
         if duplicated_names := {
             name for name, count in counted_names.items() if count > 1
         }:  # set comprehension
-            raise ValueError(
+            raise ParamNameNotUniqueError(
                 f"The following parameter names appear more than once in {self}: {duplicated_names}."
                 f"This is new behavior: before, a parameter with the same name could not exists, now it can."
                 f"However, they are not allowed to be within the same function/PDF/loss, as this would result in ill-defined behavior."

@@ -140,7 +140,6 @@ class BasePDF(ZfitPDF, BaseModel):
         if extended is not False and extended is not None:
             self._set_yield(extended)
 
-        # not ideal, should be in parametrized. But we don't have too many base classes, so this should work
         self._assert_params_unique()
 
     def __init_subclass__(cls, **kwargs):
@@ -555,7 +554,6 @@ class BasePDF(ZfitPDF, BaseModel):
             value:
         """
         self._set_yield(value=value)
-        self._assert_params_unique()
 
     def create_extended(
         self,
@@ -636,6 +634,9 @@ class BasePDF(ZfitPDF, BaseModel):
         value = convert_to_parameter(value)
         self.add_cache_deps(value)
         self._yield = value
+
+        # not ideal, should be in parametrized. But we don't have too many base classes, so this should work
+        self._assert_params_unique()
 
     @property
     def is_extended(self) -> bool:
