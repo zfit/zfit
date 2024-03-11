@@ -5,7 +5,7 @@ numpy api of tensorflow. See https://www.tensorflow.org/guide/tf_numpy for more 
 https://www.tensorflow.org/api_docs/python/tf/experimental/numpy for the complete numpy api in tensorflow. Recommended
 way of importing:
 
->>> import zfit.z.numpy as np
+>>> import zfit.z.numpy as znp
 """
 
 #  Copyright (c) 2024 zfit
