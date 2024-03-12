@@ -18,8 +18,8 @@ pydantic<2.0.0  # fails with not a "subclass", won't fix soon
 pyyaml
 scipy>=1.2
 tabulate
-#tensorflow>=2.16, <2.17
-#tensorflow_probability>=0.23, <0.25
+tensorflow>=2.16, <2.17
+tensorflow_probability[tf]>=0.24, <0.25
 texttable
 uhi
 uproot>=4

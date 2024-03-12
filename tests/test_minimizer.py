@@ -119,11 +119,11 @@ minimizers = [
     # TensorFlow minimizers
     # (zfit.minimizers.optimizers_tf.WrapOptimizer, dict(optimizer=tf.keras.optimizers.Adam(learning_rate=0.05)),
     #  False),
-    (
-        zfit.minimize.Adam,
-        dict(learning_rate=0.05, verbosity=verbosity, tol=0.00001),
-        False,
-    ),  # works
+    # (
+    #     zfit.minimize.Adam,
+    #     dict(learning_rate=0.05, verbosity=verbosity, tol=0.00001),
+    #     False,
+    # ),  # Not supported anymore, needs Keras 3 interface update
     # Minuit minimizer
     (
         zfit.minimize.Minuit,
