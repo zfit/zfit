@@ -280,10 +280,9 @@ class ZfitParameterMixin(BaseNumeric):
 
     def __init__(self, name, **kwargs):
         if name not in self._existing_params:
-            weak_set = WeakSet()
+            self._existing_params[name] = WeakSet()
             # Is an alternative arg for pop needed in case it fails? Why would it fail?
             weakref.finalize(self, self._existing_params.pop, name)
-            self._existing_params[name] = weak_set
         self._existing_params[name].add(self)
         self._name = name
 
@@ -362,7 +361,7 @@ class Parameter(
     SerializableMixin,
     ZfitIndependentParameter,
 ):
-    """Class for fit parameters, derived from TF Variable class."""
+    """Class for fit parameters that has a default state."""
 
     _independent = True
     _independent_params = WeakSet()
@@ -378,12 +377,17 @@ class Parameter(
         upper: ztyping.NumericalScalarType | None = None,
         step_size: ztyping.NumericalScalarType | None = None,
         floating: bool = True,
-        dtype: tf.DType = ztypes.float,
+        *,
+        dtype: tf.DType = None,
         # legacy
         lower_limit: ztyping.NumericalScalarType | None = None,
         upper_limit: ztyping.NumericalScalarType | None = None,
     ):
-        """
+        """Fit Parameter that has a default state (value) and limits (lower, upper).
+
+        The name identifies the parameter.
+        Multiple parameters with the same name can exist, however,
+        they cannot be in the same PDF/func/loss as the value would not be uniquely defined.
 
         Args:
             name : name of the parameter
@@ -399,6 +403,13 @@ class Parameter(
             lower = lower_limit
         if upper_limit is not None:
             upper = upper_limit
+        if dtype is None:
+            dtype = ztypes.float
+        else:
+            warnings.warn(
+                "The argument `dtype` is deprecated and will be removed in the future.",
+                DeprecationWarning,
+            )
         # legacy end
 
         # TODO: sanitize input for TF2

@@ -17,7 +17,7 @@ n_bkg = zfit.Parameter("n_bkg", 20000)
 n_sig = zfit.Parameter("n_sig", 1000)
 
 # model building, pdf creation
-gauss = zfit.pdf.Gauss(mu=sigma2, sigma=sigma, obs=obs, extended=n_sig)
+gauss = zfit.pdf.Gauss(mu=mu, sigma=sigma, obs=obs, extended=n_sig)
 exponential = zfit.pdf.Exponential(lambd, obs=obs, extended=n_bkg)
 
 model = zfit.pdf.SumPDF([gauss_extended, exp_extended])
