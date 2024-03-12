@@ -17,6 +17,7 @@ Major Features and Improvements
 - add ``faddeeva_humlicek`` function under the ``zfit.z.numpy`` namespace. This is an implementation of the Faddeeva function, combining Humlicek's rational approximations according to Humlicek (JQSRT, 1979) and Humlicek (JQSRT, 1982).
 - add ``Voigt`` profile PDF which is a convolution of a Gaussian and a Cauchy distribution.
 
+
 Breaking changes
 ------------------
 - ``NameAlreadyTakenError`` was removed, see above for the new behavior.
@@ -36,6 +37,7 @@ Experimental
 
 Requirement changes
 -------------------
+- upgrade to TensorFlow 2.16 and TensorFlow Probability 0.24
 
 Thanks
 ------
