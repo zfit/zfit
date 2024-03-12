@@ -33,6 +33,7 @@ def faddeeva_humlicek(z, s=10.0):
     https://atmos.eoc.dlr.de/tools/lbl4IR/cpfX.py
     """
 
+    z = atleast_1d(z)
     z = asarray(z, dtype=complex128)
 
     AA = array(
