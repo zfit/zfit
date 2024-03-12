@@ -21,8 +21,7 @@ class linalg:
     solve = staticmethod(_tf.linalg.solve)
 
 
-@_tf.function(jit_compile=True)
-def hum2zpf16c_tf(z, s=10.0):
+def faddeeva_humlicek(z, s=10.0):
     """Complex error function w(z = x + iy) combining Humlicek's rational approximations.
 
     |x| + y > 10:  Humlicek (JQSRT, 1982) rational approximation for region II;
@@ -148,6 +147,3 @@ def hum2zpf16c_tf(z, s=10.0):
     w = _tf.tensor_scatter_nd_update(w, _tf.where(mask), numer / denom)
 
     return w
-
-
-faddeeva = hum2zpf16c_tf
