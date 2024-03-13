@@ -144,6 +144,6 @@ def faddeeva_humlicek(z, s=10.0):
         + bb[1]
     ) * ZZ + bb[0]
 
-    w = _tf.tensor_scatter_nd_update(w, where(mask), numer / denom)
+    w = _tf.tensor_scatter_nd_update(w, _tf.where(mask), numer / denom)
 
     return w
