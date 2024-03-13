@@ -37,22 +37,22 @@ jobs:
         extras: [ alldev ]
         include:
           - os: ubuntu-latest
-            extras: alldev
+            extras: alldev-linux
             python-version: "3.11"
             use-graph: 0
           - os: macos-latest
             python-version: "3.11"
             use-graph: 1
-            extras: alldev
+            extras: alldev-darwin
           - os: windows-latest
             python-version: "3.11"
             use-graph: 1
-            extras: alldev
+            extras: alldev-windows
           # Apple silicon runner
           - os: macos-14
             python-version: '3.11'
             use-graph: 1
-            extras: alldev
+            extras: alldev-silicon
 
     steps:
       - name: Get number of CPU cores
