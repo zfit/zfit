@@ -18,6 +18,7 @@ with open(
     os.path.join(here, "requirements_dev.txt"), encoding="utf-8"
 ) as requirements_dev_file:
     requirements_dev = requirements_dev_file.read().splitlines()
+requirements_dev = [req.split("#")[0].strip() for req in requirements_dev]
 
 extras_require = {}
 extras_require["ipyopt"] = ["ipyopt>=0.12"]
@@ -37,7 +38,6 @@ tests_require = [
     "pytest-timeout>=1",
     "matplotlib",  # for plots in examples
 ]
-# extras_require["all"] = allreq
 nlopt_req = extras_require.get("nlopt", [])
 allreq_nonloptipyopt = allreq.copy()
 allreq_nonloptipyopt.pop(allreq.index(nlopt_req[0]))
@@ -80,17 +80,15 @@ if (platf := platform.platform()) == "darwin" and platform.processor() == "arm":
     platf = "silicon"
 elif platf == "win32":
     platf = "windows"
-if platf in ["linux", "windows", "silicon", "darwin"]:
-    extras_require["tests"] = extras_require[f"tests-{platf}"]
-    extras_require["dev"] = extras_require[f"dev-{platf}"]
-    extras_require["alldev"] = extras_require[f"alldev-{platf}"]
-    extras_require["all"] = extras_require[f"all-{platf}"]
-else:
+if platf not in ["linux", "windows", "silicon", "darwin"]:
     warnings.warn(
-        f"Platform {platf} not recognized, `dev`, `tests` and `alldev` extras are not defined. "
+        f"Platform {platf} not recognized, `dev`, `tests` and `alldev` extras contain all requirements. "
     )
-
-
+    platf = "linux"
+extras_require["tests"] = extras_require[f"tests-{platf}"]
+extras_require["dev"] = extras_require[f"dev-{platf}"]
+extras_require["alldev"] = extras_require[f"alldev-{platf}"]
+extras_require["all"] = extras_require[f"all-{platf}"]
 setup(
     install_requires=requirements,
     tests_require=tests_require,

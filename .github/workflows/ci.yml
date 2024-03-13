@@ -43,16 +43,16 @@ jobs:
           - os: macos-latest
             python-version: "3.11"
             use-graph: 1
-            extras: alldev-nonlinux
+            extras: alldev
           - os: windows-latest
             python-version: "3.11"
             use-graph: 1
-            extras: alldev-windows
+            extras: alldev
           # Apple silicon runner
           - os: macos-14
             python-version: '3.11'
             use-graph: 1
-            extras: alldev-nonlinux
+            extras: alldev
 
     steps:
       - name: Get number of CPU cores
