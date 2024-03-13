@@ -37,46 +37,57 @@ tests_require = [
     "pytest-timeout>=1",
     "matplotlib",  # for plots in examples
 ]
-extras_require["all"] = allreq
+# extras_require["all"] = allreq
 nlopt_req = extras_require.get("nlopt", [])
+allreq_nonloptipyopt = allreq.copy()
+allreq_nonloptipyopt.pop(allreq.index(nlopt_req[0]))
+allreq_nonloptipyopt.pop(allreq.index(extras_require["ipyopt"][0]))
+
+extras_require["all-linux"] = allreq
+extras_require["all-darwin"] = allreq_nonloptipyopt + extras_require["nlopt"]
+extras_require["all-windows"] = allreq_nonloptipyopt + extras_require["nlopt"]
+extras_require["all-silicon"] = allreq_nonloptipyopt
+
+extras_require["tests-linux"] = tests_require + nlopt_req + extras_require["ipyopt"]
 extras_require["tests-darwin"] = tests_require + nlopt_req
-extras_require["tests-linux"] = (
-    extras_require["tests-darwin"] + extras_require["ipyopt"]
-)
+extras_require["tests-windows"] = tests_require + nlopt_req
+extras_require["tests-silicon"] = tests_require
+
 extras_require["dev-linux"] = requirements_dev + extras_require["tests-linux"]
 extras_require["dev-darwin"] = requirements_dev + extras_require["tests-darwin"]
-extras_require["alldev-linux"] = list(
-    set(extras_require["all"] + extras_require["dev-linux"])
-)
-alldev_nonlinux = list(set(extras_require["all"] + extras_require["dev-darwin"]))
+extras_require["dev-windows"] = requirements_dev + extras_require["tests-windows"]
+extras_require["dev-silicon"] = requirements_dev + extras_require["tests-silicon"]
 
-extras_require["alldev-darwin"] = alldev_nonlinux
-alldev_windows = alldev_nonlinux.copy()
+extras_require["alldev-linux"] = list(
+    set(extras_require["all-linux"] + extras_require["dev-linux"])
+)
+extras_require["alldev-darwin"] = list(
+    set(extras_require["all-darwin"] + extras_require["dev-darwin"])
+)
+extras_require["alldev-silicon"] = list(
+    set(extras_require["all-silicon"] + extras_require["dev-silicon"])
+)
+alldev_windows = list(
+    set(extras_require["all-windows"] + extras_require["dev-windows"])
+)
 alldev_windows.pop(
     alldev_windows.index("jaxlib")
 )  # not available on Windows: https://github.com/google/jax/issues/438#issuecomment-939866186
 extras_require["alldev-windows"] = alldev_windows
-alldev_silicon = alldev_nonlinux.copy()
-print(alldev_silicon)
-alldev_silicon.pop(
-    alldev_silicon.index(
-        extras_require["nlopt"][0]
-    )  # https://github.com/DanielBok/nlopt-python/issues/13
-)  # not available on Silicon:
-extras_require["alldev-silicon"] = alldev_silicon
 
 # fill defaults depending on the system
-if (platform := platform.platform()) == "darwin" and platform.processor() == "arm":
-    platform = "silicon"
-elif platform == "win32":
-    platform = "windows"
-if platform in ["linux", "windows", "silicon", "darwin"]:
-    extras_require["alldev"] = extras_require[f"alldev-{platform}"]
-    extras_require["dev"] = extras_require[f"dev-{platform}"]
-    extras_require["tests"] = extras_require[f"tests-{platform}"]
+if (platf := platform.platform()) == "darwin" and platform.processor() == "arm":
+    platf = "silicon"
+elif platf == "win32":
+    platf = "windows"
+if platf in ["linux", "windows", "silicon", "darwin"]:
+    extras_require["tests"] = extras_require[f"tests-{platf}"]
+    extras_require["dev"] = extras_require[f"dev-{platf}"]
+    extras_require["alldev"] = extras_require[f"alldev-{platf}"]
+    extras_require["all"] = extras_require[f"all-{platf}"]
 else:
     warnings.warn(
-        f"Platform {platform} not recognized, `dev`, `tests` and `alldev` extras are not defined. "
+        f"Platform {platf} not recognized, `dev`, `tests` and `alldev` extras are not defined. "
     )
 
 
