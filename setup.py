@@ -39,7 +39,8 @@ tests_require = [
     "matplotlib",  # for plots in examples
 ]
 extras_require["all"] = allreq
-extras_require["tests-darwin"] = tests_require + extras_require.get("nlopt", [])
+nlopt_req = extras_require.get("nlopt", [])
+extras_require["tests-darwin"] = tests_require + nlopt_req
 extras_require["tests-linux"] = (
     extras_require["tests-darwin"] + extras_require["ipyopt"]
 )
@@ -49,9 +50,9 @@ extras_require["alldev-linux"] = list(
     set(extras_require["all"] + extras_require["dev-linux"])
 )
 alldev_nonlinux = list(set(extras_require["all"] + extras_require["dev-darwin"]))
-alldev_nonlinux.pop(
-    alldev_nonlinux.index(extras_require["ipyopt"][0])
-)  # ipyopt is not available on non linux systems
+# alldev_nonlinux.pop(
+#     alldev_nonlinux.index("nlopt")
+# )  # ipyopt is not available on non linux systems
 extras_require["alldev-darwin"] = alldev_nonlinux
 alldev_windows = alldev_nonlinux.copy()
 alldev_windows.pop(
@@ -59,9 +60,9 @@ alldev_windows.pop(
 )  # not available on Windows: https://github.com/google/jax/issues/438#issuecomment-939866186
 extras_require["alldev-windows"] = alldev_windows
 alldev_silicon = alldev_nonlinux.copy()
-alldev_silicon.pop(
-    alldev_silicon.index("nlopt")  # https://github.com/DanielBok/nlopt-python/issues/13
-)  # not available on Silicon:
+# alldev_silicon.pop(
+#     alldev_silicon.index(nlopt_req)  # https://github.com/DanielBok/nlopt-python/issues/13
+# )  # not available on Silicon:
 extras_require["alldev-silicon"] = alldev_silicon
 
 # fill defaults depending on the system
