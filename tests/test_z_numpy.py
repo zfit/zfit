@@ -58,9 +58,16 @@ def test_faddeeva():
             test_values8,
         ]
     )
-    assert znp.allclose(
+    assert np.allclose(
         znp.faddeeva_humlicek(znp.asarray(test_values)),
         wofz(test_values),
         rtol=1e-06,
         atol=1e-10,
     )
+
+    test_values_tensor = znp.asarray(test_values)
+    with tf.GradientTape(persistent=True) as tape:
+        tape.watch(test_values_tensor)
+        result = znp.faddeeva_humlicek(test_values_tensor)
+        gradientstf = tape.gradient(result, test_values_tensor)
+    assert np.all(np.isfinite(gradientstf))
