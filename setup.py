@@ -3,6 +3,7 @@
 #  Copyright (c) 2023 zfit
 import os
 import sys
+import warnings
 
 from setuptools import setup
 
@@ -38,21 +39,45 @@ tests_require = [
     "matplotlib",  # for plots in examples
 ]
 extras_require["all"] = allreq
-extras_require["tests-nonlinux"] = tests_require + extras_require.get("nlopt", [])
-extras_require["tests"] = extras_require["tests-nonlinux"] + extras_require["ipyopt"]
-extras_require["dev"] = requirements_dev + extras_require["tests"]
-extras_require["dev-nonlinux"] = requirements_dev + extras_require["tests-nonlinux"]
-extras_require["alldev"] = list(set(extras_require["all"] + extras_require["dev"]))
-alldev_nonlinux = list(set(extras_require["all"] + extras_require["dev-nonlinux"]))
+extras_require["tests-darwin"] = tests_require + extras_require.get("nlopt", [])
+extras_require["tests-linux"] = (
+    extras_require["tests-darwin"] + extras_require["ipyopt"]
+)
+extras_require["dev-linux"] = requirements_dev + extras_require["tests-linux"]
+extras_require["dev-darwin"] = requirements_dev + extras_require["tests-darwin"]
+extras_require["alldev-linux"] = list(
+    set(extras_require["all"] + extras_require["dev-linux"])
+)
+alldev_nonlinux = list(set(extras_require["all"] + extras_require["dev-darwin"]))
 alldev_nonlinux.pop(
     alldev_nonlinux.index(extras_require["ipyopt"][0])
 )  # ipyopt is not available on non linux systems
-extras_require["alldev-nonlinux"] = alldev_nonlinux
+extras_require["alldev-darwin"] = alldev_nonlinux
 alldev_windows = alldev_nonlinux.copy()
 alldev_windows.pop(
     alldev_windows.index("jaxlib")
 )  # not available on Windows: https://github.com/google/jax/issues/438#issuecomment-939866186
 extras_require["alldev-windows"] = alldev_windows
+alldev_silicon = alldev_nonlinux.copy()
+alldev_silicon.pop(
+    alldev_silicon.index("nlopt")  # https://github.com/DanielBok/nlopt-python/issues/13
+)  # not available on Silicon:
+extras_require["alldev-silicon"] = alldev_silicon
+
+# fill defaults depending on the system
+if (platform := sys.platform) == "darwin" and sys.platform.processor() == "arm":
+    platform = "silicon"
+elif platform == "win32":
+    platform = "windows"
+if platform in ["linux", "windows", "silicon", "darwin"]:
+    extras_require["alldev"] = extras_require[f"alldev-{platform}"]
+    extras_require["dev"] = extras_require[f"dev-{platform}"]
+    extras_require["tests"] = extras_require[f"tests-{platform}"]
+else:
+    warnings.warn(
+        f"Platform {platform} not recognized, `dev`, `tests` and `alldev` extras are not defined. "
+    )
+
 
 setup(
     install_requires=requirements,
