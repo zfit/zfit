@@ -50,9 +50,7 @@ extras_require["alldev-linux"] = list(
     set(extras_require["all"] + extras_require["dev-linux"])
 )
 alldev_nonlinux = list(set(extras_require["all"] + extras_require["dev-darwin"]))
-# alldev_nonlinux.pop(
-#     alldev_nonlinux.index("nlopt")
-# )  # ipyopt is not available on non linux systems
+
 extras_require["alldev-darwin"] = alldev_nonlinux
 alldev_windows = alldev_nonlinux.copy()
 alldev_windows.pop(
