@@ -34,6 +34,11 @@ Requirement changes
 Thanks
 ------
 
+0.18.2 (13 Mar 2024)
+========================
+
+Hotfix for missing dependency attrs
+
 0.18.1 (22 Feb 2024)
 ========================
 
