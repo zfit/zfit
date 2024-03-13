@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2024 zfit
 import numpy as np
 import pytest
 import tensorflow as tf
@@ -67,7 +67,7 @@ def test_reorder_x(graph, testclass):
     all_x = test()
     true_x = tf.constant([1, 2, 3, 4], dtype=tf.float64)
     for x in all_x:
-        assert np.allclose(x, true_x)
+        np.testing.assert_allclose(x, true_x)
 
 
 @pytest.mark.parametrize("graph", [True, False])

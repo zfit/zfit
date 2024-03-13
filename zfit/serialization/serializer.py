@@ -7,7 +7,6 @@ import copy
 import functools
 from dataclasses import dataclass
 from enum import Enum
-from weakref import WeakSet, WeakValueDictionary
 from typing import (
     Any,
     Union,
@@ -170,7 +169,7 @@ class Serializer:
     type_repr = {}
     _deserializing = False
 
-    _existing_params = WeakSet()
+    _existing_params = None
 
     @classmethod
     def register(own_cls, repr: ZfitSerializable) -> None:
@@ -202,12 +201,20 @@ class Serializer:
         own_cls.types.register_repr(repr)
 
     @classmethod
-    def initialize(cls) -> None:
+    @contextlib.contextmanager
+    def initialize(cls, *, reuse_params=None) -> None:
         """Initialize the serializer by evaluating all the forward references.
 
         This is a necessary implementation trick to work properly with pydantics caching as we cannot modify an existing
         Type after it has been created. This is necessary to register new types as possible options (say a new PDF is
         registered and can be a possibility in a SumPDF) on the fly.
+
+        Args:
+            reuse_params: |@doc:hs3.ini.reuse_params| If parameters, the parameters
+                   will be reused if they are given.
+                   If a parameter is given, it will be used as the parameter
+                   with the same name. If a parameter is not given, a new
+                   parameter will be created. |@docend:hs3.ini.reuse_params|
         """
         if not cls.is_initialized:
             cls.types.block_forward_refs = False
@@ -218,7 +225,18 @@ class Serializer:
             cls.is_initialized = True
 
         # create list of parameters that will be filled during loading
-        cls._existing_params = WeakValueDictionary()
+        if cls._existing_params is None:
+            try:
+                cls._existing_params = {}
+                if reuse_params is not None:
+                    reuse_params = convert_to_container(reuse_params)
+                    for param in reuse_params:
+                        cls._existing_params[param.name] = param
+                yield
+            finally:
+                cls._existing_params = None
+        else:
+            yield
 
     @classmethod
     @warn_experimental_feature
@@ -256,178 +274,192 @@ class Serializer:
                       zfit version used to create the file |@docend:hs3.layout.explain|
         """
 
-        cls.initialize()
-
-        serial_kwargs = {"exclude_none": True, "by_alias": True}
-        # check if already HS3 format
-        if isinstance(obj, collections.abc.Mapping):
-            if (
-                "distributions" in obj
-                and isinstance(obj["distributions"], collections.abc.Mapping)
-                and "variables" in obj
-                and "metadata" in obj
-            ):
-                raise ValueError(
-                    "Object seems to be already in HS3 format. If it contains PDFs, use `obj['distributions'].values()` instead of `obj` to get a valid conversion"
-                )
+        with cls.initialize():
+            serial_kwargs = {"exclude_none": True, "by_alias": True}
+            # check if already HS3 format
+            if isinstance(obj, collections.abc.Mapping):
+                if (
+                    "distributions" in obj
+                    and isinstance(obj["distributions"], collections.abc.Mapping)
+                    and "variables" in obj
+                    and "metadata" in obj
+                ):
+                    raise ValueError(
+                        "Object seems to be already in HS3 format. If it contains PDFs, use `obj['distributions'].values()` instead of `obj` to get a valid conversion"
+                    )
+                else:
+                    raise ValueError(
+                        "Mappings are currently not supported. Use a PDF or a list of PDFs instead."
+                    )
             else:
-                raise ValueError(
-                    "Mappings are currently not supported. Use a PDF or a list of PDFs instead."
+                obj = convert_to_container(obj)
+            from zfit.core.interfaces import ZfitPDF
+
+            all_pdfs = all(isinstance(ob, ZfitPDF) for ob in obj)
+            all_losses = all(isinstance(ob, ZfitLoss) for ob in obj)
+            if not all_pdfs and not all_losses:
+                raise TypeError("Only PDFs or losses can be serialized.")
+            from zfit.core.serialmixin import ZfitSerializable
+
+            if not all(isinstance(pdf, ZfitSerializable) for pdf in obj):
+                raise SerializationTypeError(
+                    "All distributions must be ZfitSerializable"
                 )
-        else:
-            obj = convert_to_container(obj)
-        from zfit.core.interfaces import ZfitPDF
+            import zfit
 
-        all_pdfs = all(isinstance(ob, ZfitPDF) for ob in obj)
-        all_losses = all(isinstance(ob, ZfitLoss) for ob in obj)
-        if not all_pdfs and not all_losses:
-            raise TypeError("Only PDFs or losses can be serialized.")
-        from zfit.core.serialmixin import ZfitSerializable
+            out = {
+                "metadata": {
+                    "HS3": {"version": "experimental"},
+                    "serializer": {"lib": "zfit", "version": zfit.__version__},
+                },
+                "distributions": {},
+                "variables": {},
+                "loss": {},
+                "data": {},
+                "constraints": {},
+            }
+            loss_number = range(len(obj))
 
-        if not all(isinstance(pdf, ZfitSerializable) for pdf in obj):
-            raise SerializationTypeError("All distributions must be ZfitSerializable")
-        import zfit
+            all_objs = {"data": [], "distributions": [], "constraints": [], "loss": []}
+            if all_pdfs:
+                all_objs["distributions"] = obj
+            else:
+                for loss in obj:
+                    all_objs["distributions"].extend(loss.model)
+                    all_objs["constraints"].extend(loss.constraints)
+                    all_objs["data"].extend(loss.data)
+                    all_objs["loss"].append(loss)
+            all_objs = {key: set(val) for key, val in all_objs.items()}
+            all_objs_cleaned = {key: {} for key in all_objs.keys()}
+            # give all of the objects unique names
+            for key, val in all_objs.items():
+                for ob in val:
+                    name = ob.name
+                    if name in all_objs_cleaned[key]:
+                        name = f"{name}_{iter(loss_number)}"
+                    all_objs_cleaned[key][name] = ob
 
-        out = {
-            "metadata": {
-                "HS3": {"version": "experimental"},
-                "serializer": {"lib": "zfit", "version": zfit.__version__},
-            },
-            "distributions": {},
-            "variables": {},
-            "loss": {},
-            "data": {},
-            "constraints": {},
-        }
-        loss_number = range(len(obj))
+            for name, pdf in all_objs_cleaned["distributions"].items():
+                assert (
+                    name not in out["distributions"]
+                ), "Name should have been uniqueified"
+                pdf_repr = pdf.get_repr().from_orm(pdf)
+                out["distributions"][name] = pdf_repr.dict(**serial_kwargs)
 
-        all_objs = {"data": [], "distributions": [], "constraints": [], "loss": []}
-        if all_pdfs:
-            all_objs["distributions"] = obj
-        else:
-            for loss in obj:
-                all_objs["distributions"].extend(loss.model)
-                all_objs["constraints"].extend(loss.constraints)
-                all_objs["data"].extend(loss.data)
-                all_objs["loss"].append(loss)
-        all_objs = {key: set(val) for key, val in all_objs.items()}
-        all_objs_cleaned = {key: {} for key in all_objs.keys()}
-        # give all of the objects unique names
-        for key, val in all_objs.items():
-            for ob in val:
-                name = ob.name
-                if name in all_objs_cleaned[key]:
-                    name = f"{name}_{iter(loss_number)}"
-                all_objs_cleaned[key][name] = ob
+                for param in pdf.get_params(
+                    floating=None, extract_independent=None
+                ):  # TODO: this is not ideal, we should take the serialized params?
+                    if param.name not in out["variables"]:
+                        paramdict = (
+                            param.get_repr().from_orm(param).dict(**serial_kwargs)
+                        )
+                        del paramdict["type"]
+                        out["variables"][param.name] = paramdict
 
-        for name, pdf in all_objs_cleaned["distributions"].items():
-            assert name not in out["distributions"], "Name should have been uniqueified"
-            pdf_repr = pdf.get_repr().from_orm(pdf)
-            out["distributions"][name] = pdf_repr.dict(**serial_kwargs)
+                for ob in pdf.obs:
+                    if ob not in out["variables"]:
+                        space = pdf.space.with_obs(ob)
+                        spacedict = (
+                            space.get_repr().from_orm(space).dict(**serial_kwargs)
+                        )
+                        del spacedict["type"]
+                        out["variables"][ob] = spacedict
 
-            for param in pdf.get_params(
-                floating=None, extract_independent=None
-            ):  # TODO: this is not ideal, we should take the serialized params?
-                if param.name not in out["variables"]:
-                    paramdict = param.get_repr().from_orm(param).dict(**serial_kwargs)
-                    del paramdict["type"]
-                    out["variables"][param.name] = paramdict
+            for name, loss in all_objs_cleaned["loss"].items():
+                out["loss"][name] = loss.get_repr().from_orm(loss).dict(**serial_kwargs)
 
-            for ob in pdf.obs:
-                if ob not in out["variables"]:
-                    space = pdf.space.with_obs(ob)
-                    spacedict = space.get_repr().from_orm(space).dict(**serial_kwargs)
-                    del spacedict["type"]
-                    out["variables"][ob] = spacedict
+            for name, data in all_objs_cleaned["data"].items():
+                out["data"][name] = data.get_repr().from_orm(data).dict(**serial_kwargs)
 
-        for name, loss in all_objs_cleaned["loss"].items():
-            out["loss"][name] = loss.get_repr().from_orm(loss).dict(**serial_kwargs)
+            for name, constraint in all_objs_cleaned["constraints"].items():
+                out["constraints"][name] = (
+                    constraint.get_repr().from_orm(constraint).dict(**serial_kwargs)
+                )
 
-        for name, data in all_objs_cleaned["data"].items():
-            out["data"][name] = data.get_repr().from_orm(data).dict(**serial_kwargs)
-
-        for name, constraint in all_objs_cleaned["constraints"].items():
-            out["constraints"][name] = (
-                constraint.get_repr().from_orm(constraint).dict(**serial_kwargs)
-            )
-
-        out = cls.post_serialize(out)
+            out = cls.post_serialize(out)
 
         return out
 
     @classmethod
     @warn_experimental_feature
     def from_hs3(
-        cls, load: Mapping[str, Mapping]
+        cls,
+        load: Mapping[str, Mapping],
+        *,
+        reuse_params: Optional[Union[ZfitParameter, Iterable[ZfitParameter]]] = None,
     ) -> Mapping[str, Union[ZfitPDF, ZfitParameter]]:
         """Load a PDF or a list of PDFs from a JSON string according to the HS3 standard.
 
-        .. warning::
-            This is an experimental feature and the API might change in the future. DO NOT RELY ON THE OUTPUT FOR
-            ANYTHING ELSE THAN TESTING.
+           .. warning::
+               This is an experimental feature and the API might change in the future. DO NOT RELY ON THE OUTPUT FOR
+               ANYTHING ELSE THAN TESTING.
 
-        THIS FUNCTION DOESN'T YET ADHERE TO HS3 (but just as a proxy).
+           THIS FUNCTION DOESN'T YET ADHERE TO HS3 (but just as a proxy).
 
-        |@doc:hs3.explain| HS3 is the `HEP Statistics Serialization Standard <https://github.com/hep-statistics-serialization-standard/hep-statistics-serialization-standard>`_.
+           |@doc:hs3.explain| HS3 is the `HEP Statistics Serialization Standard <https://github.com/hep-statistics-serialization-standard/hep-statistics-serialization-standard>`_.
                    It is a JSON/YAML-based serialization that is a
                    coordinated effort of the HEP community to standardize the serialization of statistical models. The standard
                    is still in development and is not yet finalized. This function is experimental and may change in the future. |@docend:hs3.explain|
 
-        Args:
-            load: The serialized objects as a mapping. |@doc:hs3.layout.explain| The keys in the HS3 format are:
+           Args:
+               load: The serialized objects as a mapping. |@doc:hs3.layout.explain| The keys in the HS3 format are:
                     - 'distributions': list of PDFs
                     - 'variables': list of variables, i.e. ``zfit.Space`` and ``zfit.Parameter`` (or more generally parameters)
                     - 'loss': list of losses
                     - 'data': list of data
                     - 'metadata': contains the version of the HS3 format and the
                       zfit version used to create the file |@docend:hs3.layout.explain|
+               reuse_params: |@doc:hs3.ini.reuse_params| If parameters, the parameters
+                   will be reused if they are given.
+                   If a parameter is given, it will be used as the parameter
+                   with the same name. If a parameter is not given, a new
+                   parameter will be created. |@docend:hs3.ini.reuse_params|
 
-        Returns:
-            mapping: The PDFs and variables as a mapping to the original keys.
+           Returns:
+               mapping: The PDFs and variables as a mapping to the original keys.
         """
-        cls.initialize()
-        # sanity checks, TODO
-        if "variables" not in load:
-            pass
-        if "distributions" not in load:
-            pass
-        if "metadata" not in load:
-            pass
-
-        variables_holder = load["variables"]
+        with cls.initialize(reuse_params=reuse_params):
+            # sanity checks, TODO
+            if "variables" not in load:
+                pass
+            if "distributions" not in load:
+                pass
+            if "metadata" not in load:
+                pass
+    variables_holder = load["variables"]
         for param, paramdict in tuple(variables_holder.items()):
-            if "value" in paramdict:
-                if paramdict.get("floating", True) is False:
-                    paramdict["type"] = "ConstantParameter"
+                if "value" in paramdict:
+                    if paramdict.get("floating", True) is False:
+                        paramdict["type"] = "ConstantParameter"
+                    else:
+                        paramdict["type"] = "Parameter"
+                elif "value_fn" in paramdict:
+                    paramdict["type"] = "ComposedParameter"
                 else:
-                    paramdict["type"] = "Parameter"
-            elif "value_fn" in paramdict:
-                paramdict["type"] = "ComposedParameter"
-            else:
-                variables_holder.pop(
+                    variables_holder.pop(
                     param
                 )  # spaces can have different limits, don't replace.
 
-        load = cls.pre_deserialize(load)
+            load = cls.pre_deserialize(load)
 
-        out = {
-            "variables": {},  # order matters! variables first
-            "data": {},
-            "constraints": {},
-            "distributions": {},
-            "loss": {},
-        }
-        assert (
-            list(out)[0] == "variables"
-        ), "Order changed, has to deserealize variables first"
-        for kind, kindout in out.items():
-            for name, obj_dict in load[kind].items():
-                repr = Serializer.type_repr[obj_dict["type"]]
-                repr_inst = repr(**obj_dict)
-                kindout[name] = repr_inst.to_orm()
-        out["metadata"] = load["metadata"].copy()
+            out = {
+                "variables": {},  # order matters! variables first
+                "data": {},
+                "constraints": {},
+                "distributions": {},
+                "loss": {},
+            }
+            assert (
+                list(out)[0] == "variables"
+            ), "Order changed, has to deserealize variables first"
+            for kind, kindout in out.items():
+                for name, obj_dict in load[kind].items():
+                    repr = Serializer.type_repr[obj_dict["type"]]
+                    repr_inst = repr(**obj_dict)
+                    kindout[name] = repr_inst.to_orm()
+            out["metadata"] = load["metadata"].copy()
 
-        out = cls.post_deserialize(out)
+            out = cls.post_deserialize(out)
         return out
 
     @classmethod
@@ -647,18 +679,17 @@ class BaseRepr(pydantic.BaseModel):
             cls._context = old_mode
         return out
 
-    def to_orm(self):
-        old_mode = type(self)._context
-        try:
-            type(self)._context = MODES.repr
-            if self._implementation is None:
-                raise ValueError("No implementation registered!")
-            init = self.dict(exclude_none=True)
-            type_ = init.pop("hs3_type")
-            # assert type_ == self.hs3_type
-            out = self._to_orm(init)
-        finally:
-            type(self)._context = old_mode
+    def to_orm(self, *, reuse_params=None):
+        with Serializer.initialize(reuse_params=reuse_params):
+            old_mode = type(self)._context
+            try:
+                type(self)._context = MODES.repr
+                if self._implementation is None:
+                    raise ValueError("No implementation registered!")
+                init = self.dict(exclude_none=True)
+                out = self._to_orm(init)
+            finally:
+                type(self)._context = old_mode
         return out
 
     @to_orm_init

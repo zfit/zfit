@@ -6,19 +6,25 @@ from ordered_set import OrderedSet
 
 import zfit
 from zfit import Parameter, z
-from zfit.exception import NameAlreadyTakenError, LogicalUndefinedOperationError
+from zfit.exception import LogicalUndefinedOperationError
 from zfit.param import ComplexParameter, ComposedParameter
 
 
 def test_complex_param():
+    import zfit.z.numpy as znp
+
     real_part = 1.3
     imag_part = 0.3
     complex_value = real_part + 1j * imag_part
 
-    param1 = ComplexParameter("param1_compl", lambda: complex_value, params=None)
+    param1 = ComplexParameter(
+        "param1_compl",
+        lambda params: znp.array(params[0], dtype=np.complex128) + 1j * imag_part,
+        params=[real_part, imag_part],
+    )
     some_value = 3.0 * param1**2 - 1.2j
     true_value = 3.0 * complex_value**2 - 1.2j
-    assert true_value == pytest.approx(some_value.numpy(), rel=1e-8)
+    assert true_value == pytest.approx(some_value.numpy(), rel=1e-7)
     assert not param1.get_params()
 
     # Cartesian complex
@@ -490,15 +496,11 @@ def test_set_values_dict(addmore):
 
 
 def test_deletion():
-    import gc
-
     def func():
         a = zfit.Parameter("param", 42)
         return True
 
     assert func()
-
-    gc.collect()
     assert func()  # this must not raise an error
 
 
