@@ -261,6 +261,22 @@ class Voigt(BasePDF, SerializableMixin):
 
         The Voigt profile is a convolution of a 1-D Gaussian distribution with standard deviation sigma and a 1-D Cauchy distribution with half-width at half-maximum gamma.
 
+        The (unnormalized) Voigt profile shape is defined as
+
+        .. math::
+            V(x; \\sigma, \\gamma) = Re[w(z)]
+
+        where :math:`z = \\frac{x + i\\gamma}{\\sqrt{2}\\sigma}` and :math:`w(z)` is the Faddeeva function
+
+        with the normalization over [-inf, inf] of
+
+        .. math::
+            \\frac{1}{\\sqrt{2\\pi\\sigma^2} }
+
+        The normalization changes for different normalization ranges.
+        :math:`m` the mean, :math:`\sigma` the standard deviation of the Gaussian part and :math:`\gamma` the width of the Cauchy part.
+
+
         Args:
             m: Mean of the Voigt profile.
             sigma: Standard deviation or spread of the Gaussian part.
