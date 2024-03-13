@@ -11,7 +11,7 @@ def test_voigt1():
     width1_true = 1.4
 
     obs1 = "obs1"
-    limits1 = zfit.Space(obs=obs1, limits=(-10, 10))
+    limits1 = (-10, 10)
     obs1 = zfit.Space(obs1, limits=limits1)
 
     test_values = z.random.uniform(minval=-10, maxval=10, shape=(1000,))
@@ -22,7 +22,7 @@ def test_voigt1():
     voigt1 = zfit.pdf.Voigt(m=mean, sigma=sigma, gamma=gamma, obs=obs1)
 
     probs1 = voigt1.pdf(x=test_values, norm=False)
-    assert all(probs1) > 0
+    np.testing.assert_array_less(0, probs1)
     sample1 = voigt1.sample(100)
     assert len(sample1.value()) == 100
 

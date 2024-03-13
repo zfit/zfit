@@ -264,6 +264,7 @@ class Voigt(BasePDF, SerializableMixin):
         The (unnormalized) Voigt profile shape is defined as
 
         .. math::
+
             V(x; \\sigma, \\gamma) = Re[w(z)]
 
         where :math:`z = \\frac{x + i\\gamma}{\\sqrt{2}\\sigma}` and :math:`w(z)` is the Faddeeva function
@@ -271,6 +272,7 @@ class Voigt(BasePDF, SerializableMixin):
         with the normalization over [-inf, inf] of
 
         .. math::
+
             \\frac{1}{\\sqrt{2\\pi\\sigma^2} }
 
         The normalization changes for different normalization ranges.
