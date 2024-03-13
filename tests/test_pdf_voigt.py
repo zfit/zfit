@@ -14,7 +14,7 @@ def test_voigt1():
     limits1 = zfit.Space(obs=obs1, limits=(-10, 10))
     obs1 = zfit.Space(obs1, limits=limits1)
 
-    test_values = z.random.uniform(minval=-2, maxval=4, shape=(100,))
+    test_values = z.random.uniform(minval=-10, maxval=10, shape=(1000,))
 
     mean = zfit.Parameter("mean", mean1_true, -10, 10)
     sigma = zfit.Parameter("sigma", std1_true, 0.1, 10)

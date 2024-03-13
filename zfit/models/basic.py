@@ -274,7 +274,8 @@ class Voigt(BasePDF, SerializableMixin):
             \\frac{1}{\\sqrt{2\\pi\\sigma^2} }
 
         The normalization changes for different normalization ranges.
-        :math:`m` the mean, :math:`\sigma` the standard deviation of the Gaussian part and :math:`\gamma` the width of the Cauchy part.
+
+        :math:`m` is the mean, :math:`\\sigma` is the standard deviation of the Gaussian part and :math:`\\gamma` is the width of the Cauchy part.
 
 
         Args:
