@@ -21,16 +21,23 @@ class linalg:
     solve = staticmethod(_tf.linalg.solve)
 
 
+# TODO: move into special namespace when that's available
 def faddeeva_humlicek(z, s=10.0):
     """Complex error function w(z = x + iy) combining Humlicek's rational approximations.
 
-    |x| + y > 10:  Humlicek (JQSRT, 1982) rational approximation for region II;
+    |x| + y > s:  Humlicek (JQSRT, 1982) rational approximation for region II;
     else:          Humlicek (JQSRT, 1979) rational approximation with n=16 and delta=y0=1.35
 
     Version using tensorflow and the numpy api of tensorflow.
     Single complex argument version of Franz Schreier's cpfX.hum2zpf16m.
     Originally licensed under a 3-clause BSD style license - see
     https://atmos.eoc.dlr.de/tools/lbl4IR/cpfX.py
+
+    Args:
+        z: array_like
+        s: float, optional
+            The threshold for the region II approximation.
+            The default is 10.0.
     """
 
     z = asarray(atleast_1d(z), dtype=complex128)
