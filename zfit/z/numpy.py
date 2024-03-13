@@ -38,6 +38,9 @@ def faddeeva_humlicek(z, s=10.0):
         s: float, optional
             The threshold for the region II approximation.
             The default is 10.0.
+
+    Returns:
+        A `Tensor` of `complex128` dtype.
     """
 
     z = asarray(atleast_1d(z), dtype=complex128)
