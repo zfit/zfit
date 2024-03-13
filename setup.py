@@ -23,7 +23,6 @@ extras_require = {}
 extras_require["ipyopt"] = ["ipyopt>=0.12"]
 extras_require["nlopt"] = ["nlopt>=2.7.1"]
 extras_require["hs3"] = ["asdf"]
-# Python 3.7 not supported anymore
 extras_require["uproot"] = ["awkward-pandas"]
 allreq = sum(extras_require.values(), [])
 
@@ -58,9 +57,12 @@ alldev_windows.pop(
 )  # not available on Windows: https://github.com/google/jax/issues/438#issuecomment-939866186
 extras_require["alldev-windows"] = alldev_windows
 alldev_silicon = alldev_nonlinux.copy()
-# alldev_silicon.pop(
-#     alldev_silicon.index(nlopt_req)  # https://github.com/DanielBok/nlopt-python/issues/13
-# )  # not available on Silicon:
+print(alldev_silicon)
+alldev_silicon.pop(
+    alldev_silicon.index(
+        extras_require["nlopt"][0]
+    )  # https://github.com/DanielBok/nlopt-python/issues/13
+)  # not available on Silicon:
 extras_require["alldev-silicon"] = alldev_silicon
 
 # fill defaults depending on the system
