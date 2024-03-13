@@ -2,7 +2,7 @@
 
 #  Copyright (c) 2023 zfit
 import os
-import sys
+import platform
 import warnings
 
 from setuptools import setup
@@ -66,7 +66,7 @@ alldev_silicon.pop(
 extras_require["alldev-silicon"] = alldev_silicon
 
 # fill defaults depending on the system
-if (platform := sys.platform) == "darwin" and sys.platform.processor() == "arm":
+if (platform := platform.platform()) == "darwin" and platform.processor() == "arm":
     platform = "silicon"
 elif platform == "win32":
     platform = "windows"
