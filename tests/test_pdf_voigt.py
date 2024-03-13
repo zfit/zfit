@@ -1,5 +1,5 @@
 #  Copyright (c) 2023 zfit
-
+import numpy as np
 import zfit
 from zfit import z
 from scipy.special import voigt_profile
@@ -21,10 +21,10 @@ def test_voigt1():
     gamma = zfit.Parameter("gamma", width1_true, 0.1, 10)
     voigt1 = zfit.pdf.Voigt(m=mean, sigma=sigma, gamma=gamma, obs=obs1)
 
-    probs1 = voigt1.pdf(x=test_values, norm=False).numpy()
+    probs1 = voigt1.pdf(x=test_values, norm=False)
     assert all(probs1) > 0
-    sample1 = voigt1.sample(100).numpy()
-    assert len(sample1) == 100
+    sample1 = voigt1.sample(100)
+    assert len(sample1.value()) == 100
 
     probs2 = voigt_profile(test_values - mean1_true, std1_true, width1_true)
-    assert z.numpy.allclose(probs1, probs2, rtol=1e-10, atol=1e-08)
+    np.testing.assert_allclose(probs1, probs2, rtol=1e-10, atol=1e-08)

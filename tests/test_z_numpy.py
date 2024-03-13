@@ -58,11 +58,8 @@ def test_faddeeva():
             test_values8,
         ]
     )
-    assert np.allclose(
-        znp.faddeeva_humlicek(znp.asarray(test_values)),
-        wofz(test_values),
-        rtol=1e-06,
-        atol=1e-10,
+    np.testing.assert_allclose(
+        znp.faddeeva_humlicek(test_values), wofz(test_values), rtol=1e-06
     )
 
     test_values_tensor = znp.asarray(test_values)
