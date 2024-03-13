@@ -9,8 +9,10 @@ Develop
 
 Major Features and Improvements
 -------------------------------
-- add ``GeneralizedCB` PDF which is similar to the ``DoubleCB`` PDF but with different standard deviations for the left and right side.
+- add ``GeneralizedCB`` PDF which is similar to the ``DoubleCB`` PDF but with different standard deviations for the left and right side.
 - allow to use pandas DataFrame as input where zfit Data objects are expected
+- add ``faddeeva_humlicek`` function under the ``zfit.z.numpy`` namespace. This is an implementation of the Faddeeva function, combining Humlicek's rational approximations according to Humlicek (JQSRT, 1979) and Humlicek (JQSRT, 1982).
+- add ``Voigt`` profile PDF which is a convolution of a Gaussian and a Cauchy distribution.
 
 Breaking changes
 ------------------
