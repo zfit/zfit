@@ -1,26 +1,19 @@
 #  Copyright (c) 2024 zfit
-import numpy as np
 import pytest
 
 import zfit
-from zfit import Parameter
-from zfit.models.dist_tfp import ChiSquared
-
-N_true = 2
-
-obs = zfit.Space(obs="Nobs", limits=(0, 200))
-
-test_values = np.random.uniform(low=0, high=100, size=100)
+import zfit.z.numpy as znp
 
 
 def test_chisquared():
-    N = Parameter("N", N_true)
-    chi2 = ChiSquared(obs=obs, ndof=N)
 
-    probs1 = chi2.pdf(x=test_values)
-    probs1 = probs1.numpy()
+    N_true = 5
+    N = zfit.Parameter("N", N_true)
 
-    samples = chi2.sample(10000).numpy()
+    obs = zfit.Space(obs="obs", limits=(0, 100))
+    chi2 = zfit.pdf.ChiSquared(obs=obs, ndof=N)
 
-    assert np.mean(samples) == pytest.approx(N_true, rel=0.05)
-    assert np.std(samples) == pytest.approx(np.sqrt(2 * N_true), rel=0.05)
+    samples = chi2.sample(10000)['obs']
+
+    assert float(znp.mean(samples)) == pytest.approx(N_true, rel=0.05)
+    assert float(znp.std(samples)) == pytest.approx((2 * N_true)**0.5, rel=0.05)

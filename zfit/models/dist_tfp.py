@@ -507,16 +507,18 @@ class ChiSquared(WrapDistribution, SerializableMixin):
         norm: NormInputType = None,
         name: str = "ChiSquared",
     ):
-        """ChiSquared distribution for a ndof degrees of freedom.
+        """ChiSquared distribution for ndof degrees of freedom.
 
         The chisquared shape for $d$ degrees of freedom is defined as
 
         .. math::
+
             f(x \\mid d) = x**(d/2 - 1) \\exp(-x/2) / Z
 
         with the normalization over [0, inf] of
 
         .. math::
+
             Z = \\frac{1}{2^{d/2} \\Gamma(d/2)}
 
         The normalization changes for different normalization ranges
@@ -537,8 +539,10 @@ class ChiSquared(WrapDistribution, SerializableMixin):
                Has no programmatical functional purpose as identification. |@docend:model.init.name|
         """
         (ndof,) = self._check_input_params(ndof)
-        params = {"ndof": ndof}
-        dist_params = dict(df=ndof)
+        params = OrderedDict((("ndof", ndof),))
+        # params = {"ndof": ndof}
+        # dist_params = dict(df=ndof)
+        dist_params = lambda: dict(df=ndof.value())
         distribution = tfp.distributions.Chi2
         super().__init__(
             distribution=distribution,
@@ -550,3 +554,9 @@ class ChiSquared(WrapDistribution, SerializableMixin):
             norm=norm,
         )
 
+
+class ChiSquaredPDFRepr(BasePDFRepr):
+    _implementation = ChiSquared
+    hs3_type: Literal["ChiSquared"] = Field("ChiSquared", alias="type")
+    x: SpaceRepr
+    lam: Serializer.types.ParamTypeDiscriminated
