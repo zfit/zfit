@@ -79,6 +79,16 @@ def cauchy(extended=None, **kwargs):
     return zfit.pdf.Cauchy(m=m, gamma=gamma, obs=obs, extended=extended)
 
 
+def voigt(extended=None, **kwargs):
+    import zfit
+
+    m = zfit.Parameter("m_voigt", 0.1, -1, 1)
+    sigma = zfit.Parameter("sigma_voigt", 0.1, 0, 1)
+    gamma = zfit.Parameter("gamma_voigt", 0.1, 0, 1)
+    obs = zfit.Space("obs", (-3, 3))
+    return zfit.pdf.Voigt(m=m, sigma=sigma, gamma=gamma, obs=obs, extended=extended)
+
+
 def exponential(extended=None, **kwargs):
     import zfit
 
@@ -318,6 +328,7 @@ def kde1disj(pdfs=None, extended=None, **kwargs):
 basic_pdfs = [
     gauss,
     cauchy,
+    voigt,
     exponential,
     crystalball,
     doublecb,
