@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 from __future__ import annotations
 
 import collections
@@ -387,7 +387,9 @@ class Serializer:
             pass
         if "metadata" not in load:
             pass
-        for param, paramdict in load["variables"].items():
+
+        variables_holder = load["variables"]
+        for param, paramdict in tuple(variables_holder.items()):
             if "value" in paramdict:
                 if paramdict.get("floating", True) is False:
                     paramdict["type"] = "ConstantParameter"
@@ -396,7 +398,8 @@ class Serializer:
             elif "value_fn" in paramdict:
                 paramdict["type"] = "ComposedParameter"
             else:
-                paramdict["type"] = "Space"
+                variables_holder.pop(param)
+                # paramdict["type"] = "Space"
 
         load = cls.pre_deserialize(load)
 
@@ -447,7 +450,9 @@ class Serializer:
             out[what] = replace_matching(out[what], replace_forward_composed_param)
 
             # replace parameters and spaces with their name
-            parameter = frozendict({"name": None, "min": None, "max": None})
+            parameter = frozendict(
+                {"name": None, "min": None, "max": None, "step_size": None}
+            )
             replace_forward_param = {parameter: lambda x: x["name"]}
             out[what] = replace_matching(out[what], replace_forward_param)
         for parname, param in out["variables"].items():

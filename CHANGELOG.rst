@@ -22,6 +22,8 @@ Deprecations
 Bug fixes and small changes
 ---------------------------
 - ``result.fmin`` now returns the full likelihood, while ``result.fminopt`` returns the optimized likelihood with potential constant subtraction. The latter is mostly used by the minimizer and other libraries. This behavior is consistent with the behavior of other methods in the loss that return by default the full, unoptimized value.
+- serialization only allowed for one specific limit (space) of each obs. Multiple, independent
+  limits can now be serialized.
 
 Experimental
 ------------
