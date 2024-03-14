@@ -3,6 +3,7 @@
 #  Copyright (c) 2023 zfit
 import os
 import platform
+import sys
 import warnings
 
 from setuptools import setup
@@ -20,9 +21,10 @@ with open(
     requirements_dev = requirements_dev_file.read().splitlines()
 requirements_dev = [req.split("#")[0].strip() for req in requirements_dev]
 
+nlopt_req = "nlopt>=2.7.1"
 extras_require = {}
 extras_require["ipyopt"] = ["ipyopt>=0.12"]
-extras_require["nlopt"] = ["nlopt>=2.7.1"]
+extras_require["nlopt"] = [nlopt_req]
 extras_require["hs3"] = ["asdf"]
 extras_require["uproot"] = ["awkward-pandas"]
 allreq = sum(extras_require.values(), [])
@@ -89,6 +91,13 @@ extras_require["tests"] = extras_require[f"tests-{platf}"]
 extras_require["dev"] = extras_require[f"dev-{platf}"]
 extras_require["alldev"] = extras_require[f"alldev-{platf}"]
 extras_require["all"] = extras_require[f"all-{platf}"]
+
+
+nlopt_req = "nlopt>=2.7.1"
+if sys.version_info > (3, 11):  # nlopt not available
+    for req_name, req in extras_require.items():
+        if nlopt_req in req:
+            req.remove(nlopt_req)
 setup(
     install_requires=requirements,
     tests_require=tests_require,
