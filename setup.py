@@ -3,6 +3,7 @@
 #  Copyright (c) 2024 zfit
 import os
 import platform
+import sys
 
 import warnings
 from setuptools import setup
