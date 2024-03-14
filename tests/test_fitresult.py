@@ -201,14 +201,17 @@ def test_set_values_fitresult(do_pickle, weights, extended):
 minimizers = [
     (zfit.minimize.ScipyTrustConstrV1, {}, True),
     (zfit.minimize.Minuit, {}, True),
-    (zfit.minimize.NLoptLBFGSV1, {}, True),
 ]
 
-if not platform.system() in (
+
+if (platf := platform.system()) not in (
     "Darwin",
-    "Windows",
 ):  # TODO: Ipyopt installation on macosx not working
-    minimizers.append((zfit.minimize.IpyoptV1, {}, False))
+    minimizers.append(
+        (zfit.minimize.NLoptLBFGSV1, {}, True),
+    )
+    if platf not in ("Windows",):
+        minimizers.append((zfit.minimize.IpyoptV1, {}, False))
 # sort for xdist: https://github.com/pytest-dev/pytest-xdist/issues/432
 minimizers = sorted(minimizers, key=lambda val: repr(val))
 

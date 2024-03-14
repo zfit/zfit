@@ -11,6 +11,7 @@ from __future__ import annotations
 import contextlib
 from typing import Literal
 
+import numpy as np
 import tensorflow as tf
 import zfit.z.numpy as znp
 from pydantic import Field
@@ -240,3 +241,100 @@ class ExponentialPDFRepr(BasePDFRepr):
     hs3_type: Literal["Exponential"] = Field("Exponential", alias="type")
     x: SpaceRepr
     lam: Serializer.types.ParamTypeDiscriminated
+
+
+class Voigt(BasePDF, SerializableMixin):
+    _N_OBS = 1
+
+    def __init__(
+        self,
+        m: ztyping.ObsTypeInput,
+        sigma: ztyping.ParamTypeInput,
+        gamma: ztyping.ParamTypeInput,
+        obs: ztyping.ObsTypeInput = None,
+        *,
+        extended: ExtendedInputType = None,
+        norm: NormInputType = None,
+        name: str = "Voigt",
+    ):
+        """Voigt profile.
+
+        The Voigt profile is a convolution of a 1-D Gaussian distribution with standard deviation sigma and a 1-D Cauchy distribution with half-width at half-maximum gamma.
+
+        The (unnormalized) Voigt profile shape is defined as
+
+        .. math::
+
+            V(x; \\sigma, \\gamma) = Re[w(z)]
+
+        where :math:`z = \\frac{x + i\\gamma}{\\sqrt{2}\\sigma}` and :math:`w(z)` is the Faddeeva function
+
+        with the normalization over [-inf, inf] of
+
+        .. math::
+
+            \\frac{1}{\\sqrt{2\\pi\\sigma^2} }
+
+        The normalization changes for different normalization ranges.
+
+        :math:`m` is the mean, :math:`\\sigma` is the standard deviation of the Gaussian part and :math:`\\gamma` is the width of the Cauchy part.
+
+
+        Args:
+            m: Mean of the Voigt profile.
+            sigma: Standard deviation or spread of the Gaussian part.
+            gamma: Width of the shape of the Cauchy part.
+            obs: |@doc:pdf.init.obs| Observables of the
+               model. This will be used as the default space of the PDF and,
+               if not given explicitly, as the normalization range.
+
+               The default space is used for example in the sample method: if no
+               sampling limits are given, the default space is used.
+
+               The observables are not equal to the domain as it does not restrict or
+               truncate the model outside this range. |@docend:pdf.init.obs|
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+            norm: |@doc:pdf.init.norm| Normalization of the PDF.
+               By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
+            name: |@doc:pdf.init.name| Human-readable name
+               or label of
+               the PDF for better identification.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.name|
+        """
+        params = {"m": m, "sigma": sigma, "gamma": gamma}
+        super().__init__(obs, name=name, params=params, extended=extended, norm=norm)
+
+    def _unnormalized_pdf(self, x):
+        m = self.params["m"]
+        sigma = self.params["sigma"]
+        gamma = self.params["gamma"]
+        x = z.unstack_x(x)
+        x = znp.asarray(znp.atleast_1d(x) - m, dtype=znp.complex128)
+        gamma_complex = znp.asarray(gamma, dtype=znp.complex128)
+        sigma_complex = znp.asarray(sigma, dtype=znp.complex128)
+        complex_z = (x + 1j * gamma_complex) / (np.sqrt(2) * sigma_complex)
+        return znp.real(znp.faddeeva_humlicek(complex_z)) / (sigma * np.sqrt(2 * np.pi))
+
+
+def _voigt_integral_from_inf_to_inf(limits, params, model):
+    m = params["m"]
+    sigma = params["sigma"]
+    gamma = params["gamma"]
+    return sigma * np.sqrt(2 * np.pi)
+
+
+limits = Space(axes=0, limits=(-znp.inf, znp.inf))
+Voigt.register_analytic_integral(func=_voigt_integral_from_inf_to_inf, limits=limits)
+
+
+class VoigtPDFRepr(BasePDFRepr):
+    _implementation = Voigt
+    hs3_type: Literal["Voigt"] = Field("Voigt", alias="type")
+    x: SpaceRepr
+    m: Serializer.types.ParamTypeDiscriminated
+    sigma: Serializer.types.ParamTypeDiscriminated
+    gamma: Serializer.types.ParamTypeDiscriminated

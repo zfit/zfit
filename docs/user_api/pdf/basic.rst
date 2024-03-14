@@ -13,6 +13,7 @@ Any missing shape can be easily wrapped using :py:class:`~zfit.pdf.WrapDistribut
     zfit.pdf.GeneralizedCB
     zfit.pdf.Uniform
     zfit.pdf.Cauchy
+    zfit.pdf.Voigt
     zfit.pdf.TruncatedGauss
     zfit.pdf.Poisson
     zfit.pdf.ChiSquared

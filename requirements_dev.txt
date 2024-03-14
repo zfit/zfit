@@ -1,6 +1,7 @@
 bumpversion>=0.5.3
 check-manifest
 coverage>=4.5.1
+coverage-lcov
 # coverage-lcov  # reactivate once https://github.com/TheCleric/coverage-lcov/issues/6 resolved (remove it CI)
 docformatter
 flake8>=3.5.0
