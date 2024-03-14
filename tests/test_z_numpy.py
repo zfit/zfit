@@ -63,7 +63,7 @@ def test_faddeeva():
     )
 
     test_values_tensor = znp.asarray(test_values)
-    with tf.GradientTape(persistent=True) as tape:
+    with tf.GradientTape(persistent=True, watch_accessed_variables=False) as tape:
         tape.watch(test_values_tensor)
         result = znp.faddeeva_humlicek(test_values_tensor)
     gradientstf = tape.gradient(result, test_values_tensor)
@@ -80,7 +80,7 @@ def test_faddeeva():
     num_gradients_imag = z.math.numdifftools.Gradient(f_imag)(x)
 
     x = znp.asarray(x)
-    with tf.GradientTape(persistent=True) as tape:
+    with tf.GradientTape(persistent=True, watch_accessed_variables=False) as tape:
         tape.watch(x)
         result_real = f_real(x)
         result_imag = f_imag(x)
