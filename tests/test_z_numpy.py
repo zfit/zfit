@@ -66,7 +66,7 @@ def test_faddeeva():
     with tf.GradientTape(persistent=True) as tape:
         tape.watch(test_values_tensor)
         result = znp.faddeeva_humlicek(test_values_tensor)
-        gradientstf = tape.gradient(result, test_values_tensor)
+    gradientstf = tape.gradient(result, test_values_tensor)
     assert np.all(np.isfinite(gradientstf))
 
     # we test on a small sample of size 10 because the numerical gradient is slow to compute
@@ -84,8 +84,8 @@ def test_faddeeva():
         tape.watch(x)
         result_real = f_real(x)
         result_imag = f_imag(x)
-        tf_gradients_real = tape.gradient(result_real, x)
-        tf_gradients_imag = tape.gradient(result_imag, x)
+    tf_gradients_real = tape.gradient(result_real, x)
+    tf_gradients_imag = tape.gradient(result_imag, x)
 
     np.testing.assert_allclose(np.diag(num_gradients_real), tf_gradients_real)
     np.testing.assert_allclose(np.diag(num_gradients_imag), tf_gradients_imag)
