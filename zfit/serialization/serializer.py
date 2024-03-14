@@ -345,7 +345,7 @@ class Serializer:
                 ), "Name should have been uniqueified"
                 pdf_repr = pdf.get_repr().from_orm(pdf)
                 out["distributions"][name] = pdf_repr.dict(**serial_kwargs)
-
+                # TODO
                 for param in pdf.get_params(
                     floating=None, extract_independent=None
                 ):  # TODO: this is not ideal, we should take the serialized params?
@@ -390,33 +390,33 @@ class Serializer:
     ) -> Mapping[str, Union[ZfitPDF, ZfitParameter]]:
         """Load a PDF or a list of PDFs from a JSON string according to the HS3 standard.
 
-           .. warning::
-               This is an experimental feature and the API might change in the future. DO NOT RELY ON THE OUTPUT FOR
-               ANYTHING ELSE THAN TESTING.
+        .. warning::
+            This is an experimental feature and the API might change in the future. DO NOT RELY ON THE OUTPUT FOR
+            ANYTHING ELSE THAN TESTING.
 
-           THIS FUNCTION DOESN'T YET ADHERE TO HS3 (but just as a proxy).
+        THIS FUNCTION DOESN'T YET ADHERE TO HS3 (but just as a proxy).
 
-           |@doc:hs3.explain| HS3 is the `HEP Statistics Serialization Standard <https://github.com/hep-statistics-serialization-standard/hep-statistics-serialization-standard>`_.
+        |@doc:hs3.explain| HS3 is the `HEP Statistics Serialization Standard <https://github.com/hep-statistics-serialization-standard/hep-statistics-serialization-standard>`_.
                    It is a JSON/YAML-based serialization that is a
                    coordinated effort of the HEP community to standardize the serialization of statistical models. The standard
                    is still in development and is not yet finalized. This function is experimental and may change in the future. |@docend:hs3.explain|
 
-           Args:
-               load: The serialized objects as a mapping. |@doc:hs3.layout.explain| The keys in the HS3 format are:
+        Args:
+            load: The serialized objects as a mapping. |@doc:hs3.layout.explain| The keys in the HS3 format are:
                     - 'distributions': list of PDFs
                     - 'variables': list of variables, i.e. ``zfit.Space`` and ``zfit.Parameter`` (or more generally parameters)
                     - 'loss': list of losses
                     - 'data': list of data
                     - 'metadata': contains the version of the HS3 format and the
                       zfit version used to create the file |@docend:hs3.layout.explain|
-               reuse_params: |@doc:hs3.ini.reuse_params| If parameters, the parameters
+            reuse_params: |@doc:hs3.ini.reuse_params| If parameters, the parameters
                    will be reused if they are given.
                    If a parameter is given, it will be used as the parameter
                    with the same name. If a parameter is not given, a new
                    parameter will be created. |@docend:hs3.ini.reuse_params|
 
-           Returns:
-               mapping: The PDFs and variables as a mapping to the original keys.
+        Returns:
+            mapping: The PDFs and variables as a mapping to the original keys.
         """
         with cls.initialize(reuse_params=reuse_params):
             # sanity checks, TODO
@@ -426,8 +426,8 @@ class Serializer:
                 pass
             if "metadata" not in load:
                 pass
-    variables_holder = load["variables"]
-        for param, paramdict in tuple(variables_holder.items()):
+            variables_holder = load["variables"]
+            for param, paramdict in tuple(variables_holder.items()):
                 if "value" in paramdict:
                     if paramdict.get("floating", True) is False:
                         paramdict["type"] = "ConstantParameter"
@@ -437,8 +437,8 @@ class Serializer:
                     paramdict["type"] = "ComposedParameter"
                 else:
                     variables_holder.pop(
-                    param
-                )  # spaces can have different limits, don't replace.
+                        param
+                    )  # spaces can have different limits, don't replace.
 
             load = cls.pre_deserialize(load)
 
