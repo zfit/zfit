@@ -356,8 +356,9 @@ def truncpdf(pdfs=None, extended=None, **kwargs):
     if pdfs is None:
         pdfs = basic_pdfs
     pdf = pdfs[0]()
-    space1 = zfit.Space("obs1", (-1, 1))
-    space2 = zfit.Space("obs2", (2, 3))
+    obs = pdf.obs[0]
+    space1 = zfit.Space(obs, (-1, 1))
+    space2 = zfit.Space(obs, (2, 3))
     return zfit.pdf.TruncatedPDF(pdf=pdf, extended=extended, limits=[space1, space2])
 
 

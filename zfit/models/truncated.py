@@ -1,5 +1,5 @@
 #  Copyright (c) 2024 zfit
-from typing import Literal, Optional
+from typing import Literal, Optional, List
 
 import pydantic
 import tensorflow as tf
@@ -124,8 +124,8 @@ class TruncatedPDF(BaseFunctor, SerializableMixin):
 class TruncatedPDFRepr(FunctorPDFRepr):
     _implementation = TruncatedPDF
     hs3_type: Literal["TruncatedPDF"] = pydantic.Field("TruncatedPDF", alias="type")
-    limits: Optional[list[SpaceRepr]]
-    norms: Optional[list[SpaceRepr]]
+    limits: Optional[List[SpaceRepr]] = None
+    norms: Optional[List[SpaceRepr]] = None
 
     def _to_orm(self, init):
         init["pdf"] = init.pop("pdfs")[0]
