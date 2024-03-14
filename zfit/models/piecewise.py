@@ -2,14 +2,15 @@
 from typing import Literal
 
 import pydantic
-
-import zfit
+import tensorflow as tf
 from .basefunctor import FunctorPDFRepr
 from .functor import BaseFunctor
+from .. import supports, z
 from ..core.serialmixin import SerializableMixin
 from ..serialization import SpaceRepr
 from ..util.container import convert_to_container
 import zfit.z.numpy as znp
+from ..util.exception import SpecificFunctionNotImplemented
 
 
 class TruncatedPDF(BaseFunctor, SerializableMixin):
@@ -63,25 +64,50 @@ class TruncatedPDF(BaseFunctor, SerializableMixin):
         prob *= znp.asarray(znp.any(inside_arrays, axis=0), dtype=znp.float64)
         return prob
 
-    @zfit.supports(norm=True)
+    @supports(norm=True)
     def _normalization(self, norm, options):
-        # if norm is None:
-        #     norms = self._norms
-        # else:
         norms = convert_to_container(norm)  # todo: what's the best way here?
         normterms = [self.pdfs[0].normalization(norm) for norm in norms]
         return znp.sum(normterms, axis=0)
 
-    @zfit.supports()
+    @supports()
     def _integrate(self, limits, norm, options=None):
-        limits = convert_to_container(limits)
+        if (
+            limits != self.space
+        ):  # we could also do it, but would need to check each limit
+            raise SpecificFunctionNotImplemented
+        limits = convert_to_container(
+            self.limits
+        )  # if it's the overarching limits, we can just use our own ones, the real ones
         integrals = [
             self.pdfs[0].integrate(limits=limit, norm=False) for limit in limits
         ]
         integral = znp.sum(integrals, axis=0)
         return integral
 
-    # TODO: maybe more efficient sampling?
+    # TODO: we could make sampling more efficient by only sampling the relevant ranges, however, that would
+    # mean we need to check if the limits of the pdf are within the limits given
+    @supports()
+    def _sample(self, n, limits):
+        pdf = self.pdfs[0]
+        if (
+            limits != self.space
+        ):  # we could also do it, but would need to check each limit
+            raise SpecificFunctionNotImplemented
+        limits = convert_to_container(
+            self.limits
+        )  # if it's the overarching limits, we can just use our own ones, the real ones
+        integrals = znp.concatenate(
+            [pdf.integrate(limits=limit, norm=False) for limit in limits]
+        )
+        fracs = integrals / znp.sum(integrals, axis=0)  # norm
+        fracs.set_shape([len(limits)])
+        counts = tf.unstack(z.random.counts_multinomial(n, probs=fracs), axis=0)
+        samples = [
+            self.pdfs[0].sample(count, limits=limit).value()
+            for count, limit in zip(counts, limits)
+        ]
+        return znp.concatenate(samples, axis=0)
 
 
 class TruncatedPDFRepr(FunctorPDFRepr):
