@@ -22,8 +22,9 @@ with open(
 requirements_dev = [req.split("#")[0].strip() for req in requirements_dev]
 
 nlopt_req = "nlopt>=2.7.1"
+ipyopt_req = "ipyopt>=0.12"
 extras_require = {}
-extras_require["ipyopt"] = ["ipyopt>=0.12"]
+extras_require["ipyopt"] = [ipyopt_req]
 extras_require["nlopt"] = [nlopt_req]
 extras_require["hs3"] = ["asdf"]
 extras_require["uproot"] = ["awkward-pandas"]
@@ -98,6 +99,8 @@ if sys.version_info > (3, 11):  # nlopt not available
     for req_name, req in extras_require.items():
         if nlopt_req in req:
             req.remove(nlopt_req)
+        if ipyopt_req in req:
+            req.remove(ipyopt_req)
 setup(
     install_requires=requirements,
     tests_require=tests_require,
