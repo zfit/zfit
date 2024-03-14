@@ -398,8 +398,9 @@ class Serializer:
             elif "value_fn" in paramdict:
                 paramdict["type"] = "ComposedParameter"
             else:
-                variables_holder.pop(param)
-                # paramdict["type"] = "Space"
+                variables_holder.pop(
+                    param
+                )  # spaces can have different limits, don't replace.
 
         load = cls.pre_deserialize(load)
 
@@ -451,7 +452,12 @@ class Serializer:
 
             # replace parameters and spaces with their name
             parameter = frozendict(
-                {"name": None, "min": None, "max": None, "step_size": None}
+                {
+                    "name": None,
+                    "min": None,
+                    "max": None,
+                    "step_size": None,
+                }  # do not replace spaces, they can have different limits
             )
             replace_forward_param = {parameter: lambda x: x["name"]}
             out[what] = replace_matching(out[what], replace_forward_param)
