@@ -687,6 +687,8 @@ class BaseRepr(pydantic.BaseModel):
                 if self._implementation is None:
                     raise ValueError("No implementation registered!")
                 init = self.dict(exclude_none=True)
+                type_ = init.pop("hs3_type")
+                assert type_ == self.hs3_type
                 out = self._to_orm(init)
             finally:
                 type(self)._context = old_mode
