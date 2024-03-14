@@ -37,17 +37,22 @@ jobs:
         extras: [ alldev ]
         include:
           - os: ubuntu-latest
-            extras: alldev
+            extras: alldev-linux
             python-version: "3.11"
             use-graph: 0
           - os: macos-latest
             python-version: "3.11"
             use-graph: 1
-            extras: alldev-nonlinux
+            extras: alldev-darwin
           - os: windows-latest
             python-version: "3.11"
             use-graph: 1
             extras: alldev-windows
+          # Apple silicon runner
+          - os: macos-14
+            python-version: '3.11'
+            use-graph: 1
+            extras: alldev-silicon
 
     steps:
       - name: Get number of CPU cores
@@ -75,22 +80,20 @@ jobs:
             ${{ runner.os }}-pip-
 
       - name: Install dependencies
-        # move coverage-lcov to requirements once https://github.com/TheCleric/coverage-lcov/issues/6 resolved
         run: |
           python -m pip install --upgrade pip
           pip install coverage-lcov pytest-xdist pytest-cov
           pip install .[${{ matrix.extras }}]
       - name: Test with pytest
-        # TODO: maybe reactivate long tests?
-        #          if [ "$GITHUB_REF" == 'refs/heads/develop' ]; then
-        #            echo "PYTEST_ADDOPTS=--longtests-kde --longtests" >> "$GITHUB_ENV"
-        #          fi
         run: |
+          if [ "$GITHUB_REF" == 'refs/heads/develop' ]; then
+            echo "PYTEST_ADDOPTS=--longtests-kde --longtests" >> "$GITHUB_ENV"
+          fi
           pytest --cov=. --cov-config=pyproject.toml -n${{ steps.cpu-cores.outputs.count }}
           # convert to lcov format
 
-      #          mkdir coverage && coverage-lcov --output_file_path ./coverage/lcov.info
-      # TODO(jonas): fix coverage report? Needs converter to lcov format
+          mkdir coverage && coverage-lcov --output_file_path ./coverage/lcov.info
+  #      # TODO(jonas): fix coverage report? Needs converter to lcov format
   #      - name: Coveralls Parallel
   #        uses: coverallsapp/github-action@v2.2.3
   #        with:
@@ -141,8 +144,13 @@ jobs:
       max-parallel: 8
       fail-fast: False
       matrix:
-        use-graph: [ 0, 1 ]
+        use-graph: [ 1 ]
         python-version: [ "3.9", "3.11" ]
+        include:
+          - os: ubuntu-latest
+            extras: alldev
+            python-version: "3.11"
+            use-graph: 0
     name: Run tutorials, Python ${{ matrix.python-version }}, compiled = ${{ matrix.use-graph }}
     env:
       ZFIT_DO_JIT: ${{ matrix.use-graph }}
@@ -195,8 +203,13 @@ jobs:
       max-parallel: 8
       fail-fast: False
       matrix:
-        use-graph: [ 0, 1 ]
+        use-graph: [ 1 ]
         python-version: [ "3.9", "3.11" ]
+        include:
+          - os: ubuntu-latest
+            extras: alldev
+            python-version: "3.11"
+            use-graph: 0
     name: Run examples, Python ${{ matrix.python-version }}, compiled = ${{ matrix.use-graph }}
     env:
       ZFIT_DO_JIT: ${{ matrix.use-graph }}
