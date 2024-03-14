@@ -1,11 +1,10 @@
 """The setup script."""
 
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 import os
 import platform
-import sys
-import warnings
 
+import warnings
 from setuptools import setup
 
 here = os.path.abspath(os.path.dirname(__file__))
