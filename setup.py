@@ -2,7 +2,6 @@
 
 #  Copyright (c) 2023 zfit
 import os
-import sys
 
 from setuptools import setup
 

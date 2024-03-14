@@ -1,5 +1,6 @@
 #  Copyright (c) 2024 zfit
-from typing import Literal, Optional, List
+from collections import defaultdict
+from typing import Literal, Optional, Dict, Tuple, List
 
 import pydantic
 import tensorflow as tf
@@ -124,9 +125,33 @@ class TruncatedPDF(BaseFunctor, SerializableMixin):
 class TruncatedPDFRepr(FunctorPDFRepr):
     _implementation = TruncatedPDF
     hs3_type: Literal["TruncatedPDF"] = pydantic.Field("TruncatedPDF", alias="type")
-    limits: Optional[List[SpaceRepr]] = None
-    norms: Optional[List[SpaceRepr]] = None
+    limits: Optional[Dict[str, List[Tuple[float, float]]]] = None
 
     def _to_orm(self, init):
+        import zfit
+
         init["pdf"] = init.pop("pdfs")[0]
+        limit_init = init.pop("limits")
+        limits = []
+        firstround = True
+        for obs, limit_vals in limit_init.items():
+            for i, limit_val in enumerate(limit_vals):
+                newspace = zfit.Space(obs, limit_val)
+                if firstround:
+                    limits.append(newspace)
+                else:
+                    limits[i] *= newspace
+            firstround = False
+        init["limits"] = limits
         return super()._to_orm(init)
+
+    @pydantic.root_validator(pre=True)
+    def convert_limits_do_limitdict(cls, values):
+        if cls.orm_mode(values):
+            limits = defaultdict(list)
+            for limit in values["limits"]:
+                if limit.n_obs > 1:
+                    raise RuntimeError("Currently only 1D limits are supported.")
+                limits[limit.obs[0]].append(limit.limit1d)
+            values["limits"] = dict(limits)
+        return values

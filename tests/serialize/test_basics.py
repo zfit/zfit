@@ -524,7 +524,7 @@ def test_serial_hs3_pdfs(pdf, extended):
     loaded_pdf = list(loaded["distributions"].values())[0]
     assert str(pdf) == str(loaded_pdf)
     x = znp.random.uniform(-3, 3, size=(107, pdf.n_obs))
-    assert np.allclose(pdf.pdf(x), loaded_pdf.pdf(x))
+    np.testing.assert_allclose(pdf.pdf(x), loaded_pdf.pdf(x))
     if extended:
         scale.set_value(0.6)
         assert np.allclose(pdf.ext_pdf(x), loaded_pdf.ext_pdf(x))
