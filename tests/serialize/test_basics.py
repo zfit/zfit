@@ -1,6 +1,5 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 import copy
-from contextlib import suppress
 
 import numpy as np
 import pytest
@@ -353,6 +352,15 @@ def productpdf(pdfs=None, extended=None, **kwargs):
     return zfit.pdf.ProductPDF(pdfs=pdfs, extended=extended)
 
 
+def truncpdf(pdfs=None, extended=None, **kwargs):
+    if pdfs is None:
+        pdfs = basic_pdfs
+    pdf = pdfs[0]()
+    space1 = zfit.Space("obs1", (-1, 1))
+    space2 = zfit.Space("obs2", (2, 3))
+    return zfit.pdf.TruncatedPDF(pdf=pdf, extended=extended, limits=[space1, space2])
+
+
 def complicatedpdf(pdfs=None, extended=None, **kwargs):
     import zfit
 
@@ -413,6 +421,8 @@ all_pdfs = (
         sumpdf,
         productpdf,
         convolutionpdf,
+        # conditionalpdf,  # not working currently, see implementation
+        truncpdf,
         complicatedpdf,
     ]
     + [prod2dgauss]

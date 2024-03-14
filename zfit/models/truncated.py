@@ -1,13 +1,14 @@
 #  Copyright (c) 2024 zfit
-from typing import Literal
+from typing import Literal, Optional
 
 import pydantic
 import tensorflow as tf
 from .basefunctor import FunctorPDFRepr
 from .functor import BaseFunctor
-from .. import supports, z
+from .. import z
+from ..core.space import supports
 from ..core.serialmixin import SerializableMixin
-from ..serialization import SpaceRepr
+from ..serialization import SpaceRepr, Serializer  # noqa: F401
 from ..util.container import convert_to_container
 import zfit.z.numpy as znp
 from ..util.exception import SpecificFunctionNotImplemented
@@ -44,11 +45,21 @@ class TruncatedPDF(BaseFunctor, SerializableMixin):
                the PDF for better identification.
                Has no programmatical functional purpose as identification. |@docend:pdf.init.name|
         """
+        original_init = {"extended": extended, "obs": obs}
+
         self._limits = convert_to_container(limits)
         self._norms = convert_to_container(
             norms
         )  # TODO: check if space etc, get min/max of limits
+        if obs is None:
+            obs = pdf.space
+        if extended is True and pdf.is_extended:
+            raise ValueError(
+                "Cannot automatically take the value, would need to integrate and get correct fraction."
+            )
+            # extended = pdf.get_yield()  # TODO: that's probably not quite right per se?
         super().__init__(obs=obs, name=name, extended=extended, norm=None, pdfs=pdf)
+        self.hs3.original_init.update(original_init)
 
     @property
     def limits(self):
@@ -113,5 +124,9 @@ class TruncatedPDF(BaseFunctor, SerializableMixin):
 class TruncatedPDFRepr(FunctorPDFRepr):
     _implementation = TruncatedPDF
     hs3_type: Literal["TruncatedPDF"] = pydantic.Field("TruncatedPDF", alias="type")
-    limits: list[SpaceRepr]
-    norms: list[SpaceRepr]
+    limits: Optional[list[SpaceRepr]]
+    norms: Optional[list[SpaceRepr]]
+
+    def _to_orm(self, init):
+        init["pdf"] = init.pop("pdfs")[0]
+        return super()._to_orm(init)

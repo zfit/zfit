@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2024 zfit
 
 __all__ = [
     "BasePDF",
@@ -38,6 +38,7 @@ __all__ = [
     "BinwiseScaleModifier",
     "BinnedSumPDF",
     "SplinePDF",
+    "TruncatedPDF",
 ]
 
 from .core.basepdf import BasePDF
@@ -66,6 +67,7 @@ from .models.kde import (
 )
 from .models.morphing import SplineMorphingPDF
 from .models.physics import CrystalBall, DoubleCB, GeneralizedCB
+from .models.truncated import TruncatedPDF
 from .models.polynomials import (
     Chebyshev,
     Chebyshev2,
