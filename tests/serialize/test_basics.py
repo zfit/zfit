@@ -1,6 +1,5 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 import copy
-from contextlib import suppress
 
 import numpy as np
 import pytest
@@ -786,3 +785,24 @@ def test_data_dumpload(data_factory, request):
         TypeError, match="The object you are trying to serialize contains numpy arrays."
     ):
         data_loaded2.to_yaml()
+
+
+def test_multiple_obs_serialization():
+    lower1, upper1 = -3.0, 5.0
+    obs1 = zfit.Space("obs", (lower1, upper1))
+    lower2, upper2 = -13.0, 15.0
+    obs2 = zfit.Space("obs", (lower2, upper2))
+
+    mu = zfit.Parameter("mu", 0.1, -1, 1)
+    sigma = zfit.Parameter("sigma", 1)
+    sigma2 = zfit.Parameter("sigma2", 1)
+
+    gauss1 = zfit.pdf.Gauss(mu=mu, sigma=sigma, obs=obs1)
+    gauss2 = zfit.pdf.Gauss(mu=mu, sigma=sigma2, obs=obs2)
+    sumpdf = zfit.pdf.SumPDF([gauss1, gauss2], fracs=0.3, obs=obs1, name="SumPDF")
+
+    hs3pdf = zfit.hs3.dumps(sumpdf)
+    pdf = zfit.hs3.loads(hs3pdf)["distributions"]["SumPDF"]
+    assert pdf.pdfs[0].space.limit1d == (lower1, upper1)
+    assert pdf.pdfs[1].space.limit1d == (lower2, upper2)
+    assert pdf.space.limit1d == (lower1, upper1)
