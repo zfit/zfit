@@ -95,7 +95,7 @@ extras_require["all"] = extras_require[f"all-{platf}"]
 
 
 nlopt_req = "nlopt>=2.7.1"
-if sys.version_info > (3, 11):  # nlopt not available
+if sys.version_info > (3, 11):  # nlopt, ipyopt not available
     for req_name, req in extras_require.items():
         if nlopt_req in req:
             req.remove(nlopt_req)

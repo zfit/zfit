@@ -7,7 +7,6 @@ import numpy as np
 import pytest
 
 import zfit
-from zfit import z
 from zfit.minimizers.errors import compute_errors
 from zfit.minimizers.fitresult import FitResult
 
@@ -204,9 +203,10 @@ minimizers = [
 ]
 
 
-if (platf := platform.system()) not in (
-    "Darwin",
-):  # TODO: Ipyopt installation on macosx not working
+if sys.version_info[1] < 12 and (platf := platform.system()) not in ("Darwin",):
+    # TODO: remove all of this conditions once NLopt is available for Python 3.12
+    # see also https://github.com/DanielBok/nlopt-python/issues/24
+    # TODO: Ipyopt installation on macosx not working
     minimizers.append(
         (zfit.minimize.NLoptLBFGSV1, {}, True),
     )

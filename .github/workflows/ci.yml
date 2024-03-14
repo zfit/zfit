@@ -203,7 +203,7 @@ jobs:
       fail-fast: False
       matrix:
         use-graph: [ 1 ]
-        python-version: [ "3.9", "3.12" ]
+        python-version: [ "3.9", "3.11" ]  # todo: upgrade to 3.12 if nlopt available for 3.12
         include:
           - os: ubuntu-latest
             extras: alldev-linux
