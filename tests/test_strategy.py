@@ -1,5 +1,6 @@
 #  Copyright (c) 2024 zfit
 import math
+import platform
 import sys
 
 import pytest
@@ -39,7 +40,7 @@ def minimizers():
         zfit.minimize.Minuit,
         zfit.minimize.ScipySLSQPV1,
     ]
-    if sys.version_info[1] < 11:
+    if sys.version_info[1] < 11 and platform.system() == "Linux":
         minimizers.append(zfit.minimize.NLoptMMAV1)
     return minimizers
 
