@@ -314,10 +314,8 @@ if (
         "Darwin",
         "Windows",
     )
-    and sys.version_info
-)[
-    1
-] < 12:  # TODO: Ipyopt installation on macosx not working
+    and sys.version_info[1] < 12
+):  # TODO: Ipyopt installation on macosx not working
     # TODO: ipyopt fails? Why
     minimizers_small.append((zfit.minimize.IpyoptV1, {}, False))
     minimizers.append(
