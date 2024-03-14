@@ -148,7 +148,7 @@ jobs:
         python-version: [ "3.9", "3.12" ]
         include:
           - os: ubuntu-latest
-            extras: alldev
+            extras: alldev-linux
             python-version: "3.11"
             use-graph: 0
     name: Run tutorials, Python ${{ matrix.python-version }}, compiled = ${{ matrix.use-graph }}
@@ -207,7 +207,7 @@ jobs:
         python-version: [ "3.9", "3.12" ]
         include:
           - os: ubuntu-latest
-            extras: alldev
+            extras: alldev-linux
             python-version: "3.11"
             use-graph: 0
     name: Run examples, Python ${{ matrix.python-version }}, compiled = ${{ matrix.use-graph }}
