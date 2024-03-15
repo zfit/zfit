@@ -17,6 +17,7 @@ Major Features and Improvements
   names and matching parameters *within a function/PDF/loss* are unique, as otherwise inconsistent expectations appear (for a lengthy discussion on this, see [here](https://github.com/zfit/zfit/discussions/342).
 - add ``faddeeva_humlicek`` function under the ``zfit.z.numpy`` namespace. This is an implementation of the Faddeeva function, combining Humlicek's rational approximations according to Humlicek (JQSRT, 1979) and Humlicek (JQSRT, 1982).
 - add ``Voigt`` profile PDF which is a convolution of a Gaussian and a Cauchy distribution.
+- add ``LogNormal`` PDF, a log-normal distribution, which is a normal distribution of the logarithm of the variable.
 
 
 Breaking changes
