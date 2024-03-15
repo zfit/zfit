@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 """..
 
 todo:: Add module docstring.
@@ -16,16 +16,18 @@ from .util.exception import (
     MaximumIterationReached,
     MinimizerSubclassingError,
     MultipleLimitsNotImplemented,
-    NameAlreadyTakenError,
     NormRangeNotImplemented,
     SpecificFunctionNotImplemented,
     VectorizedLimitsNotImplemented,
     ShapeIncompatibleError,
     LogicalUndefinedOperationError,
+    ParamNameNotUniqueError,
+    BreakingAPIChangeError,
 )
 
 __all__ = [
     "NameAlreadyTakenError",
+    "ParamNameNotUniqueError",
     "IllegalInGraphModeError",
     "NormRangeNotImplemented",
     "MultipleLimitsNotImplemented",
@@ -91,3 +93,12 @@ class AnalyticNotImplementedError(AnalyticNotImplemented):
     @deprecated(None, "Use AnalyticNotImplemented instead.")
     def __init__(self, *args: object) -> None:
         super().__init__(*args)
+
+
+class NameAlreadyTakenError(Exception):
+
+    def __init__(self, *args: object) -> None:
+        raise BreakingAPIChangeError(
+            msg="NameAlreadyTakenError has been removed and the behavior has substantially changed:"
+            "parameters are now allowed to exist with the same as long as they are not within the same PDF/loss/func."
+        )

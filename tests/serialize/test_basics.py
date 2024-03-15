@@ -37,12 +37,12 @@ def test_serial_param():
     param = zfit.Parameter("mu", 0.1, -1, 1)
 
     json1 = param.to_json()
-    param2 = zfit.Parameter.get_repr().parse_raw(json1).to_orm()
+    param2 = zfit.Parameter.get_repr().parse_raw(json1).to_orm(reuse_params=[param])
 
     assert param == param2
     json2 = param2.to_json()
     assert json1 == json2
-    param3 = zfit.Parameter.get_repr().parse_raw(json2).to_orm()
+    param3 = zfit.Parameter.get_repr().parse_raw(json2).to_orm(reuse_params=[param])
     assert param2 == param3
     assert param == param3
 
@@ -540,16 +540,16 @@ def test_serial_hs3_pdfs(pdf, extended):
         pdf.set_yield(scale)
 
     hs3json = zserial.Serializer.to_hs3(pdf)
-    loaded = zserial.Serializer.from_hs3(hs3json)
+    loaded = zserial.Serializer.from_hs3(hs3json, reuse_params=pdf.get_params())
 
     loaded_pdf = list(loaded["distributions"].values())[0]
     assert str(pdf) == str(loaded_pdf)
     lower, upper = pdf.space.lower[0], pdf.space.upper[0]
     x = znp.random.uniform(lower, upper, size=(107, pdf.n_obs))
-    assert np.allclose(pdf.pdf(x), loaded_pdf.pdf(x))
+    np.testing.assert_allclose(pdf.pdf(x), loaded_pdf.pdf(x))
     if extended:
         scale.set_value(0.6)
-        assert np.allclose(pdf.ext_pdf(x), loaded_pdf.ext_pdf(x))
+        np.testing.assert_allclose(pdf.ext_pdf(x), loaded_pdf.ext_pdf(x))
 
 
 def test_replace_matching():
@@ -659,7 +659,8 @@ def test_replace_matching():
 
 
 @pytest.mark.parametrize("pdfcreator", all_pdfs, ids=lambda x: x.__name__)
-def test_dumpload_pdf(pdfcreator):
+@pytest.mark.parametrize("reuse_params", [True, False])
+def test_dumpload_pdf(pdfcreator, reuse_params):
     import zfit.z.numpy as znp
 
     pdf = pdfcreator()
@@ -669,25 +670,26 @@ def test_dumpload_pdf(pdfcreator):
     else:
         param1 = None
     json1 = pdf.to_dict()
-    gauss2 = type(pdf).from_dict(json1)
+    gauss2 = type(pdf).from_dict(json1, reuse_params=params)
+    gauss2noshared = type(pdf).from_dict(json1)
     try:
         json1 = pdf.to_json()
     except zfit.exception.NumpyArrayNotSerializableError:
         pass  # KDEs or similar
     else:
-        gauss2 = pdf.get_repr().parse_raw(json1).to_orm()
+        gauss2 = pdf.get_repr().parse_raw(json1).to_orm(reuse_params=params)
 
     assert str(pdf) == str(gauss2)
 
     json2 = gauss2.to_dict()
-    gauss3 = type(pdf).from_dict(json2)
+    gauss3 = type(pdf).from_dict(json2, reuse_params=params)
     try:
         json1 = pdf.to_json()
         json2 = gauss2.to_json()
     except zfit.exception.NumpyArrayNotSerializableError:
         pass  # KDEs or similarjson1
     else:
-        gauss3 = pdf.get_repr().parse_raw(json2).to_orm()
+        gauss3 = pdf.get_repr().parse_raw(json2).to_orm(reuse_params=params)
 
         json1cleaned = json1
         json2cleaned = json2
@@ -698,12 +700,18 @@ def test_dumpload_pdf(pdfcreator):
 
     lower, upper = pdf.space.lower[0], pdf.space.upper[0]
     x = znp.random.uniform(lower, upper, size=(100, pdf.n_obs))
-    assert np.allclose(pdf.pdf(x), gauss3.pdf(x))
-    assert np.allclose(gauss2.pdf(x), gauss3.pdf(x))
+    np.testing.assert_allclose(true_y, gauss3_y)
+    np.testing.assert_allclose(gauss2.pdf(x), gauss3_y)
     if param1 is not None:
-        param1.set_value(0.6)
-    assert np.allclose(pdf.pdf(x), gauss3.pdf(x))
-    assert np.allclose(gauss2.pdf(x), gauss3.pdf(x))
+        with param1.set_value(0.6):
+            gauss3_y = gauss3.pdf(x)
+            np.testing.assert_allclose(pdf.pdf(x), gauss3_y)
+            gauss2_y = gauss2.pdf(x)
+            np.testing.assert_allclose(gauss2_y, gauss3_y)
+            assert not np.allclose(
+                gauss2noshared.pdf(x), gauss2_y
+            )  # param1 changed only for gauss2
+            np.testing.assert_allclose(gauss2noshared.pdf(x), true_y)
 
 
 param_factories = [
@@ -726,7 +734,17 @@ def test_params_dumpload(param_factory):
     param = param_factory()
     json = param.to_json()
     param_loaded = param.get_repr().parse_raw(json).to_orm()
-    assert param == param_loaded
+    assert param.name == param_loaded.name
+    if isinstance(param, zfit.Space):
+        assert pytest.approx(param.lower) == param_loaded.lower
+        assert pytest.approx(param.upper) == param_loaded.upper
+    else:
+        assert pytest.approx(param.value()) == param_loaded.value()
+        if isinstance(param, zfit.Parameter):
+            assert param.floating == param_loaded.floating
+            assert pytest.approx(param.lower) == param_loaded.lower
+            assert pytest.approx(param.upper) == param_loaded.upper
+            assert pytest.approx(param.step_size) == param_loaded.step_size
     assert json == param_loaded.to_json()
 
 
