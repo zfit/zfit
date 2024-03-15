@@ -80,9 +80,9 @@ jobs:
 
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install coverage-lcov pytest-xdist pytest-cov
-          pip install .[${{ matrix.extras }}]
+          python -m pip install --upgrade uv pip
+          uv pip install coverage-lcov pytest-xdist pytest-cov
+          uv pip install .[${{ matrix.extras }}]
       - name: Test with pytest
         run: |
           pytest --cov=. --cov-config=pyproject.toml -n${{ steps.cpu-cores.outputs.count }}
@@ -130,8 +130,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install --ignore-requires-python .[docs]
+          python -m pip install uv
+          uv pip install --ignore-requires-python .[docs]
       - name: Build the docs, check for failure
         run: |
           bash utils/ci/testbuild_docs.sh
