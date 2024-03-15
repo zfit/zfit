@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 
 from __future__ import annotations
 
@@ -293,15 +293,17 @@ def test_exp():
 
 
 def normalization_testing(pdf, limits=None):
+    import zfit.z.numpy as znp
+
     limits = (low, high) if limits is None else limits
     space = Space(obs=obs1, limits=limits)
     with pdf.set_norm_range(space):
-        samples = tf.cast(
-            np.random.uniform(
-                low=space.lower, high=space.upper, size=(40000, pdf.n_obs)
+        samples = (
+            znp.random.uniform(
+                low=space.lower, high=space.upper, size=(100_000, pdf.n_obs)
             ),
-            dtype=tf.float64,
         )
+
         samples = zfit.Data.from_tensor(obs=space, tensor=samples)
         probs = pdf.pdf(samples)
         result = probs.numpy()

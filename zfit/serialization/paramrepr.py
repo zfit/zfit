@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 
 from __future__ import annotations
 
@@ -16,11 +16,14 @@ def make_param_constructor(constructor):
     """
 
     def param_constructor(name, **kwargs):
-        from ..core.parameter import Parameter
+        from zfit.serialization import Serializer
 
-        if name in Parameter._existing_params:
-            return Parameter._existing_params[name]
-        else:
-            return constructor(name=name, **kwargs)
+        previous_existing = Serializer._existing_params
+
+        if (param := previous_existing.get(name)) is None:
+            Serializer._existing_params[name] = (
+                param := constructor(name=name, **kwargs)
+            )
+        return param
 
     return param_constructor
