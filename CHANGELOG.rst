@@ -9,8 +9,10 @@ Develop
 
 Major Features and Improvements
 -------------------------------
-- add ``GeneralizedCB` PDF which is similar to the ``DoubleCB`` PDF but with different standard deviations for the left and right side.
+- add ``GeneralizedCB`` PDF which is similar to the ``DoubleCB`` PDF but with different standard deviations for the left and right side.
 - allow to use pandas DataFrame as input where zfit Data objects are expected
+- add ``faddeeva_humlicek`` function under the ``zfit.z.numpy`` namespace. This is an implementation of the Faddeeva function, combining Humlicek's rational approximations according to Humlicek (JQSRT, 1979) and Humlicek (JQSRT, 1982).
+- add ``Voigt`` profile PDF which is a convolution of a Gaussian and a Cauchy distribution.
 - add ``TruncatedPDF`` that allows to truncate in one or multiple ranges (replaces "MultipleLimits" and "MultiSpace")
 
 Breaking changes
@@ -23,6 +25,8 @@ Deprecations
 Bug fixes and small changes
 ---------------------------
 - ``result.fmin`` now returns the full likelihood, while ``result.fminopt`` returns the optimized likelihood with potential constant subtraction. The latter is mostly used by the minimizer and other libraries. This behavior is consistent with the behavior of other methods in the loss that return by default the full, unoptimized value.
+- serialization only allowed for one specific limit (space) of each obs. Multiple, independent
+  limits can now be serialized.
 
 Experimental
 ------------
