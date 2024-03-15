@@ -79,10 +79,8 @@ alldev_windows.pop(
 extras_require["alldev-windows"] = alldev_windows
 
 # fill defaults depending on the system
-if (platf := platform.platform()) == "darwin" and platform.processor() == "arm":
+if (platf := platform.system().lower()) == "darwin" and platform.processor() == "arm":
     platf = "silicon"
-elif platf == "win32":
-    platf = "windows"
 if platf not in ["linux", "windows", "silicon", "darwin"]:
     warnings.warn(
         f"Platform {platf} not recognized, `dev`, `tests` and `alldev` extras contain all requirements. "
