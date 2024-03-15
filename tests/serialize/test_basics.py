@@ -699,11 +699,13 @@ def test_dumpload_pdf(pdfcreator, reuse_params):
         assert json1cleaned == json2cleaned  # Just a technicality
 
     lower, upper = pdf.space.lower[0], pdf.space.upper[0]
-    x = znp.random.uniform(lower, upper, size=(100, pdf.n_obs))
+    x = znp.random.uniform(lower, upper, size=(1000, pdf.n_obs))
+    true_y = pdf.pdf(x)
+    gauss3_y = gauss3.pdf(x)
     np.testing.assert_allclose(true_y, gauss3_y)
     np.testing.assert_allclose(gauss2.pdf(x), gauss3_y)
     if param1 is not None:
-        with param1.set_value(0.6):
+        with param1.set_value(param1.value() + 0.3):
             gauss3_y = gauss3.pdf(x)
             np.testing.assert_allclose(pdf.pdf(x), gauss3_y)
             gauss2_y = gauss2.pdf(x)

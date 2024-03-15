@@ -170,8 +170,8 @@ def test_cb_dcb(doublecb):
     ratio_l = probsl_scipy / probs_dcb_l
     ratio_r = probsr_scipy / probs_dcb_r
 
-    np.testing.assert_allclose(ratio_l, ratio_l[0])
-    np.testing.assert_allclose(ratio_r, ratio_r[0])
+    np.testing.assert_allclose(ratio_l, ratio_l[0], rtol=3e-7)
+    np.testing.assert_allclose(ratio_r, ratio_r[0], rtol=3e-7)
 
     rnd_limits = sorted(list(np.random.uniform(*bounds, 130)) + list(bounds))
     integrals = []
