@@ -64,12 +64,15 @@ extras_require["dev-silicon"] = requirements_dev + extras_require["tests-silicon
 extras_require["alldev-linux"] = (
     extras_require["all-linux"] + extras_require["dev-linux"]
 )
+
 extras_require["alldev-darwin"] = (
     extras_require["all-darwin"] + extras_require["dev-darwin"]
 )
+
 extras_require["alldev-silicon"] = (
     extras_require["all-silicon"] + extras_require["dev-silicon"]
 )
+
 alldev_windows = extras_require["all-windows"] + extras_require["dev-windows"]
 
 alldev_windows.pop(
@@ -97,7 +100,7 @@ for req_name, req in extras_require.items():
     req = [r.split("#")[0].strip() for r in req]
     req = [r for r in req if r]  # remove empty string
     cleaned_req[req_name] = req
-    if sys.version_info > (3, 11):  # nlopt, ipyopt not available
+    if sys.version_info[1] > 11:  # nlopt, ipyopt not available
         if nlopt_req in req and req_name != "nlopt":
             req.remove(nlopt_req)
         if ipyopt_req in req and req_name != "ipyopt":
