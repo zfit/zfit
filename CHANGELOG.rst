@@ -16,6 +16,7 @@ Major Features and Improvements
 - allow to use pandas DataFrame as input directly where zfit Data objects are expected
 - add ``faddeeva_humlicek`` function under the ``zfit.z.numpy`` namespace. This is an implementation of the Faddeeva function, combining Humlicek's rational approximations according to Humlicek (JQSRT, 1979) and Humlicek (JQSRT, 1982).
 - add ``Voigt`` profile PDF which is a convolution of a Gaussian and a Cauchy distribution.
+- add ``LogNormal`` PDF, a log-normal distribution, which is a normal distribution of the logarithm of the variable.
 
 Breaking changes
 ------------------
