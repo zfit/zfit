@@ -1,4 +1,4 @@
-.. highlight:: shell
+.. highlight:: console
 
 =================
 How to contribute
@@ -18,33 +18,64 @@ Get Started!
 Ready to contribute? Here's how to set up *zfit* for local development.
 
 1. Fork the *zfit* repo on GitHub.
-2. Clone your fork locally::
+2. Clone your fork locally:
 
-    $ git clone git@github.com:your_name_here/zfit.git
+.. code-block::
 
-3. Install your local copy into a virtualenv. Assuming you have virtualenvwrapper installed, this is how you set up your fork for local development::
+    git clone git@github.com:your_name_here/zfit.git
 
-    $ mkvirtualenv zfit
-    $ cd zfit/
-    $ pip install -e .[alldev]  # (or [dev] if this fails)
+3. Install your local copy into a conda/mamba or other virtual environment. For example with conda, do
 
-4. Create a branch for local development::
+.. code-block::
 
-    $ git checkout -b name-of-your-bugfix-or-feature
+    conda create -n zfit311 python=3.11
+    conda activate zfit311
+    pip install -e .[alldev]  # . is the folder where setup.py is
+
+Further, you can install pre-commit locally to run the checks before you commit:
+
+.. code-block::
+
+    pip install pre-commit
+    pre-commit install  # this will execute pre-commit checks before every commit
+
+4. Create a branch for local development
+
+.. code-block::
+
+    git checkout -b name-of-your-bugfix-or-feature
 
    Now you can make your changes locally.
 
 5. When you're done making changes, check that your changes pass the
-   tests (this can take a while ~30 mins)::
+   tests (this can take a while ~30 mins). You can run the tests in parallel by
+   installing ``pytest-xdist`` and running ``pytest -n NUM`` where ``NUM`` is the number of cores
 
-    $ pytest
+.. code-block::
+
+    pytest  # in the root folder of the repository where tests folder is
+
+(Some tests have a ``@flaky`` decorator, which means that they might fail sometimes. If you see a flaky test
+failing, inspect it, but most likely it's not a problem with your changes. Rerunning the specific test usually solves the problem.)
 
 
-6. Commit your changes and push your branch to GitHub::
 
-    $ git add .
-    $ git commit -m "Your detailed description of your changes."
-    $ git push origin name-of-your-bugfix-or-feature
+Some elements, like objects that can be dumped to HS3, new PDFs etc, have a ``truth``. This is a reference file and test that check against such a file are therefore expected to fail (as the truth file doesn't exist yet).
+To create/regenerate a truth file, run the specific test that uses a truth file with the option ``--recreate-truth`` *after you verified that the output is actually correct*.
+
+For example, to run the test ``test_dumpload_hs3_pdf`` in file ``tests/serialize/test_hs3_user.py``, run
+
+.. code-block::
+
+    pytest tests/serialize/test_hs3_user.py::test_dumpload_hs3_pdf -- --recreate-truth
+
+6. Commit your changes and push your branch to GitHub
+
+.. code-block::
+
+    git add .
+    git commit -m "Your detailed description of your changes."
+    git push origin name-of-your-bugfix-or-feature
 
 7. Submit a pull request through the GitHub website. The test suite is going
    to run again, testing all the necessary Python versions.
@@ -61,6 +92,5 @@ Before you submit a pull request, check that it meets these guidelines:
    necessary explanations in the corresponding rst file in the docs).
    If any math is involved, please document the exact formulae implemented
    in the docstring/docs.
-3. The pull request should work for all Python versions. Check
-   https://travis-ci.org/zfit/zfit/pull_requests
-   and make sure that the tests pass for all supported Python versions.
+   New elements, such as a new PDF, should for example be added to the
+   ``docs/user_api/pdf/suitable_file.rst``.

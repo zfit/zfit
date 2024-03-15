@@ -1,4 +1,5 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
+import numpy as np
 import pytest
 
 import zfit
@@ -331,3 +332,63 @@ def test_get_params():
         )
         == set()
     )
+
+
+def test_unique_param_names():
+    obs = zfit.Space("obs1", (-1, 2))
+
+    param_a1 = zfit.Parameter("a", 1)
+    param_a2 = zfit.Parameter("a", 2)
+    param_a3 = zfit.Parameter("a", 5)
+    param_a4fix = zfit.Parameter("a", 5, floating=False)
+    param_b1 = zfit.Parameter("b", 7)
+    param_b2 = zfit.Parameter("b", 3)
+    param_c = zfit.Parameter("c", 0.42)
+
+    compparam_a1 = zfit.ComposedParameter("a", lambda x: x, params=param_a1)
+    compparam_a2 = zfit.ComposedParameter("a", lambda x: x, params=param_a2)
+
+    with pytest.raises(zfit.exception.ParamNameNotUniqueError):
+        zfit.pdf.Gauss(mu=param_a1, sigma=param_a2, obs=obs)
+
+    with pytest.raises(zfit.exception.ParamNameNotUniqueError):
+        zfit.pdf.Gauss(mu=param_a1, sigma=param_a4fix, obs=obs)
+
+    gauss1 = zfit.pdf.Gauss(mu=param_a1, sigma=param_b1, obs=obs)
+    with pytest.raises(zfit.exception.ParamNameNotUniqueError):
+        gauss1.create_extended(param_b2)
+    with pytest.raises(zfit.exception.ParamNameNotUniqueError):
+        gauss1.set_yield(param_b2)
+
+    gauss1 = zfit.pdf.Gauss(
+        mu=param_a1, sigma=param_b1, obs=obs
+    )  # recreate, it is now maybe broken
+    gauss2 = zfit.pdf.Gauss(mu=param_a2, sigma=param_b1, obs=obs)
+    with pytest.raises(zfit.exception.ParamNameNotUniqueError):
+        zfit.pdf.SumPDF([gauss1, gauss2], fracs=param_c)
+
+    data = zfit.Data.from_numpy(obs=obs, array=np.random.normal(0, 1, size=100))
+    gauss3 = zfit.pdf.Gauss(mu=param_a1, sigma=param_c, obs=obs)
+    sumpdf = zfit.pdf.SumPDF([gauss1, gauss3], fracs=0.7)
+    with pytest.raises(zfit.exception.ParamNameNotUniqueError):
+        sumpdf.create_extended(param_a3)
+
+    with pytest.raises(zfit.exception.ParamNameNotUniqueError):
+        zfit.loss.UnbinnedNLL(
+            model=[sumpdf, gauss2], data=[data, data]
+        )  # gauss1 and gauss2 don't go with each other
+
+    sumpdfext = sumpdf.create_extended(param_b1)
+    gaussext = gauss2.create_extended(15)
+    with pytest.raises(zfit.exception.ParamNameNotUniqueError):
+        zfit.loss.ExtendedUnbinnedNLL(model=[sumpdfext, gaussext], data=[data, data])
+
+    # composed parameters
+    with pytest.raises(zfit.exception.ParamNameNotUniqueError):
+        zfit.pdf.Gauss(mu=compparam_a1, sigma=param_a2, obs=obs)
+
+    with pytest.raises(zfit.exception.ParamNameNotUniqueError):
+        zfit.pdf.Gauss(mu=compparam_a1, sigma=param_a4fix, obs=obs)
+
+    with pytest.raises(zfit.exception.ParamNameNotUniqueError):
+        zfit.ComposedParameter("ue", lambda x: x, params=[param_a1, param_a2])

@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 
 import copy
 
@@ -263,9 +263,9 @@ def test_from_tensors(weights_factory):
     df = data.to_pandas()
     data_new = zfit.Data.from_pandas(df=df)
     assert data_new.obs == data.obs
-    assert np.allclose(data_new.value().numpy(), data.value().numpy())
+    np.testing.assert_allclose(data_new.value().numpy(), data.value().numpy())
     if weights is not None:
-        assert np.allclose(data_new.weights.numpy(), data.weights.numpy())
+        np.testing.assert_allclose(data_new.weights.numpy(), data.weights.numpy())
     else:
         assert data_new.weights is None
 

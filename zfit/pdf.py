@@ -40,6 +40,7 @@ __all__ = [
     "BinnedSumPDF",
     "SplinePDF",
     "TruncatedPDF",
+    "LogNormal",
 ]
 
 from .core.basepdf import BasePDF
@@ -54,6 +55,7 @@ from .models.dist_tfp import (
     TruncatedGauss,
     Uniform,
     WrapDistribution,
+    LogNormal,
 )
 from .models.functor import BaseFunctor, ProductPDF, SumPDF
 from .models.histmodifier import BinwiseScaleModifier
