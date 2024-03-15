@@ -19,7 +19,6 @@ on:
       - "docs/*"
       - "doc/*"
 
-
 jobs:
   unittests:
     runs-on: ${{ matrix.os }}
