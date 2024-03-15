@@ -10,6 +10,9 @@ import zfit
 rndgen = np.random.Generator(np.random.PCG64(8213))
 rndgens = [np.random.Generator(np.random.PCG64(8213 + i)) for i in range(10)]
 
+default_limits = (-2.1, 3)
+positive_limits = (0.5, 4)
+
 
 def test_serial_space():
     import zfit
@@ -49,7 +52,7 @@ def gauss(extended=None, **kwargs):
 
     mu = zfit.Parameter("mu_gauss", 0.1, -1, 1)
     sigma = zfit.Parameter("sigma_gauss", 0.1, 0, 1)
-    obs = zfit.Space("obs", (-3, 3))
+    obs = zfit.Space("obs", default_limits)
     return zfit.pdf.Gauss(
         mu=mu, sigma=sigma, obs=obs, extended=extended, name="MyGaussName"
     )
@@ -74,7 +77,7 @@ def cauchy(extended=None, **kwargs):
 
     m = zfit.Parameter("m_cauchy", 0.1, -1, 1)
     gamma = zfit.Parameter("gamma_cauchy", 0.1, 0, 1)
-    obs = zfit.Space("obs", (-3, 3))
+    obs = zfit.Space("obs", default_limits)
     return zfit.pdf.Cauchy(m=m, gamma=gamma, obs=obs, extended=extended)
 
 
@@ -84,7 +87,7 @@ def voigt(extended=None, **kwargs):
     m = zfit.Parameter("m_voigt", 0.1, -1, 1)
     sigma = zfit.Parameter("sigma_voigt", 0.1, 0, 1)
     gamma = zfit.Parameter("gamma_voigt", 0.1, 0, 1)
-    obs = zfit.Space("obs", (-3, 3))
+    obs = zfit.Space("obs", default_limits)
     return zfit.pdf.Voigt(m=m, sigma=sigma, gamma=gamma, obs=obs, extended=extended)
 
 
@@ -92,7 +95,7 @@ def exponential(extended=None, **kwargs):
     import zfit
 
     lam = zfit.Parameter("lambda_exp", 0.1, -1, 1)
-    obs = zfit.Space("obs", (-3, 3))
+    obs = zfit.Space("obs", default_limits)
     return zfit.pdf.Exponential(lam=lam, obs=obs, extended=extended)
 
 
@@ -103,7 +106,7 @@ def crystalball(extended=None, **kwargs):
     n = zfit.Parameter("ncb", 0.1, 0, 1)
     mu = zfit.Parameter("mucb", 0.1, -1, 1)
     sigma = zfit.Parameter("sigmacb", 0.1, 0, 1)
-    obs = zfit.Space("obs", (-3, 3))
+    obs = zfit.Space("obs", default_limits)
     return zfit.pdf.CrystalBall(
         alpha=alpha, n=n, mu=mu, sigma=sigma, obs=obs, extended=extended
     )
@@ -118,7 +121,7 @@ def doublecb(extended=None, **kwargs):
     nR = zfit.Parameter("nR_dcb", 0.1, 0, 1)
     mu = zfit.Parameter("mu_dcb", 0.1, -1, 1)
     sigma = zfit.Parameter("sigma_dcb", 0.1, 0, 1)
-    obs = zfit.Space("obs", (-3, 3))
+    obs = zfit.Space("obs", default_limits)
     return zfit.pdf.DoubleCB(
         alphal=alphaL,
         nl=nL,
@@ -141,7 +144,7 @@ def generalizedcb(extended=None, **kwargs):
     alphaR = zfit.Parameter("alphaR_gcb", 0.1, -1, 1)
     nR = zfit.Parameter("nR_gcb", 0.1, 0, 1)
     mu = zfit.Parameter("mu_gcb", 0.1, -1, 1)
-    obs = zfit.Space("obs", (-3, 3))
+    obs = zfit.Space("obs", default_limits)
     return zfit.pdf.GeneralizedCB(
         sigmal=sigmaL,
         alphal=alphaL,
@@ -158,7 +161,7 @@ def generalizedcb(extended=None, **kwargs):
 def legendre(extended=None, **kwargs):
     import zfit
 
-    obs = zfit.Space("obs", (-3, 3))
+    obs = zfit.Space("obs", default_limits)
     coeffs = [zfit.Parameter(f"coeff{i}_legendre", 0.1, -1, 1) for i in range(5)]
     return zfit.pdf.Legendre(obs=obs, coeffs=coeffs, extended=extended)
 
@@ -166,7 +169,7 @@ def legendre(extended=None, **kwargs):
 def chebyshev(extended=None, **kwargs):
     import zfit
 
-    obs = zfit.Space("obs", (-3, 3))
+    obs = zfit.Space("obs", default_limits)
     coeffs = [zfit.Parameter(f"coeff{i}_cheby", 0.1, -1, 1) for i in range(5)]
     return zfit.pdf.Chebyshev(obs=obs, coeffs=coeffs, extended=extended)
 
@@ -174,7 +177,7 @@ def chebyshev(extended=None, **kwargs):
 def chebyshev2(extended=None, **kwargs):
     import zfit
 
-    obs = zfit.Space("obs", (-3, 3))
+    obs = zfit.Space("obs", default_limits)
     coeffs = [zfit.Parameter(f"coeff{i}_cheby2", 0.1, -1, 1) for i in range(5)]
     return zfit.pdf.Chebyshev2(obs=obs, coeffs=coeffs, extended=extended)
 
@@ -182,7 +185,7 @@ def chebyshev2(extended=None, **kwargs):
 def laguerre(extended=None, **kwargs):
     import zfit
 
-    obs = zfit.Space("obs", (-3, 3))
+    obs = zfit.Space("obs", default_limits)
     coeffs = [zfit.Parameter(f"coeff{i}_laguerre", 0.1) for i in range(5)]
     return zfit.pdf.Laguerre(obs=obs, coeffs=coeffs, extended=extended)
 
@@ -190,9 +193,26 @@ def laguerre(extended=None, **kwargs):
 def hermite(extended=None, **kwargs):
     import zfit
 
-    obs = zfit.Space("obs", (-3, 3))
+    obs = zfit.Space("obs", default_limits)
     coeffs = [zfit.Parameter(f"coeff{i}_hermite", 0.1, -1, 1) for i in range(5)]
     return zfit.pdf.Hermite(obs=obs, coeffs=coeffs, extended=extended)
+
+
+def poisson(extended=None, **kwargs):
+    import zfit
+
+    lambda_ = zfit.Parameter("lambda_poisson", 0.1, 0, 1)
+    obs = zfit.Space("obs", positive_limits)
+    return zfit.pdf.Poisson(lamb=lambda_, obs=obs, extended=extended)
+
+
+def lognormal(extended=None, **kwargs):
+    import zfit
+
+    mu = zfit.Parameter("mu_lognormal", 0.1, -1, 1)
+    sigma = zfit.Parameter("sigma_lognormal", 0.1, 0, 1)
+    obs = zfit.Space("obs", positive_limits)
+    return zfit.pdf.LogNormal(mu=mu, sigma=sigma, obs=obs, extended=extended)
 
 
 def kde1dimexact(pdfs=None, extended=None, **kwargs):
@@ -223,7 +243,7 @@ def kde1dimexact(pdfs=None, extended=None, **kwargs):
     )
     import zfit
 
-    obs = zfit.Space("obs", (-3, 3))
+    obs = zfit.Space("obs", default_limits)
     return zfit.pdf.KDE1DimExact(data, obs=obs, extended=extended)
 
 
@@ -255,7 +275,7 @@ def kde1dgrid(pdfs=None, extended=None, **kwargs):
     )
     import zfit
 
-    obs = zfit.Space("obs", (-3, 3))
+    obs = zfit.Space("obs", default_limits)
     return zfit.pdf.KDE1DimGrid(data, obs=obs, extended=extended, num_grid_points=512)
 
 
@@ -287,7 +307,7 @@ def kde1dfft(pdfs=None, extended=None, **kwargs):
     )
     import zfit
 
-    obs = zfit.Space("obs", (-3, 3))
+    obs = zfit.Space("obs", default_limits)
     return zfit.pdf.KDE1DimFFT(data=data, obs=obs, extended=extended, weights=data**2)
 
 
@@ -319,7 +339,7 @@ def kde1disj(pdfs=None, extended=None, **kwargs):
     )
     import zfit
 
-    obs = zfit.Space("obs", (-3, 3))
+    obs = zfit.Space("obs", default_limits)
     data = zfit.data.Data.from_numpy(obs=obs, array=data)
     return zfit.pdf.KDE1DimFFT(data=data, extended=extended)
 
@@ -343,6 +363,7 @@ basic_pdfs = [
     kde1disj,
 ]
 basic_pdfs.reverse()
+positive_pdfs = [poisson, lognormal]
 
 
 def sumpdf(pdfs=None, fracs=True, extended=None, **kwargs):
@@ -419,6 +440,7 @@ def conditionalpdf(pdf=None, extended=None, **kwargs):
 
 all_pdfs = (
     basic_pdfs
+    + positive_pdfs
     + [
         sumpdf,
         productpdf,
@@ -522,7 +544,8 @@ def test_serial_hs3_pdfs(pdf, extended):
 
     loaded_pdf = list(loaded["distributions"].values())[0]
     assert str(pdf) == str(loaded_pdf)
-    x = znp.random.uniform(-3, 3, size=(107, pdf.n_obs))
+    lower, upper = pdf.space.lower[0], pdf.space.upper[0]
+    x = znp.random.uniform(lower, upper, size=(107, pdf.n_obs))
     assert np.allclose(pdf.pdf(x), loaded_pdf.pdf(x))
     if extended:
         scale.set_value(0.6)
@@ -673,7 +696,8 @@ def test_dumpload_pdf(pdfcreator):
             json1cleaned = json2cleaned.replace(f"autoparam_{i}", "autoparam_ANY")
         assert json1cleaned == json2cleaned  # Just a technicality
 
-    x = znp.random.uniform(-3, 3, size=(100, pdf.n_obs))
+    lower, upper = pdf.space.lower[0], pdf.space.upper[0]
+    x = znp.random.uniform(lower, upper, size=(100, pdf.n_obs))
     assert np.allclose(pdf.pdf(x), gauss3.pdf(x))
     assert np.allclose(gauss2.pdf(x), gauss3.pdf(x))
     if param1 is not None:
