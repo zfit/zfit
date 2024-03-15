@@ -281,7 +281,12 @@ class ZfitParameterMixin(BaseNumeric):
         if name not in self._existing_params:
             self._existing_params[name] = WeakSet()
             # Is an alternative arg for pop needed in case it fails? Why would it fail?
-            weakref.finalize(self, self._existing_params.pop, name)
+            weakref.finalize(
+                self,
+                lambda name: name in self._existing_params
+                and self._existing_params.pop,
+                name,
+            )
         self._existing_params[name].add(self)
         self._name = name
 

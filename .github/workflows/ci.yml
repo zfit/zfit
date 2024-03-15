@@ -92,7 +92,7 @@ jobs:
           pytest --cov=. --cov-config=pyproject.toml -n${{ steps.cpu-cores.outputs.count }}
           # convert to lcov format
 
-          mkdir coverage && coverage-lcov --output_file_path ./coverage/lcov.info
+#          mkdir coverage && coverage-lcov --output_file_path ./coverage/lcov.info
   #      # TODO(jonas): fix coverage report? Needs converter to lcov format
   #      - name: Coveralls Parallel
   #        uses: coverallsapp/github-action@v2.2.3

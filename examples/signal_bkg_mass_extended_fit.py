@@ -17,8 +17,8 @@ n_bkg = zfit.Parameter("n_bkg", 20000)
 n_sig = zfit.Parameter("n_sig", 1000)
 
 # model building, pdf creation
-gauss = zfit.pdf.Gauss(mu=mu, sigma=sigma, obs=obs, extended=n_sig)
-exponential = zfit.pdf.Exponential(lambd, obs=obs, extended=n_bkg)
+gauss_extended = zfit.pdf.Gauss(mu=mu, sigma=sigma, obs=obs, extended=n_sig)
+exp_extended = zfit.pdf.Exponential(lambd, obs=obs, extended=n_bkg)
 
 model = zfit.pdf.SumPDF([gauss_extended, exp_extended])
 
@@ -50,7 +50,6 @@ print(result.valid)  # check if the result is still valid
 
 # EXPERIMENTAL: we can serialize the model to a human-readable format with HS3
 # or we can simply pickle the result (first freezing it)
-import zfit.serialization as zserial
 
 # human readable representation
 pprint.pprint(zfit.hs3.dumps(model))
