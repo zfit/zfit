@@ -1,9 +1,10 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2024 zfit
 
 __all__ = [
     "BasePDF",
     "BaseFunctor",
     "Exponential",
+    "Voigt",
     "CrystalBall",
     "DoubleCB",
     "GeneralizedCB",
@@ -38,10 +39,11 @@ __all__ = [
     "BinwiseScaleModifier",
     "BinnedSumPDF",
     "SplinePDF",
+    "LogNormal",
 ]
 
 from .core.basepdf import BasePDF
-from .models.basic import Exponential
+from .models.basic import Exponential, Voigt
 from .models.binned_functor import BinnedSumPDF
 from .models.conditional import ConditionalPDFV1
 from .models.convolution import FFTConvPDFV1
@@ -52,6 +54,7 @@ from .models.dist_tfp import (
     TruncatedGauss,
     Uniform,
     WrapDistribution,
+    LogNormal,
 )
 from .models.functor import BaseFunctor, ProductPDF, SumPDF
 from .models.histmodifier import BinwiseScaleModifier

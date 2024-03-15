@@ -5,8 +5,8 @@ from __future__ import annotations
 from collections.abc import Iterable, Callable
 
 import tensorflow as tf
-
 import zfit.z.numpy as znp
+
 from ..core.basefunc import BaseFuncV1
 from ..core.basemodel import SimpleModelSubclassMixin
 from ..core.dependents import _extract_dependencies

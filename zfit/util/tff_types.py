@@ -17,6 +17,7 @@
 """Common data types."""
 
 from typing import TypeVar
+
 import numpy as np
 import tensorflow as tf
 

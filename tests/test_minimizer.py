@@ -267,10 +267,9 @@ nlopt_minimizers = [
         {"error": do_errors_most},
     ),
 ]
-if (
-    sys.version_info[1] < 11
-):  # TODO: remove all of this conditions once NLopt is available for Python 3.11
-    # see also https://github.com/DanielBok/nlopt-python/issues/19
+if sys.version_info[1] < 12 and platform.system() not in ("Darwin",):
+    # TODO: remove all of this conditions once NLopt is available for Python 3.12
+    # see also https://github.com/DanielBok/nlopt-python/issues/24
     minimizers.extend(nlopt_minimizers)
 
 # To run individual minimizers
@@ -307,14 +306,13 @@ minimizers_small = [
     (zfit.minimize.ScipyTrustConstrV1, {}, True),
     (zfit.minimize.Minuit, {}, True),
 ]
-if sys.version_info[1] < 11:
+if sys.version_info[1] < 12 and platform.system() not in ("Darwin",):
     minimizers_small.append((zfit.minimize.NLoptLBFGSV1, {}, True))
 if platform.system() not in (
     "Darwin",
     "Windows",
 ):  # TODO: Ipyopt installation on macosx not working
     # TODO: ipyopt fails? Why
-    pass
     minimizers_small.append((zfit.minimize.IpyoptV1, {}, False))
     minimizers.append(
         (

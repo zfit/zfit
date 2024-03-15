@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 import numpy as np
 import pytest
 from scipy.stats import crystalball
@@ -120,7 +120,7 @@ def test_cb_dcb(doublecb):
     sample_testing(cbr)
     sample_testing(dcb)
 
-    x = np.random.normal(mu, sigma, size=10000)
+    x = np.random.normal(mu, sigma, size=10_000)
 
     probsl = eval_testing(cbl, x)
     probsr = eval_testing(cbr, x)
@@ -135,8 +135,14 @@ def test_cb_dcb(doublecb):
     ratio_l = probsl_scipy / probsl
     ratio_r = probsr_scipy / probsr
 
-    assert np.allclose(ratio_l, ratio_l[0])
-    assert np.allclose(ratio_r, ratio_r[0])
+    ones = np.ones_like(ratio_l)
+    np.testing.assert_allclose(
+        ratio_l,
+        ones * ratio_l[0],
+        rtol=5e-7,
+        atol=5e-7,
+    )  # shape should be same
+    np.testing.assert_allclose(ratio_r, ones * ratio_r[0], rtol=5e-7, atol=5e-7)
 
     kwargs = dict(limits=(-5.0, mu), norm_range=lbounds)
     intl = cbl.integrate(**kwargs) - dcb.integrate(**kwargs)
@@ -164,8 +170,8 @@ def test_cb_dcb(doublecb):
     ratio_l = probsl_scipy / probs_dcb_l
     ratio_r = probsr_scipy / probs_dcb_r
 
-    assert np.allclose(ratio_l, ratio_l[0])
-    assert np.allclose(ratio_r, ratio_r[0])
+    np.testing.assert_allclose(ratio_l, ratio_l[0], rtol=3e-7)
+    np.testing.assert_allclose(ratio_r, ratio_r[0], rtol=3e-7)
 
     rnd_limits = sorted(list(np.random.uniform(*bounds, 130)) + list(bounds))
     integrals = []

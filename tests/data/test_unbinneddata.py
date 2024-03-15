@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2024 zfit
 import pickle
 
 import numpy as np
@@ -32,3 +32,51 @@ def test_basic():
     # af = asdf.AsdfFile(data.obj_to_repr())
     # with io.BytesIO(b'file') as f:
     #     af.write_to(f)
+
+
+def test_data_conversion():
+    obs1 = zfit.Space("obs1", (-1, 100))
+    obs2 = zfit.Space("obs2", (-1, 100))
+    obs12 = obs1 * obs2
+    testdata1 = [1.0, 2.0, 3.0, 4.0, 5.0]
+    from zfit.core.data import convert_to_data
+
+    out1 = convert_to_data(testdata1, obs=obs1)
+    assert out1.value().shape == (5, 1)
+    np.testing.assert_allclose(out1["obs1"], testdata1)
+    # check that it fails without obs
+    with pytest.raises(ValueError):
+        convert_to_data(testdata1)
+
+    testdata2 = np.array([[1.0, 2.0, 3.0, 4.0, 5.0], [1.0, 22.0, 34.0, 41.0, 5.0]]).T
+    out2 = convert_to_data(testdata2, obs=obs12)
+    assert out2.value().shape == (5, 2)
+    np.testing.assert_allclose(out2["obs1"], testdata2[:, 0])
+    np.testing.assert_allclose(out2["obs2"], testdata2[:, 1])
+    with pytest.raises(ValueError):
+        convert_to_data(testdata2)
+
+    # test dataframe
+    import pandas as pd
+
+    df = pd.DataFrame(testdata2, columns=["obs1", "obs2"])
+    out3 = convert_to_data(df)
+    assert out3.value().shape == (5, 2)
+    np.testing.assert_allclose(out3["obs1"], testdata2[:, 0])
+    np.testing.assert_allclose(out3["obs2"], testdata2[:, 1])
+
+    # test single value
+    single_value = 5.0
+    out4 = convert_to_data(single_value, obs=obs1)
+    assert out4.value().shape == (1, 1)
+    np.testing.assert_allclose(out4["obs1"], single_value)
+    with pytest.raises(ValueError):
+        convert_to_data(single_value)
+
+    # test single int
+    single_value = 5
+    out5 = convert_to_data(single_value, obs=obs1)
+    assert out5.value().shape == (1, 1)
+    np.testing.assert_allclose(out5["obs1"], single_value)
+    with pytest.raises(ValueError):
+        convert_to_data(single_value)

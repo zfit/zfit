@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 import numpy as np
 import pytest
 
@@ -37,7 +37,8 @@ def test_poisson(composed_rate):
 
     probs1 = poisson.pdf(x=test_values)
     probs1 = probs1.numpy()
-
+    assert np.all(np.isfinite(probs1))
+    assert np.all(probs1 >= 0)
     samples = poisson.sample(10000).numpy()
 
     assert np.std(samples) == pytest.approx(50**0.5, rel=0.05)

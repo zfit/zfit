@@ -6,7 +6,6 @@ import functools
 import tensorflow as tf
 from tensorflow.python.framework import ops
 from tensorflow.python.ops import array_ops
-
 from zfit.core import interfaces as zinterfaces
 
 

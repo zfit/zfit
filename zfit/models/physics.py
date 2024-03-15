@@ -2,13 +2,13 @@
 
 from __future__ import annotations
 
+from typing import Literal
+
 import numpy as np
 import pydantic
 import tensorflow as tf
-
-from typing import Literal
-
 import zfit.z.numpy as znp
+
 from zfit import z
 from ..core.basepdf import BasePDF
 from ..core.serialmixin import SerializableMixin

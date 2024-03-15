@@ -7,9 +7,9 @@ from contextlib import suppress
 from typing import Union
 
 import tensorflow as tf
+import zfit.z.numpy as znp
 from tensorflow_probability import distributions as tfd
 
-import zfit.z.numpy as znp
 from .data import Data
 from .interfaces import ZfitPDF, ZfitSpace
 from .space import Space

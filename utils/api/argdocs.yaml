@@ -713,6 +713,12 @@ result.init.values: |1+
     Values of the parameters at the
                     found minimum.
 
+hs3.ini.reuse_params: |1+
+    If parameters, the parameters
+                    will be reused if they are given.
+                    If a parameter is given, it will be used as the parameter
+                    with the same name. If a parameter is not given, a new
+                    parameter will be created.
 
 hs3.explain: |1+
     HS3 is the `HEP Statistics Serialization Standard <https://github.com/hep-statistics-serialization-standard/hep-statistics-serialization-standard>`_.

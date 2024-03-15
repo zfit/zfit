@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 
 import mplhep
 import numpy as np
@@ -166,9 +166,9 @@ def test_binned_loss(weights, Loss, simultaneous):
     binned_gauss_alt = gaussian2.to_binned(obs_binned, extended=scale)
     counts = binned_gauss.counts()
     counts_alt = binned_gauss_alt.counts()
-    assert np.allclose(counts, counts_alt)
+    np.testing.assert_allclose(counts, counts_alt)
     binned_gauss_closure = binned_gauss.to_binned(obs_binned)
-    assert np.allclose(counts, binned_gauss_closure.counts())
+    np.testing.assert_allclose(counts, binned_gauss_closure.counts())
     if simultaneous:
         obs_binned2 = obs.with_binning(14)
         test_values_binned2 = test_values.to_binned(obs_binned2)

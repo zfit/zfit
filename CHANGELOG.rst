@@ -11,9 +11,18 @@ Major Features and Improvements
 -------------------------------
 - add ``GeneralizedCB` PDF which is similar to the ``DoubleCB`` PDF but with different standard deviations for the left and right side.
 - Added functor for PDF caching `CacheablePDF`: `pdf`, `integrate` PDF methods can be cacheable now
+- Parameter behavior has changed, multiple parameters with the same name can now coexist!
+  The ``NameAlreadyTakenError`` has been successfully removed (yay!). The new behavior only enforces that
+  names and matching parameters *within a function/PDF/loss* are unique, as otherwise inconsistent expectations appear (for a lengthy discussion on this, see [here](https://github.com/zfit/zfit/discussions/342).
+- add ``GeneralizedCB`` PDF which is similar to the ``DoubleCB`` PDF but with different standard deviations for the left and right side.
+- allow to use pandas DataFrame as input directly where zfit Data objects are expected
+- add ``faddeeva_humlicek`` function under the ``zfit.z.numpy`` namespace. This is an implementation of the Faddeeva function, combining Humlicek's rational approximations according to Humlicek (JQSRT, 1979) and Humlicek (JQSRT, 1982).
+- add ``Voigt`` profile PDF which is a convolution of a Gaussian and a Cauchy distribution.
+- add ``LogNormal`` PDF, a log-normal distribution, which is a normal distribution of the logarithm of the variable.
 
 Breaking changes
 ------------------
+- ``NameAlreadyTakenError`` was removed, see above for the new behavior.
 
 Deprecations
 -------------
@@ -22,6 +31,8 @@ Deprecations
 Bug fixes and small changes
 ---------------------------
 - ``result.fmin`` now returns the full likelihood, while ``result.fminopt`` returns the optimized likelihood with potential constant subtraction. The latter is mostly used by the minimizer and other libraries. This behavior is consistent with the behavior of other methods in the loss that return by default the full, unoptimized value.
+- serialization only allowed for one specific limit (space) of each obs. Multiple, independent
+  limits can now be serialized.
 
 Experimental
 ------------
@@ -31,6 +42,11 @@ Requirement changes
 
 Thanks
 ------
+
+0.18.2 (13 Mar 2024)
+========================
+
+Hotfix for missing dependency attrs
 
 0.18.1 (22 Feb 2024)
 ========================

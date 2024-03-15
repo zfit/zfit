@@ -3,25 +3,22 @@
 from __future__ import annotations
 
 from collections.abc import Callable
+from typing import Literal
 from typing import Union, Optional
 
-import pydantic
-
-from ..serialization import Serializer, SpaceRepr
-
-from typing import Literal
-
 import numpy as np
+import pydantic
 import tensorflow as tf
 import tensorflow_probability as tfp
+import zfit.z.numpy as znp
 from tensorflow_probability.python import distributions as tfd
 
-import zfit.z.numpy as znp
 from .dist_tfp import WrapDistribution
 from .. import z
 from ..core.basepdf import BasePDF
 from ..core.interfaces import ZfitData, ZfitParameter, ZfitSpace
 from ..core.serialmixin import SerializableMixin
+from ..serialization import Serializer, SpaceRepr
 from ..serialization.pdfrepr import BasePDFRepr
 from ..settings import ztypes, run
 from ..util import (

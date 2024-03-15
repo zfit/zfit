@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 
 from __future__ import annotations
 
@@ -78,10 +78,10 @@ class FunctorMixin(ZfitFunctorMixin):
             obs=obs, spaces=[model.space for model in models]
         )
 
-        super().__init__(obs=obs, **kwargs)
-        # TODO: needed? remove below
         self._model_obs = tuple(model.obs for model in models)
         self._models = models
+        super().__init__(obs=obs, **kwargs)
+        # TODO: needed? remove below
 
     def _get_params(
         self,

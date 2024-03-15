@@ -9,11 +9,13 @@ import collections
 import copy
 import functools
 import warnings
+import weakref
 from collections.abc import Iterable, Callable
 from contextlib import suppress
 from inspect import signature
+from typing import Literal, List
 from typing import Optional, Dict, Mapping, Union
-from weakref import WeakValueDictionary
+from weakref import WeakSet
 
 import dill as dill
 import numpy as np
@@ -24,7 +26,6 @@ import tensorflow_probability as tfp
 # TF backwards compatibility
 from ordered_set import OrderedSet
 from pydantic import Field, validator
-from tensorflow.python.framework import ops
 from tensorflow.python.ops import array_ops
 from tensorflow.python.ops.resource_variable_ops import (
     ResourceVariable as TFVariable,
@@ -32,8 +33,6 @@ from tensorflow.python.ops.resource_variable_ops import (
 )
 from tensorflow.python.ops.variables import Variable
 from tensorflow.python.types.core import Tensor as TensorType
-
-from typing import Literal
 
 from .serialmixin import SerializableMixin
 from .. import z
@@ -48,7 +47,6 @@ from ..core.baseobject import BaseNumeric, extract_filter_params
 from ..minimizers.interface import ZfitResult
 from ..settings import run, ztypes
 from ..util import ztyping
-from ..util.cache import invalidate_graph
 from ..util.checks import NotSpecified
 from ..util.container import convert_to_container
 from ..util.deprecation import deprecated, deprecated_args
@@ -57,7 +55,6 @@ from ..util.exception import (
     FunctionNotImplemented,
     IllegalInGraphModeError,
     LogicalUndefinedOperationError,
-    NameAlreadyTakenError,
     ParameterNotIndependentError,
 )
 from ..util.temporary import TemporarilySet
@@ -102,8 +99,8 @@ class OverloadableMixin(ZfitParameter):
         _ = name
         if dtype and not dtype.is_compatible_with(v.dtype):
             raise ValueError(
-                "Incompatible type conversion requested to type '%s' for variable "
-                "of type '%s'" % (dtype.name, v.dtype.name)
+                "Incompatible type conversion requested to type '{}' for variable "
+                "of type '{}'".format(dtype.name, v.dtype.name)
             )
         if as_ref:
             return v._ref()  # pylint: disable=protected-access
@@ -114,8 +111,8 @@ class OverloadableMixin(ZfitParameter):
         del name
         if dtype and not dtype.is_compatible_with(self.dtype):
             raise ValueError(
-                "Incompatible type conversion requested to type '%s' for variable "
-                "of type '%s'" % (dtype.name, self.dtype.name)
+                "Incompatible type conversion requested to type '{}' for variable "
+                "of type '{}'".format(dtype.name, self.dtype.name)
             )
         if as_ref:
             if hasattr(self, "_ref"):
@@ -278,18 +275,23 @@ class BaseParameter(Variable, ZfitParameter, TensorType, metaclass=MetaBaseParam
 
 
 class ZfitParameterMixin(BaseNumeric):
-    _existing_params = WeakValueDictionary()
+    _existing_params = {}
 
     def __init__(self, name, **kwargs):
-        if name in self._existing_params:
-            raise NameAlreadyTakenError(
-                "Another parameter is already named {}. "
-                "Use a different, unique one.".format(name)
+        if name not in self._existing_params:
+            self._existing_params[name] = WeakSet()
+            # Is an alternative arg for pop needed in case it fails? Why would it fail?
+            weakref.finalize(
+                self,
+                lambda name: name in self._existing_params
+                and self._existing_params.pop,
+                name,
             )
-        self._existing_params.update({name: self})
+        self._existing_params[name].add(self)
         self._name = name
 
         super().__init__(name=name, **kwargs)
+        self._assert_params_unique()
 
     # property needed here to overwrite the name of tf.Variable
     @property
@@ -353,9 +355,6 @@ class TFBaseVariable(TFVariable, metaclass=MetaBaseParameter):
         return self.name
 
 
-from weakref import WeakSet
-
-
 class Parameter(
     ZfitParameterMixin,
     TFBaseVariable,
@@ -363,7 +362,7 @@ class Parameter(
     SerializableMixin,
     ZfitIndependentParameter,
 ):
-    """Class for fit parameters, derived from TF Variable class."""
+    """Class for fit parameters that has a default state."""
 
     _independent = True
     _independent_params = WeakSet()
@@ -379,12 +378,17 @@ class Parameter(
         upper: ztyping.NumericalScalarType | None = None,
         step_size: ztyping.NumericalScalarType | None = None,
         floating: bool = True,
-        dtype: tf.DType = ztypes.float,
+        *,
+        dtype: tf.DType = None,
         # legacy
         lower_limit: ztyping.NumericalScalarType | None = None,
         upper_limit: ztyping.NumericalScalarType | None = None,
     ):
-        """
+        """Fit Parameter that has a default state (value) and limits (lower, upper).
+
+        The name identifies the parameter.
+        Multiple parameters with the same name can exist, however,
+        they cannot be in the same PDF/func/loss as the value would not be uniquely defined.
 
         Args:
             name : name of the parameter
@@ -400,6 +404,13 @@ class Parameter(
             lower = lower_limit
         if upper_limit is not None:
             upper = upper_limit
+        if dtype is None:
+            dtype = ztypes.float
+        else:
+            warnings.warn(
+                "The argument `dtype` is deprecated and will be removed in the future.",
+                DeprecationWarning,
+            )
         # legacy end
 
         # TODO: sanitize input for TF2
@@ -893,33 +904,8 @@ class BaseComposedParameter(ZfitParameterMixin, OverloadableMixin, BaseParameter
                 "'value' cannot be provided any longer, `value_fn` is needed."
             )
         super().__init__(name=name, params=params, **kwargs)
-        if not hasattr(self, "_composed_param_original_order"):
-            self._composed_param_original_order = None
         if not callable(value_fn):
             raise TypeError("`value_fn` is not callable.")
-        n_func_params = len(signature(value_fn).parameters)
-        # TODO(0.6): change, remove legacy?
-        if n_func_params == 0:
-            if len(params) == 0:
-                warnings.warn(
-                    "No `params` specified, the `value_fn` is supposed to return a constant. "
-                    "Use preferably `ConstantParameter` instead",
-                    RuntimeWarning,
-                    stacklevel=2,
-                )
-            else:  # this is the legacy case where the function didn't take arguments
-                warnings.warn(
-                    "The `value_fn` for composed parameters should take the same number"
-                    " of arguments as `params` are given.",
-                    DeprecationWarning,
-                    stacklevel=3,
-                )
-                legacy_value_fn = value_fn
-
-                def value_fn(*_):
-                    return legacy_value_fn()
-
-            # end legacy
 
         self._value_fn = value_fn
         self._dtype = dtype if dtype is not None else ztypes.float
@@ -945,31 +931,9 @@ class BaseComposedParameter(ZfitParameterMixin, OverloadableMixin, BaseParameter
 
     def value(self):
         params = self.params
-        parameters = signature(self._value_fn).parameters
-        if (
-            len(parameters) == 1
-            and (len(params) > 1 or "params" in parameters)
-            and self._composed_param_original_order is None
-        ):
-            value = self._value_fn(params)
-        elif (
-            self._composed_param_original_order is None
-        ):  # TODO: this is a temp fix for legacy behavior
-            try:
-                value = self._value_fn(
-                    **params
-                )  # since the order is None, it has to be a dict
-            except Exception as error:
-                raise RuntimeError(
-                    "This should not be reached. To fix this, make sure that the params to"
-                    " ComposedParameter are a dict and that the function takes one single argument."
-                ) from error
-        else:
-            params = (
-                self._composed_param_original_order
-            )  # to make sure we have the right order
-            value = self._value_fn(*params)
-        return tf.convert_to_tensor(value, dtype=self.dtype)
+        return znp.asarray(self._value_fn(params), dtype=self.dtype)
+
+        # return tf.convert_to_tensor(value, dtype=self.dtype)
 
     def read_value(self):
         return tf.identity(self.value())
@@ -1001,18 +965,14 @@ class BaseComposedParameter(ZfitParameterMixin, OverloadableMixin, BaseParameter
 
         Cannot be used for composed parameters!
         """
-        raise LogicalUndefinedOperationError(
-            "Cannot randomize a composed parameter." " Randomize the components."
-        )
+        raise LogicalUndefinedOperationError("Cannot randomize a composed parameter.")
 
     def assign(self, value, use_locking=False, name=None, read_value=True):
         """Assign the value of the parameter.
 
         Cannot be used for composed parameters!
         """
-        raise LogicalUndefinedOperationError(
-            "Cannot assign a composed parameter." " Assign the value on its components."
-        )
+        raise LogicalUndefinedOperationError("Cannot assign a composed parameter.")
 
 
 class ConstantParameter(
@@ -1121,6 +1081,7 @@ class ComposedParameter(SerializableMixin, BaseComposedParameter):
         ) = NotSpecified,
         dtype: tf.dtypes.DType = ztypes.float,
         *,
+        unpack_params: bool | None = None,
         dependents: (
             dict[str, ZfitParameter] | Iterable[ZfitParameter] | ZfitParameter
         ) = NotSpecified,
@@ -1163,34 +1124,100 @@ class ComposedParameter(SerializableMixin, BaseComposedParameter):
                 .. deprecated:: unknown
                     use `params` instead.
         """
-        original_init = {"name": name, "value_fn": value_fn}
+        if not isinstance(params, Mapping):
+            params = convert_to_container(params)
+        original_init = {
+            "name": name,
+            "internal_params": params,
+        }
+
+        original_init["value_fn"] = value_fn
+        original_init["unpack_params"] = unpack_params
+
+        # legacy
         if dependents is not NotSpecified:
             params = dependents
         elif params is NotSpecified:
             raise ValueError
-        if isinstance(params, collections.abc.Mapping):
-            self._composed_param_original_order = None
-        else:
-            self._composed_param_original_order = convert_to_container(params)
-        if isinstance(params, dict):
+        # end legacy
+
+        if params is None:
+            raise BreakingAPIChangeError("Params needs to be specified.")
+        takes_no_params = False
+        if unpack_params is None:
+            parameters = signature(value_fn).parameters
+            if isinstance(params, ZfitParameter):
+                params = [params]
+                unpack_params = True
+            elif len(parameters) == 1 and (len(params) > 1 or "params" in parameters):
+                unpack_params = False
+            elif len(parameters) - len(params) >= 0:
+                unpack_params = True
+            elif len(parameters) == 0:
+                takes_no_params = True
+                unpack_params = False
+            else:
+                raise ValueError(
+                    "Cannot determine if parameter should be unpacked or not. Please specify explicitly `unpack_params`"
+                )
+
+        dictlike = isinstance(params, collections.abc.Mapping)
+
+        if dictlike:
             params_dict = params
+            if takes_no_params:
+
+                def stratified_fn(params):
+                    del params
+                    return value_fn()
+
+            elif unpack_params:
+
+                def stratified_fn(params):
+                    return value_fn(**params)
+
+            else:
+                stratified_fn = value_fn
         else:
             params = convert_to_container(params)
-            if params is None:
+
+            if params is None or takes_no_params:
                 params_dict = {}
+
+                def stratified_fn(params):
+                    del params
+                    return value_fn()
+
             else:
                 params_dict = {f"param_{i}": p for i, p in enumerate(params)}
+
+                if unpack_params:
+
+                    def stratified_fn(params):
+                        return value_fn(*tuple(params.values()))
+
+                else:
+
+                    def stratified_fn(params):
+                        return value_fn(tuple(params.values()))
+
         original_init["params"] = (
             params_dict  # needs to be here, we need the params to be a dict for the serialization
         )
-        super().__init__(params=params_dict, value_fn=value_fn, name=name, dtype=dtype)
+
+        super().__init__(
+            params=params_dict, value_fn=stratified_fn, name=name, dtype=dtype
+        )
         self.hs3.original_init.update(original_init)
 
     def __repr__(self):
-        if tf.executing_eagerly():
-            value = f"{self.numpy():.4g}"
-        else:
-            value = "graph-node"
+        try:
+            if tf.executing_eagerly():
+                value = f"{self.numpy():.4g}"
+            else:
+                value = "graph-node"
+        except Exception:
+            value = "ERROR OCCURRED"
         return f"<zfit.{self.__class__.__name__} '{self.name}' params={[(k, p.name) for k, p in self.params.items()]} value={value}>"
 
 
@@ -1203,6 +1230,14 @@ class ComposedParameterRepr(BaseRepr):
     name: str
     value_fn: str
     params: Dict[str, Serializer.types.ParamTypeDiscriminated]
+    unpack_params: Optional[bool]
+    internal_params: Optional[
+        Union[
+            Serializer.types.ParamTypeDiscriminated,
+            List[Serializer.types.ParamTypeDiscriminated],
+            Dict[str, Serializer.types.ParamTypeDiscriminated],
+        ]
+    ]
 
     @validator("value_fn", pre=True)
     def _validate_value_pre(cls, value):
@@ -1219,6 +1254,9 @@ class ComposedParameterRepr(BaseRepr):
     def _to_orm(self, init):
         init = copy.copy(init)
         value_fn = init.pop("value_fn")
+        params = init.pop("internal_params")
+
+        init["params"] = params
         init["value_fn"] = dill.loads(bytes.fromhex(value_fn))
         out = super()._to_orm(init)
         return out
@@ -1436,7 +1474,9 @@ def convert_to_parameter(
     if isinstance(value, ZfitParameter):  # TODO(Mayou36): autoconvert variable. TF 2.0?
         return value
     elif isinstance(value, tf.Variable):
-        raise TypeError("Currently, cannot autoconvert tf.Variable to zfit.Parameter.")
+        raise TypeError(
+            f"Currently, cannot autoconvert tf.Variable ({value}) to zfit.Parameter."
+        )
 
     # convert to Tensor
     if not isinstance(value, tf.Tensor):

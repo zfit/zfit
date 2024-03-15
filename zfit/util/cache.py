@@ -323,10 +323,10 @@ class FunctionCacheHolder(GraphCachable):
         ):
             obj = self.IS_TENSOR
         elif isinstance(obj, ZfitParameter):
-            # if self.stateless_args:
-            #     obj = (self.IS_TENSOR,)
-            # else:
-            obj = (ZfitParameter, obj.name)
+            obj = (
+                ZfitParameter,
+                id(obj),
+            )  # crucial that we have the ID, see https://github.com/tensorflow/tensorflow/issues/57365
         elif tf.is_tensor(obj):
             obj = self.IS_TENSOR
         elif isinstance(obj, (np.ndarray, int, float)):

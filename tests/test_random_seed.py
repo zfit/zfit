@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 import numpy as np
 
 import zfit
@@ -56,18 +56,24 @@ def test_reproducibility():
         result_no_seed2 = minimizer.minimize(loss)
 
     # Check if the results with fixed seeds are the same
-    assert np.allclose(
-        result_fixed_seed1.values, result_fixed_seed2.values
-    ), "Results with the same fixed seed should be the same"
+    (
+        np.testing.assert_allclose(
+            result_fixed_seed1.values, result_fixed_seed2.values
+        ),
+        "Results with the same fixed seed should be the same",
+    )
 
     # Check if the results without a fixed seed are different
     assert not np.allclose(
         result_fixed_seed1.values, result_no_seed.values
     ), "Results without a fixed seed should be different"
 
-    assert np.allclose(
-        result_fixed_seed3.values, result_fixed_seed2.values
-    ), "Results with the same fixed seed should be the same"
+    (
+        np.testing.assert_allclose(
+            result_fixed_seed3.values, result_fixed_seed2.values
+        ),
+        "Results with the same fixed seed should be the same",
+    )
     assert not np.allclose(
         result_fixed_seed3.values, result_no_seed2.values
     ), "Results without a fixed seed should be different"
@@ -104,9 +110,12 @@ def test_reproducibility():
     with zfit.param.set_values(params, vals):
         result_fixed_seed_npvary2 = minimizer.minimize(loss)
 
-    assert np.allclose(
-        result_fixed_seed_npvary2.values, result_fixed_seed_npvary.values
-    ), "Results with the same fixed seed should be the same"
+    (
+        np.testing.assert_allclose(
+            result_fixed_seed_npvary2.values, result_fixed_seed_npvary.values
+        ),
+        "Results with the same fixed seed should be the same",
+    )
     assert not np.allclose(
         result_fixed_seed_npvary2.values, result_no_seed.values
     ), "Results without a fixed seed should be different"
@@ -116,9 +125,12 @@ def test_reproducibility():
     with zfit.param.set_values(params, vals):
         result_fixed_seed_tvary2 = minimizer.minimize(loss)
 
-    assert np.allclose(
-        result_fixed_seed_tvary2.values, result_fixed_seed_tvary.values
-    ), "Results with the same fixed seed should be the same"
+    (
+        np.testing.assert_allclose(
+            result_fixed_seed_tvary2.values, result_fixed_seed_tvary.values
+        ),
+        "Results with the same fixed seed should be the same",
+    )
     assert not np.allclose(
         result_fixed_seed_tvary2.values, result_no_seed.values
     ), "Results without a fixed seed should be different"
@@ -140,6 +152,9 @@ def test_reproducibility():
     with zfit.param.set_values(params, vals):
         result_fixed_seed_tvary_np4_2 = minimizer.minimize(loss)
 
-    assert np.allclose(
-        result_fixed_seed_tvary_np4_2.values, result_fixed_seed_tvary_np4.values
-    ), "Results with the same fixed seed should be the same"
+    (
+        np.testing.assert_allclose(
+            result_fixed_seed_tvary_np4_2.values, result_fixed_seed_tvary_np4.values
+        ),
+        "Results with the same fixed seed should be the same",
+    )
