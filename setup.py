@@ -97,6 +97,9 @@ if sys.version_info > (3, 11):  # nlopt, ipyopt not available
             req.remove(nlopt_req)
         if ipyopt_req in req:
             req.remove(ipyopt_req)
+raise ValueError(
+    f"sysversion {sys.version_info} and all platform {platf}. platform.system()= {platform.system()} and platform.processor()= {platform.processor()}."
+)
 setup(
     install_requires=requirements,
     tests_require=tests_require,
