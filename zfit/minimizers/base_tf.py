@@ -30,6 +30,11 @@ class WrapOptimizer(BaseStepMinimizer):
     ):
         """Wrap TensorFlow optimizers to have the zfit interface and behavior.
 
+        .. warning:: The optimizers changed the interface in Keras 3, which is not (yet) supported.
+
+          As they tend to perform significantly worse than the optimizers in `scipy` or `iminuit`, it is
+            not a priority to support them, if ever at all. If you need them, please open an issue/PR: https://github.com/zfit/zfit.
+
         .. note:: Different behavior of minimize
 
           While the ``minimize`` method in TensorFlow optimizers executes a single step of the minimization,
@@ -45,6 +50,11 @@ class WrapOptimizer(BaseStepMinimizer):
         if not isinstance(optimizer, tf.keras.optimizers.Optimizer):
             raise TypeError(
                 f"optimizer {str(optimizer)} has to be from class Optimizer"
+            )
+        if not hasattr(optimizer, "minimize"):
+            raise AttributeError(
+                f"optimizer {str(optimizer)} has to have a method minimize and is most probably the new Keras 3 interface that is not yet supported."
+                "Please open an issue/PR if you would need TF/Keras optimizers, as they generally don't perform well anyway."
             )
         super().__init__(
             tol=tol,

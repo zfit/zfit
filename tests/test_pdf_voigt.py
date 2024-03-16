@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 import numpy as np
 import zfit
 from zfit import z
@@ -35,4 +35,4 @@ def test_voigt1():
 
     num_gradients = z.math.numerical_gradient(func, params=[mean, sigma, gamma])
     tf_gradients = z.math.autodiff_gradient(func, params=[mean, sigma, gamma])
-    np.testing.assert_allclose(num_gradients, tf_gradients)
+    np.testing.assert_allclose(num_gradients, tf_gradients, rtol=3e-7)

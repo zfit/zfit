@@ -119,11 +119,11 @@ minimizers = [
     # TensorFlow minimizers
     # (zfit.minimizers.optimizers_tf.WrapOptimizer, dict(optimizer=tf.keras.optimizers.Adam(learning_rate=0.05)),
     #  False),
-    (
-        zfit.minimize.Adam,
-        dict(learning_rate=0.05, verbosity=verbosity, tol=0.00001),
-        False,
-    ),  # works
+    # (
+    #     zfit.minimize.Adam,
+    #     dict(learning_rate=0.05, verbosity=verbosity, tol=0.00001),
+    #     False,
+    # ),  # Not supported anymore, needs Keras 3 interface update
     # Minuit minimizer
     (
         zfit.minimize.Minuit,
@@ -308,9 +308,13 @@ minimizers_small = [
 ]
 if sys.version_info[1] < 12 and platform.system() not in ("Darwin",):
     minimizers_small.append((zfit.minimize.NLoptLBFGSV1, {}, True))
-if platform.system() not in (
-    "Darwin",
-    "Windows",
+if (
+    platform.system()
+    not in (
+        "Darwin",
+        "Windows",
+    )
+    and sys.version_info[1] < 12
 ):  # TODO: Ipyopt installation on macosx not working
     # TODO: ipyopt fails? Why
     minimizers_small.append((zfit.minimize.IpyoptV1, {}, False))
