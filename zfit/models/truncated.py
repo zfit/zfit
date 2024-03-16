@@ -2,6 +2,7 @@
 from collections import defaultdict
 from typing import Literal, Optional, Dict, Tuple, List
 
+import numpy as np
 import pydantic
 import tensorflow as tf
 from .basefunctor import FunctorPDFRepr
@@ -20,6 +21,16 @@ class TruncatedPDF(BaseFunctor, SerializableMixin):
         self, pdf, limits, obs=None, norms=None, extended=None, name="PiecewisePDF"
     ):
         """Truncated PDF in one or multiple ranges.
+
+        The PDF is truncated to the given limits, i.e. the PDF is only evaluated within the given limits
+        and outside the limits, the PDF is zero. The limits can be given as a single or as a list of limits.
+        This solves two problems: first, the PDF is only evaluated where it is defined and zero outside,
+        which enables PDFs that are not defined outside the limits to be used (Poisson, LogNormal, Chi2,...).
+        Second, the list of limits can be used to effectively create a multilimit PDF, that means, a PDF that
+        is defined in multiple ranges and zero outside these ranges, also in between.
+
+        Historically, this was implemented in zfit through MultipleLimits, which is now deprecated and replaced
+        by this class.
 
         Args:
             pdf: The PDF to be truncated.
@@ -71,10 +82,24 @@ class TruncatedPDF(BaseFunctor, SerializableMixin):
         return self._norms
 
     def _unnormalized_pdf(self, x):
-        prob = self.pdfs[0].pdf(x, norm=False)
+        # the implementation only feeds the pdf with data that is inside the limits that we want to evaluate
+        # this maybe has a speedup (although limited as we're using dynamic shapes -> needs to change for JAX)
+        # but most importantly avoids any issue if we take the gradient of a pdf that is not defined outside
+        # the limits, because this can yield NaNs using a naive multiplication with a mask
+        from zfit import Data
+
+        xarray = znp.asarray(x.value())
         inside_arrays = [limit.inside(x) for limit in self._limits]
-        prob *= znp.asarray(znp.any(inside_arrays, axis=0), dtype=znp.float64)
-        return prob
+        inside = znp.any(inside_arrays, axis=0)
+        indices = znp.transpose(
+            znp.where(inside)
+        )  # is a list? but transpose gives perfect shape for indices
+        data = Data.from_tensor(tensor=xarray[inside], obs=self.obs)
+        prob = self.pdfs[0].pdf(data, norm=False)
+        outprob = tf.scatter_nd(
+            indices, prob, tf.shape(xarray, out_type=np.int64)[:1]
+        )  # only nevents
+        return outprob
 
     @supports(norm=True)
     def _normalization(self, norm, options):
@@ -125,33 +150,33 @@ class TruncatedPDF(BaseFunctor, SerializableMixin):
 class TruncatedPDFRepr(FunctorPDFRepr):
     _implementation = TruncatedPDF
     hs3_type: Literal["TruncatedPDF"] = pydantic.Field("TruncatedPDF", alias="type")
-    limits: Optional[Dict[str, List[Tuple[float, float]]]] = None
+    limits: List[SpaceRepr]
 
     def _to_orm(self, init):
         import zfit
 
         init["pdf"] = init.pop("pdfs")[0]
-        limit_init = init.pop("limits")
-        limits = []
-        firstround = True
-        for obs, limit_vals in limit_init.items():
-            for i, limit_val in enumerate(limit_vals):
-                newspace = zfit.Space(obs, limit_val)
-                if firstround:
-                    limits.append(newspace)
-                else:
-                    limits[i] *= newspace
-            firstround = False
-        init["limits"] = limits
+        # limit_init = init.pop("limits")
+        # limits = []
+        # firstround = True
+        # for obs, limit_vals in limit_init.items():
+        #     for i, limit_val in enumerate(limit_vals):
+        #         newspace = zfit.Space(obs, limit_val)
+        #         if firstround:
+        #             limits.append(newspace)
+        #         else:
+        #             limits[i] *= newspace
+        #     firstround = False
+        # init["limits"] = limits
         return super()._to_orm(init)
 
-    @pydantic.root_validator(pre=True)
-    def convert_limits_do_limitdict(cls, values):
-        if cls.orm_mode(values):
-            limits = defaultdict(list)
-            for limit in values["limits"]:
-                if limit.n_obs > 1:
-                    raise RuntimeError("Currently only 1D limits are supported.")
-                limits[limit.obs[0]].append(limit.limit1d)
-            values["limits"] = dict(limits)
-        return values
+    # @pydantic.root_validator(pre=True)
+    # def convert_limits_do_limitdict(cls, values):
+    #     if cls.orm_mode(values):
+    #         limits = defaultdict(list)
+    #         for limit in values["limits"]:
+    #             if limit.n_obs > 1:
+    #                 raise RuntimeError("Currently only 1D limits are supported.")
+    #             limits[limit.obs[0]].append(limit.limit1d)
+    #         values["limits"] = dict(limits)
+    #     return values

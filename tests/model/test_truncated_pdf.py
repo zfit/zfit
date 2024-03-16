@@ -32,6 +32,10 @@ def test_truncated_pdf_unnormalized_pdf(pdf, limits):
     x = np.array([-0.5, 0.5, 2.5])
     prob = truncated_pdf.pdf(x)
     assert np.all(prob >= 0)
+    # test all outside limits
+    x = np.array([-2, 1.5, 4])
+    prob = truncated_pdf.pdf(x)
+    assert np.all(prob == 0)
 
 
 def test_truncated_pdf_normalization(pdf, limits):
