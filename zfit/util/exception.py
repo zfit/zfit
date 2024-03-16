@@ -177,9 +177,9 @@ class CannotConvertToNumpyError(Exception):
 class ZfitNotImplementedError(NotImplementedError):
     def __init__(self, *args: object) -> None:
         super().__init__(*args)
-        if type(self) == ZfitNotImplementedError:
+        if type(self) is ZfitNotImplementedError:
             warnings.warn(
-                "Prefer to use a more specific subclass. See in `zfit.exceptions`"
+                "Prefer to use a more specific subclass. See in `zfit.exceptions`", DeprecationWarning, stacklevel=2
             )
 
 
@@ -217,20 +217,14 @@ class AnalyticNotImplemented(ZfitNotImplementedError):
 class AnalyticIntegralNotImplemented(AnalyticNotImplemented):
     """If an analytic integral is not provided."""
 
-    pass
-
 
 class AnalyticSamplingNotImplemented(AnalyticNotImplemented):
     """If analytic sampling from a distribution is not possible."""
-
-    pass
 
 
 # PDF class internal handling errors
 class NormNotImplemented(StandardControlFlow):
     """Indicates that a function does not support the normalization range argument `norm_range`."""
-
-    pass
 
 
 NormRangeNotImplemented = NormNotImplemented  # legacy
@@ -239,19 +233,13 @@ NormRangeNotImplemented = NormNotImplemented  # legacy
 class MultipleLimitsNotImplemented(StandardControlFlow):
     """Indicates that a function does not support several limits in a :py:class:`~zfit.Space`."""
 
-    pass
-
 
 class InitNotImplemented(StandardControlFlow):
     """Indicates that a minimize method does not support a FitResult instead of a loss."""
 
-    pass
-
 
 class VectorizedLimitsNotImplemented(StandardControlFlow):
     """Indicates that a function does not support vectorized (n_events > 1) limits in a :py:class:`~zfit.Space`."""
-
-    pass
 
 
 class DerivativeCalculationError(ValueError):
@@ -267,15 +255,10 @@ class WorkInProgressError(Exception):
     Does not serve as a 'real' Exception.
     """
 
-    pass
-
 
 class BreakingAPIChangeError(Exception):
     def __init__(self, msg, *args: object) -> None:
-        default_msg = (
-            "This item has been removed due to an API change. Instruction to update:\n"
-            ""
-        )
+        default_msg = "This item has been removed due to an API change. Instruction to update:\n" ""
         msg = default_msg + str(msg)
         super().__init__(msg, *args)
 

@@ -3,25 +3,21 @@
 from __future__ import annotations
 
 from functools import partial
-from typing import Literal
-from typing import TYPE_CHECKING, List, Optional, Union
+from typing import TYPE_CHECKING, Literal, Union, Optional
 
 import pydantic
 from pydantic import Field
 
+from ..serialization.serializer import BaseRepr, Serializer
 from .data import convert_to_data
 from .serialmixin import SerializableMixin
-from ..serialization.serializer import BaseRepr, Serializer
 
 if TYPE_CHECKING:
     import zfit
 
-from collections.abc import Mapping
-from collections.abc import Callable
-from collections.abc import Iterable
-
 import abc
 import warnings
+from collections.abc import Callable, Iterable, Mapping
 
 import tensorflow as tf
 from ordered_set import OrderedSet
@@ -29,9 +25,6 @@ from ordered_set import OrderedSet
 import zfit.z.numpy as znp
 
 from .. import settings, z
-from .interfaces import ZfitBinnedData, ZfitParameter
-
-znp = z.numpy
 from ..util import ztyping
 from ..util.checks import NONE
 from ..util.container import convert_to_container, is_container
@@ -54,7 +47,7 @@ from ..z.math import (
 from .baseobject import BaseNumeric, extract_filter_params
 from .constraint import BaseConstraint
 from .dependents import _extract_dependencies
-from .interfaces import ZfitData, ZfitLoss, ZfitPDF, ZfitSpace
+from .interfaces import ZfitBinnedData, ZfitData, ZfitLoss, ZfitParameter, ZfitPDF, ZfitSpace
 from .parameter import convert_to_parameters, set_values
 
 DEFAULT_FULL_ARG = True
@@ -97,9 +90,7 @@ def _unbinned_nll_tf(
                 probs = model.pdf(data, norm_range=fit_range)
         else:
             probs = model.pdf(data)
-        log_probs = znp.log(
-            probs + znp.asarray(1e-307, dtype=znp.float64)
-        )  # minor offset to avoid NaNs from log(0)
+        log_probs = znp.log(probs + znp.asarray(1e-307, dtype=znp.float64))  # minor offset to avoid NaNs from log(0)
         if log_offset is None:
             log_offset = znp.array([0.0], dtype=znp.float64)
         nll = _nll_calc_unbinned_tf(
@@ -119,9 +110,8 @@ def _nll_calc_unbinned_tf(log_probs, weights, log_offset):
         log_probs *= weights  # because it's prob ** weights
     if log_offset is not False:
         log_probs -= log_offset
-    nll = -znp.sum(log_probs, axis=0)
+    return -znp.sum(log_probs, axis=0)
     # nll = -tfp.math.reduce_kahan_sum(input_tensor=log_probs, axis=0)
-    return nll
 
 
 def _constraint_check_convert(constraints):
@@ -130,11 +120,12 @@ def _constraint_check_convert(constraints):
         if isinstance(constr, BaseConstraint):
             checked_constraints.append(constr)
         else:
-            raise BreakingAPIChangeError(
+            msg = (
                 "Constraints have to be of type `Constraint`, a simple"
                 " constraint from a function can be constructed with"
                 " `SimpleConstraint`."
             )
+            raise BreakingAPIChangeError(msg)
     return checked_constraints
 
 
@@ -144,13 +135,13 @@ class BaseLossRepr(BaseRepr):
     hs3_type: Literal["BaseLoss"] = Field("BaseLoss", alias="type")
     model: Union[
         Serializer.types.PDFTypeDiscriminated,
-        List[Serializer.types.PDFTypeDiscriminated],
+        list[Serializer.types.PDFTypeDiscriminated],
     ]
     data: Union[
         Serializer.types.DataTypeDiscriminated,
-        List[Serializer.types.DataTypeDiscriminated],
+        list[Serializer.types.DataTypeDiscriminated],
     ]
-    constraints: Optional[List[Serializer.types.ConstraintTypeDiscriminated]] = Field(
+    constraints: Optional[list[Serializer.types.ConstraintTypeDiscriminated]] = Field(
         default_factory=list
     )
     options: Optional[Mapping] = Field(default_factory=dict)
@@ -194,9 +185,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
                 stacklevel=2,
             )
 
-        model, data, fit_range = self._input_check(
-            pdf=model, data=data, fit_range=fit_range
-        )
+        model, data, fit_range = self._input_check(pdf=model, data=data, fit_range=fit_range)
         self._model = model
         self._data = data
         self._fit_range = fit_range
@@ -207,9 +196,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         self._subtractions = {}
         if constraints is None:
             constraints = []
-        self._constraints = _constraint_check_convert(
-            convert_to_container(constraints, list)
-        )
+        self._constraints = _constraint_check_convert(convert_to_container(constraints, list))
 
         self._is_precompiled = False
 
@@ -219,9 +206,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
     def _check_init_options(self, options, data):
         try:
             nevents = sum(d.nevents for d in data)
-        except (
-            RuntimeError
-        ):  # can happen if not yet sampled. What to do? Approx_nevents?
+        except RuntimeError:  # can happen if not yet sampled. What to do? Approx_nevents?
             nevents = 150_000  # sensible default
         options = {} if options is None else options
 
@@ -232,9 +217,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
             options["numgrad"] = settings.options["numerical_grad"]
 
         if options.get("kahansum") is None:
-            options["kahansum"] = (
-                nevents > 500_000
-            )  # start using kahan if we have more than 500k events
+            options["kahansum"] = nevents > 500_000  # start using kahan if we have more than 500k events
 
         if options.get("subtr_const") is None:  # TODO: balance better?
             # if nevents < 200_000:
@@ -270,7 +253,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
             )
         )
 
-        params = params.union(
+        return params.union(
             *(
                 constraint.get_params(
                     floating=floating,
@@ -280,13 +263,14 @@ class BaseLoss(ZfitLoss, BaseNumeric):
                 for constraint in self.constraints
             )
         )
-        return params
 
     def _input_check(self, pdf, data, fit_range):
         if isinstance(pdf, tuple):
-            raise TypeError("`pdf` has to be a pdf or a list of pdfs, not a tuple.")
+            msg = "`pdf` has to be a pdf or a list of pdfs, not a tuple."
+            raise TypeError(msg)
         if isinstance(data, tuple):
-            raise TypeError("`data` has to be a data or a list of data, not a tuple.")
+            msg = "`data` has to be a data or a list of data, not a tuple."
+            raise TypeError(msg)
 
         # pdf, data = (convert_to_container(obj, non_containers=[tuple]) for obj in (pdf, data))
         pdf, data = self._check_convert_model_data(pdf, data, fit_range)
@@ -313,17 +297,17 @@ class BaseLoss(ZfitLoss, BaseNumeric):
             fit_range = convert_to_container(fit_range, non_containers=[tuple])
 
         if not len(pdf) == len(data) == len(fit_range):
-            raise ValueError(
+            msg = (
                 "pdf, data and fit_range don't have the same number of components:"
-                "\npdf: {}"
-                "\ndata: {}"
-                "\nfit_range: {}".format(pdf, data, fit_range)
+                f"\npdf: {pdf}"
+                f"\ndata: {data}"
+                f"\nfit_range: {fit_range}"
             )
+            raise ValueError(msg)
 
         # sanitize fit_range
         fit_range = [
-            p._convert_sort_space(limits=range_) if range_ is not None else None
-            for p, range_ in zip(pdf, fit_range)
+            p._convert_sort_space(limits=range_) if range_ is not None else None for p, range_ in zip(pdf, fit_range)
         ]
         # TODO: sanitize pdf, data?
         self.add_cache_deps(cache_deps=pdf)
@@ -363,9 +347,8 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         for mod, dat in zip(model, data):
             if not isinstance(dat, (ZfitData, ZfitBinnedData)):
                 if fit_range is not None:
-                    raise TypeError(
-                        "Fit range should not be used if data is not ZfitData."
-                    )
+                    msg = "Fit range should not be used if data is not ZfitData."
+                    raise TypeError(msg)
 
                 dat = convert_to_data(data=dat, obs=mod.obs)
             model_checked.append(mod)
@@ -373,20 +356,14 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         return model_checked, data_checked
 
     def _input_check_params(self, params):
-        if params is None:
-            params = list(self.get_params())
-        else:
-            params = convert_to_container(params)
-        return params
+        return list(self.get_params()) if params is None else convert_to_container(params)
 
     def add_constraints(self, constraints):
         constraints = convert_to_container(constraints)
         return self._add_constraints(constraints)
 
     def _add_constraints(self, constraints):
-        constraints = _constraint_check_convert(
-            convert_to_container(constraints, container=list)
-        )
+        constraints = _constraint_check_convert(convert_to_container(constraints, container=list))
         self._constraints.extend(constraints)
         return constraints
 
@@ -445,15 +422,15 @@ class BaseLoss(ZfitLoss, BaseNumeric):
             Calculated loss value as a scalar.
         """
         if _x is None:
-            raise BehaviorUnderDiscussion(
+            msg = (
                 "Currently, calling a loss requires to give the arguments explicitly."
                 " If you think this behavior should be changed, please open an issue"
                 " https://github.com/zfit/zfit/issues/new/choose"
             )
+            raise BehaviorUnderDiscussion(msg)
         if isinstance(_x, dict):
-            raise TypeError(
-                "Dicts are not supported when calling a loss, only array-like values."
-            )
+            msg = "Dicts are not supported when calling a loss, only array-like values."
+            raise TypeError(msg)
         if _x is None:
             return self.value(full=True)  # has to be full, otherwise iminuit breaks
         else:
@@ -461,7 +438,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
             with set_values(params, _x):
                 return self.value(full=True)
 
-    def value(self, *, full: bool = None) -> znp.ndarray:
+    def value(self, *, full: bool | None = None) -> znp.ndarray:
         """Calculate the loss value with the current values of the free parameters.
 
         Args:
@@ -481,22 +458,16 @@ class BaseLoss(ZfitLoss, BaseNumeric):
             self._is_precompiled = True
         if full is None:
             full = DEFAULT_FULL_ARG
-        if full:
-            log_offset = 0.0
-        else:
-            log_offset = self._options.get("subtr_const_value")
+        log_offset = 0.0 if full else self._options.get("subtr_const_value")
 
         if log_offset is not None:
             log_offset = z.convert_to_tensor(log_offset)
 
         # log_offset = z.convert_to_tensor(log_offset)
-        value = self._call_value(
-            self.model, self.data, self.fit_range, self.constraints, log_offset
-        )
-        return value
+        return self._call_value(self.model, self.data, self.fit_range, self.constraints, log_offset)
 
     def _call_value(self, model, data, fit_range, constraints, log_offset):
-        value = self._value(
+        return self._value(
             model=model,
             data=data,
             fit_range=fit_range,
@@ -508,7 +479,6 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         # value_subtracted = (value[0] - self._subtractions['kahan'][0]) - (
         #         value[1] - self._subtractions['kahan'][1])
         # return value_subtracted
-        return value
         # value = value_substracted[0] - value_substracted[1]
 
     def _value(self, model, data, fit_range, constraints, log_offset):
@@ -522,23 +492,21 @@ class BaseLoss(ZfitLoss, BaseNumeric):
 
     def __add__(self, other):
         if not isinstance(other, BaseLoss):
-            raise TypeError(
-                "Has to be a subclass of `BaseLoss` or overwrite `__add__`."
-            )
+            msg = "Has to be a subclass of `BaseLoss` or overwrite `__add__`."
+            raise TypeError(msg)
         if type(other) != type(self):
-            raise ValueError("cannot safely add two different kind of loss.")
+            msg = "cannot safely add two different kind of loss."
+            raise ValueError(msg)
         model = self.model + other.model
         data = self.data + other.data
         fit_range = self.fit_range + other.fit_range
         constraints = self.constraints + other.constraints
-        kwargs = dict(model=model, data=data, constraints=constraints)
+        kwargs = {"model": model, "data": data, "constraints": constraints}
         if any(fitrng is not None for fitrng in fit_range):
             kwargs["fit_range"] = fit_range
         return type(self)(**kwargs)
 
-    def gradient(
-        self, params: ztyping.ParamTypeInput = None, *, numgrad=None
-    ) -> list[tf.Tensor]:
+    def gradient(self, params: ztyping.ParamTypeInput = None, *, numgrad=None) -> list[tf.Tensor]:
         """Calculate the gradient of the loss with respect to the given parameters.
 
         Args:
@@ -563,10 +531,9 @@ class BaseLoss(ZfitLoss, BaseNumeric):
             self._is_precompiled = True
         return self._gradient(params=params, numgrad=numgrad)
 
-    def gradients(self, *args, **kwargs):
-        raise BreakingAPIChangeError(
-            "`gradients` is deprecated, use `gradient` instead."
-        )
+    def gradients(self, *_, **__):
+        msg = "`gradients` is deprecated, use `gradient` instead."
+        raise BreakingAPIChangeError(msg)
 
     @z.function(wraps="loss")
     def _gradient(self, params, numgrad):
@@ -582,8 +549,8 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         self,
         params: ztyping.ParamTypeInput = None,
         *,
-        full: bool = None,
-        numgrad: bool = None,
+        full: bool | None = None,
+        numgrad: bool | None = None,
     ) -> tuple[tf.Tensor, tf.Tensor]:
         """Calculate the loss value and the gradient with the current values of the free parameters.
 
@@ -615,13 +582,12 @@ class BaseLoss(ZfitLoss, BaseNumeric):
             self._is_precompiled = True
         return self._value_gradient(params=params, numgrad=numgrad, full=full)
 
-    def value_gradients(self, *args, **kwargs):
-        raise BreakingAPIChangeError(
-            "`value_gradients` is deprecated, use `value_gradient` instead."
-        )
+    def value_gradients(self, *_, **__):
+        msg = "`value_gradients` is deprecated, use `value_gradient` instead."
+        raise BreakingAPIChangeError(msg)
 
     @z.function(wraps="loss")
-    def _value_gradient(self, params, numgrad=False, *, full: bool = None):
+    def _value_gradient(self, params, numgrad=False, *, full: bool | None = None):
         params = tuple(params.values())
         if full is None:
             full = DEFAULT_FULL_ARG
@@ -637,7 +603,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         params: ztyping.ParamTypeInput = None,
         hessian=None,
         *,
-        numgrad: bool = None,
+        numgrad: bool | None = None,
     ):
         """Calculate the hessian of the loss with respect to the given parameters.
 
@@ -656,16 +622,14 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         if not self._is_precompiled:
             self._precompile()
             self._is_precompiled = True
-        return self.value_gradient_hessian(params=params, hessian=hessian, full=False)[
-            2
-        ]
+        return self.value_gradient_hessian(params=params, hessian=hessian, full=False, numgrad=numgrad)[2]
 
     def value_gradient_hessian(
         self,
         params: ztyping.ParamTypeInput = None,
         hessian=None,
         *,
-        full: bool = None,
+        full: bool | None = None,
         numgrad=None,
     ) -> tuple[tf.Tensor, tf.Tensor, tf.Tensor]:
         """Calculate the loss value, the gradient and the hessian with the current values of the free parameters.
@@ -697,22 +661,16 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         if not self._is_precompiled:
             self._precompile()
             self._is_precompiled = True
-        vals = self._value_gradient_hessian(
-            params=params, hessian=hessian, numerical=numgrad, full=full
-        )
+        vals = self._value_gradient_hessian(params=params, hessian=hessian, numerical=numgrad, full=full)
 
-        vals = vals[0], z.convert_to_tensor(vals[1]), vals[2]
-        return vals
+        return vals[0], z.convert_to_tensor(vals[1]), vals[2]
 
-    def value_gradients_hessian(self, *args, **kwargs):
-        raise BreakingAPIChangeError(
-            "`value_gradients_hessian` is deprecated, use `value_gradient_hessian` instead."
-        )
+    def value_gradients_hessian(self, *_, **__):
+        msg = "`value_gradients_hessian` is deprecated, use `value_gradient_hessian` instead."
+        raise BreakingAPIChangeError(msg)
 
     @z.function(wraps="loss")
-    def _value_gradient_hessian(
-        self, params, hessian, numerical=False, *, full: bool = None
-    ):
+    def _value_gradient_hessian(self, params, hessian, numerical=False, *, full: bool | None = None):
         params = tuple(params.values())
         self_value = partial(self.value, full=full)
         if numerical:
@@ -720,9 +678,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
                 func=self_value, gradient=self.gradient, params=params, hessian=hessian
             )
         else:
-            return automatic_value_gradients_hessian(
-                self_value, params=params, hessian=hessian
-            )
+            return automatic_value_gradients_hessian(self_value, params=params, hessian=hessian)
 
     def __repr__(self) -> str:
         class_name = repr(self.__class__)[:-2].split(".")[-1]
@@ -738,8 +694,8 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         class_name = repr(self.__class__)[:-2].split(".")[-1]
         return (
             f"<{class_name}"
-            f" model={one_two_many([model for model in self.model])}"
-            f" data={one_two_many([data for data in self.data])}"
+            f" model={one_two_many(list(self.model))}"
+            f" data={one_two_many(list(self.data))}"
             f' constraints={one_two_many(self.constraints, many="True")}'
             f">"
         )
@@ -969,9 +925,7 @@ class UnbinnedNLL(BaseUnbinnedNLL):
 
     @z.function(wraps="loss")
     def _loss_func_watched(self, data, model, fit_range, constraints, log_offset):
-        nll = _unbinned_nll_tf(
-            model=model, data=data, fit_range=fit_range, log_offset=log_offset
-        )
+        nll = _unbinned_nll_tf(model=model, data=data, fit_range=fit_range, log_offset=log_offset)
         if constraints:
             constraints = z.reduce_sum([c.value() for c in constraints])
             nll += constraints
@@ -1057,9 +1011,7 @@ class ExtendedUnbinnedNLL(BaseUnbinnedNLL):
 
     @z.function(wraps="loss")
     def _loss_func(self, model, data, fit_range, constraints, log_offset):
-        nll = _unbinned_nll_tf(
-            model=model, data=data, fit_range=fit_range, log_offset=log_offset
-        )
+        nll = _unbinned_nll_tf(model=model, data=data, fit_range=fit_range, log_offset=log_offset)
         if constraints:
             constraints = z.reduce_sum([c.value() for c in constraints])
             nll += constraints
@@ -1067,9 +1019,8 @@ class ExtendedUnbinnedNLL(BaseUnbinnedNLL):
         nevents_collected = []
         for mod, dat in zip(model, data):
             if not mod.is_extended:
-                raise NotExtendedPDFError(
-                    f"The pdf {mod} is not extended but has to be (for an extended fit)"
-                )
+                msg = f"The pdf {mod} is not extended but has to be (for an extended fit)"
+                raise NotExtendedPDFError(msg)
             nevents = dat.n_events if dat.weights is None else z.reduce_sum(dat.weights)
             nevents = tf.cast(nevents, tf.float64)
             nevents_collected.append(nevents)
@@ -1077,9 +1028,7 @@ class ExtendedUnbinnedNLL(BaseUnbinnedNLL):
         yields = znp.stack(yields, axis=0)
         nevents_collected = znp.stack(nevents_collected, axis=0)
 
-        term_new = tf.nn.log_poisson_loss(
-            nevents_collected, znp.log(yields), compute_full_loss=log_offset is False
-        )
+        term_new = tf.nn.log_poisson_loss(nevents_collected, znp.log(yields), compute_full_loss=log_offset is False)
         if log_offset is not False:
             log_offset = znp.asarray(log_offset, dtype=znp.float64)
             term_new += log_offset
@@ -1101,9 +1050,7 @@ class ExtendedUnbinnedNLL(BaseUnbinnedNLL):
 
 class ExtendedUnbinnedNLLRepr(BaseLossRepr):
     _implementation = ExtendedUnbinnedNLL
-    hs3_type: Literal["ExtendedUnbinnedNLL"] = pydantic.Field(
-        "ExtendedUnbinnedNLL", alias="type"
-    )
+    hs3_type: Literal["ExtendedUnbinnedNLL"] = pydantic.Field("ExtendedUnbinnedNLL", alias="type")
 
 
 class SimpleLoss(BaseLoss):
@@ -1113,7 +1060,7 @@ class SimpleLoss(BaseLoss):
     def __init__(
         self,
         func: Callable,
-        params: Iterable[zfit.Parameter] = None,
+        params: Iterable[zfit.Parameter] | None = None,
         errordef: float | None = None,
         # legacy
         deps: Iterable[zfit.Parameter] = NONE,
@@ -1171,23 +1118,24 @@ class SimpleLoss(BaseLoss):
         elif deps is not NONE and params is None:  # depreceation
             params = deps
         elif params is None:  # legacy, remove in 0.7
-            raise BreakingAPIChangeError(
+            msg = (
                 "params need to be specified explicitly due to the upgrade to 0.4."
                 "More information can be found in the upgrade guide on the website."
             )
+            raise BreakingAPIChangeError(msg)
 
         if hasattr(func, "errordef"):
             if errordef is not None:
-                raise ValueError(
-                    "errordef is not allowed if func has an errordef attribute or vice versa."
-                )
+                msg = "errordef is not allowed if func has an errordef attribute or vice versa."
+                raise ValueError(msg)
             errordef = func.errordef
 
         if errordef is None:
-            raise ValueError(
+            msg = (
                 f"{self} cannot minimize {func} as `errordef` is missing: "
                 f"it has to be set as an attribute. Typically 1 (chi2) or 0.5 (NLL)."
             )
+            raise ValueError(msg)
 
         self._simple_func = func
         self._errordef = errordef
@@ -1196,8 +1144,7 @@ class SimpleLoss(BaseLoss):
         self._simple_func_params = _extract_dependencies(params)
 
     def _get_dependencies(self):
-        dependents = self._simple_func_params
-        return dependents
+        return self._simple_func_params
 
     def _get_params(
         self,
@@ -1206,24 +1153,22 @@ class SimpleLoss(BaseLoss):
         extract_independent: bool | None = True,
     ) -> set[ZfitParameter]:
         params = super()._get_params(floating, is_yield, extract_independent)
-        own_params = extract_filter_params(
-            self._params, floating=floating, extract_independent=extract_independent
-        )
-        params = params.union(own_params)
-        return params
+        own_params = extract_filter_params(self._params, floating=floating, extract_independent=extract_independent)
+        return params.union(own_params)
 
     @property
     def errordef(self):
         errordef = self._errordef
         if errordef is None:
-            raise RuntimeError("For this SimpleLoss, no error calculation is possible.")
-        else:
-            return errordef
+            msg = "For this SimpleLoss, no error calculation is possible."
+            raise RuntimeError(msg)
+        return errordef
 
     # @z.function(wraps='loss')
-    def _loss_func(self, model, data, fit_range, constraints=None, log_offset=None):
+    def _loss_func(self, model, data, fit_range, constraints=None, log_offset=None):  # noqa: ARG002
         if log_offset not in (None, False):
-            raise ValueError("log_offset is not allowed for a SimpleLoss")
+            msg = "log_offset is not allowed for a SimpleLoss"
+            raise ValueError(msg)
         try:
             params = self._simple_func_params
             params = tuple(params)
@@ -1236,10 +1181,8 @@ class SimpleLoss(BaseLoss):
         return z.convert_to_tensor(value)
 
     def __add__(self, other):
-        raise IntentionAmbiguousError(
-            "Cannot add a SimpleLoss, 'addition' of losses can mean anything."
-            "Add them manually"
-        )
+        msg = "Cannot add a SimpleLoss, 'addition' of losses can mean anything." "Add them manually"
+        raise IntentionAmbiguousError(msg)
 
     def create_new(
         self,

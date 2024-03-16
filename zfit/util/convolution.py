@@ -1,9 +1,9 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 
 import tensorflow as tf
 
-from . import root_search
 from ..settings import ztypes
+from . import root_search
 
 
 def find_practical_support_bandwidth(kernel, bandwidth, absolute_tolerance=10e-5):
@@ -33,9 +33,7 @@ def find_practical_support_bandwidth(kernel, bandwidth, absolute_tolerance=10e-5
     return roots + absolute_root_tolerance
 
 
-def convolve_1d_data_with_kernel(
-    kernel, bandwidth, data, grid, support=None, fft_method="conv1d"
-):
+def convolve_1d_data_with_kernel(kernel, bandwidth, data, grid, support=None, fft_method="conv1d"):
     kernel_grid_min = tf.math.reduce_min(grid)
     kernel_grid_max = tf.math.reduce_max(grid)
 
@@ -55,13 +53,9 @@ def convolve_1d_data_with_kernel(
 
     # Calculate the kernel weights
     zero = tf.constant(0, ztypes.float)
-    kernel_grid = tf.linspace(
-        zero, dx * L, tf.cast(L, ztypes.int) + tf.constant(1, ztypes.int)
-    )
+    kernel_grid = tf.linspace(zero, dx * L, tf.cast(L, ztypes.int) + tf.constant(1, ztypes.int))
     kernel_weights = kernel(loc=zero, scale=bandwidth).prob(kernel_grid)
-    kernel_weights = tf.concat(
-        values=[tf.reverse(kernel_weights, axis=[0])[:-1], kernel_weights], axis=0
-    )
+    kernel_weights = tf.concat(values=[tf.reverse(kernel_weights, axis=[0])[:-1], kernel_weights], axis=0)
 
     c = data
     k = kernel_weights
@@ -75,36 +69,29 @@ def convolve_1d_data_with_kernel(
 
         return tf.squeeze(tf.nn.conv1d(c, k, 1, "SAME"))
 
-    else:
-        P = tf.math.pow(
-            tf.constant(2, ztypes.int),
-            tf.cast(
-                tf.math.ceil(
-                    tf.math.log(
-                        tf.constant(3.0, ztypes.float)
-                        * tf.cast(num_grid_points, ztypes.float)
-                        - tf.constant(1.0, ztypes.float)
-                    )
-                    / tf.math.log(tf.constant(2.0, ztypes.float))
-                ),
-                ztypes.int,
+    P = tf.math.pow(
+        tf.constant(2, ztypes.int),
+        tf.cast(
+            tf.math.ceil(
+                tf.math.log(
+                    tf.constant(3.0, ztypes.float) * tf.cast(num_grid_points, ztypes.float)
+                    - tf.constant(1.0, ztypes.float)
+                )
+                / tf.math.log(tf.constant(2.0, ztypes.float))
             ),
-        )
+            ztypes.int,
+        ),
+    )
 
-        right_padding = (
-            tf.cast(P, ztypes.int)
-            - tf.constant(2, ztypes.int) * num_grid_points
-            - tf.constant(1, ztypes.int)
-        )
-        left_padding = num_grid_points - tf.constant(1, ztypes.int)
+    right_padding = tf.cast(P, ztypes.int) - tf.constant(2, ztypes.int) * num_grid_points - tf.constant(1, ztypes.int)
+    left_padding = num_grid_points - tf.constant(1, ztypes.int)
 
-        c = tf.pad(data, [[left_padding, right_padding]])
-        k = tf.pad(kernel_weights, [[0, right_padding]])
+    c = tf.pad(data, [[left_padding, right_padding]])
+    k = tf.pad(kernel_weights, [[0, right_padding]])
 
-        result = tf.signal.irfft(tf.signal.rfft(c) * tf.signal.rfft(k))
-        start, end = tf.constant(2, ztypes.int) * num_grid_points - tf.constant(
-            1, ztypes.int
-        ), tf.constant(3, ztypes.int) * num_grid_points - tf.constant(1, ztypes.int)
-        result = result[start:end]
-
-        return result
+    result = tf.signal.irfft(tf.signal.rfft(c) * tf.signal.rfft(k))
+    start, end = (
+        tf.constant(2, ztypes.int) * num_grid_points - tf.constant(1, ztypes.int),
+        tf.constant(3, ztypes.int) * num_grid_points - tf.constant(1, ztypes.int),
+    )
+    return result[start:end]
