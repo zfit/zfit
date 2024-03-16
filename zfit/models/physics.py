@@ -181,7 +181,7 @@ def double_crystalball_mu_integral(limits, params, model):
     )
 
 
-@z.function(wraps="tensor", keepalive=True)
+# @z.function(wraps="tensor")  # TODO: this errors, fro whatever reason?
 def double_crystalball_mu_integral_func(
     mu, sigma, alphal, nl, alphar, nr, lower, upper
 ):

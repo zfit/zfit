@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2024 zfit
 
 # TODO: improve errors of models. Generate more general error, inherit and use more specific?
 import warnings
@@ -96,8 +96,7 @@ class ObsNotSpecifiedError(NotSpecifiedError):
     pass
 
 
-# Parameter Errors
-class NameAlreadyTakenError(Exception):
+class ParamNameNotUniqueError(Exception):
     pass
 
 

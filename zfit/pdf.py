@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2024 zfit
 
 __all__ = [
     "BasePDF",
@@ -40,6 +40,7 @@ __all__ = [
     "BinwiseScaleModifier",
     "BinnedSumPDF",
     "SplinePDF",
+    "LogNormal",
 ]
 
 from .core.basepdf import BasePDF
@@ -55,6 +56,7 @@ from .models.dist_tfp import (
     TruncatedGauss,
     Uniform,
     WrapDistribution,
+    LogNormal,
 )
 from .models.functor import BaseFunctor, ProductPDF, SumPDF
 from .models.histmodifier import BinwiseScaleModifier

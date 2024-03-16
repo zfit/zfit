@@ -1,5 +1,7 @@
 ci:
   autoupdate_schedule: quarterly
+#  skip:
+#    - oxipng
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -105,10 +107,11 @@ repos:
     hooks:
       - id: auto-walrus
 
-  - repo: https://github.com/shssoichiro/oxipng
-    rev: v9.0.0
-    hooks:
-      - id: oxipng
+# todo: needs rust, reactivate?
+#  - repo: https://github.com/shssoichiro/oxipng
+#    rev: v8.0.0
+#    hooks:
+#      - id: oxipng
 
   - repo: https://github.com/psf/black
     rev: 24.2.0
@@ -124,24 +127,25 @@ repos:
       - id: check-dependabot
       - id: check-readthedocs
 
-  - repo: https://github.com/jonasbb/pre-commit-latex-hooks
-    rev: v1.4.3
-    hooks:
-      - id: american-eg-ie
-      - id: cleveref-capitalization
-      - id: consistent-spelling
-        args:
-          [
-            "--emph=et al.",
-            "--emph=a priori",
-            "--emph=a posteriori",
-            '--regex=naive=\bna(i|\\"i)ve',
-          ]
-      - id: csquotes
-      - id: ensure-labels-for-sections
-      - id: no-space-in-cite
-      - id: tilde-cite
-      - id: unique-labels
+# needs rust, todo, reactivate?
+#  - repo: https://github.com/jonasbb/pre-commit-latex-hooks
+#    rev: v1.4.3
+#    hooks:
+#      - id: american-eg-ie
+#      - id: cleveref-capitalization
+#      - id: consistent-spelling
+#        args:
+#          [
+#            "--emph=et al.",
+#            "--emph=a priori",
+#            "--emph=a posteriori",
+#            '--regex=naive=\bna(i|\\"i)ve',
+#          ]
+#      - id: csquotes
+#      - id: ensure-labels-for-sections
+#      - id: no-space-in-cite
+#      - id: tilde-cite
+#      - id: unique-labels
 
   - repo: https://github.com/dannysepler/rm_unneeded_f_str
     rev: v0.2.0

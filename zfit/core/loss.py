@@ -213,6 +213,9 @@ class BaseLoss(ZfitLoss, BaseNumeric):
 
         self._is_precompiled = False
 
+        # not ideal, should be in parametrized. But we don't have too many base classes, so this should work
+        self._assert_params_unique()
+
     def _check_init_options(self, options, data):
         try:
             nevents = sum(d.nevents for d in data)

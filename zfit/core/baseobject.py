@@ -1,12 +1,12 @@
 """Baseclass for most objects appearing in zfit."""
 
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 
 from __future__ import annotations
 
 import contextlib
 import itertools
-from collections import OrderedDict
+from collections import OrderedDict, Counter
 from collections.abc import Iterable
 
 import tensorflow as tf
@@ -24,7 +24,7 @@ from ..util import ztyping
 from ..util.cache import GraphCachable
 from ..util.checks import NotSpecified
 from ..util.container import convert_to_container
-from ..util.exception import BreakingAPIChangeError
+from ..util.exception import BreakingAPIChangeError, ParamNameNotUniqueError
 
 
 class BaseObject(ZfitObject):
@@ -80,6 +80,26 @@ class BaseParametrized(BaseObject, ZfitParametrized):
         # parameters = OrderedDict(sorted(parameters))  # to always have a consistent order
         self._params = params
         self._repr["params"] = self.params
+        # check if the object has duplicated names as parameters
+
+    def _assert_params_unique(self):
+        """Assert that the parameters are unique, i.e. no parameter has the same name as another one.
+
+        Raises:
+            ValueError: If the parameters are not unique.
+        """
+        all_params = self.get_params(
+            floating=None, is_yield=None, extract_independent=None
+        )  # get **all** params
+        counted_names = Counter(param.name for param in all_params)
+        if duplicated_names := {
+            name for name, count in counted_names.items() if count > 1
+        }:  # set comprehension
+            raise ParamNameNotUniqueError(
+                f"The following parameter names appear more than once in {self}: {duplicated_names}."
+                f"This is new behavior: before, a parameter with the same name could not exists, now it can."
+                f"However, they are not allowed to be within the same function/PDF/loss, as this would result in ill-defined behavior."
+            )
 
     def get_params(
         self,
