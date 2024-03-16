@@ -193,8 +193,6 @@ def test_gradient_cached_pdf():
         _ = tape.gradient(pdf, [mu])
 
 
-
-
 def test_minimize_cached_pdf():
     obs = zfit.Space("x", limits=[-5.0, 5.0])
     mu = zfit.Parameter("mu", 1.0, -5, 5)

@@ -294,5 +294,6 @@ class BehaviorUnderDiscussion(Exception):
 class MaximumIterationReached(StandardControlFlow):
     pass
 
+
 class AnalyticGradientNotAvailable(Exception):
     pass
