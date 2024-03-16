@@ -40,11 +40,13 @@ __all__ = [
     "BinnedSumPDF",
     "SplinePDF",
     "LogNormal",
+    "CachedPDF",
 ]
 
 from .core.basepdf import BasePDF
 from .models.basic import Exponential, Voigt
 from .models.binned_functor import BinnedSumPDF
+from .models.cache import CachedPDF
 from .models.conditional import ConditionalPDFV1
 from .models.convolution import FFTConvPDFV1
 from .models.dist_tfp import (

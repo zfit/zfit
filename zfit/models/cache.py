@@ -1,9 +1,13 @@
-from zfit import supports
-from zfit.models.functor import BaseFunctor
+import pydantic
+
+from ..core.serialmixin import SerializableMixin
+from .basefunctor import FunctorPDFRepr
+from .functor import BaseFunctor
+from ..core.space import supports
 
 import tensorflow as tf
 import zfit.z.numpy as znp
-from typing import Callable
+from typing import Callable, Literal
 
 from zfit.util.exception import AnalyticGradientNotAvailable
 
@@ -36,16 +40,39 @@ def get_value(cache: tf.Variable, flag: tf.Variable, func: Callable):
     return actual_func()
 
 
-class CacheablePDF(BaseFunctor):
-    def __init__(self, pdf, cache_tolerance=None, **kwargs):
-        """Makes pdf and integrate methods of ZfitPDF cacheable It stores the last calculated value of a function and
-        return it when input args are the same and pdf parameters have not been changed.
+class CachedPDF(BaseFunctor, SerializableMixin):
+    def __init__(self, pdf, *, extended=None, norm=None, cache_tol=None, name=None):
+        """Creates a PDF where ``pdf`` and ``integrate`` methods are cacheable.
+
+        .. note::
+
+           Analytic gradients are not available for the cached PDF. Use the numerical gradient instead,
+           either by using a minimizers internal calculator (e.g. :py:class:`~zfit.minimize.Minuit(..., gradient=True)`) or by
+           setting the autograd mode to False (e.g. :py:func:`~zfit.run.set_autograd_mode(False)`).
+           An error will be raised if the analytic gradient is requested.
+
+        The method stores the last calculated value of a function for a specific dataset and
+        returns it when the input data and the parameters are the same. This can be useful when
+        the pdf is called multiple times with the same data and parameters, for example in the
+        minimization process when a numerical gradient is used.
 
         Args:
             pdf: pdf which methods to be cached
-            cache_tol: accuracy of comparing arguments with cached values
+            cache_tol: accuracy of absolute tolerance comparing arguments (parameters, data) with cached values
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+            norm: |@doc:model.init.norm| The normalization of the PDF. |@docend:model.init.norm|
+            name: |@doc:model.init.name| Human-readable name
+               or label of
+               the PDF for better identification.
+               Has no programmatical functional purpose as identification. |@docend:model.init.name|
         """
-        super().__init__(pdfs=pdf, obs=pdf.space, **kwargs)
+        hs3_init = {"extended": extended, "norm": norm, "cache_tol": cache_tol, "name": name}
+        name = name or pdf.name
+        super().__init__(pdfs=pdf, obs=pdf.space, name=name, extended=extended, norm=norm)
         params = list(pdf.get_params())
         self._cached_pdf_params = tf.Variable(
             znp.zeros(shape=tf.shape(tf.stack(params))),
@@ -67,7 +94,8 @@ class CacheablePDF(BaseFunctor):
         self._integral_cache = None
         self._integral_cache_valid = tf.Variable(initial_value=False, trainable=False)
 
-        self._cache_tolerance = 1e-8 if cache_tolerance is None else cache_tolerance
+        self._cache_tolerance = 1e-8 if cache_tol is None else cache_tol
+        self.hs3.original_init.update(hs3_init)
 
     @supports(norm="space")
     def _pdf(self, x, norm):
@@ -113,8 +141,7 @@ class CacheablePDF(BaseFunctor):
             pdf = get_value(
                 self._pdf_cache,
                 self._pdf_cache_valid,
-                value_update_func,
-                # lambda: self.pdfs[0].pdf(x, norm),
+                value_update_func
             )
 
         return pdf
@@ -167,3 +194,7 @@ class CacheablePDF(BaseFunctor):
                 self._integral_cache, self._integral_cache_valid, value_update_func
             )
         return integral
+
+class CachedPDFRepr(FunctorPDFRepr):
+    _implementation = CachedPDF
+    hs3_type: Literal["CachedPDF"] = pydantic.Field("CachedPDF", alias="type")

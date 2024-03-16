@@ -383,6 +383,15 @@ def productpdf(pdfs=None, extended=None, **kwargs):
 
     return zfit.pdf.ProductPDF(pdfs=pdfs, extended=extended)
 
+def cachedpdf(pdfs=None, extended=None, **kwargs):
+    if pdfs is None:
+        pdf = basic_pdfs[0]()
+    else:
+        pdf = pdfs[0]
+    import zfit
+
+    return zfit.pdf.CachedPDF(pdfs=pdfs, extended=extended)
+
 
 def complicatedpdf(pdfs=None, extended=None, **kwargs):
     import zfit
@@ -446,6 +455,7 @@ all_pdfs = (
         productpdf,
         convolutionpdf,
         complicatedpdf,
+    cachedpdf,
     ]
     + [prod2dgauss]
 )
