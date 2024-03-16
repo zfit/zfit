@@ -529,6 +529,8 @@ def test_loss_serialization(ext_Loss, pdf_factory, Constraint, request):
 
     # assert loss_asdf_tree == loss_truth_tree
     loss_loaded = loss.from_asdf(loss_asdf)
+    # assert loss_loaded == loss
+    # TODO: improve tests!
 
     print(loss_loaded)
 
