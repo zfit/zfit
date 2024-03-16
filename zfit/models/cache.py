@@ -141,6 +141,7 @@ class CachedPDF(BaseFunctor, SerializableMixin):
         else:
             same_args = x_same
         assign1 = self._pdf_cache_valid.assign(same_args, read_value=False)
+
         def value_update_func():
             if hasparams:
                 self._cached_pdf_params.assign(stacked_pdf_params, read_value=False)
