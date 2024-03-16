@@ -50,11 +50,11 @@ from .models.convolution import FFTConvPDFV1
 from .models.dist_tfp import (
     Cauchy,
     Gauss,
+    LogNormal,
     Poisson,
     TruncatedGauss,
     Uniform,
     WrapDistribution,
-    LogNormal,
 )
 from .models.functor import BaseFunctor, ProductPDF, SumPDF
 from .models.histmodifier import BinwiseScaleModifier

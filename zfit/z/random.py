@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 
 from __future__ import annotations
 
@@ -9,7 +9,7 @@ from typing import Any
 import tensorflow as tf
 import tensorflow_probability as tfp
 
-from .zextension import function as function
+from .zextension import function
 
 __all__ = ["counts_multinomial", "sample_with_replacement"]
 
@@ -31,9 +31,7 @@ def get_prng():
     return generator
 
 
-def sample_with_replacement(
-    a: tf.Tensor, axis: int, sample_shape: tuple[int]
-) -> tf.Tensor:
+def sample_with_replacement(a: tf.Tensor, axis: int, sample_shape: tuple[int]) -> tf.Tensor:
     """Sample from ``a`` with replacement to return a Tensor with ``sample_shape``.
 
     Args:
@@ -59,17 +57,14 @@ def sample_with_replacement(
     """
 
     dim = tf.shape(a)[axis]
-    choice_indices = get_prng().uniform(
-        sample_shape, minval=0, maxval=dim, dtype=tf.int32
-    )
-    samples = tf.gather(a, choice_indices, axis=axis)
-    return samples
+    choice_indices = get_prng().uniform(sample_shape, minval=0, maxval=dim, dtype=tf.int32)
+    return tf.gather(a, choice_indices, axis=axis)
 
 
 def counts_multinomial(
     total_count: int | tf.Tensor,
-    probs: Iterable[float | tf.Tensor] = None,
-    logits: Iterable[float | tf.Tensor] = None,
+    probs: Iterable[float | tf.Tensor] | None = None,
+    logits: Iterable[float | tf.Tensor] | None = None,
     dtype=tf.int32,
 ) -> tf.Tensor:
     """Get the number of counts for different classes with given probs/logits.
@@ -96,7 +91,8 @@ def counts_multinomial(
         logits = tf.cast(logits, tf.float64)
         float_dtype = logits.dtype
     else:
-        raise ValueError("Exactly one of `probs` or`logits` have to be specified")
+        msg = "Exactly one of `probs` or`logits` have to be specified"
+        raise ValueError(msg)
     total_count = tf.cast(total_count, dtype=float_dtype)
 
     # needed since otherwise shape of sample will be (1, n_probs)
@@ -115,27 +111,20 @@ def _wrapped_multinomial_func(dtype, logits, probs, total_count):
     else:
         shape = tf.shape(logits)
         logits = znp.reshape(logits, [-1])
-    dist = tfp.distributions.Multinomial(
-        total_count=total_count, probs=probs, logits=logits
-    )
+    dist = tfp.distributions.Multinomial(total_count=total_count, probs=probs, logits=logits)
     counts_flat = dist.sample()
     counts_flat = tf.cast(counts_flat, dtype=dtype)
-    counts = znp.reshape(counts_flat, shape)
-    return counts
+    return znp.reshape(counts_flat, shape)
 
 
 @wraps(tf.random.normal)
 def normal(shape, mean=0.0, stddev=1.0, dtype=ztypes.float, name=None):
-    return get_prng().normal(
-        shape=shape, mean=mean, stddev=stddev, dtype=dtype, name=name
-    )
+    return get_prng().normal(shape=shape, mean=mean, stddev=stddev, dtype=dtype, name=name)
 
 
 @wraps(tf.random.uniform)
 def uniform(shape, minval=0, maxval=None, dtype=ztypes.float, name=None):
-    return get_prng().uniform(
-        shape=shape, minval=minval, maxval=maxval, dtype=dtype, name=name
-    )
+    return get_prng().uniform(shape=shape, minval=minval, maxval=maxval, dtype=dtype, name=name)
 
 
 @wraps(tf.random.poisson)
@@ -148,9 +137,7 @@ def poisson(
 ):
     if seed is None:
         seed = get_prng().make_seeds(1)[:, 0]
-    return tf.random.stateless_poisson(
-        lam=lam, seed=seed, shape=shape, dtype=dtype, name=name
-    )
+    return tf.random.stateless_poisson(lam=lam, seed=seed, shape=shape, dtype=dtype, name=name)
 
 
 def shuffle(value, seed=None, name=None):

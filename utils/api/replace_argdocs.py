@@ -1,13 +1,14 @@
 #!/usr/bin/env python
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2024 zfit
 
 import argparse
 import os
 import re
+from pathlib import Path
 
 import yaml
 
-here = os.path.dirname(os.path.realpath(__file__))
+here = Path(os.path.realpath(__file__)).parent
 
 parser = argparse.ArgumentParser(
     description="Replace arguments with central stored ones",
@@ -20,7 +21,7 @@ parser.add_argument("--dry", action="store_true", help="Dry run WITHOUT replacin
 
 cfg = parser.parse_args()
 
-with open(here + "/argdocs.yaml") as replfile:
+with Path.open(here / "argdocs.yaml") as replfile:
     replacements = yaml.load(replfile, Loader=yaml.Loader)
 
 # Replace the target string
@@ -28,7 +29,7 @@ with open(here + "/argdocs.yaml") as replfile:
 for filepath in cfg.files:
     if not filepath.endswith(".py"):
         continue
-    with open(filepath) as file:
+    with Path.open(filepath) as file:
         filedata = file.read()
 
     infile = False
@@ -53,10 +54,8 @@ for filepath in cfg.files:
 
         for match in matches:
             if auto_start in match[len(auto_start) :]:  # sanity check
-                raise ValueError(
-                    f"Docstring formatting error,"
-                    f" has more than one start until an end command: {match}"
-                )
+                msg = f"Docstring formatting error," f" has more than one start until an end command: {match}"
+                raise ValueError(msg)
             if match != replacement_mod:
                 needs_replacement = True
                 filedata = filedata.replace(match, replacement_mod)
@@ -66,11 +65,7 @@ for filepath in cfg.files:
     filename = filepath.split("/")[-1]
     if infile:
         if cfg.dry:
-            print(
-                f"Match in {filename}, {replace_msg}, not writing to {filepath}, dry run."
-            )
-        else:
-            if needs_replacement:
-                with open(filepath, "w") as file:
-                    file.write(filedata)
-                print(f"Modified {filename}.")
+            pass
+        elif needs_replacement:
+            with Path.open(filepath, "w") as file:
+                file.write(filedata)

@@ -5,24 +5,26 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    import zfit
+    pass
 
 from collections.abc import Mapping
 
-from .binned_functor import BaseBinnedFunctorPDF
-from ..core.space import supports
-from ..core.interfaces import ZfitBinnedPDF
 import tensorflow as tf
+
 import zfit.z.numpy as znp
+
+from ..core.interfaces import ZfitBinnedPDF
+from ..core.space import supports
 from ..util import ztyping
 from ..util.exception import SpecificFunctionNotImplemented
+from .binned_functor import BaseBinnedFunctorPDF
 
 
 class BinwiseScaleModifier(BaseBinnedFunctorPDF):
     def __init__(
         self,
         pdf: ZfitBinnedPDF,
-        modifiers: bool | Mapping[str, ztyping.ParamTypeInput] = None,
+        modifiers: bool | Mapping[str, ztyping.ParamTypeInput] | None = None,
         extended: ztyping.ExtendedInputType = None,
         norm: ztyping.NormInputType = None,
         name: str | None = "BinnedTemplatePDF",
@@ -48,7 +50,8 @@ class BinwiseScaleModifier(BaseBinnedFunctorPDF):
         """
         obs = pdf.space
         if not isinstance(pdf, ZfitBinnedPDF):
-            raise TypeError("pdf must be a BinnedPDF")
+            msg = "pdf must be a BinnedPDF"
+            raise TypeError(msg)
         if extended is None:
             extended = pdf.is_extended
         if modifiers is None:
@@ -61,7 +64,8 @@ class BinwiseScaleModifier(BaseBinnedFunctorPDF):
                 for i in range(pdf.counts(obs).shape.num_elements())
             }
         if not isinstance(modifiers, dict):
-            raise TypeError("modifiers must be a dict-like object or True or None")
+            msg = "modifiers must be a dict-like object or True or None"
+            raise TypeError(msg)
         params = modifiers.copy()
         self._binwise_modifiers = modifiers
         if extended is True:
@@ -70,6 +74,7 @@ class BinwiseScaleModifier(BaseBinnedFunctorPDF):
                 import zfit
 
                 def sumfunc(params):
+                    del params  # unused
                     values = self.counts()
                     return znp.sum(values)
 
@@ -96,16 +101,13 @@ class BinwiseScaleModifier(BaseBinnedFunctorPDF):
                 extended = pdf.get_yield()
         elif extended is not False:
             self._automatically_extended = False
-        super().__init__(
-            obs=obs, name=name, params=params, models=pdf, extended=extended, norm=norm
-        )
+        super().__init__(obs=obs, name=name, params=params, models=pdf, extended=extended, norm=norm)
 
     @supports(norm=True)
     def _counts(self, x, norm=None):
         if not self._automatically_extended:
             raise SpecificFunctionNotImplemented
-        values = self._counts_with_modifiers(x, norm)
-        return values
+        return self._counts_with_modifiers(x, norm)
 
     def _counts_with_modifiers(self, x, norm):
         values = self.pdfs[0].counts(x, norm=norm)
