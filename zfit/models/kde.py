@@ -68,9 +68,9 @@ def bandwidth_rule_of_thumb(
     if factor is None:
         factor = tf.constant(0.9)
     return (
-        min_std_or_iqr(data, weights)
-        * tf.cast(tf.shape(data)[0], ztypes.float) ** (-1 / 5.0)
-        * factor
+            min_std_or_iqr(data, weights)
+            * tf.cast(tf.shape(data)[0], ztypes.float) ** (-1 / 5.0)
+            * factor
     )
 
 

@@ -92,9 +92,9 @@ def convolve_1d_data_with_kernel(
         )
 
         right_padding = (
-            tf.cast(P, ztypes.int)
-            - tf.constant(2, ztypes.int) * num_grid_points
-            - tf.constant(1, ztypes.int)
+                tf.cast(P, ztypes.int)
+                - tf.constant(2, ztypes.int) * num_grid_points
+                - tf.constant(1, ztypes.int)
         )
         left_padding = num_grid_points - tf.constant(1, ztypes.int)
 

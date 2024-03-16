@@ -1,10 +1,14 @@
+import numpy as np
+import pytest
+
 import zfit
 import zfit.z.numpy as znp
 import tensorflow as tf
 
-from zfit import supports
+from zfit import supports, z
 from zfit.models.cache import CacheablePDF
 from zfit.util import ztyping
+from zfit.util.exception import AnalyticGradientNotAvailable
 
 
 class TestPDF(zfit.pdf.BaseFunctor):
@@ -172,3 +176,49 @@ def test_integrate_cache_is_revaluation_if_limits_is_different():
     assert tf.equal(test_pdf.integrate_call_counter, tf.Variable(2))
     cached_test_pdf.integrate(obs)
     assert tf.equal(test_pdf.integrate_call_counter, tf.Variable(2))
+
+
+def test_gradient_cached_pdf():
+    obs = zfit.Space("x", limits=[-5.0, 5.0])
+    mu = zfit.Parameter("mu", 1.0, -5, 5)
+    sigma = zfit.Parameter("sigma", 1, 0, 10)
+    test_pdf = TestPDF(obs=obs, mu=mu, sigma=sigma)
+    cached_test_pdf = CacheablePDF(test_pdf)
+    x = znp.linspace(-5, 5, 500)
+    with tf.GradientTape(watch_accessed_variables=True, persistent=True) as tape:
+
+        pdf = cached_test_pdf.pdf(x)
+
+    with pytest.raises(AnalyticGradientNotAvailable):
+        _ = tape.gradient(pdf, [mu])
+
+
+
+
+def test_minimize_cached_pdf():
+    obs = zfit.Space("x", limits=[-5.0, 5.0])
+    mu = zfit.Parameter("mu", 1.0, -5, 5)
+    sigma = zfit.Parameter("sigma", 1, 0, 10)
+    test_pdf1 = TestPDF(obs=obs, mu=mu, sigma=sigma)
+    cached_test_pdf = CacheablePDF(test_pdf1)
+
+    mu2 = zfit.Parameter("mu2", 5.0, -5, 5)
+    sigma2 = zfit.Parameter("sigma2", 3, 0, 10)
+    test_pdf2 = TestPDF(obs=obs, mu=mu2, sigma=sigma2)
+    cached_test_pdf2 = CacheablePDF(test_pdf2)
+
+    testpdf = zfit.pdf.SumPDF([cached_test_pdf, cached_test_pdf2], fracs=0.5)
+
+    array1 = np.random.normal(1.3, 0.8, 5000)
+    array2 = np.random.normal(3.4, 1.3, 5000)
+    array = znp.concatenate([array1, array2])
+    data = zfit.Data.from_numpy(obs=obs, array=array)
+    nll = zfit.loss.UnbinnedNLL(model=testpdf, data=data)
+    minimizer = zfit.minimize.Minuit(gradient="zfit")
+    with pytest.raises(AnalyticGradientNotAvailable):
+        _ = minimizer.minimize(nll)
+    minimizer = zfit.minimize.Minuit(gradient=True)
+    result = minimizer.minimize(nll)
+    assert result.converged
+    assert result.valid
+    result.hesse()
