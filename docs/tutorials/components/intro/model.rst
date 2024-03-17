@@ -270,8 +270,8 @@ explained in :ref:`playing_with_toys`.
 Download this tutorial :jupyter-download:notebook:`notebook <zfit_model_introduction.ipynb>`,
 :jupyter-download:script:`script <zfit_model_introduction.ipynb>`
 
-Cacheable PDF
-----------
+Cached PDF
+--------------
 Your pdf can be cacheable now.
 :py:class:`zfit.models.cache.CachedPDF` class makes methods
 :meth:`~zfit.pdf.BasePDF.pdf` and :meth:`~zfit.pdf.BasePDF.integrate` cacheable.
@@ -294,7 +294,7 @@ For example you have sum of Gaussian and exponential pdfs:
     exponential = zfit.pdf.Exponential(lambd, obs=obs)
 
     # make exponential pdf cacheable
-    cached_exponential = CachedPDF(exponential)
+    cached_exponential = zfit.pdf.CachedPDF(exponential)
 
     # create SumPDF with cacheable exponential pdf
     sum_pdf = zfit.pdf.SumPDF([gauss, cached_exponential], fracs=frac)
