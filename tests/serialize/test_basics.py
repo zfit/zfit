@@ -392,6 +392,8 @@ def cachedpdf(pdfs=None, extended=None, **kwargs):
     import zfit
 
     return zfit.pdf.CachedPDF(pdf=pdf, extended=extended)
+
+
 def truncpdf(pdfs=None, extended=None, **kwargs):
     if pdfs is None:
         pdfs = basic_pdfs
