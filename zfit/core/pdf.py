@@ -86,10 +86,7 @@ class PDF(Func, ZfitPDF):
         self.integration = Integration()
 
     def _set_yield(self, value):
-        # if self.is_extended:
-        #     raise AlreadyExtendedPDFError(f"Cannot extend {self}, is already extended.")
         value = convert_to_parameter(value)
-        # self.add_cache_deps(value)  # TODO
         self._yield = value
 
     @property

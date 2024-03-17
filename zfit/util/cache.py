@@ -351,9 +351,6 @@ class FunctionCacheHolder(GraphCachable):
             return False
         except TypeError:  # OperatorNotAllowedError inherits from this
             return False
-        # TODO: activate the below? costly, but runs?
-        # except OperatorNotAllowedInGraphError:  # we have to assume they're not the same
-        #     return False
 
     def __repr__(self) -> str:
         return f"<FunctionCacheHolder: {self.python_func}, valid={self.is_valid}>"

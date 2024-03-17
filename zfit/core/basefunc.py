@@ -1,7 +1,7 @@
 #  Copyright (c) 2024 zfit
-"""Baseclass for ``Function``. Inherits from Model.
+"""Baseclass for ``Function``.
 
-TODO(Mayou36): subclassing?
+Inherits from Model.
 """
 
 from __future__ import annotations
@@ -29,7 +29,6 @@ class BaseFuncV1(BaseModel, ZfitFunc):
         name: str = "BaseFunc",
         params: typing.Any = None,
     ):
-        """TODO(docs): explain subclassing."""
         super().__init__(obs=obs, dtype=dtype, name=name, params=params)
 
     def _func_to_integrate(self, x: ztyping.XType):
@@ -43,16 +42,6 @@ class BaseFuncV1(BaseModel, ZfitFunc):
         new_params = self.params
         new_params.update(override_params)
         return type(self)(new_params)
-
-    # def gradient(  # TODO: gradient?
-    #     self,
-    #     x: ztyping.XType,
-    #     norm: ztyping.LimitsType = None,
-    #     params: ztyping.ParamsTypeOpt = None,
-    # ):
-    #     # TODO(Mayou36): well, really needed... this gradient?
-    #     msg = "What do you need? Use tf.gradient..."
-    #     raise NotImplementedError(msg)
 
     @abc.abstractmethod
     def _func(self, x):

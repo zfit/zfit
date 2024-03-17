@@ -243,7 +243,6 @@ class BasePDF(ZfitPDF, BaseModel):
         return self._call_normalization(norm=norm, options=options)  # no _norm_* needed
 
     def _call_normalization(self, norm, options):
-        # TODO: caching? alternative
         with suppress(FunctionNotImplemented):
             return self._normalization(norm=norm, options=options)
         return self._fallback_normalization(norm, options=options)

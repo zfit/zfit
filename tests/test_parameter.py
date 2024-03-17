@@ -146,7 +146,6 @@ def test_composed_param():
 
     print_param(param_a)
 
-    # TODO(params): reactivate to check?
     with pytest.raises(LogicalUndefinedOperationError):
         param_a.set_value(value=5.0)
     with pytest.raises(LogicalUndefinedOperationError):
@@ -171,7 +170,6 @@ def test_shape_composed_parameter():
     assert c.shape.rank == 0
 
 
-# TODO: add test
 def test_randomize():
     param1 = zfit.Parameter("param1", 1.0, 0, 2)
     for _ in range(100):

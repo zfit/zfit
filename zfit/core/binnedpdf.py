@@ -92,7 +92,6 @@ class BaseBinnedPDFV1(
 ):
     def __init__(self, obs, extended=None, norm=None, name=None, **kwargs):
         super().__init__(dtype=znp.float64, name=name, **kwargs)
-        # self._name = name  # TODO: why is this needed?
 
         self._space = self._check_convert_obs_init(obs)
         self._yield = None
@@ -223,7 +222,7 @@ class BaseBinnedPDFV1(
         if isinstance(x, PlottableHistogram) and not isinstance(x, ZfitBinnedData):
             x = BinnedData.from_hist(x)
         if not isinstance(x, (ZfitBinnedData, ZfitSpace, ZfitUnbinnedData)):
-            # TODO: should we allow spaces? Or what?
+            # TODO: should we allow spaces? Or what? for hist?
             try:
                 x = Data.from_tensor(obs=self.obs, tensor=x)
             except Exception as error:
@@ -531,7 +530,7 @@ class BaseBinnedPDFV1(
             integrals = []  # TODO: map?
             for sub_limits in limits:
                 integrals.append(self._auto_integrate(limits=sub_limits, norm=norm, options=options))
-            integral = z.reduce_sum(integrals, axis=0)  # TODO: remove stack?
+            integral = z.reduce_sum(integrals, axis=0)
         return integral
 
     @_BinnedPDF_register_check_support(True)

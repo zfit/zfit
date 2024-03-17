@@ -403,13 +403,6 @@ class ZfitLimit(abc.ABC, metaclass=ABCMeta):
         """Whether there are limits set and they are not false."""
         raise NotImplementedError
 
-    # TODO: remove from API?
-    def get_subspace(self, *_, **__):
-        from zfit.util.exception import InvalidLimitSubspaceError
-
-        msg = "ZfitLimits does not suppoert subspaces"
-        raise InvalidLimitSubspaceError(msg)
-
     @property
     @abstractmethod
     def n_obs(self) -> int:

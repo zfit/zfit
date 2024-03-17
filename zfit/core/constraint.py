@@ -30,7 +30,6 @@ from .serialmixin import SerializableMixin
 tfd = tfp.distributions
 
 
-# TODO(serialization): add to serializer
 class BaseConstraintRepr(BaseRepr):
     _implementation = None
     _owndict = pydantic.PrivateAttr(default_factory=dict)

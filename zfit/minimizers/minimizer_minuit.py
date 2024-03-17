@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import warnings
 from collections.abc import Mapping
 
 import iminuit
@@ -162,16 +161,6 @@ class Minuit(BaseMinimizer, GraphCachable):
         self._use_tfgrad_internal = not gradient
         self.minuit_grad = gradient
 
-    # TODO 0.7: legacy, remove `_use_tfgrad`
-    @property
-    def _use_tfgrad(self):
-        warnings.warn(
-            "Do not use `minimizer._use_tfgrad`, this will be removed. Use `minuit_grad` instead in the"
-            " initialization.",
-            stacklevel=2,
-        )
-        return self._use_tfgrad_internal
-
     @minimize_supports()
     def _minimize(self, loss: ZfitLoss, params: list[Parameter], init):
         if init:
@@ -280,8 +269,7 @@ class Minuit(BaseMinimizer, GraphCachable):
 
         # create Minuit compatible names
         params_name = [param.name for param in params]
-        # TODO 0.7: legacy, remove `_use_tfgrad`
-        grad_func = evaluator.gradient if self._use_tfgrad_internal or not self.minuit_grad else None
+        grad_func = evaluator.gradient if not self.minuit_grad else None
         minimizer = iminuit.Minuit(
             evaluator.value,
             init_values,

@@ -1098,7 +1098,7 @@ class FitResult(ZfitResult):
                 stacklevel=3,
             )
             raise
-        set_values(params=params, values=old_values, allow_partial=True)  # TODO: or set?
+        set_values(params=params, values=old_values, allow_partial=True)
 
     def _input_check_params(self, params):
         return convert_to_container(params) if params is not None else list(self.params.keys())
@@ -1307,20 +1307,10 @@ class FitResult(ZfitResult):
             cl = 0.68268949  # scipy.stats.chi2(1).cdf(1)
 
         if method is None:
-            # TODO: legacy, remove 0.6
+            # TODO: improve, use minuit_minos as default?
             from zfit.minimize import Minuit
 
-            if isinstance(self.minimizer, Minuit):
-                method = "minuit_minos"
-                warnings.warn(
-                    "'minuit_minos' will be changed as the default errors method to a custom implementation"
-                    "with the same functionality. If you want to make sure that 'minuit_minos' will be used "
-                    "in the future, add it explicitly as in `errors(method='minuit_minos')`",
-                    FutureWarning,
-                    stacklevel=2,
-                )
-            else:
-                method = self._default_error
+            method = "minuit_minos" if isinstance(self.minimizer, Minuit) else self._default_error
         name_warning_triggered = False
         if name is None:
             if not isinstance(method, str):

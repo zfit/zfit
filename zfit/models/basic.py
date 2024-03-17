@@ -163,21 +163,6 @@ class Exponential(BasePDF, SerializableMixin):
         with self._set_numerics_data_shift(limits=norm):
             return super()._single_hook_partial_numeric_integrate(x, limits, norm)
 
-    # def _single_hook_normalization(self, limits):
-    #     with self._set_numerics_data_shift(limits=limits):
-    #         return super()._single_hook_normalization(limits)
-
-    #
-    # # TODO: remove component_norm_range? But needed for integral?
-    # def _single_hook_unnormalized_pdf(self, x, name):
-    #     if component_norm_range.limits_are_false:
-    #         component_norm_range = self.space
-    #     if component_norm_range.limits_are_set:
-    #         with self._set_numerics_data_shift(limits=component_norm_range):
-    #             return super()._single_hook_unnormalized_pdf(x, name)
-    #     else:
-    #         return super()._single_hook_unnormalized_pdf(x, name)
-    #
     def _single_hook_pdf(self, x, norm):
         with self._set_numerics_data_shift(limits=norm):
             return super()._single_hook_pdf(x, norm)

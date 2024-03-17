@@ -579,7 +579,6 @@ class Data(
 
     def _sort_value(self, value, obs: tuple[str]):
         obs = convert_to_container(value=obs, container=tuple)
-        # TODO CURRENT: deactivated below!
         perm_indices = self.space.axes if self.space.axes != tuple(range(value.shape[-1])) else False
 
         if obs:
@@ -597,8 +596,6 @@ class Data(
 
         return value
 
-    # TODO(Mayou36): use Space to permute data?
-    # TODO(Mayou36): raise error is not obs <= self.obs?
     @invalidate_graph
     def sort_by_axes(self, axes: ztyping.AxesTypeInput, allow_superset: bool = True):
         if not allow_superset and not frozenset(axes) <= frozenset(self.axes):
@@ -695,7 +692,6 @@ class Data(
         return value
 
 
-# TODO(serialization): add to serializer
 class DataRepr(BaseRepr):
     _implementation = Data
     _owndict = pydantic.PrivateAttr(default_factory=dict)

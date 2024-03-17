@@ -73,7 +73,6 @@ class FunctorMixin(ZfitFunctorMixin):
         self._model_obs = tuple(model.obs for model in models)
         self._models = models
         super().__init__(obs=obs, **kwargs)
-        # TODO: needed? remove below
 
     def _get_params(
         self,

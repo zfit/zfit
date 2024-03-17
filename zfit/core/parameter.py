@@ -550,7 +550,7 @@ class Parameter(
         return self._step_size is not None
 
     @property
-    def step_size(self) -> tf.Tensor:  # TODO: improve default step_size?
+    def step_size(self) -> float:  # TODO: improve default step_size?
         """Step size of the parameter, the estimated order of magnitude of the uncertainty.
 
         This can be crucial to tune for the minimization. A too large ``step_size`` can produce NaNs, a too small won't
@@ -1385,7 +1385,7 @@ def convert_to_parameter(
             raise ValueError(msg)
         return ComposedParameter(f"Composed_autoparam_{get_auto_number()}", value_fn=value, params=params)
 
-    if isinstance(value, ZfitParameter):  # TODO(Mayou36): autoconvert variable. TF 2.0?
+    if isinstance(value, ZfitParameter):
         return value
     elif isinstance(value, tf.Variable):
         msg = f"Currently, cannot autoconvert tf.Variable ({value}) to zfit.Parameter."

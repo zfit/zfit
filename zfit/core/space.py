@@ -2919,11 +2919,6 @@ def check_norm(supports=None):
                     if norm_is_arg:
                         norm = args[norm_index]
             args = list(args)
-            # if not norm_is_arg:  # TODO: remove? why is this here?
-            #     if 'norm_range' in kwargs:
-            #         kwargs['norm_range'] = False
-            #     if 'norm' in kwargs:
-            #         kwargs['norm'] = False
 
             # assume it's not supported. Switch if we find that it is supported.
             norm_not_supported = supports[0] is not True

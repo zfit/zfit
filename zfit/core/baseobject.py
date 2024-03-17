@@ -32,11 +32,11 @@ class BaseObject(ZfitObject):
         assert not kwargs, f"kwargs not empty, the following arguments are not captured: {kwargs}"
         super().__init__()
 
-        self._name = name  # TODO: uniquify name?
+        self._name = name
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
-        cls._repr = {}  # TODO: make repr more sophisticated
+        cls._repr = {}
 
     @property
     def name(self) -> str:
@@ -154,7 +154,7 @@ class BaseNumeric(
     BaseObject,
 ):
     def __init__(self, **kwargs):
-        if "dtype" in kwargs:  # TODO(Mayou36): proper dtype handling?
+        if "dtype" in kwargs:  # TODO(Mayou36): proper dtype handling? -> not needed, dtypes are clear?
             self._dtype = kwargs.pop("dtype")
         super().__init__(**kwargs)
         self.add_cache_deps(self.params.values())

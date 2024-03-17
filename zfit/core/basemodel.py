@@ -1145,7 +1145,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             return self._analytic_sample(n=n, limits=limits)
         return self._fallback_sample(n=n, limits=limits)
 
-    def _analytic_sample(self, n, limits: ZfitSpace):  # TODO(Mayou36) implement multiple limits sampling
+    def _analytic_sample(self, n, limits: ZfitSpace):
         if not self._inverse_analytic_integral:
             raise AnalyticSamplingNotImplemented  # TODO(Mayou36): create proper analytic sampling
         if limits.n_limits > 1:
