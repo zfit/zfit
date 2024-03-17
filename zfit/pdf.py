@@ -72,7 +72,6 @@ from .models.kde import (
 )
 from .models.morphing import SplineMorphingPDF
 from .models.physics import CrystalBall, DoubleCB, GeneralizedCB
-from .models.truncated import TruncatedPDF
 from .models.polynomials import (
     Chebyshev,
     Chebyshev2,
@@ -83,4 +82,5 @@ from .models.polynomials import (
 )
 from .models.special import ZPDF, SimpleFunctorPDF, SimplePDF
 from .models.tobinned import BinnedFromUnbinnedPDF
+from .models.truncated import TruncatedPDF
 from .models.unbinnedpdf import UnbinnedFromBinnedPDF

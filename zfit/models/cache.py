@@ -1,27 +1,25 @@
-import pydantic
-
-from ..settings import ztypes
-from ..core.serialmixin import SerializableMixin
-from .basefunctor import FunctorPDFRepr
-from .functor import BaseFunctor
-from ..core.space import supports
-
-import tensorflow as tf
-import zfit.z.numpy as znp
 from typing import Callable, Literal
 
+import pydantic
+import tensorflow as tf
+
+import zfit.z.numpy as znp
 from zfit.util.exception import AnalyticGradientNotAvailable
+
+from ..core.serialmixin import SerializableMixin
+from ..core.space import supports
 from ..serialization import Serializer  # noqa: F401
+from ..settings import ztypes
+from .basefunctor import FunctorPDFRepr
+from .functor import BaseFunctor
 
 
 def get_value(cache: tf.Variable, flag: tf.Variable, func: Callable):
-
     @tf.custom_gradient
     def actual_func():
         def autoset_func():
             val = func()
-            out = cache.assign(val, read_value=True)
-            return out
+            return cache.assign(val, read_value=True)
 
         def use_cache():
             return cache
@@ -29,10 +27,11 @@ def get_value(cache: tf.Variable, flag: tf.Variable, func: Callable):
         val = tf.cond(flag, use_cache, autoset_func)
 
         def grad_fn(dval, variables):
-            raise AnalyticGradientNotAvailable(
+            msg = (
                 "The analytic gradient is not implemented for caching PDF. Use the numerical gradient instead."
                 "(either using zfit.run.set_autograd_mode(False) and/or by using the minimizer internal numerical gradient)"
             )
+            raise AnalyticGradientNotAvailable(msg)
 
         return val, grad_fn
 
@@ -133,8 +132,7 @@ class CachedPDF(BaseFunctor, SerializableMixin):
         if hasparams := len(pdf_params) > 0:
             stacked_pdf_params = tf.stack(pdf_params)
             params_same = tf.math.reduce_all(
-                znp.abs(stacked_pdf_params - self._cached_pdf_params)
-                < self._cache_tolerance
+                znp.abs(stacked_pdf_params - self._cached_pdf_params) < self._cache_tolerance
             )
 
             same_args = tf.math.logical_and(params_same, x_same)
@@ -149,9 +147,7 @@ class CachedPDF(BaseFunctor, SerializableMixin):
             return self.pdfs[0].pdf(x, norm)
 
         with tf.control_dependencies([assign1]):
-            pdf = get_value(self._pdf_cache, self._pdf_cache_valid, value_update_func)
-
-        return pdf
+            return get_value(self._pdf_cache, self._pdf_cache_valid, value_update_func)
 
     @supports(norm="space")
     def _integrate(self, limits, norm, options=None):
@@ -173,16 +169,14 @@ class CachedPDF(BaseFunctor, SerializableMixin):
 
         stacked_integral_limits = tf.stack(limits.limits)
         limits_same = tf.math.reduce_all(
-            znp.abs(stacked_integral_limits - self._cached_integral_limits)
-            < self._cache_tolerance
+            znp.abs(stacked_integral_limits - self._cached_integral_limits) < self._cache_tolerance
         )
 
         params = list(self.pdfs[0].get_params(floating=None))
         if hasparams := len(params) > 0:
             stacked_pdf_params = tf.stack(params)
             params_same = tf.math.reduce_all(
-                znp.abs(stacked_pdf_params - self._cached_pdf_params_for_integration)
-                < self._cache_tolerance
+                znp.abs(stacked_pdf_params - self._cached_pdf_params_for_integration) < self._cache_tolerance
             )
 
             same_args = tf.math.logical_and(params_same, limits_same)
@@ -192,20 +186,12 @@ class CachedPDF(BaseFunctor, SerializableMixin):
 
         def value_update_func():
             if hasparams:
-
-                self._cached_pdf_params_for_integration.assign(
-                    stacked_pdf_params, read_value=False
-                )
-            self._cached_integral_limits.assign(
-                stacked_integral_limits, read_value=False
-            )
+                self._cached_pdf_params_for_integration.assign(stacked_pdf_params, read_value=False)
+            self._cached_integral_limits.assign(stacked_integral_limits, read_value=False)
             return self.pdfs[0].integrate(limits, norm, options=None)
 
         with tf.control_dependencies([assign1]):
-            integral = get_value(
-                self._integral_cache, self._integral_cache_valid, value_update_func
-            )
-        return integral
+            return get_value(self._integral_cache, self._integral_cache_valid, value_update_func)
 
 
 class CachedPDFRepr(FunctorPDFRepr):

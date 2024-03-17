@@ -8,6 +8,7 @@ from .core.serialmixin import NumpyArrayNotSerializableError
 from .util.checks import NONE
 from .util.deprecation import deprecated
 from .util.exception import (
+    AnalyticGradientNotAvailable,
     AnalyticIntegralNotImplemented,
     AnalyticNotImplemented,
     AnalyticSamplingNotImplemented,
@@ -24,11 +25,6 @@ from .util.exception import (
     ShapeIncompatibleError,
     SpecificFunctionNotImplemented,
     VectorizedLimitsNotImplemented,
-    ShapeIncompatibleError,
-    LogicalUndefinedOperationError,
-    ParamNameNotUniqueError,
-    BreakingAPIChangeError,
-    AnalyticGradientNotAvailable,
 )
 
 __all__ = [

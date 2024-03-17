@@ -112,8 +112,7 @@ def _wrapped_multinomial_func(dtype, logits, probs, total_count):
     dist = tfp.distributions.Multinomial(total_count=total_count, probs=probs, logits=logits)
     counts_flat = dist.sample()
     counts_flat = tf.cast(counts_flat, dtype=dtype)
-    counts = _znp.reshape(counts_flat, shape)
-    return counts
+    return _znp.reshape(counts_flat, shape)
 
 
 @wraps(tf.random.normal)
