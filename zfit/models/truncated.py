@@ -1,6 +1,6 @@
 #  Copyright (c) 2024 zfit
 from collections import defaultdict
-from typing import Literal, Optional, Dict, Tuple, List
+from typing import Literal, Optional, Dict, Tuple, List, Union
 
 import numpy as np
 import pydantic
@@ -8,12 +8,23 @@ import tensorflow as tf
 from .basefunctor import FunctorPDFRepr
 from .functor import BaseFunctor
 from .. import z
+from ..core.interfaces import ZfitSpace
 from ..core.space import supports
 from ..core.serialmixin import SerializableMixin
 from ..serialization import SpaceRepr, Serializer  # noqa: F401
 from ..util.container import convert_to_container
 import zfit.z.numpy as znp
 from ..util.exception import SpecificFunctionNotImplemented
+
+
+def check_limits(limits: Union[ZfitSpace, List[ZfitSpace]]):
+    """Check if the limits are valid Spaces and return an iterable."""
+    limits = convert_to_container(limits, container=tuple)
+    if limits is not None:
+        notspace = [limit for limit in limits if not isinstance(limit, ZfitSpace)]
+        if notspace:
+            raise TypeError(f"limits {notspace} are not of type ZfitSpace.")
+    return limits
 
 
 class TruncatedPDF(BaseFunctor, SerializableMixin):
@@ -59,10 +70,10 @@ class TruncatedPDF(BaseFunctor, SerializableMixin):
         """
         original_init = {"extended": extended, "obs": obs}
 
-        self._limits = convert_to_container(limits)
-        self._norms = convert_to_container(
+        self._limits = check_limits(limits)
+        self._norms = check_limits(
             norms
-        )  # TODO: check if space etc, get min/max of limits
+        )  # TODO: check if space etc, get min/max of limits?
         if obs is None:
             obs = pdf.space
         if extended is True and pdf.is_extended:
@@ -103,7 +114,13 @@ class TruncatedPDF(BaseFunctor, SerializableMixin):
 
     @supports(norm=True)
     def _normalization(self, norm, options):
-        norms = convert_to_container(norm)  # todo: what's the best way here?
+        if (norms := self._norms) is None:
+            norms = [norm]
+        elif norm != self.space:
+            raise RuntimeError(
+                f"Cannot normalize to a different space than the one given, the norms {norms}."
+            )
+
         normterms = [self.pdfs[0].normalization(norm) for norm in norms]
         return znp.sum(normterms, axis=0)
 
@@ -153,30 +170,5 @@ class TruncatedPDFRepr(FunctorPDFRepr):
     limits: List[SpaceRepr]
 
     def _to_orm(self, init):
-        import zfit
-
         init["pdf"] = init.pop("pdfs")[0]
-        # limit_init = init.pop("limits")
-        # limits = []
-        # firstround = True
-        # for obs, limit_vals in limit_init.items():
-        #     for i, limit_val in enumerate(limit_vals):
-        #         newspace = zfit.Space(obs, limit_val)
-        #         if firstround:
-        #             limits.append(newspace)
-        #         else:
-        #             limits[i] *= newspace
-        #     firstround = False
-        # init["limits"] = limits
         return super()._to_orm(init)
-
-    # @pydantic.root_validator(pre=True)
-    # def convert_limits_do_limitdict(cls, values):
-    #     if cls.orm_mode(values):
-    #         limits = defaultdict(list)
-    #         for limit in values["limits"]:
-    #             if limit.n_obs > 1:
-    #                 raise RuntimeError("Currently only 1D limits are supported.")
-    #             limits[limit.obs[0]].append(limit.limit1d)
-    #         values["limits"] = dict(limits)
-    #     return values

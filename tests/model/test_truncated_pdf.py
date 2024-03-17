@@ -22,9 +22,9 @@ def limits() -> list[zfit.Space]:
 
 
 def test_truncated_pdf_initialization(pdf, limits):
-    truncated_pdf = zfit.pdf.TruncatedPDF(pdf, limits)
+    truncated_pdf = zfit.pdf.TruncatedPDF(pdf, limits=limits)
     assert truncated_pdf.pdfs[0] == pdf
-    assert truncated_pdf._limits == limits
+    assert truncated_pdf._limits == tuple(limits)
 
 
 def test_truncated_pdf_unnormalized_pdf(pdf, limits):
