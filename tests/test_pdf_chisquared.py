@@ -13,7 +13,7 @@ def test_chisquared():
     obs = zfit.Space(obs="obs", limits=(0, 100))
     chi2 = zfit.pdf.ChiSquared(obs=obs, ndof=N)
 
-    samples = chi2.sample(10000)['obs']
+    samples = chi2.sample(10000)["obs"]
 
     assert float(znp.mean(samples)) == pytest.approx(N_true, rel=0.05)
-    assert float(znp.std(samples)) == pytest.approx((2 * N_true)**0.5, rel=0.05)
+    assert float(znp.std(samples)) == pytest.approx((2 * N_true) ** 0.5, rel=0.05)
