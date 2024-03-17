@@ -9,6 +9,9 @@ way of importing:
 """
 
 #  Copyright (c) 2024 zfit
+from __future__ import annotations
+
+# ruff: noqa: F405
 import numpy as np
 import tensorflow as tf
 from tensorflow.experimental.numpy import *  # noqa: F403

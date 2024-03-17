@@ -1,6 +1,8 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2024 zfit
 
 # create space
+from __future__ import annotations
+
 import numpy as np
 
 import zfit

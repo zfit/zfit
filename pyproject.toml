@@ -96,6 +96,7 @@ ignore = [
     "NPY002",   # "Use rnd generator in numpy" -> we use np.random for some legacy stuff but do new one where we can
 
 ]
+isort.required-imports = ["from __future__ import annotations"]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["T20"]

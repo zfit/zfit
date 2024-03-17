@@ -15,14 +15,16 @@
 # The repository is deprecated and will be removed in the future.
 """Data class objects that works with tf.function."""
 
-from typing import Any, Type
+from __future__ import annotations
+
+from typing import Any
 
 import attr
 
 __all__ = ["dataclass"]
 
 
-def dataclass(cls: Type[Any]) -> Type[Any]:
+def dataclass(cls: type[Any]) -> type[Any]:
     """Creates a data class object compatible with `tf.function`.
 
     Modifies dunder methods of an input class with typed attributes to work as an

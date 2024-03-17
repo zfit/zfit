@@ -1,6 +1,8 @@
 #  Copyright (c) 2024 zfit
 
 # TODO: improve errors of models. Generate more general error, inherit and use more specific?
+from __future__ import annotations
+
 import warnings
 
 

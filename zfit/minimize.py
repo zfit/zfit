@@ -1,5 +1,5 @@
 #  Copyright (c) 2024 zfit
-
+from __future__ import annotations
 
 from .minimizers.baseminimizer import (
     BaseMinimizer,

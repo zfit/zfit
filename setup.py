@@ -1,6 +1,8 @@
 """The setup script."""
 
 #  Copyright (c) 2024 zfit
+from __future__ import annotations
+
 import functools
 import operator
 import platform

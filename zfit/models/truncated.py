@@ -1,5 +1,7 @@
 #  Copyright (c) 2024 zfit
-from typing import List, Literal, Union
+from __future__ import annotations
+
+from typing import Literal
 
 import numpy as np
 import pydantic
@@ -18,7 +20,7 @@ from .basefunctor import FunctorPDFRepr
 from .functor import BaseFunctor
 
 
-def check_limits(limits: Union[ZfitSpace, List[ZfitSpace]]):
+def check_limits(limits: ZfitSpace | list[ZfitSpace]):
     """Check if the limits are valid Spaces and return an iterable."""
     limits = convert_to_container(limits, container=tuple)
     if limits is not None:
@@ -112,17 +114,18 @@ class TruncatedPDF(BaseFunctor, SerializableMixin):
             msg = f"Cannot normalize to a different space than the one given, the norms {norms}."
             raise RuntimeError(msg)
 
-        normterms = [self.pdfs[0].normalization(norm) for norm in norms]
+        normterms = [self.pdfs[0].normalization(norm, options=options) for norm in norms]
         return znp.sum(normterms, axis=0)
 
     @supports()
     def _integrate(self, limits, norm, options=None):
+        del norm  # not used, taken care of
         if limits != self.space:  # we could also do it, but would need to check each limit
             raise SpecificFunctionNotImplemented
         limits = convert_to_container(
             self.limits
         )  # if it's the overarching limits, we can just use our own ones, the real ones
-        integrals = [self.pdfs[0].integrate(limits=limit, norm=False) for limit in limits]
+        integrals = [self.pdfs[0].integrate(limits=limit, norm=False, options=options) for limit in limits]
         return znp.sum(integrals, axis=0)
 
     # TODO: we could make sampling more efficient by only sampling the relevant ranges, however, that would
@@ -146,7 +149,7 @@ class TruncatedPDF(BaseFunctor, SerializableMixin):
 class TruncatedPDFRepr(FunctorPDFRepr):
     _implementation = TruncatedPDF
     hs3_type: Literal["TruncatedPDF"] = pydantic.Field("TruncatedPDF", alias="type")
-    limits: List[SpaceRepr]
+    limits: list[SpaceRepr]
 
     def _to_orm(self, init):
         init["pdf"] = init.pop("pdfs")[0]

@@ -13,7 +13,9 @@
 # limitations under the License.
 """Root search functions."""
 
-from typing import Callable, Optional
+from __future__ import annotations
+
+from typing import Callable
 
 import numpy as np
 import tensorflow as tf
@@ -699,9 +701,9 @@ def brentq(
     relative_root_tolerance: types.RealTensor = None,
     function_tolerance: types.RealTensor = 2e-7,
     max_iterations: types.IntTensor = 100,
-    stopping_policy_fn: Optional[Callable[[types.BoolTensor], types.BoolTensor]] = None,
+    stopping_policy_fn: Callable[[types.BoolTensor], types.BoolTensor] | None = None,
     validate_args: bool = False,
-    name: Optional[str] = None,
+    name: str | None = None,
 ) -> BrentResults:
     r"""Finds root(s) of a function of single variable using Brent's method.
 
