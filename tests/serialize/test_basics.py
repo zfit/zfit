@@ -384,6 +384,16 @@ def productpdf(pdfs=None, extended=None, **kwargs):
     return zfit.pdf.ProductPDF(pdfs=pdfs, extended=extended)
 
 
+def cachedpdf(pdfs=None, extended=None, **kwargs):
+    if pdfs is None:
+        pdf = basic_pdfs[0]()
+    else:
+        pdf = pdfs[0]
+    import zfit
+
+    return zfit.pdf.CachedPDF(pdf=pdf, extended=extended)
+
+
 def truncpdf(pdfs=None, extended=None, **kwargs):
     if pdfs is None:
         pdfs = basic_pdfs
@@ -458,6 +468,7 @@ all_pdfs = (
         # conditionalpdf,  # not working currently, see implementation
         truncpdf,
         complicatedpdf,
+        cachedpdf,
     ]
     + [prod2dgauss]
 )

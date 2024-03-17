@@ -9,8 +9,9 @@ Develop
 
 Major Features and Improvements
 -------------------------------
+- add ``GeneralizedCB`` PDF which is similar to the ``DoubleCB`` PDF but with different standard deviations for the left and right side.
+- Added functor for PDF caching ``CachedPDF``: ``pdf``, ``integrate`` PDF methods can be cacheable now
 - Python 3.12 support
-- add ``GeneralizedCB` PDF which is similar to the ``DoubleCB`` PDF but with different standard deviations for the left and right side.
 - allow to use pandas DataFrame as input where zfit Data objects are expected
 - Parameter behavior has changed, multiple parameters with the same name can now coexist!
   The ``NameAlreadyTakenError`` has been successfully removed (yay!). The new behavior only enforces that
