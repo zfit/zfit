@@ -91,7 +91,7 @@ def faddeeva_humlicek(z, s=10.0):
     imag_part = imag(z)
     mask = logical_and(abs(real_part) + imag_part < s, imag_part < s)
 
-    Z = z[mask] + 1.35j
+    Z = z + 1.35j
     ZZ = Z * Z
 
     numer = (
@@ -154,6 +154,6 @@ def faddeeva_humlicek(z, s=10.0):
         + bb[1]
     ) * ZZ + bb[0]
 
-    w = _tf.tensor_scatter_nd_update(w, _tf.where(mask), numer / denom)
+    w = where(mask, numer / denom, w)
 
     return w
