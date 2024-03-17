@@ -1,6 +1,4 @@
 #  Copyright (c) 2024 zfit
-from __future__ import annotations
-
 import functools
 
 from tensorflow.python.util.deprecation import deprecated, deprecated_args

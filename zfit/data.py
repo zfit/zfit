@@ -1,5 +1,4 @@
 #  Copyright (c) 2024 zfit
-from __future__ import annotations
 
 from ._data.binneddatav1 import BinnedData
 from ._variables.axis import RegularBinning, VariableBinning

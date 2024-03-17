@@ -6,8 +6,6 @@
 #
 # zfit documentation build configuration file, created by
 # sphinx-quickstart on Fri Jun  9 13:47:02 2017.
-from __future__ import annotations
-
 import atexit
 import shutil
 import sys

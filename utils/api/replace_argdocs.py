@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 #  Copyright (c) 2024 zfit
-from __future__ import annotations
 
 import argparse
 import os

@@ -1,4 +1,4 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2023 zfit
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,8 +15,6 @@
 # Code was copied directly from tf_quant_finance.math.root_search.brent.
 # The repository is deprecated and will be removed in the future.
 """Common data types."""
-
-from __future__ import annotations
 
 from typing import TypeVar
 

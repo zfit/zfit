@@ -8,7 +8,6 @@ colorlog color scheme are printed.
 """
 
 #  Copyright (c) 2024 zfit
-from __future__ import annotations
 
 import logging
 from pathlib import Path

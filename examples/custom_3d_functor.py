@@ -6,8 +6,6 @@
 # as the functor SumPDF([pdf1, pdf2], fracs=...). For advanced uses, you
 # can define your own functor as demonstrated below.
 # ruff: noqa: F821
-from __future__ import annotations
-
 import numpy as np
 
 import zfit

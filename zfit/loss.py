@@ -1,5 +1,4 @@
 #  Copyright (c) 2024 zfit
-from __future__ import annotations
 
 from ._loss.binnedloss import (
     BinnedChi2,

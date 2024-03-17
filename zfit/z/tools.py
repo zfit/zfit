@@ -1,5 +1,4 @@
-#  Copyright (c) 2024 zfit
-from __future__ import annotations
+#  Copyright (c) 2022 zfit
 
 import tensorflow as tf
 

@@ -1,7 +1,3 @@
-#  Copyright (c) 2024 zfit
-
-from __future__ import annotations
-
 from typing import Callable, Literal
 
 import pydantic
@@ -30,7 +26,7 @@ def get_value(cache: tf.Variable, flag: tf.Variable, func: Callable):
 
         val = tf.cond(flag, use_cache, autoset_func)
 
-        def grad_fn(dval, variables):  # noqa: ARG001
+        def grad_fn(dval, variables):
             msg = (
                 "The analytic gradient is not implemented for caching PDF. Use the numerical gradient instead."
                 "(either using zfit.run.set_autograd_mode(False) and/or by using the minimizer internal numerical gradient)"
@@ -192,7 +188,7 @@ class CachedPDF(BaseFunctor, SerializableMixin):
             if hasparams:
                 self._cached_pdf_params_for_integration.assign(stacked_pdf_params, read_value=False)
             self._cached_integral_limits.assign(stacked_integral_limits, read_value=False)
-            return self.pdfs[0].integrate(limits, norm, options=options)
+            return self.pdfs[0].integrate(limits, norm, options=None)
 
         with tf.control_dependencies([assign1]):
             return get_value(self._integral_cache, self._integral_cache_valid, value_update_func)

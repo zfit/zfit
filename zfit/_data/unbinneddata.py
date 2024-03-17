@@ -1,6 +1,4 @@
 #  Copyright (c) 2024 zfit
-from __future__ import annotations
-
 import tensorflow_probability as tfp
 from zfit_interface.data import ZfitData
 

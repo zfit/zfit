@@ -1,6 +1,4 @@
-#  Copyright (c) 2024 zfit
-from __future__ import annotations
-
+#  Copyright (c) 2022 zfit
 from .core.coordinates import Coordinates
 from .core.space import Space, add_spaces, combine_spaces
 

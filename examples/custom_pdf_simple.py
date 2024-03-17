@@ -1,5 +1,4 @@
 #  Copyright (c) 2024 zfit
-from __future__ import annotations
 
 import zfit
 import zfit.z.numpy as znp

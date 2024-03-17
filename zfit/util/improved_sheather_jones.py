@@ -1,5 +1,4 @@
 #  Copyright (c) 2024 zfit
-from __future__ import annotations
 
 import numpy as np
 import tensorflow as tf
