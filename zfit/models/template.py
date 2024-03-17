@@ -11,9 +11,7 @@ from ..z import numpy as znp
 
 
 class BinnedTemplatePDFV1(BaseBinnedPDFV1):
-    def __init__(
-        self, data, sysshape=None, extended=None, norm=None, name="BinnedTemplatePDF"
-    ):
+    def __init__(self, data, sysshape=None, extended=None, norm=None, name="BinnedTemplatePDF"):
         # TODO: use scalemodifier instead
         obs = data.space
         if extended is None:
@@ -45,36 +43,29 @@ class BinnedTemplatePDFV1(BaseBinnedPDFV1):
 
                 from zfit.core.parameter import get_auto_number
 
-                extended = zfit.ComposedParameter(
-                    f"TODO_name_selfmade_{get_auto_number()}", sumfunc, params=sysshape
-                )
+                extended = zfit.ComposedParameter(f"TODO_name_selfmade_{get_auto_number()}", sumfunc, params=sysshape)
 
             else:
                 extended = znp.sum(data.values())
         elif extended is not False:
             self._automatically_extended = False
-        super().__init__(
-            obs=obs, name=name, params=params, extended=extended, norm=norm
-        )
+        super().__init__(obs=obs, name=name, params=params, extended=extended, norm=norm)
 
         self._data = data
 
     def _ext_pdf(self, x, norm):
         counts = self._counts(x, norm)
         areas = np.prod(self._data.axes.widths, axis=0)
-        density = counts / areas
-        return density
+        return counts / areas
 
     @supports(norm=False)
     def _pdf(self, x, norm):
         counts = self._rel_counts(x, norm)
         areas = np.prod(self._data.axes.widths, axis=0)
-        density = counts / areas
-        return density
+        return counts / areas
 
     @supports(norm="norm")
-    # @supports(norm=False)
-    def _counts(self, x, norm=None):
+    def _counts(self, x, norm=None):  # noqa: ARG002
         if not self._automatically_extended:
             raise SpecificFunctionNotImplemented
         values = self._data.values()
@@ -85,7 +76,7 @@ class BinnedTemplatePDFV1(BaseBinnedPDFV1):
         return values
 
     @supports(norm="norm")
-    def _rel_counts(self, x, norm=None):
+    def _rel_counts(self, x, norm=None):  # noqa: ARG002
         values = self._data.values()
         if sysshape := list(self._template_sysshape.values()):
             sysshape_flat = tf.stack(sysshape)

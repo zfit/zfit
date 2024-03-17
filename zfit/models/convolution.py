@@ -1,16 +1,14 @@
 #  Copyright (c) 2024 zfit
 from __future__ import annotations
 
-from typing import Optional, Union
+from typing import Literal, Optional, Union
 
 import pydantic
 import tensorflow as tf
 import tensorflow_probability as tfp
 
-from typing import Literal
-
 import zfit.z.numpy as znp
-from .functor import BaseFunctor
+
 from .. import exception, z
 from ..core.data import Data, sum_samples
 from ..core.interfaces import ZfitPDF
@@ -23,6 +21,7 @@ from ..util import ztyping
 from ..util.exception import ShapeIncompatibleError, WorkInProgressError
 from ..util.ztyping import ExtendedInputType, NormInputType
 from ..z.interpolate_spline import interpolate_spline
+from .functor import BaseFunctor
 
 LimitsTypeInput = Optional[Union[ztyping.LimitsType, float]]
 
@@ -157,28 +156,30 @@ class FFTConvPDFV1(BaseFunctor, SerializableMixin):
         self.hs3.original_init.update(original_init)
 
         if self.n_obs > 1:
-            raise WorkInProgressError(
+            msg = (
                 "More than 1 dimensional convolutions are currently not supported."
                 " If you need that, please open an issue on github."
             )
+            raise WorkInProgressError(msg)
 
         if self.n_obs > 3:  # due to tf.nn.convolution not supporting more
-            raise WorkInProgressError(
-                "More than 3 dimensional convolutions are currently not supported."
-            )
+            msg = "More than 3 dimensional convolutions are currently not supported."
+            raise WorkInProgressError(msg)
 
         if interpolation is None:
-            interpolation = "linear"  # "spline" if self.n_obs == 1 else "linear"  # TODO: spline is very inefficient, why?
+            interpolation = (
+                "linear"  # "spline" if self.n_obs == 1 else "linear"  # TODO: spline is very inefficient, why?
+            )
 
         spline_order = 3  # default
         if ":" in interpolation:
             interpolation, spline_order = interpolation.split(":")
             spline_order = int(spline_order)
         if interpolation not in (valid_interpolations := ("spline", "linear")):
-            raise ValueError(
-                f"`interpolation` {interpolation} not known. Has to be one "
-                f"of the following: {valid_interpolations}"
+            msg = (
+                f"`interpolation` {interpolation} not known. Has to be one " f"of the following: {valid_interpolations}"
             )
+            raise ValueError(msg)
         self._conv_interpolation = interpolation
         self._conv_spline_order = spline_order
 
@@ -187,11 +188,11 @@ class FFTConvPDFV1(BaseFunctor, SerializableMixin):
             limits_func = func.space
         limits_func = self._check_input_limits(limits=limits_func)
         if limits_func.n_limits == 0:
-            raise exception.LimitsNotSpecifiedError(
-                "obs have to have limits to define where to integrate over."
-            )
+            msg = "obs have to have limits to define where to integrate over."
+            raise exception.LimitsNotSpecifiedError(msg)
         if limits_func.n_limits > 1:
-            raise WorkInProgressError("Multiple Limits not implemented")
+            msg = "Multiple Limits not implemented"
+            raise WorkInProgressError(msg)
 
         # get kernel limits
         if limits_kernel is None:
@@ -199,23 +200,25 @@ class FFTConvPDFV1(BaseFunctor, SerializableMixin):
         limits_kernel = self._check_input_limits(limits=limits_kernel)
 
         if limits_kernel.n_limits == 0:
-            raise exception.LimitsNotSpecifiedError(
-                "obs have to have limits to define where to integrate over."
-            )
+            msg = "obs have to have limits to define where to integrate over."
+            raise exception.LimitsNotSpecifiedError(msg)
         if limits_kernel.n_limits > 1:
-            raise WorkInProgressError("Multiple Limits not implemented")
+            msg = "Multiple Limits not implemented"
+            raise WorkInProgressError(msg)
 
         if func.n_obs != kernel.n_obs:
-            raise ShapeIncompatibleError(
+            msg = (
                 "Func and Kernel need to have (currently) the same number of obs,"
                 f" currently are func: {func.n_obs} and kernel: {kernel.n_obs}"
             )
+            raise ShapeIncompatibleError(msg)
         if not func.n_obs == limits_func.n_obs == limits_kernel.n_obs:
-            raise ShapeIncompatibleError(
+            msg = (
                 "Func and Kernel limits need to have (currently) the same number of obs,"
                 f" are {limits_func.n_obs} and {limits_kernel.n_obs} with the func n_obs"
                 f" {func.n_obs}"
             )
+            raise ShapeIncompatibleError(msg)
 
         limits_func = limits_func.with_obs(obs)
         limits_kernel = limits_kernel.with_obs(obs)
@@ -234,21 +237,18 @@ class FFTConvPDFV1(BaseFunctor, SerializableMixin):
 
         # TODO: what if kernel area is larger?
         if limits_kernel.rect_area() > limits_func.rect_area():
-            raise WorkInProgressError(
+            msg = (
                 "Currently, only kernels that are smaller than the func are supported."
                 "Simply switch the two should resolve the problem."
             )
+            raise WorkInProgressError(msg)
 
         # get the finest resolution. Find the dimensions with the largest kernel-space to func-space ratio
         # We take the binwidth of the kernel as the overall binwidth and need to have the same binning in
         # the function as well
-        area_ratios = (upper_sample - lower_sample) / (
-            limits_kernel.rect_upper - limits_kernel.rect_lower
-        )
+        area_ratios = (upper_sample - lower_sample) / (limits_kernel.rect_upper - limits_kernel.rect_lower)
         nbins_func_exact_max = znp.max(area_ratios * n)
-        nbins_func = znp.ceil(
-            nbins_func_exact_max
-        )  # plus one and floor is like ceiling (we want more bins) with the
+        nbins_func = znp.ceil(nbins_func_exact_max)  # plus one and floor is like ceiling (we want more bins) with the
         # guarantee that we add one bin (e.g. if we hit exactly the boundaries, we add one.
         nbins_kernel = n
         # n = max(n, npoints_scaling)
@@ -288,9 +288,7 @@ class FFTConvPDFV1(BaseFunctor, SerializableMixin):
 
         lower_kernel, upper_kernel = self._conv_limits["kernel"]
         nbins_kernel = self._conv_limits["nbins_kernel"]
-        x_kernels = tf.linspace(
-            lower_kernel, upper_kernel, tf.cast(nbins_kernel, tf.int32)
-        )
+        x_kernels = tf.linspace(lower_kernel, upper_kernel, tf.cast(nbins_kernel, tf.int32))
 
         x_func = tf.meshgrid(*tf.unstack(x_funcs, axis=-1), indexing="ij")
         x_func = znp.transpose(x_func)
@@ -402,9 +400,7 @@ class FFTConvPDFV1(BaseFunctor, SerializableMixin):
         )
 
         return accept_reject_sample(
-            lambda x: tf.ones(
-                shape=tf.shape(x.value())[0], dtype=self.dtype
-            ),  # use inside?
+            lambda x: tf.ones(shape=tf.shape(x.value())[0], dtype=self.dtype),  # use inside?
             # all the points are inside
             n=n,
             limits=limits,
@@ -421,11 +417,11 @@ class FFTConvPDFV1Repr(BasePDFRepr):
     func: Serializer.types.PDFTypeDiscriminated
 
     kernel: Serializer.types.PDFTypeDiscriminated
-    n: Optional[int] = None
-    limits_func: Optional[SpaceRepr] = None
-    limits_kernel: Optional[SpaceRepr] = None
-    interpolation: Optional[str] = None
-    obs: Optional[SpaceRepr] = None
+    n: int | None = None
+    limits_func: SpaceRepr | None = None
+    limits_kernel: SpaceRepr | None = None
+    interpolation: str | None = None
+    obs: SpaceRepr | None = None
 
     @pydantic.root_validator(pre=True)
     def validate_all(cls, values):
@@ -445,6 +441,7 @@ class AddingSampleAndWeights:
         self.limits_kernel = limits_kernel
 
     def __call__(self, n_to_produce: int | tf.Tensor, limits, dtype):
+        del dtype
         kernel_lower, kernel_upper = self.kernel.space.rect_limits
         sample_lower, sample_upper = limits.rect_limits
 

@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2024 zfit
 from __future__ import annotations
 
 import pydantic
@@ -43,9 +43,8 @@ class UnbinnedFromBinnedPDF(BaseFunctor):
             norm: |@doc:pdf.init.norm| Normalization of the PDF.
                By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
         """
-        if extended is None:
-            if extended is not False and pdf.is_extended:
-                extended = pdf.get_yield()
+        if extended is None and extended is not False and pdf.is_extended:
+            extended = pdf.get_yield()
         if obs is None:
             obs = pdf.space
             obs = obs.with_binning(None)
@@ -63,11 +62,8 @@ class UnbinnedFromBinnedPDF(BaseFunctor):
         values = pdf.pdf(binned_space, norm=binned_norm)
 
         # because we have the flow, so we need to make it here with pads
-        padded_values = znp.pad(
-            values, znp.ones((z._get_ndims(values), 2)), mode="constant"
-        )  # for overflow
-        ordered_values = tf.gather_nd(padded_values, indices=binindices)
-        return ordered_values
+        padded_values = znp.pad(values, znp.ones((z._get_ndims(values), 2)), mode="constant")  # for overflow
+        return tf.gather_nd(padded_values, indices=binindices)
 
     @supports(norm="norm", multiple_limits=True)
     def _ext_pdf(self, x, norm):
@@ -81,11 +77,8 @@ class UnbinnedFromBinnedPDF(BaseFunctor):
         ndim = z._get_ndims(values)
 
         # because we have the flow, so we need to make it here with pads
-        padded_values = znp.pad(
-            values, znp.ones((ndim, 2)), mode="constant"
-        )  # for overflow
-        ordered_values = tf.gather_nd(padded_values, indices=binindices)
-        return ordered_values
+        padded_values = znp.pad(values, znp.ones((ndim, 2)), mode="constant")  # for overflow
+        return tf.gather_nd(padded_values, indices=binindices)
 
     @supports(norm="norm", multiple_limits=True)
     def _integrate(self, limits, norm, options=None):
@@ -98,7 +91,7 @@ class UnbinnedFromBinnedPDF(BaseFunctor):
         return self.pdfs[0].ext_integrate(limits, norm=binned_norm, options=options)
 
     @supports(norm=True, multiple_limits=True)
-    def _sample(self, n, limits: ZfitSpace, *, prng=None):
+    def _sample(self, n, limits: ZfitSpace, *, prng=None):  # noqa: ARG002
         if prng is None:
             prng = z.random.get_prng()
 
@@ -114,28 +107,21 @@ class UnbinnedFromBinnedPDF(BaseFunctor):
         uppers = [edge[1:] for edge in edges_flat]
         lowers_meshed = znp.meshgrid(*lowers, indexing="ij")
         uppers_meshed = znp.meshgrid(*uppers, indexing="ij")
-        lowers_meshed_flat = [
-            znp.reshape(lower_mesh, [-1]) for lower_mesh in lowers_meshed
-        ]
-        uppers_meshed_flat = [
-            znp.reshape(upper_mesh, [-1]) for upper_mesh in uppers_meshed
-        ]
+        lowers_meshed_flat = [znp.reshape(lower_mesh, [-1]) for lower_mesh in lowers_meshed]
+        uppers_meshed_flat = [znp.reshape(upper_mesh, [-1]) for upper_mesh in uppers_meshed]
         lower_flat = znp.stack(lowers_meshed_flat, axis=-1)
         upper_flat = znp.stack(uppers_meshed_flat, axis=-1)
 
         counts_flat = znp.reshape(sample.values(), (-1,))
-        counts_flat = tf.cast(
-            counts_flat, znp.int32
-        )  # TODO: what if we have fractions?
+        counts_flat = tf.cast(counts_flat, znp.int32)  # TODO: what if we have fractions?
         lower_flat_repeated = tf.repeat(lower_flat, counts_flat, axis=0)
         upper_flat_repeated = tf.repeat(upper_flat, counts_flat, axis=0)
-        sample_unbinned = prng.uniform(
+        return prng.uniform(
             (znp.sum(counts_flat), ndim),
             minval=lower_flat_repeated,
             maxval=upper_flat_repeated,
             dtype=self.dtype,
         )
-        return sample_unbinned
 
 
 class TypedSplinePDF(pydantic.BaseModel):

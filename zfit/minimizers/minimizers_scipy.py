@@ -5,12 +5,17 @@ from __future__ import annotations
 import copy
 import inspect
 import math
-from collections.abc import Mapping, Callable
+from collections.abc import Callable, Mapping
 
 import numpy as np
 import scipy.optimize
 from scipy.optimize import BFGS, HessianUpdateStrategy
 
+from ..core.parameter import assign_values
+from ..settings import run
+from ..util.container import convert_to_container
+from ..util.exception import MaximumIterationReached
+from ..util.warnings import warn_experimental_feature
 from .baseminimizer import (
     NOT_SUPPORTED,
     BaseMinimizer,
@@ -20,11 +25,6 @@ from .baseminimizer import (
 from .fitresult import FitResult
 from .strategy import ZfitStrategy
 from .termination import CRITERION_NOT_AVAILABLE, ConvergenceCriterion
-from ..core.parameter import assign_values
-from ..settings import run
-from ..util.container import convert_to_container
-from ..util.exception import MaximumIterationReached
-from ..util.warnings import warn_experimental_feature
 
 
 class ScipyBaseMinimizerV1(BaseMinimizer):
@@ -37,9 +37,7 @@ class ScipyBaseMinimizerV1(BaseMinimizer):
         tol: float | None,
         internal_tol: Mapping[str, float | None],
         gradient: Callable | str | NOT_SUPPORTED | None,
-        hessian: None | (
-            Callable | str | scipy.optimize.HessianUpdateStrategy | NOT_SUPPORTED
-        ),
+        hessian: None | (Callable | str | scipy.optimize.HessianUpdateStrategy | NOT_SUPPORTED),
         maxiter: int | str | None = None,
         minimizer_options: Mapping[str, object] | None = None,
         verbosity: int | None = None,
@@ -99,22 +97,28 @@ class ScipyBaseMinimizerV1(BaseMinimizer):
             verbosity_setter:
             name: |@doc:minimizer.name| Human-readable name of the minimizer. |@docend:minimizer.name|
         """
-        self._minimize_func = (
-            scipy.optimize.minimize if minimize_func is None else minimize_func
-        )
+        self._minimize_func = scipy.optimize.minimize if minimize_func is None else minimize_func
 
         if initializer is None:
-            initializer = lambda options, init, step_size: options
+
+            def initializer(options, init, step_size):
+                del init, step_size
+                return options
+
         if not callable(initializer):
-            raise TypeError(f"Initializer has to be callable not {initializer}")
+            msg = f"Initializer has to be callable not {initializer}"
+            raise TypeError(msg)
         self._scipy_initializer = initializer
 
         if verbosity_setter is None:
-            verbosity_setter = lambda options, verbosity: options
+
+            def verbosity_setter(options, verbosity):
+                del verbosity
+                return options
+
         if not callable(verbosity_setter):
-            raise TypeError(
-                f"verbosity_setter has to be callable not {verbosity_setter}"
-            )
+            msg = f"verbosity_setter has to be callable not {verbosity_setter}"
+            raise TypeError(msg)
         self._scipy_verbosity_setter = verbosity_setter
 
         minimizer_options = {} if minimizer_options is None else minimizer_options
@@ -127,20 +131,19 @@ class ScipyBaseMinimizerV1(BaseMinimizer):
         if gradient in (True, "2-point", "3-point") and not (
             isinstance(hessian, HessianUpdateStrategy) or hessian is NOT_SUPPORTED
         ):
-            raise ValueError(
+            msg = (
                 "Whenever the gradient is estimated via finite-differences, "
                 "the Hessian has to be estimated using one of the quasi-Newton strategies."
             )
+            raise ValueError(msg)
 
         if gradient is not NOT_SUPPORTED:
-            if (
-                self._VALID_SCIPY_GRADIENT is not None
-                and gradient not in self._VALID_SCIPY_GRADIENT
-            ):
-                raise ValueError(
+            if self._VALID_SCIPY_GRADIENT is not None and gradient not in self._VALID_SCIPY_GRADIENT:
+                msg = (
                     f"Requested gradient {gradient} is not a valid choice. Possible"
                     f" gradient methods are {self._VALID_SCIPY_GRADIENT}"
                 )
+                raise ValueError(msg)
             if gradient is False or gradient is None:
                 gradient = "zfit"
 
@@ -149,22 +152,19 @@ class ScipyBaseMinimizerV1(BaseMinimizer):
             minimizer_options["grad"] = gradient
 
         if hessian is not NOT_SUPPORTED:
-            if (
-                self._VALID_SCIPY_HESSIAN is not None
-                and hessian not in self._VALID_SCIPY_HESSIAN
-            ):
-                raise ValueError(
+            if self._VALID_SCIPY_HESSIAN is not None and hessian not in self._VALID_SCIPY_HESSIAN:
+                msg = (
                     f"Requested hessian {hessian} is not a valid choice. Possible"
                     f" hessian methods are {self._VALID_SCIPY_HESSIAN}"
                 )
-            if isinstance(
-                hessian, scipy.optimize.HessianUpdateStrategy
-            ) and not inspect.isclass(hessian):
-                raise ValueError(
+                raise ValueError(msg)
+            if isinstance(hessian, scipy.optimize.HessianUpdateStrategy) and not inspect.isclass(hessian):
+                msg = (
                     "If `hesse` is a HessianUpdateStrategy, it has to be a class that takes `init_scale`,"
                     " not an instance. For further modification of other initial parameters, make a"
                     " subclass of the update strategy."
                 )
+                raise ValueError(msg)
             if hessian is True:
                 hessian = None
             elif hessian is False or hessian is None:
@@ -201,9 +201,7 @@ class ScipyBaseMinimizerV1(BaseMinimizer):
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
         if cls._VALID_SCIPY_GRADIENT is not None:
-            cls._VALID_SCIPY_GRADIENT = (
-                ScipyBaseMinimizerV1._VALID_SCIPY_GRADIENT.copy()
-            )
+            cls._VALID_SCIPY_GRADIENT = ScipyBaseMinimizerV1._VALID_SCIPY_GRADIENT.copy()
         if cls._VALID_SCIPY_HESSIAN is not None:
             cls._VALID_SCIPY_HESSIAN = ScipyBaseMinimizerV1._VALID_SCIPY_HESSIAN.copy()
 
@@ -213,9 +211,7 @@ class ScipyBaseMinimizerV1(BaseMinimizer):
             assign_values(params=params, values=init)
         result_prelim = init
 
-        evaluator = self.create_evaluator(
-            loss=loss, params=params, numpy_converter=np.array
-        )
+        evaluator = self.create_evaluator(loss=loss, params=params, numpy_converter=np.array)
 
         limits = [(run(p.lower), run(p.upper)) for p in params]
         init_values = np.array(run(params))
@@ -236,32 +232,22 @@ class ScipyBaseMinimizerV1(BaseMinimizer):
             hessian = evaluator.hessian if hessian == "zfit" else hessian
             minimizer_options["hess"] = hessian
 
-            is_update_strat = inspect.isclass(hessian) and issubclass(
-                hessian, scipy.optimize.HessianUpdateStrategy
-            )
+            is_update_strat = inspect.isclass(hessian) and issubclass(hessian, scipy.optimize.HessianUpdateStrategy)
 
             init_scale = "auto"
             # get possible initial step size from previous minimizer
 
         approx_step_sizes = None
         if init:
-            approx_init_hesse = result_prelim.hesse(
-                params=params, method="approx", name="approx"
-            )
+            approx_init_hesse = result_prelim.hesse(params=params, method="approx", name="approx")
             if approx_init_hesse:
-                approx_step_sizes = [
-                    val["error"] for val in approx_init_hesse.values()
-                ] or None
+                approx_step_sizes = [val["error"] for val in approx_init_hesse.values()] or None
         if approx_step_sizes is None:
-            approx_step_sizes = np.array(
-                [0.1 if p.step_size is None else p.step_size for p in params]
-            )
+            approx_step_sizes = np.array([0.1 if p.step_size is None else p.step_size for p in params])
 
         if (maxiter := self.get_maxiter(len(params))) is not None:
             # stop 3 iterations earlier than we
-            minimizer_options["options"]["maxiter"] = (
-                maxiter - 3 if maxiter > 10 else maxiter
-            )
+            minimizer_options["options"]["maxiter"] = maxiter - 3 if maxiter > 10 else maxiter
 
         minimizer_options["options"]["disp"] = self.verbosity > 6
         minimizer_options["options"] = self._scipy_verbosity_setter(
@@ -271,14 +257,9 @@ class ScipyBaseMinimizerV1(BaseMinimizer):
         # tolerances and criterion
         criterion = self.create_criterion(loss, params)
 
-        init_tol = min(
-            [math.sqrt(loss.errordef * self.tol), loss.errordef * self.tol * 1e3]
-        )
+        init_tol = min([math.sqrt(loss.errordef * self.tol), loss.errordef * self.tol * 1e3])
         internal_tol = self._internal_tol
-        internal_tol = {
-            tol: init_tol if init is None else init
-            for tol, init in internal_tol.items()
-        }
+        internal_tol = {tol: init_tol if init is None else init for tol, init in internal_tol.items()}
 
         valid = None
         message = None
@@ -297,9 +278,7 @@ class ScipyBaseMinimizerV1(BaseMinimizer):
             # update from previous run/result
             if use_hessian and is_update_strat:
                 if not isinstance(init_scale, str):
-                    init_scale = np.mean(
-                        [approx for approx in approx_step_sizes if approx is not None]
-                    )
+                    init_scale = np.mean([approx for approx in approx_step_sizes if approx is not None])
                 if i == 0:
                     hessian_updater = hessian(init_scale=init_scale)
                     minimizer_options["hess"] = hessian_updater
@@ -310,17 +289,16 @@ class ScipyBaseMinimizerV1(BaseMinimizer):
 
             # perform minimization
             try:
-                optim_result = self._minimize_func(
-                    fun=evaluator.value, x0=init_values, **minimizer_options
-                )
+                optim_result = self._minimize_func(fun=evaluator.value, x0=init_values, **minimizer_options)
             except MaximumIterationReached as error:
                 if optim_result is None:  # it didn't even run once
-                    raise MaximumIterationReached(
+                    msg = (
                         "Maximum iteration reached on first wrapped minimizer call. This"
                         "is likely to a too low number of maximum iterations (currently"
                         f" {evaluator.maxiter}) or wrong internal tolerances, in which"
                         f" case: please fill an issue on github."
-                    ) from error
+                    )
+                    raise MaximumIterationReached(msg) from error
                 maxiter_reached = True
                 valid = False
                 message = "Maxiter reached, terminated without convergence"
@@ -333,9 +311,7 @@ class ScipyBaseMinimizerV1(BaseMinimizer):
             assign_values(params, values)
 
             optimize_results = combine_optimize_results(
-                [optim_result]
-                if optimize_results is None
-                else [optimize_results, optim_result]
+                [optim_result] if optimize_results is None else [optimize_results, optim_result]
             )
             result_prelim = FitResult.from_scipy(
                 loss=loss,
@@ -349,13 +325,9 @@ class ScipyBaseMinimizerV1(BaseMinimizer):
             )
             if result_prelim.params_at_limit:
                 n_paramatlim += 1
-            approx_init_hesse = result_prelim.hesse(
-                params=params, method="approx", name="approx"
-            )
+            approx_init_hesse = result_prelim.hesse(params=params, method="approx", name="approx")
             if approx_init_hesse:
-                approx_step_sizes = [
-                    val["error"] for val in approx_init_hesse.values()
-                ] or None
+                approx_step_sizes = [val["error"] for val in approx_init_hesse.values()] or None
             converged = criterion.converged(result_prelim)
             valid = converged
             edm = criterion.last_value
@@ -372,15 +344,9 @@ class ScipyBaseMinimizerV1(BaseMinimizer):
 
             if math.isclose(old_edm, edm, rel_tol=1e-4, abs_tol=1e-12):
                 if nrandom < self._nrandom_max:  # in order not to start too close
-                    if approx_step_sizes is None:
-                        rnd_range = np.ones_like(values)
-                    else:
-                        rnd_range = approx_step_sizes
+                    rnd_range = np.ones_like(values) if approx_step_sizes is None else approx_step_sizes
                     rnd_range_no_nan = np.nan_to_num(rnd_range, nan=1.0)
-                    values += (
-                        np.random.uniform(low=-rnd_range_no_nan, high=rnd_range_no_nan)
-                        / 5
-                    )
+                    values += np.random.uniform(low=-rnd_range_no_nan, high=rnd_range_no_nan) / 5
                     nrandom += 1
                 else:
                     message = f"Stuck (no change in a few iterations) at the edm={edm}"
@@ -430,7 +396,7 @@ class ScipyLBFGSBV1(ScipyBaseMinimizerV1):
         """Local, gradient based quasi-Newton algorithm using the limited-memory BFGS approximation.
 
         Limited-memory BFGS is an optimization algorithm in the family of quasi-Newton methods
-        that approximates the Broyden–Fletcher–Goldfarb–Shanno algorithm (BFGS) using a limited amount of
+        that approximates the Broyden-Fletcher-Goldfarb-Shanno algorithm (BFGS) using a limited amount of
         memory (or gradients, controlled by *maxcor*).
 
         L-BFGS borrows ideas from the trust region methods while keeping the L-BFGS update
@@ -516,9 +482,7 @@ class ScipyLBFGSBV1(ScipyBaseMinimizerV1):
 
         def verbosity_setter(options, verbosity):
             options.pop("disp", None)
-            options["iprint"] = int(
-                (verbosity - 2) * 12.5
-            )  # negative is quite, goes to 100. start at verbosity > 1
+            options["iprint"] = int((verbosity - 2) * 12.5)  # negative is quite, goes to 100. start at verbosity > 1
             return options
 
         scipy_tols = {"ftol": None, "gtol": None}
@@ -1007,9 +971,7 @@ class ScipyTrustConstrV1(ScipyBaseMinimizerV1):
                 v = 1
             else:
                 v = 0
-            options["verbose"] = (
-                v  # negative is quite, goes to 100. start at verbosity > 1
-            )
+            options["verbose"] = v  # negative is quite, goes to 100. start at verbosity > 1
             return options
 
         minimizer_options = {}

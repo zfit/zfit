@@ -1,14 +1,14 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2024 zfit
 
 import zfit
-from zfit import z
 import zfit.z.numpy as znp
+from zfit import z
 
 
 class CustomPDF(zfit.pdf.ZPDF):
     """1-dimensional PDF implementing the exp(alpha * x) shape."""
 
-    _PARAMS = ["alpha"]  # specify which parameters to take
+    _PARAMS = ("alpha",)  # specify which parameters to take
 
     def _unnormalized_pdf(self, x):  # implement function
         data = z.unstack_x(x)

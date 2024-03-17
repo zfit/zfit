@@ -23,9 +23,7 @@ lambd = zfit.Parameter("lambda", -0.06, -1, -0.01)
 gauss = zfit.pdf.Gauss(mu=mu, sigma=sigma, obs=obs)
 nr = zfit.Parameter("nr", 2, 0, 5)
 alpha = zfit.Parameter("alpha", 1.5, 0, 5)
-gauss = zfit.pdf.DoubleCB(
-    mu=mu, sigma=sigma, nl=nr, nr=nr, alphal=alpha, alphar=0.5, obs=obs
-)
+gauss = zfit.pdf.DoubleCB(mu=mu, sigma=sigma, nl=nr, nr=nr, alphal=alpha, alphar=0.5, obs=obs)
 exponential = zfit.pdf.Exponential(lambd, obs=obs)
 
 n_bkg = zfit.Parameter("n_bkg", 5000 * (1 - 0.3))
@@ -80,14 +78,12 @@ minimizer = zfit.minimize.Minuit()
 plot_pdf("before fit")
 
 result = minimizer.minimize(nll)
-print(result.params)
 # do the error calculations, here with hesse, than with minos
 param_hesse = result.hesse()
 (
     param_errors,
     _,
 ) = result.errors()  # this returns a new FitResult if a new minimum was found
-print(result.valid)  # check if the result is still valid
 
 # plot the data
 

@@ -2,16 +2,11 @@
 
 from __future__ import annotations
 
-import warnings
 from collections.abc import Mapping
 
 import iminuit
 import numpy as np
 
-from .baseminimizer import BaseMinimizer, minimize_supports, print_minimization_status
-from .fitresult import FitResult
-from .strategy import ZfitStrategy
-from .termination import EDM, ConvergenceCriterion
 from .. import z
 from ..core.interfaces import ZfitLoss
 from ..core.parameter import Parameter, assign_values
@@ -19,6 +14,10 @@ from ..settings import run
 from ..util.cache import GraphCachable
 from ..util.deprecation import deprecated_args
 from ..util.exception import MaximumIterationReached
+from .baseminimizer import BaseMinimizer, minimize_supports, print_minimization_status
+from .fitresult import FitResult
+from .strategy import ZfitStrategy
+from .termination import EDM, ConvergenceCriterion
 
 
 class Minuit(BaseMinimizer, GraphCachable):
@@ -50,7 +49,7 @@ class Minuit(BaseMinimizer, GraphCachable):
         """Minuit is a longstanding and well proven algorithm of the L-BFGS-B class implemented in `iminuit`_.
 
         The package iminuit is the fast, interactive minimizer based on the Minuit2 C++ library; the latter is
-        maintained by CERN’s ROOT team. It is an especially robust minimizer that finds the global minimum
+        maintained by CERN's ROOT team. It is an especially robust minimizer that finds the global minimum
         quiet reliably. It is however, like all local minimizers, still rather dependent on close enough
         initial values.
 
@@ -121,19 +120,15 @@ class Minuit(BaseMinimizer, GraphCachable):
         """
         # legacy
         if isinstance(mode, float) or isinstance(tol, int):
-            raise TypeError(
-                "mode has to be int, tol a float. The API changed, make sure you use the"
-                " right parameters."
-            )
+            msg = "mode has to be int, tol a float. The API changed, make sure you use the" " right parameters."
+            raise TypeError(msg)
         if minimizer_options is not None:
             options = minimizer_options
         if ncall is not None:
             maxiter = ncall
         if minimize_strategy is not None:
             mode = minimize_strategy
-        use_grad_legacy = (
-            use_minuit_grad if use_minuit_grad is not None else minuit_grad
-        )
+        use_grad_legacy = use_minuit_grad if use_minuit_grad is not None else minuit_grad
         if use_grad_legacy is not None:
             gradient = use_grad_legacy
         # end legacy
@@ -149,7 +144,8 @@ class Minuit(BaseMinimizer, GraphCachable):
         if mode is None:
             mode = 1
         if mode not in range(3):
-            raise ValueError(f"mode has to be 0, 1 or 2, not {mode}.")
+            msg = f"mode has to be 0, 1 or 2, not {mode}."
+            raise ValueError(msg)
         options["strategy"] = mode
 
         super().__init__(
@@ -164,16 +160,6 @@ class Minuit(BaseMinimizer, GraphCachable):
         self._minuit_minimizer = None
         self._use_tfgrad_internal = not gradient
         self.minuit_grad = gradient
-
-    # TODO 0.7: legacy, remove `_use_tfgrad`
-    @property
-    def _use_tfgrad(self):
-        warnings.warn(
-            "Do not use `minimizer._use_tfgrad`, this will be removed. Use `minuit_grad` instead in the"
-            " initialization.",
-            stacklevel=2,
-        )
-        return self._use_tfgrad_internal
 
     @minimize_supports()
     def _minimize(self, loss: ZfitLoss, params: list[Parameter], init):
@@ -194,12 +180,13 @@ class Minuit(BaseMinimizer, GraphCachable):
                 minimizer = minimizer.migrad(**minimize_options)
             except MaximumIterationReached as error:
                 if minimizer is None:  # it didn't even run once
-                    raise MaximumIterationReached(
+                    msg = (
                         "Maximum iteration reached on first wrapped minimizer call. This"
                         "is likely to a too low number of maximum iterations (currently"
                         f" {evaluator.maxiter}) or wrong internal tolerances, in which"
                         f" case: please fill an issue on github."
-                    ) from error
+                    )
+                    raise MaximumIterationReached(msg) from error
                 maxiter_reached = True
                 message = "Maxiter reached"
             else:
@@ -232,14 +219,12 @@ class Minuit(BaseMinimizer, GraphCachable):
                 )
 
             if converged or maxiter_reached:
-                assign_values(
-                    params, z.convert_to_tensor(minimizer.values)
-                )  # make sure it's at the right value
+                assign_values(params, z.convert_to_tensor(minimizer.values))  # make sure it's at the right value
                 if not maxiter_reached:
                     valid = True
                 break
 
-        fitresult = FitResult.from_minuit(
+        return FitResult.from_minuit(
             loss=loss,
             params=params,
             criterion=criterion,
@@ -248,7 +233,6 @@ class Minuit(BaseMinimizer, GraphCachable):
             valid=valid,
             message=message,
         )
-        return fitresult
 
     def _make_minuit(self, loss, params, init):
         evaluator = self.create_evaluator(loss, params)
@@ -260,12 +244,12 @@ class Minuit(BaseMinimizer, GraphCachable):
         minimize_options["ncall"] = minimizer_options.pop("ncall")
         minimizer_init = {}
         if "errordef" in minimizer_options:
-            raise ValueError(
-                "errordef cannot be specified for Minuit as this is already defined in the Loss."
-            )
+            msg = "errordef cannot be specified for Minuit as this is already defined in the Loss."
+            raise ValueError(msg)
         loss_errordef = loss.errordef
         if not isinstance(loss_errordef, (float, int)):
-            raise ValueError("errordef has to be a float")
+            msg = "errordef has to be a float"
+            raise ValueError(msg)
         minimizer_init["errordef"] = loss_errordef
         minimizer_init["pedantic"] = minimizer_options.pop("pedantic", False)
         minimizer_setter = {}
@@ -279,19 +263,13 @@ class Minuit(BaseMinimizer, GraphCachable):
         else:
             minuit_verbosity = 0
         if minimizer_options:
-            raise ValueError(
-                f"The following options are not (yet) supported: {minimizer_options}"
-            )
+            msg = f"The following options are not (yet) supported: {minimizer_options}"
+            raise ValueError(msg)
         init_values = np.array(run(params))
 
         # create Minuit compatible names
         params_name = [param.name for param in params]
-        # TODO 0.7: legacy, remove `_use_tfgrad`
-        grad_func = (
-            evaluator.gradient
-            if self._use_tfgrad_internal or not self.minuit_grad
-            else None
-        )
+        grad_func = evaluator.gradient if not self.minuit_grad else None
         minimizer = iminuit.Minuit(
             evaluator.value,
             init_values,
@@ -302,9 +280,7 @@ class Minuit(BaseMinimizer, GraphCachable):
         approx_step_sizes = {}
         # get possible initial step size from previous minimizer
         if init:
-            approx_step_sizes = init.hesse(
-                params=params, method="approx", name="approx"
-            )
+            approx_step_sizes = init.hesse(params=params, method="approx", name="approx")
 
         empty_dict = {}
         for param in params:
@@ -327,9 +303,7 @@ class Minuit(BaseMinimizer, GraphCachable):
         )  # to account for the loss
         assert (
             not minimizer_setter
-        ), "minimizer_setter is not empty, bug. Please report. minimizer_setter: {}".format(
-            minimizer_setter
-        )
+        ), f"minimizer_setter is not empty, bug. Please report. minimizer_setter: {minimizer_setter}"
         return minimizer, minimize_options, evaluator
 
     def copy(self):

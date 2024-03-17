@@ -30,5 +30,3 @@ param_errors = result.hesse()
 
 # or here with minos
 param_errors_asymmetric, new_result = result.errors()
-
-print(result)
