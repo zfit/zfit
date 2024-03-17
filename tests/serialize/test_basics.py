@@ -215,6 +215,14 @@ def lognormal(extended=None, **kwargs):
     return zfit.pdf.LogNormal(mu=mu, sigma=sigma, obs=obs, extended=extended)
 
 
+def chisquared(extended=None, **kwargs):
+    import zfit
+
+    ndof = zfit.Parameter("ndof_chisquared", 4, 1, 10)
+    obs = zfit.Space("obs", positive_limits)
+    return zfit.pdf.ChiSquared(ndof=ndof, obs=obs, extended=extended)
+
+
 def kde1dimexact(pdfs=None, extended=None, **kwargs):
     data = np.array(
         [
@@ -363,7 +371,7 @@ basic_pdfs = [
     kde1disj,
 ]
 basic_pdfs.reverse()
-positive_pdfs = [poisson, lognormal]
+positive_pdfs = [poisson, lognormal, chisquared]
 
 
 def sumpdf(pdfs=None, fracs=True, extended=None, **kwargs):

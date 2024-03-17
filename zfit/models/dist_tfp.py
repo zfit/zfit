@@ -558,69 +558,6 @@ class LogNormalPDFRepr(BasePDFRepr):
     sigma: Serializer.types.ParamTypeDiscriminated
 
 
-class LogNormal(WrapDistribution, SerializableMixin):
-    _N_OBS = 1
-
-    def __init__(
-        self,
-        mu: ztyping.ParamTypeInput,
-        sigma: ztyping.ParamTypeInput,
-        obs: ztyping.ObsTypeInput,
-        *,
-        extended: ExtendedInputType = None,
-        norm: NormInputType = None,
-        name: str = "LogNormal",
-    ):
-        r"""Log-normal distribution, the exponential of a normal distribution.
-
-        The probability density function of the log-normal distribution is only defined for positive values and
-        is given by
-
-        .. math::
-            f(x \\mid \mu, \sigma) = \frac{1}{x \sigma \sqrt{2\pi}} e^{-\frac{(\ln(x) - \mu)^2}{2\sigma^2}}
-
-        with :math:`\mu` the mean and :math:`\sigma` the standard deviation of the underlying normal distribution.
-
-        Args:
-            mu: Mean of the underlying normal distribution.
-            sigma: Standard deviation of the underlying normal distribution.
-            obs: Observables and normalization range the pdf is defined in
-            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
-               If this is parameter-like, it will be used as the yield,
-               the expected number of events, and the PDF will be extended.
-               An extended PDF has additional functionality, such as the
-               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
-            norm: |@doc:pdf.init.norm| Normalization of the PDF.
-               By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
-            name: |@doc:model.init.name| Human-readable name
-               or label of
-               the PDF for better identification.
-               Has no programmatical functional purpose as identification. |@docend:model.init.name|
-        """
-        mu, sigma = self._check_input_params(mu, sigma)
-
-        params = OrderedDict((("mu", mu), ("sigma", sigma)))
-        dist_params = lambda: dict(loc=mu.value(), scale=sigma.value())
-        distribution = tfp.distributions.LogNormal
-        super().__init__(
-            distribution=distribution,
-            dist_params=dist_params,
-            obs=obs,
-            params=params,
-            name=name,
-            extended=extended,
-            norm=norm,
-        )
-
-
-class LogNormalPDFRepr(BasePDFRepr):
-    _implementation = LogNormal
-    hs3_type: Literal["LogNormal"] = Field("LogNormal", alias="type")
-    x: SpaceRepr
-    mu: Serializer.types.ParamTypeDiscriminated
-    sigma: Serializer.types.ParamTypeDiscriminated
-
-
 class ChiSquared(WrapDistribution, SerializableMixin):
     _N_OBS = 1
 
@@ -683,4 +620,4 @@ class ChiSquaredPDFRepr(BasePDFRepr):
     _implementation = ChiSquared
     hs3_type: Literal["ChiSquared"] = Field("ChiSquared", alias="type")
     x: SpaceRepr
-    lam: Serializer.types.ParamTypeDiscriminated
+    ndof: Serializer.types.ParamTypeDiscriminated
