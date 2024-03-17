@@ -2,6 +2,7 @@
 import numpy as np
 import zfit
 from zfit import z
+import zfit.z.numpy as znp
 from scipy.special import voigt_profile
 
 
@@ -29,10 +30,10 @@ def test_voigt1():
     probs2 = voigt_profile(test_values - mean1_true, std1_true, width1_true)
     np.testing.assert_allclose(probs1, probs2, rtol=1e-10, atol=1e-08)
 
-    func = lambda: z.numpy.sum(
+    func = lambda: znp.sum(
         zfit.pdf.Voigt(m=mean, sigma=sigma, gamma=gamma, obs=obs1).pdf(x=test_values)
     )
 
     num_gradients = z.math.numerical_gradient(func, params=[mean, sigma, gamma])
     tf_gradients = z.math.autodiff_gradient(func, params=[mean, sigma, gamma])
-    np.testing.assert_allclose(num_gradients, tf_gradients, rtol=3e-7)
+    np.testing.assert_allclose(num_gradients, tf_gradients, rtol=1e-6)

@@ -39,6 +39,7 @@ __all__ = [
     "BinwiseScaleModifier",
     "BinnedSumPDF",
     "SplinePDF",
+    "TruncatedPDF",
     "LogNormal",
     "CachedPDF",
 ]
@@ -71,6 +72,7 @@ from .models.kde import (
 )
 from .models.morphing import SplineMorphingPDF
 from .models.physics import CrystalBall, DoubleCB, GeneralizedCB
+from .models.truncated import TruncatedPDF
 from .models.polynomials import (
     Chebyshev,
     Chebyshev2,
