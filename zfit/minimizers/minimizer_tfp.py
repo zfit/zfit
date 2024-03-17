@@ -10,12 +10,11 @@ import tensorflow as tf
 import tensorflow_probability as tfp
 
 import zfit.z.numpy as znp
-
-from ..core.parameter import assign_values
 from .baseminimizer import BaseMinimizer, minimize_supports
 from .evaluation import print_gradient
 from .fitresult import FitResult
 from .strategy import ZfitStrategy
+from ..core.parameter import assign_values
 
 
 class BFGS(BaseMinimizer):
@@ -26,7 +25,7 @@ class BFGS(BaseMinimizer):
         verbosity: int = 5,
         max_calls: int = 3000,
         name: str = "BFGS_TFP",
-        options: Mapping | None = None,
+        options: Mapping = None,
     ) -> None:
         """# Todo write description for api.
 
@@ -56,6 +55,7 @@ class BFGS(BaseMinimizer):
 
         minimizer_fn = tfp.optimizer.bfgs_minimize
         params = tuple(params)
+        do_print = self.verbosity > 8
 
         current_loss = None
         nan_counter = 0
@@ -103,7 +103,9 @@ class BFGS(BaseMinimizer):
                 info_values["loss"] = run(value)
                 info_values["old_loss"] = current_loss
                 info_values["nan_counter"] = nan_counter
-                value = self.strategy.minimize_nan(loss=loss, params=params, minimizer=self, values=info_values)
+                value = self.strategy.minimize_nan(
+                    loss=loss, params=params, minimizer=self, values=info_values
+                )
             else:
                 nan_counter = 0
                 current_loss = value
@@ -113,14 +115,14 @@ class BFGS(BaseMinimizer):
 
         initial_inv_hessian_est = tf.linalg.tensor_diag([p.step_size for p in params])
 
-        minimizer_kwargs = {
-            "initial_position": znp.stack(params),
-            "x_tol": self.tol,
+        minimizer_kwargs = dict(
+            initial_position=znp.stack(params),
+            x_tol=self.tol,
             # f_relative_tolerance=self.tolerance * 1e-5,  # TODO: use edm for stopping criteria
-            "initial_inverse_hessian_estimate": initial_inv_hessian_est,
-            "parallel_iterations": 1,
-            "max_iterations": self.max_calls,
-        }
+            initial_inverse_hessian_estimate=initial_inv_hessian_est,
+            parallel_iterations=1,
+            max_iterations=self.max_calls,
+        )
         minimizer_kwargs.update(self.options)
         result = minimizer_fn(to_minimize_func, **minimizer_kwargs)
 
@@ -139,7 +141,7 @@ class BFGS(BaseMinimizer):
         status = None
         converged = run(result.converged)
         params = OrderedDict((p, val) for p, val in zip(params, params_result))
-        return FitResult(
+        result = FitResult(
             params=params,
             edm=edm,
             fminopt=fmin,
@@ -149,3 +151,4 @@ class BFGS(BaseMinimizer):
             converged=converged,
             minimizer=self.copy(),
         )
+        return result

@@ -6,17 +6,12 @@ from __future__ import annotations
 
 import contextlib
 import itertools
-from collections import Counter, OrderedDict
+from collections import OrderedDict, Counter
 from collections.abc import Iterable
 
 import tensorflow as tf
 from ordered_set import OrderedSet
 
-from ..util import ztyping
-from ..util.cache import GraphCachable
-from ..util.checks import NotSpecified
-from ..util.container import convert_to_container
-from ..util.exception import BreakingAPIChangeError, ParamNameNotUniqueError
 from .dependents import BaseDependentsMixin
 from .interfaces import (
     ZfitIndependentParameter,
@@ -25,30 +20,39 @@ from .interfaces import (
     ZfitParameter,
     ZfitParametrized,
 )
+from ..util import ztyping
+from ..util.cache import GraphCachable
+from ..util.checks import NotSpecified
+from ..util.container import convert_to_container
+from ..util.exception import BreakingAPIChangeError, ParamNameNotUniqueError
 
 
 class BaseObject(ZfitObject):
     def __init__(self, name, **kwargs):
-        assert not kwargs, f"kwargs not empty, the following arguments are not captured: {kwargs}"
+        assert (
+            not kwargs
+        ), f"kwargs not empty, the following arguments are not captured: {kwargs}"
         super().__init__()
 
-        self._name = name
+        self._name = name  # TODO: uniquify name?
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
-        cls._repr = {}
+        cls._repr = {}  # TODO: make repr more sophisticated
 
     @property
     def name(self) -> str:
         """The name of the object."""
         return self._name
 
-    def copy(self, deep: bool = False, name: str | None = None, **overwrite_params) -> ZfitObject:
-        return self._copy(deep=deep, name=name, overwrite_params=overwrite_params)
+    def copy(
+        self, deep: bool = False, name: str = None, **overwrite_params
+    ) -> ZfitObject:
+        new_object = self._copy(deep=deep, name=name, overwrite_params=overwrite_params)
+        return new_object
 
-    def _copy(self, deep, name, overwrite_params):  # TODO(Mayou36) L: representation?  # noqa: ARG002
-        msg = "This copy should not be used."
-        raise NotImplementedError(msg)
+    def _copy(self, deep, name, overwrite_params):  # TODO(Mayou36) L: representation?
+        raise NotImplementedError("This copy should not be used.")
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(self, type(other)):
@@ -84,15 +88,18 @@ class BaseParametrized(BaseObject, ZfitParametrized):
         Raises:
             ValueError: If the parameters are not unique.
         """
-        all_params = self.get_params(floating=None, is_yield=None, extract_independent=None)  # get **all** params
+        all_params = self.get_params(
+            floating=None, is_yield=None, extract_independent=None
+        )  # get **all** params
         counted_names = Counter(param.name for param in all_params)
-        if duplicated_names := {name for name, count in counted_names.items() if count > 1}:  # set comprehension
-            msg = (
+        if duplicated_names := {
+            name for name, count in counted_names.items() if count > 1
+        }:  # set comprehension
+            raise ParamNameNotUniqueError(
                 f"The following parameter names appear more than once in {self}: {duplicated_names}."
                 f"This is new behavior: before, a parameter with the same name could not exists, now it can."
                 f"However, they are not allowed to be within the same function/PDF/loss, as this would result in ill-defined behavior."
             )
-            raise ParamNameNotUniqueError(msg)
 
     def get_params(
         self,
@@ -120,8 +127,9 @@ class BaseParametrized(BaseObject, ZfitParametrized):
             extract_independent: If the parameter is an independent parameter, i.e. if it is a ``ZfitIndependentParameter``.
         """
         if only_floating is not NotSpecified:
-            msg = "The argument `only_floating` has been renamed to `floating`."
-            raise BreakingAPIChangeError(msg)
+            raise BreakingAPIChangeError(
+                "The argument `only_floating` has been renamed to `floating`."
+            )
         return self._get_params(
             floating=floating,
             is_yield=is_yield,
@@ -134,11 +142,15 @@ class BaseParametrized(BaseObject, ZfitParametrized):
         is_yield: bool | None,
         extract_independent: bool | None,
     ) -> set[ZfitParameter]:
-        if is_yield is True:  # we want exclusively yields, we don't have them by default
+        if (
+            is_yield is True
+        ):  # we want exclusively yields, we don't have them by default
             params = OrderedSet()
         else:
             params = self.params.values()
-            params = extract_filter_params(params, floating=floating, extract_independent=extract_independent)
+            params = extract_filter_params(
+                params, floating=floating, extract_independent=extract_independent
+            )
         return params
 
     @property
@@ -154,7 +166,7 @@ class BaseNumeric(
     BaseObject,
 ):
     def __init__(self, **kwargs):
-        if "dtype" in kwargs:  # TODO(Mayou36): proper dtype handling? -> not needed, dtypes are clear?
+        if "dtype" in kwargs:  # TODO(Mayou36): proper dtype handling?
             self._dtype = kwargs.pop("dtype")
         super().__init__(**kwargs)
         self.add_cache_deps(self.params.values())
@@ -166,7 +178,12 @@ class BaseNumeric(
 
     @staticmethod
     def _filter_floating_params(params):
-        return [param for param in params if isinstance(param, ZfitIndependentParameter) and param.floating]
+        params = [
+            param
+            for param in params
+            if isinstance(param, ZfitIndependentParameter) and param.floating
+        ]
+        return params
 
 
 def extract_filter_params(
@@ -179,7 +196,10 @@ def extract_filter_params(
     if extract_independent is not False:
         params_indep = OrderedSet(
             itertools.chain.from_iterable(
-                param.get_params(floating=floating, extract_independent=True, is_yield=None) for param in params
+                param.get_params(
+                    floating=floating, extract_independent=True, is_yield=None
+                )
+                for param in params
             )
         )
         if extract_independent is True:
@@ -188,10 +208,9 @@ def extract_filter_params(
             params |= params_indep
     if floating is not None:
         if not extract_independent and not all(param.independent for param in params):
-            msg = (
+            raise ValueError(
                 "Since `extract_dependent` is not set to True, there are maybe dependent parameters for "
                 "which `floating` is an ill-defined attribute."
             )
-            raise ValueError(msg)
         params = OrderedSet(p for p in params if p.floating == floating)
     return params

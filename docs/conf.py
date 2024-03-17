@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2023 zfit
 
 #
 #
@@ -11,7 +11,7 @@ import shutil
 import sys
 from pathlib import Path
 
-import pygit2
+import pygit2 as pygit2
 import yaml
 
 import zfit
@@ -51,7 +51,9 @@ extensions = [
     "sphinx_togglebutton",
 ]
 
-panels_add_bootstrap_css = False  # for sphinx_panel, use custom css from theme, not bootstrap
+panels_add_bootstrap_css = (
+    False  # for sphinx_panel, use custom css from theme, not bootstrap
+)
 
 # releases_github_path = "zfit/zfit"  # TODO: use releases or similar?
 # releases_document_name = "../CHANGELOG.rst"
@@ -129,7 +131,7 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 pygments_style = "sphinx"
 
 # Automatically add substitutions to all RST files.
-with Path.open("subst_types.txt") as subst_types:
+with open("subst_types.txt") as subst_types:
     rst_epilog = subst_types.read()
 
 # add whitespaces to the internal commands. Maybe move to preprocessing?
@@ -142,7 +144,7 @@ rst_epilog += """
 #
 # .. |@docend| replace:: |wzw|
 # """
-with Path.open(project_dir / "utils/api/argdocs.yaml") as replfile:
+with open(project_dir / "utils/api/argdocs.yaml") as replfile:
     replacements = yaml.load(replfile, Loader=yaml.Loader)
 for replacement_key in replacements:
     rst_epilog += f"""
@@ -150,7 +152,7 @@ for replacement_key in replacements:
 
 .. |@docend:{replacement_key}| replace:: |wzw|
 """
-with Path.open("hyperlinks.txt") as hyperlinks:
+with open("hyperlinks.txt") as hyperlinks:
     rst_epilog += hyperlinks.read()
 
 # makes the jupyter extension executable
@@ -248,7 +250,9 @@ html_theme_options = {
     "search_bar_text": "Search zfit...",
     "navigation_with_keys": True,
     "search_bar_position": "sidebar",
-    "icon_links": [{}],  # temporary fix for https://github.com/pydata/pydata-sphinx-theme/issues/1220
+    "icon_links": [
+        {}
+    ],  # temporary fix for https://github.com/pydata/pydata-sphinx-theme/issues/1220
     # "repository_url": "https://github.com/zfit/zfit",  # adding jupyter book somehow?
     # "repository_branch": "develop",
     # "path_to_docs": "docs",

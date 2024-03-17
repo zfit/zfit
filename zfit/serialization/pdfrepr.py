@@ -1,8 +1,9 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2023 zfit
 from __future__ import annotations
 
-from typing import Literal
+from typing import Union, Optional
 
+from typing import Literal
 import pydantic
 from pydantic import Field, root_validator
 
@@ -13,9 +14,9 @@ class BasePDFRepr(BaseRepr):
     _implementation = None
     _owndict = pydantic.PrivateAttr(default_factory=dict)
     hs3_type: Literal["BasePDF"] = Field("BasePDF", alias="type")
-    extended: bool | None | Serializer.types.ParamTypeDiscriminated = None
+    extended: Union[bool, None, Serializer.types.ParamTypeDiscriminated] = None
     # TODO: add norm?
-    name: str | None = None
+    name: Optional[str] = None
 
     @root_validator(pre=True)
     def convert_params(cls, values):
@@ -28,4 +29,5 @@ class BasePDFRepr(BaseRepr):
     def _to_orm(self, init):
         if "x" in init:  # in case it was already popped downstreams
             init["obs"] = init.pop("x")
-        return super()._to_orm(init)
+        out = super()._to_orm(init)
+        return out

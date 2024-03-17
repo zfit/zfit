@@ -2,15 +2,14 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterable, Mapping
+from collections.abc import Mapping, Iterable
 
 import tensorflow as tf
-from uhi.typing.plottable import PlottableHistogram
-
 import zfit.z.numpy as znp
-from zfit import z
+from uhi.typing.plottable import PlottableHistogram
 from zfit.core.binnedpdf import BaseBinnedPDFV1
 
+from zfit import z
 from ..core import parameter
 from ..core.interfaces import ZfitBinnedPDF
 from ..util import ztyping
@@ -33,7 +32,8 @@ def spline_interpolator(alpha, alphas, densities):
         order=2,
     )
     y_flat = y_flat[0, 0]
-    return tf.reshape(y_flat, shape)
+    y = tf.reshape(y_flat, shape)
+    return y
 
 
 class SplineMorphingPDF(BaseBinnedPDFV1):
@@ -42,7 +42,11 @@ class SplineMorphingPDF(BaseBinnedPDFV1):
     def __init__(
         self,
         alpha: ztyping.ParamTypeInput,
-        hists: (Mapping[float | int, Iterable[ZfitBinnedPDF]] | list[ZfitBinnedPDF] | tuple[ZfitBinnedPDF]),
+        hists: (
+            Mapping[float | int, Iterable[ZfitBinnedPDF]]
+            | list[ZfitBinnedPDF]
+            | tuple[ZfitBinnedPDF]
+        ),
         extended: ztyping.ExtendedInputType = None,
         norm: ztyping.NormInputType = None,
     ):
@@ -63,13 +67,16 @@ class SplineMorphingPDF(BaseBinnedPDFV1):
         """
         if isinstance(hists, (list, tuple)):
             if len(hists) != 3:
-                msg = (
+                raise ValueError(
                     "If hists is a list, it is assumed to correspond to an alpha of -1, 0 and 1."
                     f" hists is {hists} and has length {len(hists)}."
                 )
-                raise ValueError(msg)
-            hists = {float(i - 1): hist for i, hist in enumerate(hists)}  # mapping to -1, 0, 1
+            else:
+                hists = {
+                    float(i - 1): hist for i, hist in enumerate(hists)
+                }  # mapping to -1, 0, 1
 
+        hists_clean = {}
         for a, hist in hists.items():
             if isinstance(hist, PlottableHistogram):
                 from zfit.models.histogram import HistogramPDF
@@ -78,12 +85,13 @@ class SplineMorphingPDF(BaseBinnedPDFV1):
             if isinstance(hist, ZfitBinnedPDF):
                 hists[a] = hist
             else:
-                msg = f"hist {hist} is not a ZfitBinnedPDF or a UHI histogram."
-                raise TypeError(msg)
+                raise TypeError(
+                    f"hist {hist} is not a ZfitBinnedPDF or a UHI histogram."
+                )
 
         self.hists = hists
         self.alpha = alpha
-        obs = next(iter(hists.values())).space
+        obs = list(hists.values())[0].space
         all_extended = all(hist.is_extended for hist in hists.values())
         if extended is None:  # TODO: yields?
             extended = all_extended
@@ -91,8 +99,9 @@ class SplineMorphingPDF(BaseBinnedPDFV1):
         if extended is True:  # create the yield automatically
             self._automatically_extended = True
             if not all_extended:
-                msg = "If extended is True, all PDFs must be extended to create the yield automatically."
-                raise ValueError(msg)
+                raise ValueError(
+                    "If extended is True, all PDFs must be extended to create the yield automatically."
+                )
             alphas = znp.array(list(self.hists.keys()), dtype=znp.float64)
 
             def interpolated_yield(params):
@@ -100,7 +109,9 @@ class SplineMorphingPDF(BaseBinnedPDFV1):
                 densities = tuple(
                     params[f"{i}"] for i in range(len(params) - 1)
                 )  # params has n hist entries + 1 alpha entry
-                return spline_interpolator(alpha=alpha, alphas=alphas, densities=densities)
+                return spline_interpolator(
+                    alpha=alpha, alphas=alphas, densities=densities
+                )
 
             number = parameter.get_auto_number()
             yields = {f"{i}": hist.get_yield() for i, hist in enumerate(hists.values())}
@@ -127,13 +138,15 @@ class SplineMorphingPDF(BaseBinnedPDFV1):
         densities = [hist.counts(x, norm=norm) for hist in self.hists.values()]
         alphas = znp.array(list(self.hists.keys()), dtype=znp.float64)
         alpha = self.params["alpha"].value()
-        return self._morphing_interpolator(alpha, alphas, densities)
+        y = self._morphing_interpolator(alpha, alphas, densities)
+        return y
 
     def _rel_counts(self, x, norm):
         densities = [hist.rel_counts(x, norm=norm) for hist in self.hists.values()]
         alphas = znp.array(list(self.hists.keys()), dtype=znp.float64)
         alpha = self.params["alpha"].value()
-        return self._morphing_interpolator(alpha, alphas, densities)
+        y = self._morphing_interpolator(alpha, alphas, densities)
+        return y
 
     def _ext_pdf(self, x, norm):
         if not self._automatically_extended:
@@ -141,10 +154,12 @@ class SplineMorphingPDF(BaseBinnedPDFV1):
         densities = [hist.ext_pdf(x, norm=norm) for hist in self.hists.values()]
         alphas = znp.array(list(self.hists.keys()), dtype=znp.float64)
         alpha = self.params["alpha"].value()
-        return self._morphing_interpolator(alpha, alphas, densities)
+        y = self._morphing_interpolator(alpha, alphas, densities)
+        return y
 
     def _pdf(self, x, norm):
         densities = [hist.pdf(x, norm=norm) for hist in self.hists.values()]
         alphas = znp.array(list(self.hists.keys()), dtype=znp.float64)
         alpha = self.params["alpha"].value()
-        return self._morphing_interpolator(alpha, alphas, densities)
+        y = self._morphing_interpolator(alpha, alphas, densities)
+        return y

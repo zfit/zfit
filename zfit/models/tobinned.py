@@ -1,4 +1,4 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2023 zfit
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -11,11 +11,10 @@ import tensorflow as tf
 import zfit
 import zfit.z.numpy as znp
 from zfit import z
-
+from .binned_functor import BaseBinnedFunctorPDF
 from ..core.interfaces import ZfitPDF, ZfitSpace
 from ..util import ztyping
 from ..util.warnings import warn_advanced_feature
-from .binned_functor import BaseBinnedFunctorPDF
 
 
 class BinnedFromUnbinnedPDF(BaseBinnedFunctorPDF):
@@ -50,7 +49,8 @@ class BinnedFromUnbinnedPDF(BaseBinnedFunctorPDF):
         if pdf.is_extended:
             if extended is not None:
                 warn_advanced_feature(
-                    f"PDF {pdf} is already extended, but extended also given {extended}. Will" f" use the given yield.",
+                    f"PDF {pdf} is already extended, but extended also given {extended}. Will"
+                    f" use the given yield.",
                     identifier="extend_wrapped_extended",
                 )
             else:
@@ -59,8 +59,9 @@ class BinnedFromUnbinnedPDF(BaseBinnedFunctorPDF):
             try:
                 space = pdf.space.with_binning(space)
             except Exception as error:
-                msg = f"Could not create space {space} from pdf {pdf} with binning {space}"
-                raise ValueError(msg) from error
+                raise ValueError(
+                    f"Could not create space {space} from pdf {pdf} with binning {space}"
+                ) from error
         super().__init__(
             obs=space,
             extended=extended,
@@ -80,7 +81,6 @@ class BinnedFromUnbinnedPDF(BaseBinnedFunctorPDF):
 
     @z.function
     def _rel_counts(self, x, norm):
-        del x  # not used, we just return the full histogram
         pdf = self.pdfs[0]
         edges = [znp.array(edge) for edge in self.axes.edges]
         edges_flat = [znp.reshape(edge, [-1]) for edge in edges]
@@ -89,16 +89,20 @@ class BinnedFromUnbinnedPDF(BaseBinnedFunctorPDF):
         lowers_meshed = znp.meshgrid(*lowers, indexing="ij")
         uppers_meshed = znp.meshgrid(*uppers, indexing="ij")
         shape = tf.shape(lowers_meshed[0])
-        lowers_meshed_flat = [znp.reshape(lower_mesh, [-1]) for lower_mesh in lowers_meshed]
-        uppers_meshed_flat = [znp.reshape(upper_mesh, [-1]) for upper_mesh in uppers_meshed]
+        lowers_meshed_flat = [
+            znp.reshape(lower_mesh, [-1]) for lower_mesh in lowers_meshed
+        ]
+        uppers_meshed_flat = [
+            znp.reshape(upper_mesh, [-1]) for upper_mesh in uppers_meshed
+        ]
         lower_flat = znp.stack(lowers_meshed_flat, axis=-1)
         upper_flat = znp.stack(uppers_meshed_flat, axis=-1)
         options = {"type": "bins"}
 
         @z.function
         def integrate_one(limits):
-            low, up = tf.unstack(limits)
-            limits_space = zfit.Space(obs=self.obs, limits=[low, up])
+            l, u = tf.unstack(limits)
+            limits_space = zfit.Space(obs=self.obs, limits=[l, u])
             return pdf.integrate(limits_space, norm=False, options=options)
 
         limits = znp.stack([lower_flat, upper_flat], axis=1)
@@ -106,8 +110,7 @@ class BinnedFromUnbinnedPDF(BaseBinnedFunctorPDF):
 
         try:
             if run.executing_eagerly():
-                msg = "Just stearing the eager execution"
-                raise TypeError(msg)
+                raise TypeError("Just stearing the eager execution")
             values = tf.vectorized_map(integrate_one, limits)[:, 0]
         except (ValueError, TypeError):
             with run.aquire_cpu(-1) as cpus:
@@ -119,7 +122,6 @@ class BinnedFromUnbinnedPDF(BaseBinnedFunctorPDF):
 
     @z.function(wraps="model_binned")
     def _counts(self, x, norm):
-        del x  # not used, we just return the full histogram
         pdf = self.pdfs[0]
         edges = [znp.array(edge) for edge in self.axes.edges]
         edges_flat = [znp.reshape(edge, [-1]) for edge in edges]
@@ -128,8 +130,12 @@ class BinnedFromUnbinnedPDF(BaseBinnedFunctorPDF):
         lowers_meshed = znp.meshgrid(*lowers, indexing="ij")
         uppers_meshed = znp.meshgrid(*uppers, indexing="ij")
         shape = tf.shape(lowers_meshed[0])
-        lowers_meshed_flat = [znp.reshape(lower_mesh, [-1]) for lower_mesh in lowers_meshed]
-        uppers_meshed_flat = [znp.reshape(upper_mesh, [-1]) for upper_mesh in uppers_meshed]
+        lowers_meshed_flat = [
+            znp.reshape(lower_mesh, [-1]) for lower_mesh in lowers_meshed
+        ]
+        uppers_meshed_flat = [
+            znp.reshape(upper_mesh, [-1]) for upper_mesh in uppers_meshed
+        ]
         lower_flat = znp.stack(lowers_meshed_flat, axis=-1)
         upper_flat = znp.stack(uppers_meshed_flat, axis=-1)
         options = {"type": "bins"}
@@ -138,8 +144,8 @@ class BinnedFromUnbinnedPDF(BaseBinnedFunctorPDF):
 
             @z.function
             def integrate_one(limits):
-                low, up = tf.unstack(limits)
-                limits_space = zfit.Space(obs=self.obs, limits=[low, up])
+                l, u = tf.unstack(limits)
+                limits_space = zfit.Space(obs=self.obs, limits=[l, u])
                 return pdf.ext_integrate(limits_space, norm=False, options=options)
 
             missing_yield = False
@@ -147,8 +153,8 @@ class BinnedFromUnbinnedPDF(BaseBinnedFunctorPDF):
 
             @z.function
             def integrate_one(limits):
-                low, up = tf.unstack(limits)
-                limits_space = zfit.Space(obs=self.obs, limits=[low, up])
+                l, u = tf.unstack(limits)
+                limits_space = zfit.Space(obs=self.obs, limits=[l, u])
                 return pdf.integrate(limits_space, norm=False, options=options)
 
             missing_yield = True
@@ -158,8 +164,7 @@ class BinnedFromUnbinnedPDF(BaseBinnedFunctorPDF):
 
         try:
             if run.executing_eagerly():
-                msg = "Just stearing the eager execution"
-                raise TypeError(msg)
+                raise TypeError("Just stearing the eager execution")
             values = tf.vectorized_map(integrate_one, limits)[:, 0]
         except (ValueError, TypeError):
             with run.aquire_cpu(-1) as cpus:

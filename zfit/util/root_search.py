@@ -1,4 +1,4 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2023 zfit
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
 # limitations under the License.
 """Root search functions."""
 
-from typing import Callable, Optional
+from typing import Callable
 
 import numpy as np
 import tensorflow as tf
@@ -172,7 +172,9 @@ def _should_stop(state, stopping_policy_fn):
     Returns:
       A boolean value indicating whether the overall search should continue.
     """
-    return tf.convert_to_tensor(stopping_policy_fn(state.finished), name="should_stop", dtype=tf.bool)
+    return tf.convert_to_tensor(
+        stopping_policy_fn(state.finished), name="should_stop", dtype=tf.bool
+    )
 
 
 # This is a direct translation of the Brent root-finding method.
@@ -203,13 +205,21 @@ def _brent_loop_body(state, params, constants):
 
     # If the root is between the last two estimates, use the worst of the two
     # as new contrapoint. Adjust step sizes accordingly.
-    replace_contrapoint = ~finished & (value_at_last_estimate * value_at_best_estimate < constants.zero_value)
+    replace_contrapoint = ~finished & (
+        value_at_last_estimate * value_at_best_estimate < constants.zero_value
+    )
 
     contrapoint = tf.where(replace_contrapoint, last_estimate, contrapoint)
-    value_at_contrapoint = tf.where(replace_contrapoint, value_at_last_estimate, value_at_contrapoint)
+    value_at_contrapoint = tf.where(
+        replace_contrapoint, value_at_last_estimate, value_at_contrapoint
+    )
 
-    step_to_last_estimate = tf.where(replace_contrapoint, best_estimate - last_estimate, step_to_last_estimate)
-    step_to_best_estimate = tf.where(replace_contrapoint, step_to_last_estimate, step_to_best_estimate)
+    step_to_last_estimate = tf.where(
+        replace_contrapoint, best_estimate - last_estimate, step_to_last_estimate
+    )
+    step_to_best_estimate = tf.where(
+        replace_contrapoint, step_to_last_estimate, step_to_best_estimate
+    )
 
     # If the contrapoint is a better guess than the current root estimate, swap
     # them. Also, replace the worst of the two with the current contrapoint.
@@ -223,14 +233,21 @@ def _brent_loop_body(state, params, constants):
     best_estimate = tf.where(replace_best_estimate, contrapoint, best_estimate)
     contrapoint = tf.where(replace_best_estimate, last_estimate, contrapoint)
 
-    value_at_last_estimate = tf.where(replace_best_estimate, value_at_best_estimate, value_at_last_estimate)
-    value_at_best_estimate = tf.where(replace_best_estimate, value_at_contrapoint, value_at_best_estimate)
-    value_at_contrapoint = tf.where(replace_best_estimate, value_at_last_estimate, value_at_contrapoint)
+    value_at_last_estimate = tf.where(
+        replace_best_estimate, value_at_best_estimate, value_at_last_estimate
+    )
+    value_at_best_estimate = tf.where(
+        replace_best_estimate, value_at_contrapoint, value_at_best_estimate
+    )
+    value_at_contrapoint = tf.where(
+        replace_best_estimate, value_at_last_estimate, value_at_contrapoint
+    )
 
     # Compute the tolerance used to control root search at the current position
     # and the step size corresponding to the bisection method.
     root_tolerance = 0.5 * (
-        params.absolute_root_tolerance + params.relative_root_tolerance * tf.math.abs(best_estimate)
+        params.absolute_root_tolerance
+        + params.relative_root_tolerance * tf.math.abs(best_estimate)
     )
     bisection_step = 0.5 * (contrapoint - best_estimate)
 
@@ -302,8 +319,12 @@ def _brent_loop_body(state, params, constants):
     )
 
     # Revert to bisection when not using `short_step`.
-    step_to_last_estimate = tf.where(use_short_step, step_to_best_estimate, bisection_step)
-    step_to_best_estimate = tf.where(finished, constants.zero, tf.where(use_short_step, short_step, bisection_step))
+    step_to_last_estimate = tf.where(
+        use_short_step, step_to_best_estimate, bisection_step
+    )
+    step_to_best_estimate = tf.where(
+        finished, constants.zero, tf.where(use_short_step, short_step, bisection_step)
+    )
 
     # Update the previous and current root estimates.
     last_estimate = tf.where(finished, last_estimate, best_estimate)
@@ -317,8 +338,12 @@ def _brent_loop_body(state, params, constants):
         ),
     )
 
-    value_at_last_estimate = tf.where(finished, value_at_last_estimate, value_at_best_estimate)
-    value_at_best_estimate = tf.where(finished, value_at_best_estimate, params.objective_fn(best_estimate))
+    value_at_last_estimate = tf.where(
+        finished, value_at_last_estimate, value_at_best_estimate
+    )
+    value_at_best_estimate = tf.where(
+        finished, value_at_best_estimate, params.objective_fn(best_estimate)
+    )
 
     num_iterations = tf.where(finished, num_iterations, num_iterations + 1)
 
@@ -418,11 +443,12 @@ def _prepare_brent_args(
     """
     stopping_policy_fn = stopping_policy_fn or tf.reduce_all
     if not callable(stopping_policy_fn):
-        msg = "stopping_policy_fn must be callable"
-        raise ValueError(msg)
+        raise ValueError("stopping_policy_fn must be callable")
 
     left_bracket = tf.convert_to_tensor(left_bracket, name="left_bracket")
-    right_bracket = tf.convert_to_tensor(right_bracket, name="right_bracket", dtype=left_bracket.dtype)
+    right_bracket = tf.convert_to_tensor(
+        right_bracket, name="right_bracket", dtype=left_bracket.dtype
+    )
 
     if value_at_left_bracket is None:
         value_at_left_bracket = objective_fn(left_bracket)
@@ -441,7 +467,9 @@ def _prepare_brent_args(
     )
 
     if relative_root_tolerance is None:
-        relative_root_tolerance = default_relative_root_tolerance(left_bracket.dtype.base_dtype)
+        relative_root_tolerance = default_relative_root_tolerance(
+            left_bracket.dtype.base_dtype
+        )
 
     absolute_root_tolerance = tf.convert_to_tensor(
         absolute_root_tolerance,
@@ -453,7 +481,9 @@ def _prepare_brent_args(
         name="relative_root_tolerance",
         dtype=left_bracket.dtype,
     )
-    function_tolerance = tf.convert_to_tensor(function_tolerance, name="function_tolerance", dtype=left_bracket.dtype)
+    function_tolerance = tf.convert_to_tensor(
+        function_tolerance, name="function_tolerance", dtype=left_bracket.dtype
+    )
 
     max_iterations = tf.broadcast_to(
         tf.convert_to_tensor(max_iterations),
@@ -476,8 +506,12 @@ def _prepare_brent_args(
     # If no search is performed (e.g. `max_iterations` is `zero`), the estimate
     # computed this way will be returned. This differs slightly from the SciPy
     # implementation which always returns the `right_bracket`.
-    swap_positions = tf.math.abs(value_at_left_bracket) < tf.math.abs(value_at_right_bracket)
-    best_estimate, last_estimate = _swap_where(swap_positions, right_bracket, left_bracket)
+    swap_positions = tf.math.abs(value_at_left_bracket) < tf.math.abs(
+        value_at_right_bracket
+    )
+    best_estimate, last_estimate = _swap_where(
+        swap_positions, right_bracket, left_bracket
+    )
     value_at_best_estimate, value_at_last_estimate = _swap_where(
         swap_positions, value_at_right_bracket, value_at_left_bracket
     )
@@ -646,7 +680,10 @@ def _brent(
         if validate_args:
             assertions += [
                 tf.Assert(
-                    tf.reduce_all(state.value_at_last_estimate * state.value_at_best_estimate <= constants.zero_value),
+                    tf.reduce_all(
+                        state.value_at_last_estimate * state.value_at_best_estimate
+                        <= constants.zero_value
+                    ),
                     [state.value_at_last_estimate, state.value_at_best_estimate],
                 ),
                 tf.Assert(
@@ -699,9 +736,9 @@ def brentq(
     relative_root_tolerance: types.RealTensor = None,
     function_tolerance: types.RealTensor = 2e-7,
     max_iterations: types.IntTensor = 100,
-    stopping_policy_fn: Optional[Callable[[types.BoolTensor], types.BoolTensor]] = None,
+    stopping_policy_fn: Callable[[types.BoolTensor], types.BoolTensor] = None,
     validate_args: bool = False,
-    name: Optional[str] = None,
+    name: str = None,
 ) -> BrentResults:
     r"""Finds root(s) of a function of single variable using Brent's method.
 

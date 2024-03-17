@@ -1,4 +1,4 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2023 zfit
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
 # The repository is deprecated and will be removed in the future.
 """Data class objects that works with tf.function."""
 
-from typing import Any, Type
+from typing import Type, Any
 
 import attr
 

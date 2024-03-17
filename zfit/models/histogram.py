@@ -1,10 +1,9 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2023 zfit
 from __future__ import annotations
 
 import numpy as np
-from uhi.typing.plottable import PlottableHistogram
-
 import zfit.z.numpy as znp
+from uhi.typing.plottable import PlottableHistogram
 
 from ..core.binnedpdf import BaseBinnedPDFV1
 from ..core.interfaces import ZfitBinnedData
@@ -52,8 +51,9 @@ class HistogramPDF(BaseBinnedPDFV1):
 
                 data = BinnedData.from_hist(data)
             else:
-                msg = "data must be of type PlottableHistogram (UHI) or ZfitBinnedData"
-                raise TypeError(msg)
+                raise TypeError(
+                    "data must be of type PlottableHistogram (UHI) or ZfitBinnedData"
+                )
 
         params = {}
         if extended is True:
@@ -61,7 +61,9 @@ class HistogramPDF(BaseBinnedPDFV1):
             extended = znp.sum(data.values())
         else:
             self._automatically_extended = False
-        super().__init__(obs=data.space, extended=extended, norm=norm, params=params, name=name)
+        super().__init__(
+            obs=data.space, extended=extended, norm=norm, params=params, name=name
+        )
         self._data = data
 
     @supports(norm="space")
@@ -70,21 +72,24 @@ class HistogramPDF(BaseBinnedPDFV1):
             raise SpecificFunctionNotImplemented
         counts = self._counts(x, norm)
         areas = np.prod(self._data.axes.widths, axis=0)
-        return counts / areas
+        density = counts / areas
+        return density
 
     @supports(norm="space")
     def _pdf(self, x, norm):
         counts = self._rel_counts(x, norm)
         areas = np.prod(self._data.axes.widths, axis=0)
-        return counts / areas
+        density = counts / areas
+        return density
 
     @supports(norm="space")
-    def _counts(self, x, norm=None):  # noqa: ARG002
+    def _counts(self, x, norm=None):
         if not self._automatically_extended:
             raise SpecificFunctionNotImplemented
-        return self._data.values()
+        values = self._data.values()
+        return values
 
     @supports(norm="space")
-    def _rel_counts(self, x, norm=None):  # noqa: ARG002
+    def _rel_counts(self, x, norm=None):
         values = self._data.values()
         return values / znp.sum(values)

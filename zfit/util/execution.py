@@ -1,4 +1,4 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2023 zfit
 
 from __future__ import annotations
 
@@ -6,7 +6,6 @@ import contextlib
 import multiprocessing
 import os
 import sys
-import typing
 
 import tensorflow as tf
 from dotmap import DotMap
@@ -17,7 +16,7 @@ from .temporary import TemporarilySet
 
 
 class RunManager:
-    DEFAULT_MODE: typing.ClassVar = {"graph": "auto", "autograd": True}
+    DEFAULT_MODE = {"graph": "auto", "autograd": True}
 
     def __init__(self, n_cpu="auto"):
         """Handle the resources and runtime specific options.
@@ -93,11 +92,10 @@ class RunManager:
             tf.config.threading.set_inter_op_parallelism_threads(inter)
             self._n_cpu = inter + intra
         except RuntimeError as err:
-            msg = (
+            raise RuntimeError(
                 "Cannot set the number of cpus after initialization, has to be at the beginning."
                 f" Original message: {err}"
             )
-            raise RuntimeError(msg) from err
 
     @contextlib.contextmanager
     def aquire_cpu(self, max_cpu: int = -1) -> list[str]:
@@ -119,8 +117,7 @@ class RunManager:
         # TODO: catch maybe sets, as they change the number of elements if we have identical ones
         # and convert them. Before it's fine, e.g. Parameters are unique, but after it's a value.
         if kwargs:
-            msg = "Why kwargs provided?"
-            raise RuntimeError(msg)
+            raise RuntimeError("Why kwargs provided?")
 
         flattened_args = tf.nest.flatten(args)
         evaluated_args = [eval_object(arg) for arg in flattened_args]
@@ -239,17 +236,18 @@ class RunManager:
                 explicitly on/off the graph building for this type of decorated functions.
         """
         if not tf.executing_eagerly():
-            msg = (
+            raise IllegalInGraphModeError(
                 "Cannot change the execution mode of graph inside a `z.function`"
                 " decorated function. Only possible in an eager context."
             )
-            raise IllegalInGraphModeError(msg)
         return self._force_set_graph_mode(graph)
 
     def _force_set_graph_mode(self, graph):
         if graph is None:
             graph = "auto"
-        return TemporarilySet(value=graph, setter=self._set_graph_mode, getter=self.get_graph_mode)
+        return TemporarilySet(
+            value=graph, setter=self._set_graph_mode, getter=self.get_graph_mode
+        )
 
     def set_autograd_mode(self, autograd: bool | None = None):
         """Use automatic or numerical gradients.
@@ -325,11 +323,10 @@ class RunManager:
         elif isinstance(graph, dict):
             jit_obj._update_allowed(graph)
         elif graph is not None:
-            msg = (
+            raise ValueError(
                 f"{graph} is not a valid keyword to the `jit` behavior. Use either "
                 f"True, False, 'default' or a dict. You can read more about it in the docs."
             )
-            raise ValueError(msg)
         if graph is not None:
             self._mode["graph"] = graph
 
@@ -404,8 +401,7 @@ class RunManager:
         from zfit.z.zextension import FunctionWrapperRegistry
 
         if size is not None and size < 1:
-            msg = "The size of the cache must be at least 1."
-            raise ValueError(msg)
+            raise ValueError("The size of the cache must be at least 1.")
 
         for registry in FunctionWrapperRegistry.registries:
             registry.set_graph_cache_size(size)
@@ -416,8 +412,7 @@ class RunManager:
         This can be placed inside a model *in case python side-effects are necessary* and no other way is possible.
         """
         if not tf.executing_eagerly():
-            msg = "This code is not supposed to run inside a graph."
-            raise RuntimeError(msg)
+            raise RuntimeError("This code is not supposed to run inside a graph.")
 
     @property
     @deprecated(None, "Use `current_policy_graph() is False`")
@@ -456,7 +451,9 @@ class RunManager:
 def eval_object(obj: object) -> object:
     from zfit.core.parameter import BaseComposedParameter
 
-    if isinstance(obj, BaseComposedParameter):  # currently no numpy attribute. Should we add this?
+    if isinstance(
+        obj, BaseComposedParameter
+    ):  # currently no numpy attribute. Should we add this?
         obj = obj.value()
     if tf.is_tensor(obj):
         return obj.numpy()

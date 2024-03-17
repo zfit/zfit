@@ -5,7 +5,7 @@ This may has some overhead in the beginning and won't be instantly fast compared
 Copyright (c) 2021 zfit
 """
 
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2022 zfit
 
 import numpy as np
 
@@ -64,3 +64,4 @@ result = minimizer.minimize(func, params)
 # estimate errors
 result.hesse(name="hesse")
 result.errors(name="errors")
+print(result)

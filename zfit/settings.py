@@ -53,7 +53,10 @@ def generate_urandom_seed():
 
     random_data = os.urandom(4)
     backend_seed = int.from_bytes(random_data, byteorder="big")
-    return int(abs(backend_seed) % 2**31)  # make sure it's positive and not too large
+    backend_seed = int(
+        abs(backend_seed) % 2**31
+    )  # make sure it's positive and not too large
+    return backend_seed
 
 
 _verbosity = 0

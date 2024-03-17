@@ -4,9 +4,8 @@ from __future__ import annotations
 
 import collections
 import copy
-import importlib
 import math
-from collections.abc import Callable, Mapping
+from collections.abc import Mapping, Callable
 
 from ..util.checks import RuntimeDependency
 
@@ -14,7 +13,6 @@ try:
     import nlopt
 except ImportError as error:
     nlopt = RuntimeDependency("nlopt", error_msg=str(error))
-
 
 import numpy as np
 
@@ -48,7 +46,7 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
         hessian: Callable | str | NOT_SUPPORTED | None = NOT_SUPPORTED,
         maxiter: int | str | None = None,
         minimizer_options: Mapping[str, object] | None = None,
-        internal_tols: Mapping[str, float | None] | None = None,
+        internal_tols: Mapping[str, float | None] = None,
         verbosity: int | None = None,
         strategy: ZfitStrategy | None = None,
         criterion: ConvergenceCriterion | None = None,
@@ -137,13 +135,13 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
              minimizer_options: Additional options that will be set in the minimizer.
              name: |@doc:minimizer.name| Human-readable name of the minimizer. |@docend:minimizer.name|
         """
-
-        if importlib.util.find_spec("nlopt") is None:
-            msg = (
+        try:
+            import nlopt
+        except ImportError as err:
+            raise ImportError(
                 "nlopt is not installed. This is an optional dependency. To include it,you"
                 " can install zfit with `pip install zfit[nlopt]` or `pip install zfit[all]`."
-            )
-            raise ImportError(msg)
+            ) from err
         self._algorithm = algorithm
         if minimizer_options is None:
             minimizer_options = {}
@@ -151,13 +149,15 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
 
         if gradient is not NOT_SUPPORTED:
             if gradient is False:
-                msg = "grad cannot be False for NLopt minimizer."
-                raise ValueError(msg)
+                raise ValueError("grad cannot be False for NLopt minimizer.")
             minimizer_options["gradient"] = gradient
         if hessian is not NOT_SUPPORTED:
             minimizer_options["hessian"] = hessian
 
-        internal_tols = {} if internal_tols is None else copy.copy(internal_tols)
+        if internal_tols is None:
+            internal_tols = {}
+        else:
+            internal_tols = copy.copy(internal_tols)
         for nlopt_tol in self._ALL_NLOPT_TOL:
             if nlopt_tol not in internal_tols:
                 internal_tols[nlopt_tol] = None
@@ -232,10 +232,15 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
         minimizer.set_param("verbosity", max(0, self.verbosity - 6))
 
         criterion = self.criterion(tol=self.tol, loss=loss, params=params)
-        init_tol = min([math.sqrt(loss.errordef * self.tol), loss.errordef * self.tol * 1e3])
+        init_tol = min(
+            [math.sqrt(loss.errordef * self.tol), loss.errordef * self.tol * 1e3]
+        )
         # init_tol *= 10
         internal_tol = self._internal_tols
-        internal_tol = {tol: init_tol if init is None else init for tol, init in internal_tol.items()}
+        internal_tol = {
+            tol: init_tol if init is None else init
+            for tol, init in internal_tol.items()
+        }
         if "xtol" in internal_tol:
             internal_tol["xtol"] **= 0.5
         if "ftol" in internal_tol:
@@ -252,7 +257,9 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
             init_scale = []
             approx_step_sizes = {}
             if result_prelim:
-                approx_step_sizes = result_prelim.hesse(params=params, method="approx", name="approx")
+                approx_step_sizes = result_prelim.hesse(
+                    params=params, method="approx", name="approx"
+                )
             empty_dict = {}
             for param in params:
                 step_size = approx_step_sizes.get(param, empty_dict).get("error")
@@ -286,9 +293,13 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
                 valid_message = "Maxiter reached, terminated without convergence"
             except RuntimeError:
                 if self.verbosity > 3:
-                    pass
+                    print(
+                        "Minimization in NLopt failed, restarting with slightly varied parameters."
+                    )
                 if nrandom < self._nrandom_max:  # in order not to start too close
-                    init_scale_isnot_none = np.asarray([scale is not None for scale in init_scale], dtype=bool)
+                    init_scale_isnot_none = np.asarray(
+                        [scale is not None for scale in init_scale], dtype=bool
+                    )
                     init_scale = np.where(
                         init_scale_isnot_none,
                         init_scale,
@@ -297,16 +308,24 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
 
                     init_scale_no_nan = np.nan_to_num(init_scale, nan=1.0)
                     init_scale_no_nan = init_scale_no_nan.astype(np.float64)
-                    upper_random = np.minimum(initial_xvalues + init_scale_no_nan / 2, upper)
-                    lower_random = np.maximum(initial_xvalues - init_scale_no_nan / 2, lower)
-                    initial_xvalues = np.random.uniform(low=lower_random, high=upper_random)
+                    upper_random = np.minimum(
+                        initial_xvalues + init_scale_no_nan / 2, upper
+                    )
+                    lower_random = np.maximum(
+                        initial_xvalues - init_scale_no_nan / 2, lower
+                    )
+                    initial_xvalues = np.random.uniform(
+                        low=lower_random, high=upper_random
+                    )
 
                     nrandom += 1
             else:
                 maxiter_reached = evaluator.niter > evaluator.maxiter
 
             assign_values(params, xvalues)
-            fmin = minimizer.last_optimum_value()  # TODO: what happens if minimization terminated?
+            fmin = (
+                minimizer.last_optimum_value()
+            )  # TODO: what happens if minimization terminated?
             with evaluator.ignore_maxiter():
                 result_prelim = FitResult.from_nlopt(
                     loss,
@@ -324,7 +343,10 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
                 converged = criterion.converged(result_prelim)
                 valid = converged
             criterion_value = criterion.last_value
-            edm = criterion.last_value if isinstance(criterion, EDM) else CRITERION_NOT_AVAILABLE
+            if isinstance(criterion, EDM):
+                edm = criterion.last_value
+            else:
+                edm = CRITERION_NOT_AVAILABLE
 
             if self.verbosity > 5:
                 print_minimization_status(
@@ -340,7 +362,9 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
                 break
 
             # update the tols
-            self._update_tol_inplace(criterion_value=criterion_value, internal_tol=internal_tol)
+            self._update_tol_inplace(
+                criterion_value=criterion_value, internal_tol=internal_tol
+            )
 
         else:
             valid = False
@@ -573,8 +597,7 @@ class NLoptShiftVarV1(NLoptBaseMinimizerV1):
         elif rank == 2:
             algorithm = nlopt.LD_VAR2
         else:
-            msg = f"rank has to be either 1 or 2, not {rank}"
-            raise ValueError(msg)
+            raise ValueError(f"rank has to be either 1 or 2, not {rank}")
         self._rank = rank
         super().__init__(
             name=name,
@@ -714,7 +737,7 @@ class NLoptSLSQPV1(NLoptBaseMinimizerV1):
         -  Dieter Kraft, “A software package for sequential quadratic
            programming”, Technical Report DFVLR-FB 88-28, Institut für Dynamik
            der Flugsysteme, Oberpfaffenhofen, July 1988.
-        -  Dieter Kraft, “Algorithm 733: TOMP-Fortran modules for optimal
+        -  Dieter Kraft, “Algorithm 733: TOMP–Fortran modules for optimal
            control calculations,” *ACM Transactions on Mathematical Software*,
            vol. 20, no. 3, pp. 262-281 (1994).
 
@@ -1099,7 +1122,7 @@ class NLoptCOBYLAV1(NLoptBaseMinimizerV1):
         objective function and constraints via a simplex of n+1 points (in n dimensions), and optimizes these
         approximations in a trust region at each step.
 
-        This is a derivative of Powell's implementation of the COBYLA  algorithm for derivative-free optimization
+        This is a derivative of Powell’s implementation of the COBYLA  algorithm for derivative-free optimization
         by M. J. D. Powell described in:
 
         -  M. J. D. Powell, “A direct search optimization method that models the
@@ -1118,7 +1141,7 @@ class NLoptCOBYLAV1(NLoptBaseMinimizerV1):
 
         The original code itself was written in Fortran by Powell and was
         converted to C in 2004 by Jean-Sebastien Roy (js@jeannot.org) for the
-        SciPy project. The version in NLopt was based on Roy's C version and offers a few improvements
+        SciPy project. The version in NLopt was based on Roy’s C version and offers a few improvements
         over the original code:
 
         - `COBYLA` can increase the trust-region radius if the predicted improvement
@@ -1211,14 +1234,14 @@ class NLoptSubplexV1(NLoptBaseMinimizerV1):
     ):
         """Local derivative free minimizer which improves on the Nealder-Mead algorithm.
 
-        This is a re-implementation of Tom Rowan's “Subplex” algorithm.
+        This is a re-implementation of Tom Rowan’s “Subplex” algorithm.
 
         Subplex (a variant of Nelder-Mead that uses Nelder-Mead on a sequence of
         subspaces) is claimed to be much more efficient and robust than the
-        original Nelder-Mead, while retaining the latter's facility with
+        original Nelder-Mead, while retaining the latter’s facility with
         discontinuous objectives.
 
-        The description of Rowan's algorithm in his PhD thesis is used:
+        The description of Rowan’s algorithm in his PhD thesis is used:
 
         -  T. Rowan, “Functional Stability Analysis of Numerical Algorithms”,
            Ph.D. thesis, Department of Computer Sciences, University of Texas at
@@ -1321,7 +1344,7 @@ class NLoptMLSLV1(NLoptBaseMinimizerV1):
            (1987). (Actually 2 papers — part I: clustering methods, p. 27, then
            part II: multilevel methods, p. 57.)
 
-        We also include a modification of MLSL use a Sobol' `low-discrepancy
+        We also include a modification of MLSL use a Sobol’ `low-discrepancy
         sequence`_ (LDS), also used in so-called
         `quasi Monte Carlo methods <https://en.wikipedia.org/wiki/Quasi-Monte_Carlo_method>`_
         that can be invoked by setting *randomized* to False
@@ -1401,14 +1424,16 @@ class NLoptMLSLV1(NLoptBaseMinimizerV1):
         """
         if randomized is None:
             randomized = False
-        algorithm = nlopt.GD_MLSL if randomized else nlopt.GD_MLSL_LDS
+        if randomized:
+            algorithm = nlopt.GD_MLSL
+        else:
+            algorithm = nlopt.GD_MLSL_LDS
 
         local_minimizer = nlopt.LD_LBFGS if local_minimizer is None else local_minimizer
         if not isinstance(local_minimizer, collections.abc.Mapping):
             local_minimizer = {"algorithm": local_minimizer}
         if "algorithm" not in local_minimizer:
-            msg = "algorithm needs to be specified in local_minimizer"
-            raise ValueError(msg)
+            raise ValueError("algorithm needs to be specified in local_minimizer")
 
         minimizer_options = {"local_minimizer_options": local_minimizer}
         if population is not None:
@@ -1513,7 +1538,10 @@ class NLoptStoGOV1(NLoptBaseMinimizerV1):
         if randomized is None:
             randomized = False
 
-        algorithm = nlopt.GD_STOGO_RAND if randomized else nlopt.GD_STOGO
+        if randomized:
+            algorithm = nlopt.GD_STOGO_RAND
+        else:
+            algorithm = nlopt.GD_STOGO
         super().__init__(
             name=name,
             algorithm=algorithm,
@@ -1541,12 +1569,12 @@ class NLoptESCHV1(NLoptBaseMinimizerV1):
         """Global minimizer using an evolutionary algorithm.
 
         This is a modified Evolutionary Algorithm for global optimization,
-        developed by Carlos Henrique da Silva Santos's and described in the
+        developed by Carlos Henrique da Silva Santos’s and described in the
         following paper and Ph.D thesis:
 
         -  C. H. da Silva Santos, M. S. Gonçalves, and H. E. Hernandez-Figueroa,
            “Designing Novel Photonic Devices by Bio-Inspired Computing,” *IEEE
-           Photonics Technology Letters* **22** (15), pp. 1177-1179 (2010).
+           Photonics Technology Letters* **22** (15), pp. 1177–1179 (2010).
 
         .. raw:: html
 
@@ -1560,13 +1588,13 @@ class NLoptESCHV1(NLoptBaseMinimizerV1):
 
         -  H.-G. Beyer and H.-P. Schwefel, “Evolution Strategies: A
            Comprehensive Introduction,” *Journal Natural Computing*, **1** (1),
-           pp. 3-52 (2002_.
+           pp. 3–52 (2002_.
 
         .. raw:: html
 
            <!-- -->
 
-        -  Ingo Rechenberg, “Evolutionsstrategie - Optimierung technischer
+        -  Ingo Rechenberg, “Evolutionsstrategie – Optimierung technischer
            Systeme nach Prinzipien der biologischen Evolution,” Ph.D. thesis
            (1971), Reprinted by Fromman-Holzboog (1973).
 
@@ -1650,7 +1678,7 @@ class NLoptISRESV1(NLoptBaseMinimizerV1):
         """Improved Stochastic Ranking Evolution Strategy using a mutation rule and differential variation.
 
          The evolution strategy is based on a combination of a mutation rule (with a log-normal step-size update and
-         exponential smoothing) and differential variation (a Nelder-Mead-like update rule).
+         exponential smoothing) and differential variation (a Nelder–Mead-like update rule).
          The fitness ranking is simply via the objective function for problems without nonlinear constraints,
          but when nonlinear constraints are included the stochastic ranking proposed by Runarsson and Yao is employed.
 
@@ -1688,7 +1716,7 @@ class NLoptISRESV1(NLoptBaseMinimizerV1):
                    convergence/stopping criterion of the algorithm
                    in order to determine if the minimum has
                    been found. Defaults to 1e-3. |@docend:minimizer.tol|
-             population: |@doc:minimizer.nlopt.population| The population size for the evolutionary algorithm. |@docend:minimizer.nlopt.population| Defaults to :math:`20 * (n+1)` in n dimensions.
+             population: |@doc:minimizer.nlopt.population| The population size for the evolutionary algorithm. |@docend:minimizer.nlopt.population| Defaults to 20×(n+1) in n dimensions.
              verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10.
               The verbosity has the meaning:
 
@@ -1722,7 +1750,10 @@ class NLoptISRESV1(NLoptBaseMinimizerV1):
         """
 
         algorithm = nlopt.GN_ISRES
-        minimizer_options = {"population": population} if population is not None else None
+        if population is not None:
+            minimizer_options = {"population": population}
+        else:
+            minimizer_options = None
 
         super().__init__(
             name=name,

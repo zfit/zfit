@@ -13,13 +13,15 @@ import functools
 import operator
 from collections import Counter
 from collections.abc import Iterable
+from typing import List
 from typing import Literal
+from typing import Optional
 
 import pydantic
 import tensorflow as tf
-
 import zfit.z.numpy as znp
 
+from .basefunctor import _preprocess_init_sum, FunctorPDFRepr
 from .. import z
 from ..core.basepdf import BasePDF
 from ..core.interfaces import ZfitData, ZfitPDF
@@ -36,7 +38,6 @@ from ..util.exception import (
 )
 from ..util.ztyping import ExtendedInputType, NormInputType
 from ..z.random import counts_multinomial
-from .basefunctor import FunctorPDFRepr, _preprocess_init_sum
 
 
 # TODO: order of spaces if the obs is different from the wrapped pdf
@@ -49,11 +50,15 @@ class BaseFunctor(FunctorMixin, BasePDF):
     def _set_norm_from_daugthers(self):
         norm = super().norm
         if not norm.limits_are_set:
-            norm = extract_daughter_input_obs(obs=norm, spaces=[model.space for model in self.models])
+            norm = extract_daughter_input_obs(
+                obs=norm, spaces=[model.space for model in self.models]
+            )
             self.set_norm_range(norm)
         if not norm.limits_are_set:
-            msg = f"Daughter pdfs {self.pdfs} do not agree on a `norm` and/or no `norm`" "has been explicitly set."
-            raise NormRangeUnderdefinedError(msg)
+            raise NormRangeUnderdefinedError(
+                f"Daughter pdfs {self.pdfs} do not agree on a `norm` and/or no `norm`"
+                "has been explicitly set."
+            )
 
     @property
     def pdfs_extended(self):
@@ -128,7 +133,9 @@ class SumPDF(BaseFunctor, SerializableMixin):  # TODO: add extended argument
         if extended in (None, True) and all_extended and not fracs_cleaned:
             self._automatically_extended = True
             extended = sum_yields
-        super().__init__(pdfs=pdfs, obs=obs, params=params, name=name, extended=extended, norm=norm)
+        super().__init__(
+            pdfs=pdfs, obs=obs, params=params, name=name, extended=extended, norm=norm
+        )
         self.hs3.original_init.update(original_init)
 
     @property
@@ -160,7 +167,7 @@ class SumPDF(BaseFunctor, SerializableMixin):  # TODO: add extended argument
         return z.convert_to_tensor(prob)
 
     @supports(norm=True, multiple_limits=True)
-    def _ext_pdf(self, x, norm):
+    def _ext_pdf(self, x, norm, *, norm_range=None):
         equal_norm_ranges = len(set([pdf.norm for pdf in self.pdfs] + [norm])) == 1
         if (norm and not equal_norm_ranges) or not self._automatically_extended:
             raise SpecificFunctionNotImplemented
@@ -171,67 +178,70 @@ class SumPDF(BaseFunctor, SerializableMixin):  # TODO: add extended argument
 
     @supports(multiple_limits=True)
     def _integrate(self, limits, norm, options):
-        del norm  # not supported
         pdfs = self.pdfs
         fracs = self.fracs
         # TODO(SUM): why was this needed?
         # assert norm_range not in (None, False), "Bug, who requested an unnormalized integral?"
         integrals = [
-            frac * pdf.integrate(limits=limits, options=options)  # do NOT propagate the norm_range!
+            frac
+            * pdf.integrate(
+                limits=limits, options=options
+            )  # do NOT propagate the norm_range!
             for pdf, frac in zip(pdfs, fracs)
         ]
         return znp.sum(integrals, axis=0)
 
     @supports(multiple_limits=True)
     def _ext_integrate(self, limits, norm, options):
-        del norm  # not supported
         if not self._automatically_extended:
             raise SpecificFunctionNotImplemented
         pdfs = self.pdfs
         # TODO(SUM): why was this needed?
         # assert norm_range not in (None, False), "Bug, who requested an unnormalized integral?"
         integrals = [
-            pdf.ext_integrate(limits=limits, options=options)  # do NOT propagate the norm_range!
+            pdf.ext_integrate(
+                limits=limits, options=options
+            )  # do NOT propagate the norm_range!
             for pdf in pdfs
         ]
         return znp.sum(integrals, axis=0)
 
     @supports(multiple_limits=True)
     def _analytic_integrate(self, limits, norm):
-        del norm  # not supported
         pdfs = self.pdfs
         fracs = self.fracs
         try:
             integrals = [
-                frac * pdf.analytic_integrate(limits=limits)  # do NOT propagate the norm_range!
+                frac
+                * pdf.analytic_integrate(
+                    limits=limits
+                )  # do NOT propagate the norm_range!
                 for pdf, frac in zip(pdfs, fracs)
             ]
         except AnalyticIntegralNotImplemented as error:
-            msg = (
+            raise AnalyticIntegralNotImplemented(
                 f"analytic_integrate of pdf {self.name} is not implemented in this"
                 f" SumPDF, as at least one sub-pdf does not implement it."
-            )
-            raise AnalyticIntegralNotImplemented(msg) from error
+            ) from error
 
         integral = sum(integrals)
         return z.convert_to_tensor(integral)
 
     @supports(multiple_limits=True)
     def _partial_integrate(self, x, limits, norm, *, options):
-        del norm  # not supported
         pdfs = self.pdfs
         fracs = self.fracs
 
         # do NOT propagate the norm_range!
         partial_integral = [
-            pdf.partial_integrate(x=x, limits=limits, options=options) * frac for pdf, frac in zip(pdfs, fracs)
+            pdf.partial_integrate(x=x, limits=limits, options=options) * frac
+            for pdf, frac in zip(pdfs, fracs)
         ]
         partial_integral = sum(partial_integral)
         return z.convert_to_tensor(partial_integral)
 
     @supports(multiple_limits=True)
     def _partial_analytic_integrate(self, x, limits, norm, options):
-        del norm, options  # not supported/ignored
         pdfs = self.pdfs
         fracs = self.fracs
         try:
@@ -241,11 +251,10 @@ class SumPDF(BaseFunctor, SerializableMixin):  # TODO: add extended argument
                 for pdf, frac in zip(pdfs, fracs)
             ]
         except AnalyticIntegralNotImplemented as error:
-            msg = (
+            raise AnalyticIntegralNotImplemented(
                 "partial_analytic_integrate of pdf {name} is not implemented in this"
                 " SumPDF, as at least one sub-pdf does not implement it."
-            )
-            raise AnalyticIntegralNotImplemented(msg) from error
+            ) from error
         partial_integral = sum(partial_integral)
         return z.convert_to_tensor(partial_integral)
 
@@ -263,13 +272,14 @@ class SumPDF(BaseFunctor, SerializableMixin):  # TODO: add extended argument
                 sub_sample = sub_sample.value()
             samples.append(sub_sample)
         sample = znp.concatenate(samples, axis=0)
-        return z.random.shuffle(sample)
+        sample = z.random.shuffle(sample)
+        return sample
 
 
 class SumPDFRepr(FunctorPDFRepr):
     _implementation = SumPDF
     hs3_type: Literal["SumPDF"] = pydantic.Field("SumPDF", alias="type")
-    fracs: list[Serializer.types.ParamInputTypeDiscriminated] | None = None
+    fracs: Optional[List[Serializer.types.ParamInputTypeDiscriminated]] = None
 
     @pydantic.root_validator(pre=True)
     def validate_all_sumpdf(cls, values):
@@ -349,7 +359,9 @@ class ProductPDF(BaseFunctor, SerializableMixin):
 
     @supports(norm=True, multiple_limits=True)
     def _pdf(self, x, norm):
-        equal_norm_ranges = len(set([pdf.norm for pdf in self.pdfs] + [norm])) == 1  # all equal
+        equal_norm_ranges = (
+            len(set([pdf.norm for pdf in self.pdfs] + [norm])) == 1
+        )  # all equal
         if not self._prod_is_same_obs_pdf and equal_norm_ranges:
             probs = [pdf.pdf(var=x, norm=norm) for pdf in self._prod_disjoint_obs_pdfs]
             prob = functools.reduce(operator.mul, probs)
@@ -363,7 +375,9 @@ class ProductPDF(BaseFunctor, SerializableMixin):
             integrals = []
             for pdf in self._prod_disjoint_obs_pdfs:
                 limit = limits.with_obs(pdf.obs)
-                integrals.append(pdf.integrate(limits=limit, norm=norm, options=options))
+                integrals.append(
+                    pdf.integrate(limits=limit, norm=norm, options=options)
+                )
             integral = functools.reduce(operator.mul, integrals)
             return z.convert_to_tensor(integral)
         else:
@@ -372,16 +386,19 @@ class ProductPDF(BaseFunctor, SerializableMixin):
     @supports(norm=False)
     def _analytic_integrate(self, limits, norm):
         if self._prod_is_same_obs_pdf:
-            msg = f"Cannot integrate analytically as PDFs have overlapping obs:" f" {[pdf.obs for pdf in self.pdfs]}"
-            raise AnalyticIntegralNotImplemented(msg)
+            raise AnalyticIntegralNotImplemented(
+                f"Cannot integrate analytically as PDFs have overlapping obs:"
+                f" {[pdf.obs for pdf in self.pdfs]}"
+            )
         integrals = []
         for pdf in self._prod_disjoint_obs_pdfs:
             limit = limits.with_obs(pdf.obs)
             try:
                 integral = pdf.analytic_integrate(limits=limit, norm=norm)
             except AnalyticIntegralNotImplemented:
-                msg = f"At least one pdf ({pdf} does not support analytic integration."
-                raise AnalyticIntegralNotImplemented(msg) from None
+                raise AnalyticIntegralNotImplemented(
+                    f"At least one pdf ({pdf} does not support analytic integration."
+                )
             else:
                 integrals.append(integral)
         integral = functools.reduce(operator.mul, integrals)
@@ -400,10 +417,13 @@ class ProductPDF(BaseFunctor, SerializableMixin):
             if intersection_limits and not intersection_data:
                 values.append(pdf.integrate(limits=limits, norm=norm, options=options))
             elif intersection_limits:  # implicitly "and intersection_data"
-                values.append(pdf.partial_integrate(x=x, limits=limits, options=options))
+                values.append(
+                    pdf.partial_integrate(x=x, limits=limits, options=options)
+                )
             else:
-                has_data_but_no_limits = (not intersection_limits) and intersection_data
-                assert has_data_but_no_limits, "Something slipped, the logic is flawed."
+                assert (
+                    not intersection_limits and intersection_data
+                ), "Something slipped, the logic is flawed."
                 values.append(pdf.pdf(x, norm_range=norm))
         values = functools.reduce(operator.mul, values)
         return z.convert_to_tensor(values)

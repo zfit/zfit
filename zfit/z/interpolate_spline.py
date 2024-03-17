@@ -1,4 +1,4 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2023 zfit
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,10 +14,9 @@
 # ==============================================================================
 # This was copied from TensorFlow addons, which is deprecated by now.
 """Polyharmonic spline interpolation."""
-
 from __future__ import annotations
 
-from typing import List, Tuple, Union
+from typing import Union, Tuple, List
 
 import numpy as np
 import tensorflow as tf
@@ -76,7 +75,9 @@ def _cross_squared_distance_matrix(x: TensorLike, y: TensorLike) -> tf.Tensor:
 
     # squared_dists[b,i,j] = ||x_bi - y_bj||^2 =
     # x_bi'x_bi- 2x_bi'x_bj + x_bj'x_bj
-    return x_norm_squared_tile - 2 * x_y_transpose + y_norm_squared_tile
+    squared_dists = x_norm_squared_tile - 2 * x_y_transpose + y_norm_squared_tile
+
+    return squared_dists
 
 
 def _pairwise_squared_distance_matrix(x: TensorLike) -> tf.Tensor:
@@ -99,7 +100,13 @@ def _pairwise_squared_distance_matrix(x: TensorLike) -> tf.Tensor:
 
     # squared_dists[b,i,j] = ||x_bi - x_bj||^2 =
     # = x_bi'x_bi- 2x_bi'x_bj + x_bj'x_bj
-    return x_norm_squared_tile - 2 * x_x_transpose + tf.transpose(x_norm_squared_tile, [0, 2, 1])
+    squared_dists = (
+        x_norm_squared_tile
+        - 2 * x_x_transpose
+        + tf.transpose(x_norm_squared_tile, [0, 2, 1])
+    )
+
+    return squared_dists
 
 
 def _solve_interpolation(
@@ -132,13 +139,17 @@ def _solve_interpolation(
 
     d = train_points.shape[-1]
     if d is None:
-        msg = "The dimensionality of the input points (d) must be " "statically-inferrable."
-        raise ValueError(msg)
+        raise ValueError(
+            "The dimensionality of the input points (d) must be "
+            "statically-inferrable."
+        )
 
     k = train_values.shape[-1]
     if k is None:
-        msg = "The dimensionality of the output values (k) must be " "statically-inferrable."
-        raise ValueError(msg)
+        raise ValueError(
+            "The dimensionality of the output values (k) must be "
+            "statically-inferrable."
+        )
 
     # First, rename variables so that the notation (c, f, w, v, A, B, etc.)
     # follows https://en.wikipedia.org/wiki/Polyharmonic_spline.
@@ -212,7 +223,9 @@ def _apply_interpolation(
 
     # Then, compute the contribution from the linear term.
     # Pad query_points with ones, for the bias term in the linear model.
-    query_points_pad = tf.concat([query_points, tf.ones_like(query_points[..., :1], train_points.dtype)], 2)
+    query_points_pad = tf.concat(
+        [query_points, tf.ones_like(query_points[..., :1], train_points.dtype)], 2
+    )
     linear_term = tf.matmul(query_points_pad, v)
 
     return rbf_term + linear_term
@@ -236,7 +249,8 @@ def _phi(r: FloatTensorLike, order: int) -> FloatTensorLike:
     with tf.name_scope("phi"):
         if order == 1:
             r = tf.maximum(r, EPSILON)
-            return tf.sqrt(r)
+            r = tf.sqrt(r)
+            return r
         elif order == 2:
             return 0.5 * r * tf.math.log(tf.maximum(r, EPSILON))
         elif order == 4:
@@ -319,7 +333,9 @@ def interpolate_spline(
 
         # First, fit the spline to the observed data.
         with tf.name_scope("solve"):
-            w, v = _solve_interpolation(train_points, train_values, order, regularization_weight)
+            w, v = _solve_interpolation(
+                train_points, train_values, order, regularization_weight
+            )
 
         # Then, evaluate the spline at the query locations.
         with tf.name_scope("predict"):

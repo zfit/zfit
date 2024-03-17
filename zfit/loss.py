@@ -1,10 +1,10 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2023 zfit
 
 from ._loss.binnedloss import (
-    BinnedChi2,
+    ExtendedBinnedNLL,
     BinnedNLL,
     ExtendedBinnedChi2,
-    ExtendedBinnedNLL,
+    BinnedChi2,
 )
 from .core.loss import BaseLoss, ExtendedUnbinnedNLL, SimpleLoss, UnbinnedNLL
 

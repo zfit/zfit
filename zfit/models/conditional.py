@@ -1,4 +1,4 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2023 zfit
 
 from __future__ import annotations
 
@@ -9,22 +9,23 @@ from ..util.ztyping import ExtendedInputType, NormInputType
 if TYPE_CHECKING:
     pass
 
+from collections.abc import Mapping
+
 import functools
 import warnings
-from collections.abc import Mapping
 
 import tensorflow as tf
 
 import zfit.z.numpy as znp
 
 from .. import z
-from ..core.basepdf import BasePDF
 from ..core.interfaces import (
     ZfitIndependentParameter,
-    ZfitParameter,
     ZfitPDF,
     ZfitSpace,
+    ZfitParameter,
 )
+from ..core.basepdf import BasePDF
 from ..core.parameter import set_values
 from ..core.space import combine_spaces, convert_to_space, supports
 from ..util.exception import WorkInProgressError
@@ -89,8 +90,7 @@ class ConditionalPDFV1(BaseFunctor):
         spaces = []
         for param, obs in cond.items():
             if not isinstance(param, ZfitIndependentParameter):
-                msg = f"parameter {param} not a ZfitIndependentParameter"
-                raise TypeError(msg)
+                raise TypeError(f"parameter {param} not a ZfitIndependentParameter")
             spaces.append(convert_to_space(obs))
         return cond, combine_spaces(*spaces)
 
@@ -98,13 +98,17 @@ class ConditionalPDFV1(BaseFunctor):
     @z.function(wraps="conditional_pdf")
     def _pdf(self, x, norm):
         pdf = self.pdfs[0]
-        param_x_indices = {p: x.obs.index(p_space.obs[0]) for p, p_space in self._cond.items()}
+        param_x_indices = {
+            p: x.obs.index(p_space.obs[0]) for p, p_space in self._cond.items()
+        }
         x_values = x.value()
 
         if self._use_vectorized_map:
             tf_map = tf.vectorized_map
         else:
-            output_signature = tf.TensorSpec(shape=(1, *x_values.shape[1:-1]), dtype=self.dtype)
+            output_signature = tf.TensorSpec(
+                shape=(1, *x_values.shape[1:-1]), dtype=self.dtype
+            )
             tf_map = functools.partial(tf.map_fn, fn_output_signature=output_signature)
 
         # TODO: reset parameters?
@@ -118,7 +122,8 @@ class ConditionalPDFV1(BaseFunctor):
         params = tuple(param_x_indices.keys())
         with set_values(params, params):
             probs = tf_map(eval_pdf, x_values)
-        return probs[:, 0]  # removing stack dimension, implicitly in map_fn
+        probs = probs[:, 0]  # removing stack dimension, implicitly in map_fn
+        return probs
 
     def _get_params(
         self,
@@ -138,17 +143,20 @@ class ConditionalPDFV1(BaseFunctor):
             warnings.warn(
                 "Using the Conditional PDF in eager mode (no jit) maybe gets stuck.",
                 RuntimeWarning,
-                stacklevel=2,
             )
 
-        param_x_indices = {p: x.obs.index(p_space.obs[0]) for p, p_space in self._cond.items()}
+        param_x_indices = {
+            p: x.obs.index(p_space.obs[0]) for p, p_space in self._cond.items()
+        }
         x_values = x.value()
         pdf = self.pdfs[0]
 
         if self._use_vectorized_map:
             tf_map = tf.vectorized_map
         else:
-            output_signature = tf.TensorSpec(shape=(1, *x_values.shape[1:-1]), dtype=self.dtype)
+            output_signature = tf.TensorSpec(
+                shape=(1, *x_values.shape[1:-1]), dtype=self.dtype
+            )
             tf_map = functools.partial(tf.map_fn, fn_output_signature=output_signature)
 
         @z.function(wraps="vectorized_map")
@@ -159,17 +167,21 @@ class ConditionalPDFV1(BaseFunctor):
             return pdf.integrate(limits=limits, norm=norm, options=options)
 
         integrals = tf_map(eval_int, x_values)
-        return integrals[:, 0]  # removing stack dimension, implicitly in map_fn
+        integrals = integrals[:, 0]  # removing stack dimension, implicitly in map_fn
+        return integrals
 
     @z.function(wraps="conditional_pdf")
     def _single_hook_sample(self, n, limits, x):
         tf.assert_equal(
             n,
             x.nevents,
-            message="Different number of n requested than x given for " "conditional sampling. Needs to agree",
+            message="Different number of n requested than x given for "
+            "conditional sampling. Needs to agree",
         )
 
-        param_x_indices = {p: x.obs.index(p_space.obs[0]) for p, p_space in self._cond.items()}
+        param_x_indices = {
+            p: x.obs.index(p_space.obs[0]) for p, p_space in self._cond.items()
+        }
         x_values = x.value()
         # if self._sample_with_replacement:
         #     x_values = z.random.sample_with_replacement(x_values, axis=0, sample_shape=(n,))
@@ -188,11 +200,13 @@ class ConditionalPDFV1(BaseFunctor):
             return pdf.sample(n=1, limits=limits).value()
 
         sample_rnd = tf_map(eval_sample, x_values)[..., 0]
-        return znp.concatenate([sample_rnd, x_values], axis=-1)
+        sample = znp.concatenate([sample_rnd, x_values], axis=-1)
+        return sample
 
-    def copy(self, **override_parameters) -> BasePDF:  # noqa: ARG002
-        msg = "Currently copying not possible. " "Use `set_yield` to set a yield inplace."
-        raise WorkInProgressError(msg)
+    def copy(self, **override_parameters) -> BasePDF:
+        raise WorkInProgressError(
+            "Currently copying not possible. " "Use `set_yield` to set a yield inplace."
+        )
 
 
 # NOT working, logic wrong: the parameter of Gauss is not added to overall variables...

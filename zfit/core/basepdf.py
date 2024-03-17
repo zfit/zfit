@@ -62,7 +62,7 @@ from tensorflow.python.util.deprecation import deprecated_args
 from ..util.ztyping import ExtendedInputType, NormInputType
 
 if TYPE_CHECKING:
-    pass
+    import zfit
 
 import warnings
 from contextlib import suppress
@@ -71,7 +71,12 @@ import tensorflow as tf
 
 import zfit.z.numpy as znp
 from zfit import z
-
+from .basemodel import BaseModel
+from .baseobject import extract_filter_params
+from .interfaces import ZfitParameter, ZfitPDF
+from .parameter import Parameter, convert_to_parameter
+from .sample import extended_sampling
+from .space import Space
 from ..settings import run, ztypes
 from ..util import ztyping
 from ..util.cache import invalidate_graph
@@ -80,17 +85,11 @@ from ..util.exception import (
     AlreadyExtendedPDFError,
     BreakingAPIChangeError,
     FunctionNotImplemented,
-    NormNotImplemented,
     NotExtendedPDFError,
+    NormNotImplemented,
     SpecificFunctionNotImplemented,
 )
 from ..util.temporary import TemporarilySet
-from .basemodel import BaseModel
-from .baseobject import extract_filter_params
-from .interfaces import ZfitParameter, ZfitPDF
-from .parameter import Parameter, convert_to_parameter
-from .sample import extended_sampling
-from .space import Space
 
 _BasePDF_USER_IMPL_METHODS_TO_CHECK = {}
 
@@ -103,8 +102,7 @@ def _BasePDF_register_check_support(has_support: bool):
             flags that the ``@supports`` decorator is **not allowed**.
     """
     if not isinstance(has_support, bool):
-        msg = "Has to be boolean."
-        raise TypeError(msg)
+        raise TypeError("Has to be boolean.")
 
     def register(func):
         """Register a method to be checked to (if True) *has* ``support`` or (if False) has *no* ``support``.
@@ -127,7 +125,7 @@ class BasePDF(ZfitPDF, BaseModel):
     def __init__(
         self,
         obs: ztyping.ObsTypeInput,
-        params: dict[str, ZfitParameter] | None = None,
+        params: dict[str, ZfitParameter] = None,
         dtype: type = ztypes.float,
         name: str = "BasePDF",
         extended: ExtendedInputType = None,
@@ -206,7 +204,7 @@ class BasePDF(ZfitPDF, BaseModel):
         return TemporarilySet(value=norm, setter=setter, getter=getter)
 
     @_BasePDF_register_check_support(True)
-    def _normalization(self, norm, options):  # noqa: ARG002
+    def _normalization(self, norm, options):
         raise SpecificFunctionNotImplemented
 
     @deprecated_args(None, "Use `norm` instead.", "limits")
@@ -243,6 +241,7 @@ class BasePDF(ZfitPDF, BaseModel):
         return self._call_normalization(norm=norm, options=options)  # no _norm_* needed
 
     def _call_normalization(self, norm, options):
+        # TODO: caching? alternative
         with suppress(FunctionNotImplemented):
             return self._normalization(norm=norm, options=options)
         return self._fallback_normalization(norm, options=options)
@@ -250,7 +249,7 @@ class BasePDF(ZfitPDF, BaseModel):
     def _fallback_normalization(self, norm, options):
         return self._hook_integrate(limits=norm, norm=False, options=options)
 
-    def _unnormalized_pdf(self, x):  # noqa: ARG002
+    def _unnormalized_pdf(self, x):
         raise SpecificFunctionNotImplemented
 
     @deprecated(None, "Use `pdf(norm=False)` instead")
@@ -302,8 +301,7 @@ class BasePDF(ZfitPDF, BaseModel):
         del norm_range  # taken care of in the deprecation decorator
         norm = self._check_input_norm(norm, none_is_error=True)
         if not self.is_extended:
-            msg = f"{self} is not extended, cannot call `ext_pdf`"
-            raise NotExtendedPDFError(msg)
+            raise NotExtendedPDFError(f"{self} is not extended, cannot call `ext_pdf`")
         with self._convert_sort_x(x) as x:
             return self._call_ext_pdf(x, norm)
 
@@ -324,7 +322,7 @@ class BasePDF(ZfitPDF, BaseModel):
         return probs
 
     @_BasePDF_register_check_support(True)
-    def _ext_pdf(self, x, norm, *, norm_range=None):  # noqa: ARG002
+    def _ext_pdf(self, x, norm, *, norm_range=None):
         raise SpecificFunctionNotImplemented  # TODO: implement properly
 
     @z.function(wraps="model")
@@ -355,8 +353,7 @@ class BasePDF(ZfitPDF, BaseModel):
         del norm_range  # taken care of in the deprecation decorator
         norm = self._check_input_norm(norm, none_is_error=True)
         if not self.is_extended:
-            msg = f"{self} is not extended, cannot call `ext_pdf`"
-            raise NotExtendedPDFError(msg)
+            raise NotExtendedPDFError(f"{self} is not extended, cannot call `ext_pdf`")
         with self._convert_sort_x(x) as x:
             return self._call_ext_log_pdf(x, norm)
 
@@ -377,11 +374,11 @@ class BasePDF(ZfitPDF, BaseModel):
         return pdf
 
     @_BasePDF_register_check_support(True)
-    def _ext_log_pdf(self, x, norm):  # noqa: ARG002
+    def _ext_log_pdf(self, x, norm):
         raise SpecificFunctionNotImplemented
 
     @_BasePDF_register_check_support(True)
-    def _pdf(self, x, norm, *, norm_range=None):  # noqa: ARG002
+    def _pdf(self, x, norm, *, norm_range=None):
         raise SpecificFunctionNotImplemented
 
     @deprecated_norm_range
@@ -414,7 +411,9 @@ class BasePDF(ZfitPDF, BaseModel):
         with self._convert_sort_x(x) as x:
             value = self._single_hook_pdf(x=x, norm=norm)
             if run.numeric_checks:
-                z.check_numerics(value, message="Check if pdf output contains any NaNs of Infs")
+                z.check_numerics(
+                    value, message="Check if pdf output contains any NaNs of Infs"
+                )
             return znp.asarray(z.to_real(value))
 
     def _single_hook_pdf(self, x, norm):
@@ -433,7 +432,9 @@ class BasePDF(ZfitPDF, BaseModel):
             return znp.exp(self._log_pdf(x, norm))
         if self.is_extended:
             with suppress(FunctionNotImplemented):
-                return self._ext_pdf(x, norm) / self.get_yield()  # TODO: extend/refactor the calling
+                return (
+                    self._ext_pdf(x, norm) / self.get_yield()
+                )  # TODO: extend/refactor the calling
 
         return self._fallback_pdf(x, norm)
 
@@ -445,11 +446,13 @@ class BasePDF(ZfitPDF, BaseModel):
 
     @_BasePDF_register_check_support(False)
     @deprecated_norm_range
-    def _log_pdf(self, x, norm):  # noqa: ARG002
+    def _log_pdf(self, x, norm):
         raise SpecificFunctionNotImplemented
 
     @deprecated_norm_range
-    def log_pdf(self, x: ztyping.XType, norm: ztyping.LimitsType = None, *, norm_range=None) -> ztyping.XType:
+    def log_pdf(
+        self, x: ztyping.XType, norm: ztyping.LimitsType = None, *, norm_range=None
+    ) -> ztyping.XType:
         """Log probability density function normalized over ``norm_range``.
 
         Args:
@@ -475,7 +478,8 @@ class BasePDF(ZfitPDF, BaseModel):
         return self._hook_log_pdf(x=x, norm=norm)
 
     def _hook_log_pdf(self, x, norm):
-        return self._norm_log_pdf(x=x, norm=norm)
+        log_prob = self._norm_log_pdf(x=x, norm=norm)
+        return log_prob
 
     def _norm_log_pdf(self, x, norm):
         return self._call_log_pdf(x=x, norm=norm)
@@ -523,11 +527,14 @@ class BasePDF(ZfitPDF, BaseModel):
         norm = self._check_input_norm(norm)
         limits = self._check_input_limits(limits=limits)
         if not self.is_extended:
-            msg = f"{self} is not extended, cannot call `ext_pdf`"
-            raise NotExtendedPDFError(msg)
-        return self.integrate(limits=limits, norm=norm, options=options) * self.get_yield()
+            raise NotExtendedPDFError(f"{self} is not extended, cannot call `ext_pdf`")
+        return (
+            self.integrate(limits=limits, norm=norm, options=options) * self.get_yield()
+        )
 
-    def _apply_yield(self, value: float, norm: ztyping.LimitsType, log: bool) -> float | tf.Tensor:
+    def _apply_yield(
+        self, value: float, norm: ztyping.LimitsType, log: bool
+    ) -> float | tf.Tensor:
         if self.is_extended and not norm.limits_are_false:
             if log:
                 value += znp.log(self.get_yield())
@@ -551,9 +558,9 @@ class BasePDF(ZfitPDF, BaseModel):
     def create_extended(
         self,
         yield_: ztyping.ParamTypeInput,
-        name: str | None = None,
+        name: str = None,
         *,
-        name_addition: str | None = None,
+        name_addition: str = None,
     ) -> ZfitPDF:
         """Return an extended version of this pdf with yield ``yield_``. The parameters are shared.
 
@@ -571,8 +578,9 @@ class BasePDF(ZfitPDF, BaseModel):
         """
         # TODO(Mayou36): fix copy
         if name_addition is not None:
-            msg = "name_addition is not supported anymore, use `name` instead."
-            raise BreakingAPIChangeError(msg)
+            raise BreakingAPIChangeError(
+                "name_addition is not supported anymore, use `name` instead."
+            )
         from zfit.models.functor import ProductPDF
 
         name = f"{self.name}_ext" if name is None else name
@@ -580,23 +588,21 @@ class BasePDF(ZfitPDF, BaseModel):
         if isinstance(self, ProductPDF):
             warnings.warn(
                 "As `copy` is not yet properly implemented, this may fails (for ProductPDF for example?). This"
-                "will be fixed in the future.",
-                category=UserWarning,
-                stacklevel=2,
+                "will be fixed in the future."
             )
         if self.is_extended:
-            msg = "This PDF is already extended, cannot create an extended one."
-            raise AlreadyExtendedPDFError(msg)
+            raise AlreadyExtendedPDFError(
+                "This PDF is already extended, cannot create an extended one."
+            )
         try:
             new_pdf = self.copy(name=name)
         except Exception as error:
-            msg = (
+            raise RuntimeError(
                 f"PDF {self} could not be copied, therefore `create_extended` failed and a new "
                 f"extended PDF cannot be created. As an alternative, you can use `set_yield`"
                 f" to set the yield on the current PDF *inplace* (this won't return a new PDF but"
                 f" instead modify the existing)."
-            )
-            raise RuntimeError(msg) from error
+            ) from error
         new_pdf.set_yield(value=yield_)
         return new_pdf
 
@@ -622,11 +628,9 @@ class BasePDF(ZfitPDF, BaseModel):
 
     def _set_yield(self, value: ztyping.ParamTypeInput):
         if value is None:
-            msg = "Cannot unset a yield (anymore)."
-            raise BreakingAPIChangeError(msg)
+            raise BreakingAPIChangeError("Cannot unset a yield (anymore).")
         if self.is_extended:
-            msg = f"Cannot extend {self}, is already extended."
-            raise AlreadyExtendedPDFError(msg)
+            raise AlreadyExtendedPDFError(f"Cannot extend {self}, is already extended.")
         value = convert_to_parameter(value)
         self.add_cache_deps(value)
         self._yield = value
@@ -648,15 +652,18 @@ class BasePDF(ZfitPDF, BaseModel):
             n = "extended"
         if isinstance(n, str) and n == "extended":
             if not self.is_extended:
-                msg = "Cannot use 'extended' as value for `n` on a non-extended pdf."
-                raise NotExtendedPDFError(msg)
+                raise NotExtendedPDFError(
+                    "Cannot use 'extended' as value for `n` on a non-extended pdf."
+                )
             samples = extended_sampling(pdfs=self, limits=limits)
         elif isinstance(n, str):
-            msg = "`n` is a string and not 'extended'. Other options are currently not implemented."
-            raise ValueError(msg)
+            raise ValueError(
+                "`n` is a string and not 'extended'. Other options are currently not implemented."
+            )
         elif n is None:
-            msg = "`n` cannot be `None` if pdf is not extended."
-            raise tf.errors.InvalidArgumentError(msg)
+            raise tf.errors.InvalidArgumentError(
+                "`n` cannot be `None` if pdf is not extended."
+            )
         else:
             samples = super()._hook_sample(limits=limits, n=n)
         return samples
@@ -684,7 +691,9 @@ class BasePDF(ZfitPDF, BaseModel):
         is_yield: bool | None = None,
         extract_independent: bool | None = True,
     ) -> set[ZfitParameter]:
-        params = super()._get_params(floating, is_yield=is_yield, extract_independent=extract_independent)
+        params = super()._get_params(
+            floating, is_yield=is_yield, extract_independent=extract_independent
+        )
 
         if is_yield is not False:
             if self.is_extended:
@@ -696,8 +705,9 @@ class BasePDF(ZfitPDF, BaseModel):
                 yield_params.update(params)  # putting the yields at the beginning
                 params = yield_params
             elif is_yield is True:
-                msg = "PDF is not extended but only yield parameters were requested."
-                raise NotExtendedPDFError(msg)
+                raise NotExtendedPDFError(
+                    "PDF is not extended but only yield parameters were requested."
+                )
         return params
 
     def create_projection_pdf(
@@ -719,22 +729,25 @@ class BasePDF(ZfitPDF, BaseModel):
             A pdf without the dimensions from ``limits``.
         """
         if limits_to_integrate is not None:
-            msg = "Use `limits` instead of `limits_to_integrate`."
-            raise BreakingAPIChangeError(msg)
+            raise BreakingAPIChangeError(
+                "Use `limits` instead of `limits_to_integrate`."
+            )
         from ..models.special import SimpleFunctorPDF
 
         if limits_to_integrate is not None:
             limits = limits_to_integrate
 
         def partial_integrate_wrapped(self_simple, x):
-            del self_simple
             return self.partial_integrate(x, limits=limits, options=options)
 
-        return SimpleFunctorPDF(
-            obs=self.space.get_subspace(obs=[obs for obs in self.obs if obs not in limits.obs]),
+        new_pdf = SimpleFunctorPDF(
+            obs=self.space.get_subspace(
+                obs=[obs for obs in self.obs if obs not in limits.obs]
+            ),
             pdfs=(self,),
             func=partial_integrate_wrapped,
         )
+        return new_pdf
 
     def copy(self, **override_parameters) -> BasePDF:
         """Creates a copy of the model.
@@ -758,8 +771,12 @@ class BasePDF(ZfitPDF, BaseModel):
         from ..models.kde import GaussianKDE1DimV1
         from ..models.polynomials import RecursivePolynomial
 
-        if type(self) == WrapDistribution:  # NOT isinstance! Because e.g. Gauss wraps that and takes different args
-            parameters = {"distribution": self._distribution, "dist_params": self.dist_params}
+        if (
+            type(self) == WrapDistribution
+        ):  # NOT isinstance! Because e.g. Gauss wraps that and takes different args
+            parameters = dict(
+                distribution=self._distribution, dist_params=self.dist_params
+            )
         else:
             # HACK END
 
@@ -769,12 +786,11 @@ class BasePDF(ZfitPDF, BaseModel):
                 parameters["lam"] = lam
 
         if type(self) == GaussianKDE1DimV1:
-            msg = (
+            raise RuntimeError(
                 "Cannot copy `GaussianKDE1DimV1` (yet). If you tried to make it extended, use "
                 "`set_yield`"
                 " instead and set it inplace."
             )
-            raise RuntimeError(msg)
             parameters["data"] = self._original_data
 
         # HACK(Mayou36): copy the polynomial correct, replace 'c_0' with coeff0/coeff_0 or similar
@@ -829,7 +845,15 @@ class BasePDF(ZfitPDF, BaseModel):
         return convert_pdf_to_func(pdf=self, norm=norm)
 
     def __str__(self):
-        return f"zfit.model.{type(self).__name__}(" f'"{self.name}"' f", dtype={self.dtype.name})"
+        return (
+            "zfit.model.{type_name}("
+            '"{self_name}"'
+            ", dtype={dtype})".format(
+                type_name=type(self).__name__,
+                self_name=self.name,
+                dtype=self.dtype.name,
+            )
+        )
 
     def to_unbinned(self):
         """Convert to unbinned pdf, returns self if already unbinned."""
@@ -839,4 +863,6 @@ class BasePDF(ZfitPDF, BaseModel):
         """Convert to binned pdf, returns self if already binned."""
         from ..models.tobinned import BinnedFromUnbinnedPDF
 
-        return BinnedFromUnbinnedPDF(pdf=self, space=space, extended=extended, norm=norm)
+        return BinnedFromUnbinnedPDF(
+            pdf=self, space=space, extended=extended, norm=norm
+        )

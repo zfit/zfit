@@ -9,9 +9,11 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     import zfit
 
-import collections
 from collections.abc import Callable
+
+import collections
 from contextlib import suppress
+from typing import Union
 
 import numpy as np
 import tensorflow as tf
@@ -19,14 +21,14 @@ import tensorflow_probability as tfp
 
 import zfit.z.numpy as znp
 from zfit import z
+from .dimension import BaseDimensional
+from .interfaces import ZfitModel, ZfitSpace, ZfitUnbinnedData
+from ..util.container import convert_to_container
+from ..util.temporary import TemporarilySet
 
 from ..settings import ztypes
 from ..util import ztyping
-from ..util.container import convert_to_container
 from ..util.exception import AnalyticIntegralNotImplemented, WorkInProgressError
-from ..util.temporary import TemporarilySet
-from .dimension import BaseDimensional
-from .interfaces import ZfitModel, ZfitSpace, ZfitUnbinnedData
 from .space import Space, convert_to_space, supports
 
 
@@ -51,7 +53,10 @@ def auto_integrate(
     if n_axes is None:
         n_axes = limits.n_obs
     if method == "AUTO":  # TODO unfinished, other methods?
-        method = "simpson" if n_axes == 1 and x is None else "mc"
+        if n_axes == 1 and x is None:
+            method = "simpson"
+        else:
+            method = "mc"
     # TODO method
     if method.lower() == "mc":
         mc_options = mc_options or {}
@@ -75,15 +80,14 @@ def auto_integrate(
         num_points = simpsons_options["draws_simpson"]
         integral = simpson_integrate(func=func, limits=limits, num_points=num_points)
     else:
-        msg = f"Method {method} not a legal choice for integration method."
-        raise ValueError(msg)
+        raise ValueError(f"Method {method} not a legal choice for integration method.")
     return integral
 
 
 # TODO implement numerical integration method
 def numeric_integrate():
     """Integrate ``func`` using numerical methods."""
-    return
+    return None
 
 
 # COPIED FROM tf_quant_finance/math/integrate.py which is deprecated
@@ -132,7 +136,9 @@ def simpson(func, lower, upper, num_points=1001, dtype=None, name=None):
       `Tensor` of shape `func_batch_shape + limits_batch_shape`, containing
         value of the definite integral.
     """
-    with tf.compat.v1.name_scope(name, default_name="integrate_simpson_composite", values=[lower, upper]):
+    with tf.compat.v1.name_scope(
+        name, default_name="integrate_simpson_composite", values=[lower, upper]
+    ):
         lower = tf.convert_to_tensor(lower, dtype=dtype, name="lower")
         dtype = lower.dtype
         upper = tf.convert_to_tensor(upper, dtype=dtype, name="upper")
@@ -149,7 +155,9 @@ def simpson(func, lower, upper, num_points=1001, dtype=None, name=None):
             lower_exp = tf.expand_dims(lower, -1)
             grid = lower_exp + dx_expand * tf.cast(tf.range(num_points), dtype=dtype)
             weights_first = tf.constant([1.0], dtype=dtype)
-            weights_mid = tf.tile(tf.constant([4.0, 2.0], dtype=dtype), [(num_points - 3) // 2])
+            weights_mid = tf.tile(
+                tf.constant([4.0, 2.0], dtype=dtype), [(num_points - 3) // 2]
+            )
             weights_last = tf.constant([4.0, 1.0], dtype=dtype)
             weights = tf.concat([weights_first, weights_mid, weights_last], axis=0)
 
@@ -163,14 +171,15 @@ def simpson_integrate(func, limits, num_points):  # currently not vectorized
     for space in limits:
         lower, upper = space.rect_limits
         if lower.shape[0] > 1:
-            msg = "Vectorized spaces in integration currently not supported."
-            raise ValueError(msg)
+            raise ValueError(
+                "Vectorized spaces in integration currently not supported."
+            )
         lower = znp.array(lower)[0, 0]
         upper = znp.array(upper)[0, 0]
         tf.debugging.assert_all_finite(
             (lower, upper),
             "MC integration does (currently) not support unbound limits (np.infty) as given here:"
-            f"\nlower: {lower}, upper: {upper}",
+            "\nlower: {}, upper: {}".format(lower, upper),
         )
         integrals.append(
             simpson(
@@ -194,10 +203,10 @@ def mc_integrate(
     draws_per_dim: int = 40000,
     max_draws=800_000,
     tol: float = 1e-6,
-    method: str | None = None,  # noqa: ARG001
+    method: str = None,
     dtype: type = ztypes.float,
-    mc_sampler: Callable = tfp.mcmc.sample_halton_sequence,  # noqa: ARG001
-    importance_sampling: Callable | None = None,  # noqa: ARG001
+    mc_sampler: Callable = tfp.mcmc.sample_halton_sequence,
+    importance_sampling: Callable | None = None,
     vectorizable=None,
 ) -> tf.Tensor:
     """Monte Carlo integration of ``func`` over ``limits``.
@@ -219,19 +228,13 @@ def mc_integrate(
     Returns:
         The integral
     """
-    # if method is not None:
-    #     raise ValueError("Method is not yet implemented.")
-    # if importance_sampling is not None:
-    #     raise ValueError("Importance sampling is not yet implemented.")
-
     import zfit
 
     if vectorizable is None:
         vectorizable = False
     tol = znp.array(tol, dtype=znp.float64)
     if axes is not None and n_axes is not None:
-        msg = "Either specify axes or n_axes"
-        raise ValueError(msg)
+        raise ValueError("Either specify axes or n_axes")
 
     axes = limits.axes
     partial = (axes is not None) and (x is not None)  # axes, value can be tensors
@@ -247,7 +250,7 @@ def mc_integrate(
         tf.debugging.assert_all_finite(
             (lower, upper),
             "MC integration does (currently) not support unbound limits (np.infty) as given here:"
-            f"\nlower: {lower}, upper: {upper}",
+            "\nlower: {}, upper: {}".format(lower, upper),
         )
 
         n_samples = draws_per_dim * n_axes
@@ -255,7 +258,9 @@ def mc_integrate(
         chunked_normalization = zfit.run.chunksize < n_samples
         # chunked_normalization = True
         if chunked_normalization and partial:
-            pass
+            print(
+                "NOT SUPPORTED! partial and chunked not working, auto switch back to not-chunked."
+            )
         if chunked_normalization and not partial:
             n_chunks = int(np.ceil(n_samples / zfit.run.chunksize))
             chunksize = int(np.ceil(n_samples / n_chunks))
@@ -274,11 +279,10 @@ def mc_integrate(
             # TODO: deal with n_obs properly?
             @z.function(wraps="tensor", keepalive=True)
             def cond(avg, error, std, ntot, i):
-                del avg, std, i
+                # return i < 3
                 return znp.logical_and(error > tol, ntot < max_draws)
 
-            # binding the variables to the function
-            def body_integrate(avg, error, std, ntot, i, n_samples=n_samples, upper=upper, lower=lower, space=space):
+            def body_integrate(avg, error, std, ntot, i):
                 ntot_old = ntot
                 ntot += n_samples
                 if partial:
@@ -300,7 +304,9 @@ def mc_integrate(
                         dtype=dtype,
                         randomized=False,
                     )
-                samples = samples_normed * (upper - lower) + lower  # samples is [0, 1], stretch it
+                samples = (
+                    samples_normed * (upper - lower) + lower
+                )  # samples is [0, 1], stretch it
                 if partial:  # TODO(Mayou36): shape of partial integral?
                     data_obs = x.obs
                     new_obs = []
@@ -317,10 +323,14 @@ def mc_integrate(
                             index_samples += 1
                         else:
                             new_obs.append(data_obs[index_values])
-                            value_list.append(znp.expand_dims(xval[:, index_values], axis=1))
+                            value_list.append(
+                                znp.expand_dims(xval[:, index_values], axis=1)
+                            )
                             index_values += 1
                     value_list = [tf.cast(val, dtype=dtype) for val in value_list]
-                    xval = PartialIntegralSampleData(sample=value_list, space=Space(obs=new_obs))
+                    xval = PartialIntegralSampleData(
+                        sample=value_list, space=Space(obs=new_obs)
+                    )
                 else:
                     xval = samples
                 # convert rnd samples with value to feedable vector
@@ -331,7 +341,9 @@ def mc_integrate(
                 if partial:
                     avg = znp.mean(y, axis=reduce_axis)
                 else:
-                    avg = avg / (ifloat + 1.0) * ifloat + znp.mean(y, axis=reduce_axis) / (ifloat + 1.0)
+                    avg = avg / (ifloat + 1.0) * ifloat + znp.mean(
+                        y, axis=reduce_axis
+                    ) / (ifloat + 1.0)
                 std = std / (ifloat + 1.0) * ifloat + znp.std(y) / (ifloat + 1.0)
                 ntot_float = znp.asarray(ntot, dtype=znp.float64)
 
@@ -342,7 +354,9 @@ def mc_integrate(
                 # we use the MC error as an upper bound as QMC is better/equal to MC (for our cases).
                 error_sobol = std * znp.log(ntot_float) ** n_axes / ntot_float
                 error_random = std / znp.sqrt(ntot_float)
-                error = znp.minimum(error_sobol, error_random) * 0.1  # heuristic factor from using QMC
+                error = (
+                    znp.minimum(error_sobol, error_random) * 0.1
+                )  # heuristic factor from using QMC
                 return avg, error, std, ntot, i + 1
 
             avg, error, std, ntot, i = [
@@ -367,7 +381,7 @@ def mc_integrate(
             # TODO: importance sampling?
             # avg = tfb.monte_carlo.expectation_importance_sampler(f=func, samples=value,axis=reduce_axis)
 
-            def print_none_return(error=error):
+            def print_none_return():
                 from zfit import settings
 
                 if settings.get_verbosity() >= 0:
@@ -386,10 +400,13 @@ def mc_integrate(
                         " https://github.com/zfit/zfit/issues/new/choose"
                         "To suppress this warning, use zfit.settings.set_verbosity(-1).",
                     )
+                return
 
             if not vectorizable:
                 tf.cond(error > tol, print_none_return, lambda: None)
-        integral = avg * tf.cast(z.convert_to_tensor(space.rect_area()), dtype=avg.dtype)
+        integral = avg * tf.cast(
+            z.convert_to_tensor(space.rect_area()), dtype=avg.dtype
+        )
         integrals.append(integral)
     return z.reduce_sum(integrals, axis=0)
     # return z.to_real(integral, dtype=dtype)
@@ -397,8 +414,9 @@ def mc_integrate(
 
 # TODO(Mayou36): Make more flexible for sampling
 # @z.function
-def normalization_nograd(func, n_axes, batch_size, num_batches, dtype, space, x=None, shape_after=()):
-    del x  # unused
+def normalization_nograd(
+    func, n_axes, batch_size, num_batches, dtype, space, x=None, shape_after=()
+):
     upper, lower = space.rect_limits
     lower = z.convert_to_tensor(lower, dtype=dtype)
     upper = z.convert_to_tensor(upper, dtype=dtype)
@@ -433,8 +451,7 @@ def normalization_nograd(func, n_axes, batch_size, num_batches, dtype, space, x=
             tf.print(batch_num + 1)
         return batch_num + 1, mean + err_weight * (batch_mean - mean)
 
-    def cond(batch_num, _):
-        return batch_num < num_batches
+    cond = lambda batch_num, _: batch_num < num_batches
 
     initial_mean = tf.constant(0, shape=shape_after, dtype=dtype)
     initial_body_args = (0, initial_mean)
@@ -451,7 +468,9 @@ def normalization_nograd(func, n_axes, batch_size, num_batches, dtype, space, x=
 
 
 # @z.function
-def normalization_chunked(func, n_axes, batch_size, num_batches, dtype, space, x=None, shape_after=()):
+def normalization_chunked(
+    func, n_axes, batch_size, num_batches, dtype, space, x=None, shape_after=()
+):
     x_is_none = x is None
 
     @tf.custom_gradient
@@ -496,14 +515,15 @@ def normalization_chunked(func, n_axes, batch_size, num_batches, dtype, space, x
 def chunked_average(func, x, num_batches, batch_size, space, mc_sampler):
     lower, upper = space.limits
 
-    fake_resource_var = tf.Variable("fake_hack_ResVar_for_custom_gradient", initializer=z.constant(4242.0))
+    fake_resource_var = tf.Variable(
+        "fake_hack_ResVar_for_custom_gradient", initializer=z.constant(4242.0)
+    )
     fake_x = z.constant(42.0) * fake_resource_var
 
     @tf.custom_gradient
-    def dummy_func(fake_x):  # to make working with custom_gradient  # noqa: ARG001
+    def dummy_func(fake_x):  # to make working with custom_gradient
         if x is not None:
-            msg = "partial not yet implemented"
-            raise WorkInProgressError(msg)
+            raise WorkInProgressError("partial not yet implemented")
 
         def body(batch_num, mean):
             if mc_sampler == tfp.mcmc.sample_halton_sequence:
@@ -535,8 +555,7 @@ def chunked_average(func, x, num_batches, batch_size, space, mc_sampler):
 
             return batch_num + 1, mean + err_weight * (batch_mean - mean)
 
-        def cond(batch_num, _):
-            return batch_num < num_batches
+        cond = lambda batch_num, _: batch_num < num_batches
 
         initial_mean = tf.convert_to_tensor(value=0, dtype=ztypes.float)
         _, final_mean = tf.while_loop(
@@ -550,15 +569,19 @@ def chunked_average(func, x, num_batches, batch_size, space, mc_sampler):
         )
 
         def dummy_grad_with_var(dy, variables=None):
-            msg = "Who called me? Mayou36"
-            raise WorkInProgressError(msg)
+            raise WorkInProgressError("Who called me? Mayou36")
             if variables is None:
-                msg = "Is this needed? Why? It's not a NN. Please make an issue."
-                raise WorkInProgressError(msg)
+                raise WorkInProgressError(
+                    "Is this needed? Why? It's not a NN. Please make an issue."
+                )
 
             def dummy_grad_func(x):
                 values = func(x)
-                return tf.gradients(ys=values, xs=variables, grad_ys=dy) if variables else None
+                if variables:
+                    gradients = tf.gradients(ys=values, xs=variables, grad_ys=dy)
+                else:
+                    gradients = None
+                return gradients
 
             return chunked_average(
                 func=dummy_grad_func,
@@ -593,8 +616,7 @@ class PartialIntegralSampleData(BaseDimensional, ZfitUnbinnedData):
             space:
         """
         if not isinstance(sample, list):
-            msg = "Sample has to be a list of tf.Tensors"
-            raise TypeError(msg)
+            raise TypeError("Sample has to be a list of tf.Tensors")
         super().__init__()
         self._space = space
         self._sample = sample
@@ -602,8 +624,9 @@ class PartialIntegralSampleData(BaseDimensional, ZfitUnbinnedData):
 
     @property
     def weights(self):
-        msg = "Weights for PartialIntegralsampleData are not implemented. Are they needed?"
-        raise NotImplementedError(msg)
+        raise NotImplementedError(
+            "Weights for PartialIntegralsampleData are not implemented. Are they needed?"
+        )
 
     @property
     def space(self) -> zfit.Space:
@@ -611,11 +634,12 @@ class PartialIntegralSampleData(BaseDimensional, ZfitUnbinnedData):
 
     def sort_by_axes(self, axes, allow_superset: bool = True):
         axes = convert_to_container(axes)
-        new_reorder_list = [self._reorder_indices_list[self.space.axes.index(ax)] for ax in axes]
-        value = self.space.with_axes(axes=axes, allow_superset=allow_superset), new_reorder_list
+        new_reorder_list = [
+            self._reorder_indices_list[self.space.axes.index(ax)] for ax in axes
+        ]
+        value = self.space.with_axes(axes=axes), new_reorder_list
 
-        def getter():
-            return self.space, self._reorder_indices_list
+        getter = lambda: (self.space, self._reorder_indices_list)
 
         def setter(value):
             self._space, self._reorder_indices_list = value
@@ -624,20 +648,20 @@ class PartialIntegralSampleData(BaseDimensional, ZfitUnbinnedData):
 
     def sort_by_obs(self, obs, allow_superset: bool = True):
         obs = convert_to_container(obs)
-        new_reorder_list = [self._reorder_indices_list[self.space.obs.index(ob)] for ob in obs]
+        new_reorder_list = [
+            self._reorder_indices_list[self.space.obs.index(ob)] for ob in obs
+        ]
 
-        value = self.space.with_obs(obs=obs, allow_superset=allow_superset), new_reorder_list
+        value = self.space.with_obs(obs=obs), new_reorder_list
 
-        def getter():
-            return self.space, self._reorder_indices_list
+        getter = lambda: (self.space, self._reorder_indices_list)
 
         def setter(value):
             self._space, self._reorder_indices_list = value
 
         return TemporarilySet(value=value, getter=getter, setter=setter)
 
-    def value(self, obs: list[str] | None = None):
-        del obs  # not implemented
+    def value(self, obs: list[str] = None):
         return self
 
     def unstack_x(self, always_list=False):
@@ -656,7 +680,9 @@ class AnalyticIntegral:
         super().__init__(*args, **kwargs)
         self._integrals = collections.defaultdict(dict)
 
-    def get_max_axes(self, limits: ztyping.LimitsType) -> tuple[int]:
+    def get_max_axes(
+        self, limits: ztyping.LimitsType, axes: ztyping.AxesTypeInput = None
+    ) -> tuple[int]:
         """Return the maximal available axes to integrate over analytically for given limits.
 
         Args:
@@ -667,27 +693,40 @@ class AnalyticIntegral:
             Tuple[int]:
         """
         if not isinstance(limits, ZfitSpace):
-            msg = "`limits` have to be a `ZfitSpace`"
-            raise TypeError(msg)
+            raise TypeError("`limits` have to be a `ZfitSpace`")
         # limits = convert_to_space(limits=limits)
 
-        return self._get_max_axes_limits(limits, out_of_axes=limits.axes)[0]  # only axes
+        return self._get_max_axes_limits(limits, out_of_axes=limits.axes)[
+            0
+        ]  # only axes
 
-    def _get_max_axes_limits(self, limits, out_of_axes):  # TODO: automatic caching? but most probably not relevant
+    def _get_max_axes_limits(
+        self, limits, out_of_axes
+    ):  # TODO: automatic caching? but most probably not relevant
         if out_of_axes:
             out_of_axes = frozenset(out_of_axes)
-            implemented_axes = frozenset(d for d in self._integrals if d <= out_of_axes)
+            implemented_axes = frozenset(
+                d for d in self._integrals.keys() if d <= out_of_axes
+            )
         else:
             implemented_axes = set(self._integrals.keys())
-        implemented_axes = sorted(implemented_axes, key=len, reverse=True)  # iter through biggest first
+        implemented_axes = sorted(
+            implemented_axes, key=len, reverse=True
+        )  # iter through biggest first
         for axes in implemented_axes:
-            limits_matched = [lim for lim, integ in self._integrals[axes].items() if integ.limits >= limits]
+            limits_matched = [
+                lim
+                for lim, integ in self._integrals[axes].items()
+                if integ.limits >= limits
+            ]
 
             if limits_matched:  # one or more integrals available
                 return tuple(sorted(axes)), limits_matched
         return (), ()  # no integral available for this axes
 
-    def get_max_integral(self, limits: ztyping.LimitsType, axes: ztyping.AxesTypeInput = None) -> None | Integral:
+    def get_max_integral(
+        self, limits: ztyping.LimitsType, axes: ztyping.AxesTypeInput = None
+    ) -> None | Integral:
         """Return the integral over the ``limits`` with ``axes`` (or a subset of them).
 
         Args:
@@ -702,7 +741,7 @@ class AnalyticIntegral:
         axes, limits = self._get_max_axes_limits(limits=limits, out_of_axes=axes)
         axes = frozenset(axes)
         integrals = [self._integrals[axes][lim] for lim in limits]
-        return max(integrals, key=lambda lim: lim.priority, default=None)
+        return max(integrals, key=lambda l: l.priority, default=None)
 
     def register(
         self,
@@ -735,14 +774,17 @@ class AnalyticIntegral:
         #     limits = convert_to_space(axes=self.axes, limits=limits)
         # limits = limits.get_limits()
         if not isinstance(limits, ZfitSpace):
-            msg = "Limits for registering an integral have to be `ZfitSpace`"
-            raise TypeError(msg)
+            raise TypeError("Limits for registering an integral have to be `ZfitSpace`")
         axes = frozenset(limits.axes)
 
         # add catching everything unsupported:
-        func = supports(norm=supports_norm, multiple_limits=supports_multiple_limits)(func)
+        func = supports(norm=supports_norm, multiple_limits=supports_multiple_limits)(
+            func
+        )
         limits = limits.with_axes(axes=tuple(sorted(limits.axes)))
-        self._integrals[axes][limits] = Integral(func=func, limits=limits, priority=priority)  # TODO improve with
+        self._integrals[axes][limits] = Integral(
+            func=func, limits=limits, priority=priority
+        )  # TODO improve with
         # database-like access
 
     def integrate(
@@ -752,7 +794,7 @@ class AnalyticIntegral:
         axes: ztyping.AxesTypeInput = None,
         norm: ztyping.LimitsType = None,
         model: ZfitModel = None,
-        params: dict | None = None,
+        params: dict = None,
     ) -> ztyping.XType:
         """Integrate analytically over the axes if available.
 
@@ -777,24 +819,31 @@ class AnalyticIntegral:
         integral_holder = self._integrals.get(axes)
         # limits = convert_to_space(axes=self.axes, limits=limits)
         if integral_holder is None:
-            msg = f"Analytic integral is not available for axes {axes}"
-            raise AnalyticIntegralNotImplemented(msg)
+            raise AnalyticIntegralNotImplemented(
+                f"Analytic integral is not available for axes {axes}"
+            )
         integral_fn = self.get_max_integral(limits=limits)
         if integral_fn is None:
-            msg = f"Integral is available for axes {axes}, but not for limits {limits}"
-            raise AnalyticIntegralNotImplemented(msg)
+            raise AnalyticIntegralNotImplemented(
+                f"Integral is available for axes {axes}, but not for limits {limits}"
+            )
 
         with suppress(TypeError):
-            return integral_fn(x=x, limits=limits, norm=norm, params=params, model=model)
+            return integral_fn(
+                x=x, limits=limits, norm=norm, params=params, model=model
+            )
         with suppress(TypeError):
             return integral_fn(limits=limits, norm=norm, params=params, model=model)
 
         with suppress(TypeError):
-            return integral_fn(x=x, limits=limits, norm_range=norm, params=params, model=model)
+            return integral_fn(
+                x=x, limits=limits, norm_range=norm, params=params, model=model
+            )
         with suppress(TypeError):
-            return integral_fn(limits=limits, norm_range=norm, params=params, model=model)
-        msg = "Could not integrate, unknown reason. Please fill a bug report."
-        raise AssertionError(msg)
+            return integral_fn(
+                limits=limits, norm_range=norm, params=params, model=model
+            )
+        assert False, "Could not integrate, unknown reason. Please fill a bug report."
 
         # with suppress(TypeError):
         #     return integral_fn(x=x, limits=limits, norm=norm, params=params, model=model)

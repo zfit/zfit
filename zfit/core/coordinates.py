@@ -1,4 +1,4 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2023 zfit
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ import numpy as np
 import tensorflow as tf
 
 from zfit import z
-
+from .interfaces import ZfitData, ZfitDimensional, ZfitOrderableDimensional, ZfitSpace
 from ..util import ztyping
 from ..util.container import convert_to_container
 from ..util.exception import (
@@ -17,7 +17,6 @@ from ..util.exception import (
     ObsIncompatibleError,
     OverdefinedError,
 )
-from .interfaces import ZfitData, ZfitDimensional, ZfitOrderableDimensional, ZfitSpace
 
 
 class Coordinates(ZfitOrderableDimensional):
@@ -31,35 +30,35 @@ class Coordinates(ZfitOrderableDimensional):
     def _check_convert_obs_axes(obs, axes):
         if isinstance(obs, ZfitOrderableDimensional):
             if axes is not None:
-                msg = (
+                raise OverdefinedError(
                     f"Cannot use {obs}, a"
                     " ZfitOrderableDimensional as obs with axes not None"
                     " (currently, please open an issue if desired)"
                 )
-                raise OverdefinedError(msg)
             coord = obs
             return coord.obs, coord.axes, coord.n_obs
         obs = convert_to_obs_str(obs, container=tuple)
         axes = convert_to_axes(axes, container=tuple)
         if obs is None:
             if axes is None:
-                msg = "Neither obs nor axes specified"
-                raise CoordinatesUnderdefinedError(msg)
-            if any(not isinstance(ax, int) for ax in axes):
-                msg = f"Axes have to be int. Currently: {axes}"
-                raise ValueError(msg)
+                raise CoordinatesUnderdefinedError("Neither obs nor axes specified")
+            else:
+                if any(not isinstance(ax, int) for ax in axes):
+                    raise ValueError(f"Axes have to be int. Currently: {axes}")
             n_obs = len(axes)
         else:
             if any(not isinstance(ob, str) for ob in obs):
-                msg = f"Observables have to be strings. Currently: {obs}"
-                raise ValueError(msg)
+                raise ValueError(f"Observables have to be strings. Currently: {obs}")
             n_obs = len(obs)
-            if axes is not None and len(obs) != len(axes):
-                msg = "obs and axes do not have the same length."
-                raise CoordinatesIncompatibleError(msg)
+            if axes is not None:
+                if not len(obs) == len(axes):
+                    raise CoordinatesIncompatibleError(
+                        "obs and axes do not have the same length."
+                    )
         if not (obs or axes):
-            msg = f"Neither obs {obs} nor axes {axes} are defined."
-            raise CoordinatesUnderdefinedError(msg)
+            raise CoordinatesUnderdefinedError(
+                f"Neither obs {obs} nor axes {axes} are defined."
+            )
         return obs, axes, n_obs
 
     @property
@@ -124,8 +123,9 @@ class Coordinates(ZfitOrderableDimensional):
         obs = convert_to_obs_str(obs)
         if obs is None:  # drop obs, check if there are axes
             if self.axes is None:
-                msg = "cannot remove obs (using None) for a Space without axes"
-                raise AxesIncompatibleError(msg)
+                raise AxesIncompatibleError(
+                    "cannot remove obs (using None) for a Space without axes"
+                )
             new_coords = type(self)(obs=obs, axes=self.axes)
         else:
             obs = _convert_obs_to_str(obs)
@@ -133,17 +133,21 @@ class Coordinates(ZfitOrderableDimensional):
                 new_coords = type(self)(obs=obs, axes=self.axes)
             else:
                 if not set(obs).intersection(self.obs):
-                    msg = f"The requested obs {obs} are not compatible with the current obs " f"{self.obs}"
-                    raise ObsIncompatibleError(msg)
+                    raise ObsIncompatibleError(
+                        f"The requested obs {obs} are not compatible with the current obs "
+                        f"{self.obs}"
+                    )
 
-                if frozenset(obs) != frozenset(self.obs):
+                if not frozenset(obs) == frozenset(self.obs):
                     if not allow_superset and frozenset(obs) - frozenset(self.obs):
-                        msg = f"Obs {obs} are a superset of {self.obs}, not allowed according to flag."
-                        raise ObsIncompatibleError(msg)
+                        raise ObsIncompatibleError(
+                            f"Obs {obs} are a superset of {self.obs}, not allowed according to flag."
+                        )
 
                     if not allow_subset and set(self.obs) - set(obs):
-                        msg = f"Obs {obs} are a subset of {self.obs}, not allowed according to flag."
-                        raise ObsIncompatibleError(msg)
+                        raise ObsIncompatibleError(
+                            f"Obs {obs} are a subset of {self.obs}, not allowed according to flag."
+                        )
                 new_indices = self.get_reorder_indices(obs=obs)
                 new_obs = self._reorder_obs(indices=new_indices)
                 new_axes = self._reorder_axes(indices=new_indices)
@@ -193,28 +197,34 @@ class Coordinates(ZfitOrderableDimensional):
         axes = convert_to_axes(axes)
         if axes is None:  # drop axes
             if self.obs is None:
-                msg = "Cannot remove axes (using None) for a Space without obs"
-                raise CoordinatesUnderdefinedError(msg)
+                raise CoordinatesUnderdefinedError(
+                    "Cannot remove axes (using None) for a Space without obs"
+                )
             new_coords = type(self)(obs=self.obs, axes=axes)
         else:
             axes = _convert_axes_to_int(axes)
-            if not self.axes and len(axes) != len(self.obs):
-                msg = f"Trying to set axes {axes} to object with obs {self.obs}"
-                raise AxesIncompatibleError(msg)
+            if not self.axes and not len(axes) == len(self.obs):
+                raise AxesIncompatibleError(
+                    f"Trying to set axes {axes} to object with obs {self.obs}"
+                )
             if self.axes is None:
                 new_coords = type(self)(obs=self.obs, axes=axes)
             else:
                 if not set(axes).intersection(self.axes):
-                    msg = f"The requested axes {axes} are not compatible with the current axes " f"{self.axes}"
-                    raise AxesIncompatibleError(msg)
-                if frozenset(axes) != frozenset(self.axes):
+                    raise AxesIncompatibleError(
+                        f"The requested axes {axes} are not compatible with the current axes "
+                        f"{self.axes}"
+                    )
+                if not frozenset(axes) == frozenset(self.axes):
                     if not allow_superset and set(axes) - set(self.axes):
-                        msg = f"Axes {axes} are a superset of {self.axes}, not allowed according to flag."
-                        raise AxesIncompatibleError(msg)
+                        raise AxesIncompatibleError(
+                            f"Axes {axes} are a superset of {self.axes}, not allowed according to flag."
+                        )
 
                     if not allow_subset and set(self.axes) - set(axes):
-                        msg = f"Axes {axes} are a subset of {self.axes}, not allowed according to flag."
-                        raise AxesIncompatibleError(msg)
+                        raise AxesIncompatibleError(
+                            f"Axes {axes} are a subset of {self.axes}, not allowed according to flag."
+                        )
                 new_indices = self.get_reorder_indices(axes=axes)
                 new_obs = self._reorder_obs(indices=new_indices)
                 new_axes = self._reorder_axes(indices=new_indices)
@@ -249,9 +259,11 @@ class Coordinates(ZfitOrderableDimensional):
             AxesIncompatibleError: if the axes are already set and ``overwrite`` is False.
         """
         if self.axes and not overwrite:
-            msg = "overwrite is not allowed but axes are already set."
-            raise AxesIncompatibleError(msg)
-        return type(self)(obs=self.obs, axes=range(self.n_obs))
+            raise AxesIncompatibleError(
+                "overwrite is not allowed but axes are already set."
+            )
+        new_coords = type(self)(obs=self.obs, axes=range(self.n_obs))
+        return new_coords
 
     def _reorder_obs(self, indices: tuple[int]) -> ztyping.ObsTypeReturn:
         obs = self.obs
@@ -265,7 +277,9 @@ class Coordinates(ZfitOrderableDimensional):
             axes = tuple(axes[i] for i in indices)
         return axes
 
-    def get_reorder_indices(self, obs: ztyping.ObsTypeInput = None, axes: ztyping.AxesTypeInput = None) -> tuple[int]:
+    def get_reorder_indices(
+        self, obs: ztyping.ObsTypeInput = None, axes: ztyping.AxesTypeInput = None
+    ) -> tuple[int]:
         """Indices that would order the instances obs as ``obs`` respectively the instances axes as ``axes``.
 
         Args:
@@ -286,15 +300,17 @@ class Coordinates(ZfitOrderableDimensional):
         obs_is_defined = self.obs is not None and not obs_none
         axes_is_defined = self.axes is not None and not axes_none
         if not (obs_is_defined or axes_is_defined):
-            msg = "Neither the `obs` (argument and on instance) nor `axes` (argument and on instance) are defined."
-            raise CoordinatesUnderdefinedError(msg)
+            raise CoordinatesUnderdefinedError(
+                "Neither the `obs` (argument and on instance) nor `axes` (argument and on instance) are defined."
+            )
 
         if obs_is_defined:
             old, new = self.obs, [o for o in obs if o in self.obs]
         else:
             old, new = self.axes, [a for a in axes if a in self.axes]
 
-        return _reorder_indices(old=old, new=new)
+        new_indices = _reorder_indices(old=old, new=new)
+        return new_indices
 
     def reorder_x(
         self,
@@ -334,8 +350,9 @@ class Coordinates(ZfitOrderableDimensional):
         x_reorder = x_obs is not None or x_axes is not None
         func_reorder = func_obs is not None or func_axes is not None
         if not (x_reorder ^ func_reorder):
-            msg = "Either specify `x_obs/axes` or `func_obs/axes`, not both."
-            raise ValueError(msg)
+            raise ValueError(
+                "Either specify `x_obs/axes` or `func_obs/axes`, not both."
+            )
         obs_defined = x_obs is not None or func_obs is not None
         axes_defined = x_axes is not None or func_axes is not None
         if obs_defined and self.obs:
@@ -346,8 +363,7 @@ class Coordinates(ZfitOrderableDimensional):
                 coord_new = func_obs
                 coord_old = self.obs
             else:
-                msg = "bug, should never be reached"
-                raise AssertionError(msg)
+                assert False, "bug, should never be reached"
 
         elif axes_defined and self.axes:
             if x_reorder:
@@ -357,17 +373,17 @@ class Coordinates(ZfitOrderableDimensional):
                 coord_new = func_axes
                 coord_old = self.axes
             else:
-                msg = "bug, should never be reached"
-                raise AssertionError(msg)
+                assert False, "bug, should never be reached"
         else:
-            msg = (
+            raise ValueError(
                 "Obs and self.obs or axes and self. axes not properly defined. Can only reorder on defined"
                 " coordinates."
             )
-            raise ValueError(msg)
 
-        if isinstance(x, ZfitData) and not (coord_old == x.obs if obs_defined else x.axes):
-            msg = (
+        if isinstance(x, ZfitData) and not (
+            coord_old == x.obs if obs_defined else x.axes
+        ):
+            raise IntentionAmbiguousError(
                 "`reorder_x` is supposed to assume that the obs/axes of the given `x` are"
                 " either the one from the Space itself or the ones given. x is a ZfitData"
                 f" object that has obs/axes themselves {x.obs if obs_defined else x.axes}"
@@ -375,10 +391,10 @@ class Coordinates(ZfitOrderableDimensional):
                 f" x.value() to get the pure tensor out or rather sort Data accordingly"
                 f" (sort_by...)."
             )
-            raise IntentionAmbiguousError(msg)
         new_indices = _reorder_indices(old=coord_old, new=coord_new)
 
-        return z.unstable.gather(x, indices=new_indices, axis=-1)
+        x = z.unstable.gather(x, indices=new_indices, axis=-1)
+        return x
 
     def __eq__(self, other):
         if not isinstance(other, Coordinates):
@@ -390,7 +406,8 @@ class Coordinates(ZfitOrderableDimensional):
 
         if self.axes is not None and other.axes is not None:
             axes_equal = frozenset(self.axes) == frozenset(other.axes)
-        return obs_equal or axes_equal
+        equal = obs_equal or axes_equal
+        return equal
 
     def __hash__(self):
         return 42  # always check with equal...  maybe change in future, use dict that checks for different things.
@@ -400,15 +417,24 @@ class Coordinates(ZfitOrderableDimensional):
 
 
 def _convert_axes_to_int(axes):
-    return axes.axes if isinstance(axes, ZfitSpace) else convert_to_container(axes, container=tuple)
+    if isinstance(axes, ZfitSpace):
+        axes = axes.axes
+    else:
+        axes = convert_to_container(axes, container=tuple)
+    return axes
 
 
 def _convert_obs_to_str(obs):
-    return obs.obs if isinstance(obs, ZfitSpace) else convert_to_container(obs, container=tuple)
+    if isinstance(obs, ZfitSpace):
+        obs = obs.obs
+    else:
+        obs = convert_to_container(obs, container=tuple)
+    return obs
 
 
 def _reorder_indices(old: list | tuple, new: list | tuple) -> tuple[int]:
-    return tuple(old.index(o) for o in new)
+    new_indices = tuple(old.index(o) for o in new)
+    return new_indices
 
 
 def convert_to_axes(axes, container=tuple):
@@ -427,9 +453,9 @@ def convert_to_axes(axes, container=tuple):
         new_axes = []
         for axis in axes:
             if not isinstance(axis, int):
-                msg = f"Axes have to be int, not {axis} as in {axes}"
-                raise TypeError(msg)
-            new_axes.append(axis)
+                raise TypeError(f"Axes have to be int, not {axis} as in {axes}")
+            else:
+                new_axes.append(axis)
     return container(new_axes)
 
 
@@ -449,7 +475,7 @@ def convert_to_obs_str(obs, container=tuple):
         new_obs = []
         for ob in obs:
             if not isinstance(ob, str):
-                msg = f"Observables have to be string, not {ob} as in {obs}"
-                raise TypeError(msg)
-            new_obs.append(ob)
+                raise TypeError(f"Observables have to be string, not {ob} as in {obs}")
+            else:
+                new_obs.append(ob)
     return container(new_obs)

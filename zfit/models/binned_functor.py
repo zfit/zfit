@@ -1,9 +1,10 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2023 zfit
 
 from __future__ import annotations
 
 from collections.abc import Iterable
 
+from .basefunctor import FunctorMixin, _preprocess_init_sum
 from .. import z
 from ..core.binnedpdf import BaseBinnedPDFV1
 from ..core.interfaces import ZfitPDF
@@ -13,7 +14,6 @@ from ..util.container import convert_to_container
 from ..util.deprecation import deprecated_norm_range
 from ..util.exception import NormNotImplemented
 from ..z import numpy as znp
-from .basefunctor import FunctorMixin, _preprocess_init_sum
 
 
 class BaseBinnedFunctorPDF(FunctorMixin, BaseBinnedPDFV1):
@@ -51,7 +51,9 @@ class BinnedSumPDF(BaseBinnedFunctorPDF):
         self._original_fracs = fracs_cleaned
 
         extended = sum_yields if all_extended else None
-        super().__init__(models=pdfs, obs=obs, params=params, name=name, extended=extended)
+        super().__init__(
+            models=pdfs, obs=obs, params=params, name=name, extended=extended
+        )
 
     # def _unnormalized_pdf(self, x):
     #     models = self.models
@@ -72,7 +74,7 @@ class BinnedSumPDF(BaseBinnedFunctorPDF):
         return z.convert_to_tensor(prob)
 
     @deprecated_norm_range
-    def _ext_pdf(self, x, norm):
+    def _ext_pdf(self, x, norm, *, norm_range=None):
         equal_norm_ranges = len(set([pdf.norm for pdf in self.pdfs] + [norm])) == 1
         if norm and not equal_norm_ranges:
             raise NormNotImplemented
@@ -83,14 +85,16 @@ class BinnedSumPDF(BaseBinnedFunctorPDF):
         equal_norm_ranges = len(set([pdf.norm for pdf in self.pdfs] + [norm])) == 1
         if norm and not equal_norm_ranges:
             raise NormNotImplemented
-        return znp.sum([model.counts(x) for model in self.models], axis=0)
+        prob = znp.sum([model.counts(x) for model in self.models], axis=0)
+        return prob
 
     def _rel_counts(self, x, norm=None):
         equal_norm_ranges = len(set([pdf.norm for pdf in self.pdfs] + [norm])) == 1
         if norm and not equal_norm_ranges:
             raise NormNotImplemented
         fracs = self.params.values()
-        return znp.sum(
+        prob = znp.sum(
             [model.rel_counts(x) * frac for model, frac in zip(self.models, fracs)],
             axis=0,
         )
+        return prob

@@ -1,4 +1,4 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2022 zfit
 
 from __future__ import annotations
 
@@ -6,10 +6,9 @@ import collections
 from collections.abc import Mapping
 
 import tensorflow_probability as tfp
-from zfit_interface.variables import ZfitVar
-
-from zfit.core.interfaces import ZfitData, ZfitParameter, ZfitSpace
+from zfit.core.interfaces import ZfitParameter, ZfitSpace, ZfitData
 from zfit.util.container import convert_to_container
+from zfit_interface.variables import ZfitVar
 
 
 @tfp.experimental.auto_composite_tensor()
@@ -37,8 +36,9 @@ class ValueHolder(tfp.experimental.AutoCompositeTensor):
 
     def get_var(self, name):
         if name not in self._varmap:
-            msg = f"{name} is not a valid name. Has to be one of {tuple(self._varmap.keys())}"
-            raise ValueError(msg)
+            raise ValueError(
+                f"{name} is not a valid name. Has to be one of {tuple(self._varmap.keys())}"
+            )
         varname = self._varmap["name"]
         for arg in self.args:
             if isinstance(arg, ZfitVar):
@@ -48,18 +48,18 @@ class ValueHolder(tfp.experimental.AutoCompositeTensor):
                 if varname in arg.obs:
                     return arg[varname]
             else:
-                msg = "We missed something somewhere. Please report this, it's a bug."
-                raise AssertionError(msg)
-        return None
+                assert (
+                    False
+                ), "We missed something somewhere. Please report this, it's a bug."
 
     def _check_input_variables(self, variables):
         if not isinstance(variables, collections.abc.Mapping):
-            msg = f"variables has to be a Mapping, not {variables}"
-            raise TypeError(msg)
+            raise TypeError(f"variables has to be a Mapping, not {variables}")
         not_var = {var for var in variables.values() if not isinstance(var, ZfitVar)}
         if not_var:
-            msg = f"The following values in {variables} are not ZfitVar: {not_var}"
-            raise TypeError(msg)
+            raise TypeError(
+                f"The following values in {variables} are not ZfitVar: {not_var}"
+            )
 
         return variables
 
@@ -67,8 +67,7 @@ class ValueHolder(tfp.experimental.AutoCompositeTensor):
         try:
             index = self.names.index[item]
         except KeyError as error:
-            msg = f"{self} does not contain {item}."
-            raise KeyError(msg) from error
+            raise KeyError(f"{self} does not contain {item}.") from error
         return self.args[index]
 
     def __contains__(self, item):
@@ -76,7 +75,9 @@ class ValueHolder(tfp.experimental.AutoCompositeTensor):
 
     @property
     def params(self):
-        return {k: v for k, v in zip(self.names, self.args) if isinstance(v, ZfitParameter)}
+        return {
+            k: v for k, v in zip(self.names, self.args) if isinstance(v, ZfitParameter)
+        }
 
     @property
     def space(self):

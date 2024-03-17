@@ -9,13 +9,14 @@ from .serialmixin import SerializableMixin
 if TYPE_CHECKING:
     import zfit
 
+from collections.abc import Iterable, Mapping, Callable
+
 import functools
 import inspect
 import itertools
 import warnings
 from abc import abstractmethod
 from collections import defaultdict
-from collections.abc import Callable, Iterable, Mapping
 from contextlib import suppress
 
 import numpy as np
@@ -24,7 +25,21 @@ from tensorflow.python.util.deprecation import deprecated
 
 import zfit
 import zfit.z.numpy as znp
-
+from .baseobject import BaseObject
+from .coordinates import (
+    Coordinates,
+    _convert_obs_to_str,
+    convert_to_axes,
+    convert_to_obs_str,
+)
+from .dimension import common_axes, common_obs, limits_overlap
+from .interfaces import (
+    ZfitLimit,
+    ZfitOrderableDimensional,
+    ZfitSpace,
+    ZfitPDF,
+    ZfitData,
+)
 from .. import z
 from .._variables.axis import Binnings, RegularBinning
 from ..settings import ztypes
@@ -45,28 +60,13 @@ from ..util.exception import (
     LimitsNotSpecifiedError,
     LimitsUnderdefinedError,
     MultipleLimitsNotImplemented,
-    NormNotImplemented,
     NumberOfEventsIncompatibleError,
     ObsIncompatibleError,
     ObsNotSpecifiedError,
     OverdefinedError,
     ShapeIncompatibleError,
     SpaceIncompatibleError,
-)
-from .baseobject import BaseObject
-from .coordinates import (
-    Coordinates,
-    _convert_obs_to_str,
-    convert_to_axes,
-    convert_to_obs_str,
-)
-from .dimension import common_axes, common_obs, limits_overlap
-from .interfaces import (
-    ZfitData,
-    ZfitLimit,
-    ZfitOrderableDimensional,
-    ZfitPDF,
-    ZfitSpace,
+    NormNotImplemented,
 )
 
 
@@ -78,7 +78,7 @@ class LimitRangeDefinition:
 class Any(LimitRangeDefinition):
     _singleton_instance = None
 
-    def __new__(cls, *_, **__):
+    def __new__(cls, *args, **kwargs):
         instance = cls._singleton_instance
         if instance is None:
             instance = super().__new__(cls)
@@ -126,13 +126,12 @@ def fail_not_rect(func):
     def wrapped_func(*args, **kwargs):
         self = args[0]
         if self.has_limits and not self.has_rect_limits:
-            msg = (
+            raise RuntimeError(
                 f"Cannot call {func} as the space {self} has functional,"
                 f" not rectangular limits. Use `rect_*` functions to obtain the"
                 f" rectangular limits/area or `inside`/`filter` to test if values are"
                 f" inside of the space."
             )
-            raise RuntimeError(msg)
 
         return func(*args, **kwargs)
 
@@ -143,28 +142,31 @@ def fail_not_rect(func):
 def calculate_rect_area(rect_limits):
     lower, upper = rect_limits
     diff = upper - lower
-    return z.unstable.reduce_prod(diff, axis=-1)
+    area = z.unstable.reduce_prod(diff, axis=-1)
+    return area
 
 
 @z.function(wraps="tensor", keepalive=True)
 def inside_rect_limits(x, rect_limits):
     if (ndims := x.get_shape().ndims) is not None and ndims <= 1:
-        msg = (
+        raise ValueError(
             "x has ndims <= 1, which is most probably not wanted. The default shape for array-like"
             " structures is (nevents, n_obs)."
         )
-        raise ValueError(msg)
     lower, upper = z.unstack_x(rect_limits, axis=0)
     lower = z.convert_to_tensor(lower)
     upper = z.convert_to_tensor(upper)
     below_upper = znp.all(znp.less_equal(x, upper), axis=-1)  # if all obs inside
     above_lower = znp.all(znp.greater_equal(x, lower), axis=-1)
-    return znp.logical_and(above_lower, below_upper)
+    inside = znp.logical_and(above_lower, below_upper)
+    return inside
 
 
 @z.function(wraps="tensor", keepalive=True)
 def filter_rect_limits(x, rect_limits, axis=None):
-    return tf.boolean_mask(tensor=x, mask=inside_rect_limits(x, rect_limits=rect_limits, axis=axis))
+    return tf.boolean_mask(
+        tensor=x, mask=inside_rect_limits(x, rect_limits=rect_limits, axis=axis)
+    )
 
 
 def convert_to_tensor_or_numpy(obj, dtype=ztypes.float):
@@ -181,25 +183,28 @@ def _sanitize_x_input(x, n_obs):
         x = x.value()
     x = z.convert_to_tensor(x)
     if not x.shape.ndims > 1 and n_obs > 1:
-        msg = (
+        raise ValueError(
             "x has ndims <= 1, which is most probably not wanted. The default shape for array-like"
             " structures is (nevents, n_obs)."
         )
-        raise ValueError(msg)
-    if x.shape.ndims <= 1 and n_obs == 1:
-        x = tf.broadcast_to(x, (1, 1)) if x.shape.ndims == 0 else znp.expand_dims(x, axis=-1)
+    elif x.shape.ndims <= 1 and n_obs == 1:
+        if x.shape.ndims == 0:
+            x = tf.broadcast_to(x, (1, 1))
+        else:
+            x = znp.expand_dims(x, axis=-1)
     if tf.get_static_value(x.shape[-1]) != n_obs:
-        msg = (
+        raise ShapeIncompatibleError(
             f"n_obs ({n_obs}) and the last dim of x (shape: {x.shape}) do not agree. Assuming x has shape (..., n_obs)"
         )
-        raise ShapeIncompatibleError(msg)
     return x
 
 
 def is_range_definition(limit):
     if isinstance(limit, LimitRangeDefinition):
         return True
-    elif (isinstance(limit, np.ndarray) and limit.dtype != object) or tf.is_tensor(limit):
+    elif (isinstance(limit, np.ndarray) and limit.dtype != object) or tf.is_tensor(
+        limit
+    ):
         return False
     try:
         return any(is_range_definition(lim) for lim in limit)
@@ -218,7 +223,7 @@ class Limit(
         self,
         limit_fn: ztyping.LimitsFuncTypeInput = None,
         rect_limits: ztyping.LimitsTypeInput = None,
-        n_obs: int | None = None,
+        n_obs: int = None,
     ):
         """Specify a limit with rectangular limits (and possiblty an arbitrary function).
 
@@ -238,7 +243,9 @@ class Limit(
             n_obs,
             is_rect,
             sublimits,
-        ) = self._check_convert_input_limits(limit_fn=limit_fn, rect_limits=rect_limits, n_obs=n_obs)
+        ) = self._check_convert_input_limits(
+            limit_fn=limit_fn, rect_limits=rect_limits, n_obs=n_obs
+        )
         self._limit_fn = limit_fn
         self._rect_limits = rect_limits
         self._n_obs = n_obs
@@ -247,12 +254,17 @@ class Limit(
 
     def _check_convert_input_limits(self, limit_fn, rect_limits, n_obs):
         if isinstance(limit_fn, ZfitLimit):
-            if not isinstance(limit_fn, Limit):  # because of the limit_fn, that is private. Maybe use `inside` instead?
-                msg = "If limits_fn is an instance of ZfitLimit, it has to be an instance of Limit (currently)"
-                raise TypeError(msg)
+            if not isinstance(
+                limit_fn, Limit
+            ):  # because of the limit_fn, that is private. Maybe use `inside` instead?
+                raise TypeError(
+                    "If limits_fn is an instance of ZfitLimit, it has to be an instance of Limit (currently)"
+                )
             if rect_limits is not None or n_obs != limit_fn.n_obs:
-                msg = "limits_fn is a ZfitLimit. rect_limits and n_obs must not be specified" "(or n_obs coincide)."
-                raise OverdefinedError(msg)
+                raise OverdefinedError(
+                    "limits_fn is a ZfitLimit. rect_limits and n_obs must not be specified"
+                    "(or n_obs coincide)."
+                )
             limit = limit_fn
 
             limit_fn = limit.limit_fn
@@ -278,7 +290,12 @@ class Limit(
                 limit_fn = rect_limits
                 rect_limits = None
         if return_limits_short:
-            sublimits = [type(self)(limit_fn=limits_short, n_obs=1) for _ in range(n_obs)] if n_obs > 1 else (self,)
+            if n_obs > 1:
+                sublimits = [
+                    type(self)(limit_fn=limits_short, n_obs=1) for _ in range(n_obs)
+                ]
+            else:
+                sublimits = (self,)
             return limits_short, limits_short, n_obs, limits_short, sublimits
 
         if not callable(limit_fn):  # limits_fn is actually rect_limits
@@ -288,13 +305,15 @@ class Limit(
         else:
             limits_are_rect = False
             if rect_limits in (None, False):
-                msg = "Limits given as a function need also rect_limits, cannot be None or False"
-                raise ValueError(msg)
+                raise ValueError(
+                    "Limits given as a function need also rect_limits, cannot be None or False"
+                )
         try:
             lower, upper = rect_limits
         except TypeError as err:
-            msg = "The outermost shape of `rect_limits` has to be 2 to represent (lower, upper)."
-            raise TypeError(msg) from err
+            raise TypeError(
+                "The outermost shape of `rect_limits` has to be 2 to represent (lower, upper)."
+            ) from err
 
         lower = self._sanitize_rect_limit(lower)
         upper = self._sanitize_rect_limit(upper)
@@ -304,22 +323,25 @@ class Limit(
             lower_nevents = tf.get_static_value(lower.shape[0])
             upper_nevents = tf.get_static_value(upper.shape[0])
             if lower_nevents != 1 or upper_nevents != 1:
-                msg = (
+                raise LimitsIncompatibleError(
                     "Vectors (limits with n_events != 1) are not allowed. Experimental"
                     " flag (_experimental_allow_vectors) can be switched on if desired."
                     " This happened most likely due to the new Space limits layout:"
                     " To create multiple limits, use the addition operator of simple spaces."
                 )
-                raise LimitsIncompatibleError(msg)
 
         lower_nobs = tf.get_static_value(lower.shape[-1])
+        upper_nobs = tf.get_static_value(upper.shape[-1])
 
-        if lower_nobs != (upper_nobs := tf.get_static_value(upper.shape[-1])):
-            msg = f"Last dimension of lower ({lower_nobs}) and upper ({upper_nobs}) have to coincide."
-            raise ShapeIncompatibleError(msg)
-        if n_obs is not None and lower_nobs != n_obs:
-            msg = f"Inferred last dimension ({lower_nobs}) does not coincide with " f"given n_obs ({n_obs})"
-            raise ShapeIncompatibleError(msg)
+        if not lower_nobs == upper_nobs:
+            raise ShapeIncompatibleError(
+                f"Last dimension of lower ({lower_nobs}) and upper ({upper_nobs}) have to coincide."
+            )
+        if n_obs is not None and not lower_nobs == n_obs:
+            raise ShapeIncompatibleError(
+                f"Inferred last dimension ({lower_nobs}) does not coincide with "
+                f"given n_obs ({n_obs})"
+            )
 
         if not any(is_range_definition(limit) for limit in (lower, upper)):
             tf.assert_greater(
@@ -359,7 +381,10 @@ class Limit(
 
         Returns:
         """
-        dtype = object if is_range_definition(limit) else ztypes.float  # as the above ANY
+        if is_range_definition(limit):  # as the above ANY
+            dtype = object
+        else:
+            dtype = ztypes.float
         limit = convert_to_tensor_or_numpy(limit, dtype=dtype)
         if len(limit.shape) == 0:
             limit = z.unstable.broadcast_to(limit, shape=(1, 1))
@@ -389,9 +414,11 @@ class Limit(
             LimitsNotSpecifiedError: If there are not limits set or they are False.
         """
         if not self.has_limits:
-            msg = "Limits are False or not set, cannot return the rectangular limits."
-            raise LimitsNotSpecifiedError(msg)
-        return self._rect_limits
+            raise LimitsNotSpecifiedError(
+                "Limits are False or not set, cannot return the rectangular limits."
+            )
+        rect_limits = self._rect_limits
+        return rect_limits
 
     @property
     def _rect_limits_tf(self) -> ztyping.RectLimitsTFReturnType:
@@ -450,7 +477,9 @@ class Limit(
         """
         return calculate_rect_area(rect_limits=self._rect_limits_tf)
 
-    def inside(self, x: ztyping.XTypeInput, guarantee_limits: bool = False) -> ztyping.XTypeReturnNoData:
+    def inside(
+        self, x: ztyping.XTypeInput, guarantee_limits: bool = False
+    ) -> ztyping.XTypeReturnNoData:
         """Test if `x` is inside the limits.
 
         This function should be used to test if values are inside the limits. If the given x is already inside
@@ -467,8 +496,9 @@ class Limit(
         """
         x = _sanitize_x_input(x, n_obs=self.n_obs)
         if not self.has_limits:
-            msg = "Cannot call `inside` without limits defined."
-            raise LimitsNotSpecifiedError(msg)
+            raise LimitsNotSpecifiedError(
+                "Cannot call `inside` without limits defined."
+            )
         if guarantee_limits and self.has_rect_limits:
             return tf.broadcast_to(True, x.shape)
         else:
@@ -503,8 +533,9 @@ class Limit(
         """
 
         if not self.has_limits:
-            msg = "Cannot call `filter` without limits defined."
-            raise LimitsNotSpecifiedError(msg)
+            raise LimitsNotSpecifiedError(
+                "Cannot call `filter` without limits defined."
+            )
         x = _sanitize_x_input(x, n_obs=self.n_obs)
 
         # shortcut, everything already inside
@@ -514,7 +545,9 @@ class Limit(
         return self._filter(x, guarantee_limits, axis=axis)
 
     def _filter(self, x, guarantee_limits, axis):
-        return tf.boolean_mask(tensor=x, mask=self.inside(x, guarantee_limits=guarantee_limits), axis=axis)
+        return tf.boolean_mask(
+            tensor=x, mask=self.inside(x, guarantee_limits=guarantee_limits), axis=axis
+        )
 
     @property
     def limit_fn(self):
@@ -678,10 +711,11 @@ class Limit(
             limits = None
         elif self.limits_are_false:
             limits = False
-        elif self.n_obs < 5 and not self.n_events > 1:
-            limits = self.rect_limits
         else:
-            limits = "rectangular"
+            if self.n_obs < 5 and not self.n_events > 1:
+                limits = self.rect_limits
+            else:
+                limits = "rectangular"
 
         return f"<zfit {class_name} rect_limits={limits}, limit_fn={not self.has_rect_limits}>"
 
@@ -690,7 +724,12 @@ def rect_limits_are_any(limit: ZfitLimit) -> bool:
     """True if all limits in limit are ANY objects."""
     if limit.rect_limits_are_tensors:
         return False
-    return bool(all(isinstance(ele, Any) for lim in limit.rect_limits_np for ele in lim.flatten()))
+    if all(
+        isinstance(ele, Any) for lim in limit.rect_limits_np for ele in lim.flatten()
+    ):
+        return True
+    else:
+        return False
 
 
 def less_equal_limits(limit1: Limit, limit2: Limit, allow_graph=True) -> znp.array:
@@ -700,16 +739,15 @@ def less_equal_limits(limit1: Limit, limit2: Limit, allow_graph=True) -> znp.arr
     try:
         lower1, upper1 = limit1.rect_limits_np
         lower2, upper2 = limit2.rect_limits_np
-    except CannotConvertToNumpyError as error:
+    except CannotConvertToNumpyError:
         if not allow_graph:
-            msg = (
+            raise IllegalInGraphModeError(
                 "Cannot use equality in graph mode, e.g. inside a `tf.function` decorated "
                 "function. To retrieve a symbolic Tensor, use `.equal(..., allow_graph=True)`"
             )
-            raise IllegalInGraphModeError(msg) from error
-
-        lower1, upper1 = limit1.rect_limits
-        lower2, upper2 = limit2.rect_limits
+        else:
+            lower1, upper1 = limit1.rect_limits
+            lower2, upper2 = limit2.rect_limits
 
     lower_le = z.unstable.reduce_all(z.unstable.less_equal(lower1, lower2), axis=-1)
     upper_le = z.unstable.reduce_all(z.unstable.less_equal(upper1, upper2), axis=-1)
@@ -738,20 +776,23 @@ def equal_limits(limit1: Limit, limit2: Limit, allow_graph=True) -> bool:
     try:
         lower, upper = limit1.rect_limits_np
         lower_other, upper_other = limit2.rect_limits_np
-    except CannotConvertToNumpyError as error:
+    except CannotConvertToNumpyError:
         if not allow_graph:
-            msg = (
+            raise IllegalInGraphModeError(
                 "Cannot use equality in graph mode, e.g. inside a `tf.function` decorated "
                 "function. To retrieve a symbolic Tensor, use `.equal(..., allow_graph=True)`"
             )
-            raise IllegalInGraphModeError(msg) from error
-
-        lower, upper = limit1.rect_limits
-        lower_other, upper_other = limit2.rect_limits
+        else:
+            lower, upper = limit1.rect_limits
+            lower_other, upper_other = limit2.rect_limits
 
     # TODO add tols
-    lower_limits_equal = z.unstable.reduce_all(z.unstable.allclose_anyaware(lower, lower_other))
-    upper_limits_equal = z.unstable.reduce_all(z.unstable.allclose_anyaware(upper, upper_other))
+    lower_limits_equal = z.unstable.reduce_all(
+        z.unstable.allclose_anyaware(lower, lower_other)
+    )
+    upper_limits_equal = z.unstable.reduce_all(
+        z.unstable.allclose_anyaware(upper, upper_other)
+    )
     rect_limits_equal = z.unstable.logical_and(lower_limits_equal, upper_limits_equal)
     funcs_equal = limit1.limit_fn == limit2.limit_fn
     return z.unstable.logical_and(rect_limits_equal, funcs_equal)
@@ -767,7 +808,9 @@ class BaseSpace(ZfitSpace, BaseObject):
     def is_binned(self):
         return self.binning is not None
 
-    def inside(self, x: ztyping.XTypeInput, guarantee_limits: bool = False) -> ztyping.XTypeReturn:
+    def inside(
+        self, x: ztyping.XTypeInput, guarantee_limits: bool = False
+    ) -> ztyping.XTypeReturn:
         """Test if `x` is inside the limits.
 
         This function should be used to test if values are inside the limits. If the given x is already inside
@@ -785,7 +828,8 @@ class BaseSpace(ZfitSpace, BaseObject):
         x = _sanitize_x_input(x, n_obs=self.n_obs)
         if self.has_rect_limits and guarantee_limits:
             return tf.broadcast_to(True, x.shape)
-        return self._inside(x, guarantee_limits)
+        inside = self._inside(x, guarantee_limits)
+        return inside
 
     @abstractmethod
     def _inside(self, x, guarantee_limits):
@@ -811,17 +855,18 @@ class BaseSpace(ZfitSpace, BaseObject):
             Return an object with the same shape as `x` except that along `axis` elements have been
                 removed.
         """
-        if axis is not None:
-            msg = "Axis is not yet implemented."
-            raise ValueError(msg)
         if self.has_rect_limits and guarantee_limits:
             return x
-        return self._filter(x, guarantee_limits)
+        filtered = self._filter(x, guarantee_limits)
+        return filtered
 
     def _filter(self, x, guarantee_limits):
         if isinstance(x, ZfitData):
             x = x.value()
-        return tf.boolean_mask(tensor=x, mask=self.inside(x, guarantee_limits=guarantee_limits))
+        filtered = tf.boolean_mask(
+            tensor=x, mask=self.inside(x, guarantee_limits=guarantee_limits)
+        )
+        return filtered
 
     @property
     def n_obs(self) -> int:
@@ -856,7 +901,9 @@ class BaseSpace(ZfitSpace, BaseObject):
     def __iter__(self) -> Iterable[ZfitSpace]:
         yield self
 
-    def get_reorder_indices(self, obs: ztyping.ObsTypeInput = None, axes: ztyping.AxesTypeInput = None) -> tuple[int]:
+    def get_reorder_indices(
+        self, obs: ztyping.ObsTypeInput = None, axes: ztyping.AxesTypeInput = None
+    ) -> tuple[int]:
         """Indices that would order the instances obs as `obs` respectively the instances axes as `axes`.
 
         Args:
@@ -881,13 +928,20 @@ class BaseSpace(ZfitSpace, BaseObject):
             if allow_none:
                 return None
             else:
-                msg = "TODO: Cannot be None"
-                raise AxesNotSpecifiedError(msg)
-        # TODO(Mayou36): extend like _check_obs?
-        return axes.axes if isinstance(axes, ZfitSpace) else convert_to_container(value=axes, container=tuple)
+                raise AxesNotSpecifiedError("TODO: Cannot be None")
+        if isinstance(axes, ZfitSpace):
+            axes = axes.axes
+        else:
+            axes = convert_to_container(
+                value=axes, container=tuple
+            )  # TODO(Mayou36): extend like _check_obs?
+
+        return axes
 
     # TODO: remove, in coords
-    def _check_convert_input_obs(self, obs: ztyping.ObsTypeInput, allow_none: bool = False) -> ztyping.ObsTypeReturn:
+    def _check_convert_input_obs(
+        self, obs: ztyping.ObsTypeInput, allow_none: bool = False
+    ) -> ztyping.ObsTypeReturn:
         """Input check: Convert `NOT_SPECIFIED` to None or check if obs are all strings.
 
         Args:
@@ -899,8 +953,7 @@ class BaseSpace(ZfitSpace, BaseObject):
             if allow_none:
                 return None
             else:
-                msg = "TODO: Cannot be None"
-                raise ObsNotSpecifiedError(msg)
+                raise ObsNotSpecifiedError("TODO: Cannot be None")
 
         if isinstance(obs, ZfitSpace):
             obs = obs.obs
@@ -908,8 +961,9 @@ class BaseSpace(ZfitSpace, BaseObject):
             obs = convert_to_container(obs, container=tuple)
             obs_not_str = tuple(o for o in obs if not isinstance(o, str))
             if obs_not_str:
-                msg = f"The following observables are not strings: {obs_not_str}"
-                raise ValueError(msg)
+                raise ValueError(
+                    f"The following observables are not strings: {obs_not_str}"
+                )
         return obs
 
     def _check_coords_allowed(
@@ -930,12 +984,16 @@ class BaseSpace(ZfitSpace, BaseObject):
             self_coord = frozenset(self_coord)
             if coord != self_coord:
                 if not allow_superset and coord.issuperset(self_coord):
-                    msg = f"Superset is not allowed, but {coord} is a superset" f" of {self_coord}"
-                    raise CoordinatesIncompatibleError(msg)
+                    raise CoordinatesIncompatibleError(
+                        f"Superset is not allowed, but {coord} is a superset"
+                        f" of {self_coord}"
+                    )
 
                 if not allow_subset and coord.issubset(self_coord):
-                    msg = f"subset is not allowed, but {coord} is a subset" f" of {self_coord}"
-                    raise CoordinatesIncompatibleError(msg)
+                    raise CoordinatesIncompatibleError(
+                        f"subset is not allowed, but {coord} is a subset"
+                        f" of {self_coord}"
+                    )
 
     def __repr__(self):
         class_name = str(self.__class__).split(".")[-1].split("'")[0]
@@ -944,15 +1002,17 @@ class BaseSpace(ZfitSpace, BaseObject):
         elif self.limits_are_false:
             limits = False
         elif self.has_rect_limits:
-            limits = self.rect_limits if self.n_obs < 3 and not self.n_events > 1 else "rectangular"
+            if self.n_obs < 3 and not self.n_events > 1:
+                limits = self.rect_limits
+            else:
+                limits = "rectangular"
         else:
             limits = "functional"
         return f"<zfit {class_name} obs={self.obs}, axes={self.axes}, limits={limits}, binned={self.is_binned}>"
 
     def __add__(self, other):
         if not isinstance(other, ZfitSpace):
-            msg = f"Cannot add a {type(self)} and a {type(other)}"
-            raise TypeError(msg)
+            raise TypeError(f"Cannot add a {type(self)} and a {type(other)}")
         return add_spaces(self, other)
 
     # TODO: implement properly, just sketch
@@ -972,7 +1032,8 @@ class BaseSpace(ZfitSpace, BaseObject):
             :py:class:`~zfit.Space`:
         """
         # other = convert_to_container(other, container=list)
-        return add_spaces(self, *other)
+        new_space = add_spaces(self, *other)
+        return new_space
 
     def combine(self, *other: ztyping.SpaceOrSpacesTypeInput) -> ZfitSpace:
         """Combine spaces with different obs (but consistent limits).
@@ -984,13 +1045,19 @@ class BaseSpace(ZfitSpace, BaseObject):
             :py:class:`~zfit.Space`:
         """
         # other = convert_to_container(other, container=list)
-        return combine_spaces(self, *other)
+        new_space = combine_spaces(self, *other)
+        return new_space
 
     def __mul__(self, other):
         return self.combine(other)
 
     def __ge__(self, other):
         return NotImplemented
+
+    def __eq__(self, other):
+        if not isinstance(other, ZfitSpace):
+            return NotImplemented
+        return equal_space(self, other)
 
     def equal(self, other: object, allow_graph: bool) -> znp.array:
         """Compare the limits on equality. For ANY objects, this also returns true.
@@ -1054,11 +1121,16 @@ class BaseSpace(ZfitSpace, BaseObject):
         return self.less_equal(other, allow_graph=False)
 
     def __hash__(self):
-        limits_frozen = tuple(((key, tuple(ldict.items())) for key, ldict in self._limits_dict.items()))
-        return hash((limits_frozen, hash(self.coords), hash(self.binning)))
+        limits_frozen = tuple(
+            ((key, tuple(ldict.items())) for key, ldict in self._limits_dict.items())
+        )
+        hash_val = hash(tuple((limits_frozen, hash(self.coords), hash(self.binning))))
+        return hash_val
 
     def reorder_x(self, x, x_obs, x_axes, func_obs, func_axes):
-        return self.coords.reorder_x(x, x_obs=x_obs, x_axes=x_axes, func_obs=func_obs, func_axes=func_axes)
+        return self.coords.reorder_x(
+            x, x_obs=x_obs, x_axes=x_axes, func_obs=func_obs, func_axes=func_axes
+        )
 
     def __len__(self):
         if not self:
@@ -1123,7 +1195,8 @@ class Space(
         if name is None:
             name = "Space"
         integer_autobinning = isinstance(binning, int) or (
-            isinstance(binning, (list, tuple)) and all(isinstance(b, int) for b in binning)
+            isinstance(binning, (list, tuple))
+            and all(isinstance(b, int) for b in binning)
         )
         if not integer_autobinning:
             if not isinstance(binning, Binnings):
@@ -1131,18 +1204,20 @@ class Space(
                 if binning is not None:
                     binning = Binnings(binning)
             if binning is not None and not all(binning.name):
-                msg = f"Axes must have a name. Missing: {[axis for axis in binning if not hasattr(axis, 'name')]}"
-                raise TypeError(msg)
+                raise TypeError(
+                    f"Axes must have a name. Missing: {[axis for axis in binning if not hasattr(axis, 'name')]}"
+                )
             if binning is not None and obs is None and axes is None:
                 obs = [axis.name for axis in binning]
 
         super().__init__(obs=obs, axes=axes, name=name)
 
-        if binning is not None and not isinstance(binning, int) and limits is None and rect_limits is None:
-            limits = [[], []]
-            for axis in binning:
-                limits[0].append(axis.edges[0])
-                limits[1].append(axis.edges[-1])
+        if binning is not None and not isinstance(binning, int):
+            if limits is None and rect_limits is None:
+                limits = [[], []]
+                for axis in binning:
+                    limits[0].append(axis.edges[0])
+                    limits[1].append(axis.edges[-1])
 
         limits_dict = self._check_convert_input_limits(
             limit=limits,
@@ -1157,21 +1232,23 @@ class Space(
             binning = [binning]
         if integer_autobinning:
             if len(binning) != self.n_obs:
-                msg = (
+                raise ShapeIncompatibleError(
                     f"Wrong number ({len(binning)}) of integers given for regular binning"
                     f" ({binning}) with {self.n_obs} observables ({self.obs})."
                     f" Numbers have to match the number of observables."
                 )
-                raise ShapeIncompatibleError(msg)
             regular_binnings = []
             for i, nbins in enumerate(binning):
                 if nbins < 1:
-                    msg = "If binning is an integer, it must be > 0"
-                    raise ValueError(msg)
+                    raise ValueError("If binning is an integer, it must be > 0")
 
                 lower = self.lower[0][i]
                 upper = self.upper[0][i]
-                regular_binnings.append(RegularBinning(bins=nbins, start=lower, stop=upper, name=self.obs[i]))
+                regular_binnings.append(
+                    RegularBinning(
+                        bins=nbins, start=lower, stop=upper, name=self.obs[i]
+                    )
+                )
 
             binning = Binnings(regular_binnings)
         if binning is not None:
@@ -1179,25 +1256,36 @@ class Space(
             obs = set(self.obs)
             wrong_names = bining_names - obs
             if wrong_names:
-                msg = f"Binning names ({wrong_names}) do not match observables ({obs}), {wrong_names} not in space."
-                raise ObsIncompatibleError(msg)
+                raise ObsIncompatibleError(
+                    f"Binning names ({wrong_names}) do not match observables ({obs}), {wrong_names} not in space."
+                )
             missing_obs = obs - bining_names
             if missing_obs:
-                msg = f"Binning names ({missing_obs}) do not match observables ({obs}), missing {missing_obs}."
-                raise ObsIncompatibleError(msg)
+                raise ObsIncompatibleError(
+                    f"Binning names ({missing_obs}) do not match observables ({obs}), missing {missing_obs}."
+                )
             binning = Binnings([binning[ob] for ob in self.obs])
         self._binning = binning
 
     # TODO(Mayou36): put it everywhere, multilimits
     @property
     def binning(self):
-        return self._binning
+        binning_out = self._binning
         # if binning_out is not None:
         #     binning_out =
+        return binning_out
 
     @property
     def is_binned(self):
         return self.binning is not None
+
+    @property
+    def has_rect_limits(self) -> bool:
+        """If there are limits and whether they are rectangular."""
+        return all(
+            limit.has_rect_limits
+            for limit in list(self._limits_dict.values())[0].values()
+        )
 
     def _check_convert_input_limits(
         self,
@@ -1230,7 +1318,9 @@ class Space(
                 space = space.with_obs(None)
             elif obs and axes:
                 coords = Coordinates(obs=obs, axes=axes)
-                space = space.with_coords(coords, allow_superset=True, allow_subset=True)
+                space = space.with_coords(
+                    coords, allow_superset=True, allow_subset=True
+                )
             input_limits = space.get_limits()
 
             obs = space.obs
@@ -1255,14 +1345,15 @@ class Space(
             input_limits = rect_limits.copy()
 
         if "axes" not in input_limits and "obs" not in input_limits:
-            msg = "Probably internal error: wrong format of limits_dict"
-            raise ValueError(msg)
+            raise ValueError("Probably internal error: wrong format of limits_dict")
 
         # check if obs is in the limits dict. If not, copy it from the axes
         if obs:
             if "obs" in input_limits:
                 obs_limit_dict = input_limits["obs"]
-                obs_limit_dict = {ob: lim for ob, lim in obs_limit_dict.items() if ob[0] in obs}
+                obs_limit_dict = {
+                    ob: lim for ob, lim in obs_limit_dict.items() if ob[0] in obs
+                }
             else:
                 obs_limit_dict = {}
                 for axes_lim, lim in input_limits["axes"].items():
@@ -1275,7 +1366,11 @@ class Space(
         if axes:
             if "axes" in input_limits:
                 axes_limit_dict = input_limits["axes"]
-                axes_limit_dict = {axis: lim for axis, lim in axes_limit_dict.items() if axis[0] in axes}
+                axes_limit_dict = {
+                    axis: lim
+                    for axis, lim in axes_limit_dict.items()
+                    if axis[0] in axes
+                }
             else:
                 axes_limit_dict = {}
                 for obs_lim, lim in input_limits["obs"].items():
@@ -1304,22 +1399,28 @@ class Space(
         if obs is True and axes is None or both_none_or_true:
             if not self.obs:
                 if obs is True:
-                    msg = "Obs are not defined for this instance, no limits set for obs."
-                    raise ObsIncompatibleError(msg)
+                    raise ObsIncompatibleError(
+                        "Obs are not defined for this instance, no limits set for obs."
+                    )
             else:
                 return_dict["obs"] = self._limits_dict["obs"].copy()
         if axes is True and obs is None or both_none_or_true:
             if not self.axes:
                 if axes is True:
-                    msg = "Axes are not defined for this instance, no limits set for axes."
-                    raise AxesIncompatibleError(msg)
+                    raise AxesIncompatibleError(
+                        "Axes are not defined for this instance, no limits set for axes."
+                    )
             else:
                 return_dict["axes"] = self._limits_dict["axes"].copy()
         else:
             if obs:
-                return_dict["obs"] = extract_limits_from_dict(self._limits_dict, obs=obs)
+                return_dict["obs"] = extract_limits_from_dict(
+                    self._limits_dict, obs=obs
+                )
             if axes:
-                return_dict["axes"] = extract_limits_from_dict(self._limits_dict, axes=axes)
+                return_dict["axes"] = extract_limits_from_dict(
+                    self._limits_dict, axes=axes
+                )
         return return_dict
 
     @property
@@ -1348,10 +1449,12 @@ class Space(
             LimitsNotSpecifiedError: If there are not limits set or they are False.
         """
         if not self.has_limits:
-            msg = "Limits are False or not set, cannot return the rectangular limits."
-            raise LimitsNotSpecifiedError(msg)
+            raise LimitsNotSpecifiedError(
+                "Limits are False or not set, cannot return the rectangular limits."
+            )
         lower_ordered, upper_ordered = self._rect_limits_z()
-        return lower_ordered, upper_ordered
+        rect_limits = lower_ordered, upper_ordered
+        return rect_limits
 
     @property
     def _rect_limits_tf(self) -> ztyping.LimitsTypeReturn:
@@ -1360,10 +1463,12 @@ class Space(
         Returns:
         """
         if not self.has_limits:
-            msg = "Limits are False or not set, cannot return the rectangular limits."
-            raise LimitsNotSpecifiedError(msg)
+            raise LimitsNotSpecifiedError(
+                "Limits are False or not set, cannot return the rectangular limits."
+            )
         lower_ordered, upper_ordered = self._rect_limits_z()
-        return znp.asarray(lower_ordered), znp.asarray(upper_ordered)
+        rect_limits = znp.asarray(lower_ordered), znp.asarray(upper_ordered)
+        return rect_limits
 
     @property
     def rect_limits_np(self) -> ztyping.RectLimitsNPReturnType:
@@ -1463,7 +1568,10 @@ class Space(
     @property
     def has_rect_limits(self) -> bool:
         """If there are limits and whether they are rectangular."""
-        limits_dict = self._limits_dict.get("obs") if self.obs is not None else self._limits_dict.get("axes")
+        if self.obs is not None:
+            limits_dict = self._limits_dict.get("obs")
+        else:
+            limits_dict = self._limits_dict.get("axes")
         if not limits_dict:
             return False
         rect_limits = [limit.has_rect_limits for limit in limits_dict.values()]
@@ -1477,7 +1585,10 @@ class Space(
         Returns:
             True if limits is False
         """
-        return all(limit.limits_are_false for limit in self._limits_dict["obs" if self.obs else "axes"].values())
+        return all(
+            limit.limits_are_false
+            for limit in self._limits_dict["obs" if self.obs else "axes"].values()
+        )
 
     @property
     def has_limits(self) -> bool:
@@ -1551,13 +1662,14 @@ class Space(
         Returns:
             Copy of the current object with the new limits.
         """
-        return type(self)(
+        new_space = type(self)(
             obs=self.coords,
             limits=limits,
             rect_limits=rect_limits,
             binning=self.binning,
             name=name,
         )
+        return new_space
 
     def reorder_x(
         self,
@@ -1593,7 +1705,9 @@ class Space(
         Returns:
             The reordered array-like object
         """
-        return self.coords.reorder_x(x=x, x_obs=x_obs, x_axes=x_axes, func_obs=func_obs, func_axes=func_axes)
+        return self.coords.reorder_x(
+            x=x, x_obs=x_obs, x_axes=x_axes, func_obs=func_obs, func_axes=func_axes
+        )
 
     def with_obs(
         self,
@@ -1640,13 +1754,16 @@ class Space(
             if self.obs is None:
                 return self
             if self.axes is None:
-                msg = "Cannot remove obs (using None) for a Space without axes"
-                raise AxesIncompatibleError(msg)
+                raise AxesIncompatibleError(
+                    "Cannot remove obs (using None) for a Space without axes"
+                )
             new_limits = self._limits_dict.copy()
             new_space = self.copy(obs=obs, limits=new_limits)
         else:
             obs = _convert_obs_to_str(obs)
-            coords = self.coords.with_obs(obs, allow_superset=allow_superset, allow_subset=allow_subset)
+            coords = self.coords.with_obs(
+                obs, allow_superset=allow_superset, allow_subset=allow_subset
+            )
             binning = self.binning
             if binning is not None:
                 binning = [binning[ob] for ob in obs if ob in self.obs]
@@ -1697,20 +1814,26 @@ class Space(
             if self.axes is None:
                 return self
             if self.obs is None:
-                msg = "Cannot remove axes (using None) for a Space without obs"
-                raise ObsIncompatibleError(msg)
+                raise ObsIncompatibleError(
+                    "Cannot remove axes (using None) for a Space without obs"
+                )
             new_limits = self._limits_dict.copy()
             new_space = self.copy(axes=axes, limits=new_limits)
         else:
             axes = convert_to_axes(axes)
             if self.axes is None:
-                if len(axes) != len(self.obs):
-                    msg = f"Trying to set axes {axes} to object with obs {self.obs}"
-                    raise AxesIncompatibleError(msg)
+                if not len(axes) == len(self.obs):
+                    raise AxesIncompatibleError(
+                        f"Trying to set axes {axes} to object with obs {self.obs}"
+                    )
                 new_space = self.copy(axes=axes, limits=self._limits_dict)
             else:
-                coords = self.coords.with_axes(axes=axes, allow_superset=allow_superset, allow_subset=allow_subset)
-                new_space = type(self)(coords, limits=self._limits_dict, binning=self.binning)
+                coords = self.coords.with_axes(
+                    axes=axes, allow_superset=allow_superset, allow_subset=allow_subset
+                )
+                new_space = type(self)(
+                    coords, limits=self._limits_dict, binning=self.binning
+                )
 
         return new_space
 
@@ -1743,7 +1866,9 @@ class Space(
                 allow_allow_subset is False
         """
         if self.obs is not None and coords.obs is not None:
-            new_space_obs = self.with_obs(coords.obs, allow_superset=allow_superset, allow_subset=allow_subset)
+            new_space_obs = self.with_obs(
+                coords.obs, allow_superset=allow_superset, allow_subset=allow_subset
+            )
 
             if coords.axes is not None:  # use this axes: first drop the other one
                 if new_space_obs.axes is not None:
@@ -1754,11 +1879,15 @@ class Space(
                     allow_superset=allow_superset,
                     allow_subset=allow_subset,
                 )
-                new_space_obs = new_space_obs.with_axes(coords_axes.axes)  # are the same or self.axes is None
+                new_space_obs = new_space_obs.with_axes(
+                    coords_axes.axes
+                )  # are the same or self.axes is None
             new_space = new_space_obs
 
         elif self.axes is not None and coords.axes is not None:
-            new_space_axes = self.with_axes(coords.axes, allow_superset=allow_superset, allow_subset=allow_subset)
+            new_space_axes = self.with_axes(
+                coords.axes, allow_superset=allow_superset, allow_subset=allow_subset
+            )
             if coords.obs is not None:
                 # filter in case there are super/subsets
                 coords_obs = coords.with_axes(
@@ -1769,8 +1898,10 @@ class Space(
                 new_space_axes = new_space_axes.with_obs(coords_obs.obs)
             new_space = new_space_axes
         else:
-            msg = f"Neither the axes nor the obs are specified in both objects" f" {self} and {coords}"
-            raise CoordinatesUnderdefinedError(msg)
+            raise CoordinatesUnderdefinedError(
+                f"Neither the axes nor the obs are specified in both objects"
+                f" {self} and {coords}"
+            )
 
         return new_space
 
@@ -1803,7 +1934,11 @@ class Space(
         """
         new_coords = self.coords.with_autofill_axes(overwrite=overwrite)
         # new_space = self.with_coords(new_coords)
-        return self.copy(axes=new_coords.axes) if self.axes is None or overwrite else self
+        if self.axes is None or overwrite:
+            new_space = self.copy(axes=new_coords.axes)
+        else:
+            new_space = self
+        return new_space
 
     def get_subspace(
         self,
@@ -1821,24 +1956,26 @@ class Space(
         Returns:
             A space containing only a subspace (and sublimits etc.)
         """
-        del name  # should be label
         if obs is not None and axes is not None:
-            msg = "Cannot specify `obs` *and* `axes` to get subspace."
-            raise ValueError(msg)
+            raise ValueError("Cannot specify `obs` *and* `axes` to get subspace.")
         if axes is None and obs is None:
-            msg = "Either `obs` or `axes` has to be specified and not None"
-            raise ValueError(msg)
+            raise ValueError("Either `obs` or `axes` has to be specified and not None")
 
         # try to use observables to get index
         obs = self._check_convert_input_obs(obs=obs, allow_none=True)
         axes = self._check_convert_input_axes(axes=axes, allow_none=True)
         if obs is not None:
             limits_dict = self.get_limits(obs=obs)
-            new_coords = self.coords.with_obs(obs, allow_subset=True, allow_superset=True)
+            new_coords = self.coords.with_obs(
+                obs, allow_subset=True, allow_superset=True
+            )
         else:
             limits_dict = self.get_limits(axes=axes)
-            new_coords = self.coords.with_axes(axes=axes, allow_subset=True, allow_superset=True)
-        return type(self)(obs=new_coords, limits=limits_dict)
+            new_coords = self.coords.with_axes(
+                axes=axes, allow_subset=True, allow_superset=True
+            )
+        new_space = type(self)(obs=new_coords, limits=limits_dict)
+        return new_space
 
     @fail_not_rect
     def area(self) -> float:
@@ -1877,15 +2014,16 @@ class Space(
         }
         kwargs.update(overwrite_kwargs)
         if set(overwrite_kwargs) - set(kwargs):
-            msg = f"Not usable keys in `overwrite_kwargs`: {set(overwrite_kwargs) - set(kwargs)}"
-            raise KeyError(msg)
-        kwargs.get("binning")
+            raise KeyError(
+                f"Not usable keys in `overwrite_kwargs`: {set(overwrite_kwargs) - set(kwargs)}"
+            )
+        binning = kwargs.get("binning")
         # if binning is not None and kwargs.get('obs'):
         #     kwargs['binning'] = [binning[ob] for ob in kwargs['obs']]
-        return type(self)(**kwargs)
+        new_space = type(self)(**kwargs)
+        return new_space
 
     def _inside(self, x, guarantee_limits):
-        del guarantee_limits  # not used
         xs_inside = []
         obs_in_use = self.obs is not None
         limits_dict = self._limits_dict["obs" if obs_in_use else "axes"]
@@ -1894,7 +2032,8 @@ class Space(
             x_sub = self.reorder_x(x, **reorder_kwargs)
             x_inside = limit.inside(x_sub)
             xs_inside.append(x_inside)
-        return znp.all(xs_inside, axis=0)
+        all_inside = znp.all(xs_inside, axis=0)
+        return all_inside
 
     @property  # TODO(discussion): depreceate 1d limits? or keep?
     # @deprecated(date=None, instructions="depreceated, use `rect_limits` instead which has a similar functionality"
@@ -1910,11 +2049,13 @@ class Space(
             RuntimeError: if the conditions (n_obs or n_limits) are not satisfied.
         """
         if self.n_obs > 1:
-            msg = f"Cannot call `limit1d, as `Space` has more than one observables: {self.n_obs}"
-            raise RuntimeError(msg)
+            raise RuntimeError(
+                f"Cannot call `limit1d, as `Space` has more than one observables: {self.n_obs}"
+            )
         if self.n_limits > 1:
-            msg = f"Cannot call `limit1d, as `Space` has several limits: {self.n_limits}"
-            raise RuntimeError(msg)
+            raise RuntimeError(
+                f"Cannot call `limit1d, as `Space` has several limits: {self.n_limits}"
+            )
         lower, upper = self.rect_limits
         return lower[0][0], upper[0][0]
 
@@ -1925,10 +2066,10 @@ class Space(
     )
     def from_axes(
         cls,
-        axes: ztyping.AxesTypeInput,  # noqa: ARG003
-        limits: ztyping.LimitsTypeInput | None = None,  # noqa: ARG003
-        rect_limits=None,  # noqa: ARG003
-        name: str | None = None,  # noqa: ARG003
+        axes: ztyping.AxesTypeInput,
+        limits: ztyping.LimitsTypeInput | None = None,
+        rect_limits=None,
+        name: str = None,
     ) -> zfit.Space:
         """Create a space from `axes` instead of from `obs`.
 
@@ -1941,15 +2082,15 @@ class Space(
         Returns:
             :py:class:`~zfit.Space`
         """
-        msg = "from_axes is not needed anymore, create a Space directly."
-        raise BreakingAPIChangeError(msg)
+        raise BreakingAPIChangeError(
+            "from_axes is not needed anymore, create a Space directly."
+        )
 
 
 def extract_limits_from_dict(limits_dict, obs=None, axes=None):
     if (obs is None) and (axes is None):
-        msg = "Need to specify at least one, obs or axes."
-        raise ValueError(msg)
-    if (obs is not None) and (axes is not None):
+        raise ValueError("Need to specify at least one, obs or axes.")
+    elif (obs is not None) and (axes is not None):
         axes = None  # obs has precedency
     if obs is None:
         obs_in_use = False
@@ -1969,7 +2110,10 @@ def extract_limits_from_dict(limits_dict, obs=None, axes=None):
             continue
         if coord_intersec == frozenset(key_coords):
             if isinstance(limit, ZfitOrderableDimensional):  # drop coordinates if given
-                limit = limit.with_axes(None) if obs_in_use else limit.with_obs(None)
+                if obs_in_use:
+                    limit = limit.with_axes(None)
+                else:
+                    limit = limit.with_obs(None)
             limits_to_eval[key_coords] = limit
         else:
             coord_limit = [coord for coord in key_coords if coord in coord_intersec]
@@ -1977,11 +2121,17 @@ def extract_limits_from_dict(limits_dict, obs=None, axes=None):
             try:
                 sublimit = limit.get_subspace(**kwargs)
             except InvalidLimitSubspaceError:
-                msg = f"Cannot extract {coord_intersec} from limit {limit}."
-                raise InvalidLimitSubspaceError(msg) from None
+                raise InvalidLimitSubspaceError(
+                    f"Cannot extract {coord_intersec} from limit {limit}."
+                )
             sublimit_coord = limit.obs if obs_in_use else limit.axes
-            if isinstance(sublimit, ZfitOrderableDimensional):  # drop coordinates if given
-                sublimit = sublimit.with_axes(None) if obs_in_use else sublimit.with_obs(None)
+            if isinstance(
+                sublimit, ZfitOrderableDimensional
+            ):  # drop coordinates if given
+                if obs_in_use:
+                    sublimit = sublimit.with_axes(None)
+                else:
+                    sublimit = sublimit.with_obs(None)
             limits_to_eval[sublimit_coord] = sublimit
             coords_to_extract -= coord_intersec
     return limits_to_eval
@@ -2001,8 +2151,7 @@ def add_spaces(*spaces: Iterable[ZfitSpace], name=None):
     """
     # spaces = convert_to_container(spaces)
     if not all(isinstance(space, ZfitSpace) for space in spaces):
-        msg = f"Can only add type ZfitSpace, not {spaces}"
-        raise TypeError(msg)
+        raise TypeError(f"Can only add type ZfitSpace, not {spaces}")
     return MultiSpace(spaces, name=name)
 
 
@@ -2041,11 +2190,10 @@ def combine_spaces(*spaces: Iterable[Space]):
     all_spaces_binned = all(space.is_binned for space in spaces)
     all_spaces_unbinned = not any(space.is_binned for space in spaces)
     if not (all_spaces_binned or all_spaces_unbinned):
-        msg = (
+        raise ValueError(
             f"Some spaces are binned {[s for s in spaces if s.is_binned]}"
             f" while others are not {[s for s in spaces if not s.is_binned]}. Cannot mix."
         )
-        raise ValueError(msg)
     if all_spaces_binned:
         binnings_ordererd = []
         for ob in common_obs_ordered:
@@ -2063,25 +2211,32 @@ def combine_spaces(*spaces: Iterable[Space]):
 
     # sort the spaces
     if using_obs:
-        spaces = tuple(space.with_obs(common_obs_ordered, allow_superset=True) for space in spaces)
+        spaces = tuple(
+            space.with_obs(common_obs_ordered, allow_superset=True) for space in spaces
+        )
         all_coords = [space.obs for space in spaces]
     elif common_axes_ordered:
-        spaces = tuple(space.with_axes(common_axes_ordered, allow_superset=True) for space in spaces)
+        spaces = tuple(
+            space.with_axes(common_axes_ordered, allow_superset=True)
+            for space in spaces
+        )
         all_coords = [space.axes for space in spaces]
     else:
-        msg = "Neither `obs` nor `axes` exist in all spaces."
-        raise CoordinatesUnderdefinedError(msg)
+        raise CoordinatesUnderdefinedError(
+            "Neither `obs` nor `axes` exist in all spaces."
+        )
 
-    all_limits_false = all(space.limits_are_false for space in spaces)
-    all_limits_not_set = all(not space.limits_are_set for space in spaces)
+    all_limits_false = all([space.limits_are_false for space in spaces])
+    all_limits_not_set = all([not space.limits_are_set for space in spaces])
     has_limits = [space.has_limits for space in spaces]
     if all_limits_false:
         limits = False
     elif all_limits_not_set:
         limits = None
     elif not all(has_limits):
-        msg = "Limits either have to be set, not set, or False for all spaces to be combined."
-        raise LimitsNotSpecifiedError(msg)
+        raise LimitsNotSpecifiedError(
+            "Limits either have to be set, not set, or False for all spaces to be combined."
+        )
     else:
         space_combinations = tuple(itertools.product(*spaces))
         if len(space_combinations) > 1:  # there are MultiSpaces in there
@@ -2090,10 +2245,13 @@ def combine_spaces(*spaces: Iterable[Space]):
                 with suppress(LimitsIncompatibleError):
                     all_combinations.append(combine_spaces(*spa))
                 if not all_combinations:
-                    msg = f"The limits of {spaces} are all not compatible to be combined."
-                    raise LimitsIncompatibleError(msg)
+                    raise LimitsIncompatibleError(
+                        f"The limits of {spaces} are all not compatible to be combined."
+                    )
             # filter, as can be False: non-overlapping limits e.g. if we have two MultiSpace
-            [space for space in all_combinations if space is not False]
+            filtered_combinations = [
+                space for space in all_combinations if space is not False
+            ]
 
             return MultiSpace(
                 spaces=all_combinations,
@@ -2113,7 +2271,9 @@ def combine_spaces(*spaces: Iterable[Space]):
 
         for coord in common_coords_ordered:
             if coord in unique_coords:
-                space = next(space for space in spaces if coord in get_coord(space, using_obs))
+                space = [
+                    space for space in spaces if coord in get_coord(space, using_obs)
+                ][0]
                 space = space.get_subspace(
                     obs=unique_coords if using_obs else None,
                     axes=None if using_obs else unique_coords,
@@ -2122,9 +2282,16 @@ def combine_spaces(*spaces: Iterable[Space]):
                 for coord in get_coord(space, using_obs):
                     unique_coords.remove(coord)
             elif coord in non_unique_coords:
-                non_unique_spaces = [space for space in spaces if coord in get_coord(space, using_obs)]
+                non_unique_spaces = [
+                    space for space in spaces if coord in get_coord(space, using_obs)
+                ]
                 common_coords_non_unique = list(
-                    set.intersection(*(set(get_coord(space, using_obs)) for space in non_unique_spaces))
+                    set.intersection(
+                        *(
+                            set(get_coord(space, using_obs))
+                            for space in non_unique_spaces
+                        )
+                    )
                 )
                 # do the below to check if we can take the subspace
                 non_unique_subspaces = [
@@ -2136,15 +2303,22 @@ def combine_spaces(*spaces: Iterable[Space]):
                 ]
 
                 # TODO compare limits
-                any_non_equal = any(non_unique_subspaces[0] != space for space in non_unique_subspaces[1:])
+                any_non_equal = any(
+                    [
+                        non_unique_subspaces[0] != space
+                        for space in non_unique_subspaces[1:]
+                    ]
+                )
                 if any_non_equal:
-                    msg = (
-                        f"Limits in coord {common_coords_non_unique} do not match for spaces" f" {non_unique_subspaces}"
+                    raise LimitsIncompatibleError(
+                        f"Limits in coord {common_coords_non_unique} do not match for spaces"
+                        f" {non_unique_subspaces}"
                     )
-                    raise LimitsIncompatibleError(msg)
 
                 non_unique_subspace = non_unique_subspaces[0]
-                limits_dict.update(non_unique_subspace.get_limits()["obs" if using_obs else "axes"])
+                limits_dict.update(
+                    non_unique_subspace.get_limits()["obs" if using_obs else "axes"]
+                )
                 for coord in get_coord(non_unique_subspace, using_obs):
                     non_unique_coords.remove(coord)
             else:
@@ -2226,7 +2400,7 @@ def combine_spaces(*spaces: Iterable[Space]):
     #     return False
     # else:
     #     limits = (new_lower, new_upper)
-    return Space(
+    new_space = Space(
         obs=common_obs_ordered if using_obs else None,
         axes=None if using_obs else common_axes_ordered,
         binning=binning,
@@ -2234,13 +2408,16 @@ def combine_spaces(*spaces: Iterable[Space]):
     )
     # if new_space.n_limits > 1:
     #     new_space = MultiSpace(Space, obs=all_obs)
+    return new_space
 
 
 def less_equal_space(space1, space2, allow_graph=True):
     return compare_multispace(
         space1=space1,
         space2=space2,
-        comparator=lambda limit1, limit2: limit1.less_equal(limit2, allow_graph=allow_graph),
+        comparator=lambda limit1, limit2: limit1.less_equal(
+            limit2, allow_graph=allow_graph
+        ),
     )
 
 
@@ -2272,22 +2449,31 @@ def compare_multispace(space1: ZfitSpace, space2: ZfitSpace, comparator: Callabl
     if obs_not_none:
         if set(space1.obs) != set(space2.obs):
             return False
-    elif axes_not_none and set(space1.axes) != set(space2.axes):  # axes only matter if there are no obs
-        return False
-    if space1.binning != space2.binning:
+    elif axes_not_none:  # axes only matter if there are no obs
+        if set(space1.axes) != set(space2.axes):
+            return False
+    if not space1.binning == space2.binning:
         return False
     # check limits
     if not space1.limits_are_set:
-        return bool(not space2.limits_are_set)
+        if not space2.limits_are_set:
+            return True
+        else:
+            return False
 
     elif space1.limits_are_false:
-        return bool(space2.limits_are_false)
+        if space2.limits_are_false:
+            return True
+        else:
+            return False
 
     return compare_limits_multispace(space1, space2, comparator=comparator)
 
 
-def compare_limits_multispace(space1: ZfitSpace, space2: ZfitSpace, comparator: Callable) -> bool:
-    if len(space1) != len(space2):
+def compare_limits_multispace(
+    space1: ZfitSpace, space2: ZfitSpace, comparator: Callable
+) -> bool:
+    if not len(space1) == len(space2):
         return False
     if not (space1.has_limits and space2.has_limits):
         return False
@@ -2298,11 +2484,15 @@ def compare_limits_multispace(space1: ZfitSpace, space2: ZfitSpace, comparator: 
         compare_spaces2 = []
         for space22 in space2_reordered:
             compare_spaces2.append(
-                compare_limits_coords_dict(space11.get_limits(), space22.get_limits(), comparator=comparator)
+                compare_limits_coords_dict(
+                    space11.get_limits(), space22.get_limits(), comparator=comparator
+                )
             )
         comparison.append(compare_spaces2)
     comparison = convert_to_tensor_or_numpy(comparison, dtype=tf.bool)
-    space1_matches = z.unstable.reduce_any(comparison, axis=1)  # reduce over axis containing space2, has to match with
+    space1_matches = z.unstable.reduce_any(
+        comparison, axis=1
+    )  # reduce over axis containing space2, has to match with
     # at least one space2.
     space2_matches = z.unstable.reduce_any(comparison, axis=0)
     all_space1_match = z.unstable.reduce_all(space1_matches, axis=0)
@@ -2317,14 +2507,16 @@ def compare_limits_coords_dict(
     comparator: Callable,
     require_all_coord_types: bool = False,
 ) -> bool:
-    if limits1.keys() != limits2.keys() and require_all_coord_types:
+    if not limits1.keys() == limits2.keys() and require_all_coord_types:
         return False
     equal = []
     for coord_type, limit1_dict in limits1.items():
         limit2_dict = limits2.get(coord_type)
         if limit2_dict is None:
             continue
-        equal.append(compare_limits_dict(limit1_dict, limit2_dict, comparator=comparator))
+        equal.append(
+            compare_limits_dict(limit1_dict, limit2_dict, comparator=comparator)
+        )
     return z.unstable.reduce_all(equal)
 
 
@@ -2355,13 +2547,8 @@ class MultiSpace(BaseSpace):
         obs: ztyping.ObsTypeInput = None,
         binning: ztyping.BinningInput = None,
         axes: ztyping.AxesTypeInput = None,
-        name: str | None = None,  # noqa: ARG003
+        name: str = None,
     ) -> Space | MultiSpace:
-        if binning is not None:
-            msg = (
-                "Binning not yet implemented for MultiSpace, won't ever be. Use the new truncated, multidim PDF instead"
-            )
-            raise RuntimeError(msg)
         spaces, obs, axes = cls._check_convert_input_spaces_obs_axes(spaces, obs, axes)
         if len(spaces) == 1:
             return spaces[0]
@@ -2372,7 +2559,9 @@ class MultiSpace(BaseSpace):
 
         return space
 
-    def __init__(self, spaces: Iterable[ZfitSpace], obs=None, axes=None, name: str | None = None) -> None:
+    def __init__(
+        self, spaces: Iterable[ZfitSpace], obs=None, axes=None, name: str = None
+    ) -> None:
         # Since __new__ returns an instance of MultiSpace, __init__ is invoked. We don't want to reprocess
         # the input arguments here, so we store them above in the dummy attribute.
         del spaces, obs, axes  # not needed, we take the already preprocessed.
@@ -2391,7 +2580,9 @@ class MultiSpace(BaseSpace):
         return space
 
     @staticmethod
-    def _check_convert_input_spaces_obs_axes(spaces, obs, axes):  # TODO: do something with axes
+    def _check_convert_input_spaces_obs_axes(
+        spaces, obs, axes
+    ):  # TODO: do something with axes
         spaces = flatten_spaces(spaces)
         all_have_obs = all(space.obs is not None for space in spaces)
         all_have_axes = all(space.axes is not None for space in spaces)
@@ -2399,29 +2590,42 @@ class MultiSpace(BaseSpace):
         n_events = [space.n_events in (spaces[0].n_events, None) for space in spaces]
         all_nevents_compatible = all(n_events)
         if not all_binnings_compatible:
-            msg = "Binnings not compatible, maybe this needs to be better care taken."
-            raise ValueError(msg)
+            raise ValueError(
+                "Binnings not compatible, maybe this needs to be better care taken."
+            )
         if not all_nevents_compatible:
-            msg = "The number of events of the spaces do not coincide"
-            raise NumberOfEventsIncompatibleError(msg)
+            raise NumberOfEventsIncompatibleError(
+                "The number of events of the spaces do not coincide"
+            )
         if all_have_axes:
             axes = spaces[0].axes if axes is None else convert_to_axes(axes)
 
         if all_have_obs:
             obs = spaces[0].obs if obs is None else convert_to_obs_str(obs)
-            spaces = [space.with_obs(obs, allow_subset=False, allow_superset=False) for space in spaces]
-            if not (all_have_axes and all(space.axes == axes for space in spaces)):  # obs coincide, axes don't -> drop
+            spaces = [
+                space.with_obs(obs, allow_subset=False, allow_superset=False)
+                for space in spaces
+            ]
+            if not (
+                all_have_axes and all(space.axes == axes for space in spaces)
+            ):  # obs coincide, axes don't -> drop
                 spaces = [space.with_axes(None) for space in spaces]
 
         elif all_have_axes:
             if all(space.obs is None for space in spaces):
-                spaces = [space.with_axes(axes, allow_superset=False, allow_subset=False) for space in spaces]
-            if not (all_have_obs and all(space.obs == obs for space in spaces)):  # axes coincide, obs don't -> drop
+                spaces = [
+                    space.with_axes(axes, allow_superset=False, allow_subset=False)
+                    for space in spaces
+                ]
+            if not (
+                all_have_obs and all(space.obs == obs for space in spaces)
+            ):  # axes coincide, obs don't -> drop
                 spaces = [space.with_obs(None) for space in spaces]
 
         else:
-            msg = "Spaces do not have consistent obs and/or axes."
-            raise SpaceIncompatibleError(msg)
+            raise SpaceIncompatibleError(
+                "Spaces do not have consistent obs and/or axes."
+            )
 
         if all(space.has_limits for space in spaces):
             # check overlap, reduce common limits
@@ -2429,12 +2633,11 @@ class MultiSpace(BaseSpace):
         elif not any(space.has_limits for space in spaces):
             spaces = [spaces[0]]  # if all are None, then nothing to add
         else:  # some have limits, some don't -> does not really make sense (or just drop the ones without limits?)
-            msg = (
+            raise LimitsIncompatibleError(
                 "Some spaces have limits, other don't. This behavior may change in the future "
                 "to allow spaces with None to be simply ignored.\n"
                 "If you prefer this behavior, please open an issue on github."
             )
-            raise LimitsIncompatibleError(msg)
 
         spaces = tuple(spaces)
 
@@ -2547,8 +2750,11 @@ class MultiSpace(BaseSpace):
                 it's vectorized.
         """
         # get the first numeric n_events. Is None if a Tensor and not specified yet.
-        n_events_first = [space.n_events for space in self if space.n_events is not None]
-        return None if not n_events_first else n_events_first[0]
+        n_events_first = [
+            space.n_events for space in self if space.n_events is not None
+        ]
+        n_events = None if not n_events_first else n_events_first[0]
+        return n_events
 
     def with_limits(
         self,
@@ -2567,10 +2773,14 @@ class MultiSpace(BaseSpace):
         Returns:
             Copy of the current object with the new limits.
         """
-        return self.copy(
-            spaces=[space.with_limits(limits=limits, rect_limits=rect_limits) for space in self],
+        new_space = self.copy(
+            spaces=[
+                space.with_limits(limits=limits, rect_limits=rect_limits)
+                for space in self
+            ],
             name=name,
         )
+        return new_space
 
     @fail_not_rect
     def area(self) -> float:
@@ -2616,9 +2826,14 @@ class MultiSpace(BaseSpace):
                 allow_allow_subset is False
         """
         spaces = [
-            space.with_obs(obs, allow_superset=allow_superset, allow_subset=allow_subset) for space in self.spaces
+            space.with_obs(
+                obs, allow_superset=allow_superset, allow_subset=allow_subset
+            )
+            for space in self.spaces
         ]
-        coords = self.coords.with_obs(obs, allow_subset=allow_subset, allow_superset=allow_superset)
+        coords = self.coords.with_obs(
+            obs, allow_subset=allow_subset, allow_superset=allow_superset
+        )
         return self.copy(spaces=spaces, obs=coords.obs, axes=coords.axes)
 
     def with_axes(
@@ -2660,9 +2875,14 @@ class MultiSpace(BaseSpace):
                 allow_allow_subset is False
         """
         spaces = [
-            space.with_axes(axes, allow_superset=allow_superset, allow_subset=allow_subset) for space in self.spaces
+            space.with_axes(
+                axes, allow_superset=allow_superset, allow_subset=allow_subset
+            )
+            for space in self.spaces
         ]
-        coords = self.coords.with_axes(axes, allow_subset=allow_subset, allow_superset=allow_superset)
+        coords = self.coords.with_axes(
+            axes, allow_subset=allow_subset, allow_superset=allow_superset
+        )
         return self.copy(spaces=spaces, obs=coords.obs, axes=coords.axes)
 
     def with_coords(
@@ -2694,7 +2914,10 @@ class MultiSpace(BaseSpace):
                 allow_allow_subset is False
         """
         new_spaces = [
-            space.with_coords(coords, allow_superset=allow_superset, allow_subset=allow_subset) for space in self
+            space.with_coords(
+                coords, allow_superset=allow_superset, allow_subset=allow_subset
+            )
+            for space in self
         ]
         return type(self)(spaces=new_spaces)
 
@@ -2745,32 +2968,39 @@ class MultiSpace(BaseSpace):
             A space containing only a subspace (and sublimits etc.)
         """
         spaces = [space.get_subspace(obs=obs, axes=axes) for space in self.spaces]
-        return self.copy(spaces=spaces, name=name)
+        return self.copy(spaces=spaces)
 
-    def copy(self, *, deep: bool = False, name: str | None = None, **overwrite_params) -> MultiSpace:
-        assert not deep, "deep not explicitly implemented, should not be needed for immutable objects"
-        kwargs = {
-            "spaces": tuple(self),
-            "obs": self.obs,
-            "axes": self.axes,
-        }
+    def copy(
+        self, *, deep: bool = False, name: str | None = None, **overwrite_params
+    ) -> MultiSpace:
+        assert (
+            not deep
+        ), "deep not explicitly implemented, should not be needed for immutable objects"
+        kwargs = dict(
+            spaces=tuple(self),
+            obs=self.obs,
+            axes=self.axes,
+        )
         kwargs.update(overwrite_params)
         kwargs["name"] = self.name if name is None else name
-        return type(self)(**kwargs)
+        new_space = type(self)(**kwargs)
+        return new_space
 
     def _raise_limits_not_implemented(self):
-        msg = (
+        raise MultipleLimitsNotImplemented(
             "Limits/lower/upper not implemented for MultiSpace. This error is either caught"
             " automatically as part of the codes logic or the MultiLimit case should"
             " be considered. To do that, simply iterate through the MultiSpace, which returns"
             " a simple space. Iterating through a Spaces also works"
             "for simple spaces."
         )
-        raise MultipleLimitsNotImplemented(msg)
 
     def _inside(self, x, guarantee_limits):
-        inside_limits = [space.inside(x, guarantee_limits=guarantee_limits) for space in self]
-        return znp.any(inside_limits, axis=0)  # has to be inside one limit
+        inside_limits = [
+            space.inside(x, guarantee_limits=guarantee_limits) for space in self
+        ]
+        inside = znp.any(inside_limits, axis=0)  # has to be inside one limit
+        return inside
 
     def __iter__(self) -> ZfitSpace:
         yield from self.spaces
@@ -2795,16 +3025,22 @@ class MultiSpace(BaseSpace):
         # space. However, we ignore this case and say that l1 to u1 and l2 to u2 is never the same as l1 to u2,
         # even if u1 == l2 (and they mathematically coincide).
         if not isinstance(other, MultiSpace):
-            warnings.warn("Multispace limits compare never equal to Space.", stacklevel=2)
-        return equal_space(self, other, allow_graph=False)
+            warnings.warn(
+                "Multispace limits compare never equal to Space.", stacklevel=2
+            )
+        all_equal = equal_space(self, other, allow_graph=False)
+        return all_equal
 
     def __le__(self, other):
         # in principle, two disjoint regions could have coinciding lower and upper limits equaling to an actually larger
         # space. However, we ignore this case and say that l1 to u1 and l2 to u2 is never the same as l1 to u2,
         # even if u1 == l2 (and they mathematically coincide).
         if not isinstance(other, MultiSpace):
-            warnings.warn("Multispace limits compare never equal to Space.", stacklevel=2)
-        return less_equal_space(self, other, allow_graph=False)
+            warnings.warn(
+                "Multispace limits compare never equal to Space.", stacklevel=2
+            )
+        all_less_equal = less_equal_space(self, other, allow_graph=False)
+        return all_less_equal
 
     def __hash__(self):
         return hash(self.spaces)
@@ -2842,26 +3078,36 @@ def convert_to_space(
     # Test if already `Space` and handle
     if isinstance(obs, ZfitSpace):
         if axes is not None:
-            msg = "if `obs` is a `Space`, `axes` cannot be defined."
-            raise OverdefinedError(msg)
+            raise OverdefinedError("if `obs` is a `Space`, `axes` cannot be defined.")
         space = obs
     elif isinstance(axes, ZfitSpace):
         if obs is not None:
-            msg = "if `axes` is a `Space`, `obs` cannot be defined."
-            raise OverdefinedError(msg)
+            raise OverdefinedError("if `axes` is a `Space`, `obs` cannot be defined.")
         space = axes
     elif isinstance(limits, ZfitSpace):
         return limits
     if space is not None:
         # set the limits if given
         if limits is not None and (overwrite_limits or not space.limits_are_set):
-            if isinstance(limits, ZfitSpace):  # figure out if compatible if limits is `Space`
+            if isinstance(
+                limits, ZfitSpace
+            ):  # figure out if compatible if limits is `Space`
                 if not (
-                    limits.obs == space.obs or (limits.axes == space.axes and limits.obs is None and space.obs is None)
+                    limits.obs == space.obs
+                    or (
+                        limits.axes == space.axes
+                        and limits.obs is None
+                        and space.obs is None
+                    )
                 ):
-                    msg = "`obs`/`axes` is a `Space` as well as the `limits`, but the " "obs/axes of them do not match"
-                    raise IntentionAmbiguousError(msg)
-                limits = False if limits.limits_are_false else limits.limits
+                    raise IntentionAmbiguousError(
+                        "`obs`/`axes` is a `Space` as well as the `limits`, but the "
+                        "obs/axes of them do not match"
+                    )
+                elif limits.limits_are_false:
+                    limits = False
+                else:
+                    limits = limits.limits
 
             space = space.with_limits(limits=limits)
         return space
@@ -2871,11 +3117,14 @@ def convert_to_space(
         # check if limits are allowed
         space = Space(obs=obs, axes=axes, limits=limits)  # create and test if valid
         if one_dim_limits_only and space.n_obs > 1 and space.has_limits:
-            msg = "Limits more sophisticated than 1-dim cannot be auto-created from tuples. Use `Space` instead."
-            raise LimitsUnderdefinedError(msg)
+            raise LimitsUnderdefinedError(
+                "Limits more sophisticated than 1-dim cannot be auto-created from tuples. Use `Space` instead."
+            )
         if simple_limits_only and space.has_limits and space.n_limits > 1:
-            msg = "Limits with multiple limits cannot be auto-created" " from tuples. Use `Space` instead."
-            raise LimitsUnderdefinedError(msg)
+            raise LimitsUnderdefinedError(
+                "Limits with multiple limits cannot be auto-created"
+                " from tuples. Use `Space` instead."
+            )
     return space
 
 
@@ -2900,7 +3149,10 @@ def check_norm(supports=None):
 
         @functools.wraps(func)
         def new_func(*args, **kwargs):
-            self = args[0] if len(args) > 0 else None
+            if len(args) > 0:
+                self = args[0]
+            else:
+                self = None
             norm_range = kwargs.get("norm_range")
             norm = kwargs.get("norm")
 
@@ -2908,7 +3160,7 @@ def check_norm(supports=None):
             if norm_range is not None:
                 norm = norm_range
             elif norm is not None:
-                pass
+                norm = norm
             else:
                 if norm_range_index is not None:
                     norm_is_arg = len(args) > norm_range_index
@@ -2919,13 +3171,26 @@ def check_norm(supports=None):
                     if norm_is_arg:
                         norm = args[norm_index]
             args = list(args)
+            # if not norm_is_arg:  # TODO: remove? why is this here?
+            #     if 'norm_range' in kwargs:
+            #         kwargs['norm_range'] = False
+            #     if 'norm' in kwargs:
+            #         kwargs['norm'] = False
 
             # assume it's not supported. Switch if we find that it is supported.
             norm_not_supported = supports[0] is not True
             if isinstance(norm, ZfitSpace):
-                if "space" in supports and isinstance(self, ZfitPDF) and self.space == norm:
+                if (
+                    "space" in supports
+                    and isinstance(self, ZfitPDF)
+                    and self.space == norm
+                ):
                     norm_not_supported = False
-                if "norm" in supports and isinstance(self, ZfitPDF) and self.norm == norm:
+                if (
+                    "norm" in supports
+                    and isinstance(self, ZfitPDF)
+                    and self.norm == norm
+                ):
                     norm_not_supported = False
                 if norm_not_supported:
                     norm_not_supported = not norm.limits_are_false
@@ -2935,24 +3200,26 @@ def check_norm(supports=None):
                                 kwargs["norm_range"] = False
                             if "norm" in kwargs:
                                 kwargs["norm"] = False
-                        elif norm_range_index is not None:
-                            args[norm_range_index] = False
-                        elif norm_index is not None:
-                            args[norm_index] = False
+                        else:
+                            if norm_range_index is not None:
+                                args[norm_range_index] = False
+                            elif norm_index is not None:
+                                args[norm_index] = False
             elif norm_not_supported:
                 norm_not_supported = not (norm is None or norm is False)
             if norm_not_supported:
                 raise NormNotImplemented()
-            try:
-                return func(*args, **kwargs)
-            except TypeError as error:
-                if "got an unexpected keyword argument 'norm_range'" in str(error):
-                    kwargs.pop("norm_range")
-                elif "got an unexpected keyword argument 'norm'" in str(error):
-                    kwargs.pop("norm")
-                else:
-                    raise
-                return func(*args, **kwargs)
+            else:
+                try:
+                    return func(*args, **kwargs)
+                except TypeError as error:
+                    if "got an unexpected keyword argument 'norm_range'" in str(error):
+                        kwargs.pop("norm_range")
+                    elif "got an unexpected keyword argument 'norm'" in str(error):
+                        kwargs.pop("norm")
+                    else:
+                        raise
+                    return func(*args, **kwargs)
 
         return new_func
 
@@ -2973,11 +3240,15 @@ def no_multiple_limits(func):
     @functools.wraps(func)
     def new_func(*args, **kwargs):
         limits_is_arg = len(args) > limits_index
-        limits = args[limits_index] if limits_is_arg else kwargs["limits"]
+        if limits_is_arg:
+            limits = args[limits_index]
+        else:
+            limits = kwargs["limits"]
 
         if limits.n_limits > 1:
             raise MultipleLimitsNotImplemented
-        return func(*args, **kwargs)
+        else:
+            return func(*args, **kwargs)
 
     return new_func
 
@@ -2985,8 +3256,9 @@ def no_multiple_limits(func):
 @deprecated_norm_range
 def supports(
     *,
-    norm: bool | str | Iterable[str] | None = None,
-    multiple_limits: bool | None = None,
+    norm: bool | str | Iterable[str] = None,
+    multiple_limits: bool = None,
+    norm_range=None,
 ) -> Callable:
     """Decorator: Add (mandatory for some methods) on a method to control what it can handle.
 
@@ -3034,7 +3306,11 @@ def contains_tensor(objects):
 
 
 def shape_np_tf(objects):
-    return tuple(tf.convert_to_tensor(objects).shape.as_list()) if contains_tensor(objects) else np.shape(objects)
+    if contains_tensor(objects):
+        shape = tuple(tf.convert_to_tensor(objects).shape.as_list())
+    else:
+        shape = np.shape(objects)
+    return shape
 
 
 def limits_consistent(spaces: Iterable[zfit.Space]):
@@ -3073,22 +3349,23 @@ def add_spaces_old(spaces: Iterable[zfit.Space]):
     """
     spaces = convert_to_container(spaces)
     if not all(isinstance(space, ZfitSpace) for space in spaces):
-        msg = "Cannot only add type ZfitSpace"
-        raise TypeError(msg)
+        raise TypeError("Cannot only add type ZfitSpace")
     if len(spaces) <= 1:
-        msg = "Need at least two spaces to be added."
-        raise ValueError(msg)  # TODO: allow? usecase?
+        raise ValueError(
+            "Need at least two spaces to be added."
+        )  # TODO: allow? usecase?
     obs = frozenset(frozenset(space.obs) for space in spaces)
 
     if len(obs) != 1:
         return False
 
     obs1 = spaces[0].obs
-    spaces = [space.with_obs(obs=obs1) if space.obs != obs1 else space for space in spaces]
+    spaces = [
+        space.with_obs(obs=obs1) if not space.obs == obs1 else space for space in spaces
+    ]
 
     if limits_overlap(spaces=spaces, allow_exact_match=True):
-        msg = "Limits of spaces overlap, cannot merge spaces."
-        raise LimitsIncompatibleError(msg)
+        raise LimitsIncompatibleError("Limits of spaces overlap, cannot merge spaces.")
 
     lowers = []
     uppers = []
@@ -3099,7 +3376,9 @@ def add_spaces_old(spaces: Iterable[zfit.Space]):
             for other_lower, other_upper in zip(lowers, uppers):
                 lower_same = np.allclose(lower, other_lower)
                 upper_same = np.allclose(upper, other_upper)
-                assert not lower_same ^ upper_same, "Bug, please report as issue. limits_overlap did not catch right."
+                assert (
+                    not lower_same ^ upper_same
+                ), "Bug, please report as issue. limits_overlap did not catch right."
                 if lower_same and upper_same:
                     break
             else:
@@ -3107,5 +3386,9 @@ def add_spaces_old(spaces: Iterable[zfit.Space]):
                 uppers.append(upper)
     lowers = tuple(lowers)
     uppers = tuple(uppers)
-    limits = None if len(lowers) == 0 else (lowers, uppers)
-    return zfit.Space(obs=spaces[0].obs, limits=limits)
+    if len(lowers) == 0:
+        limits = None
+    else:
+        limits = lowers, uppers
+    new_space = zfit.Space(obs=spaces[0].obs, limits=limits)
+    return new_space

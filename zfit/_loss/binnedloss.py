@@ -15,7 +15,7 @@ from ..util import ztyping
 from ..util.checks import NONE
 from ..util.container import convert_to_container
 from ..util.warnings import warn_advanced_feature
-from ..util.ztyping import ConstraintsInputType, OptionsInputType
+from ..util.ztyping import OptionsInputType, ConstraintsInputType
 from ..z import numpy as znp
 
 
@@ -36,7 +36,9 @@ def _spd_transform(values, probs, variances):
         The transformed probabilities and values.
     """
     # Scaled Poisson distribution from Bohm and Zech, NIMA 748 (2014) 1-6
-    scale = znp.maximum(values * tf.math.reciprocal_no_nan(variances), znp.ones_like(values))
+    scale = znp.maximum(
+        values * tf.math.reciprocal_no_nan(variances), znp.ones_like(values)
+    )
     probs = probs * scale
     values = values * scale
     return probs, values
@@ -60,14 +62,14 @@ def poisson_loss_calc(probs, values, log_offset=None, variances=None):
     if log_offset is None:
         log_offset = False
     use_offset = log_offset is not False
-    if False:  # TODO: this gives very different uncertainties?  if fixed, rechange the docs
+    if (
+        False and variances is not None
+    ):  # TODO: this gives very different uncertainties?  if fixed, rechange the docs
         values, probs = _spd_transform(values, probs, variances=variances)
     values += znp.asarray(1e-307, dtype=znp.float64)
     probs += znp.asarray(1e-307, dtype=znp.float64)
     poisson_term = tf.nn.log_poisson_loss(
-        values,
-        znp.log(probs),
-        compute_full_loss=not use_offset,  # TODO: correct offset
+        values, znp.log(probs), compute_full_loss=not use_offset  # TODO: correct offset
     )  # TODO: optimization?
 
     # cross-check
@@ -95,7 +97,10 @@ class BaseBinned(BaseLoss):
         data = [
             (
                 BinnedData.from_hist(d)
-                if (isinstance(d, PlottableHistogram) and not isinstance(d, ZfitBinnedData))
+                if (
+                    isinstance(d, PlottableHistogram)
+                    and not isinstance(d, ZfitBinnedData)
+                )
                 else d
             )
             for d in data
@@ -200,7 +205,9 @@ class BaseBinned(BaseLoss):
             options = self._options
             if isinstance(options, dict):
                 options = options.copy()
-        return type(self)(model=model, data=data, constraints=constraints, options=options)
+        return type(self)(
+            model=model, data=data, constraints=constraints, options=options
+        )
 
 
 class ExtendedBinnedNLL(BaseBinned):
@@ -292,7 +299,9 @@ class ExtendedBinnedNLL(BaseBinned):
         # readd below if fixed
         #     |@doc:loss.init.explain.spdtransform| A scaled Poisson
         self._errordef = 0.5
-        super().__init__(model=model, data=data, constraints=constraints, options=options)
+        super().__init__(
+            model=model, data=data, constraints=constraints, options=options
+        )
 
     @z.function(wraps="loss", keepalive=True)
     def _loss_func(
@@ -303,7 +312,6 @@ class ExtendedBinnedNLL(BaseBinned):
         constraints,
         log_offset,
     ):
-        del fit_range
         poisson_terms = []
         for mod, dat in zip(model, data):
             values = dat.values(  # TODO: right order of model and data?
@@ -317,11 +325,16 @@ class ExtendedBinnedNLL(BaseBinned):
         nll = znp.sum(poisson_terms)
 
         if constraints:
-            log_offset_val = (
-                0.0 if log_offset is False else log_offset
-            )  # we need to check identity, cannot do runtime conditional if jitted
+            if (
+                log_offset is False
+            ):  # we need to check identity, cannot do runtime conditional if jitted
+                log_offset_val = 0.0
+            else:
+                log_offset_val = log_offset
             log_offset_val = znp.asarray(log_offset_val, dtype=znp.float64)
-            constraints = z.reduce_sum([c.value() - log_offset_val * len(c.get_params()) for c in constraints])
+            constraints = z.reduce_sum(
+                [c.value() - log_offset_val * len(c.get_params()) for c in constraints]
+            )
             nll += constraints
 
         return nll
@@ -427,7 +440,9 @@ class BinnedNLL(BaseBinned):
         # readd below if fixed
         #            |@doc:loss.init.explain.spdtransform| A scaled Poisson distribution is...
         self._errordef = 0.5
-        super().__init__(model=model, data=data, constraints=constraints, options=options)
+        super().__init__(
+            model=model, data=data, constraints=constraints, options=options
+        )
         extended_pdfs = [pdf for pdf in self.model if pdf.is_extended]
         if extended_pdfs and type(self) == BinnedNLL:
             warn_advanced_feature(
@@ -447,7 +462,6 @@ class BinnedNLL(BaseBinned):
         constraints,
         log_offset,
     ):
-        del fit_range
         poisson_terms = []
         for mod, dat in zip(model, data):
             values = dat.values(  # TODO: right order of model and data?
@@ -462,11 +476,16 @@ class BinnedNLL(BaseBinned):
         nll = znp.sum(poisson_terms)
 
         if constraints:
-            log_offset_val = (
-                0.0 if log_offset is False else log_offset
-            )  # we need to check identity, cannot do runtime conditional if jitted
+            if (
+                log_offset is False
+            ):  # we need to check identity, cannot do runtime conditional if jitted
+                log_offset_val = 0.0
+            else:
+                log_offset_val = log_offset
             log_offset_val = znp.asarray(log_offset_val, dtype=znp.float64)
-            constraints = z.reduce_sum([c.value() - log_offset_val * len(c.get_params()) for c in constraints])
+            constraints = z.reduce_sum(
+                [c.value() - log_offset_val * len(c.get_params()) for c in constraints]
+            )
             nll += constraints
 
         return nll
@@ -507,12 +526,16 @@ def chi2_loss_calc(probs, values, variances, log_offset=None, ignore_empty=None)
     if ignore_empty is None:
         ignore_empty = True
     chi2_term = tf.math.squared_difference(probs, values)
-    one_over_var = tf.math.reciprocal_no_nan(variances) if ignore_empty else tf.math.reciprocal(variances)
+    if ignore_empty:
+        one_over_var = tf.math.reciprocal_no_nan(variances)
+    else:
+        one_over_var = tf.math.reciprocal(variances)
     chi2_term *= one_over_var
     if log_offset is not False:
         log_offset = znp.asarray(log_offset, dtype=znp.float64)
         chi2_term += log_offset
-    return znp.sum(chi2_term)
+    chi2_term = znp.sum(chi2_term)
+    return chi2_term
 
 
 def _check_small_counts_chi2(data, ignore_empty):
@@ -520,12 +543,13 @@ def _check_small_counts_chi2(data, ignore_empty):
         variances = dat.variances()
         smaller_than_six = dat.values() < 6
         if variances is None:
-            msg = f"variances cannot be None for Chi2: {dat}"
-            raise ValueError(msg)
-        if np.any(variances <= 0) and not ignore_empty:
-            msg = f"Variances of {dat} contains zeros or negative numbers, cannot calculate chi2." f" {variances}"
-            raise ValueError(msg)
-        if np.any(smaller_than_six):
+            raise ValueError(f"variances cannot be None for Chi2: {dat}")
+        elif np.any(variances <= 0) and not ignore_empty:
+            raise ValueError(
+                f"Variances of {dat} contains zeros or negative numbers, cannot calculate chi2."
+                f" {variances}"
+            )
+        elif np.any(smaller_than_six):
             warn_advanced_feature(
                 f"Some values in {dat} are < 6, the chi2 assumption of gaussian distributed"
                 f" uncertainties most likely won't hold anymore. Use Chi2 for large samples."
@@ -617,7 +641,9 @@ class BinnedChi2(BaseBinned):
             options["empty"] = "ignore"
         if options.get("errors") is None:
             options["errors"] = "data"
-        super().__init__(model=model, data=data, constraints=constraints, options=options)
+        super().__init__(
+            model=model, data=data, constraints=constraints, options=options
+        )
         extended_pdfs = [pdf for pdf in self.model if pdf.is_extended]
         if extended_pdfs and type(self) == BinnedChi2:
             warn_advanced_feature(
@@ -630,7 +656,10 @@ class BinnedChi2(BaseBinned):
 
     def _precompile(self):
         super()._precompile()
-        ignore_empty = self._options.get("empty") == "ignore" or self._options.get("errors") == "expected"
+        ignore_empty = (
+            self._options.get("empty") == "ignore"
+            or self._options.get("errors") == "expected"
+        )
         data = self.data
         _check_small_counts_chi2(data, ignore_empty)
 
@@ -646,7 +675,10 @@ class BinnedChi2(BaseBinned):
         del fit_range
         ignore_empty = self._options.get("empty") == "ignore"
         chi2_terms = []
-        log_offset_val = 0.0 if log_offset is False else log_offset
+        if log_offset is False:
+            log_offset_val = 0.0
+        else:
+            log_offset_val = log_offset
         log_offset_val = znp.asarray(log_offset_val, dtype=znp.float64)
 
         for mod, dat in zip(model, data):
@@ -664,15 +696,18 @@ class BinnedChi2(BaseBinned):
             else:
                 raise ValueError()
             if variances is None:
-                msg = f"variances cannot be None for Chi2: {dat}"
-                raise ValueError(msg)
+                raise ValueError(f"variances cannot be None for Chi2: {dat}")
 
-            chi2_term = chi2_loss_calc(probs, values, variances, log_offset, ignore_empty=ignore_empty)
+            chi2_term = chi2_loss_calc(
+                probs, values, variances, log_offset, ignore_empty=ignore_empty
+            )
             chi2_terms.append(chi2_term)
         chi2_term = znp.sum(chi2_terms)
 
         if constraints:
-            constraints = z.reduce_sum([c.value() - log_offset_val for c in constraints])
+            constraints = z.reduce_sum(
+                [c.value() - log_offset_val for c in constraints]
+            )
             chi2_term += constraints
 
         return chi2_term
@@ -776,11 +811,16 @@ class ExtendedBinnedChi2(BaseBinned):
             options["empty"] = "ignore"
         if options.get("errors") is None:
             options["errors"] = "data"
-        super().__init__(model=model, data=data, constraints=constraints, options=options)
+        super().__init__(
+            model=model, data=data, constraints=constraints, options=options
+        )
 
     def _precompile(self):
         super()._precompile()
-        ignore_empty = self._options.get("empty") == "ignore" or self._options.get("errors") == "expected"
+        ignore_empty = (
+            self._options.get("empty") == "ignore"
+            or self._options.get("errors") == "expected"
+        )
         data = self.data
         _check_small_counts_chi2(data, ignore_empty)
 
@@ -796,7 +836,10 @@ class ExtendedBinnedChi2(BaseBinned):
         del fit_range
         ignore_empty = self._options.get("empty") == "ignore"
         chi2_terms = []
-        log_offset_val = 0.0 if log_offset is False else log_offset
+        if log_offset is False:
+            log_offset_val = 0.0
+        else:
+            log_offset_val = log_offset
         log_offset_val = znp.asarray(log_offset_val, dtype=znp.float64)
         for mod, dat in zip(model, data):
             values = dat.values(  # TODO: right order of model and data?
@@ -809,18 +852,20 @@ class ExtendedBinnedChi2(BaseBinned):
             elif variance_method == "data":
                 variances = dat.variances()
             else:
-                msg = f"Variance method {variance_method} not supported"
-                raise ValueError(msg)
+                raise ValueError(f"Variance method {variance_method} not supported")
             if variances is None:
-                msg = f"variances cannot be None for Chi2: {dat}"
-                raise ValueError(msg)
+                raise ValueError(f"variances cannot be None for Chi2: {dat}")
 
-            chi2_term = chi2_loss_calc(probs, values, variances, log_offset, ignore_empty=ignore_empty)
+            chi2_term = chi2_loss_calc(
+                probs, values, variances, log_offset, ignore_empty=ignore_empty
+            )
             chi2_terms.append(chi2_term)
         chi2_term = znp.sum(chi2_terms)
 
         if constraints:
-            constraints = z.reduce_sum([c.value() - log_offset_val for c in constraints])
+            constraints = z.reduce_sum(
+                [c.value() - log_offset_val for c in constraints]
+            )
             chi2_term += constraints
 
         return chi2_term

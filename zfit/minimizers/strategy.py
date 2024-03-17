@@ -9,10 +9,10 @@ from collections.abc import Mapping
 
 import numpy as np
 
+from .fitresult import FitResult
 from ..core.interfaces import ZfitLoss, ZfitParameter
 from ..settings import run
 from ..util import ztyping
-from .fitresult import FitResult
 
 
 class FailMinimizeNaN(Exception):
@@ -21,7 +21,9 @@ class FailMinimizeNaN(Exception):
 
 class ZfitStrategy(abc.ABC):
     @abstractmethod
-    def minimize_nan(self, loss: ZfitLoss, params: ztyping.ParamTypeInput, values: Mapping | None = None) -> float:
+    def minimize_nan(
+        self, loss: ZfitLoss, params: ztyping.ParamTypeInput, values: Mapping = None
+    ) -> float:
         raise NotImplementedError
 
     @abstractmethod
@@ -42,11 +44,20 @@ class BaseStrategy(ZfitStrategy):
         self.error = None
         super().__init__()
 
-    def minimize_nan(self, loss: ZfitLoss, params: ztyping.ParamTypeInput, values: Mapping | None = None) -> float:  # noqa: ARG002
+    def minimize_nan(
+        self, loss: ZfitLoss, params: ztyping.ParamTypeInput, values: Mapping = None
+    ) -> float:
+        print(
+            "The minimization failed due to too many NaNs being produced in the loss."
+            "This is most probably caused by negative"
+            " values returned from the PDF. Changing the initial values/stepsize of the parameters can solve this"
+            " problem. Also check your model (if custom) for problems. For more information,"
+            " visit https://github.com/zfit/zfit/wiki/FAQ#fitting-and-minimization"
+        )
         raise FailMinimizeNaN()
 
     def callback(self, value, gradient, hessian, params, loss):
-        del params, loss  # unused
+        del params
         return value, gradient, hessian
 
     def __str__(self) -> str:
@@ -71,10 +82,13 @@ class ToyStrategyFail(BaseStrategy):
             criterion=None,
         )
 
-    def minimize_nan(self, loss: ZfitLoss, params: ztyping.ParamTypeInput, values: Mapping | None = None) -> float:
-        del values  # unused
+    def minimize_nan(
+        self, loss: ZfitLoss, params: ztyping.ParamTypeInput, values: Mapping = None
+    ) -> float:
         param_vals = run(params)
-        param_vals = OrderedDict((param, value) for param, value in zip(params, param_vals))
+        param_vals = OrderedDict(
+            (param, value) for param, value in zip(params, param_vals)
+        )
         self.fit_result = FitResult(
             params=param_vals,
             edm=None,
@@ -112,8 +126,12 @@ def make_pushback_strategy(
             self.nan_penalty = nan_penalty
             self.nan_tol = nan_tol
 
-        def minimize_nan(self, loss: ZfitLoss, params: ztyping.ParamTypeInput, values: Mapping | None = None) -> float:
-            assert "nan_counter" in values, "'nan_counter' not in values, minimizer not correctly implemented"
+        def minimize_nan(
+            self, loss: ZfitLoss, params: ztyping.ParamTypeInput, values: Mapping = None
+        ) -> float:
+            assert (
+                "nan_counter" in values
+            ), "'nan_counter' not in values, minimizer not correctly implemented"
             nan_counter = values["nan_counter"]
             if nan_counter < self.nan_tol:
                 last_loss = values.get("old_loss")
@@ -125,12 +143,10 @@ def make_pushback_strategy(
                 else:
                     loss_evaluated = values.get("loss")
                 if isinstance(loss_evaluated, str):
-                    msg = "Loss starts already with NaN, cannot minimize."
-                    raise RuntimeError(msg)
+                    raise RuntimeError("Loss starts already with NaN, cannot minimize.")
                 return loss_evaluated, last_grad
             else:
                 super().minimize_nan(loss=loss, params=params, values=values)
-                return None
 
     return PushbackStrategy
 
@@ -145,3 +161,5 @@ class DefaultToyStrategy(PushbackStrategy, ToyStrategyFail):
     This can be useful for toy studies, where multiple fits are done and a failure should simply be counted as a failure
     instead of rising an error.
     """
+
+    pass

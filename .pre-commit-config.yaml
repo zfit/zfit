@@ -74,7 +74,7 @@ repos:
 
   # Notebook formatting
   - repo: https://github.com/nbQA-dev/nbQA
-    rev: 1.8.4
+    rev: 1.7.1
     hooks:
       - id: nbqa-isort
         additional_dependencies: [ isort ]
@@ -113,6 +113,11 @@ repos:
 #    hooks:
 #      - id: oxipng
 
+  - repo: https://github.com/psf/black
+    rev: 24.2.0
+    hooks:
+      - id: black
+        language_version: python3
 
   - repo: https://github.com/python-jsonschema/check-jsonschema
     rev: 0.28.0
@@ -147,13 +152,10 @@ repos:
     hooks:
       - id: rm-unneeded-f-str
 
-
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: "v0.3.3"
-    hooks:
-      - id: ruff
-        types_or: [ python, pyi, jupyter ]
-        args: [ --fix, --unsafe-fixes, --show-fixes , --line-length=120]
-      # Run the formatter.
-      - id: ruff-format
-        types_or: [ python, pyi, jupyter ]
+# conflicts with black, maybe config correct?
+#  - repo: https://github.com/astral-sh/ruff-pre-commit
+#    rev: "v0.2.1"
+#    hooks:
+#      - id: ruff
+#        args: [ "--fix", "--show-fixes", "--unsafe-fixes" ]
+#      - id: ruff-format

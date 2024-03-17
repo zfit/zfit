@@ -6,7 +6,6 @@ import collections
 import contextlib
 import functools
 import math as _mt
-import typing
 import warnings
 from collections import defaultdict
 from collections.abc import Callable
@@ -15,7 +14,6 @@ from weakref import WeakSet
 
 import numpy as np
 import tensorflow as tf
-
 import zfit.z.numpy as znp
 
 from ..settings import ztypes
@@ -24,7 +22,6 @@ from ..util.warnings import warn_advanced_feature
 
 
 def constant(value, dtype=ztypes.float, shape=None, name="Const", verify_shape=None):
-    del verify_shape
     return tf.constant(value, dtype=dtype, shape=shape, name=name)
 
 
@@ -52,8 +49,7 @@ def nth_pow(x, n):
         name: No effect, for API compatibility with tf.pow
     """
     if n < 0:
-        msg = f"n (power) has to be >= 0. Currently, n={n}"
-        raise ValueError(msg)
+        raise ValueError(f"n (power) has to be >= 0. Currently, n={n}")
 
     power = to_complex(1.0)
     for _ in range(n):
@@ -106,7 +102,9 @@ def stack_x(values, axis: int = -1, name: str = "stack_x"):
 
 
 def convert_to_tensor(value, dtype=None, name=None, preferred_dtype=None):
-    return tf.convert_to_tensor(value=value, dtype=dtype, name=name, dtype_hint=preferred_dtype)
+    return tf.convert_to_tensor(
+        value=value, dtype=dtype, name=name, dtype_hint=preferred_dtype
+    )
 
 
 def safe_where(
@@ -134,7 +132,8 @@ def safe_where(
         :py:class:`tf.Tensor`:
     """
     safe_x = tf.where(condition=condition, x=values, y=value_safer(values))
-    return tf.where(condition=condition, x=func(safe_x), y=safe_func(values))
+    result = tf.where(condition=condition, x=func(safe_x), y=safe_func(values))
+    return result
 
 
 def run_no_nan(func, x):
@@ -142,24 +141,27 @@ def run_no_nan(func, x):
 
     value_with_nans = func(x=x)
     if value_with_nans.dtype in (tf.complex128, tf.complex64):
-        value_with_nans = znp.real(value_with_nans) + znp.imag(value_with_nans)  # we care only about NaN or not
+        value_with_nans = znp.real(value_with_nans) + znp.imag(
+            value_with_nans
+        )  # we care only about NaN or not
     finite_bools = znp.isfinite(tf.cast(value_with_nans, dtype=tf.float64))
     finite_indices = tf.where(finite_bools)
     new_x = tf.gather_nd(params=x, indices=finite_indices)
     new_x = Data.from_tensor(obs=x.obs, tensor=new_x)
     vals_no_nan = func(x=new_x)
-    return tf.scatter_nd(
+    result = tf.scatter_nd(
         indices=finite_indices,
         updates=vals_no_nan,
         shape=tf.shape(input=value_with_nans, out_type=finite_indices.dtype),
     )
+    return result
 
 
 class FunctionWrapperRegistry:
     registries = WeakSet()
     allow_jit = True
     DEFAULT_CACHE_SIZE = 40
-    _DEFAULT_DO_JIT_TYPES: typing.ClassVar = defaultdict(lambda: True)
+    _DEFAULT_DO_JIT_TYPES = defaultdict(lambda: True)
     _DEFAULT_DO_JIT_TYPES.update(
         {
             None: True,
@@ -220,7 +222,7 @@ class FunctionWrapperRegistry:
         return self.do_jit_types[self.wraps] and self.allow_jit
 
     def reset(self, **kwargs_user):
-        kwargs = {"autograph": False, "reduce_retracing": True}
+        kwargs = dict(autograph=False, reduce_retracing=True)
         kwargs.update(self._initial_user_kwargs)
         kwargs.update(kwargs_user)
         self.tf_function_kwargs = kwargs
@@ -240,7 +242,9 @@ class FunctionWrapperRegistry:
 
     @property
     def tf_function(self):
-        return tf.function(**self.tf_function_kwargs)
+        function = tf.function(**self.tf_function_kwargs)
+
+        return function
 
     def __call__(self, func):
         keepalive = self.keepalive
@@ -257,7 +261,6 @@ class FunctionWrapperRegistry:
             nonlocal wrapped_func
 
             def deleter(proxy):
-                del proxy
                 with contextlib.suppress(ValueError):
                     cache.remove(function_holder)
 
@@ -292,9 +295,7 @@ class FunctionWrapperRegistry:
                         warnings.warn(
                             f"Function {function_holder.python_func} was removed from the cache more than 3"
                             f" times (and getting recompiled). Maybe consider increasing the cache size"
-                            f" using `zfit.run.set_graph_cache_size(...)`, the current size is {self.cachesize}.",
-                            RuntimeWarning,
-                            stacklevel=2,
+                            f" using `zfit.run.set_graph_cache_size(...)`, the current size is {self.cachesize}."
                         )
 
                         self._deleted_cachers - collections.Counter(
@@ -327,29 +328,33 @@ def function(func=None, *, stateless_args=None, cachesize=None, **kwargs):
 
     Returns:
     """
-
     if stateless_args is None:
         stateless_args = False
     if callable(func):
-        wrapper = FunctionWrapperRegistry(cachesize=cachesize, stateless_args=stateless_args, **kwargs)
+        wrapper = FunctionWrapperRegistry()
         return wrapper(func)
-    if func:
-        msg = "All argument have to be key-word only. `func` must not be used"
-        raise ValueError(msg)
-
-    return FunctionWrapperRegistry(**kwargs, cachesize=cachesize, stateless_args=stateless_args)
+    elif func:
+        raise ValueError(
+            "All argument have to be key-word only. `func` must not be used"
+        )
+    else:
+        return FunctionWrapperRegistry(**kwargs, stateless_args=stateless_args)
 
 
 # legacy, remove 0.6
 def function_tf_input(*_, **__):
-    msg = "This function has been removed. Use `z.function(wraps='zfit_tensor') or your" "own category"
-    raise BreakingAPIChangeError(msg)
+    raise BreakingAPIChangeError(
+        "This function has been removed. Use `z.function(wraps='zfit_tensor') or your"
+        "own category"
+    )
 
 
 # legacy, remove 0.6
 def function_sampling(*_, **__):
-    msg = "This function has been removed. Use `z.function(wraps='zfit_sampling') or your" "own category"
-    raise BreakingAPIChangeError(msg)
+    raise BreakingAPIChangeError(
+        "This function has been removed. Use `z.function(wraps='zfit_sampling') or your"
+        "own category"
+    )
 
 
 @functools.wraps(tf.py_function)

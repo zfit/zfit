@@ -1,6 +1,5 @@
 #  Copyright (c) 2024 zfit
 """Definition of minimizers, wrappers etc."""
-
 from __future__ import annotations
 
 import collections
@@ -8,7 +7,7 @@ import copy
 import functools
 import inspect
 import math
-import typing
+import os
 import warnings
 from collections.abc import Callable, Iterable, Mapping
 from contextlib import contextmanager
@@ -16,6 +15,15 @@ from contextlib import contextmanager
 import numpy as np
 from ordered_set import OrderedSet
 
+from .evaluation import LossEval
+from .fitresult import FitResult
+from .interface import ZfitMinimizer, ZfitResult
+from .strategy import (
+    FailMinimizeNaN,
+    PushbackStrategy,
+    ZfitStrategy,
+)
+from .termination import EDM, ConvergenceCriterion
 from ..core.interfaces import ZfitLoss, ZfitParameter
 from ..core.parameter import assign_values, convert_to_parameters
 from ..settings import run
@@ -30,15 +38,6 @@ from ..util.exception import (
     ParameterNotIndependentError,
 )
 from ..util.warnings import warn_changed_feature
-from .evaluation import LossEval
-from .fitresult import FitResult
-from .interface import ZfitMinimizer, ZfitResult
-from .strategy import (
-    FailMinimizeNaN,
-    PushbackStrategy,
-    ZfitStrategy,
-)
-from .termination import EDM, ConvergenceCriterion
 
 DefaultStrategy = PushbackStrategy
 
@@ -78,17 +77,19 @@ def minimize_supports(*, init: bool = False) -> Callable:
                 self_minimizer = args[0]
                 can_handle = True
                 loss_is_arg = len(args) > init_index
-                init_result = args[init_index] if loss_is_arg else kwargs[init_str]
+                if loss_is_arg:
+                    init_result = args[init_index]
+                else:
+                    init_result = kwargs[init_str]
 
                 if isinstance(init_result, FitResult):
                     if init == "same":
-                        if type(self_minimizer) is not type(init_result.minimizer):  # noqa: E721
+                        if not type(self_minimizer) == type(init_result.minimizer):
                             can_handle = False
                     elif not init:
                         can_handle = False
                     else:
-                        msg = "`init` has to be True, False or 'same'"
-                        raise ValueError(msg)
+                        raise ValueError("`init` has to be True, False or 'same'")
                 if not can_handle:
                     raise InitNotImplemented
                 return func(*args, **kwargs)
@@ -110,8 +111,7 @@ def _Minimizer_register_check_support(has_support: bool):
             flags that the ``@supports`` decorator is **not allowed**.
     """
     if not isinstance(has_support, bool):
-        msg = "Has to be boolean."
-        raise TypeError(msg)
+        raise TypeError("Has to be boolean.")
 
     def register(func):
         """Register a method to be checked to (if True) *has* ``support`` or (if False) has *no* ``support``.
@@ -131,7 +131,7 @@ def _Minimizer_register_check_support(has_support: bool):
 
 
 class BaseMinimizer(ZfitMinimizer):
-    _DEFAULTS: typing.ClassVar = {
+    _DEFAULTS = {
         "tol": 1e-3,
         "verbosity": 0,
         "strategy": DefaultStrategy,
@@ -212,8 +212,7 @@ class BaseMinimizer(ZfitMinimizer):
             )
             do_error = not isinstance(strategy, ZfitStrategy)
         if do_error:
-            msg = f"strategy {strategy} is not a subclass of ZfitStrategy."
-            raise TypeError(msg)
+            raise TypeError(f"strategy {strategy} is not a subclass of ZfitStrategy.")
 
         self._strategy = strategy
         self._state = None
@@ -235,36 +234,38 @@ class BaseMinimizer(ZfitMinimizer):
             if not hasattr(cls, method_name):
                 continue  # skip if only subclass requires it
             method = getattr(cls, method_name)
-            if hasattr(method, "__wrapped__") and method.__wrapped__ == wrapper_not_overwritten:
-                continue  # not overwritten, fine
+            if hasattr(method, "__wrapped__"):
+                if method.__wrapped__ == wrapper_not_overwritten:
+                    continue  # not overwritten, fine
 
             # here means: overwritten
             if hasattr(method, "__wrapped__"):
                 if method.__wrapped__ == minimize_supports:
                     if has_support:
                         continue  # needs support, has been wrapped
-
-                    msg = (
-                        f"Method {method_name} has been wrapped with minimize_supports "
-                        "but is not allowed to. Has to handle all "
-                        "arguments."
-                    )
-                    raise MinimizerSubclassingError(msg)
-                if has_support:
-                    msg = (
+                    else:
+                        raise MinimizerSubclassingError(
+                            "Method {} has been wrapped with minimize_supports "
+                            "but is not allowed to. Has to handle all "
+                            "arguments.".format(method_name)
+                        )
+                elif has_support:
+                    raise MinimizerSubclassingError(
                         f"Method {method_name} has been overwritten and *has to* be"
                         " wrapped by `@minimize_supports` decorator (don't forget"
                         " to call the decorator as it takes arguments)"
                     )
-                    raise MinimizerSubclassingError(msg)
-                if not has_support:
+                elif not has_support:
                     continue  # no support, has not been wrapped with
-            elif not has_support:
-                continue  # not wrapped, no support, need no
+            else:
+                if not has_support:
+                    continue  # not wrapped, no support, need no
 
             # if we reach this points, somethings was implemented wrongly
-            msg = f"Method {method_name} has not been correctly wrapped with " f"@minimize_supports "
-            raise MinimizerSubclassingError(msg)
+            raise MinimizerSubclassingError(
+                f"Method {method_name} has not been correctly wrapped with "
+                f"@minimize_supports "
+            )
 
     def _check_convert_input(
         self, loss: ZfitLoss, params, init=None, floating=True
@@ -290,44 +291,48 @@ class BaseMinimizer(ZfitMinimizer):
                 params = list(init.params)
             elif not any(isinstance(p, ZfitParameter) for p in params):
                 params_init = init.loss.get_params()
-                to_set_param_values = dict(zip(params_init, params))
+                to_set_param_values = {p: val for p, val in zip(params_init, params)}
 
         if isinstance(params, collections.abc.Mapping):
             if all(isinstance(p, ZfitParameter) for p in params):
-                to_set_param_values = {p: val for p, val in params.items() if val is not None}
+                to_set_param_values = {
+                    p: val for p, val in params.items() if val is not None
+                }
                 params = list(params.keys())
             elif all(isinstance(p, str) for p in params):
                 params = convert_to_parameters(params, prefer_constant=False)
             else:
-                msg = (
+                raise ValueError(
                     "if `params` argument is a dict, it must either contain parameters or fields"
                     " such as value, name etc."
                 )
-                raise ValueError(msg)
 
         # convert the function to a SimpleLoss
         if not isinstance(loss, ZfitLoss):
             if not callable(loss):
-                msg = "Given Loss has to  be a ZfitLoss or a callable."
-                raise TypeError(msg)
-            if params is None:
-                msg = "If the loss is a callable, the params cannot be None."
-                raise ValueError(msg)
+                raise TypeError("Given Loss has to  be a ZfitLoss or a callable.")
+            elif params is None:
+                raise ValueError(
+                    "If the loss is a callable, the params cannot be None."
+                )
 
             from zfit.loss import SimpleLoss
 
             convert_to_parameters(params, prefer_constant=False)
             loss = SimpleLoss(func=loss, params=params)
 
-        if isinstance(params, (tuple, list)) and not any(isinstance(p, ZfitParameter) for p in params):
+        if isinstance(params, (tuple, list)) and not any(
+            isinstance(p, ZfitParameter) for p in params
+        ):
             loss_params = loss.get_params()
             if len(params) != len(loss_params):
-                msg = (
+                raise ValueError(
                     "params initial values have to have the same length as the free parameters of the loss:"
                     f" {len(params)} and {len(loss_params)} respectively."
                 )
-                raise ValueError(msg)
-            to_set_param_values = {p: val for p, val in zip(loss_params, params) if val is not None}
+            to_set_param_values = {
+                p: val for p, val in zip(loss_params, params) if val is not None
+            }
             params = loss_params
 
         if params is None:
@@ -335,12 +340,16 @@ class BaseMinimizer(ZfitMinimizer):
         else:
             if to_set_param_values:
                 try:
-                    assign_values(list(to_set_param_values), list(to_set_param_values.values()))
+                    assign_values(
+                        list(to_set_param_values), list(to_set_param_values.values())
+                    )
                 except ParameterNotIndependentError as error:
                     not_indep_and_set = {
-                        p for p, val in to_set_param_values.items() if val is not None and not p.independent
+                        p
+                        for p, val in to_set_param_values.items()
+                        if val is not None and not p.independent
                     }
-                    msg = (
+                    raise ParameterNotIndependentError(
                         f"Cannot set parameter {not_indep_and_set} to a value as they"
                         f" are not independent. The following `param` argument was"
                         f" given: {params}."
@@ -348,24 +357,28 @@ class BaseMinimizer(ZfitMinimizer):
                         f"Original error"
                         f"--------------"
                         f"{error}"
-                    )
-                    raise ParameterNotIndependentError(msg) from error
+                    ) from error
             else:
                 params = convert_to_container(params, container=OrderedSet)
 
             # now extract all the independent parameters
-            params = list(OrderedSet.union(*(p.get_params(floating=floating) for p in params)))
+            params = list(
+                OrderedSet.union(*(p.get_params(floating=floating) for p in params))
+            )
 
         # set the parameter values from the init
         if init is not None:
             # don't set the user set
-            params_to_set = OrderedSet(params).intersection(OrderedSet(init.params)) - OrderedSet(to_set_param_values)
+            params_to_set = OrderedSet(params).intersection(
+                OrderedSet(init.params)
+            ) - OrderedSet(to_set_param_values)
             assign_values(params_to_set, init)
         if floating:
             params = self._filter_floating_params(params)
         if not params:
-            msg = "No parameter for minimization given/found. Cannot minimize."
-            raise RuntimeError(msg)
+            raise RuntimeError(
+                "No parameter for minimization given/found. Cannot minimize."
+            )
         params = list(params)
         return loss, params, init
 
@@ -374,9 +387,8 @@ class BaseMinimizer(ZfitMinimizer):
         non_floating = [param for param in params if not param.floating]
         if non_floating:  # legacy warning
             warnings.warn(
-                f"CHANGED BEHAVIOR! Non-floating parameters {non_floating} will not be used in the " f"minimization.",
-                RuntimeWarning,
-                stacklevel=2,
+                f"CHANGED BEHAVIOR! Non-floating parameters {non_floating} will not be used in the "
+                f"minimization."
             )
         return [param for param in params if param.floating]
 
@@ -482,7 +494,9 @@ class BaseMinimizer(ZfitMinimizer):
                 result = minimizer.minimize(func, param)
         """
 
-        loss, params, init = self._check_convert_input(loss=loss, params=params, init=init, floating=True)
+        loss, params, init = self._check_convert_input(
+            loss=loss, params=params, init=init, floating=True
+        )
         with self._make_stateful(loss=loss, params=params, init=init):
             return self._call_minimize(loss=loss, params=params, init=init)
 
@@ -534,9 +548,9 @@ class BaseMinimizer(ZfitMinimizer):
     @_Minimizer_register_check_support(True)
     def _minimize(
         self,
-        loss: ZfitLoss | Callable,  # noqa: ARG002
-        params: ztyping.ParamsTypeOpt | None = None,  # noqa: ARG002
-        init: ZfitResult | None = None,  # noqa: ARG002
+        loss: ZfitLoss | Callable,
+        params: ztyping.ParamsTypeOpt | None = None,
+        init: ZfitResult | None = None,
     ) -> FitResult:
         raise MinimizeNotImplemented
 
@@ -576,8 +590,7 @@ class BaseMinimizer(ZfitMinimizer):
             if self._is_stateful:
                 n = len(self._state["params"])
             else:
-                msg = "n cannot be None if not called within minimize"
-                raise ValueError(msg)
+                raise ValueError("n cannot be None if not called within minimize")
         maxiter = self.maxiter
         if callable(maxiter):
             maxiter = maxiter(n)
@@ -611,15 +624,13 @@ class BaseMinimizer(ZfitMinimizer):
             if self._is_stateful:
                 loss = self._state["loss"]
             else:
-                msg = "loss cannot be None if not called within minimize"
-                raise ValueError(msg)
+                raise ValueError("loss cannot be None if not called within minimize")
 
         if params is None:
             if self._is_stateful:
                 params = self._state["params"]
             else:
-                msg = "params cannot be None if not called within minimize"
-                raise ValueError(msg)
+                raise ValueError("params cannot be None if not called within minimize")
 
         if numpy_converter is None:
             numpy_converter = False
@@ -646,7 +657,9 @@ class BaseMinimizer(ZfitMinimizer):
         return evaluator
 
     def _update_tol_inplace(self, criterion_value, internal_tol):
-        tol_factor = min(math.sqrt(min([max([self.tol / criterion_value * 0.3, 1e-4]), 0.04])), 0.21)
+        tol_factor = min(
+            math.sqrt(min([max([self.tol / criterion_value * 0.3, 1e-4]), 0.04])), 0.21
+        )
         for tol in internal_tol:
             if tol in ("gtol", "xtol"):
                 internal_tol[tol] *= math.sqrt(tol_factor)
@@ -672,15 +685,13 @@ class BaseMinimizer(ZfitMinimizer):
             if self._is_stateful:
                 loss = self._state["loss"]
             else:
-                msg = "loss cannot be None if not called within minimize"
-                raise ValueError(msg)
+                raise ValueError("loss cannot be None if not called within minimize")
 
         if params is None:
             if self._is_stateful:
                 params = self._state["params"]
             else:
-                msg = "params cannot be None if not called within minimize"
-                raise ValueError(msg)
+                raise ValueError("params cannot be None if not called within minimize")
 
         criterion = self.criterion(tol=self.tol, loss=loss, params=params)
         if self._is_stateful:
@@ -689,7 +700,9 @@ class BaseMinimizer(ZfitMinimizer):
 
     # TODO: implement a recovery by using a "stateful" minimization
     def _recover_result(self, prelim_result):
-        warnings.warn("recovering result, yet no special functionality implemented yet.", FutureWarning, stacklevel=2)
+        warnings.warn(
+            "recovering result, yet no special functionality implemented yet."
+        )
         return prelim_result
 
 
@@ -722,12 +735,14 @@ class BaseStepMinimizer(BaseMinimizer):
             changes.append(abs(cur_val - last_val))
             sum_changes = np.sum(changes)
             maxiter_reached = niter > maxiter
-            if (sum_changes < self.tol and niter % 3) or maxiter_reached:  # test the last time surely
+            if (
+                sum_changes < self.tol and niter % 3
+            ) or maxiter_reached:  # test the last time surely
                 xvalues = np.array(run(params))
                 hesse = run(loss.hessian(params))
                 inv_hesse = np.linalg.inv(hesse)
                 status = 10
-                params_result = dict(zip(params, xvalues))
+                params_result = {p: val for p, val in zip(params, xvalues)}
 
                 message = "Unfinished, for criterion"
                 info = {
@@ -770,7 +785,7 @@ class BaseStepMinimizer(BaseMinimizer):
             "inv_hesse": inv_hesse,
         }
 
-        params = dict(zip(params, xvalues))
+        params = {p: val for p, val in zip(params, xvalues)}
         valid = converged
 
         return FitResult(
@@ -788,7 +803,9 @@ class BaseStepMinimizer(BaseMinimizer):
             minimizer=self.copy(),
         )
 
-    def step(self, loss, params: ztyping.ParamsOrNameType = None, init: FitResult = None):
+    def step(
+        self, loss, params: ztyping.ParamsOrNameType = None, init: FitResult = None
+    ):
         """Perform a single step in the minimization (if implemented).
 
         Args:
@@ -803,23 +820,27 @@ class BaseStepMinimizer(BaseMinimizer):
 
         return self._step(loss, params=params, init=init)
 
-    def _step(self, loss, params, init):  # noqa: ARG002
+    def _step(self, loss, params, init):
         raise MinimizeStepNotImplemented
 
 
 class NOT_SUPPORTED:
-    def __new__(cls, *_, **__):
-        msg = "Should never be instantated."
-        raise RuntimeError(msg)
+    def __new__(cls, *args, **kwargs):
+        raise RuntimeError("Should never be instantated.")
 
 
 def print_minimization_status(
-    converged,  # noqa: ARG001
-    criterion,  # noqa: ARG001
-    evaluator,  # noqa: ARG001
-    i,  # noqa: ARG001
-    fminopt,  # noqa: ARG001
+    converged,
+    criterion,
+    evaluator,
+    i,
+    fminopt,
     internal_tol: Mapping[str, float] | None = None,
 ):
     internal_tol = {} if internal_tol is None else internal_tol
-    ", ".join(f"{tol}={val:.3g}" for tol, val in internal_tol.items())
+    tols_str = ", ".join(f"{tol}={val:.3g}" for tol, val in internal_tol.items())
+    print(
+        f"{f'CONVERGED{os.linesep}' if converged else ''}"
+        f"Finished iteration {i}, niter={evaluator.niter}, fmin={fminopt:.7g},"
+        f" {criterion.name}={criterion.last_value:.3g} {tols_str}"
+    )

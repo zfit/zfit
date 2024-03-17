@@ -1,8 +1,10 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2022 zfit
 
 import tensorflow as tf
 
 import zfit
+from zfit import z
+
 
 # IMPORTANT! The communication of which axis corresponds to which data point happens here. So the user knows now that
 # he should create this pdf with a space in the obs (x, y, z).
@@ -11,7 +13,7 @@ import zfit
 class CustomPDF(zfit.pdf.ZPDF):
     """3-dimensional PDF calculating doing something fancy, takes x, y, z as data."""
 
-    _PARAMS = ("alpha", "beta")  # specify which parameters to take
+    _PARAMS = ["alpha", "beta"]  # specify which parameters to take
     _N_OBS = 3
 
     def _unnormalized_pdf(self, x):  # implement function

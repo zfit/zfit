@@ -21,7 +21,9 @@ def make_param_constructor(constructor):
         previous_existing = Serializer._existing_params
 
         if (param := previous_existing.get(name)) is None:
-            Serializer._existing_params[name] = (param := constructor(name=name, **kwargs))
+            Serializer._existing_params[name] = (
+                param := constructor(name=name, **kwargs)
+            )
         return param
 
     return param_constructor

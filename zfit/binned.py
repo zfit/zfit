@@ -1,6 +1,6 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2022 zfit
 
 
-from ._variables.axis import Binnings, RegularBinning, VariableBinning
+from ._variables.axis import RegularBinning, VariableBinning, Binnings
 
 __all__ = ["RegularBinning", "VariableBinning", "Binnings"]

@@ -2,30 +2,26 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable, Iterable
+from collections.abc import Iterable, Callable
 from contextlib import suppress
+from typing import Union
 
 import tensorflow as tf
+import zfit.z.numpy as znp
 from tensorflow_probability import distributions as tfd
 
-import zfit.z.numpy as znp
-
+from .data import Data
+from .interfaces import ZfitPDF, ZfitSpace
+from .space import Space
 from .. import settings, z
 from ..settings import run, ztypes
 from ..util import ztyping
 from ..util.container import convert_to_container
 from ..util.exception import WorkInProgressError
-from .data import Data
-from .interfaces import ZfitPDF, ZfitSpace
-from .space import Space
 
 
 class UniformSampleAndWeights:
     def __call__(self, n_to_produce: int | tf.Tensor, limits: Space, dtype, prng=None):
-        if dtype is not None and dtype != ztypes.float:
-            msg = "Only float is supported for now."
-            raise ValueError(msg)
-
         if prng is None:
             prng = z.random.get_prng()
         rnd_samples = []
@@ -35,7 +31,9 @@ class UniformSampleAndWeights:
         for i, space in enumerate(limits):
             lower, upper = space.rect_limits  # TODO: remove new space
             if i == len(limits) - 1:
-                n_partial_to_produce = n_to_produce - n_produced  # to prevent roundoff errors, shortcut for 1 space
+                n_partial_to_produce = (
+                    n_to_produce - n_produced
+                )  # to prevent roundoff errors, shortcut for 1 space
             else:
                 if isinstance(space, EventSpace):
                     frac = 1.0  # TODO(Mayou36): remove hack for Eventspace
@@ -52,7 +50,9 @@ class UniformSampleAndWeights:
                 dtype=ztypes.float,
             )
 
-            rnd_sample = sample_drawn[:, :-1] * (upper - lower) + lower  # -1: all except func value
+            rnd_sample = (
+                sample_drawn[:, :-1] * (upper - lower) + lower
+            )  # -1: all except func value
             thresholds_unscaled = sample_drawn[:, -1]
 
             rnd_samples.append(rnd_sample)
@@ -78,8 +78,7 @@ class EventSpace(Space):
         name: str | None = "Space",
     ):
         if limits is None:
-            msg = "Limits cannot be None for EventSpaces (currently)"
-            raise ValueError(msg)
+            raise ValueError("Limits cannot be None for EventSpaces (currently)")
         self._limits_tensor = None
         self.dtype = dtype
         self._factory = factory
@@ -117,20 +116,19 @@ class EventSpace(Space):
 
     def iter_areas(self, rel: bool = False) -> tuple[float, ...]:
         if not rel:
-            msg = "Currently, only rel with one limits is implemented in EventSpace"
-            raise RuntimeError(msg)
+            raise RuntimeError(
+                "Currently, only rel with one limits is implemented in EventSpace"
+            )
         return (1.0,)  # TODO: remove HACK, use tensors?
 
-    def add(self, other: ztyping.SpaceOrSpacesTypeInput):  # noqa: ARG002
-        msg = "Cannot be called with an event space."
-        raise RuntimeError(msg)
+    def add(self, other: ztyping.SpaceOrSpacesTypeInput):
+        raise RuntimeError("Cannot be called with an event space.")
 
-    def combine(self, other: ztyping.SpaceOrSpacesTypeInput):  # noqa: ARG002
-        msg = "Cannot be called with an event space."
-        raise RuntimeError(msg)
+    def combine(self, other: ztyping.SpaceOrSpacesTypeInput):
+        raise RuntimeError("Cannot be called with an event space.")
 
     @staticmethod
-    def _calculate_areas(limits) -> tuple[float]:  # noqa: ARG004
+    def _calculate_areas(limits) -> tuple[float]:
         # TODO: return the area as a tensor?
         return (1.0,)
 
@@ -211,7 +209,9 @@ def accept_reject_sample(
     # for fixed limits in EventSpace we need to know which indices have been successfully sampled. Therefore this
     # can be None (if not needed) or a boolean tensor with the size `n`
     initial_is_sampled = tf.constant("EMPTY")
-    if (isinstance(limits, EventSpace) and not limits.is_generator) or limits.n_events > 1:
+    if (
+        isinstance(limits, EventSpace) and not limits.is_generator
+    ) or limits.n_events > 1:
         dynamic_array_shape = False
         if run.numeric_checks:
             tf.debugging.assert_equal(tf.cast(limits.n_events, dtype=tf.int64), n)
@@ -242,7 +242,6 @@ def accept_reject_sample(
         prob_maximum,
         n_min_to_produce,
     ):
-        del sample, n_total_drawn, eff, is_sampled, weights_scaling, weights_maximum, prob_maximum, n_min_to_produce
         return tf.greater(n, n_produced)
 
     @z.function(wraps="tensor", keepalive=True)
@@ -261,7 +260,9 @@ def accept_reject_sample(
         eff = znp.max([eff, z.to_real(1e-6)])
         n_to_produce = n - n_produced
 
-        if isinstance(limits, EventSpace):  # EXPERIMENTAL(Mayou36): added to test EventSpace
+        if isinstance(
+            limits, EventSpace
+        ):  # EXPERIMENTAL(Mayou36): added to test EventSpace
             limits.create_limits(n=n)
 
         do_print = settings.get_verbosity() > 5
@@ -294,16 +295,21 @@ def accept_reject_sample(
             n_to_produce = znp.maximum(n_to_produce, n_min_to_produce)
             # TODO: adjustable efficiency cap for memory efficiency (prevent too many samples at once produced)
             max_produce_cap = tf.constant(800000, dtype=tf.int64)
-            tf.debugging.assert_positive(n_to_produce, "n_to_produce went negative, overflow?")
+            tf.debugging.assert_positive(
+                n_to_produce, "n_to_produce went negative, overflow?"
+            )
             # TODO: remove below? was there due to overflow in tf?
             # n_to_produce = znp.maximum(5, n_to_produce)  # protect against overflow, n_to_prod -> neg.
-            n_to_produce = znp.minimum(n_to_produce, max_produce_cap)  # introduce a cap to force serial
+            n_to_produce = znp.minimum(
+                n_to_produce, max_produce_cap
+            )  # introduce a cap to force serial
             new_limits = limits  # because limits in the vector space case can change
         else:
             # TODO(Mayou36): add cap for n_to_produce here as well
             if multiple_limits:
-                msg = "Multiple limits for fixed event space not yet implemented"
-                raise WorkInProgressError(msg)
+                raise WorkInProgressError(
+                    "Multiple limits for fixed event space not yet implemented"
+                )
             is_not_sampled = tf.logical_not(is_sampled)
             lower, upper = limits._rect_limits_tf
             lower = tf.boolean_mask(tensor=lower, mask=is_not_sampled)
@@ -317,7 +323,9 @@ def accept_reject_sample(
             weights,
             weights_max,
             n_drawn,
-        ) = sample_and_weights(n_to_produce=n_to_produce, limits=new_limits, dtype=dtype)
+        ) = sample_and_weights(
+            n_to_produce=n_to_produce, limits=new_limits, dtype=dtype
+        )
 
         rnd_sample_data = Data.from_tensor(obs=new_limits, tensor=rnd_sample)
         n_drawn = tf.cast(n_drawn, dtype=tf.int64)
@@ -343,7 +351,9 @@ def accept_reject_sample(
             prob_maximum = znp.maximum(prob_maximum, prob_maximum_new)
             # prob_weights_ratio = probabilities / weights_clipped
             prob_weights_ratio_max = znp.max(probabilities / weights_clipped)
-            max_prob_weights_ratio = znp.maximum(prob_maximum / weights_maximum, prob_weights_ratio_max)
+            max_prob_weights_ratio = znp.maximum(
+                prob_maximum / weights_maximum, prob_weights_ratio_max
+            )
             # clipping means that we don't scale more for a certain threshold
             # to properly account for very small numbers, the thresholds should be scaled to match the ratio
             # but if a weight of a sample is very low (compared to the other weights), this would force the acceptance
@@ -363,10 +373,14 @@ def accept_reject_sample(
 
             def calc_new_n_produced():
                 n_produced_float = tf.cast(n_produced, dtype=ztypes.float)
-                binomial = tfd.Binomial(n_produced_float, probs=old_scaling / weights_scaling)
+                binomial = tfd.Binomial(
+                    n_produced_float, probs=old_scaling / weights_scaling
+                )
                 return tf.cast(tf.round(binomial.sample()), dtype=tf.int64)
 
-            n_produced = tf.cond(new_scaling_needed, calc_new_n_produced, lambda: n_produced)
+            n_produced = tf.cond(
+                new_scaling_needed, calc_new_n_produced, lambda: n_produced
+            )
             # TODO: for fixed array shape?
             # weights_scaling = znp.maximum(max_prob_weights_ratio, weights_scaling)
 
@@ -375,13 +389,16 @@ def accept_reject_sample(
             weights_scaling = prob_max / weights_max
 
         weights_scaled = (
-            weights_scaling * weights
+            weights_scaling
+            * weights
             # * (1 + 1e-8)
         )  # numerical epsilon
         random_thresholds = thresholds_unscaled * weights_scaled
         if run.numeric_checks:
             invalid_probs_weights = tf.greater(probabilities, weights_scaled)
-            failed_weights = tf.boolean_mask(tensor=weights_scaled, mask=invalid_probs_weights)
+            failed_weights = tf.boolean_mask(
+                tensor=weights_scaled, mask=invalid_probs_weights
+            )
 
             # def bias_print():
             #     tf.print("HACK WARNING: if the following is NOT empty, your sampling _may_ be biased."
@@ -435,10 +452,14 @@ def accept_reject_sample(
             indices = tf.range(n_produced, n_produced_new)
 
         # TODO: pack into tf.function to speedup considerable the eager sampling? Is bottleneck currently
-        sample_new = sample.scatter(indices=tf.cast(indices, dtype=tf.int32), value=filtered_sample)
+        sample_new = sample.scatter(
+            indices=tf.cast(indices, dtype=tf.int32), value=filtered_sample
+        )
 
         # efficiency (estimate) of how many samples we get
-        eff = znp.max([z.to_real(n_produced_new), z.to_real(0.5)]) / znp.max([z.to_real(n_total_drawn), z.to_real(1.0)])
+        eff = znp.max([z.to_real(n_produced_new), z.to_real(0.5)]) / znp.max(
+            [z.to_real(n_total_drawn), z.to_real(1.0)]
+        )
         return (
             n,
             sample_new,
@@ -484,7 +505,9 @@ def accept_reject_sample(
     new_sample = tf.stop_gradient(new_sample)  # stopping backprop
 
     if multiple_limits:
-        new_sample = z.random.shuffle(new_sample)  # to make sure, randomly remove and not biased.
+        new_sample = z.random.shuffle(
+            new_sample
+        )  # to make sure, randomly remove and not biased.
     if dynamic_array_shape:  # if not dynamic we produced exact n -> no need to cut
         new_sample = new_sample[:n, :]  # cutting away to many produced
 
@@ -513,14 +536,15 @@ def extract_extended_pdfs(pdfs: Iterable[ZfitPDF] | ZfitPDF) -> list[ZfitPDF]:
     for pdf in pdfs:
         if not pdf.is_extended:
             continue
-        if isinstance(pdf, BaseFunctor):
+        elif isinstance(pdf, BaseFunctor):
             if all(pdf.pdfs_extended):
                 indep_pdfs.extend(extract_extended_pdfs(pdfs=pdf.pdfs))
             elif not any(pdf.pdfs_extended):
                 indep_pdfs.append(pdf)
             else:
-                msg = "Should not reach this point, wrong assumptions. Please report bug."
-                raise AssertionError(msg)
+                assert (
+                    False
+                ), "Should not reach this point, wrong assumptions. Please report bug."
         else:  # extended, but not a functor
             indep_pdfs.append(pdf)
 
@@ -548,4 +572,5 @@ def extended_sampling(pdfs: Iterable[ZfitPDF] | ZfitPDF, limits: Space) -> tf.Te
         # sample.set_shape((n, limits.n_obs))
         samples.append(sample.value())
 
-    return znp.concatenate(samples, axis=0)
+    samples = znp.concatenate(samples, axis=0)
+    return samples

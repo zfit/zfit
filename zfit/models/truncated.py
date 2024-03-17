@@ -1,21 +1,20 @@
 #  Copyright (c) 2024 zfit
-from typing import List, Literal, Union
+from collections import defaultdict
+from typing import Literal, Optional, Dict, Tuple, List, Union
 
 import numpy as np
 import pydantic
 import tensorflow as tf
-
-import zfit.z.numpy as znp
-
-from .. import z
-from ..core.interfaces import ZfitSpace
-from ..core.serialmixin import SerializableMixin
-from ..core.space import supports
-from ..serialization import Serializer, SpaceRepr  # noqa: F401
-from ..util.container import convert_to_container
-from ..util.exception import SpecificFunctionNotImplemented
 from .basefunctor import FunctorPDFRepr
 from .functor import BaseFunctor
+from .. import z
+from ..core.interfaces import ZfitSpace
+from ..core.space import supports
+from ..core.serialmixin import SerializableMixin
+from ..serialization import SpaceRepr, Serializer  # noqa: F401
+from ..util.container import convert_to_container
+import zfit.z.numpy as znp
+from ..util.exception import SpecificFunctionNotImplemented
 
 
 def check_limits(limits: Union[ZfitSpace, List[ZfitSpace]]):
@@ -24,13 +23,14 @@ def check_limits(limits: Union[ZfitSpace, List[ZfitSpace]]):
     if limits is not None:
         notspace = [limit for limit in limits if not isinstance(limit, ZfitSpace)]
         if notspace:
-            msg = f"limits {notspace} are not of type ZfitSpace."
-            raise TypeError(msg)
+            raise TypeError(f"limits {notspace} are not of type ZfitSpace.")
     return limits
 
 
 class TruncatedPDF(BaseFunctor, SerializableMixin):
-    def __init__(self, pdf, limits, obs=None, norms=None, extended=None, name="PiecewisePDF"):
+    def __init__(
+        self, pdf, limits, obs=None, norms=None, extended=None, name="PiecewisePDF"
+    ):
         """Truncated PDF in one or multiple ranges.
 
         The PDF is truncated to the given limits, i.e. the PDF is only evaluated within the given limits
@@ -71,12 +71,15 @@ class TruncatedPDF(BaseFunctor, SerializableMixin):
         original_init = {"extended": extended, "obs": obs}
 
         self._limits = check_limits(limits)
-        self._norms = check_limits(norms)  # TODO: check if space etc, get min/max of limits?
+        self._norms = check_limits(
+            norms
+        )  # TODO: check if space etc, get min/max of limits?
         if obs is None:
             obs = pdf.space
         if extended is True and pdf.is_extended:
-            msg = "Cannot automatically take the value, would need to integrate and get correct fraction."
-            raise ValueError(msg)
+            raise ValueError(
+                "Cannot automatically take the value, would need to integrate and get correct fraction."
+            )
             # extended = pdf.get_yield()  # TODO: that's probably not quite right per se?
         super().__init__(obs=obs, name=name, extended=extended, norm=None, pdfs=pdf)
         self.hs3.original_init.update(original_init)
@@ -99,47 +102,65 @@ class TruncatedPDF(BaseFunctor, SerializableMixin):
         xarray = znp.asarray(x.value())
         inside_arrays = [limit.inside(x) for limit in self._limits]
         inside = znp.any(inside_arrays, axis=0)
-        indices = znp.transpose(znp.where(inside))  # is a list? but transpose gives perfect shape for indices
+        indices = znp.transpose(
+            znp.where(inside)
+        )  # is a list? but transpose gives perfect shape for indices
         data = Data.from_tensor(tensor=xarray[inside], obs=self.obs)
         prob = self.pdfs[0].pdf(data, norm=False)
-        return tf.scatter_nd(indices, prob, tf.shape(xarray, out_type=np.int64)[:1])  # only nevents
+        outprob = tf.scatter_nd(
+            indices, prob, tf.shape(xarray, out_type=np.int64)[:1]
+        )  # only nevents
+        return outprob
 
     @supports(norm=True)
     def _normalization(self, norm, options):
         if (norms := self._norms) is None:
             norms = [norm]
         elif norm != self.space:
-            msg = f"Cannot normalize to a different space than the one given, the norms {norms}."
-            raise RuntimeError(msg)
+            raise RuntimeError(
+                f"Cannot normalize to a different space than the one given, the norms {norms}."
+            )
 
         normterms = [self.pdfs[0].normalization(norm) for norm in norms]
         return znp.sum(normterms, axis=0)
 
     @supports()
     def _integrate(self, limits, norm, options=None):
-        if limits != self.space:  # we could also do it, but would need to check each limit
+        if (
+            limits != self.space
+        ):  # we could also do it, but would need to check each limit
             raise SpecificFunctionNotImplemented
         limits = convert_to_container(
             self.limits
         )  # if it's the overarching limits, we can just use our own ones, the real ones
-        integrals = [self.pdfs[0].integrate(limits=limit, norm=False) for limit in limits]
-        return znp.sum(integrals, axis=0)
+        integrals = [
+            self.pdfs[0].integrate(limits=limit, norm=False) for limit in limits
+        ]
+        integral = znp.sum(integrals, axis=0)
+        return integral
 
     # TODO: we could make sampling more efficient by only sampling the relevant ranges, however, that would
     # mean we need to check if the limits of the pdf are within the limits given
     @supports()
     def _sample(self, n, limits):
         pdf = self.pdfs[0]
-        if limits != self.space:  # we could also do it, but would need to check each limit
+        if (
+            limits != self.space
+        ):  # we could also do it, but would need to check each limit
             raise SpecificFunctionNotImplemented
         limits = convert_to_container(
             self.limits
         )  # if it's the overarching limits, we can just use our own ones, the real ones
-        integrals = znp.concatenate([pdf.integrate(limits=limit, norm=False) for limit in limits])
+        integrals = znp.concatenate(
+            [pdf.integrate(limits=limit, norm=False) for limit in limits]
+        )
         fracs = integrals / znp.sum(integrals, axis=0)  # norm
         fracs.set_shape([len(limits)])
         counts = tf.unstack(z.random.counts_multinomial(n, probs=fracs), axis=0)
-        samples = [self.pdfs[0].sample(count, limits=limit).value() for count, limit in zip(counts, limits)]
+        samples = [
+            self.pdfs[0].sample(count, limits=limit).value()
+            for count, limit in zip(counts, limits)
+        ]
         return znp.concatenate(samples, axis=0)
 
 

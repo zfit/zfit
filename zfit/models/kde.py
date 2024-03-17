@@ -2,41 +2,34 @@
 
 from __future__ import annotations
 
-import typing
 from collections.abc import Callable
 from typing import Literal
+from typing import Union, Optional
 
 import numpy as np
 import pydantic
 import tensorflow as tf
 import tensorflow_probability as tfp
+import zfit.z.numpy as znp
 from tensorflow_probability.python import distributions as tfd
 
-import zfit.z.numpy as znp
-
+from .dist_tfp import WrapDistribution
 from .. import z
 from ..core.basepdf import BasePDF
 from ..core.interfaces import ZfitData, ZfitParameter, ZfitSpace
 from ..core.serialmixin import SerializableMixin
 from ..serialization import Serializer, SpaceRepr
 from ..serialization.pdfrepr import BasePDFRepr
-from ..settings import run, ztypes
+from ..settings import ztypes, run
 from ..util import (
     binning as binning_util,
-)
-from ..util import (
     convolution as convolution_util,
-)
-from ..util import (
     improved_sheather_jones as isj_util,
-)
-from ..util import (
     ztyping,
 )
 from ..util.exception import OverdefinedError, ShapeIncompatibleError
 from ..util.ztyping import ExtendedInputType, NormInputType
 from ..z.math import weighted_quantile
-from .dist_tfp import WrapDistribution
 
 
 @z.function(wraps="tensor", keepalive=True)
@@ -74,7 +67,11 @@ def bandwidth_rule_of_thumb(
     """
     if factor is None:
         factor = tf.constant(0.9)
-    return min_std_or_iqr(data, weights) * tf.cast(tf.shape(data)[0], ztypes.float) ** (-1 / 5.0) * factor
+    return (
+        min_std_or_iqr(data, weights)
+        * tf.cast(tf.shape(data)[0], ztypes.float) ** (-1 / 5.0)
+        * factor
+    )
 
 
 @z.function(wraps="tensor", keepalive=True)
@@ -103,7 +100,9 @@ def bandwidth_silverman(data, weights):
     Returns:
         Estimated bandwidth
     """
-    return bandwidth_rule_of_thumb(data=data, weights=weights, factor=znp.array(0.9, dtype=ztypes.float))
+    return bandwidth_rule_of_thumb(
+        data=data, weights=weights, factor=znp.array(0.9, dtype=ztypes.float)
+    )
 
 
 @z.function(wraps="tensor", keepalive=True)
@@ -132,7 +131,9 @@ def bandwidth_scott(data, weights):
     Returns:
         Estimated bandwidth
     """
-    return bandwidth_rule_of_thumb(data=data, weights=weights, factor=znp.array(1.059, dtype=ztypes.float))
+    return bandwidth_rule_of_thumb(
+        data=data, weights=weights, factor=znp.array(1.059, dtype=ztypes.float)
+    )
 
 
 def bandwidth_isj(data, weights):
@@ -163,7 +164,9 @@ def bandwidth_isj(data, weights):
     Returns:
         Estimated bandwidth
     """
-    return isj_util.calculate_bandwidth(data, num_grid_points=1024, binning_method="linear", weights=weights)
+    return isj_util.calculate_bandwidth(
+        data, num_grid_points=1024, binning_method="linear", weights=weights
+    )
 
 
 def bandwidth_adaptive_geomV1(data, func, weights):
@@ -223,9 +226,14 @@ def bandwidth_adaptive_geomV1(data, func, weights):
         Estimated bandwidth of size data
     """
     data = z.convert_to_tensor(data)
-    n = znp.sum(weights) if weights is not None else tf.cast(tf.shape(data)[0], ztypes.float)
+    if weights is not None:
+        n = znp.sum(weights)
+    else:
+        n = tf.cast(tf.shape(data)[0], ztypes.float)
     probs = func(data)
-    lambda_i = 1 / znp.sqrt(probs / z.math.reduce_geometric_mean(probs, weights=weights))
+    lambda_i = 1 / znp.sqrt(
+        probs / z.math.reduce_geometric_mean(probs, weights=weights)
+    )
 
     return lambda_i * n ** (-1.0 / 5.0) * min_std_or_iqr(data, weights)
 
@@ -348,7 +356,10 @@ def bandwidth_adaptive_stdV1(data, func, weights):
         Estimated bandwidth array of same size as data
     """
     data = z.convert_to_tensor(data)
-    n = znp.sum(weights) if weights is not None else tf.cast(tf.shape(data)[0], ztypes.float)
+    if weights is not None:
+        n = znp.sum(weights)
+    else:
+        n = tf.cast(tf.shape(data)[0], ztypes.float)
     probs = func(data)
     divisor = min_std_or_iqr(data, weights)
     bandwidth = z.sqrt(divisor / probs)
@@ -390,13 +401,19 @@ def adaptive_factory(func, grid):
     return adaptive
 
 
-_adaptive_geom_bandwidth_grid_KDEV1 = adaptive_factory(bandwidth_adaptive_geomV1, grid=True)
+_adaptive_geom_bandwidth_grid_KDEV1 = adaptive_factory(
+    bandwidth_adaptive_geomV1, grid=True
+)
 _adaptive_geom_bandwidth_KDEV1 = adaptive_factory(bandwidth_adaptive_geomV1, grid=False)
 
-_adaptive_std_bandwidth_grid_KDEV1 = adaptive_factory(bandwidth_adaptive_stdV1, grid=True)
+_adaptive_std_bandwidth_grid_KDEV1 = adaptive_factory(
+    bandwidth_adaptive_stdV1, grid=True
+)
 _adaptive_std_bandwidth_KDEV1 = adaptive_factory(bandwidth_adaptive_stdV1, grid=False)
 
-_adaptive_zfit_bandwidth_grid_KDEV1 = adaptive_factory(bandwidth_adaptive_zfitV1, grid=True)
+_adaptive_zfit_bandwidth_grid_KDEV1 = adaptive_factory(
+    bandwidth_adaptive_zfitV1, grid=True
+)
 _adaptive_zfit_bandwidth_KDEV1 = adaptive_factory(bandwidth_adaptive_zfitV1, grid=False)
 
 
@@ -422,11 +439,11 @@ def check_bw_grid_shapes(bandwidth, grid=None, n_grid=None):
     if run.executing_eagerly() and bw_is_arraylike(bandwidth, allow1d=False):
         n_grid = grid.shape[0] if grid is not None else n_grid
         if n_grid is None:
-            msg = "Either the grid or n_grid must be given."
-            raise ValueError(msg)
+            raise ValueError("Either the grid or n_grid must be given.")
         if bandwidth.shape[0] != n_grid:
-            msg = "The bandwidth array must have the same length as the grid"
-            raise ShapeIncompatibleError(msg)
+            raise ShapeIncompatibleError(
+                "The bandwidth array must have the same length as the grid"
+            )
 
 
 @z.function(wraps="tensor", keepalive=True)
@@ -434,10 +451,13 @@ def min_std_or_iqr(x, weights):
     if weights is not None:
         return znp.minimum(
             znp.sqrt(tf.nn.weighted_moments(x, axes=[0], frequency_weights=weights)[1]),
-            weighted_quantile(x, 0.75, weights=weights)[0] - weighted_quantile(x, 0.25, weights=weights)[0],
+            weighted_quantile(x, 0.75, weights=weights)[0]
+            - weighted_quantile(x, 0.25, weights=weights)[0],
         )
     else:
-        return znp.minimum(znp.std(x), (tfp.stats.percentile(x, 75) - tfp.stats.percentile(x, 25)))
+        return znp.minimum(
+            znp.std(x), (tfp.stats.percentile(x, 75) - tfp.stats.percentile(x, 25))
+        )
 
 
 @z.function(wraps="tensor", keepalive=True)
@@ -449,29 +469,36 @@ def calc_kernel_probs(size, weights):
 
 
 class KDEHelper:
-    _bandwidth_methods: typing.ClassVar = {
+    _bandwidth_methods = {
         "scott": _bandwidth_scott_KDEV1,
         "silverman": _bandwidth_silverman_KDEV1,
     }
     _default_padding = False
     _default_num_grid_points = 1024
 
-    def _convert_init_data_weights_size(self, data, weights, padding, limits=None, bandwidth=None):
+    def _convert_init_data_weights_size(
+        self, data, weights, padding, limits=None, bandwidth=None
+    ):
         self._original_data = data  # for copying
         if isinstance(data, ZfitData):
             if data.weights is not None:
                 if weights is not None:
-                    msg = "Cannot specify weights and use a `ZfitData` with weights."
-                    raise OverdefinedError(msg)
-                weights = data.weights
+                    raise OverdefinedError(
+                        "Cannot specify weights and use a `ZfitData` with weights."
+                    )
+                else:
+                    weights = data.weights
 
             if data.n_obs > 1:
-                msg = f"KDE is 1 dimensional, but data {data} has {data.n_obs} observables."
-                raise ShapeIncompatibleError(msg)
+                raise ShapeIncompatibleError(
+                    f"KDE is 1 dimensional, but data {data} has {data.n_obs} observables."
+                )
             data = z.unstack_x(data)
 
         if callable(padding):
-            data, weights, bandwidth = padding(data=data, weights=weights, limits=limits, bandwidth=bandwidth)
+            data, weights, bandwidth = padding(
+                data=data, weights=weights, limits=limits, bandwidth=bandwidth
+            )
         elif padding is not False:
             data, weights, bandwidth = padreflect_data_weights_1dim(
                 data, weights=weights, mode=padding, limits=limits, bandwidth=bandwidth
@@ -488,11 +515,10 @@ class KDEHelper:
         if isinstance(bandwidth, str):
             bandwidth = self._bandwidth_methods.get(bandwidth)
             if bandwidth is None:
-                msg = (
+                raise ValueError(
                     f"Cannot use {bandwidth} as a bandwidth method. Use a numerical value or one of"
                     f" the defined methods: {list(self._bandwidth_methods.keys())}"
                 )
-                raise ValueError(msg)
         if (not isinstance(bandwidth, ZfitParameter)) and callable(bandwidth):
             bandwidth = bandwidth(constructor=type(self), data=data, **kwargs)
         is_arraylike = bw_is_arraylike(bandwidth_param, allow1d=True)
@@ -525,11 +551,10 @@ def padreflect_data_weights_1dim(data, mode, weights=None, limits=None, bandwidt
         mode = {"lowermirror": mode, "uppermirror": mode}
     for key in mode:
         if key not in ("lowermirror", "uppermirror"):
-            msg = (
+            raise ValueError(
                 f"Key '{key}' is not a valid padding specification, use 'lowermirror' or 'uppermirror'"
                 f" in order to mirror the data."
             )
-            raise ValueError(msg)
     if limits is None:
         minimum = znp.min(data)
         maximum = znp.max(data)
@@ -584,7 +609,9 @@ def padreflect_data_weights_1dim(data, mode, weights=None, limits=None, bandwidt
 class GaussianKDE1DimV1(KDEHelper, WrapDistribution):
     _N_OBS = 1
     _bandwidth_methods = KDEHelper._bandwidth_methods.copy()
-    _bandwidth_methods.update({"adaptive": _adaptive_std_bandwidth_KDEV1, "isj": _bandwidth_isj_KDEV1})
+    _bandwidth_methods.update(
+        {"adaptive": _adaptive_std_bandwidth_KDEV1, "isj": _bandwidth_isj_KDEV1}
+    )
 
     def __init__(
         self,
@@ -735,14 +762,16 @@ class GaussianKDE1DimV1(KDEHelper, WrapDistribution):
         # create distribution factory
         if truncate:
             if not isinstance(obs, ZfitSpace):
-                msg = "`obs` has to be a `ZfitSpace` if `truncated` is True."
-                raise ValueError(msg)
+                raise ValueError(
+                    "`obs` has to be a `ZfitSpace` if `truncated` is True."
+                )
             inside = obs.inside(data)
             all_inside = znp.all(inside)
             tf.debugging.assert_equal(
                 all_inside,
                 True,
-                message="Not all data points are inside the limits but" " a truncate kernel was chosen.",
+                message="Not all data points are inside the limits but"
+                " a truncate kernel was chosen.",
             )
 
             def kernel_factory():
@@ -759,10 +788,10 @@ class GaussianKDE1DimV1(KDEHelper, WrapDistribution):
                 return tfp.distributions.Normal(loc=self._data, scale=self._bandwidth)
 
         def dist_kwargs():
-            return {
-                "mixture_distribution": categorical,
-                "components_distribution": kernel_factory(),
-            }
+            return dict(
+                mixture_distribution=categorical,
+                components_distribution=kernel_factory(),
+            )
 
         distribution = tfd.MixtureSameFamily
 
@@ -956,9 +985,11 @@ class KDE1DimExact(KDEHelper, WrapDistribution, SerializableMixin):
             padding = self._default_padding
         if obs is None:
             if not isinstance(data, ZfitData) or not data.space.has_limits:
-                msg = "obs can only be None if data is ZfitData with limits."
-                raise ValueError(msg)
-            obs = data.space
+                raise ValueError(
+                    "obs can only be None if data is ZfitData with limits."
+                )
+            else:
+                obs = data.space
         data, size, weights, bandwidth = self._convert_init_data_weights_size(
             data, weights, padding=padding, limits=obs.limits, bandwidth=bandwidth
         )
@@ -986,13 +1017,15 @@ class KDE1DimExact(KDEHelper, WrapDistribution, SerializableMixin):
         probs = calc_kernel_probs(size, weights)
 
         mixture_distribution = tfd.Categorical(probs=probs)
-        components_distribution = components_distribution_generator(loc=self._data, scale=self._bandwidth)
+        components_distribution = components_distribution_generator(
+            loc=self._data, scale=self._bandwidth
+        )
 
         def dist_kwargs():
-            return {
-                "mixture_distribution": mixture_distribution,
-                "components_distribution": components_distribution,
-            }
+            return dict(
+                mixture_distribution=mixture_distribution,
+                components_distribution=components_distribution,
+            )
 
         distribution = tfd.MixtureSameFamily
 
@@ -1015,21 +1048,23 @@ class KDE1DimExactRepr(BasePDFRepr):
     _implementation = KDE1DimExact
     hs3_type: Literal["KDE1DimExact"] = pydantic.Field("KDE1DimExact", alias="type")
 
-    data: np.ndarray | Serializer.types.DataTypeDiscriminated
-    obs: SpaceRepr | None = None
-    bandwidth: str | float | None = None
+    data: Union[np.ndarray, Serializer.types.DataTypeDiscriminated]
+    obs: Optional[SpaceRepr] = None
+    bandwidth: Optional[Union[str, float]] = None
     kernel: None = None
-    padding: bool | str | None = None
-    weights: np.ndarray | tf.Tensor | None = None
-    name: str | None = "KDE1DimExact"
+    padding: Optional[Union[bool, str]] = None
+    weights: Optional[Union[np.ndarray, tf.Tensor]] = None
+    name: Optional[str] = "KDE1DimExact"
 
     @pydantic.validator("kernel", pre=True)
     def validate_kernel(cls, v):
         if v is not None:
             if v != tfd.Normal:
-                msg = "Kernel must be None for KDE1DimExact to be serialized."
-                raise ValueError(msg)
-            v = None
+                raise ValueError(
+                    "Kernel must be None for KDE1DimExact to be serialized."
+                )
+            else:
+                v = None
         return v
 
     @pydantic.root_validator(pre=True)
@@ -1216,24 +1251,28 @@ class KDE1DimGrid(KDEHelper, WrapDistribution, SerializableMixin):
         if num_grid_points is None:
             num_grid_points = self._default_num_grid_points
 
-        if isinstance(bandwidth, str):  # numpy arrays cannot be compared with equal-> "use any, all"
+        if isinstance(
+            bandwidth, str
+        ):  # numpy arrays cannot be compared with equal-> "use any, all"
             if bandwidth == "isj":
-                msg = "isj not supported in GridKDE, use directly 'KDE1DimISJ'"
-                raise ValueError(msg)
+                raise ValueError(
+                    "isj not supported in GridKDE, use directly 'KDE1DimISJ'"
+                )
             if bandwidth == "adaptive_std":
-                msg = (
+                raise ValueError(
                     "adaptive_std not supported in GridKDE due to very bad results. This is maybe caused"
                     " by an issue regarding weights of the underlaying implementation."
                 )
-                raise ValueError(msg)
 
         if padding is None:
             padding = self._default_padding
         if obs is None:
             if not isinstance(data, ZfitData) or not data.space.has_limits:
-                msg = "obs can only be None if data is ZfitData with limits."
-                raise ValueError(msg)
-            obs = data.space
+                raise ValueError(
+                    "obs can only be None if data is ZfitData with limits."
+                )
+            else:
+                obs = data.space
         data, size, weights, _ = self._convert_init_data_weights_size(
             data, weights, padding=padding, limits=obs.limits, bandwidth=bandwidth
         )
@@ -1245,11 +1284,15 @@ class KDE1DimGrid(KDEHelper, WrapDistribution, SerializableMixin):
             return tfd.Independent(kernel(loc=loc, scale=scale))
 
         if num_grid_points is not None:
-            num_grid_points = tf.minimum(tf.cast(size, ztypes.int), tf.cast(num_grid_points, ztypes.int))
+            num_grid_points = tf.minimum(
+                tf.cast(size, ztypes.int), tf.cast(num_grid_points, ztypes.int)
+            )
         self._num_grid_points = num_grid_points
         self._binning_method = binning_method
         self._data = data
-        self._grid = binning_util.generate_1d_grid(self._data, num_grid_points=self._num_grid_points)
+        self._grid = binning_util.generate_1d_grid(
+            self._data, num_grid_points=self._num_grid_points
+        )
 
         bandwidth, bandwidth_param = self._convert_input_bandwidth(
             bandwidth=bandwidth,
@@ -1267,19 +1310,23 @@ class KDE1DimGrid(KDEHelper, WrapDistribution, SerializableMixin):
         self._kernel = kernel
         self._weights = weights
 
-        self._grid_data = binning_util.bin_1d(self._binning_method, self._data, self._grid, self._weights)
+        self._grid_data = binning_util.bin_1d(
+            self._binning_method, self._data, self._grid, self._weights
+        )
 
         mixture_distribution = tfd.Categorical(probs=self._grid_data)
 
         check_bw_grid_shapes(self._bandwidth, self._grid)
 
-        components_distribution = components_distribution_generator(loc=self._grid, scale=self._bandwidth)
+        components_distribution = components_distribution_generator(
+            loc=self._grid, scale=self._bandwidth
+        )
 
         def dist_kwargs():
-            return {
-                "mixture_distribution": mixture_distribution,
-                "components_distribution": components_distribution,
-            }
+            return dict(
+                mixture_distribution=mixture_distribution,
+                components_distribution=components_distribution,
+            )
 
         distribution = tfd.MixtureSameFamily
 
@@ -1311,23 +1358,25 @@ class KDE1DimGridRepr(BasePDFRepr):
     _implementation = KDE1DimGrid
     hs3_type: Literal["KDE1DimGrid"] = pydantic.Field("KDE1DimGrid", alias="type")
 
-    data: np.ndarray | Serializer.types.DataTypeDiscriminated
-    obs: SpaceRepr | None = None
-    bandwidth: str | float | None = None
-    num_grid_points: int | None = None
-    binning_method: str | None = None
+    data: Union[np.ndarray, Serializer.types.DataTypeDiscriminated]
+    obs: Optional[SpaceRepr] = None
+    bandwidth: Optional[Union[str, float]] = None
+    num_grid_points: Optional[int] = None
+    binning_method: Optional[str] = None
     kernel: None = None
-    padding: bool | str | None = None
-    weights: np.ndarray | tf.Tensor | None = None
-    name: str | None = "GridKDE1DimV1"
+    padding: Optional[Union[bool, str]] = None
+    weights: Optional[Union[np.ndarray, tf.Tensor]] = None
+    name: Optional[str] = "GridKDE1DimV1"
 
     @pydantic.validator("kernel", pre=True)
     def validate_kernel(cls, v):
         if v is not None:
             if v != tfd.Normal:
-                msg = "Kernel must be None for GridKDE1DimV1 to be serialized."
-                raise ValueError(msg)
-            v = None
+                raise ValueError(
+                    "Kernel must be None for GridKDE1DimV1 to be serialized."
+                )
+            else:
+                v = None
         return v
 
     @pydantic.root_validator(pre=True)
@@ -1501,8 +1550,7 @@ class KDE1DimFFT(KDEHelper, BasePDF, SerializableMixin):
             "name": name,
         }
         if isinstance(bandwidth, ZfitParameter):
-            msg = "bandwidth cannot be a Parameter for the FFT KDE."
-            raise TypeError(msg)
+            raise TypeError("bandwidth cannot be a Parameter for the FFT KDE.")
         if num_grid_points is None:
             num_grid_points = self._default_num_grid_points
         if binning_method is None:
@@ -1516,9 +1564,11 @@ class KDE1DimFFT(KDEHelper, BasePDF, SerializableMixin):
             padding = self._default_padding
         if obs is None:
             if not isinstance(data, ZfitData) or not data.space.has_limits:
-                msg = "obs can only be None if data is ZfitData with limits."
-                raise ValueError(msg)
-            obs = data.space
+                raise ValueError(
+                    "obs can only be None if data is ZfitData with limits."
+                )
+            else:
+                obs = data.space
         data, size, weights, _ = self._convert_init_data_weights_size(
             data, weights, padding=padding, limits=obs.limits, bandwidth=bandwidth
         )
@@ -1535,7 +1585,9 @@ class KDE1DimFFT(KDEHelper, BasePDF, SerializableMixin):
             obs=obs,
             weights=weights,
         )
-        num_grid_points = tf.minimum(tf.cast(size, ztypes.int), tf.constant(num_grid_points, ztypes.int))
+        num_grid_points = tf.minimum(
+            tf.cast(size, ztypes.int), tf.constant(num_grid_points, ztypes.int)
+        )
         check_bw_grid_shapes(bandwidth, n_grid=num_grid_points)
         self._num_grid_points = num_grid_points
         self._binning_method = binning_method
@@ -1545,7 +1597,9 @@ class KDE1DimFFT(KDEHelper, BasePDF, SerializableMixin):
         self._bandwidth = bandwidth
 
         params = {"bandwidth": self._bandwidth}
-        super().__init__(obs=obs, name=name, params=params, extended=extended, norm=norm)
+        super().__init__(
+            obs=obs, name=name, params=params, extended=extended, norm=norm
+        )
         self._kernel = kernel
         self._weights = weights
         if support is None:
@@ -1556,8 +1610,12 @@ class KDE1DimFFT(KDEHelper, BasePDF, SerializableMixin):
         self._grid = None
         self._grid_data = None
 
-        self._grid = binning_util.generate_1d_grid(self._data, num_grid_points=self._num_grid_points)
-        self._grid_data = binning_util.bin_1d(self._binning_method, self._data, self._grid, self._weights)
+        self._grid = binning_util.generate_1d_grid(
+            self._data, num_grid_points=self._num_grid_points
+        )
+        self._grid_data = binning_util.bin_1d(
+            self._binning_method, self._data, self._grid, self._weights
+        )
         self._grid_estimations = convolution_util.convolve_1d_data_with_kernel(
             self._kernel,
             self._bandwidth,
@@ -1582,25 +1640,27 @@ class KDE1DimFFTRepr(BasePDFRepr):
     _implementation = KDE1DimFFT
     hs3_type: Literal["KDE1DimFFT"] = pydantic.Field("KDE1DimFFT", alias="type")
 
-    data: np.ndarray | Serializer.types.DataTypeDiscriminated
-    obs: SpaceRepr | None = None
-    bandwidth: str | float | None = None
-    num_grid_points: int | None = None
-    binning_method: str | None = None
+    data: Union[np.ndarray, Serializer.types.DataTypeDiscriminated]
+    obs: Optional[SpaceRepr] = None
+    bandwidth: Optional[Union[str, float]] = None
+    num_grid_points: Optional[int] = None
+    binning_method: Optional[str] = None
     kernel: None = None
-    support: float | None = None
-    fft_method: str | None = None
-    padding: bool | str | None = None
-    weights: np.ndarray | tf.Tensor | None = None
-    name: str | None = "KDE1DimFFT"
+    support: Optional[float] = None
+    fft_method: Optional[str] = None
+    padding: Optional[Union[bool, str]] = None
+    weights: Optional[Union[np.ndarray, tf.Tensor]] = None
+    name: Optional[str] = "KDE1DimFFT"
 
     @pydantic.validator("kernel", pre=True)
     def validate_kernel(cls, v):
         if v is not None:
             if v != tfd.Normal:
-                msg = "Kernel must be None for GridKDE1DimV1 to be serialized."
-                raise ValueError(msg)
-            v = None
+                raise ValueError(
+                    "Kernel must be None for GridKDE1DimV1 to be serialized."
+                )
+            else:
+                v = None
         return v
 
     @pydantic.root_validator(pre=True)
@@ -1754,15 +1814,19 @@ class KDE1DimISJ(KDEHelper, BasePDF, SerializableMixin):
             padding = self._default_padding
         if obs is None:
             if not isinstance(data, ZfitData) or not data.space.has_limits:
-                msg = "obs can only be None if data is ZfitData with limits."
-                raise ValueError(msg)
-            obs = data.space
+                raise ValueError(
+                    "obs can only be None if data is ZfitData with limits."
+                )
+            else:
+                obs = data.space
         data, size, weights, _ = self._convert_init_data_weights_size(
             data, weights, padding=padding, limits=obs.limits, bandwidth=None
         )
         self._padding = padding
 
-        num_grid_points = tf.minimum(tf.cast(size, ztypes.int), tf.constant(num_grid_points, ztypes.int))
+        num_grid_points = tf.minimum(
+            tf.cast(size, ztypes.int), tf.constant(num_grid_points, ztypes.int)
+        )
         self._num_grid_points = num_grid_points
         self._binning_method = binning_method
         self._data = tf.convert_to_tensor(data, ztypes.float)
@@ -1779,7 +1843,9 @@ class KDE1DimISJ(KDEHelper, BasePDF, SerializableMixin):
         )
 
         params = {}
-        super().__init__(obs=obs, name=name, params=params, extended=extended, norm=norm)
+        super().__init__(
+            obs=obs, name=name, params=params, extended=extended, norm=norm
+        )
         self.hs3.original_init.update(original_init)
 
     def _unnormalized_pdf(self, x):
@@ -1796,23 +1862,25 @@ class KDE1DimISJRepr(BasePDFRepr):
     _implementation = KDE1DimISJ
     hs3_type: Literal["KDE1DimISJ"] = pydantic.Field("KDE1DimISJ", alias="type")
 
-    data: np.ndarray | Serializer.types.DataTypeDiscriminated
-    obs: SpaceRepr | None = None
-    bandwidth: str | float | None = None
-    num_grid_points: int | None = None
-    binning_method: str | None = None
+    data: Union[np.ndarray, Serializer.types.DataTypeDiscriminated]
+    obs: Optional[SpaceRepr] = None
+    bandwidth: Optional[Union[str, float]] = None
+    num_grid_points: Optional[int] = None
+    binning_method: Optional[str] = None
     kernel: None = None
-    padding: bool | str | None = None
-    weights: np.ndarray | tf.Tensor | None = None
-    name: str | None = "KDE1DimISJ"
+    padding: Optional[Union[bool, str]] = None
+    weights: Optional[Union[np.ndarray, tf.Tensor]] = None
+    name: Optional[str] = "KDE1DimISJ"
 
     @pydantic.validator("kernel", pre=True)
     def validate_kernel(cls, v):
         if v is not None:
             if v != tfd.Normal:
-                msg = "Kernel must be None for GridKDE1DimV1 to be serialized."
-                raise ValueError(msg)
-            v = None
+                raise ValueError(
+                    "Kernel must be None for GridKDE1DimV1 to be serialized."
+                )
+            else:
+                v = None
         return v
 
     @pydantic.root_validator(pre=True)

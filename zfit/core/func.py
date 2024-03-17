@@ -1,14 +1,14 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2022 zfit
 from __future__ import annotations
 
 from contextlib import suppress
 
-from zfit_interface.func import ZfitFunc
-from zfit_interface.variables import ZfitAxis, ZfitParam
-
-from zfit import Data
 from zfit.core.values import ValueHolder
 from zfit.util.exception import SpecificFunctionNotImplemented, WorkInProgressError
+from zfit_interface.func import ZfitFunc
+from zfit_interface.variables import ZfitParam, ZfitAxis
+
+from zfit import Data
 
 
 def to_value_holder(var):
@@ -18,7 +18,8 @@ def to_value_holder(var):
 
 
 def to_data(value, space):
-    return Data.from_tensor(obs=space, tensor=value)  # TODO
+    data = Data.from_tensor(obs=space, tensor=value)  # TODO
+    return data
 
 
 class Func(ZfitFunc):
@@ -44,8 +45,8 @@ class Func(ZfitFunc):
             return self._values(var, options=options)  # TODO: auto_value?
         return self._fallback_values(var=var, options=options)
 
-    def _fallback_values(self, var, norm, options):  # noqa: ARG002
+    def _fallback_values(self, var, norm, options):
         raise WorkInProgressError
 
-    def _values(self, var, norm, options):  # noqa: ARG002
+    def _values(self, var, norm, options):
         raise SpecificFunctionNotImplemented

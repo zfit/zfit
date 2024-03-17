@@ -1,4 +1,4 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2023 zfit
 import numpy as np
 import pytest
 import scipy.stats
@@ -39,7 +39,7 @@ def true_multinormal_constr_value(x, mean, cov):
     return -scipy.stats.multivariate_normal.logpdf(x, mean=mean, cov=cov)
 
 
-def test_base_constraint():
+def test_base_constraint():  # TODO(Mayou36): upgrade to tf2, use ABC again
     with pytest.raises(TypeError):
         BaseConstraint()
 

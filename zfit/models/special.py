@@ -3,19 +3,19 @@
 One example is a normal function `Function` that allows to simply define a non-normalizable function.
 """
 
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2023 zfit
 from __future__ import annotations
 
 import functools
 
 import tensorflow as tf
 
+from .functor import BaseFunctor
 from ..core.basemodel import SimpleModelSubclassMixin
 from ..core.basepdf import BasePDF
 from ..core.space import supports
 from ..util import ztyping
 from ..util.exception import NormRangeNotImplemented
-from .functor import BaseFunctor
 
 
 class SimplePDF(BasePDF):
@@ -46,9 +46,12 @@ def raise_error_if_norm_range(func):
     def wrapped(*args, **kwargs):
         try:
             return func(*args, **kwargs)
-        except NormRangeNotImplemented:  # TODO: silently remove norm_range? Or loudly fail?
-            msg = "Norm_range given to Function: cannot be normalized."
-            raise tf.errors.InvalidArgumentError(msg) from None
+        except (
+            NormRangeNotImplemented
+        ):  # TODO: silently remove norm_range? Or loudly fail?
+            raise tf.errors.InvalidArgumentError(
+                "Norm_range given to Function: cannot be normalized."
+            )
 
     return wrapped
 

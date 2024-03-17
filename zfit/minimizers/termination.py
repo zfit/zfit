@@ -1,4 +1,4 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2023 zfit
 from __future__ import annotations
 
 import abc
@@ -15,7 +15,9 @@ if TYPE_CHECKING:
 
 
 class ConvergenceCriterion(abc.ABC):
-    def __init__(self, tol: float, loss: ZfitLoss, params: ztyping.ParamTypeInput, name: str):
+    def __init__(
+        self, tol: float, loss: ZfitLoss, params: ztyping.ParamTypeInput, name: str
+    ):
         """A generic convergence criterion to be subclassed.
 
         Args:
@@ -26,8 +28,7 @@ class ConvergenceCriterion(abc.ABC):
         """
         super().__init__()
         if not isinstance(loss, ZfitLoss):
-            msg = "loss has to be ZfitLoss"
-            raise TypeError(msg)
+            raise TypeError("loss has to be ZfitLoss")
         self.loss = loss
         self.tol = tol * loss.errordef
         self.params = params

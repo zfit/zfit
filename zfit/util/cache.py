@@ -52,7 +52,6 @@ from __future__ import annotations
 
 import collections.abc
 import functools
-import typing
 import weakref
 from abc import abstractmethod
 from collections.abc import Iterable
@@ -84,10 +83,12 @@ class ZfitGraphCachable:
             TypeError: if one of the `cache_dependents` is not a `ZfitGraphCachable` _and_ `allow_non_cachable`
                 if `False`.
         """
+        pass
 
     @abstractmethod
     def reset_cache_self(self):
         """Clear the cache of self and all dependent cachers."""
+        pass
 
     @abstractmethod
     def reset_cache(self, reseter):
@@ -95,7 +96,7 @@ class ZfitGraphCachable:
 
 
 class GraphCachable(ZfitGraphCachable):
-    graph_caching_methods: typing.ClassVar = []
+    graph_caching_methods = []
     instances = weakref.WeakSet()
 
     def __init__(self, *args, **kwargs):
@@ -124,12 +125,13 @@ class GraphCachable(ZfitGraphCachable):
             cacher:
         """
         if not isinstance(cacher, ZfitGraphCachable):
-            msg = f"`cacher` is not a `ZfitGraphCachable` but {type(cacher)}"
-            raise TypeError(msg)
+            raise TypeError(f"`cacher` is not a `ZfitGraphCachable` but {type(cacher)}")
         if cacher not in self._cachers:
             self._cachers[cacher] = None
 
-    def add_cache_deps(self, cache_deps: ztyping.CacherOrCachersType, allow_non_cachable: bool = True):
+    def add_cache_deps(
+        self, cache_deps: ztyping.CacherOrCachersType, allow_non_cachable: bool = True
+    ):
         """Add dependencies that render the cache invalid if they change.
 
         Args:
@@ -146,8 +148,9 @@ class GraphCachable(ZfitGraphCachable):
             if isinstance(cache_dep, ZfitGraphCachable):
                 cache_dep.register_cacher(self)
             elif not allow_non_cachable:
-                msg = f"cache_dependent {cache_dep} is not a `ZfitGraphCachable` but {type(cache_dep)}"
-                raise TypeError(msg)
+                raise TypeError(
+                    f"cache_dependent {cache_dep} is not a `ZfitGraphCachable` but {type(cache_dep)}"
+                )
 
     def reset_cache_self(self):
         """Clear the cache of self and all dependent cachers."""
@@ -155,11 +158,11 @@ class GraphCachable(ZfitGraphCachable):
         self._inform_cachers()
 
     def reset_cache(self, reseter: ZfitGraphCachable):
-        del reseter  # TODO: why was this needed? Old TF?
         self.reset_cache_self()
 
     def _clean_cache(self):
         self._cache.clear()
+        return
 
     def _inform_cachers(self):
         for cacher in self._cachers:
@@ -171,8 +174,9 @@ def invalidate_graph(func):
     def wrapped_func(*args, **kwargs):
         self = args[0]
         if not isinstance(self, ZfitGraphCachable):
-            msg = "Decorator can only be used in a subclass of `ZfitGraphCachable`"
-            raise TypeError(msg)
+            raise TypeError(
+                "Decorator can only be used in a subclass of `ZfitGraphCachable`"
+            )
 
         from .. import run
 
@@ -232,7 +236,7 @@ class FunctionCacheHolder(GraphCachable):
         """
         if keepalive is None:
             keepalive = False
-        self.deleter = lambda _: None
+        self.deleter = lambda x: None
         self.delete_from_cache = False
         if stateless_args is None:
             stateless_args = False
@@ -244,17 +248,22 @@ class FunctionCacheHolder(GraphCachable):
         self.python_func = func
 
         if cachables is None and cachables_mapping is None:
-            msg = "Both `cachables and `cachables_mapping` are None. One needs to be different from None."
-            raise ValueError(msg)
+            raise ValueError(
+                "Both `cachables and `cachables_mapping` are None. One needs to be different from None."
+            )
         if cachables is None:
             cachables = []
         if cachables_mapping is None:
             cachables_mapping = {}
 
         cachables = convert_to_container(cachables, container=list)
-        cachables_values = convert_to_container(cachables_mapping.values(), container=list)
+        cachables_values = convert_to_container(
+            cachables_mapping.values(), container=list
+        )
         cachables_all = cachables + cachables_values
-        self.immutable_representation = self.create_immutable(cachables, cachables_mapping)
+        self.immutable_representation = self.create_immutable(
+            cachables, cachables_mapping
+        )
         self._hash_value = hash((self.python_func, self.immutable_representation))
         super().__init__()  # resets the cache
         self.add_cache_deps(cachables_all)
@@ -287,14 +296,14 @@ class FunctionCacheHolder(GraphCachable):
 
     def get_immutable_repr_obj(self, obj):
         from ..core.interfaces import (
-            ZfitConstraint,
             ZfitData,
-            ZfitLimit,
+            ZfitParameter,
+            ZfitSpace,
             ZfitLoss,
             ZfitModel,
-            ZfitParameter,
+            ZfitConstraint,
             ZfitPDF,
-            ZfitSpace,
+            ZfitLimit,
         )
 
         if isinstance(obj, collections.abc.Mapping):
@@ -310,10 +319,6 @@ class FunctionCacheHolder(GraphCachable):
                 ZfitLimit,
                 ZfitSpace,
                 uhi.typing.plottable.PlottableHistogram,
-                str,
-                np.ndarray,
-                int,
-                float,
             ),
         ):
             obj = self.IS_TENSOR
@@ -323,6 +328,10 @@ class FunctionCacheHolder(GraphCachable):
                 id(obj),
             )  # crucial that we have the ID, see https://github.com/tensorflow/tensorflow/issues/57365
         elif tf.is_tensor(obj):
+            obj = self.IS_TENSOR
+        elif isinstance(obj, (np.ndarray, int, float)):
+            obj = self.IS_TENSOR
+        elif isinstance(obj, str):
             obj = self.IS_TENSOR
         elif isinstance(obj, collections.abc.Iterable):
             obj_new = []
@@ -344,13 +353,18 @@ class FunctionCacheHolder(GraphCachable):
         array_repr_self = self.immutable_representation
         array_repr_other = other.immutable_representation
         try:
-            return all(
-                (obj1 is obj2) or (obj1 == obj2) for obj1, obj2 in zip_longest(array_repr_self, array_repr_other)
+            all_ids = all(
+                (obj1 is obj2) or (obj1 == obj2)
+                for obj1, obj2 in zip_longest(array_repr_self, array_repr_other)
             )
+            return all_ids  # TODO: this isn't optimal...
         except ValueError:  # broadcasting does not work
             return False
         except TypeError:  # OperatorNotAllowedError inherits from this
             return False
+        # TODO: activate the below? costly, but runs?
+        # except OperatorNotAllowedInGraphError:  # we have to assume they're not the same
+        #     return False
 
     def __repr__(self) -> str:
         return f"<FunctionCacheHolder: {self.python_func}, valid={self.is_valid}>"

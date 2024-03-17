@@ -2,18 +2,17 @@
 
 from __future__ import annotations
 
-import importlib.util
 import math
 
 import numpy as np
 
-from ..core.parameter import assign_values
-from ..settings import run
-from ..util.exception import MaximumIterationReached
 from .baseminimizer import BaseMinimizer, minimize_supports, print_minimization_status
 from .fitresult import FitResult
 from .strategy import ZfitStrategy
 from .termination import CRITERION_NOT_AVAILABLE, EDM, ConvergenceCriterion
+from ..core.parameter import assign_values
+from ..settings import run
+from ..util.exception import MaximumIterationReached
 
 
 class IpyoptV1(BaseMinimizer):
@@ -184,20 +183,28 @@ class IpyoptV1(BaseMinimizer):
         options = {} if options is None else options
         minimizer_options["hessian"] = hessian
         if "tol" in options:
-            msg = "Cannot put 'tol' into the options. Use `tol` in the init instead"
-            raise ValueError(msg)
+            raise ValueError(
+                "Cannot put 'tol' into the options. Use `tol` in the init instead"
+            )
         if "max_iter" in options:
-            msg = "Cannot put 'max_iter' into the options. Use `maxiter` instead.`"
-            raise ValueError(msg)
+            raise ValueError(
+                "Cannot put 'max_iter' into the options. Use `maxiter` instead.`"
+            )
         if "limited_memory_update_type" in options:
-            msg = "Cannot put 'limited_memory_update_type' into the options." " Use `hessian` instead.`"
-            raise ValueError(msg)
+            raise ValueError(
+                "Cannot put 'limited_memory_update_type' into the options."
+                " Use `hessian` instead.`"
+            )
         if "limited_memory_max_history" in options:
-            msg = "Cannot put 'limited_memory_max_history' into the options." " Use `numcor` instead.`"
-            raise ValueError(msg)
+            raise ValueError(
+                "Cannot put 'limited_memory_max_history' into the options."
+                " Use `numcor` instead.`"
+            )
         if "hessian_approximation" in options:
-            msg = "Cannot put 'hessian_approximation' into the options." " Use `hessian` instead.`"
-            raise ValueError(msg)
+            raise ValueError(
+                "Cannot put 'hessian_approximation' into the options."
+                " Use `hessian` instead.`"
+            )
         options["limited_memory_max_history"] = maxcor
 
         minimizer_options["ipopt"] = options
@@ -209,16 +216,17 @@ class IpyoptV1(BaseMinimizer):
         self._internal_tol = internal_tol
         self._internal_maxiter = 20
 
-        if importlib.util.find_spec("ipyopt") is None:
-            msg = (
+        try:
+            import ipyopt
+        except ImportError as error:
+            raise ImportError(
                 "This requires the ipyopt library (https://gitlab.com/g-braeunlich/ipyopt)"
                 " to be installed. On a 'Linux' environment, you can install zfit with"
                 " `pip install zfit[ipyopt]` (or install ipyopt with pip). For MacOS, there are currently"
                 " no wheels (but will come in the future). In this case, please install ipyopt manually "
                 "to use this minimizer"
                 " or install zfit on a 'Linux' environment."
-            )
-            raise ImportError(msg)
+            ) from error
 
         super().__init__(
             name=name,
@@ -262,28 +270,29 @@ class IpyoptV1(BaseMinimizer):
             print_level = 9
         elif print_level == 9:
             print_level = 11
-        elif print_level == 10 and "print_timing_statistics" not in ipopt_options:
-            ipopt_options["print_timing_statistics"] = "yes"
+        elif print_level == 10:
+            if "print_timing_statistics" not in ipopt_options:
+                ipopt_options["print_timing_statistics"] = "yes"
         ipopt_options["print_level"] = print_level
 
         ipopt_options["tol"] = self.tol
         ipopt_options["max_iter"] = self.get_maxiter()
         hessian = minimizer_options.pop("hessian")
 
-        minimizer_kwargs = {
-            "n": nparams,
-            "x_l": lower,
-            "x_u": upper,
-            "m": nconstraints,
-            "g_l": empty_array,
-            "g_u": empty_array,  # no constraints
-            "sparsity_indices_jac_g": (empty_array, empty_array),
-            "sparsity_indices_h": hessian_sparsity_indices,
-            "eval_f": evaluator.value,
-            "eval_grad_f": gradient_inplace,
-            "eval_g": lambda x, out: None,  # noqa: ARG005
-            "eval_jac_g": lambda x, out: None,  # noqa: ARG005
-        }
+        minimizer_kwargs = dict(
+            n=nparams,
+            x_l=lower,
+            x_u=upper,
+            m=nconstraints,
+            g_l=empty_array,
+            g_u=empty_array,  # no constraints
+            sparsity_indices_jac_g=(empty_array, empty_array),
+            sparsity_indices_h=hessian_sparsity_indices,
+            eval_f=evaluator.value,
+            eval_grad_f=gradient_inplace,
+            eval_g=lambda x, out: None,
+            eval_jac_g=lambda x, out: None,
+        )
         if hessian == "zfit":
 
             def hessian_inplace(x, out):
@@ -291,22 +300,28 @@ class IpyoptV1(BaseMinimizer):
                 out[:] = hessian
 
             minimizer_kwargs["eval_h"] = hessian_inplace
-        elif hessian == "exact":
-            ipopt_options["hessian_approximation"] = hessian
-
         else:
-            ipopt_options["hessian_approximation"] = "limited-memory"
-            ipopt_options["limited_memory_update_type"] = hessian
+            if hessian == "exact":
+                ipopt_options["hessian_approximation"] = hessian
+
+            else:
+                ipopt_options["hessian_approximation"] = "limited-memory"
+                ipopt_options["limited_memory_update_type"] = hessian
         # ipopt_options['dual_inf_tol'] = TODO?
 
         minimizer = ipyopt.Problem(**minimizer_kwargs)
 
         minimizer.set(**{k: v for k, v in ipopt_options.items() if v is not None})
 
-        init_tol = min([math.sqrt(loss.errordef * self.tol), loss.errordef * self.tol * 1e2])
+        init_tol = min(
+            [math.sqrt(loss.errordef * self.tol), loss.errordef * self.tol * 1e2]
+        )
         # init_tol **= 0.5
         internal_tol = self._internal_tol
-        internal_tol = {tol: init_tol if init is None else init for tol, init in internal_tol.items()}
+        internal_tol = {
+            tol: init_tol if init is None else init
+            for tol, init in internal_tol.items()
+        }
 
         valid = True
         edm = None
@@ -361,7 +376,10 @@ class IpyoptV1(BaseMinimizer):
                 )
                 converged = criterion.converged(result_prelim)
             criterion_value = criterion.last_value
-            edm = criterion.last_value if isinstance(criterion, EDM) else CRITERION_NOT_AVAILABLE
+            if isinstance(criterion, EDM):
+                edm = criterion.last_value
+            else:
+                edm = CRITERION_NOT_AVAILABLE
 
             if self.verbosity > 5:
                 print_minimization_status(
@@ -380,7 +398,9 @@ class IpyoptV1(BaseMinimizer):
             minimizer.set(**{option: "yes" for option in warm_start_options})
 
             # update the tolerances
-            self._update_tol_inplace(criterion_value=criterion_value, internal_tol=internal_tol)
+            self._update_tol_inplace(
+                criterion_value=criterion_value, internal_tol=internal_tol
+            )
 
         else:
             valid = False

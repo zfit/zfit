@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable, Mapping
+from collections.abc import Callable
+from collections.abc import Mapping
 from typing import TYPE_CHECKING
 
 from ..core.parameter import set_values
@@ -14,16 +15,17 @@ import boost_histogram as bh
 import hist
 import tensorflow as tf
 
-from zfit._variables.axis import binning_to_histaxes, histaxes_to_binning
-from zfit.core.interfaces import ZfitBinnedData, ZfitData, ZfitSpace
+from zfit._variables.axis import histaxes_to_binning, binning_to_histaxes
+from zfit.core.interfaces import ZfitBinnedData, ZfitSpace, ZfitData
 from zfit.z import numpy as znp
-
 from ..util import ztyping
 from ..util.exception import ShapeIncompatibleError
 
 
 # @tfp.experimental.auto_composite_tensor()
-class BinnedHolder:
+class BinnedHolder(
+    # tfp.experimental.AutoCompositeTensor
+):
     def __init__(self, space, values, variances):
         self._check_init_values(space, values, variances)
         self.space = space
@@ -32,26 +34,32 @@ class BinnedHolder:
 
     def _check_init_values(self, space, values, variances):
         value_shape = tf.shape(values)
-        edges_shape = znp.array([tf.shape(znp.reshape(edge, (-1,)))[0] for edge in space.binning.edges])
+        edges_shape = znp.array(
+            [tf.shape(znp.reshape(edge, (-1,)))[0] for edge in space.binning.edges]
+        )
         values_rank = value_shape.shape[0]
         if variances is not None:
             variances_shape = tf.shape(variances)
             variances_rank = variances_shape.shape[0]
             if values_rank != variances_rank:
-                msg = f"Values {values} and variances {variances} differ in rank: {values_rank} vs {variances_rank}"
-                raise ShapeIncompatibleError(msg)
+                raise ShapeIncompatibleError(
+                    f"Values {values} and variances {variances} differ in rank: {values_rank} vs {variances_rank}"
+                )
             tf.assert_equal(
                 variances_shape,
                 value_shape,
-                message=f"Variances and values do not have the same shape:" f" {variances_shape} vs {value_shape}",
+                message=f"Variances and values do not have the same shape:"
+                f" {variances_shape} vs {value_shape}",
             )
         if (binning_rank := len(space.binning.edges)) != values_rank:
-            msg = f"Values and binning  differ in rank: {values_rank} vs {binning_rank}"
-            raise ShapeIncompatibleError(msg)
+            raise ShapeIncompatibleError(
+                f"Values and binning  differ in rank: {values_rank} vs {binning_rank}"
+            )
         tf.assert_equal(
             edges_shape - 1,
             value_shape,
-            message=f"Edges (minus one) and values do not have the same shape:" f" {edges_shape} vs {value_shape}",
+            message=f"Edges (minus one) and values do not have the same shape:"
+            f" {edges_shape} vs {value_shape}",
         )
 
     def with_obs(self, obs):
@@ -65,7 +73,8 @@ class BinnedHolder:
 
 def move_axis_obs(original, target, values):
     new_axes = [original.obs.index(ob) for ob in target.obs]
-    return znp.moveaxis(values, tuple(range(target.n_obs)), new_axes)
+    values = znp.moveaxis(values, tuple(range(target.n_obs)), new_axes)
+    return values
 
 
 flow = False  # TODO: track the flow or not?
@@ -90,7 +99,9 @@ class BinnedData(
         self.name = "BinnedData"  # TODO: improve naming
 
     @classmethod  # TODO: add overflow bins if needed
-    def from_tensor(cls, space: ZfitSpace, values: znp.array, variances: znp.array | None = None) -> BinnedData:
+    def from_tensor(
+        cls, space: ZfitSpace, values: znp.array, variances: znp.array | None = None
+    ) -> BinnedData:
         """Create a binned dataset defined in *space* where values are considered to be the counts.
 
         Args:
@@ -211,10 +222,11 @@ class BinnedData(
         Returns:
             Tensor of shape (nbins0, nbins1, ...) with nbins the number of bins in each observable.
         """
-        return self.holder.values
+        vals = self.holder.values
         # if not flow:  # TODO: flow?
         #     shape = tf.shape(vals)
         #     vals = tf.slice(vals, znp.ones_like(shape), shape - 2)
+        return vals
 
     def variances(self) -> None | znp.array:  # , flow=False
         """Variances, if available, of the histogram as an ndim array.
@@ -225,10 +237,11 @@ class BinnedData(
         Returns:
             Tensor of shape (nbins0, nbins1, ...) with nbins the number of bins in each observable.
         """
-        return self.holder.variances
+        vals = self.holder.variances
         # if not flow:  # TODO: flow?
         #     shape = tf.shape(vals)
         #     vals = tf.slice(vals, znp.ones_like(shape), shape - 2)
+        return vals
 
     def counts(self):
         """Effective counts of the histogram as a ndim array.
@@ -284,23 +297,24 @@ class BinnedData(
 
         if zfit.run.executing_eagerly():
             return self.to_hist().__str__()
-        return f"Binned data, {self.obs} (non-eager)"
+        else:
+            return f"Binned data, {self.obs} (non-eager)"
 
     def _repr_html_(self):
         import zfit
 
         if zfit.run.executing_eagerly():
             return self.to_hist()._repr_html_()
-        return f"Binned data, {self.obs} (non-eager)"
+        else:
+            return f"Binned data, {self.obs} (non-eager)"
 
 
 # tensorlike.register_tensor_conversion(BinnedData, name='BinnedData', overload_operators=True)
 
 
 class SampleHolder(BinnedHolder):
-    def with_obs(self, obs):  # noqa: ARG002
-        msg = "INTERNAL ERROR, should never be used directly"
-        raise AssertionError(msg)
+    def with_obs(self, obs):
+        assert False, "INTERNAL ERROR, should never be used directly"
 
 
 class BinnedSampler(BinnedData):
@@ -312,7 +326,7 @@ class BinnedSampler(BinnedData):
         sample_func: Callable,
         sample_holder: tf.Variable,
         n: ztyping.NumericalScalarType | Callable,
-        fixed_params: dict[zfit.Parameter, ztyping.NumericalScalarType] | None = None,
+        fixed_params: dict[zfit.Parameter, ztyping.NumericalScalarType] = None,
     ):
         super().__init__(holder=dataset)
         if fixed_params is None:
@@ -389,7 +403,7 @@ class BinnedSampler(BinnedData):
             n=n,
         )
 
-    def resample(self, param_values: Mapping | None = None, n: int | tf.Tensor = None):
+    def resample(self, param_values: Mapping = None, n: int | tf.Tensor = None):
         """Update the sample by newly sampling. This affects any object that used this data already.
 
         All params that are not in the attribute ``fixed_params`` will use their current value for
@@ -409,7 +423,9 @@ class BinnedSampler(BinnedData):
         if param_values is not None:
             temp_param_values.update(param_values)
 
-        with set_values(list(temp_param_values.keys()), list(temp_param_values.values())):
+        with set_values(
+            list(temp_param_values.keys()), list(temp_param_values.values())
+        ):
             new_sample = self.sample_func(n)
             self.sample_holder.assign(new_sample, read_value=False)
             self._initial_resampled = True
@@ -429,7 +445,8 @@ class BinnedSampler(BinnedData):
 
         def new_sample_func(n):
             sample = self.sample_func(n)
-            return move_axis_obs(self.space, obs, sample)
+            values = move_axis_obs(self.space, obs, sample)
+            return values
 
         return BinnedSampler.from_sample(
             sample_func=new_sample_func,

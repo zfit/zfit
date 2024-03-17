@@ -1,17 +1,21 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2022 zfit
 
 import tensorflow as tf
 
 from ..settings import ztypes
 
 
-def generate_1d_grid(data, num_grid_points, absolute_boundary=0.0, relative_boundary=0.05):
+def generate_1d_grid(
+    data, num_grid_points, absolute_boundary=0.0, relative_boundary=0.05
+):
     minimum = tf.math.reduce_min(data)
     maximum = tf.math.reduce_max(data)
     space_width = maximum - minimum
     outside_borders = tf.maximum(relative_boundary * space_width, absolute_boundary)
 
-    return tf.linspace(minimum - outside_borders, maximum + outside_borders, num=num_grid_points)
+    return tf.linspace(
+        minimum - outside_borders, maximum + outside_borders, num=num_grid_points
+    )
 
 
 def bin_1d(binning_method, data, grid, weights=None):
@@ -20,8 +24,9 @@ def bin_1d(binning_method, data, grid, weights=None):
     elif binning_method == "linear":
         return bin_1d_linear(data, grid, weights)
     else:
-        msg = f"Binning method '{binning_method}' not supported, only 'simple' or 'linear'."
-        raise ValueError(msg)
+        raise ValueError(
+            f"Binning method '{binning_method}' not supported, only 'simple' or 'linear'."
+        )
 
 
 def bin_1d_simple(data, grid, weights=None):
@@ -54,7 +59,9 @@ def _bin_1d_weighted(data, grid, weights, method="linear"):
     grid_min = tf.math.reduce_min(grid)
     grid_max = tf.math.reduce_max(grid)
     num_intervals = tf.math.subtract(grid_size, tf.constant(1))
-    dx = tf.math.divide(tf.math.subtract(grid_max, grid_min), tf.cast(num_intervals, ztypes.float))
+    dx = tf.math.divide(
+        tf.math.subtract(grid_max, grid_min), tf.cast(num_intervals, ztypes.float)
+    )
 
     transformed_data = tf.math.divide(tf.math.subtract(data, grid_min), dx)
 
@@ -92,4 +99,6 @@ def _bin_1d_weighted(data, grid, weights, method="linear"):
         maxlength=grid_size,
     )
 
-    return tf.cast(tf.add(bincount_left, bincount_right), ztypes.float)
+    bincount = tf.cast(tf.add(bincount_left, bincount_right), ztypes.float)
+
+    return bincount

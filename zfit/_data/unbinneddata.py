@@ -1,4 +1,4 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2023 zfit
 import tensorflow_probability as tfp
 from zfit_interface.data import ZfitData
 
@@ -36,12 +36,11 @@ class UnbinnedData(tfp.experimental.AutoCompositeTensor, ZfitData):
     def __getitem__(self, item):
         if not isinstance(item, str):
             return super().__getitem__(item)
-        for index, axis in enumerate(self.axes):  # noqa: B007
+        for index, axis in enumerate(self.axes):
             if axis.name == item:
                 break
         else:
-            msg = f"{item} not in {self.axes}"
-            raise KeyError(msg)
+            raise KeyError(f"{item} not in {self.axes}")
         return self.data[..., index]
 
     @property

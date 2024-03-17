@@ -10,8 +10,9 @@ import jacobi
 if TYPE_CHECKING:
     import zfit
 
-import logging
 from collections.abc import Callable
+
+import logging
 from functools import lru_cache, wraps
 
 import numpy as np
@@ -23,13 +24,15 @@ import zfit.z.numpy as znp
 
 from .. import z
 from ..core.interfaces import ZfitIndependentParameter
-from ..core.parameter import assign_values
+from ..core.parameter import assign_values, assign_values_jit
 from ..util.container import convert_to_container
 from ..util.deprecation import deprecated_args
 
 
 class NewMinimum(Exception):
     """Exception class for cases where a new minimum is found."""
+
+    pass
 
 
 class FailEvalLossNaN(Exception):
@@ -40,6 +43,8 @@ class RootFound(Exception):
     """Exception class for cases where a root is found, since SciPy root solvers don't really respect tol or xtol on
     initial evaluation."""
 
+    pass
+
 
 @deprecated_args(None, "Use cl for confidence level instead.", "sigma")
 def compute_errors(
@@ -49,7 +54,7 @@ def compute_errors(
     rtol: float | None = None,
     method: str | None = None,
     covariance_method: str | Callable | None = None,
-    sigma: float | None = None,
+    sigma: float = None,
 ) -> tuple[
     dict[ZfitIndependentParameter, dict[str, float]],
     zfit.result.FitResult | None,
@@ -88,11 +93,11 @@ def compute_errors(
         if sigma is None:
             sigma = 1
 
-    elif sigma is None:
-        sigma = scipy.stats.chi2(1).ppf(cl) ** 0.5
     else:
-        msg = "Cannot specify both sigma and cl."
-        raise ValueError(msg)
+        if sigma is None:
+            sigma = scipy.stats.chi2(1).ppf(cl) ** 0.5
+        else:
+            raise ValueError("Cannot specify both sigma and cl.")
     # TODO: how to name things, sigma or cl?
 
     params = convert_to_container(params)
@@ -109,8 +114,9 @@ def compute_errors(
     if covariance is None:
         covariance = result.covariance(method="hesse_np", as_dict=True)
     if covariance is None:
-        msg = "Could not compute covariance matrix. Check if the minimum is valid."
-        raise RuntimeError(msg)
+        raise RuntimeError(
+            "Could not compute covariance matrix. Check if the minimum is valid."
+        )
     param_errors = {param: covariance[(param, param)] ** 0.5 for param in all_params}
     param_scale = np.array(list(param_errors.values()))
 
@@ -121,7 +127,7 @@ def compute_errors(
         for param in params:
             assign_values(all_params, result)
 
-            logging.info(f"profiling the parameter {param}")  # noqa: G004
+            logging.info(f"profiling the parameter {param}")
             param_error = param_errors[param]
             param_value = result.params[param]["value"]
 
@@ -130,42 +136,44 @@ def compute_errors(
 
             for ap in all_params:
                 ap_value = result.params[ap]["value"]
-                error_factor = covariance[(param, ap)] * (2 * errordef / param_error**2) ** 0.5
+                error_factor = (
+                    covariance[(param, ap)] * (2 * errordef / param_error**2) ** 0.5
+                )
                 for d in ["lower", "upper"]:
                     step = direction[d] * error_factor * sigma
-                    for ntrial in range(50):  # noqa: B007
+                    for ntrial in range(50):
                         ap_value_init = ap_value + step
                         if ap_value_init < ap.lower or ap_value_init > ap.upper:
                             step *= 0.8
                         else:
                             break
                     else:
-                        msg = (
+                        raise RuntimeError(
                             f"Could not find a valid initial value for {ap} in {d} direction after {ntrial + 1} trials."
                             f" step tried: {step}. This should not happes, the error probably looks weird. Maybe plot"
                             f" the loss function for different parameter values and check if it looks reasonable."
                         )
-                        raise RuntimeError(msg)
 
                     initial_values[d].append(ap_value_init)
 
             index_poi = all_params.index(param)  # remember the index
-            _ = loss.value_gradient(params=all_params, full=False)  # to make sure the loss is compiled
+            _ = loss.value_gradient(
+                params=all_params, full=False
+            )  # to make sure the loss is compiled
 
-            def make_optimized_loss_gradient_func(index_poi):
-                @z.function(wraps="gradient", keepalive=True)
-                def wrappedfunc(values, index):
-                    assert isinstance(index, int)
-                    assign_values(all_params, values)
-                    loss_value, gradient = loss.value_gradient(params=all_params, full=False)
-                    if isinstance(gradient, (tuple, list)):
-                        gradient = znp.asarray(gradient)
-                    gradient = znp.concatenate([gradient[:index_poi], gradient[index_poi + 1 :]])
-                    return loss_value, gradient
-
-                return wrappedfunc
-
-            optimized_loss_gradient = make_optimized_loss_gradient_func(index_poi)
+            @z.function(wraps="gradient", keepalive=True)
+            def optimized_loss_gradient(values, index):
+                assert isinstance(index, int)
+                assign_values(all_params, values)
+                loss_value, gradient = loss.value_gradient(
+                    params=all_params, full=False
+                )
+                if isinstance(gradient, (tuple, list)):
+                    gradient = znp.asarray(gradient)
+                gradient = znp.concatenate(
+                    [gradient[:index_poi], gradient[index_poi + 1 :]]
+                )
+                return loss_value, gradient
 
             # TODO: improvement, use jacobian?
             root = None
@@ -174,54 +182,54 @@ def compute_errors(
             # TODO: should we add a "robust" or similar option to not skip this?
             # or evaluate and then decide ,maybe use krylov as it doesn't do a lot of calls in the beginning, it
             # approximates the jacobian
-            def make_func(index_poi, optimized_loss_gradient, param):  # bind these values
-                def wrappedfunc(values, args):
-                    nonlocal ncalls, root, ntol
 
-                    ncalls += 1
-                    swap_sign = args
+            def func(values, args):
+                nonlocal ncalls, root, ntol
 
-                    try:
-                        loss_value, gradient = optimized_loss_gradient(values, index_poi)
-                    except tf.errors.InvalidArgumentError:
-                        loss_value = znp.array(999999.0)
-                        gradient = z.random.normal(stddev=0.1, shape=(len(all_params) - 1,))
-                        # raise FailEvalLossNaN(msg)
-                    zeroed_loss = loss_value.numpy() - fmin
+                ncalls += 1
+                swap_sign = args
 
-                    gradient = znp.array(gradient)
+                try:
+                    loss_value, gradient = optimized_loss_gradient(values, index_poi)
+                except tf.errors.InvalidArgumentError:
+                    msg = (
+                        f"The evaluation of the errors of {param.name} failed due to too many NaNs"
+                        " being produced in the loss and/or its gradient. This is most probably"
+                        " caused by negative values returned from the PDF."
+                    )
+                    loss_value = znp.array(999999.0)
+                    gradient = z.random.normal(stddev=0.1, shape=(len(all_params) - 1,))
+                    # raise FailEvalLossNaN(msg)
+                zeroed_loss = loss_value.numpy() - fmin
 
-                    if swap_sign(param):  # mirror at x-axis to remove second zero
-                        zeroed_loss = -zeroed_loss
-                        gradient = -gradient
-                        logging.info("Swapping sign in error calculation 'zfit_error'")
+                gradient = znp.array(gradient)
 
-                    elif zeroed_loss < -loss_min_tol:
-                        assign_values(all_params, values)  # set values to the new minimum
-                        msg = "A new minimum is found."
-                        raise NewMinimum(msg)
+                if swap_sign(param):  # mirror at x-axis to remove second zero
+                    zeroed_loss = -zeroed_loss
+                    gradient = -gradient
+                    logging.info("Swapping sign in error calculation 'zfit_error'")
 
-                    downward_shift = errordef * sigma**2
-                    shifted_loss = zeroed_loss - downward_shift
+                elif zeroed_loss < -loss_min_tol:
+                    assign_values(all_params, values)  # set values to the new minimum
+                    raise NewMinimum("A new minimum is found.")
 
-                    if abs(shifted_loss) < rtol:
-                        if ntol > 3:
-                            root = values[index_poi]
-                            raise RootFound()
-                        ntol += 1
-                    else:
-                        ntol = 0
+                downward_shift = errordef * sigma**2
+                shifted_loss = zeroed_loss - downward_shift
 
-                    return znp.concatenate([[shifted_loss], gradient])
+                if abs(shifted_loss) < rtol:
+                    if ntol > 3:
+                        root = values[index_poi]
+                        raise RootFound()
+                    ntol += 1
+                else:
+                    ntol = 0
 
-                return wrappedfunc
-
-            func = make_func(index_poi, optimized_loss_gradient, param)
+                return znp.concatenate([[shifted_loss], gradient])
 
             to_return[param] = {}
             swap_sign = {
-                "lower": lambda p, pval=param_value: p > pval,
-                "upper": lambda p, pval=param_value: p < pval,
+                "lower": lambda p: p > param_value,
+                "upper": lambda p: p < param_value,
             }
             for d in ["lower", "upper"]:
                 try:
@@ -239,31 +247,30 @@ def compute_errors(
                     assert root is not None, "Should be changed inside function."
                 else:
                     warnings.warn(
-                        f"The root finding did not converge below {rtol} but stopped by its own criteria.",
-                        RuntimeWarning,
-                        stacklevel=2,
+                        f"The root finding did not converge below {rtol} but stopped by its own criteria."
                     )
                     root = root_result.x[index_poi]
                 to_return[param][d] = root - param_value
 
         assign_values(all_params, result)
 
-    except NewMinimum:
+    except NewMinimum as e:
         from .. import settings
 
         if settings.get_verbosity() >= 5:
-            pass
+            print(e)
         minimizer = result.minimizer
         loss = result.loss
         new_found_fmin = loss.value(full=False)
         new_result = minimizer.minimize(loss=loss)
         if new_result.fminopt >= new_found_fmin + loss_min_tol:
-            msg = (
+            raise RuntimeError(
                 "A new minimum was discovered but the minimizer was not able to find this on himself. "
                 "This behavior is currently an exception but will most likely change in the future."
             )
-            raise RuntimeError(msg) from None
-        to_return, new_result_ = compute_errors(result=new_result, params=params, cl=cl, rtol=rtol, method=method)
+        to_return, new_result_ = compute_errors(
+            result=new_result, params=params, cl=cl, rtol=rtol, method=method
+        )
         if new_result_ is not None:
             new_result = new_result_
     return to_return, new_result
@@ -305,7 +312,9 @@ def autodiff_pdf_jacobian(func, params):
             values = func()
         columns.append(acc.jvp(values))
 
-    return z.convert_to_tensor(columns)
+    jacobian = z.convert_to_tensor(columns)
+
+    return jacobian
 
 
 def covariance_with_weights(method, result, params):
@@ -342,8 +351,12 @@ def covariance_with_weights(method, result, params):
             values.append(v)
             if yields is not None:
                 yi = yields[i]
-                nevents_collected = tf.reduce_sum(weights) if weights is not None else d.nevents
-                term_new = tf.nn.log_poisson_loss(nevents_collected, znp.log(yi), compute_full_loss=True)[
+                nevents_collected = (
+                    tf.reduce_sum(weights) if weights is not None else d.nevents
+                )
+                term_new = tf.nn.log_poisson_loss(
+                    nevents_collected, znp.log(yi), compute_full_loss=True
+                )[
                     ..., None
                 ]  # make it an array like the others
                 values.append(term_new)
@@ -359,13 +372,12 @@ def covariance_with_weights(method, result, params):
         try:
             jacobian = autodiff_pdf_jacobian(func=func, params=params_dict)
         except ValueError as error:
-            msg = (
+            raise ValueError(
                 "The autodiff could not be performed for the jacobian matrix. This can have a natural cause (see error above)"
                 " or be a bug in the autodiff. In the latter case, you can try to use the numerical jacobian instead using:\n"
                 "with zfit.run.set_autograd_mode(False):\n"
                 "    # calculate here, i.e. result.errors()"
-            )
-            raise ValueError(msg) from error
+            ) from error
     else:
 
         def wrapped_func(values):

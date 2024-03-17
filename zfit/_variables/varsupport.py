@@ -1,4 +1,4 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2022 zfit
 from __future__ import annotations
 
 import tensorflow_probability as tfp
@@ -29,16 +29,14 @@ class VarSupports(tfp.experimental.AutoCompositeTensor):
             if space or binned or data or types or scalar or vectorspace:
                 raise ValueError
         elif not (space or scalar or vectorspace or binned or data):
-            msg = "Need to support at least something."
-            raise ValueError(msg)
+            raise ValueError("Need to support at least something.")
         if data:
             scalar = True
         if vectorspace:
             space = True
 
         if not isinstance(var, zfit_interface.variables.ZfitVar):
-            msg = f"var has to be a ZfitVar, not {var}."
-            raise TypeError(msg)
+            raise TypeError(f"var has to be a ZfitVar, not {var}.")
         self.var = var
         self.full = full or False
         self.scalar = scalar or False
