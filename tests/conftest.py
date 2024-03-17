@@ -4,6 +4,7 @@
 
 import collections.abc
 import pathlib
+import platform
 import sys
 from pathlib import Path
 
@@ -74,6 +75,13 @@ def pytest_configure():
     images_dir.mkdir(exist_ok=True)
 
     def savefig(figure=None, folder=None):
+        """Save the current figure to the images directory.
+
+        Skip saving on windows as it fails.
+        """
+        # do not save on windows
+        if platform.system() == "Windows":
+            return
         if figure is None:
             figure = plt.gcf()
         title_sanitized = (

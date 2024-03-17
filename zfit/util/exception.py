@@ -250,7 +250,7 @@ class DerivativeCalculationError(ValueError):
 
 
 class WorkInProgressError(Exception):
-    """Only for developing purpose!
+    """Only for developing purpose.
 
     Does not serve as a 'real' Exception.
     """
@@ -275,4 +275,8 @@ class BehaviorUnderDiscussion(Exception):
 
 
 class MaximumIterationReached(StandardControlFlow):
+    pass
+
+
+class AnalyticGradientNotAvailable(Exception):
     pass

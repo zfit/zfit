@@ -24,6 +24,11 @@ from .util.exception import (
     ShapeIncompatibleError,
     SpecificFunctionNotImplemented,
     VectorizedLimitsNotImplemented,
+    ShapeIncompatibleError,
+    LogicalUndefinedOperationError,
+    ParamNameNotUniqueError,
+    BreakingAPIChangeError,
+    AnalyticGradientNotAvailable,
 )
 
 __all__ = [
@@ -44,6 +49,7 @@ __all__ = [
     "InitNotImplemented",
     "LogicalUndefinedOperationError",
     "NumpyArrayNotSerializableError",
+    "AnalyticGradientNotAvailable",
     "NONE",
 ]
 
