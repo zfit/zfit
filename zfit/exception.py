@@ -23,6 +23,7 @@ from .util.exception import (
     LogicalUndefinedOperationError,
     ParamNameNotUniqueError,
     BreakingAPIChangeError,
+    AnalyticGradientNotAvailable,
 )
 
 __all__ = [
@@ -43,6 +44,7 @@ __all__ = [
     "InitNotImplemented",
     "LogicalUndefinedOperationError",
     "NumpyArrayNotSerializableError",
+    "AnalyticGradientNotAvailable",
     "NONE",
 ]
 

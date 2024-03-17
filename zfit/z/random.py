@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 
 from __future__ import annotations
 
@@ -14,7 +14,7 @@ from .zextension import function as function
 __all__ = ["counts_multinomial", "sample_with_replacement"]
 
 from ..settings import ztypes
-from ..z import numpy as znp
+from ..z import numpy as _znp
 
 generator = None
 
@@ -102,8 +102,6 @@ def counts_multinomial(
     # needed since otherwise shape of sample will be (1, n_probs)
     # total_count = tf.broadcast_to(total_count, shape=probs_logits_shape)
 
-    # @function
-
     return _wrapped_multinomial_func(dtype, logits, probs, total_count)
 
 
@@ -111,16 +109,16 @@ def counts_multinomial(
 def _wrapped_multinomial_func(dtype, logits, probs, total_count):
     if probs is not None:
         shape = tf.shape(probs)
-        probs = znp.reshape(probs, [-1])
+        probs = _znp.reshape(probs, [-1])
     else:
         shape = tf.shape(logits)
-        logits = znp.reshape(logits, [-1])
+        logits = _znp.reshape(logits, [-1])
     dist = tfp.distributions.Multinomial(
         total_count=total_count, probs=probs, logits=logits
     )
     counts_flat = dist.sample()
     counts_flat = tf.cast(counts_flat, dtype=dtype)
-    counts = znp.reshape(counts_flat, shape)
+    counts = _znp.reshape(counts_flat, shape)
     return counts
 
 

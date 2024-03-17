@@ -40,12 +40,15 @@ __all__ = [
     "BinwiseScaleModifier",
     "BinnedSumPDF",
     "SplinePDF",
+    "TruncatedPDF",
     "LogNormal",
+    "CachedPDF",
 ]
 
 from .core.basepdf import BasePDF
 from .models.basic import Exponential, Voigt
 from .models.binned_functor import BinnedSumPDF
+from .models.cache import CachedPDF
 from .models.conditional import ConditionalPDFV1
 from .models.convolution import FFTConvPDFV1
 from .models.dist_tfp import (
@@ -71,6 +74,7 @@ from .models.kde import (
 )
 from .models.morphing import SplineMorphingPDF
 from .models.physics import CrystalBall, DoubleCB, GeneralizedCB
+from .models.truncated import TruncatedPDF
 from .models.polynomials import (
     Chebyshev,
     Chebyshev2,
