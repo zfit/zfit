@@ -2,10 +2,8 @@
 
 from __future__ import annotations
 
-
 from collections.abc import Callable
-from typing import Literal
-from typing import Union, Optional
+from typing import ClassVar, Literal, Optional, Union
 
 import numpy as np
 import pydantic
@@ -450,7 +448,7 @@ def calc_kernel_probs(size, weights):
 
 
 class KDEHelper:
-    _bandwidth_methods: typing.ClassVar = {
+    _bandwidth_methods: ClassVar = {
         "scott": _bandwidth_scott_KDEV1,
         "silverman": _bandwidth_silverman_KDEV1,
     }

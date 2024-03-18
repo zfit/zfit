@@ -1,4 +1,6 @@
 #  Copyright (c) 2024 zfit
+from __future__ import annotations
+
 import hist
 import mplhep
 import numpy as np

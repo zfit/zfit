@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from functools import partial
-from typing import TYPE_CHECKING, Literal, Union, Optional
+from typing import TYPE_CHECKING, Literal, Optional, Union
 
 import pydantic
 from pydantic import Field
@@ -141,9 +141,7 @@ class BaseLossRepr(BaseRepr):
         Serializer.types.DataTypeDiscriminated,
         list[Serializer.types.DataTypeDiscriminated],
     ]
-    constraints: Optional[list[Serializer.types.ConstraintTypeDiscriminated]] = Field(
-        default_factory=list
-    )
+    constraints: Optional[list[Serializer.types.ConstraintTypeDiscriminated]] = Field(default_factory=list)
     options: Optional[Mapping] = Field(default_factory=dict)
 
     @pydantic.validator("model", "data", "constraints", pre=True)

@@ -127,9 +127,7 @@ class RecursivePolynomial(BasePDF):
 
 class BaseRecursivePolynomialRepr(BasePDFRepr):
     x: SpaceRepr
-    params: Mapping[str, Serializer.types.ParamTypeDiscriminated] = pydantic.Field(
-        alias="coeffs"
-    )
+    params: Mapping[str, Serializer.types.ParamTypeDiscriminated] = pydantic.Field(alias="coeffs")
     apply_scaling: Optional[bool]
 
     @pydantic.root_validator(pre=True)

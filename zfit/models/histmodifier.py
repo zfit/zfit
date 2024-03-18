@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    import zfit  # ruff: noqa: F401
+    pass  # ruff: noqa: F401
 
 from collections.abc import Mapping
 

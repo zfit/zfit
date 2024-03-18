@@ -318,9 +318,7 @@ class GaussianConstraint(TFProbabilityConstraint, SerializableMixin):
 
 class GaussianConstraintRepr(BaseConstraintRepr):
     _implementation = GaussianConstraint
-    hs3_type: Literal["GaussianConstraint"] = pydantic.Field(
-        "GaussianConstraint", alias="type"
-    )
+    hs3_type: Literal["GaussianConstraint"] = pydantic.Field("GaussianConstraint", alias="type")
 
     params: list[Serializer.types.ParamInputTypeDiscriminated]
     observation: list[Serializer.types.ParamInputTypeDiscriminated]

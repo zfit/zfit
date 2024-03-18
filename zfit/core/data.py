@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Iterable, Literal, Union, Optional
+from typing import TYPE_CHECKING, Iterable, Literal, Optional, Union
 
 import pydantic
 import xxhash

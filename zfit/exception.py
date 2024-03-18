@@ -4,6 +4,8 @@
 todo:: Add module docstring.
 """
 
+from __future__ import annotations
+
 from .core.serialmixin import NumpyArrayNotSerializableError
 from .util.checks import NONE
 from .util.deprecation import deprecated

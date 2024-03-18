@@ -93,8 +93,8 @@ ignore = [
     # Prefer to have a single way to access the data if we don't care about whether it's a numpy array or not.
     "PLW0603",  # updating global variables with a function is bad, but we use it for
     "PLW2901",  # "for loop overwritten by assignment" -> we use this to update the loop variable
-    "PD013",    # "melt over stack" but triggers on tensors
-    "NPY002",   # "Use rnd generator in numpy" -> we use np.random for some legacy stuff but do new one where we can
+    "PD013",    # "melt over stack": df function, but triggers on tensors
+    "NPY002",   # "Use rnd generator in numpy" -> we use np.random for some legacy stuff but do use the new one where we can
 
 ]
 isort.required-imports = ["from __future__ import annotations"]

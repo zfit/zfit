@@ -1,4 +1,7 @@
 #  Copyright (c) 2024 zfit
+from __future__ import annotations
+
+# ruff: noqa: F821
 from typing import (
     Callable,
     Dict,

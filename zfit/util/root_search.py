@@ -13,6 +13,8 @@
 # limitations under the License.
 """Root search functions."""
 
+from __future__ import annotations
+
 from typing import Callable, Optional
 
 import numpy as np

@@ -1,6 +1,7 @@
 """Used to make pytest functions available globally."""
 
 #  Copyright (c) 2024 zfit
+from __future__ import annotations
 
 import collections.abc
 import pathlib

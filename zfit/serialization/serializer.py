@@ -9,13 +9,14 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import (
     Any,
+    ClassVar,
     Iterable,
     List,
     Literal,
     Mapping,
+    Optional,
     TypeVar,
-    Union, ClassVar, Optional,
-
+    Union,
 )
 
 import numpy as np
