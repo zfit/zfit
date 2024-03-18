@@ -67,6 +67,42 @@ def generalized_crystalball_func(x, mu, sigmal, alphal, nl, sigmar, alphar, nr):
     return func
 
 
+@tf.function
+def cbexgauss_func(x, mu, sigma, alpha, n, sigma2, tailleft):
+    t = (x - mu) / sigma * tf.sign(alpha)
+    t0 = (x - mu) / sigma2 * tf.sign(alpha)
+    abs_alpha = znp.abs(alpha)
+
+    if tailleft >= 0:
+        cond1 = tf.greater(t, 0)
+        cond2 = tf.greater(t, -abs_alpha)
+        func = z.safe_where(
+            cond2,
+            lambda t: znp.exp(-0.5 * znp.square(t)),
+            lambda t: znp.exp(-0.5 * abs_alpha**2) * znp.exp(n * (t + abs_alpha)),
+            values=t,
+            value_safer=lambda t: znp.ones_like(t),
+        )
+        func = znp.where(cond1, znp.exp(-0.5 * t0**2), func)
+
+    else:
+        cond1 = tf.less(t0, 0)
+        cond2 = tf.less(t0, abs_alpha)
+        a = znp.power((n / abs_alpha), n) * znp.exp(-0.5 * znp.square(alpha))
+        b = (n / abs_alpha) - abs_alpha
+        func = z.safe_where(
+            cond2,
+            lambda t: znp.exp(-0.5 * znp.square(t)),
+            lambda t: _powerlaw(b + t, a, -n),
+            values=t0,
+            value_safer=lambda t: znp.ones_like(t) * (b + 2),
+        )
+        func = znp.where(cond1, znp.exp(-0.5 * t**2), func)
+
+    func = znp.maximum(func, znp.zeros_like(func))
+    return func
+
+
 # created with the help of TensorFlow autograph used on python code converted from ShapeCB of RooFit
 def crystalball_integral(limits, params, model):
     mu = params["mu"]
@@ -588,3 +624,63 @@ class GeneralizedCBPDFRepr(BasePDFRepr):
 GeneralizedCB.register_analytic_integral(
     func=generalized_crystalball_mu_integral, limits=crystalball_integral_limits
 )
+
+
+class CBExGauss(BasePDF, SerializableMixin):
+    _N_OBS = 1
+
+    def __init__(
+        self,
+        mu: ztyping.ParamTypeInput,
+        sigma: ztyping.ParamTypeInput,
+        alpha: ztyping.ParamTypeInput,
+        n: ztyping.ParamTypeInput,
+        sigma2: ztyping.ParamTypeInput,
+        tailleft: ztyping.ParamTypeInput,
+        obs: ztyping.ObsTypeInput,
+        *,
+        extended: ExtendedInputType = None,
+        norm: NormInputType = None,
+        name: str = "CBExGauss",
+    ):
+        params = {
+            "mu": mu,
+            "sigma": sigma,
+            "alpha": alpha,
+            "n": n,
+            "sigma2": sigma2,
+            "tailleft": tailleft,
+        }
+        super().__init__(
+            obs=obs, name=name, params=params, extended=extended, norm=norm
+        )
+
+    def _unnormalized_pdf(self, x):
+        mu = self.params["mu"].value()
+        sigma = self.params["sigma"].value()
+        alpha = self.params["alpha"].value()
+        n = self.params["n"].value()
+        sigma2 = self.params["sigma2"].value()
+        tailleft = self.params["tailleft"].value()
+        x = z.unstack_x(x)
+        return cbexgauss_func(
+            x=x,
+            mu=mu,
+            sigma=sigma,
+            alpha=alpha,
+            n=n,
+            sigma2=sigma2,
+            tailleft=tailleft,
+        )
+
+
+class CBExGaussPDFRepr(BasePDFRepr):
+    _implementation = CBExGauss
+    hs3_type: Literal["CBExGauss"] = pydantic.Field("CBExGauss", alias="type")
+    x: SpaceRepr
+    mu: Serializer.types.ParamTypeDiscriminated
+    sigma: Serializer.types.ParamTypeDiscriminated
+    alpha: Serializer.types.ParamTypeDiscriminated
+    n: Serializer.types.ParamTypeDiscriminated
+    sigma2: Serializer.types.ParamTypeDiscriminated
+    tailleft: Serializer.types.ParamTypeDiscriminated
