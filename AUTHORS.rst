@@ -22,3 +22,4 @@ Contributors
 | Oliver Lantwin <oliver.lantwin@cern.ch>
 | Johannes Lade <johannes.lade@yahoo.com>
 | Iason Krommydas <ik23@rice.edu>
+| Anja Beck <anja.x.beck@gmail.com>

@@ -17,3 +17,4 @@ Any missing shape can be easily wrapped using :py:class:`~zfit.pdf.WrapDistribut
     zfit.pdf.TruncatedGauss
     zfit.pdf.Poisson
     zfit.pdf.LogNormal
+    zfit.pdf.ChiSquared

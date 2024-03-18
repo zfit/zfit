@@ -565,3 +565,68 @@ class LogNormalPDFRepr(BasePDFRepr):
     x: SpaceRepr
     mu: Serializer.types.ParamTypeDiscriminated
     sigma: Serializer.types.ParamTypeDiscriminated
+
+
+class ChiSquared(WrapDistribution, SerializableMixin):
+    _N_OBS = 1
+
+    def __init__(
+        self,
+        ndof: ztyping.ParamTypeInput,
+        obs: ztyping.ObsTypeInput,
+        *,
+        extended: ExtendedInputType = None,
+        norm: NormInputType = None,
+        name: str = "ChiSquared",
+    ):
+        """ChiSquared distribution for ndof degrees of freedom.
+
+        The chisquared shape for $d$ degrees of freedom is defined as
+
+        .. math::
+
+            f(x \\mid d) = x**(d/2 - 1) \\exp(-x/2) / Z
+
+        with the normalization over [0, inf] of
+
+        .. math::
+
+            Z = \\frac{1}{2^{d/2} \\Gamma(d/2)}
+
+        The normalization changes for different normalization ranges
+
+        Args:
+            ndof: Number of degrees of freedom
+            obs: Observables and normalization range the pdf is defined in
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+            norm: |@doc:pdf.init.norm| Normalization of the PDF.
+               By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
+            name: |@doc:model.init.name| Human-readable name
+               or label of
+               the PDF for better identification.
+               Has no programmatical functional purpose as identification. |@docend:model.init.name|
+        """
+        (ndof,) = self._check_input_params(ndof)
+        params = OrderedDict((("ndof", ndof),))
+        dist_params = lambda: dict(df=ndof.value())
+        distribution = tfp.distributions.Chi2
+        super().__init__(
+            distribution=distribution,
+            dist_params=dist_params,
+            obs=obs,
+            params=params,
+            name=name,
+            extended=extended,
+            norm=norm,
+        )
+
+
+class ChiSquaredPDFRepr(BasePDFRepr):
+    _implementation = ChiSquared
+    hs3_type: Literal["ChiSquared"] = Field("ChiSquared", alias="type")
+    x: SpaceRepr
+    ndof: Serializer.types.ParamTypeDiscriminated
