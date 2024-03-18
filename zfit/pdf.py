@@ -54,10 +54,10 @@ from .models.conditional import ConditionalPDFV1
 from .models.convolution import FFTConvPDFV1
 from .models.dist_tfp import (
     Cauchy,
+    ChiSquared,
     Gauss,
     LogNormal,
     Poisson,
-    ChiSquared,
     TruncatedGauss,
     Uniform,
     WrapDistribution,

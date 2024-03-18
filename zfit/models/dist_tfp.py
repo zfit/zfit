@@ -612,7 +612,10 @@ class ChiSquared(WrapDistribution, SerializableMixin):
         """
         (ndof,) = self._check_input_params(ndof)
         params = OrderedDict((("ndof", ndof),))
-        dist_params = lambda: dict(df=ndof.value())
+
+        def dist_params():
+            return {"df": ndof.value()}
+
         distribution = tfp.distributions.Chi2
         super().__init__(
             distribution=distribution,
