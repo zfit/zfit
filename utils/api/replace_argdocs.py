@@ -21,7 +21,7 @@ parser.add_argument("--dry", action="store_true", help="Dry run WITHOUT replacin
 
 cfg = parser.parse_args()
 
-with Path.open(here / "argdocs.yaml") as replfile:
+with Path(here / "argdocs.yaml").open() as replfile:
     replacements = yaml.load(replfile, Loader=yaml.Loader)
 
 # Replace the target string
@@ -29,7 +29,7 @@ with Path.open(here / "argdocs.yaml") as replfile:
 for filepath in cfg.files:
     if not filepath.endswith(".py"):
         continue
-    with Path.open(filepath) as file:
+    with Path(filepath).open() as file:
         filedata = file.read()
 
     infile = False
@@ -67,5 +67,5 @@ for filepath in cfg.files:
         if cfg.dry:
             pass
         elif needs_replacement:
-            with Path.open(filepath, "w") as file:
+            with Path(filepath, "w").open() as file:
                 file.write(filedata)

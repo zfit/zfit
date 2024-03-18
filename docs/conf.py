@@ -129,7 +129,7 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 pygments_style = "sphinx"
 
 # Automatically add substitutions to all RST files.
-with Path.open("subst_types.txt") as subst_types:
+with Path("subst_types.txt").open() as subst_types:
     rst_epilog = subst_types.read()
 
 # add whitespaces to the internal commands. Maybe move to preprocessing?
@@ -142,7 +142,7 @@ rst_epilog += """
 #
 # .. |@docend| replace:: |wzw|
 # """
-with Path.open(project_dir / "utils/api/argdocs.yaml") as replfile:
+with Path(project_dir / "utils/api/argdocs.yaml").open() as replfile:
     replacements = yaml.load(replfile, Loader=yaml.Loader)
 for replacement_key in replacements:
     rst_epilog += f"""
@@ -150,7 +150,7 @@ for replacement_key in replacements:
 
 .. |@docend:{replacement_key}| replace:: |wzw|
 """
-with Path.open("hyperlinks.txt") as hyperlinks:
+with Path("hyperlinks.txt").open() as hyperlinks:
     rst_epilog += hyperlinks.read()
 
 # makes the jupyter extension executable

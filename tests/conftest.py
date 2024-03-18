@@ -180,12 +180,12 @@ def get_truth(folder, filename, request, newval=None):
 
             if isinstance(newval, str):
                 newval = json.loads(newval)
-            with Path.open(filepath, "w") as f:
+            with Path(filepath, "w").open() as f:
                 json.dump(newval, f)
         elif filepath.suffix == ".yaml":
             import yaml
 
-            with Path.open(filepath, "w") as f:
+            with Path(filepath, "w").open() as f:
                 yaml.dump(newval, f)
 
         elif filepath.suffix == ".asdf":
@@ -200,12 +200,12 @@ def get_truth(folder, filename, request, newval=None):
     if filepath.suffix == ".json":
         import json
 
-        with Path.open(filepath) as f:
+        with Path(filepath).open() as f:
             return json.load(f)
     elif filepath.suffix == ".yaml":
         import yaml
 
-        with Path.open(filepath) as f:
+        with Path(filepath).open() as f:
             return yaml.safe_load(f)
     elif filepath.suffix == ".asdf":
         import asdf

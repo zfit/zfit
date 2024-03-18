@@ -12,10 +12,10 @@ from setuptools import setup
 
 here = Path(__file__).resolve().parent
 
-with Path.open(here / "requirements.txt", encoding="utf-8") as requirements_file:
+with Path(here / "requirements.txt", encoding="utf-8").open() as requirements_file:
     requirements = requirements_file.read().splitlines()
 
-with Path.open(here / "requirements_dev.txt", encoding="utf-8") as requirements_dev_file:
+with Path(here / "requirements_dev.txt", encoding="utf-8").open() as requirements_dev_file:
     requirements_dev = requirements_dev_file.read().splitlines()
 requirements_dev = [req.split("#")[0].strip() for req in requirements_dev]
 
