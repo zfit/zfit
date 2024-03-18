@@ -8,6 +8,7 @@ import functools
 from dataclasses import dataclass
 from enum import Enum
 from typing import (
+    Annotated,
     Any,
     ClassVar,
     Iterable,
@@ -25,13 +26,6 @@ import tensorflow as tf
 from frozendict import frozendict
 from pydantic import Field
 
-from zfit.util.container import convert_to_container
-
-try:
-    from typing import Annotated
-except ImportError:  # TODO(3.9): remove
-    from typing_extensions import Annotated
-
 from zfit.core.interfaces import (
     ZfitBinnedData,
     ZfitConstraint,
@@ -41,6 +35,7 @@ from zfit.core.interfaces import (
     ZfitPDF,
 )
 from zfit.core.serialmixin import ZfitSerializable
+from zfit.util.container import convert_to_container
 from zfit.util.warnings import warn_experimental_feature
 
 
