@@ -121,14 +121,20 @@ class Data(
         self._data_range = None
         self._set_space(obs)
         self._original_space = self.space
-        self._data_range = (
-            self.space
-        )  # TODO proper data cuts: currently set so that the cuts in all dims are applied
+        self._data_range = self.space
+
         self.dataset = dataset.batch(100_000_000)
         self._name = name
 
         self._set_weights(weights=weights)
         self._hashint = None
+        # this is a bit of legacy: we first set, then we preprocess, then we set again. At least now it's fully set
+        value, weights = self._preprocess_get_weights_values()
+        if weights is not None:
+            self._set_weights(weights=weights)
+        if value is not None:
+            dataset = LightDataset.from_tensor(value)
+            self.dataset = dataset
         self._update_hash()
 
     @property
@@ -175,6 +181,10 @@ class Data(
         return data_range
 
     @invalidate_graph
+    @deprecated(
+        None,
+        "Do not change the range, preferrably use pandas or similar, or use `with_obs` instead.",
+    )
     def set_data_range(self, data_range):
         data_range = self._check_input_data_range(data_range=data_range)
 
@@ -187,19 +197,55 @@ class Data(
 
         return TemporarilySet(value=data_range, setter=setter, getter=getter)
 
+    def _copy(self, deep, name, overwrite_params):
+        """Copy the object."""
+        newpar = {
+            "obs": self.space,
+            "weights": self.weights,
+            "name": name,
+            **overwrite_params,
+        }
+        obs = newpar["obs"]
+        if (tensor := newpar.pop("tensor", None)) is None:
+            tensor = self[obs]
+
+        return type(self).from_tensor(tensor=tensor, **newpar)
+
+    def _preprocess_get_weights_values(self):
+        """This is meant to be called if new limits are set."""
+        if self.data_range.has_limits:
+            if self.has_weights:
+                raw_values = self._value_internal(obs=self.data_range.obs, filter=False)
+                is_inside = self.data_range.inside(raw_values)
+                value = self._cut_data(raw_values, obs=self._original_space.obs)
+                weights = self._weights[is_inside]
+            else:
+                value = self._value_internal(obs=self.data_range.obs, filter=True)
+                weights = None
+        else:
+            weights = self._weights
+            value = self._value_internal()
+        return value, weights
+
     @property
     def weights(self):
         """Get the weights of the data."""
         # TODO: refactor below more general, when to apply a cut?
-        if self.data_range.has_limits and self.has_weights:
-            raw_values = self._value_internal(obs=self.data_range.obs, filter=False)
-            is_inside = self.data_range.inside(raw_values)
-            weights = self._weights[is_inside]
-        else:
-            weights = self._weights
+        weights = self._weights
         return weights
 
-    @deprecated(None, "Do not set the weights on a data set, create a new one instead.")
+    def with_weights(self, weights: ztyping.WeightsInputType):
+        """Create a new ``Data`` with a different set of weights.
+
+        Args:
+            weights: The new weights to use.
+
+        Returns:
+            ``zfit.Data``: A new ``Data`` object containing the new weights.
+        """
+        return self.copy(weights=weights)
+
+    @deprecated(None, "Use `with_weights` instead.")
     @invalidate_graph
     def set_weights(self, weights: ztyping.WeightsInputType):
         """Set (temporarily) the weights of the dataset.
@@ -505,10 +551,11 @@ class Data(
         Returns:
             ``zfit.Data``: A new ``Data`` object containing the subset of the data.
         """
+        if not isinstance(obs, ZfitSpace):
+            obs = self.space.with_obs(obs)
         values = self.value(obs)
-        return type(self).from_tensor(
-            obs=self.space, tensor=values, weights=self.weights, name=self.name
-        )
+        weights = self.weights
+        return self.copy(obs=obs, tensor=values, weights=weights)
 
     def to_pandas(
         self, obs: ztyping.ObsTypeInput = None, weightsname: str | None = None
@@ -569,6 +616,15 @@ class Data(
     def numpy(self):
         return self.value().numpy()
 
+    def to_numpy(self):
+        """Return the data as a numpy array.
+
+        Pandas DataFrame equivalent method
+        Returns:
+            np.ndarray: The data as a numpy array.
+        """
+        return self.numpy()
+
     def _cut_data(self, value, obs=None):
         if self.data_range.has_limits:
             data_range = self.data_range.with_obs(obs=obs)
@@ -576,12 +632,11 @@ class Data(
 
         return value
 
-    def _value_internal(self, obs: ztyping.ObsTypeInput = None, filter: bool = True):
+    def _value_internal(self, obs: ztyping.ObsTypeInput = None, filter: bool = False):
         if obs is not None:
             obs = convert_to_obs_str(obs)
-        # for raw_value in self.dataset:
-        # value = self._check_convert_value(raw_value)
         value = self.dataset.value()
+
         if filter:
             value = self._cut_data(value, obs=self._original_space.obs)
         value_sorted = self._sort_value(value=value, obs=obs)
@@ -860,6 +915,9 @@ class Sampler(Data):
         self.n = n
         self._n_holder = n
         self.resample()  # to be used for precompilations etc
+
+    def _preprocess_get_weights_values(self):
+        return None, None
 
     @property
     def n_samples(self):

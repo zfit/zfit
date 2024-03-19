@@ -256,7 +256,6 @@ def mc_integrate(
         n_samples = draws_per_dim * n_axes
 
         chunked_normalization = zfit.run.chunksize < n_samples
-        # chunked_normalization = True
         if chunked_normalization and partial:
             print(
                 "NOT SUPPORTED! partial and chunked not working, auto switch back to not-chunked."
@@ -264,7 +263,6 @@ def mc_integrate(
         if chunked_normalization and not partial:
             n_chunks = int(np.ceil(n_samples / zfit.run.chunksize))
             chunksize = int(np.ceil(n_samples / n_chunks))
-            # print("starting normalization with {} chunks and a chunksize of {}".format(n_chunks, chunksize))
             avg = normalization_chunked(
                 func=func,
                 n_axes=n_axes,
@@ -607,6 +605,7 @@ def chunked_average(func, x, num_batches, batch_size, space, mc_sampler):
         return dummy_func(fake_x)
 
 
+# TODO: this is a legacy object, just implement the functionality correctly with map_fn or vectorize_map
 class PartialIntegralSampleData(BaseDimensional, ZfitUnbinnedData):
     def __init__(self, sample: list[tf.Tensor], space: ZfitSpace):
         """Takes a list of tensors and "fakes" a dataset. Useful for tensors with non-matching shapes.
@@ -649,7 +648,9 @@ class PartialIntegralSampleData(BaseDimensional, ZfitUnbinnedData):
     def sort_by_obs(self, obs, allow_superset: bool = True):
         obs = convert_to_container(obs)
         new_reorder_list = [
-            self._reorder_indices_list[self.space.obs.index(ob)] for ob in obs
+            self._reorder_indices_list[self.space.obs.index(ob)]
+            for ob in obs
+            if ob in self.space.obs
         ]
 
         value = self.space.with_obs(obs=obs), new_reorder_list
@@ -660,6 +661,14 @@ class PartialIntegralSampleData(BaseDimensional, ZfitUnbinnedData):
             self._space, self._reorder_indices_list = value
 
         return TemporarilySet(value=value, getter=getter, setter=setter)
+
+    def with_obs(self, obs: ztyping.ObsTypeInput) -> PartialIntegralSampleData:
+        self.sort_by_obs(obs=obs, allow_superset=True)
+        return self
+
+    def with_space(self, space: ZfitSpace) -> PartialIntegralSampleData:
+        self._space = space
+        return self
 
     def value(self, obs: list[str] = None):
         return self

@@ -319,17 +319,15 @@ def test_analytic_sampling(obs1):
         func=lambda limits, params, model: 2 * limits.upper[0][0],
         limits=zfit.Space(limits=(-float("inf"), ANY_UPPER), axes=(0,)),
     )  # DUMMY!
-    SampleGauss.register_inverse_analytic_integral(func=lambda x, params: x + 1000.0)
+    SampleGauss.register_inverse_analytic_integral(func=lambda x, params: x)
 
     mu, sigma = create_mu_sigma_true_params()
     gauss1 = SampleGauss(obs=obs1, mu=mu, sigma=sigma)
     sample = gauss1.sample(n=10000, limits=(2.0, 5.0))
-    sample.set_data_range((1002, 1005))
-
     sample = sample.numpy()
 
-    assert 1004.0 <= min(sample[0])
-    assert 10010.0 >= max(sample[0])
+    assert 4.0 <= min(sample)
+    assert 5 >= max(sample)
 
 
 def test_multiple_limits(obs1):

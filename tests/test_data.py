@@ -343,6 +343,7 @@ def test_subdata(obs3d, data1):
         lambda: None,
         lambda: np.random.normal(size=5),
     ],
+    ids=["no_weights", "weights"],
 )
 def test_data_range(weights_factory):
     data1 = np.array([[1.0, 2], [0, 1], [-2, 1], [-1, -1], [-5, 10]])
@@ -362,14 +363,15 @@ def test_data_range(weights_factory):
     dataset = zfit.Data.from_tensor(obs=obs, tensor=data1, weights=weights)
     value_uncut = dataset.value()
     np.testing.assert_equal(data1, value_uncut.numpy())
-    with dataset.set_data_range(data_range):
-        value_cut = dataset.value()
-        np.testing.assert_equal(cut_data1, value_cut.numpy())
-        if dataset.has_weights:
-            np.testing.assert_equal(cut_weights, dataset.weights.numpy())
-        np.testing.assert_equal(
-            data1, value_uncut.numpy()
-        )  # check  that the original did NOT change
+    dataset_cut = dataset.with_obs(data_range)
+    # with dataset.set_data_range(data_range):
+    value_cut = dataset_cut.value()
+    np.testing.assert_equal(cut_data1, value_cut.numpy())
+    if dataset_cut.has_weights:
+        np.testing.assert_equal(cut_weights, dataset_cut.weights.numpy())
+    np.testing.assert_equal(
+        data1, value_uncut.numpy()
+    )  # check  that the original did NOT change
 
     np.testing.assert_equal(cut_data1, value_cut.numpy())
     np.testing.assert_equal(data1, dataset.value().numpy())
@@ -418,7 +420,7 @@ def test_data_hashing(space2d):
     testhashpdf = TestHashPDF(obs=space2d, lasthash=data1.hashint)
     assert testhashpdf.lasthash == data1.hashint
     oldhashint = data1.hashint
-    data1.set_weights(np.random.uniform(size=data1.nevents))
+    data1 = data1.with_weights(np.random.uniform(size=data1.nevents))
     assert oldhashint != data1.hashint
     assert data1.hashint != testhashpdf.lasthash
     assert oldhashint == testhashpdf.lasthash

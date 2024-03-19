@@ -232,11 +232,13 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         else:
             x = convert_to_data(x, obs=self.obs)
             if x.obs is not None:
-                with x.sort_by_obs(obs=self.obs, allow_superset=True):
-                    yield x
+                x = x.with_obs(self.obs)
+                # with x.sort_by_obs(obs=self.obs, allow_superset=True):
+                yield x
             elif x.axes is not None:
-                with x.sort_by_axes(axes=self.axes):
-                    yield x
+                x = x.with_axes(self.space.axes)
+                # with x.sort_by_axes(axes=self.axes):
+                yield x
             else:
                 assert False, "Neither the `obs` nor the `axes` are specified in `Data`"
 

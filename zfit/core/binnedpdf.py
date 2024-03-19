@@ -293,7 +293,9 @@ class BaseBinnedPDFV1(
 
         # sort it and remember the original sorting
         original_space = x if isinstance(x, ZfitSpace) else x.space
-        x = x.with_obs(self.space)
+        x = x.with_obs(
+            self.space.obs
+        )  # we don't want to cut anything off -> only obs, not space
 
         # if it is unbinned, we get the binned version and gather the corresponding values
         is_unbinned = isinstance(x, ZfitUnbinnedData)
@@ -380,7 +382,9 @@ class BaseBinnedPDFV1(
         norm = self._check_convert_norm(norm, none_is_error=True)
         # sort it and remember the original sorting
         original_space = x if isinstance(x, ZfitSpace) else x.space
-        x = x.with_obs(self.space)
+        x = x.with_obs(
+            self.space.obs
+        )  # we don't want to cut anything off -> only obs, not space
 
         # if it is unbinned, we get the binned version and gather the corresponding values
         is_unbinned = isinstance(x, ZfitUnbinnedData)
@@ -839,7 +843,9 @@ class BaseBinnedPDFV1(
         space = (
             x if isinstance(x, ZfitSpace) else x.space
         )  # TODO: split the convert and sort, make Sorter?
-        x = x.with_obs(self.space)
+        x = x.with_obs(
+            self.space.obs
+        )  # we don't want to cut anything off -> only obs, not space
         norm = self._check_convert_norm(norm)
         counts = self._call_counts(x, norm)
         return move_axis_obs(self.space, space, counts)
@@ -905,7 +911,9 @@ class BaseBinnedPDFV1(
         space = (
             x if isinstance(x, ZfitSpace) else x.space
         )  # TODO: split the convert and sort, make Sorter?
-        x = x.with_obs(self.space)
+        x = x.with_obs(
+            self.space.obs
+        )  # we don't want to cut anything off -> only obs, not space
         norm = self._check_convert_norm(norm)
         values = self._call_rel_counts(x, norm)
         return move_axis_obs(self.space, space, values)

@@ -25,11 +25,13 @@ Major Features and Improvements
 
 Breaking changes
 ------------------
-- ``NameAlreadyTakenError`` was removed, see above for the new behavior.
+- ``NameAlreadyTakenError`` was removed, see above for the new behavior. This should not have an effect on any existing code *except if you relied on the error being thrown*.
+- Data objects had an intrinsic, TensorFlow V1 legacy behavior: they were actually cut when the data was *retrieved*. This is now changed and the data is cut when it is created. This should not have any impact on existing code and just improve runtime and memory usage.
 
 Deprecations
 -------------
 - ``result.fminfull`` is deprecated and will be removed in the future. Use ``result.fmin`` instead.
+- ``set_data_range`` is deprecated and will be removed in the future. Use ``with_range`` instead.
 
 Bug fixes and small changes
 ---------------------------

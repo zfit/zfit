@@ -17,7 +17,6 @@ def test_fail_on_nan_strategy():
     gauss = zfit.pdf.Gauss(1.0, sigma, obs=obs)
 
     sampler = gauss.create_sampler(3000)
-    sampler.set_data_range(obs)
     nll = zfit.loss.UnbinnedNLL(model=gauss, data=sampler)
     minimizer = zfit.minimize.Minuit(strategy=ToyStrategyFail)
     sampler.resample()

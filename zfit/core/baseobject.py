@@ -51,7 +51,7 @@ class BaseObject(ZfitObject):
         new_object = self._copy(deep=deep, name=name, overwrite_params=overwrite_params)
         return new_object
 
-    def _copy(self, deep, name, overwrite_params):  # TODO(Mayou36) L: representation?
+    def _copy(self, deep, name, overwrite_params):
         raise NotImplementedError("This copy should not be used.")
 
     def __eq__(self, other: object) -> bool:
