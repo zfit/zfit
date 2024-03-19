@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 import numpy as np
 import pytest
 import tensorflow as tf
@@ -266,7 +266,6 @@ def test_sampling_floating(gauss_factory):
         assert sigma_sampled == pytest.approx(sigma_true, rel=0.07)
 
 
-# @pytest.mark.skipif(not zfit.EXPERIMENTAL_FUNCTIONS_RUN_EAGERLY, reason="deadlock in tf.function, issue #35540")  # currently, importance sampling is not working, odd deadlock in TF
 @pytest.mark.flaky(3)  # statistical
 @pytest.mark.parametrize("n", [1, 2, 3, 5, 13, 30000])
 def test_importance_sampling(n):

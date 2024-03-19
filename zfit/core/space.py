@@ -22,6 +22,7 @@ from contextlib import suppress
 import numpy as np
 import tensorflow as tf
 from tensorflow.python.util.deprecation import deprecated
+import tensorflow_probability as tfp
 
 import zfit
 import zfit.z.numpy as znp
@@ -212,11 +213,8 @@ def is_range_definition(limit):
         return False  # not iterable and was not a LimitRangeDefinition in the beginning
 
 
-# @tfp.experimental.auto_composite_tensor()
-class Limit(
-    ZfitLimit,
-    # tfp.experimental.AutoCompositeTensor
-):
+@tfp.experimental.auto_composite_tensor()
+class Limit(ZfitLimit, tfp.experimental.AutoCompositeTensor):
     _experimental_allow_vectors = False
 
     def __init__(
@@ -1142,16 +1140,25 @@ class BaseSpace(ZfitSpace, BaseObject):
         return self.has_limits
 
 
-# @tfp.experimental.auto_composite_tensor()
 class Space(
     BaseSpace,
     SerializableMixin,
-    # tfp.experimental.AutoCompositeTensor
 ):
     AUTO_FILL = object()
     ANY = ANY
     ANY_LOWER = ANY_LOWER  # TODO: needed? or move everything inside?
     ANY_UPPER = ANY_UPPER
+
+    def __new__(cls, *args, **kwargs):
+        binning = kwargs.get("binning")
+        if binning is not None:
+            obj = super().__new__(Space)
+        elif cls is Space:
+            return UnbinnedSpace(*args, **kwargs)
+        else:
+            obj = super().__new__(cls)
+        obj.__init__(*args, **kwargs)
+        return obj
 
     def __init__(
         self,
@@ -2085,6 +2092,11 @@ class Space(
         raise BreakingAPIChangeError(
             "from_axes is not needed anymore, create a Space directly."
         )
+
+
+@tfp.experimental.auto_composite_tensor()
+class UnbinnedSpace(tfp.experimental.AutoCompositeTensor, Space):
+    pass
 
 
 def extract_limits_from_dict(limits_dict, obs=None, axes=None):

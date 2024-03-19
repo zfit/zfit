@@ -9,6 +9,7 @@ import pydantic
 import xxhash
 from pydantic import Field
 from tensorflow.python.util.deprecation import deprecated_args, deprecated
+import tensorflow_probability as tfp
 
 from .parameter import set_values
 from .serialmixin import ZfitSerializable, SerializableMixin
@@ -74,7 +75,7 @@ def convert_to_data(data, obs=None):
 
 
 # TODO: make cut only once, then remember
-class Data(
+class DataBaseOld(
     ZfitUnbinnedData,
     BaseDimensional,
     BaseObject,
@@ -84,6 +85,13 @@ class Data(
 ):
     BATCH_SIZE = 1000000  # 1 mio
 
+    # def __new__(cls, *args, **kwargs):
+    #     if cls is UnbinnedData:
+    #         return UnbinnedData(*args, **kwargs)
+    #     else:
+    #         obj = super().__new__(cls)
+    #     obj.__init__(*args, **kwargs)
+    #     return obj
     def __init__(
         self,
         dataset: tf.data.Dataset | LightDataset,
@@ -293,7 +301,7 @@ class Data(
 
         array = df[list(space.obs)].values
 
-        return Data.from_numpy(  # *not* class, if subclass, keep constructor
+        return cls.from_numpy(  # *not* class, if subclass, keep constructor
             obs=space,
             array=array,
             weights=weights,
@@ -391,7 +399,7 @@ class Data(
             weights_np = weights
         dataset = LightDataset.from_tensor(data)
 
-        return Data(  # *not* class, if subclass, keep constructor
+        return cls(  # *not* class, if subclass, keep constructor
             dataset=dataset,
             obs=obs,
             weights=weights_np,
@@ -434,7 +442,7 @@ class Data(
             dtype = ztypes.float
         array = znp.asarray(array)
         tensor = tf.cast(array, dtype=dtype)
-        return Data.from_tensor(  # *not* class, if subclass, keep constructor
+        return cls.from_tensor(  # *not* class, if subclass, keep constructor
             obs=obs,
             tensor=tensor,
             weights=weights,
@@ -473,7 +481,7 @@ class Data(
             tensor = znp.expand_dims(tensor, -1)
         dataset = LightDataset.from_tensor(tensor)
 
-        return Data(  # *not* class, if subclass, keep constructor
+        return cls(  # *not* class, if subclass, keep constructor
             dataset=dataset,
             obs=obs,
             name=name,
@@ -724,6 +732,13 @@ class Data(
         return value
 
 
+@tfp.experimental.auto_composite_tensor(
+    omit_kwargs=("name", "use_hash", "dtype", "weights")
+)
+class Data(tfp.experimental.AutoCompositeTensor, DataBaseOld):
+    pass
+
+
 # TODO(serialization): add to serializer
 class DataRepr(BaseRepr):
     _implementation = Data
@@ -780,7 +795,7 @@ def getitem_obs(self, item):
     return self.value(item)
 
 
-class SampleData(Data):
+class SampleData(DataBaseOld):
     _cache_counting = 0
 
     def __init__(
@@ -821,7 +836,7 @@ class SampleData(Data):
         )
 
 
-class Sampler(Data):
+class Sampler(DataBaseOld):
     _cache_counting = 0
 
     def __init__(
@@ -977,7 +992,8 @@ class Sampler(Data):
 # register_tensor_conversion(Data, name="Data", overload_operators=True)
 
 
-class LightDataset:
+@tfp.experimental.auto_composite_tensor()
+class LightDataset(tfp.experimental.AutoCompositeTensor):
     def __init__(self, tensor):
         if not isinstance(tensor, (tf.Tensor, tf.Variable)):
             tensor = z.convert_to_tensor(tensor)

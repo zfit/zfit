@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 
 import copy
 import random
@@ -85,7 +85,6 @@ def test_equality(space1, space2):
     )
 
 
-# @pytest.mark.skip  # eq missing
 def test_sub_space():
     sub_space2_true_axes = Space(axes=sub_limit2_axes, limits=sub_limit2)
     assert sub_space2_true_axes == space2_subbed_axes
