@@ -1,4 +1,5 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2024 zfit
+from __future__ import annotations
 
 import numpy as np
 
@@ -28,9 +29,7 @@ product_gauss = zfit.pdf.ProductPDF([gauss_x, gauss_y, gauss_z])
 
 # data
 normal_np = np.random.normal(loc=[2.0, 2.5, 2.5], scale=[3.0, 3, 1.5], size=(10000, 3))
-data_raw = zfit.Data.from_numpy(
-    obs=obs, array=normal_np
-)  # or from anywhere else, e.g. root
+data_raw = zfit.Data.from_numpy(obs=obs, array=normal_np)  # or from anywhere else, e.g. root
 
 df = data_raw.to_pandas()
 # preprocessing here, rename things. Match column names with the observable names "xobs", "yobs", "z" (they have to be
@@ -43,8 +42,6 @@ nll = zfit.loss.UnbinnedNLL(model=product_gauss, data=data)
 # create a minimizer
 minimizer = zfit.minimize.Minuit()
 result = minimizer.minimize(nll)
-print(result.params)
 
 # do the error calculations, here with minos
 param_errors, _ = result.errors()
-print(param_errors)

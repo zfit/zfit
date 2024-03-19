@@ -1,4 +1,5 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2024 zfit
+from __future__ import annotations
 
 import zfit
 
@@ -18,9 +19,7 @@ second_limit_lower = (7, 12)
 second_limit_upper = (9, 15)
 
 space1 = zfit.Space(obs=["obs1", "obs2"], limits=(first_limit_lower, first_limit_upper))
-space2 = zfit.Space(
-    obs=["obs3", "obs4"], limits=(second_limit_lower, second_limit_upper)
-)
+space2 = zfit.Space(obs=["obs3", "obs4"], limits=(second_limit_lower, second_limit_upper))
 
 space4 = space1 * space2
 

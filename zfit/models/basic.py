@@ -13,14 +13,15 @@ from typing import Literal
 
 import numpy as np
 import tensorflow as tf
-import zfit.z.numpy as znp
 from pydantic import Field
 
+import zfit.z.numpy as znp
 from zfit import z
+
 from ..core.basepdf import BasePDF
 from ..core.serialmixin import SerializableMixin
 from ..core.space import ANY_LOWER, ANY_UPPER, Space
-from ..serialization import SpaceRepr, Serializer
+from ..serialization import Serializer, SpaceRepr
 from ..serialization.pdfrepr import BasePDFRepr
 from ..util import ztyping
 from ..util.exception import BreakingAPIChangeError
@@ -73,9 +74,8 @@ class Exponential(BasePDF, SerializableMixin):
             if lam is None:
                 lam = lambda_
             else:
-                raise BreakingAPIChangeError(
-                    "The 'lambda' parameter has been renamed from 'lambda_' to 'lam'."
-                )
+                msg = "The 'lambda' parameter has been renamed from 'lambda_' to 'lam'."
+                raise BreakingAPIChangeError(msg)
         params = {"lambda": lam, "lam": lam}
         super().__init__(obs, name=name, params=params, extended=extended, norm=norm)
 
@@ -141,7 +141,7 @@ class Exponential(BasePDF, SerializableMixin):
     # uses the predictions by the `unnormalized_prob` -> that is shifted correctly
     def _single_hook_integrate(self, limits, norm, x, options):
         with self._set_numerics_data_shift(norm):
-            return super()._single_hook_integrate(limits, norm, x=x, options=None)
+            return super()._single_hook_integrate(limits, norm, x=x, options=options)
 
     def _single_hook_analytic_integrate(self, limits, norm):
         with self._set_numerics_data_shift(limits=norm):
@@ -153,9 +153,7 @@ class Exponential(BasePDF, SerializableMixin):
 
     def _single_hook_partial_integrate(self, x, limits, norm, *, options):
         with self._set_numerics_data_shift(limits=norm):
-            return super()._single_hook_partial_integrate(
-                x, limits, norm, options=options
-            )
+            return super()._single_hook_partial_integrate(x, limits, norm, options=options)
 
     def _single_hook_partial_analytic_integrate(self, x, limits, norm):
         with self._set_numerics_data_shift(limits=norm):
@@ -200,24 +198,19 @@ def _exp_integral_from_any_to_any(limits, params, model):
     # if any(np.isinf([lower, upper])):
     #     raise AnalyticIntegralNotImplemented
 
-    integral = _exp_integral_func_shifting(
-        lambd=lambda_, lower=lower, upper=upper, model=model
-    )
+    integral = _exp_integral_func_shifting(lambd=lambda_, lower=lower, upper=upper, model=model)
     return integral[0]
 
 
 def _exp_integral_func_shifting(lambd, lower, upper, model):
     def raw_integral(x):
-        return (
-            z.exp(lambd * (model._shift_x(x))) / lambd
-        )  # needed due to overflow in exp otherwise
+        return z.exp(lambd * (model._shift_x(x))) / lambd  # needed due to overflow in exp otherwise
 
     lower = z.convert_to_tensor(lower)
     lower_int = raw_integral(x=lower)
     upper = z.convert_to_tensor(upper)
     upper_int = raw_integral(x=upper)
-    integral = upper_int - lower_int
-    return integral
+    return upper_int - lower_int
 
 
 def exp_icdf(x, params, model):
@@ -231,9 +224,7 @@ def exp_icdf(x, params, model):
 # TODO: cleanup, make cdf registrable _and_ inverse integral, but real
 
 limits = Space(axes=0, limits=(ANY_LOWER, ANY_UPPER))
-Exponential.register_analytic_integral(
-    func=_exp_integral_from_any_to_any, limits=limits
-)
+Exponential.register_analytic_integral(func=_exp_integral_from_any_to_any, limits=limits)
 
 
 class ExponentialPDFRepr(BasePDFRepr):
@@ -321,9 +312,10 @@ class Voigt(BasePDF, SerializableMixin):
 
 
 def _voigt_integral_from_inf_to_inf(limits, params, model):
-    m = params["m"]
+    del model, limits  # unused, fixed limits
+    params["m"]
     sigma = params["sigma"]
-    gamma = params["gamma"]
+    params["gamma"]
     return sigma * np.sqrt(2 * np.pi)
 
 

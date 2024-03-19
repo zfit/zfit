@@ -9,9 +9,7 @@ import pandas as pd
 if TYPE_CHECKING:
     pass
 
-from collections.abc import Callable
-from collections.abc import Iterable
-
+from collections.abc import Callable, Iterable
 from typing import Any
 
 import tensorflow as tf
@@ -37,22 +35,24 @@ def convert_to_container(
 
     Returns:
     """
-    from ..core.interfaces import ZfitData, ZfitBinnedData  # here due to dependency
-    from ..core.interfaces import (
+    from ..core.interfaces import (  # here due to dependency
+        ZfitBinnedData,
+        ZfitBinning,
+        ZfitData,
         ZfitLoss,
         ZfitModel,
         ZfitParameter,
         ZfitSpace,
-        ZfitBinning,
     )
 
     if non_containers is None:
         non_containers = []
     if not isinstance(non_containers, list):
-        raise TypeError("`non_containers` have to be a list or a tuple")
+        msg = "`non_containers` have to be a list or a tuple"
+        raise TypeError(msg)
     if value is None and not convert_none:
         return value
-    if not type(value) == container:
+    if type(value) != container:
         non_containers.extend(
             [
                 str,

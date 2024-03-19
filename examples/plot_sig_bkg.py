@@ -1,13 +1,13 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
+from __future__ import annotations
 
+import matplotlib.pyplot as plt
 import mplhep
 import numpy as np
 
 import zfit
 
 mplhep.style.use("LHCb2")
-import matplotlib.pyplot as plt
-
 # create space
 obs = zfit.Space("x", limits=(-10, 10))
 
