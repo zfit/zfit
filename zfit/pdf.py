@@ -75,8 +75,7 @@ from .models.kde import (
     KDE1DimISJ,
 )
 from .models.morphing import SplineMorphingPDF
-from .models.physics import CrystalBall, DoubleCB, GeneralizedCB, CBExGauss
-from .models.truncated import TruncatedPDF
+from .models.physics import CBExGauss, CrystalBall, DoubleCB, GeneralizedCB
 from .models.polynomials import (
     Chebyshev,
     Chebyshev2,

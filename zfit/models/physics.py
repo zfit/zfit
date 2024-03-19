@@ -95,8 +95,7 @@ def cbexgauss_func(x, mu, sigma, alpha, n, sigma2, tailleft):
         )
         func = znp.where(cond1, znp.exp(-0.5 * t**2), func)
 
-    func = znp.maximum(func, znp.zeros_like(func))
-    return func
+    return znp.maximum(func, znp.zeros_like(func))
 
 
 # created with the help of TensorFlow autograph used on python code converted from ShapeCB of RooFit
@@ -583,9 +582,7 @@ class GeneralizedCBPDFRepr(BasePDFRepr):
     nr: Serializer.types.ParamTypeDiscriminated
 
 
-GeneralizedCB.register_analytic_integral(
-    func=generalized_crystalball_mu_integral, limits=crystalball_integral_limits
-)
+GeneralizedCB.register_analytic_integral(func=generalized_crystalball_mu_integral, limits=crystalball_integral_limits)
 
 
 class CBExGauss(BasePDF, SerializableMixin):
@@ -613,9 +610,7 @@ class CBExGauss(BasePDF, SerializableMixin):
             "sigma2": sigma2,
             "tailleft": tailleft,
         }
-        super().__init__(
-            obs=obs, name=name, params=params, extended=extended, norm=norm
-        )
+        super().__init__(obs=obs, name=name, params=params, extended=extended, norm=norm)
 
     def _unnormalized_pdf(self, x):
         mu = self.params["mu"].value()
