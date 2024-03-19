@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2024 zfit
 
 import pytest
 
@@ -14,7 +14,7 @@ from zfit.util.exception import (
 
 obs = ["obs" + str(i) for i in range(4)]
 space1 = zfit.Space(obs=obs)
-space2 = zfit.Space(obs=reversed(obs))
+space2 = zfit.Space(obs=list(reversed(obs)))
 space3 = zfit.Space(obs=obs)
 space4 = zfit.Space(obs=obs[0:2])
 

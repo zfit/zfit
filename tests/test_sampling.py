@@ -325,7 +325,6 @@ def test_binned_sampling_floating(gauss_binnedfactory):
         assert pytest.approx(sigma_true, rel=0.07) == sigma_sampled_fixed
 
 
-# @pytest.mark.skipif(not zfit.EXPERIMENTAL_FUNCTIONS_RUN_EAGERLY, reason="deadlock in tf.function, issue #35540")  # currently, importance sampling is not working, odd deadlock in TF
 @pytest.mark.flaky(3)  # statistical
 @pytest.mark.parametrize("n", [1, 2, 3, 5, 13, 30000])
 def test_importance_sampling(n):

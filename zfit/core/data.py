@@ -7,6 +7,8 @@ from typing import TYPE_CHECKING, Iterable, Literal, Optional, Union
 import pydantic
 import xxhash
 from pydantic import Field
+from tensorflow.python.util.deprecation import deprecated_args, deprecated
+import tensorflow_probability as tfp
 from tensorflow.python.types.core import TensorLike
 from tensorflow.python.util.deprecation import deprecated, deprecated_args
 
@@ -115,7 +117,7 @@ class DataMeta(type):
         return obj
 
 
-class Data(
+class DataBaseOld(
     ZfitUnbinnedData,
     BaseDimensional,
     BaseObject,
@@ -127,6 +129,13 @@ class Data(
     USE_HASH = False
     BATCH_SIZE = 1_000_000
 
+    # def __new__(cls, *args, **kwargs):
+    #     if cls is UnbinnedData:
+    #         return UnbinnedData(*args, **kwargs)
+    #     else:
+    #         obj = super().__new__(cls)
+    #     obj.__init__(*args, **kwargs)
+    #     return obj
     def __init__(
         self,
         data: LightDataset | pd.DataFrame | Mapping[str, np.ndarray] | tf.Tensor | np.ndarray | zfit.Data,
@@ -498,7 +507,7 @@ class Data(
             raise ValueError(msg)
 
         mapping = df[list(space.obs)].to_dict(orient="series")  # pandas indexes with lists, not tuples
-        return Data.from_mapping(
+        return cls.from_mapping(
             mapping=mapping,
             obs=space,
             weights=weights,
@@ -675,7 +684,7 @@ class Data(
             weights_np = weights
         dataset = LightDataset.from_tensor(data, ndims=obs.n_obs)
 
-        return Data(data=dataset, obs=obs, name=name, weights=weights_np, dtype=dtype, use_hash=use_hash, label=label)
+        return cls(data=dataset, obs=obs, name=name, weights=weights_np, dtype=dtype, use_hash=use_hash, label=label)
 
     @classmethod
     def from_numpy(
@@ -747,7 +756,7 @@ class Data(
         if dtype is None:
             dtype = ztypes.float
         tensor = znp.asarray(array, dtype=dtype)
-        return Data.from_tensor(  # *not* class, if subclass, keep constructor
+        return cls.from_tensor(  # *not* class, if subclass, keep constructor
             obs=obs,
             tensor=tensor,
             weights=weights,
@@ -829,7 +838,7 @@ class Data(
         space = convert_to_space(obs)
         dataset = LightDataset.from_tensor(tensor, ndims=space.n_obs)
 
-        return Data(
+        return cls(
             data=dataset,
             obs=obs,
             name=name,
@@ -1141,7 +1150,14 @@ class Data(
             nevents = None
         return f"<zfit.Data: {self.label} obs={self.obs} shape={(nevents, self.n_obs)}>"
 
+@tfp.experimental.auto_composite_tensor(
+    omit_kwargs=("name", "use_hash", "dtype", "weights")
+)
+class Data(tfp.experimental.AutoCompositeTensor, DataBaseOld):
+    pass
 
+
+# TODO(serialization): add to serializer
 class DataRepr(BaseRepr):
     _implementation = Data
     _owndict = pydantic.PrivateAttr(default_factory=dict)
@@ -1258,7 +1274,7 @@ def check_cut_data_weights(
     return data, weights
 
 
-class SamplerData(Data):
+class SamplerData(DataBaseOld):
     _cache_counting = 0
 
     def __init__(
@@ -1778,7 +1794,8 @@ def concat_data_index(datasets, obs, name, label, use_hash):
 # register_tensor_conversion(Data, name="Data", overload_operators=True)
 
 
-class LightDataset:
+@tfp.experimental.auto_composite_tensor()
+class LightDataset(tfp.experimental.AutoCompositeTensor):
     def __init__(self, tensor=None, tensormap=None, ndims=None):
         """A light-weight dataset that can be used for sampling and is aware of the mapping of the tensor with axes.
 

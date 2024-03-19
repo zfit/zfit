@@ -57,6 +57,109 @@ def space2d():
     return space2d
 
 
+def test_composite_unbinneddata():
+    from zfit.z import numpy as znp
+
+    count = 0
+    obs1 = (
+        zfit.Space("obs1", (-1000, 1300))
+        * zfit.Space("obs2", (-1100, 300))
+        * zfit.Space("obs3", (-5700, 800))
+    )
+    from zfit.core.data import UnbinnedData
+
+    DataClass = UnbinnedData
+    data1 = DataClass.from_numpy(obs=obs1, array=example_data1)
+    assert isinstance(data1, DataClass)
+    trueval1 = np.sum(example_data1)
+    data2 = DataClass.from_numpy(
+        obs=obs1, array=np.random.uniform(-3, 3, size=(100, 3))
+    )
+    assert isinstance(data2, DataClass)
+    trueval2 = np.sum(data2.value().numpy())
+    data3 = DataClass.from_numpy(
+        obs=obs1, array=np.random.uniform(-2, 7, size=(108, 3))
+    )
+    assert isinstance(data3, DataClass)
+    trueval3 = np.sum(data3.value().numpy())
+
+    @tf.function(autograph=False, reduce_retracing=True)
+    def sum_vals(x):
+        nonlocal count
+        count += 1
+        return znp.sum(x.value())
+
+    testval1 = sum_vals(data1)
+    assert pytest.approx(trueval1) == testval1
+    count1 = count
+    testval2 = sum_vals(data2)
+    assert pytest.approx(trueval2) == testval2
+    assert count1 == count
+    testval3 = sum_vals(data3)
+    assert testval3 == pytest.approx(trueval3)
+    assert count1 == count
+    testval1b = sum_vals(data1)
+    assert testval1b == pytest.approx(trueval1)
+    assert count1 == count
+
+
+def test_composite_lightdataset():
+    from zfit.z import numpy as znp
+
+    size3 = 100  # it only works if all the sizes are the same
+    size1 = 100
+    size2 = 100
+
+    count = 0
+    from zfit.core.data import LightDataset
+
+    DataClass = LightDataset
+    data1 = DataClass.from_tensor(tensor=np.random.random(size=(size1, 3)))
+    assert isinstance(data1, DataClass)
+    trueval1 = np.sum(data1.value())
+    data2 = DataClass.from_tensor(tensor=np.random.uniform(-3, 3, size=(size2, 3)))
+    assert isinstance(data2, DataClass)
+    trueval2 = np.sum(data2.value().numpy())
+    data3 = DataClass.from_tensor(tensor=np.random.uniform(-2, 7, size=(size3, 3)))
+    assert isinstance(data3, DataClass)
+    trueval3 = np.sum(data3.value().numpy())
+
+    rnd1 = znp.random.uniform(-3, 3, size=(50_000_000, 3))
+    rnd2 = znp.random.uniform(-2, 7, size=(50_000_000, 3))
+    rnd1 = tf.convert_to_tensor(rnd1, dtype=tf.float64)
+    rnd2 = tf.convert_to_tensor(rnd2, dtype=tf.float64)
+
+    @tf.function(autograph=False, experimental_relax_shapes=True)
+    def sum_vals(x):
+        nonlocal count
+        count += 1
+        if hasattr(x, "value"):
+            val = znp.sum(x.value())
+        else:
+            val = tf.reduce_sum(x)
+        return val
+
+    rndval1 = sum_vals(rnd1)
+    countraw1 = count
+    assert rndval1.numpy() == pytest.approx(np.sum(rnd1))
+    rndval2 = sum_vals(rnd2)
+    assert rndval2.numpy() == pytest.approx(np.sum(rnd2))
+    assert countraw1 == count
+
+    testval1 = sum_vals(data1)
+    assert pytest.approx(trueval1) == testval1
+    count1 = count
+    testval2 = sum_vals(data2)
+    assert pytest.approx(trueval2) == testval2
+    # assert count1 == count
+    testval3 = sum_vals(data3)
+    assert testval3.numpy() == pytest.approx(trueval3)
+    assert count1 == count
+    testval1b = sum_vals(data1)
+    assert testval1b.numpy() == pytest.approx(trueval1)
+    assert count1 == count
+
+
 @pytest.mark.parametrize("obs_alias", [None, {"pt1": "pt2", "pt2": "pt1"}])
 def test_from_root_limits(obs_alias):
     from skhep_testdata import data_path

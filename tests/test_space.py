@@ -9,7 +9,7 @@ import zfit
 from zfit import z
 from zfit._variables.axis import RegularBinning
 from zfit.core.coordinates import Coordinates
-from zfit.core.space import ANY, Limit, Space
+from zfit.core.space import ANY, Limit, Space, UnbinnedSpace
 from zfit.util.exception import (
     CoordinatesUnderdefinedError,
     LimitsIncompatibleError,
@@ -617,3 +617,57 @@ def test_labels_space():
 
     space243 = space.with_obs(["y", "w", "z"])
     assert space243.labels == (ylabel, "w", zlabel)
+
+
+def test_unbinnedspace_base():
+    space = zfit.Space("obs1", (-1, 100))
+    assert space.lower[0] == -1
+    assert space.upper[0] == 100
+    assert space.n_obs == 1
+    assert space.obs == ("obs1",)
+    assert isinstance(space, UnbinnedSpace)
+
+    space2 = zfit.Space("obs1", (-1, 100), binning=5)
+    assert not isinstance(space2, UnbinnedSpace)
+
+
+def test_unbinnedspace_composite():
+
+    space1 = zfit.Space("obs1", (-1, 100))
+    assert isinstance(space1, UnbinnedSpace)
+    space2 = zfit.Space("obs1", (-1.3, 5))
+    assert isinstance(space2, UnbinnedSpace)
+    space3 = zfit.Space("obs1", (-14, 102))
+    assert isinstance(space3, UnbinnedSpace)
+
+    calls1 = 0
+
+    @tf.function(autograph=True, reduce_retracing=True)
+    def func1(space):
+        nonlocal calls1
+        calls1 += 1
+        return space.lower[0]
+
+    low1 = func1(space1)
+    assert low1 == -1
+    calls_comp1 = calls1
+    low2 = func1(space2)
+    assert low2 == -1.3
+    assert calls1 == calls_comp1
+    low3 = func1(space3)
+    assert low3 == -14
+    assert calls1 == calls_comp1 + 1
+    low1b = func1(space1)
+    assert low1b == -1
+    assert calls1 == calls_comp1 + 1
+
+    spacebinned1 = zfit.Space("obs1", (-145, 1030), binning=5)
+    assert not isinstance(spacebinned1, UnbinnedSpace)
+    spacebinned2 = zfit.Space("obs1", (-1.33, 35), binning=7)
+    lowb = func1(spacebinned1)
+    assert lowb == -1
+    assert calls1 > calls_comp1  # recompilation triggered
+    callscombb = calls1
+    lowb2 = func1(spacebinned2)
+    assert lowb2 == -1.33
+    assert calls1 > callscombb  # recompilation triggered
