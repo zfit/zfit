@@ -16,23 +16,23 @@ import tensorflow as tf
 import tensorflow_probability as tfp
 import tensorflow_probability.python.distributions as tfd
 from pydantic import Field
+
+from zfit import z
 from zfit.util.exception import (
     AnalyticSamplingNotImplemented,
 )
 
-from zfit import z
 from ..core.basepdf import BasePDF
 from ..core.interfaces import ZfitData
 from ..core.parameter import convert_to_parameter
 from ..core.serialmixin import SerializableMixin
 from ..core.space import Space, supports
-from ..serialization import SpaceRepr, Serializer
+from ..serialization import Serializer, SpaceRepr
 from ..serialization.pdfrepr import BasePDFRepr
 from ..settings import ztypes
 from ..util import ztyping
 from ..util.deprecation import deprecated_args
 from ..util.ztyping import ExtendedInputType, NormInputType
-
 
 # TODO: improve? while loop over `.sample`? Maybe as a fallback if not implemented?
 
@@ -53,14 +53,12 @@ def tfd_analytic_sample(n: int, dist: tfd.Distribution, limits: ztyping.ObsTypeI
     upper_prob_lim = dist.cdf(upper_bound)
 
     shape = (n, 1)
-    prob_sample = z.random.uniform(
-        shape=shape, minval=lower_prob_lim, maxval=upper_prob_lim
-    )
+    prob_sample = z.random.uniform(shape=shape, minval=lower_prob_lim, maxval=upper_prob_lim)
     prob_sample.set_shape((None, 1))
     try:
         sample = dist.quantile(prob_sample)
     except NotImplementedError:
-        raise AnalyticSamplingNotImplemented
+        raise AnalyticSamplingNotImplemented from None
     sample.set_shape((None, limits.n_obs))
     return sample
 
@@ -89,9 +87,7 @@ class WrapDistribution(BasePDF):  # TODO: extend functionality of wrapper, like 
         if params is None:
             params = OrderedDict((k, p) for k, p in dist_params.items())
         else:
-            params = OrderedDict(
-                (k, convert_to_parameter(p)) for k, p in params.items()
-            )
+            params = OrderedDict((k, convert_to_parameter(p)) for k, p in params.items())
 
         super().__init__(obs=obs, dtype=dtype, name=name, params=params, **kwargs)
 
@@ -117,12 +113,11 @@ class WrapDistribution(BasePDF):  # TODO: extend functionality of wrapper, like 
     # TODO: register integral?
     @supports()
     def _analytic_integrate(self, limits, norm):
+        del norm  # not supported
         lower, upper = limits._rect_limits_tf
         lower = z.unstack_x(lower)
         upper = z.unstack_x(upper)
-        tf.debugging.assert_all_finite(
-            (lower, upper), "Are infinite limits needed? Causes troubles with NaNs"
-        )
+        tf.debugging.assert_all_finite((lower, upper), "Are infinite limits needed? Causes troubles with NaNs")
         return self.distribution.cdf(upper) - self.distribution.cdf(lower)
 
     def _analytic_sample(self, n, limits: Space):
@@ -235,7 +230,10 @@ class Gauss(WrapDistribution, SerializableMixin):
         """
         mu, sigma = self._check_input_params(mu, sigma)
         params = OrderedDict((("mu", mu), ("sigma", sigma)))
-        dist_params = lambda: dict(loc=mu.value(), scale=sigma.value())
+
+        def dist_params():
+            return {"loc": mu.value(), "scale": sigma.value()}
+
         distribution = tfp.distributions.Normal
         super().__init__(
             distribution=distribution,
@@ -267,7 +265,7 @@ class ExponentialTFP(WrapDistribution):
     ):
         (tau,) = self._check_input_params(tau)
         params = OrderedDict((("tau", tau),))
-        dist_params = dict(rate=tau)
+        dist_params = {"rate": tau}
         distribution = tfp.distributions.Exponential
         super().__init__(
             distribution=distribution,
@@ -308,7 +306,10 @@ class Uniform(WrapDistribution):
         """
         low, high = self._check_input_params(low, high)
         params = OrderedDict((("low", low), ("high", high)))
-        dist_params = lambda: dict(low=low.value(), high=high.value())
+
+        def dist_params():
+            return {"low": low.value(), "high": high.value()}
+
         distribution = tfp.distributions.Uniform
         super().__init__(
             distribution=distribution,
@@ -357,13 +358,12 @@ class TruncatedGauss(WrapDistribution):
                Has no programmatical functional purpose as identification. |@docend:model.init.name|
         """
         mu, sigma, low, high = self._check_input_params(mu, sigma, low, high)
-        params = OrderedDict(
-            (("mu", mu), ("sigma", sigma), ("low", low), ("high", high))
-        )
+        params = OrderedDict((("mu", mu), ("sigma", sigma), ("low", low), ("high", high)))
         distribution = tfp.distributions.TruncatedNormal
-        dist_params = lambda: dict(
-            loc=mu.value(), scale=sigma.value(), low=low.value(), high=high.value()
-        )
+
+        def dist_params():
+            return {"loc": mu.value(), "scale": sigma.value(), "low": low.value(), "high": high.value()}
+
         super().__init__(
             distribution=distribution,
             dist_params=dist_params,
@@ -417,7 +417,10 @@ class Cauchy(WrapDistribution, SerializableMixin):
         m, gamma = self._check_input_params(m, gamma)
         params = OrderedDict((("m", m), ("gamma", gamma)))
         distribution = tfp.distributions.Cauchy
-        dist_params = lambda: dict(loc=m.value(), scale=gamma.value())
+
+        def dist_params():
+            return {"loc": m.value(), "scale": gamma.value()}
+
         super().__init__(
             distribution=distribution,
             dist_params=dist_params,
@@ -475,7 +478,10 @@ class Poisson(WrapDistribution, SerializableMixin):
         del lamb
         (lam,) = self._check_input_params(lam)
         params = {"lam": lam}
-        dist_params = lambda: dict(rate=lam.value())
+
+        def dist_params():
+            return {"rate": lam.value()}
+
         distribution = tfp.distributions.Poisson
         super().__init__(
             distribution=distribution,
@@ -537,7 +543,10 @@ class LogNormal(WrapDistribution, SerializableMixin):
         mu, sigma = self._check_input_params(mu, sigma)
 
         params = OrderedDict((("mu", mu), ("sigma", sigma)))
-        dist_params = lambda: dict(loc=mu.value(), scale=sigma.value())
+
+        def dist_params():
+            return {"loc": mu.value(), "scale": sigma.value()}
+
         distribution = tfp.distributions.LogNormal
         super().__init__(
             distribution=distribution,
@@ -603,7 +612,10 @@ class ChiSquared(WrapDistribution, SerializableMixin):
         """
         (ndof,) = self._check_input_params(ndof)
         params = OrderedDict((("ndof", ndof),))
-        dist_params = lambda: dict(df=ndof.value())
+
+        def dist_params():
+            return {"df": ndof.value()}
+
         distribution = tfp.distributions.Chi2
         super().__init__(
             distribution=distribution,

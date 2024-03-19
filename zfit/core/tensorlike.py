@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 from __future__ import annotations
 
 import functools
@@ -6,6 +6,7 @@ import functools
 import tensorflow as tf
 from tensorflow.python.framework import ops
 from tensorflow.python.ops import array_ops
+
 from zfit.core import interfaces as zinterfaces
 
 
@@ -15,9 +16,7 @@ def register_tensor_conversion(
     def _dense_var_to_tensor(var, dtype=None, name=None, as_ref=False):
         return var._dense_var_to_tensor(dtype=dtype, name=name, as_ref=as_ref)
 
-    ops.register_tensor_conversion_function(
-        convertable, _dense_var_to_tensor, priority=priority
-    )
+    ops.register_tensor_conversion_function(convertable, _dense_var_to_tensor, priority=priority)
     if name:
         pass
         # _pywrap_utils.RegisterType(name, convertable)
@@ -29,16 +28,15 @@ def register_tensor_conversion(
 class OverloadableMixin:
     # Conversion to tensor.
     @staticmethod
-    def _TensorConversionFunction(
-        v, dtype=None, name=None, as_ref=False
-    ):  # pylint: disable=invalid-name
+    def _TensorConversionFunction(v, dtype=None, name=None, as_ref=False):  # pylint: disable=invalid-name
         """Utility function for converting a Variable to a Tensor."""
         _ = name
         if dtype and not dtype.is_compatible_with(v.dtype):
-            raise ValueError(
-                "Incompatible type conversion requested to type '%s' for variable "
-                "of type '%s'" % (dtype.name, v.dtype.name)
+            msg = (
+                f"Incompatible type conversion requested to type '{dtype.name}' for variable "
+                f"of type '{v.dtype.name}'"
             )
+            raise ValueError(msg)
         if as_ref:
             return v._ref()  # pylint: disable=protected-access
         else:
@@ -47,15 +45,17 @@ class OverloadableMixin:
     def _dense_var_to_tensor(self, dtype=None, name=None, as_ref=False):
         del name
         if dtype and not dtype.is_compatible_with(self.dtype):
-            raise ValueError(
-                "Incompatible type conversion requested to type '%s' for variable "
-                "of type '%s'" % (dtype.name, self.dtype.name)
+            msg = (
+                f"Incompatible type conversion requested to type '{dtype.name}' for variable "
+                f"of type '{self.dtype.name}'"
             )
+            raise ValueError(msg)
         if as_ref:
             if hasattr(self, "_ref"):
                 return self._ref()
             else:
-                raise RuntimeError("Why is this needed?")
+                msg = "Why is this needed?"
+                raise RuntimeError(msg)
         else:
             return self.value()
 
@@ -70,7 +70,7 @@ class OverloadableMixin:
         # For slicing, bind getitem differently than a tensor (use SliceHelperVar
         # instead)
         # pylint: disable=protected-access
-        setattr(cls, "__getitem__", array_ops._SliceHelperVar)
+        cls.__getitem__ = array_ops._SliceHelperVar
 
     @staticmethod
     def _OverloadOperator(cls, operator):  # pylint: disable=invalid-name
@@ -84,7 +84,7 @@ class OverloadableMixin:
         # called when adding a variable to sets. As a result we call a.value() which
         # causes infinite recursion when operating within a GradientTape
         # TODO(gjn): Consider removing this
-        if operator == "__eq__" or operator == "__ne__":
+        if operator in ("__eq__", "__ne__"):
             return
 
         tensor_oper = getattr(tf.Tensor, operator)
@@ -100,16 +100,15 @@ class OverloadableMixin:
 class OverloadableMixinValues:
     # Conversion to tensor.
     @staticmethod
-    def _TensorConversionFunction(
-        v, dtype=None, name=None, as_ref=False
-    ):  # pylint: disable=invalid-name
+    def _TensorConversionFunction(v, dtype=None, name=None, as_ref=False):  # pylint: disable=invalid-name
         """Utility function for converting a Variable to a Tensor."""
         _ = name
         if dtype and not dtype.is_compatible_with(v.dtype):
-            raise ValueError(
-                "Incompatible type conversion requested to type '%s' for variable "
-                "of type '%s'" % (dtype.name, v.dtype.name)
+            msg = (
+                f"Incompatible type conversion requested to type '{dtype.name}' for variable "
+                f"of type '{v.dtype.name}'"
             )
+            raise ValueError(msg)
         if as_ref:
             return v._ref()  # pylint: disable=protected-access
         else:
@@ -118,15 +117,17 @@ class OverloadableMixinValues:
     def _dense_var_to_tensor(self, dtype=None, name=None, as_ref=False):
         del name
         if dtype and not dtype.is_compatible_with(self.dtype):
-            raise ValueError(
-                "Incompatible type conversion requested to type '%s' for variable "
-                "of type '%s'" % (dtype.name, self.dtype.name)
+            msg = (
+                f"Incompatible type conversion requested to type '{dtype.name}' for variable "
+                f"of type '{self.dtype.name}'"
             )
+            raise ValueError(msg)
         if as_ref:
             if hasattr(self, "_ref"):
                 return self._ref()
             else:
-                raise RuntimeError("Why is this needed?")
+                msg = "Why is this needed?"
+                raise RuntimeError(msg)
         else:
             return self.values()
 
@@ -141,7 +142,7 @@ class OverloadableMixinValues:
         # For slicing, bind getitem differently than a tensor (use SliceHelperVar
         # instead)
         # pylint: disable=protected-access
-        setattr(cls, "__getitem__", array_ops._SliceHelperVar)
+        cls.__getitem__ = array_ops._SliceHelperVar
 
     @staticmethod
     def _OverloadOperator(cls, operator):  # pylint: disable=invalid-name
@@ -155,7 +156,7 @@ class OverloadableMixinValues:
         # called when adding a variable to sets. As a result we call a.value() which
         # causes infinite recursion when operating within a GradientTape
         # TODO(gjn): Consider removing this
-        if operator == "__eq__" or operator == "__ne__":
+        if operator in ("__eq__", "__ne__"):
             return
 
         tensor_oper = getattr(tf.Tensor, operator)
@@ -168,7 +169,5 @@ class OverloadableMixinValues:
         setattr(cls, operator, _run_op)
 
 
-class MetaBaseParameter(
-    type(tf.Variable), type(zinterfaces.ZfitParameter)
-):  # resolve metaclasses
+class MetaBaseParameter(type(tf.Variable), type(zinterfaces.ZfitParameter)):  # resolve metaclasses
     pass

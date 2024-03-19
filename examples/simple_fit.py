@@ -1,4 +1,5 @@
 #  Copyright (c) 2024 zfit
+from __future__ import annotations
 
 import numpy as np
 
@@ -30,5 +31,3 @@ param_errors = result.hesse()
 
 # or here with minos
 param_errors_asymmetric, new_result = result.errors()
-
-print(result)

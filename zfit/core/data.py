@@ -2,26 +2,23 @@
 
 from __future__ import annotations
 
-from typing import Literal, Iterable
-from typing import TYPE_CHECKING, Union, Optional, List
+from typing import TYPE_CHECKING, Iterable, Literal, Optional, Union
 
 import pydantic
 import xxhash
 from pydantic import Field
-from tensorflow.python.util.deprecation import deprecated_args, deprecated
+from tensorflow.python.util.deprecation import deprecated, deprecated_args
 
-from .parameter import set_values
-from .serialmixin import ZfitSerializable, SerializableMixin
 from ..serialization import SpaceRepr
 from ..serialization.serializer import BaseRepr, to_orm_init
+from .parameter import set_values
+from .serialmixin import SerializableMixin, ZfitSerializable
 
 if TYPE_CHECKING:
     import zfit
 
-from collections.abc import Mapping
-from collections.abc import Callable
-
 from collections import OrderedDict
+from collections.abc import Callable, Mapping
 
 import numpy as np
 import pandas as pd
@@ -32,7 +29,7 @@ import zfit
 import zfit.z.numpy as znp
 
 from .. import z
-from ..settings import ztypes, run
+from ..settings import run, ztypes
 from ..util import ztyping
 from ..util.cache import GraphCachable, invalidate_graph
 from ..util.container import convert_to_container
@@ -58,9 +55,8 @@ def convert_to_data(data, obs=None):
         return Data.from_pandas(df=data, obs=obs)
 
     if obs is None:
-        raise ValueError(
-            f"If data is not a Data-like object, obs has to be specified. Data is {data} and obs is {obs}."
-        )
+        msg = f"If data is not a Data-like object, obs has to be specified. Data is {data} and obs is {obs}."
+        raise ValueError(msg)
     if isinstance(data, (int, float)):
         data = znp.array([data])
     if isinstance(data, Iterable):
@@ -70,7 +66,8 @@ def convert_to_data(data, obs=None):
     if isinstance(data, (tf.Tensor, znp.ndarray, tf.Variable)):
         return Data.from_tensor(obs=obs, tensor=data)
 
-    raise TypeError(f"Cannot convert {data} to a Data object.")
+    msg = f"Cannot convert {data} to a Data object."
+    raise TypeError(msg)
 
 
 # TODO: make cut only once, then remember
@@ -88,10 +85,10 @@ class Data(
         self,
         dataset: tf.data.Dataset | LightDataset,
         obs: ztyping.ObsTypeInput = None,
-        name: str = None,
+        name: str | None = None,
         weights=None,
         dtype: tf.DType = None,
-        use_hash: bool = None,
+        use_hash: bool | None = None,
     ):
         """Create a data holder from a ``dataset`` used to feed into ``models``.
 
@@ -121,9 +118,7 @@ class Data(
         self._data_range = None
         self._set_space(obs)
         self._original_space = self.space
-        self._data_range = (
-            self.space
-        )  # TODO proper data cuts: currently set so that the cuts in all dims are applied
+        self._data_range = self.space  # TODO proper data cuts: currently set so that the cuts in all dims are applied
         self.dataset = dataset.batch(100_000_000)
         self._name = name
 
@@ -226,7 +221,8 @@ class Data(
                 if weights.shape.ndims == 2 and weights.shape[1] == 1:
                     weights = znp.reshape(weights, (-1,))
                 else:
-                    raise ShapeIncompatibleError("Weights have to be 1-Dim objects.")
+                    msg = "Weights have to be 1-Dim objects."
+                    raise ShapeIncompatibleError(msg)
         self._weights = weights
         self._update_hash()
         return weights
@@ -241,9 +237,9 @@ class Data(
         df: pd.DataFrame,
         obs: ztyping.ObsTypeInput = None,
         weights: ztyping.WeightsInputType | str = None,
-        name: str = None,
+        name: str | None = None,
         dtype: tf.DType = None,
-        use_hash: bool = None,
+        use_hash: bool | None = None,
     ):
         """Create a ``Data`` from a pandas DataFrame. If ``obs`` is ``None``, columns are used as obs.
 
@@ -269,16 +265,14 @@ class Data(
         obs = convert_to_space(obs)
         not_in_df = set(obs.obs) - set(df.columns)
         if not_in_df:
-            raise ValueError(
-                f"Observables {not_in_df} not in dataframe with columns {df.columns}"
-            )
+            msg = f"Observables {not_in_df} not in dataframe with columns {df.columns}"
+            raise ValueError(msg)
         space = obs
         if isinstance(weights, str):  # it's in the df
             if weights not in df.columns:
                 if weights_requested:
-                    raise ValueError(
-                        f"Weights {weights} is a string and not in dataframe with columns {df.columns}"
-                    )
+                    msg = f"Weights {weights} is a string and not in dataframe with columns {df.columns}"
+                    raise ValueError(msg)
                 weights = None
             else:
                 obs = [o for o in space.obs if o != weights]
@@ -287,11 +281,10 @@ class Data(
 
         not_in_df = set(space.obs) - set(df.columns)
         if not_in_df:
-            raise ValueError(
-                f"Observables {not_in_df} not in dataframe with columns {df.columns}"
-            )
+            msg = f"Observables {not_in_df} not in dataframe with columns {df.columns}"
+            raise ValueError(msg)
 
-        array = df[list(space.obs)].values
+        array = df[list(space.obs)].to_numpy()
 
         return Data.from_numpy(  # *not* class, if subclass, keep constructor
             obs=space,
@@ -317,14 +310,14 @@ class Data(
         obs: ZfitSpace = None,
         *,
         weights: ztyping.WeightsStrInputType = None,
-        obs_alias: Mapping[str, str] = None,
-        name: str = None,
+        obs_alias: Mapping[str, str] | None = None,
+        name: str | None = None,
         dtype: tf.DType = None,
         root_dir_options=None,
-        use_hash: bool = None,
+        use_hash: bool | None = None,
         # deprecated
-        branches: list[str] = None,
-        branches_alias: dict = None,
+        branches: list[str] | None = None,
+        branches_alias: dict | None = None,
     ) -> Data:
         """Create a ``Data`` from a ROOT file. Arguments are passed to ``uproot``.
 
@@ -351,7 +344,8 @@ class Data(
             del branches
         if branches_alias is not None:
             if obs_alias is not None:
-                raise ValueError("Cannot use both `branches_alias` and `obs_alias`.")
+                msg = "Cannot use both `branches_alias` and `obs_alias`."
+                raise ValueError(msg)
             obs_alias = {obs: branch for branch, obs in branches_alias.items()}
             del branches_alias
 
@@ -359,7 +353,8 @@ class Data(
         if root_dir_options is None:
             root_dir_options = {}
         if obs_alias is None and obs is None:
-            raise ValueError("Either branches or branches_alias has to be specified.")
+            msg = "Either branches or branches_alias has to be specified."
+            raise ValueError(msg)
         if obs_alias is None:
             obs_alias = {}
         if obs is None:
@@ -373,17 +368,11 @@ class Data(
 
         def uproot_loader():
             with uproot.open(path, **root_dir_options)[treepath] as root_tree:
-                if weights_are_branch:
-                    branches_with_weights = branches + [weights]
-                else:
-                    branches_with_weights = branches
+                branches_with_weights = [*branches, weights] if weights_are_branch else branches
                 branches_with_weights = tuple(branches_with_weights)
                 data = root_tree.arrays(expressions=branches_with_weights, library="pd")
-            data_np = data[branches].values
-            if weights_are_branch:
-                weights_np = data[weights]
-            else:
-                weights_np = None
+            data_np = data[branches].to_numpy()
+            weights_np = data[weights] if weights_are_branch else None
             return data_np, weights_np
 
         data, weights_np = uproot_loader()
@@ -406,7 +395,7 @@ class Data(
         obs: ztyping.ObsTypeInput,
         array: np.ndarray,
         weights: ztyping.WeightsInputType = None,
-        name: str = None,
+        name: str | None = None,
         dtype: tf.DType = None,
         use_hash=None,
     ):
@@ -424,12 +413,9 @@ class Data(
             ``zfit.Data``: A ``Data`` object containing the unbinned data.
         """
 
-        if not isinstance(array, (np.ndarray)) and not (
-            tf.is_tensor(array) and hasattr(array, "numpy")
-        ):
-            raise TypeError(
-                f"`array` has to be a `np.ndarray`. Is currently {type(array)}"
-            )
+        if not isinstance(array, (np.ndarray)) and not (tf.is_tensor(array) and hasattr(array, "numpy")):
+            msg = f"`array` has to be a `np.ndarray`. Is currently {type(array)}"
+            raise TypeError(msg)
         if dtype is None:
             dtype = ztypes.float
         array = znp.asarray(array)
@@ -449,7 +435,7 @@ class Data(
         obs: ztyping.ObsTypeInput,
         tensor: tf.Tensor,
         weights: ztyping.WeightsInputType = None,
-        name: str = None,
+        name: str | None = None,
         dtype: tf.DType = None,
         use_hash=None,
     ) -> Data:
@@ -491,9 +477,7 @@ class Data(
                 if self.has_weights:
                     hashval.update(np.asarray(self.weights))
                 self._hashint = hashval.intdigest()
-            except (
-                AttributeError
-            ):  # if the dataset is not yet initialized; this is allowed
+            except AttributeError:  # if the dataset is not yet initialized; this is allowed
                 self._hashint = None
 
     def with_obs(self, obs):
@@ -506,13 +490,9 @@ class Data(
             ``zfit.Data``: A new ``Data`` object containing the subset of the data.
         """
         values = self.value(obs)
-        return type(self).from_tensor(
-            obs=self.space, tensor=values, weights=self.weights, name=self.name
-        )
+        return type(self).from_tensor(obs=self.space, tensor=values, weights=self.weights, name=self.name)
 
-    def to_pandas(
-        self, obs: ztyping.ObsTypeInput = None, weightsname: str | None = None
-    ):
+    def to_pandas(self, obs: ztyping.ObsTypeInput = None, weightsname: str | None = None):
         """Create a ``pd.DataFrame`` from ``obs`` as columns and return it.
 
         Args:
@@ -532,9 +512,8 @@ class Data(
             if weightsname is None:
                 weightsname = ""
             values = np.concatenate((values, weights[:, None]), axis=1)
-            obs_str = obs_str + [weightsname]
-        df = pd.DataFrame(data=values, columns=obs_str)
-        return df
+            obs_str = [*obs_str, weightsname]
+        return pd.DataFrame(data=values, columns=obs_str)
 
     def unstack_x(self, obs: ztyping.ObsTypeInput = None, always_list=None):
         """Return the unstacked data: a list of tensors or a single Tensor.
@@ -584,8 +563,7 @@ class Data(
         value = self.dataset.value()
         if filter:
             value = self._cut_data(value, obs=self._original_space.obs)
-        value_sorted = self._sort_value(value=value, obs=obs)
-        return value_sorted
+        return self._sort_value(value=value, obs=obs)
 
     def _check_convert_value(self, value):
         # TODO(Mayou36): add conversion to right dimension? (n_events, n_obs)? # check if 1-D?
@@ -602,20 +580,15 @@ class Data(
     def _sort_value(self, value, obs: tuple[str]):
         obs = convert_to_container(value=obs, container=tuple)
         # TODO CURRENT: deactivated below!
-        perm_indices = (
-            self.space.axes
-            if self.space.axes != tuple(range(value.shape[-1]))
-            else False
-        )
+        perm_indices = self.space.axes if self.space.axes != tuple(range(value.shape[-1])) else False
 
         if obs:
             if not frozenset(obs) <= frozenset(self.obs):
-                raise ValueError(
-                    "The observable(s) {} are not contained in the dataset. "
-                    "Only the following are: {}".format(
-                        frozenset(obs) - frozenset(self.obs), self.obs
-                    )
+                msg = (
+                    f"The observable(s) {frozenset(obs) - frozenset(self.obs)} are not contained in the dataset. "
+                    f"Only the following are: {self.obs}"
                 )
+                raise ValueError(msg)
             perm_indices = self.space.get_reorder_indices(obs=obs)
         if perm_indices:
             value = z.unstack_x(value, always_list=True)
@@ -629,12 +602,11 @@ class Data(
     @invalidate_graph
     def sort_by_axes(self, axes: ztyping.AxesTypeInput, allow_superset: bool = True):
         if not allow_superset and not frozenset(axes) <= frozenset(self.axes):
-            raise ValueError(
-                "The observable(s) {} are not contained in the dataset. "
-                "Only the following are: {}".format(
-                    frozenset(axes) - frozenset(self.axes), self.axes
-                )
+            msg = (
+                f"The observable(s) {frozenset(axes) - frozenset(self.axes)} are not contained in the dataset. "
+                f"Only the following are: {self.axes}"
             )
+            raise ValueError(msg)
         space = self.space.with_axes(axes=axes, allow_subset=True)
 
         def setter(value):
@@ -648,16 +620,13 @@ class Data(
     # @invalidate_graph
     def sort_by_obs(self, obs: ztyping.ObsTypeInput, allow_superset: bool = False):
         if not allow_superset and not frozenset(obs) <= frozenset(self.obs):
-            raise ValueError(
-                "The observable(s) {} are not contained in the dataset. "
-                "Only the following are: {}".format(
-                    frozenset(obs) - frozenset(self.obs), self.obs
-                )
+            msg = (
+                f"The observable(s) {frozenset(obs) - frozenset(self.obs)} are not contained in the dataset. "
+                f"Only the following are: {self.obs}"
             )
+            raise ValueError(msg)
 
-        space = self.space.with_obs(
-            obs=obs, allow_subset=True, allow_superset=allow_superset
-        )
+        space = self.space.with_obs(obs=obs, allow_subset=True, allow_superset=allow_superset)
 
         def setter(value):
             self._space = value
@@ -670,10 +639,11 @@ class Data(
     def _check_input_data_range(self, data_range):
         data_range = self._convert_sort_space(limits=data_range)
         if frozenset(self.data_range.obs) != frozenset(data_range.obs):
-            raise ObsIncompatibleError(
+            msg = (
                 f"Data range has to cover the full observable space {self.data_range.obs}, not "
                 f"only {data_range.obs}"
             )
+            raise ObsIncompatibleError(msg)
         return data_range
 
     # TODO(Mayou36): refactor with pdf or other range things?
@@ -716,11 +686,12 @@ class Data(
         try:
             value = getitem_obs(self, item)
         except Exception as error:
-            raise RuntimeError(
+            msg = (
                 f"Failed to retrieve {item} from data {self}. This can be changed behavior (since zfit 0.11): data can"
                 f" no longer be accessed numpy-like but instead the 'obs' can be used, i.e. strings or spaces. This"
                 f" resembles more closely the behavior of a pandas DataFrame."
-            ) from error
+            )
+            raise RuntimeError(msg) from error
         return value
 
 
@@ -731,7 +702,7 @@ class DataRepr(BaseRepr):
     hs3_type: Literal["Data"] = Field("Data", alias="type")
 
     data: np.ndarray
-    space: Union[SpaceRepr, List[SpaceRepr]]
+    space: Union[SpaceRepr, list[SpaceRepr]]
     name: Optional[str] = None
     weights: Optional[np.ndarray] = None
 
@@ -750,8 +721,7 @@ class DataRepr(BaseRepr):
 
     @pydantic.validator("data", pre=True)
     def convert_data(cls, v):
-        v = np.asarray(v)
-        return v
+        return np.asarray(v)
 
     @pydantic.validator("weights", pre=True)
     def convert_weights(cls, v):
@@ -770,8 +740,7 @@ class DataRepr(BaseRepr):
         for sp in spaces[1:]:
             space *= sp
         init["obs"] = space
-        out = super()._to_orm(init)
-        return out
+        return super()._to_orm(init)
 
 
 def getitem_obs(self, item):
@@ -788,9 +757,9 @@ class SampleData(Data):
         dataset: tf.data.Dataset | LightDataset,
         obs: ztyping.ObsTypeInput = None,
         weights=None,
-        name: str = None,
+        name: str | None = None,
         dtype: tf.DType = ztypes.float,
-        use_hash: bool = None,
+        use_hash: bool | None = None,
     ):
         super().__init__(
             dataset,
@@ -812,13 +781,11 @@ class SampleData(Data):
         cls,
         sample: tf.Tensor,
         obs: ztyping.ObsTypeInput,
-        name: str = None,
+        name: str | None = None,
         weights=None,
-        use_hash: bool = None,
+        use_hash: bool | None = None,
     ):
-        return Data.from_tensor(
-            tensor=sample, obs=obs, name=name, weights=weights, use_hash=use_hash
-        )
+        return Data.from_tensor(tensor=sample, obs=obs, name=name, weights=weights, use_hash=use_hash)
 
 
 class Sampler(Data):
@@ -831,11 +798,11 @@ class Sampler(Data):
         sample_holder: tf.Variable,
         n: ztyping.NumericalScalarType | Callable,
         weights=None,
-        fixed_params: dict[zfit.Parameter, ztyping.NumericalScalarType] = None,
+        fixed_params: dict[zfit.Parameter, ztyping.NumericalScalarType] | None = None,
         obs: ztyping.ObsTypeInput = None,
-        name: str = None,
+        name: str | None = None,
         dtype: tf.DType = ztypes.float,
-        use_hash: bool = None,
+        use_hash: bool | None = None,
     ):
         super().__init__(
             dataset=dataset,
@@ -848,9 +815,7 @@ class Sampler(Data):
         if fixed_params is None:
             fixed_params = OrderedDict()
         if isinstance(fixed_params, (list, tuple)):
-            fixed_params = OrderedDict(
-                (param, param.numpy()) for param in fixed_params
-            )  # TODO: numpy -> read_value?
+            fixed_params = OrderedDict((param, param.numpy()) for param in fixed_params)  # TODO: numpy -> read_value?
 
         self._initial_resampled = False
 
@@ -874,10 +839,11 @@ class Sampler(Data):
 
     def _value_internal(self, obs: ztyping.ObsTypeInput = None, filter: bool = True):
         if not self._initial_resampled:
-            raise RuntimeError(
+            msg = (
                 "No data generated yet. Use `resample()` to generate samples or directly use `model.sample()`"
                 "for single-time sampling."
             )
+            raise RuntimeError(msg)
         return super()._value_internal(obs=obs, filter=filter)
 
     @property
@@ -898,10 +864,10 @@ class Sampler(Data):
         n: ztyping.NumericalScalarType,
         obs: ztyping.ObsTypeInput,
         fixed_params=None,
-        name: str = None,
+        name: str | None = None,
         weights=None,
         dtype=None,
-        use_hash: bool = None,
+        use_hash: bool | None = None,
     ):
         obs = convert_to_space(obs)
 
@@ -930,7 +896,7 @@ class Sampler(Data):
             use_hash=use_hash,
         )
 
-    def resample(self, param_values: Mapping = None, n: int | tf.Tensor = None):
+    def resample(self, param_values: Mapping | None = None, n: int | tf.Tensor = None):
         """Update the sample by newly sampling. This affects any object that used this data already.
 
         All params that are not in the attribute ``fixed_params`` will use their current value for
@@ -950,9 +916,7 @@ class Sampler(Data):
         if param_values is not None:
             temp_param_values.update(param_values)
 
-        with set_values(
-            list(temp_param_values.keys()), list(temp_param_values.values())
-        ):
+        with set_values(list(temp_param_values.keys()), list(temp_param_values.values())):
             # if not (n and self._initial_resampled):  # we want to load and make sure that it's initialized
             #     # means it's handled inside the function
             #     # TODO(Mayou36): check logic; what if new_samples loaded? get's overwritten by initializer
@@ -1012,7 +976,8 @@ def sum_samples(
     sample1 = sample1.value(obs=obs)
     tensor = sample1 + sample2
     if any(s.weights is not None for s in samples):
-        raise WorkInProgressError("Cannot combine weights currently")
+        msg = "Cannot combine weights currently"
+        raise WorkInProgressError(msg)
     weights = None
 
     return SampleData.from_sample(sample=tensor, obs=obs, weights=weights)

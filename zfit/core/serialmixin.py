@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import pydantic
 import yaml
+
 from zfit.util.warnings import warn_experimental_feature
 
 
@@ -41,21 +42,18 @@ class SerializableMixin(ZfitSerializable):
             str: The yaml string.
         """
         json_obj = self.to_json()
-        yaml_obj = yaml.safe_dump(json_obj)
-        return yaml_obj
+        return yaml.safe_dump(json_obj)
 
     @warn_experimental_feature
     def to_asdf(self):
         """Convert the object to an asdf file."""
         try:
             import asdf
-        except ImportError:
-            raise ImportError(
-                "The asdf module is not installed. Please install zfit with the extra `hs3` (i.e. `pip install zfit[sh3]` or asdf directry to use this feature."
-            )
+        except ImportError as error:
+            msg = "The asdf module is not installed. Please install zfit with the extra `hs3` (i.e. `pip install zfit[sh3]` or asdf directry to use this feature."
+            raise ImportError(msg) from error
 
-        asdf_obj = asdf.AsdfFile(self.to_dict())
-        return asdf_obj
+        return asdf.AsdfFile(self.to_dict())
 
     @classmethod
     @warn_experimental_feature
@@ -79,8 +77,7 @@ class SerializableMixin(ZfitSerializable):
             # cleanup the asdf chunk
             asdf_tree.pop("asdf_library", None)
             asdf_tree.pop("history", None)
-            orm = cls.from_dict(asdf_tree)
-        return orm
+            return cls.from_dict(asdf_tree)
 
     @warn_experimental_feature
     def to_json(self):
@@ -98,12 +95,12 @@ class SerializableMixin(ZfitSerializable):
                 json_obj = orm.json(exclude_none=True, by_alias=True)
             except TypeError as error:
                 if "Object of type 'ndarray' is not JSON serializable" in str(error):
-                    raise NumpyArrayNotSerializableError(
+                    msg = (
                         "The object you are trying to serialize contains numpy arrays. "
                         "This is not supported by json. Please use `to_asdf` (or `to_dict)` instead."
                     )
-                else:
-                    raise
+                    raise NumpyArrayNotSerializableError(msg) from error
+                raise
         return json_obj
 
     @classmethod
@@ -126,8 +123,7 @@ class SerializableMixin(ZfitSerializable):
 
         with Serializer.initialize(reuse_params=reuse_params):
             parsed = cls.get_repr().parse_raw(json)
-            orm = parsed.to_orm()
-        return orm
+            return parsed.to_orm()
 
     @warn_experimental_feature
     def to_dict(self):
@@ -141,8 +137,7 @@ class SerializableMixin(ZfitSerializable):
         with Serializer.initialize():
             repr = self.get_repr()
             orm = repr.from_orm(self)
-            dict_ = orm.dict(exclude_none=True, by_alias=True)
-        return dict_
+            return orm.dict(exclude_none=True, by_alias=True)
 
     @classmethod
     @warn_experimental_feature
@@ -164,8 +159,7 @@ class SerializableMixin(ZfitSerializable):
 
         with Serializer.initialize(reuse_params=reuse_params):
             parsed = cls.get_repr().parse_obj(dict_)
-            orm = parsed.to_orm()
-        return orm
+            return parsed.to_orm()
 
     @classmethod
     def get_repr(cls):
@@ -197,15 +191,13 @@ class HS3:
         try:
             json_obj = orm.json(exclude_none=True, by_alias=True)
         except TypeError as error:
-            if "TypeError: Object of type 'ndarray' is not JSON serializable" in str(
-                error
-            ):
-                raise TypeError(
+            if "TypeError: Object of type 'ndarray' is not JSON serializable" in str(error):
+                msg = (
                     "The object you are trying to serialize contains numpy arrays. "
                     "This is not supported by json. Please use `to_asdf` (or `to_dict)` instead."
                 )
-            else:
-                raise
+                raise TypeError(msg) from error
+            raise
         return json_obj
 
     def to_dict(self):
@@ -231,8 +223,7 @@ class HS3:
 
         with Serializer.initialize(reuse_params=reuse_params):
             parsed = cls.implementation.get_repr().parse_raw(json)
-            orm = parsed.to_orm()
-        return orm
+            return parsed.to_orm()
 
     @property
     def repr(self):
