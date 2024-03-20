@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 from contextlib import suppress
 
 import numpy as np
@@ -10,6 +10,7 @@ import zfit.core.integration as zintegrate
 import zfit.z.numpy as znp
 from zfit import z
 from zfit.core.basepdf import BasePDF
+from zfit.core.interfaces import ZfitData
 from zfit.core.parameter import Parameter
 from zfit.core.space import Space
 from zfit.models.dist_tfp import Gauss
@@ -193,10 +194,13 @@ func4_2values = np.array([[-12.0, -4.5, 1.9, 4.1], [-11.0, 3.2, 7.4, -0.3]])
 
 
 def func4_3deps(x):
-    if isinstance(x, np.ndarray):
-        a, b, c = x
+    if isinstance(x, ZfitData):
+        a = x["obs1"]
+        b = x["obs2"]
+        c = x["obs3"]
+
     else:
-        a, b, c = z.unstack_x(x)
+        a, b, c = x
 
     return a**2 + b**3 + 0.5 * c
 
@@ -301,13 +305,11 @@ def test_mc_partial_integration():
     integral2 = num_integral2.numpy()
     assert len(integral) == len(func4_values)
     assert len(integral2) == len(func4_2values[0])
-    assert func4_3deps_0and2_integrated(
-        x=func4_values, limits=limits4_2dim
-    ) == pytest.approx(integral, rel=0.05)
+    integrated = func4_3deps_0and2_integrated(x=func4_values, limits=limits4_2dim)
+    np.testing.assert_allclose(integrated, integral, rtol=0.05)
 
-    assert func4_3deps_1_integrated(
-        x=func4_2values, limits=limits4_1dim
-    ) == pytest.approx(integral2, rel=0.05)
+    integrated2 = func4_3deps_1_integrated(x=func4_2values, limits=limits4_1dim)
+    np.testing.assert_allclose(integrated2, integral2, rtol=0.05)
 
 
 def test_analytic_integral():

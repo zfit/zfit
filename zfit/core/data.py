@@ -126,6 +126,8 @@ class Data(
         self.dataset = dataset.batch(100_000_000)
         self._name = name
 
+        # check that dimensions are compatible
+
         self._set_weights(weights=weights)
         self._hashint = None
         # this is a bit of legacy: we first set, then we preprocess, then we set again. At least now it's fully set
@@ -133,8 +135,8 @@ class Data(
         if weights is not None:
             self._set_weights(weights=weights)
         if value is not None:
-            dataset = LightDataset.from_tensor(value)
-            self.dataset = dataset
+            dataset = LightDataset.from_tensor(value, ndims=self.space.n_obs)
+            self.dataset = dataset.batch(100_000_000)
         self._update_hash()
 
     @property
@@ -224,7 +226,7 @@ class Data(
                 weights = None
         else:
             weights = self._weights
-            value = self._value_internal()
+            value = self._value_internal(obs=self._original_space.obs, filter=False)
         return value, weights
 
     @property
@@ -435,7 +437,7 @@ class Data(
         data, weights_np = uproot_loader()
         if not weights_are_branch:
             weights_np = weights
-        dataset = LightDataset.from_tensor(data)
+        dataset = LightDataset.from_tensor(data, ndims=obs.n_obs)
 
         return Data(  # *not* class, if subclass, keep constructor
             dataset=dataset,
@@ -517,7 +519,8 @@ class Data(
             tensor = znp.expand_dims(tensor, -1)
         if len(tensor.shape) == 1:
             tensor = znp.expand_dims(tensor, -1)
-        dataset = LightDataset.from_tensor(tensor)
+        space = convert_to_space(obs)
+        dataset = LightDataset.from_tensor(tensor, ndims=space.n_obs)
 
         return Data(  # *not* class, if subclass, keep constructor
             dataset=dataset,
@@ -1036,9 +1039,15 @@ class Sampler(Data):
 
 
 class LightDataset:
-    def __init__(self, tensor):
+    def __init__(self, tensor, ndims=None):
         if not isinstance(tensor, (tf.Tensor, tf.Variable)):
-            tensor = z.convert_to_tensor(tensor)
+            tensor = znp.asarray(tensor)
+        if tensor.shape.rank != 2:
+            raise ValueError("Only 2D tensors are allowed.")
+        if ndims is not None and tensor.shape[1] != ndims:
+            raise ValueError(
+                f"Second dimension has to be {ndims} but is {tensor.shape[1]}"
+            )
         self.tensor = tensor
 
     def batch(self, _):  # ad-hoc just empty, mimicking tf.data.Dataset interface
@@ -1048,8 +1057,8 @@ class LightDataset:
         yield self.value()
 
     @classmethod
-    def from_tensor(cls, tensor):
-        return cls(tensor=tensor)
+    def from_tensor(cls, tensor, ndims=None):
+        return cls(tensor=tensor, ndims=None)
 
     def value(self):
         return self.tensor

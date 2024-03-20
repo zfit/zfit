@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 import numpy as np
 import pytest
 import scipy
@@ -62,8 +62,10 @@ def test_partial_integral():
     assert pytest.approx(0.0, rel=0.0001) == np.std(ratios)  # ratio should be constant
     ratio = np.average(ratios)
 
-    integral_x_tf = cosxy2.partial_integrate(x=data, limits=xspace, norm=False)
-    integral_y_tf = cosxy2.partial_integrate(x=data, limits=yspace, norm=False)
+    datay = data.with_obs(yspace)
+    datax = data.with_obs(xspace)
+    integral_x_tf = cosxy2.partial_integrate(x=datay, limits=xspace, norm=False)
+    integral_y_tf = cosxy2.partial_integrate(x=datax, limits=yspace, norm=False)
     integral_x_np = integral_x_tf.numpy()
     integral_y_np = integral_y_tf.numpy()
 

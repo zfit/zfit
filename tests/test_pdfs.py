@@ -298,10 +298,8 @@ def normalization_testing(pdf, limits=None):
     limits = (low, high) if limits is None else limits
     space = Space(obs=obs1, limits=limits)
     with pdf.set_norm_range(space):
-        samples = (
-            znp.random.uniform(
-                low=space.lower, high=space.upper, size=(100_000, pdf.n_obs)
-            ),
+        samples = znp.random.uniform(
+            low=space.lower[0], high=space.upper[0], size=(100_000, pdf.n_obs)
         )
 
         samples = zfit.Data.from_tensor(obs=space, tensor=samples)
