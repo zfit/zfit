@@ -557,7 +557,7 @@ def gaussexptail_func(x, mu, sigma, alpha, n):
     cond = tf.less(t, -abs_alpha)
     func = z.safe_where(
         cond,
-        lambda t: znp.exp(-0.5 * abs_alpha**2) * znp.exp(n * (t + abs_alpha)),
+        lambda t: znp.exp((n - 0.5) * znp.square(abs_alpha) + n * t),
         lambda t: znp.exp(-0.5 * znp.square(t)),
         values=t,
         value_safer=lambda t: znp.ones_like(t) * (abs_alpha - 2),
@@ -574,6 +574,101 @@ def generalized_gaussexptail_func(x, mu, sigmal, alphal, nl, sigmar, alphar, nr)
         gaussexptail_func(x, mu, sigmal, alphal, nl),
         gaussexptail_func(x, mu, sigmar, -alphar, nr),
     )
+
+
+def gaussexptail_integral(limits, params, model):
+    del model
+    mu = params["mu"]
+    sigma = params["sigma"]
+    alpha = params["alpha"]
+    n = params["n"]
+
+    lower, upper = limits._rect_limits_tf
+
+    return gaussexptail_integral_func(mu, sigma, alpha, n, lower, upper)
+
+
+@z.function(wraps="tensor", keepalive=True)
+def gaussexptail_integral_func(mu, sigma, alpha, n, lower, upper):
+    sqrt_pi_over_two = np.sqrt(np.pi / 2)
+    sqrt2 = np.sqrt(2)
+
+    abs_sigma = znp.abs(sigma)
+    abs_alpha = znp.abs(alpha)
+    tmin = (lower - mu) / abs_sigma
+    tmax = (upper - mu) / abs_sigma
+
+    alpha_negative = tf.less(alpha, 0)
+    # do not move on two lines, logic will fail...
+    tmax, tmin = (
+        znp.where(alpha_negative, -tmin, tmax),
+        znp.where(alpha_negative, -tmax, tmin),
+    )
+
+    guass_entire_integral = abs_sigma * sqrt_pi_over_two * (tf.math.erf(tmax / sqrt2) - tf.math.erf(tmin / sqrt2))
+    exp_entire_integral = (
+        abs_sigma / n * znp.exp(-0.5 * znp.square(abs_alpha) + n * abs_alpha) * (znp.exp(n * tmax) - znp.exp(n * tmin))
+    )
+    gauss_integral_alpha_tmax = (
+        abs_sigma * sqrt_pi_over_two * (tf.math.erf(tmax / sqrt2) - tf.math.erf(-abs_alpha / sqrt2))
+    )
+    exp_integral_alpha_tmin = (
+        abs_sigma
+        / n
+        * znp.exp(-0.5 * znp.square(abs_alpha) + n * abs_alpha)
+        * (znp.exp(-n * abs_alpha) - znp.exp(n * tmin))
+    )
+    integral_sum = exp_integral_alpha_tmin + gauss_integral_alpha_tmax
+
+    conditional_integral = tf.where(tf.less_equal(tmax, -abs_alpha), exp_entire_integral, integral_sum)
+    result = tf.where(tf.greater_equal(tmin, -abs_alpha), guass_entire_integral, conditional_integral)
+    if result.shape.rank != 0:
+        result = tf.gather(result, 0, axis=-1)
+    return result
+
+
+def generalized_gaussexptail_integral(limits, params, model):
+    del model
+    mu = params["mu"]
+    sigmal = params["sigmal"]
+    alphal = params["alphal"]
+    nl = params["nl"]
+    sigmar = params["sigmar"]
+    alphar = params["alphar"]
+    nr = params["nr"]
+
+    lower, upper = limits._rect_limits_tf
+    lower = lower[:, 0]
+    upper = upper[:, 0]
+
+    return generalized_gaussexptail_integral_func(
+        mu=mu,
+        sigmal=sigmal,
+        alphal=alphal,
+        nl=nl,
+        sigmar=sigmar,
+        alphar=alphar,
+        nr=nr,
+        lower=lower,
+        upper=upper,
+    )
+
+
+@z.function(wraps="tensor", keepalive=True)
+def generalized_gaussexptail_integral_func(mu, sigmal, alphal, nl, sigmar, alphar, nr, lower, upper):
+    upper_of_lowerint = znp.minimum(mu, upper)
+    integral_left = gaussexptail_integral_func(
+        mu=mu, sigma=sigmal, alpha=alphal, n=nl, lower=lower, upper=upper_of_lowerint
+    )
+    left = tf.where(tf.less(mu, lower), znp.zeros_like(integral_left), integral_left)
+
+    lower_of_upperint = znp.maximum(mu, lower)
+    integral_right = gaussexptail_integral_func(
+        mu=mu, sigma=sigmar, alpha=-alphar, n=nr, lower=lower_of_upperint, upper=upper
+    )
+    right = tf.where(tf.greater(mu, upper), znp.zeros_like(integral_right), integral_right)
+
+    return left + right
 
 
 class GaussExpTail(BasePDF, SerializableMixin):
@@ -611,6 +706,11 @@ class GaussExpTailPDFRepr(BasePDFRepr):
     sigma: Serializer.types.ParamTypeDiscriminated
     alpha: Serializer.types.ParamTypeDiscriminated
     n: Serializer.types.ParamTypeDiscriminated
+
+
+guassexptail_integral_limits = Space(axes=(0,), limits=(((ANY_LOWER,),), ((ANY_UPPER,),)))
+
+GaussExpTail.register_analytic_integral(func=gaussexptail_integral, limits=guassexptail_integral_limits)
 
 
 class GeneralizedGaussExpTail(BasePDF, SerializableMixin):
@@ -674,3 +774,8 @@ class GeneralizedGaussExpTailPDFRepr(BasePDFRepr):
     nl: Serializer.types.ParamTypeDiscriminated
     alphar: Serializer.types.ParamTypeDiscriminated
     nr: Serializer.types.ParamTypeDiscriminated
+
+
+GeneralizedGaussExpTail.register_analytic_integral(
+    func=generalized_gaussexptail_integral, limits=guassexptail_integral_limits
+)
