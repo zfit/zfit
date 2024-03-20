@@ -548,3 +548,198 @@ class GeneralizedCBPDFRepr(BasePDFRepr):
 
 
 GeneralizedCB.register_analytic_integral(func=generalized_crystalball_mu_integral, limits=crystalball_integral_limits)
+
+
+@z.function(wraps="tensor", keepalive=True)
+def gaussexpontail_func(x, mu, sigma, alpha, n):
+    t = (x - mu) / sigma * tf.sign(alpha)
+    abs_alpha = znp.abs(alpha)
+    cond = tf.less(t, -abs_alpha)
+    func = z.safe_where(
+        cond,
+        lambda t: znp.exp(-0.5 * abs_alpha**2) * znp.exp(n * (t + abs_alpha)),
+        lambda t: znp.exp(-0.5 * znp.square(t)),
+        values=t,
+        value_safer=lambda t: znp.ones_like(t) * (abs_alpha - 2),
+    )
+    return znp.maximum(func, znp.zeros_like(func))
+
+
+@z.function(wraps="tensor", keepalive=True, stateless_args=False)
+def double_gaussexpontail_func(x, mu, sigma, alphal, nl, alphar, nr):
+    cond = tf.less(x, mu)
+
+    return tf.where(
+        cond,
+        gaussexpontail_func(x, mu, sigma, alphal, nl),
+        gaussexpontail_func(x, mu, sigma, -alphar, nr),
+    )
+
+
+@z.function(wraps="tensor", keepalive=True, stateless_args=False)
+def generalized_gaussexpontail_func(x, mu, sigmal, alphal, nl, sigmar, alphar, nr):
+    cond = tf.less(x, mu)
+
+    return tf.where(
+        cond,
+        gaussexpontail_func(x, mu, sigmal, alphal, nl),
+        gaussexpontail_func(x, mu, sigmar, -alphar, nr),
+    )
+
+
+class GaussExponTail(BasePDF, SerializableMixin):
+    _N_OBS = 1
+
+    def __init__(
+        self,
+        mu: ztyping.ParamTypeInput,
+        sigma: ztyping.ParamTypeInput,
+        alpha: ztyping.ParamTypeInput,
+        n: ztyping.ParamTypeInput,
+        obs: ztyping.ObsTypeInput,
+        *,
+        extended: ExtendedInputType = None,
+        norm: NormInputType = None,
+        name: str = "GaussExponTail",
+    ):
+        params = {"mu": mu, "sigma": sigma, "alpha": alpha, "n": n}
+        super().__init__(obs=obs, name=name, params=params, extended=extended, norm=norm)
+
+    def _unnormalized_pdf(self, x):
+        mu = self.params["mu"].value()
+        sigma = self.params["sigma"].value()
+        alpha = self.params["alpha"].value()
+        n = self.params["n"].value()
+        x = z.unstack_x(x)
+        return gaussexpontail_func(x=x, mu=mu, sigma=sigma, alpha=alpha, n=n)
+
+
+class GaussExponTailPDFRepr(BasePDFRepr):
+    _implementation = GaussExponTail
+    hs3_type: Literal["GaussExponTail"] = pydantic.Field("GaussExponTail", alias="type")
+    x: SpaceRepr
+    mu: Serializer.types.ParamTypeDiscriminated
+    sigma: Serializer.types.ParamTypeDiscriminated
+    alpha: Serializer.types.ParamTypeDiscriminated
+    n: Serializer.types.ParamTypeDiscriminated
+
+
+class DoubleGaussExponTail(BasePDF, SerializableMixin):
+    _N_OBS = 1
+
+    def __init__(
+        self,
+        mu: ztyping.ParamTypeInput,
+        sigma: ztyping.ParamTypeInput,
+        alphal: ztyping.ParamTypeInput,
+        nl: ztyping.ParamTypeInput,
+        alphar: ztyping.ParamTypeInput,
+        nr: ztyping.ParamTypeInput,
+        obs: ztyping.ObsTypeInput,
+        *,
+        extended: ExtendedInputType = None,
+        norm: NormInputType = None,
+        name: str = "DoubleGaussExponTail",
+    ):
+        params = {
+            "mu": mu,
+            "sigma": sigma,
+            "alphal": alphal,
+            "nl": nl,
+            "alphar": alphar,
+            "nr": nr,
+        }
+        super().__init__(obs=obs, name=name, params=params, extended=extended, norm=norm)
+
+    def _unnormalized_pdf(self, x):
+        mu = self.params["mu"].value()
+        sigma = self.params["sigma"].value()
+        alphal = self.params["alphal"].value()
+        nl = self.params["nl"].value()
+        alphar = self.params["alphar"].value()
+        nr = self.params["nr"].value()
+        x = z.unstack_x(x)
+        return double_gaussexpontail_func(
+            x=x,
+            mu=mu,
+            sigma=sigma,
+            alphal=alphal,
+            nl=nl,
+            alphar=alphar,
+            nr=nr,
+        )
+
+
+class DoubleGaussExponTailPDFRepr(BasePDFRepr):
+    _implementation = DoubleGaussExponTail
+    hs3_type: Literal["DoubleGaussExponTail"] = pydantic.Field("DoubleGaussExponTail", alias="type")
+    x: SpaceRepr
+    mu: Serializer.types.ParamTypeDiscriminated
+    sigma: Serializer.types.ParamTypeDiscriminated
+    alphal: Serializer.types.ParamTypeDiscriminated
+    nl: Serializer.types.ParamTypeDiscriminated
+    alphar: Serializer.types.ParamTypeDiscriminated
+    nr: Serializer.types.ParamTypeDiscriminated
+
+
+class GeneralizedGaussExponTail(BasePDF, SerializableMixin):
+    _N_OBS = 1
+
+    def __init__(
+        self,
+        mu: ztyping.ParamTypeInput,
+        sigmal: ztyping.ParamTypeInput,
+        alphal: ztyping.ParamTypeInput,
+        nl: ztyping.ParamTypeInput,
+        sigmar: ztyping.ParamTypeInput,
+        alphar: ztyping.ParamTypeInput,
+        nr: ztyping.ParamTypeInput,
+        obs: ztyping.ObsTypeInput,
+        *,
+        extended: ExtendedInputType = None,
+        norm: NormInputType = None,
+        name: str = "GeneralizedGaussExponTail",
+    ):
+        params = {
+            "mu": mu,
+            "sigmal": sigmal,
+            "alphal": alphal,
+            "nl": nl,
+            "sigmar": sigmar,
+            "alphar": alphar,
+            "nr": nr,
+        }
+        super().__init__(obs=obs, name=name, params=params, extended=extended, norm=norm)
+
+    def _unnormalized_pdf(self, x):
+        mu = self.params["mu"].value()
+        sigmal = self.params["sigmal"].value()
+        alphal = self.params["alphal"].value()
+        sigmar = self.params["sigmar"].value()
+        nl = self.params["nl"].value()
+        alphar = self.params["alphar"].value()
+        nr = self.params["nr"].value()
+        x = z.unstack_x(x)
+        return generalized_gaussexpontail_func(
+            x=x,
+            mu=mu,
+            sigmal=sigmal,
+            alphal=alphal,
+            sigmar=sigmar,
+            nl=nl,
+            alphar=alphar,
+            nr=nr,
+        )
+
+
+class GeneralizedGaussExponTailPDFRepr(BasePDFRepr):
+    _implementation = GeneralizedGaussExponTail
+    hs3_type: Literal["GeneralizedGaussExponTail"] = pydantic.Field("GeneralizedGaussExponTail", alias="type")
+    x: SpaceRepr
+    mu: Serializer.types.ParamTypeDiscriminated
+    sigmal: Serializer.types.ParamTypeDiscriminated
+    alphal: Serializer.types.ParamTypeDiscriminated
+    nl: Serializer.types.ParamTypeDiscriminated
+    sigmar: Serializer.types.ParamTypeDiscriminated
+    alphar: Serializer.types.ParamTypeDiscriminated
+    nr: Serializer.types.ParamTypeDiscriminated
