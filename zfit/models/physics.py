@@ -551,7 +551,7 @@ GeneralizedCB.register_analytic_integral(func=generalized_crystalball_mu_integra
 
 
 @z.function(wraps="tensor", keepalive=True)
-def gaussexpontail_func(x, mu, sigma, alpha, n):
+def gaussexptail_func(x, mu, sigma, alpha, n):
     t = (x - mu) / sigma * tf.sign(alpha)
     abs_alpha = znp.abs(alpha)
     cond = tf.less(t, -abs_alpha)
@@ -566,28 +566,17 @@ def gaussexpontail_func(x, mu, sigma, alpha, n):
 
 
 @z.function(wraps="tensor", keepalive=True, stateless_args=False)
-def double_gaussexpontail_func(x, mu, sigma, alphal, nl, alphar, nr):
+def generalized_gaussexptail_func(x, mu, sigmal, alphal, nl, sigmar, alphar, nr):
     cond = tf.less(x, mu)
 
     return tf.where(
         cond,
-        gaussexpontail_func(x, mu, sigma, alphal, nl),
-        gaussexpontail_func(x, mu, sigma, -alphar, nr),
+        gaussexptail_func(x, mu, sigmal, alphal, nl),
+        gaussexptail_func(x, mu, sigmar, -alphar, nr),
     )
 
 
-@z.function(wraps="tensor", keepalive=True, stateless_args=False)
-def generalized_gaussexpontail_func(x, mu, sigmal, alphal, nl, sigmar, alphar, nr):
-    cond = tf.less(x, mu)
-
-    return tf.where(
-        cond,
-        gaussexpontail_func(x, mu, sigmal, alphal, nl),
-        gaussexpontail_func(x, mu, sigmar, -alphar, nr),
-    )
-
-
-class GaussExponTail(BasePDF, SerializableMixin):
+class GaussExpTail(BasePDF, SerializableMixin):
     _N_OBS = 1
 
     def __init__(
@@ -600,7 +589,7 @@ class GaussExponTail(BasePDF, SerializableMixin):
         *,
         extended: ExtendedInputType = None,
         norm: NormInputType = None,
-        name: str = "GaussExponTail",
+        name: str = "GaussExpTail",
     ):
         params = {"mu": mu, "sigma": sigma, "alpha": alpha, "n": n}
         super().__init__(obs=obs, name=name, params=params, extended=extended, norm=norm)
@@ -611,12 +600,12 @@ class GaussExponTail(BasePDF, SerializableMixin):
         alpha = self.params["alpha"].value()
         n = self.params["n"].value()
         x = z.unstack_x(x)
-        return gaussexpontail_func(x=x, mu=mu, sigma=sigma, alpha=alpha, n=n)
+        return gaussexptail_func(x=x, mu=mu, sigma=sigma, alpha=alpha, n=n)
 
 
-class GaussExponTailPDFRepr(BasePDFRepr):
-    _implementation = GaussExponTail
-    hs3_type: Literal["GaussExponTail"] = pydantic.Field("GaussExponTail", alias="type")
+class GaussExpTailPDFRepr(BasePDFRepr):
+    _implementation = GaussExpTail
+    hs3_type: Literal["GaussExpTail"] = pydantic.Field("GaussExpTail", alias="type")
     x: SpaceRepr
     mu: Serializer.types.ParamTypeDiscriminated
     sigma: Serializer.types.ParamTypeDiscriminated
@@ -624,65 +613,7 @@ class GaussExponTailPDFRepr(BasePDFRepr):
     n: Serializer.types.ParamTypeDiscriminated
 
 
-class DoubleGaussExponTail(BasePDF, SerializableMixin):
-    _N_OBS = 1
-
-    def __init__(
-        self,
-        mu: ztyping.ParamTypeInput,
-        sigma: ztyping.ParamTypeInput,
-        alphal: ztyping.ParamTypeInput,
-        nl: ztyping.ParamTypeInput,
-        alphar: ztyping.ParamTypeInput,
-        nr: ztyping.ParamTypeInput,
-        obs: ztyping.ObsTypeInput,
-        *,
-        extended: ExtendedInputType = None,
-        norm: NormInputType = None,
-        name: str = "DoubleGaussExponTail",
-    ):
-        params = {
-            "mu": mu,
-            "sigma": sigma,
-            "alphal": alphal,
-            "nl": nl,
-            "alphar": alphar,
-            "nr": nr,
-        }
-        super().__init__(obs=obs, name=name, params=params, extended=extended, norm=norm)
-
-    def _unnormalized_pdf(self, x):
-        mu = self.params["mu"].value()
-        sigma = self.params["sigma"].value()
-        alphal = self.params["alphal"].value()
-        nl = self.params["nl"].value()
-        alphar = self.params["alphar"].value()
-        nr = self.params["nr"].value()
-        x = z.unstack_x(x)
-        return double_gaussexpontail_func(
-            x=x,
-            mu=mu,
-            sigma=sigma,
-            alphal=alphal,
-            nl=nl,
-            alphar=alphar,
-            nr=nr,
-        )
-
-
-class DoubleGaussExponTailPDFRepr(BasePDFRepr):
-    _implementation = DoubleGaussExponTail
-    hs3_type: Literal["DoubleGaussExponTail"] = pydantic.Field("DoubleGaussExponTail", alias="type")
-    x: SpaceRepr
-    mu: Serializer.types.ParamTypeDiscriminated
-    sigma: Serializer.types.ParamTypeDiscriminated
-    alphal: Serializer.types.ParamTypeDiscriminated
-    nl: Serializer.types.ParamTypeDiscriminated
-    alphar: Serializer.types.ParamTypeDiscriminated
-    nr: Serializer.types.ParamTypeDiscriminated
-
-
-class GeneralizedGaussExponTail(BasePDF, SerializableMixin):
+class GeneralizedGaussExpTail(BasePDF, SerializableMixin):
     _N_OBS = 1
 
     def __init__(
@@ -698,7 +629,7 @@ class GeneralizedGaussExponTail(BasePDF, SerializableMixin):
         *,
         extended: ExtendedInputType = None,
         norm: NormInputType = None,
-        name: str = "GeneralizedGaussExponTail",
+        name: str = "GeneralizedGaussExpTail",
     ):
         params = {
             "mu": mu,
@@ -720,7 +651,7 @@ class GeneralizedGaussExponTail(BasePDF, SerializableMixin):
         alphar = self.params["alphar"].value()
         nr = self.params["nr"].value()
         x = z.unstack_x(x)
-        return generalized_gaussexpontail_func(
+        return generalized_gaussexptail_func(
             x=x,
             mu=mu,
             sigmal=sigmal,
@@ -732,14 +663,14 @@ class GeneralizedGaussExponTail(BasePDF, SerializableMixin):
         )
 
 
-class GeneralizedGaussExponTailPDFRepr(BasePDFRepr):
-    _implementation = GeneralizedGaussExponTail
-    hs3_type: Literal["GeneralizedGaussExponTail"] = pydantic.Field("GeneralizedGaussExponTail", alias="type")
+class GeneralizedGaussExpTailPDFRepr(BasePDFRepr):
+    _implementation = GeneralizedGaussExpTail
+    hs3_type: Literal["GeneralizedGaussExpTail"] = pydantic.Field("GeneralizedGaussExpTail", alias="type")
     x: SpaceRepr
     mu: Serializer.types.ParamTypeDiscriminated
     sigmal: Serializer.types.ParamTypeDiscriminated
     alphal: Serializer.types.ParamTypeDiscriminated
-    nl: Serializer.types.ParamTypeDiscriminated
     sigmar: Serializer.types.ParamTypeDiscriminated
+    nl: Serializer.types.ParamTypeDiscriminated
     alphar: Serializer.types.ParamTypeDiscriminated
     nr: Serializer.types.ParamTypeDiscriminated
