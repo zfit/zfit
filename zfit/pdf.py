@@ -9,7 +9,7 @@ __all__ = [
     "CrystalBall",
     "DoubleCB",
     "GeneralizedCB",
-    "GaussExponTail",
+    "GaussExpTail",
     "GeneralizedGaussExpTail",
     "Gauss",
     "Uniform",
@@ -79,7 +79,7 @@ from .models.morphing import SplineMorphingPDF
 from .models.physics import (
     CrystalBall,
     DoubleCB,
-    GaussExponTail,
+    GaussExpTail,
     GeneralizedCB,
     GeneralizedGaussExpTail,
 )
