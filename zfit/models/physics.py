@@ -605,7 +605,7 @@ def gaussexptail_integral_func(mu, sigma, alpha, n, lower, upper):
         znp.where(alpha_negative, -tmax, tmin),
     )
 
-    guass_entire_integral = abs_sigma * sqrt_pi_over_two * (tf.math.erf(tmax / sqrt2) - tf.math.erf(tmin / sqrt2))
+    gauss_entire_integral = abs_sigma * sqrt_pi_over_two * (tf.math.erf(tmax / sqrt2) - tf.math.erf(tmin / sqrt2))
     exp_entire_integral = (
         abs_sigma / n * znp.exp(-0.5 * znp.square(abs_alpha) + n * abs_alpha) * (znp.exp(n * tmax) - znp.exp(n * tmin))
     )
@@ -621,7 +621,7 @@ def gaussexptail_integral_func(mu, sigma, alpha, n, lower, upper):
     integral_sum = exp_integral_alpha_tmin + gauss_integral_alpha_tmax
 
     conditional_integral = tf.where(tf.less_equal(tmax, -abs_alpha), exp_entire_integral, integral_sum)
-    result = tf.where(tf.greater_equal(tmin, -abs_alpha), guass_entire_integral, conditional_integral)
+    result = tf.where(tf.greater_equal(tmin, -abs_alpha), gauss_entire_integral, conditional_integral)
     if result.shape.rank != 0:
         result = tf.gather(result, 0, axis=-1)
     return result
@@ -708,9 +708,9 @@ class GaussExpTailPDFRepr(BasePDFRepr):
     n: Serializer.types.ParamTypeDiscriminated
 
 
-guassexptail_integral_limits = Space(axes=(0,), limits=(((ANY_LOWER,),), ((ANY_UPPER,),)))
+gaussexptail_integral_limits = Space(axes=(0,), limits=(((ANY_LOWER,),), ((ANY_UPPER,),)))
 
-GaussExpTail.register_analytic_integral(func=gaussexptail_integral, limits=guassexptail_integral_limits)
+GaussExpTail.register_analytic_integral(func=gaussexptail_integral, limits=gaussexptail_integral_limits)
 
 
 class GeneralizedGaussExpTail(BasePDF, SerializableMixin):
@@ -777,5 +777,5 @@ class GeneralizedGaussExpTailPDFRepr(BasePDFRepr):
 
 
 GeneralizedGaussExpTail.register_analytic_integral(
-    func=generalized_gaussexptail_integral, limits=guassexptail_integral_limits
+    func=generalized_gaussexptail_integral, limits=gaussexptail_integral_limits
 )
