@@ -17,12 +17,12 @@ Major Features and Improvements
 - allow to use pandas DataFrame as input where zfit Data objects are expected
 - Parameter behavior has changed, multiple parameters with the same name can now coexist!
   The ``NameAlreadyTakenError`` has been successfully removed (yay!). The new behavior only enforces that
-  names and matching parameters *within a function/PDF/loss* are unique, as otherwise inconsistent expectations appear (for a lengthy discussion on this, see [here](https://github.com/zfit/zfit/discussions/342).
+  names and matching parameters *within a function/PDF/loss* are unique, as otherwise inconsistent expectations appear (for a lengthy discussion on this, `see here <https://github.com/zfit/zfit/discussions/342>`_.
 - add ``faddeeva_humlicek`` function under the ``zfit.z.numpy`` namespace. This is an implementation of the Faddeeva function, combining Humlicek's rational approximations according to Humlicek (JQSRT, 1979) and Humlicek (JQSRT, 1982).
 - add ``Voigt`` profile PDF which is a convolution of a Gaussian and a Cauchy distribution.
 - add ``TruncatedPDF`` that allows to truncate in one or multiple ranges (replaces "MultipleLimits" and "MultiSpace")
 - add ``LogNormal`` PDF, a log-normal distribution, which is a normal distribution of the logarithm of the variable.
-- add ``ChiSquared`` PDF, the standard chi2 distribution, taken from [https://www.tensorflow.org/probability/api_docs/python/tfp/distributions/Chi2](tensorflow-probability implementation).
+- add ``ChiSquared`` PDF, the standard chi2 distribution, taken from the tensorflow-probability implementation.
 - ``Data`` has now a ``with_weights`` method that returns a new data object with different weights and an improved ``with_obs`` that allows to set obs with new limits. These replace the ``set_weights`` and ``set_data_range`` methods for a more functional approach.
 
 
