@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Union, Optional, List
 import pydantic
 import xxhash
 from pydantic import Field
+from tensorflow.python.types.core import TensorLike
 from tensorflow.python.util.deprecation import deprecated_args, deprecated
 
 from .parameter import set_values
@@ -40,6 +41,7 @@ from ..util.exception import (
     ObsIncompatibleError,
     ShapeIncompatibleError,
     WorkInProgressError,
+    BreakingAPIChangeError,
 )
 from ..util.temporary import TemporarilySet
 from .baseobject import BaseObject
@@ -173,7 +175,6 @@ class Data(
         self._check_n_obs(space=obs)
         obs = obs.with_autofill_axes(overwrite=True)
         self._space = obs
-        self._update_hash()
 
     @property
     def data_range(self):
@@ -535,14 +536,13 @@ class Data(
         if not run.executing_eagerly() or not self._use_hash:
             self._hashint = None
         else:
-            try:
-                hashval = xxhash.xxh128(np.asarray(self.value()))
-                if self.has_weights:
-                    hashval.update(np.asarray(self.weights))
-                self._hashint = hashval.intdigest()
-            except (
-                AttributeError
-            ):  # if the dataset is not yet initialized; this is allowed
+            hashval = xxhash.xxh128(self.to_numpy())
+            if self.has_weights:
+                hashval.update(np.asarray(self.weights))
+            if hasattr(self, "_hashint"):
+                self._hashint = hashval.intdigest() % 63**2
+
+            else:  # if the dataset is not yet initialized; this is allowed
                 self._hashint = None
 
     def with_obs(self, obs):
@@ -895,6 +895,10 @@ class Sampler(Data):
         dtype: tf.DType = ztypes.float,
         use_hash: bool = None,
     ):
+        if weights is not None:
+            raise ValueError(
+                "Weights are not (ye) supported for a Sampler. Please open an issue if needed."
+            )
         super().__init__(
             dataset=dataset,
             obs=obs,
@@ -915,8 +919,13 @@ class Sampler(Data):
         self.fixed_params = fixed_params
         self.sample_holder = sample_holder
         self.sample_func = sample_func
+        if isinstance(n, tf.Variable):
+            raise BreakingAPIChangeError(
+                "Using a tf.Variable as `n` is not supported anymore. Use a numerical value or a callable instead."
+            )
         self.n = n
         self._n_holder = n
+        self._hashint_holder = tf.Variable(0, dtype=tf.int64, trainable=False)
         self.resample()  # to be used for precompilations etc
 
     def _preprocess_get_weights_values(self):
@@ -933,8 +942,15 @@ class Sampler(Data):
             nevents = self.n
         return nevents
 
+    def _update_hash(self):
+        super()._update_hash()
+        if hasattr(self, "_hashint_holder"):
+            self._hashint_holder.assign(self._hashint % 64**2)
+
     def _value_internal(self, obs: ztyping.ObsTypeInput = None, filter: bool = True):
-        if not self._initial_resampled:
+        if (
+            hasattr(self, "_initial_resampled") and not self._initial_resampled
+        ):  # if not initialized, we can't sample
             raise RuntimeError(
                 "No data generated yet. Use `resample()` to generate samples or directly use `model.sample()`"
                 "for single-time sampling."
@@ -943,7 +959,12 @@ class Sampler(Data):
 
     @property
     def hashint(self) -> int | None:
-        return None  # since the variable can be changed but this may stays static... and using 128 bits we can't have
+        if run.executing_eagerly():
+            return (
+                self._hashint
+            )  # since the variable can be changed but this may stays static... and using 128 bits we can't have
+        else:
+            return self._hashint_holder.value()
         # a tf.Variable that keeps the int
 
     @classmethod
@@ -955,7 +976,7 @@ class Sampler(Data):
     @classmethod
     def from_sample(
         cls,
-        sample_func: Callable,
+        sample_func: Callable | TensorLike,
         n: ztyping.NumericalScalarType,
         obs: ztyping.ObsTypeInput,
         fixed_params=None,
@@ -970,6 +991,12 @@ class Sampler(Data):
             fixed_params = []
         if dtype is None:
             dtype = ztypes.float
+        if not callable(sample_func):
+            raise TypeError(
+                "sample_func has to be a callable. If you want to use a fixed sample, use `sample_func=lambda x=sample: x`, this will use the sample as a fixed sample "
+                "when using `resample`."
+            )
+
         sample_holder = tf.Variable(
             initial_value=sample_func(),
             dtype=dtype,
@@ -990,6 +1017,32 @@ class Sampler(Data):
             weights=weights,
             use_hash=use_hash,
         )
+
+    def update_data(self, sample: TensorLike):
+        """Load a new sample into the dataset, presumably similar to the previous one.
+
+        Args:
+            sample: The new sample to load. Has to have the same number of observables as the `obs` of the `Sampler` but
+                can have a different number of events.
+        """
+        sample = znp.asarray(sample, dtype=self.dtype)
+
+        if sample.shape.rank == 1:
+            sample = sample[:, None]
+        elif sample.shape.rank != 2:
+            raise ValueError(
+                f"Sample has to have 1 or 2 dimensions, got {sample.shape.rank}."
+            )
+        if sample.shape[-1] != self.space.n_obs:
+            raise ValueError(
+                f"Sample has to have the same number of observables as the `obs` of the `Sampler`. "
+                f"Got {sample.shape[-1]} observables, expected {self.space.n_obs}."
+            )
+        # TODO: add weights?
+        self.sample_holder.assign(sample, read_value=False)
+        self._n_holder = tf.shape(sample)[0]
+        self._initial_resampled = True
+        self._update_hash()
 
     def resample(self, param_values: Mapping = None, n: int | tf.Tensor = None):
         """Update the sample by newly sampling. This affects any object that used this data already.
@@ -1027,8 +1080,7 @@ class Sampler(Data):
 
             new_sample = self.sample_func(n)
             # self.sample_holder.assign(new_sample)
-            self.sample_holder.assign(new_sample, read_value=False)
-            self._initial_resampled = True
+            self.update_data(sample=new_sample)
         self._update_hash()
 
     def __str__(self) -> str:

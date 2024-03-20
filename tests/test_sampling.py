@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 import numpy as np
 import pytest
 import tensorflow as tf
@@ -146,10 +146,7 @@ def test_sampling_fixed(gauss_factory):
     gauss, mu, sigma = gauss_factory()
 
     n_draws = 1000
-    n_draws_param = tf.Variable(
-        initial_value=n_draws, trainable=False, dtype=tf.int64, name="n_draws"
-    )  # variable to have something changeable, predictable
-    sample_tensor = gauss.create_sampler(n=n_draws_param, limits=(low, high))
+    sample_tensor = gauss.create_sampler(n=n_draws, limits=(low, high))
     sample_tensor.resample()
     sampled_from_gauss1 = sample_tensor.numpy()
     assert max(sampled_from_gauss1[:, 0]) <= high
@@ -157,12 +154,10 @@ def test_sampling_fixed(gauss_factory):
     assert n_draws == len(sampled_from_gauss1[:, 0])
 
     new_n_draws = 867
-    n_draws_param.assign(new_n_draws)
-    sample_tensor.resample()
+    sample_tensor.resample(n=new_n_draws)
     sampled_from_gauss1_small = sample_tensor.numpy()
     assert new_n_draws == len(sampled_from_gauss1_small[:, 0])
     assert not np.allclose(sampled_from_gauss1[:new_n_draws], sampled_from_gauss1_small)
-    n_draws_param.assign(n_draws)
 
     gauss_full_sample = gauss.create_sampler(
         n=10000, limits=(mu_true - abs(sigma_true) * 3, mu_true + abs(sigma_true) * 3)

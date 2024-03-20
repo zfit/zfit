@@ -6,6 +6,9 @@ from collections.abc import Callable
 from collections.abc import Mapping
 from typing import TYPE_CHECKING
 
+import numpy as np
+import xxhash
+
 from ..core.parameter import set_values
 
 if TYPE_CHECKING:
@@ -95,8 +98,11 @@ class BinnedData(
         Args:
             holder:
         """
+        self._use_hash = True
+        self._hashint = None
         self.holder: BinnedHolder = holder
         self.name = "BinnedData"  # TODO: improve naming
+        self._update_hash()
 
     @classmethod  # TODO: add overflow bins if needed
     def from_tensor(
@@ -164,6 +170,25 @@ class BinnedData(
             obs: Which obs to return
         """
         return type(self)(holder=self.holder.with_obs(obs))
+
+    def _update_hash(self):
+
+        from zfit import run
+
+        if not run.executing_eagerly() or not self._use_hash:
+            self._hashint = None
+        else:
+            hashval = xxhash.xxh128(np.asarray(self.values()))
+            if (variances := self.variances()) is not None:
+                hashval.update(np.asarray(variances))
+            if hasattr(self, "_hashint"):
+                self._hashint = hashval.intdigest() % 63**2
+            else:  # if the dataset is not yet initialized; this is allowed
+                self._hashint = None
+
+    @property
+    def hashint(self) -> int | None:
+        return self._hashint
 
     @property
     def kind(self):
@@ -341,6 +366,12 @@ class BinnedSampler(BinnedData):
         self.sample_func = sample_func
         self.n = n
         self._n_holder = n
+        self._hashint_holder = tf.Variable(
+            initial_value=0,
+            dtype=tf.int64,
+            trainable=False,
+            shape=(),
+        )
         self.resample()  # to be used for precompilations etc
 
     @property
@@ -356,8 +387,19 @@ class BinnedSampler(BinnedData):
 
     @property
     def hashint(self) -> int | None:
-        return None  # since the variable can be changed but this may stays static... and using 128 bits we can't have
-        # a tf.Variable that keeps the int
+        from zfit import run
+
+        if run.executing_eagerly():
+            return (
+                self._hashint
+            )  # since the variable can be changed but this may stays static... and using 128 bits we can't have
+        else:
+            return self._hashint_holder.value()
+
+    def _update_hash(self):
+        super()._update_hash()
+        if hasattr(self, "_hashint_holder"):  # initialization
+            self._hashint_holder.assign(self._hashint % 64**2)
 
     @classmethod
     def get_cache_counting(cls):

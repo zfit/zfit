@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 
 from __future__ import annotations
 
@@ -248,7 +248,15 @@ class ZfitData(ZfitDimensional):
 
 
 class ZfitUnbinnedData(ZfitData):
-    pass
+    @property
+    @abstractmethod
+    def nevents(self) -> int:
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def has_weights(self):
+        raise NotImplementedError
 
 
 class ZfitLimit(abc.ABC, metaclass=ABCMeta):

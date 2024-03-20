@@ -2,6 +2,13 @@
 
 from ._data.binneddatav1 import BinnedData
 from ._variables.axis import RegularBinning, VariableBinning
-from .core.data import Data, convert_to_data
+from .core.data import Data, convert_to_data, Sampler
 
-__all__ = ["Data", "BinnedData", "RegularBinning", "VariableBinning", "convert_to_data"]
+__all__ = [
+    "Data",
+    "BinnedData",
+    "RegularBinning",
+    "VariableBinning",
+    "convert_to_data",
+    "Sampler",
+]

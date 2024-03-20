@@ -435,13 +435,13 @@ def test_data_hashing(space2d):
         data1.set_weights(np.random.uniform(size=data1.nevents))
         testhashpdf.pdf(data1)
         assert oldhashint != testhashpdf.lasthash
-        assert None == testhashpdf.lasthash
+        assert None is testhashpdf.lasthash
 
 
 def test_hashing_resample(space2d):
     n = 1534
     pdf = zfit.pdf.Gauss(obs=space2d.with_obs(space2d.obs[0]), mu=0.4, sigma=0.8)
     sample = pdf.create_sampler(n)
-    assert sample.hashint is None
+    hashint = sample.hashint
     sample.resample()
-    assert sample.hashint is None
+    assert sample.hashint != hashint
