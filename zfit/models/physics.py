@@ -557,7 +557,7 @@ def gaussexptail_func(x, mu, sigma, alpha, n):
     cond = tf.less(t, -abs_alpha)
     func = z.safe_where(
         cond,
-        lambda t: znp.exp((n - 0.5) * znp.square(abs_alpha) + n * t),
+        lambda t: znp.exp(-0.5 * znp.square(abs_alpha) + n * (abs_alpha + t)),
         lambda t: znp.exp(-0.5 * znp.square(t)),
         values=t,
         value_safer=lambda t: znp.ones_like(t) * (abs_alpha - 2),

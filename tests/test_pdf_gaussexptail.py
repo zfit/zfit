@@ -22,6 +22,25 @@ bounds = (-6, 4)
 lbounds = (bounds[0], mu)
 rbounds = (mu, bounds[1])
 
+def _numpy_gaussexptail_pdf(x, mu, sigma, alpha, n):
+    t = (x - mu) / sigma
+    abs_alpha = np.abs(alpha)
+    if t > -abs_alpha:
+        return np.exp(-0.5 * t ** 2)
+    else:
+        return np.exp(-0.5 * abs_alpha ** 2 + n * (abs_alpha + t))
+
+numpy_gaussexptail_pdf = np.vectorize(_numpy_gaussexptail_pdf, excluded=["mu", "sigma", "alpha", "n"])
+
+def _numpy_generalizedgaussexptail_pdf(x, mu, sigmal, alphal, nl, sigmar, alphar, nr):
+    if x < mu:
+        return _numpy_gaussexptail_pdf(x, mu, sigmal, alphal, nl)
+    else:
+        return _numpy_gaussexptail_pdf(x, mu, sigmar, -alphar, nr)
+
+numpy_generalizedgaussexptail_pdf = np.vectorize(_numpy_generalizedgaussexptail_pdf, excluded=["mu", "sigmal", "alphal", "nl", "sigmar", "alphar", "nr"])
+
+
 def _gaussexptail_params_factory(name_add=""):
     mu_ = zfit.Parameter(f"mu_gaussexptail{name_add}", mu)
     sigma_ = zfit.Parameter(f"sigma_gaussexptail{name_add}", sigma)
@@ -40,7 +59,7 @@ def sample_testing(pdf):
 
 
 def eval_testing(pdf, x):
-    probs = pdf.pdf(x)
+    probs = pdf.pdf(x, norm=False)
     assert probs.shape.rank == 1
     assert probs.shape[0] == x.shape[0]
     probs = probs.numpy()
@@ -111,6 +130,15 @@ def test_gaussexptail_generalizedgaussexptail():
     assert not any(np.isnan(probsl))
     assert not any(np.isnan(probsr))
 
+    probsl_numpy = numpy_gaussexptail_pdf(x, mu, sigmal, alphal, nl)
+    probsr_numpy = numpy_gaussexptail_pdf(-x + 2 * mu, mu, sigmar, alphar, nr)
+
+    ratio_l = probsl_numpy / probsl
+    ratio_r = probsr_numpy / probsr
+
+    np.testing.assert_allclose(ratio_l, 1.0, rtol=5e-7)
+    np.testing.assert_allclose(ratio_r, 1.0, rtol=5e-7)
+
     kwargs = dict(limits=(-5.0, mu), norm_range=lbounds)
     intl = gaussexptaill.integrate(**kwargs) - generalizedgaussexptail.integrate(**kwargs)
     assert pytest.approx(intl.numpy(), abs=1e-3) == 0.0
@@ -127,8 +155,17 @@ def test_gaussexptail_generalizedgaussexptail():
     xl = x[x <= mu]
     xr = x[x > mu]
 
-    probs_gaussexptail_l = eval_testing(gaussexptaill, xl)
-    probs_gaussexptail_r = eval_testing(gaussexptailr, xr)
+    probs_generalizedgaussexptail_l = eval_testing(generalizedgaussexptail, xl)
+    probs_generalizedgaussexptail_r = eval_testing(generalizedgaussexptail, xr)
+
+    probsl_numpy = numpy_gaussexptail_pdf(xl, mu, sigmal, alphal, nl)
+    probsr_numpy = numpy_gaussexptail_pdf(-xr + 2 * mu, mu, sigmar, alphar, nr)
+
+    ratio_l = probsl_numpy / probs_generalizedgaussexptail_l
+    ratio_r = probsr_numpy / probs_generalizedgaussexptail_r
+
+    np.testing.assert_allclose(ratio_l, 1.0, rtol=5e-7)
+    np.testing.assert_allclose(ratio_r, 1.0, rtol=5e-7)
 
     rnd_limits = sorted(list(np.random.uniform(*bounds, 130)) + list(bounds))
     integrals = []
