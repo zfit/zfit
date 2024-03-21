@@ -98,14 +98,14 @@ def test_from_root_limits(obs_alias):
 @pytest.mark.parametrize(
     "weights_factory",
     [
-        lambda: None,
-        lambda: 2.0 * tf.ones(shape=(1000,), dtype=tf.float64),
-        lambda: np.random.normal(size=1000),
-        lambda: "eta1",
+        lambda n=None: None,
+        lambda n=1000: 2.0 * tf.ones(shape=(n,), dtype=tf.float64),
+        lambda n=1000: np.random.normal(size=n),
+        lambda n=None: "eta1",
     ],
 )
 def test_from_root(weights_factory):
-    weights = weights_factory()
+
 
     from skhep_testdata import data_path
 
@@ -115,7 +115,7 @@ def test_from_root(weights_factory):
     with uproot.open(path_root) as f:
         tree = f["events"]
         true_data = tree.arrays(library="pd")
-
+    weights = weights_factory(n=true_data.shape[0])
     data = zfit.Data.from_root(
         path=path_root, treepath="events", obs=branches, weights=weights
     )

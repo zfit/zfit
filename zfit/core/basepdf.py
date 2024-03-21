@@ -830,7 +830,7 @@ class BasePDF(ZfitPDF, BaseModel):
         return convert_pdf_to_func(pdf=self, norm=norm)
 
     def __str__(self):
-        return f"zfit.model.{type(self).__name__}(" f'"{self.name}"' f", dtype={self.dtype.name})"
+        return f"zfit.model.{type(self).__name__}(" f'"{self.name}"' f", dtype={self.dtype})"
 
     def to_unbinned(self):
         """Convert to unbinned pdf, returns self if already unbinned."""

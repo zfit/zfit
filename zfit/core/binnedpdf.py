@@ -595,7 +595,7 @@ class BaseBinnedPDFV1(
             return self._create_sampler_tensor(limits=limits, n=n)
 
         return BinnedSampler.from_sample(
-            sample_func=sample_func,
+            sample_func,
             n=n,
             obs=limits,
             fixed_params=fixed_params,

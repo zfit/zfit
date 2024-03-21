@@ -50,7 +50,7 @@ from ..util.exception import (
 from . import integration as zintegrate
 from . import sample as zsample
 from .baseobject import BaseNumeric
-from .data import Data, SampleData, Sampler, convert_to_data
+from .data import Data, Sampler, convert_to_data
 from .dependents import _extract_dependencies
 from .dimension import BaseDimensional
 from .interfaces import ZfitData, ZfitModel, ZfitParameter, ZfitSpace
@@ -1038,12 +1038,13 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
                 n = znp.array(n)
             return self._create_sampler_tensor(limits=limits, n=n)
 
-        return Sampler.from_sample(
+        return Sampler.from_sampler(
             sample_func=sample_func,
             n=n,
             obs=limits,
             fixed_params=fixed_params,
             dtype=self.dtype,
+            guarantee_limits=True,
         )
 
     @z.function(wraps="sampler")
@@ -1059,7 +1060,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         n: ztyping.nSamplingTypeIn = None,
         limits: ztyping.LimitsType = None,
         x: ztyping.DataInputType | None = None,
-    ) -> SampleData:  # TODO: change poissonian top-level with multinomial
+    ) -> Data:  # TODO: change poissonian top-level with multinomial
         """Sample `n` points within `limits` from the model.
 
         If `limits` is not specified, `space` is used (if the space contains limits).
@@ -1073,7 +1074,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             limits: In which region to sample in
 
         Returns:
-            SampleData(n_obs, n_samples)
+            Data(n_obs, n_samples)
 
         Raises:
             NotExtendedPDFError: if 'extended' is (implicitly by default or explicitly) chosen as an
@@ -1100,7 +1101,8 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
 
         with self._convert_sort_x(x, allow_none=True) as x:
             new_obs = limits * x.data_range if x is not None else limits
-            return SampleData.from_sample(sample=run_tf(n=n, limits=limits, x=x), obs=new_obs)  # TODO: which limits?
+            tensor = run_tf(n=n, limits=limits, x=x)
+            return Data.from_tensor(tensor=tensor, obs=new_obs)  # TODO: which limits?
 
     @z.function(wraps="sample")
     def _single_hook_sample(self, n, limits, x=None):

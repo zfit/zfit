@@ -170,7 +170,7 @@ class BinnedData(
             if (variances := self.variances()) is not None:
                 hashval.update(np.asarray(variances))
             if hasattr(self, "_hashint"):
-                self._hashint = hashval.intdigest() % 63**2
+                self._hashint = hashval.intdigest() % (64**2)
             else:  # if the dataset is not yet initialized; this is allowed
                 self._hashint = None
 
@@ -384,7 +384,7 @@ class BinnedSampler(BinnedData):
     def _update_hash(self):
         super()._update_hash()
         if hasattr(self, "_hashint_holder"):  # initialization
-            self._hashint_holder.assign(self._hashint % 64**2)
+            self._hashint_holder.assign(self._hashint % (64**2))
 
     @classmethod
     def get_cache_counting(cls):

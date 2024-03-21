@@ -791,12 +791,12 @@ data_factories = enumerate(
         lambda: zfit.data.Data.from_numpy(
             obs=zfit.Space("obs1", (-3.0, 5.0)),
             array=rndgens[2].normal(size=(100, 1)),
-            weights=rndgens[2].normal(size=(100, 1)),
+            weights=rndgens[2].normal(size=(100,)),
         ),
         lambda: zfit.data.Data.from_numpy(
             obs=zfit.Space("obs1", (-3.0, 5.0)) * zfit.Space("obs2", (-13.0, 15.0)),
             array=rndgens[3].normal(size=(100, 2)),
-            weights=rndgens[3].normal(size=(100, 1)),
+            weights=rndgens[3].normal(size=(100,)),
         ),
         lambda: zfit.data.Data.from_numpy(
             obs=zfit.Space("obs1", (-3.0, 5.0)) * zfit.Space("obs2", (-13.0, 15.0)),

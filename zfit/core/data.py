@@ -88,9 +88,10 @@ class Data(
         dataset: tf.data.Dataset | LightDataset,
         obs: ztyping.ObsTypeInput = None,
         name: str | None = None,
-        weights=None,
+        weights: TensorLike = None,
         dtype: tf.DType = None,
         use_hash: bool | None = None,
+        guarantee_limits: bool = False,
     ):
         """Create a data holder from a ``dataset`` used to feed into ``models``.
 
@@ -122,20 +123,24 @@ class Data(
         self._original_space = self.space
         self._data_range = self.space
 
-        self.dataset = dataset.batch(100_000_000)
-        self._name = name
+        if not guarantee_limits:
+            value, weights = check_cut_data_weights(limits=self.space, data=dataset.value(), weights=weights)
+            dataset = LightDataset.from_tensor(value, ndims=self.space.n_obs)
 
+        self._name = name
+        self._hashint = None
+
+        self.dataset = dataset
+        self._set_weights(weights=weights)
         # check that dimensions are compatible
 
-        self._set_weights(weights=weights)
-        self._hashint = None
         # this is a bit of legacy: we first set, then we preprocess, then we set again. At least now it's fully set
-        value, weights = self._preprocess_get_weights_values()
-        if weights is not None:
-            self._set_weights(weights=weights)
-        if value is not None:
-            dataset = LightDataset.from_tensor(value, ndims=self.space.n_obs)
-            self.dataset = dataset.batch(100_000_000)
+        # value, weights = self._preprocess_get_weights_values()
+        # if weights is not None:
+        #     self._set_weights(weights=weights)
+        # if value is not None:
+        #     dataset = LightDataset.from_tensor(value, ndims=self.space.n_obs)
+        #     self.dataset = dataset.batch(100_000_000)
         self._update_hash()
 
     @property
@@ -212,21 +217,19 @@ class Data(
 
         return type(self).from_tensor(tensor=tensor, **newpar)
 
-    def _preprocess_get_weights_values(self):
-        """This is meant to be called if new limits are set."""
-        if self.data_range.has_limits:
-            if self.has_weights:
-                raw_values = self._value_internal(obs=self.data_range.obs, filter=False)
-                is_inside = self.data_range.inside(raw_values)
-                value = self._cut_data(raw_values, obs=self._original_space.obs)
-                weights = self._weights[is_inside]
-            else:
-                value = self._value_internal(obs=self.data_range.obs, filter=True)
-                weights = None
-        else:
-            weights = self._weights
-            value = self._value_internal(obs=self._original_space.obs, filter=False)
-        return value, weights
+    # def _preprocess_get_weights_values(self):
+    #     """This is meant to be called if new limits are set."""
+    #     if self.data_range.has_limits:
+    #         raw_values = self._value_internal(obs=self.data_range.obs)
+    #
+    #         is_inside = self.data_range.inside(raw_values)
+    #         value = self._cut_data(raw_values, obs=self._original_space.obs)
+    #         weights = self._weights[is_inside]
+    #
+    #     else:
+    #         weights = self._weights
+    #         value = self._value_internal(obs=self._original_space.obs, filter=False)
+    #     return value, weights
 
     @property
     def weights(self):
@@ -243,7 +246,17 @@ class Data(
         Returns:
             ``zfit.Data``: A new ``Data`` object containing the new weights.
         """
-        return self.copy(weights=weights)
+        run.assert_executing_eagerly()
+
+        if weights is not None:
+            weights = znp.asarray(weights)
+            if weights.shape.ndims != 1:
+                msg = "Weights have to be 1-Dim objects."
+                raise ValueError(msg)
+            if weights.shape[0] != self.nevents:
+                msg = "Weights have to have the same length as the data."
+                raise ValueError(msg)
+        return self.copy(weights=weights, guarantee_limits=True)
 
     @deprecated(None, "Use `with_weights` instead.")
     @invalidate_graph
@@ -265,15 +278,14 @@ class Data(
         return TemporarilySet(value=weights, getter=getter, setter=setter)
 
     def _set_weights(self, weights):
-        if weights is not None:
-            weights = z.convert_to_tensor(weights)
-            weights = z.to_real(weights)
-            if weights.shape.ndims != 1:
-                if weights.shape.ndims == 2 and weights.shape[1] == 1:
-                    weights = znp.reshape(weights, (-1,))
-                else:
-                    msg = "Weights have to be 1-Dim objects."
-                    raise ShapeIncompatibleError(msg)
+        if weights is not None and not isinstance(
+            weights, tf.Variable
+        ):  # tf.Variable means it's changeable and we trust it
+            weights = znp.asarray(weights, dtype=self.dtype)
+            weights = znp.atleast_1d(weights)
+            if weights.shape.ndims > 1:
+                msg = f"Weights have to be 1-Dim objects, is currently {weights} with shape {weights.shape}."
+                raise ShapeIncompatibleError(msg)
         self._weights = weights
         self._update_hash()
         return weights
@@ -291,6 +303,7 @@ class Data(
         name: str | None = None,
         dtype: tf.DType = None,
         use_hash: bool | None = None,
+        guarantee_limits: bool = False,
     ):
         """Create a ``Data`` from a pandas DataFrame. If ``obs`` is ``None``, columns are used as obs.
 
@@ -307,6 +320,8 @@ class Data(
             use_hash: If ``True``, a hash of the data is created and is used to identify it in caching.
         """
         weights_requested = weights is not None
+        if dtype is None:
+            dtype = ztypes.float
         if weights is None:
             weights = ""
         if obs is None:
@@ -327,9 +342,11 @@ class Data(
                 weights = None
             else:
                 obs = [o for o in space.obs if o != weights]
-                weights = df[weights]
+                weights = df[weights].to_numpy(dtype=np.float64)
                 space = space.with_obs(obs=obs)
 
+        if weights is not None:
+            weights = znp.asarray(weights, dtype=ztypes.float)
         not_in_df = set(space.obs) - set(df.columns)
         if not_in_df:
             msg = f"Observables {not_in_df} not in dataframe with columns {df.columns}"
@@ -344,6 +361,7 @@ class Data(
             name=name,
             dtype=dtype,
             use_hash=use_hash,
+            guarantee_limits=guarantee_limits,
         )
 
     @classmethod
@@ -423,7 +441,7 @@ class Data(
                 branches_with_weights = tuple(branches_with_weights)
                 data = root_tree.arrays(expressions=branches_with_weights, library="pd")
             data_np = data[branches].to_numpy()
-            weights_np = data[weights] if weights_are_branch else None
+            weights_np = data[weights].to_numpy() if weights_are_branch else None
             return data_np, weights_np
 
         data, weights_np = uproot_loader()
@@ -449,6 +467,7 @@ class Data(
         name: str | None = None,
         dtype: tf.DType = None,
         use_hash=None,
+        guarantee_limits: bool = False,
     ):
         """Create ``Data`` from a ``np.array``.
 
@@ -469,8 +488,7 @@ class Data(
             raise TypeError(msg)
         if dtype is None:
             dtype = ztypes.float
-        array = znp.asarray(array)
-        tensor = tf.cast(array, dtype=dtype)
+        tensor = znp.asarray(array, dtype=dtype)
         return Data.from_tensor(  # *not* class, if subclass, keep constructor
             obs=obs,
             tensor=tensor,
@@ -478,6 +496,7 @@ class Data(
             name=name,
             dtype=dtype,
             use_hash=use_hash,
+            guarantee_limits=guarantee_limits,
         )
 
     @classmethod
@@ -489,6 +508,8 @@ class Data(
         name: str | None = None,
         dtype: tf.DType = None,
         use_hash=None,
+        *,
+        guarantee_limits: bool = False,
     ) -> Data:
         """Create a ``Data`` from a ``tf.Tensor``. ``Value`` simply returns the tensor (in the right order).
 
@@ -503,9 +524,8 @@ class Data(
         """
         if dtype is None:
             dtype = ztypes.float
-        tensor = tf.cast(tensor, dtype=dtype)
-        if len(tensor.shape) == 0:
-            tensor = znp.expand_dims(tensor, -1)
+        tensor = znp.asarray(tensor, dtype=dtype)
+        tensor = znp.atleast_1d(tensor)
         if len(tensor.shape) == 1:
             tensor = znp.expand_dims(tensor, -1)
         space = convert_to_space(obs)
@@ -518,6 +538,7 @@ class Data(
             weights=weights,
             dtype=dtype,
             use_hash=use_hash,
+            guarantee_limits=guarantee_limits,
         )
 
     def _update_hash(self):
@@ -528,12 +549,12 @@ class Data(
             if self.has_weights:
                 hashval.update(np.asarray(self.weights))
             if hasattr(self, "_hashint"):
-                self._hashint = hashval.intdigest() % 63**2
+                self._hashint = hashval.intdigest() % (64**2)
 
             else:  # if the dataset is not yet initialized; this is allowed
                 self._hashint = None
 
-    def with_obs(self, obs):
+    def with_obs(self, obs, *, guarantee_limits: bool = False):
         """Create a new ``Data`` with a subset of the data using the *obs*.
 
         Args:
@@ -544,9 +565,12 @@ class Data(
         """
         if not isinstance(obs, ZfitSpace):
             obs = self.space.with_obs(obs)
+            guarantee_limits = True
+        elif obs == self.space.with_obs(obs):
+            guarantee_limits = True
         values = self.value(obs)
         weights = self.weights
-        return self.copy(obs=obs, tensor=values, weights=weights)
+        return self.copy(obs=obs, tensor=values, weights=weights, guarantee_limits=guarantee_limits)
 
     def to_pandas(self, obs: ztyping.ObsTypeInput = None, weightsname: str | None = None):
         """Create a ``pd.DataFrame`` from ``obs`` as columns and return it.
@@ -558,18 +582,18 @@ class Data(
         Returns:
             ``pd.DataFrame``: A ``pd.DataFrame`` containing the data and the weights (if present).
         """
-        values = self.value(obs=obs)
         if obs is None:
             obs = self.obs
         obs_str = list(convert_to_obs_str(obs))
+        values = self.value(obs=obs_str)
         values = values.numpy()
+        data = {obs_str[i]: values[:, i] for i in range(len(obs_str))}
         if self.has_weights:
             weights = self.weights.numpy()
             if weightsname is None:
                 weightsname = ""
-            values = np.concatenate((values, weights[:, None]), axis=1)
-            obs_str = [*obs_str, weightsname]
-        return pd.DataFrame(data=values, columns=obs_str)
+            data.update({weightsname: weights})
+        return pd.DataFrame.from_dict(data)
 
     def unstack_x(self, obs: ztyping.ObsTypeInput = None, always_list=None):
         """Return the unstacked data: a list of tensors or a single Tensor.
@@ -602,7 +626,7 @@ class Data(
         return out
 
     def numpy(self):
-        return self.value().numpy()
+        return self.to_numpy()
 
     def to_numpy(self):
         """Return the data as a numpy array.
@@ -611,22 +635,22 @@ class Data(
         Returns:
             np.ndarray: The data as a numpy array.
         """
-        return self.numpy()
+        return self.value().numpy()
 
-    def _cut_data(self, value, obs=None):
-        if self.data_range.has_limits:
-            data_range = self.data_range.with_obs(obs=obs)
-            value = data_range.filter(value)
+    # def _cut_data(self, value, obs=None):
+    #     if self.data_range.has_limits:
+    #         data_range = self.data_range.with_obs(obs=obs)
+    #         value = data_range.filter(value)
+    #
+    #     return value
 
-        return value
-
-    def _value_internal(self, obs: ztyping.ObsTypeInput = None, filter: bool = False):
+    def _value_internal(self, obs: ztyping.ObsTypeInput = None):
         if obs is not None:
             obs = convert_to_obs_str(obs)
         value = self.dataset.value()
 
-        if filter:
-            value = self._cut_data(value, obs=self._original_space.obs)
+        # if filter:
+        #     value = self._cut_data(value, obs=self._original_space.obs)
         return self._sort_value(value=value, obs=obs)
 
     def _check_convert_value(self, value):
@@ -813,43 +837,69 @@ def getitem_obs(self, item):
     return self.value(item)
 
 
-class SampleData(Data):
-    _cache_counting = 0
+# class SampleData(Data):
+#     _cache_counting = 0
+#
+#     def __init__(
+#         self,
+#         dataset: tf.data.Dataset | LightDataset,
+#         obs: ztyping.ObsTypeInput = None,
+#         weights=None,
+#         name: str | None = None,
+#         dtype: tf.DType = ztypes.float,
+#         use_hash: bool | None = None,
+#     ):
+#         super().__init__(
+#             dataset,
+#             obs,
+#             name=name,
+#             weights=weights,
+#             dtype=dtype,
+#             use_hash=use_hash,
+#         )
+#
+#     @classmethod
+#     def get_cache_counting(cls):
+#         counting = cls._cache_counting
+#         cls._cache_counting += 1
+#         return counting
+#
+#     @classmethod
+#     def from_sample(  # TODO(deprecate and remove? use normal data?
+#         cls,
+#         sample: tf.Tensor,
+#         obs: ztyping.ObsTypeInput,
+#         name: str | None = None,
+#         weights=None,
+#         use_hash: bool | None = None,
+#     ):
+#         return Data.from_tensor(tensor=sample, obs=obs, name=name, weights=weights, use_hash=use_hash)
 
-    def __init__(
-        self,
-        dataset: tf.data.Dataset | LightDataset,
-        obs: ztyping.ObsTypeInput = None,
-        weights=None,
-        name: str | None = None,
-        dtype: tf.DType = ztypes.float,
-        use_hash: bool | None = None,
-    ):
-        super().__init__(
-            dataset,
-            obs,
-            name=name,
-            weights=weights,
-            dtype=dtype,
-            use_hash=use_hash,
-        )
 
-    @classmethod
-    def get_cache_counting(cls):
-        counting = cls._cache_counting
-        cls._cache_counting += 1
-        return counting
+def check_cut_data_weights(
+    limits: ZfitSpace, data: TensorLike, weights: TensorLike | None = None, guarantee_limits: bool = False
+):
+    data = znp.atleast_1d(data)
+    if len(data.shape) == 1 and limits.n_obs == 1:
+        data = data[:, None]
+    if data.shape.ndims != 2:
+        msg = f"Data has to be 2-D, i.e. (nevents, nobs)., not {data.shape}, with data={data}."
+        raise ValueError(msg)
+    if weights is not None:
+        weights = znp.atleast_1d(weights)
+        if weights.shape.ndims != 1:
+            msg = f"Weights have to be 1-D, not {weights.shape}."
+            raise ValueError(msg)
+        if run.executing_eagerly() and weights.shape[0] != data.shape[0]:
+            msg = f"Weights have to have the same length as the data, not {weights.shape[0]} != {data.shape[0]}."
+            raise ValueError(msg)
 
-    @classmethod
-    def from_sample(  # TODO(deprecate and remove? use normal data?
-        cls,
-        sample: tf.Tensor,
-        obs: ztyping.ObsTypeInput,
-        name: str | None = None,
-        weights=None,
-        use_hash: bool | None = None,
-    ):
-        return Data.from_tensor(tensor=sample, obs=obs, name=name, weights=weights, use_hash=use_hash)
+    if limits.has_limits and not guarantee_limits:
+        inside = limits.inside(data)
+        data = data[inside]
+        if weights is not None:
+            weights = weights[inside]
+    return data, weights
 
 
 class Sampler(Data):
@@ -858,15 +908,17 @@ class Sampler(Data):
     def __init__(
         self,
         dataset: LightDataset,
-        sample_func: Callable,
+        sample_and_weights_func: Callable,
         sample_holder: tf.Variable,
         n: ztyping.NumericalScalarType | Callable,
         weights=None,
+        weights_holder: tf.Variable | None = None,
         fixed_params: dict[zfit.Parameter, ztyping.NumericalScalarType] | None = None,
         obs: ztyping.ObsTypeInput = None,
         name: str | None = None,
         dtype: tf.DType = ztypes.float,
         use_hash: bool | None = None,
+        guarantee_limits: bool = False,
     ):
         if weights is not None:
             msg = "Weights are not (ye) supported for a Sampler. Please open an issue if needed."
@@ -878,6 +930,7 @@ class Sampler(Data):
             weights=weights,
             dtype=dtype,
             use_hash=use_hash,
+            guarantee_limits=guarantee_limits,
         )
         if fixed_params is None:
             fixed_params = OrderedDict()
@@ -887,18 +940,17 @@ class Sampler(Data):
         self._initial_resampled = False
 
         self.fixed_params = fixed_params
-        self.sample_holder = sample_holder
-        self.sample_func = sample_func
+        self._sample_holder = sample_holder
+        self._weights_holder = weights_holder
+        self._sample_and_weights_func = sample_and_weights_func
         if isinstance(n, tf.Variable):
             msg = "Using a tf.Variable as `n` is not supported anymore. Use a numerical value or a callable instead."
             raise BreakingAPIChangeError(msg)
         self.n = n
         self._n_holder = n
         self._hashint_holder = tf.Variable(0, dtype=tf.int64, trainable=False)
-        self.resample()  # to be used for precompilations etc
-
-    def _preprocess_get_weights_values(self):
-        return None, None
+        self.update_data(dataset.value())  # to be used for precompilations etc
+        self._sampler_guarantee_limits = guarantee_limits
 
     @property
     def n_samples(self):
@@ -914,16 +966,16 @@ class Sampler(Data):
     def _update_hash(self):
         super()._update_hash()
         if hasattr(self, "_hashint_holder"):
-            self._hashint_holder.assign(self._hashint % 64**2)
+            self._hashint_holder.assign(self._hashint % (64**2))
 
-    def _value_internal(self, obs: ztyping.ObsTypeInput = None, filter: bool = True):
+    def _value_internal(self, obs: ztyping.ObsTypeInput = None):
         if hasattr(self, "_initial_resampled") and not self._initial_resampled:  # if not initialized, we can't sample
             msg = (
                 "No data generated yet. Use `resample()` to generate samples or directly use `model.sample()`"
                 "for single-time sampling."
             )
             raise RuntimeError(msg)
-        return super()._value_internal(obs=obs, filter=filter)
+        return super()._value_internal(obs=obs)
 
     @property
     def hashint(self) -> int | None:
@@ -942,9 +994,10 @@ class Sampler(Data):
         return counting
 
     @classmethod
+    @deprecated(None, "Use `from_sampler` instead (with an 'r' at the end).")
     def from_sample(
         cls,
-        sample_func: Callable | TensorLike,
+        sample_func: Callable,
         n: ztyping.NumericalScalarType,
         obs: ztyping.ObsTypeInput,
         fixed_params=None,
@@ -953,46 +1006,110 @@ class Sampler(Data):
         dtype=None,
         use_hash: bool | None = None,
     ):
+        return cls.from_sampler(
+            sample_func=sample_func,
+            n=n,
+            obs=obs,
+            fixed_params=fixed_params,
+            name=name,
+            weights=weights,
+            dtype=dtype,
+            use_hash=use_hash,
+        )
+
+    @classmethod
+    def from_sampler(
+        cls,
+        *,
+        sample_func: Optional[Callable] = None,
+        sample_and_weights_func: Optional[Callable] = None,
+        n: ztyping.NumericalScalarType,
+        obs: ztyping.ObsTypeInput,
+        fixed_params=None,
+        name: str | None = None,
+        weights=None,
+        dtype=None,
+        use_hash: bool | None = None,
+        guarantee_limits: bool = False,
+    ):
+        if sample_func is None and sample_and_weights_func is None:
+            msg = "Either `sample_func` or `sample_and_weights_func` has to be given."
+            raise ValueError(msg)
+        if sample_func is not None and sample_and_weights_func is not None:
+            msg = "Only one of `sample_func` or `sample_and_weights_func` can be given."
+            raise ValueError(msg)
+        if sample_func is not None:
+            if not callable(sample_func):
+                msg = (
+                    "sample_func has to be a callable. If you want to use a fixed sample, use `sample_func=lambda x=sample: x`, "
+                    "this will use the sample as a fixed sample when using `resample`."
+                )
+                raise TypeError(msg)
+
+            def sample_and_weights_func(n):
+                return sample_func(n), None
+        elif not callable(sample_and_weights_func):
+            msg = "sample_and_weights_func has to be a callable."
+            raise TypeError(msg)
+
         obs = convert_to_space(obs)
 
         if fixed_params is None:
             fixed_params = []
         if dtype is None:
             dtype = ztypes.float
-        if not callable(sample_func):
-            msg = (
-                "sample_func has to be a callable. If you want to use a fixed sample, use `sample_func=lambda x=sample: x`, this will use the sample as a fixed sample "
-                "when using `resample`."
-            )
-            raise TypeError(msg)
 
+        init_val, init_weights = sample_and_weights_func(n)
+
+        init_val, init_weights = check_cut_data_weights(
+            limits=obs, data=init_val, weights=init_weights, guarantee_limits=guarantee_limits
+        )
         sample_holder = tf.Variable(
-            initial_value=sample_func(),
+            initial_value=init_val,
             dtype=dtype,
             trainable=False,
             shape=(None, obs.n_obs),
             name=f"sample_data_holder_{cls.get_cache_counting()}",
         )
         dataset = LightDataset.from_tensor(sample_holder)
+        if init_weights is not None:
+            weights = init_weights
+        weights_holder = None
+        if weights is not None:
+            weights_holder = tf.Variable(
+                initial_value=weights,
+                dtype=dtype,
+                trainable=False,
+                shape=(None,),
+                name=f"weights_data_holder_{cls.get_cache_counting()}",
+            )
 
         return cls(
             dataset=dataset,
             sample_holder=sample_holder,
-            sample_func=sample_func,
+            weights_holder=weights_holder,
+            sample_and_weights_func=sample_and_weights_func,
             fixed_params=fixed_params,
             n=n,
             obs=obs,
             name=name,
             weights=weights,
             use_hash=use_hash,
+            guarantee_limits=True,
+            dtype=dtype,
         )
 
-    def update_data(self, sample: TensorLike):
+    def update_data(self, sample: TensorLike, weights: TensorLike | None = None, guarantee_limits: bool = False):
         """Load a new sample into the dataset, presumably similar to the previous one.
 
         Args:
             sample: The new sample to load. Has to have the same number of observables as the `obs` of the `Sampler` but
                 can have a different number of events.
+            weights: The weights of the new sample. If `None`, the weights are not changed. If the `Sampler` was
+                initialized with weights, this has to be given. If the `Sampler` was initialized without weights,
+                this cannot be given.
+            guarantee_limits: If `True`, the sample will be cut to the limits of the `Sampler`. If `False`, the sample
+                is assumed to be already cut to the limits.
         """
         sample = znp.asarray(sample, dtype=self.dtype)
 
@@ -1007,8 +1124,18 @@ class Sampler(Data):
                 f"Got {sample.shape[-1]} observables, expected {self.space.n_obs}."
             )
             raise ValueError(msg)
-        # TODO: add weights?
-        self.sample_holder.assign(sample, read_value=False)
+        if not guarantee_limits:
+            sample, weights = check_cut_data_weights(limits=self.space, data=sample, weights=weights)
+        self._sample_holder.assign(sample, read_value=False)
+        if weights is not None:
+            if self._weights_holder is None:
+                msg = "Cannot set weights if no weights were given at initialization."
+                raise ValueError(msg)
+            self._weights_holder.assign(weights, read_value=False)
+        elif self._weights_holder is not None:
+            msg = "No weights given but weights_holder was initialized."
+            raise ValueError(msg)
+
         self._n_holder = tf.shape(sample)[0]
         self._initial_resampled = True
         self._update_hash()
@@ -1045,10 +1172,11 @@ class Sampler(Data):
             #         raise RuntimeError("Cannot set a new `n` if not a Tensor-like object was given")
             # self.n_samples.assign(n)
 
-            new_sample = self.sample_func(n)
-            # self.sample_holder.assign(new_sample)
-            self.update_data(sample=new_sample)
-        self._update_hash()
+            new_sample, new_weight = self._sample_and_weights_func(n)
+            new_sample.set_shape((n, self.space.n_obs))
+            if new_weight is not None:
+                new_weight.set_shape((n,))
+            self.update_data(sample=new_sample, weights=new_weight, guarantee_limits=self._sampler_guarantee_limits)
 
     def __str__(self) -> str:
         return f"<Sampler: {self.name} obs={self.obs}>"
@@ -1103,4 +1231,4 @@ def sum_samples(
         raise WorkInProgressError(msg)
     weights = None
 
-    return SampleData.from_sample(sample=tensor, obs=obs, weights=weights)
+    return Data.from_tensor(tensor=tensor, obs=obs, weights=weights)
