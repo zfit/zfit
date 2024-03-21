@@ -878,8 +878,9 @@ class CBExGauss:
         norm: NormInputType = None,
         name: str = "CBExGauss",
     ):
-        """Custom constructor to dynamically return an instance of GeneralizedGaussExpTail or GeneralizedCB based on the
-        tailleft parameter.
+        """CBExGauss shaped PDF. Constructor to dynamically return an instance of GeneralizedGaussExpTail or GeneralizedCB
+        based on the tailleft parameter.
+        Implemented after https://github.com/cms-egamma/egm_tnp_analysis/blob/master/libCpp/RooCBExGaussShape.cc
 
         Args:
             mu: The mean of the gaussian
