@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 """Zfit serialization module.
 
 This module contains the serialization functionality of zfit. It is used to serialize and deserialize
@@ -70,12 +70,10 @@ def loads(string: str):
 
 
 def dump(*_, **__):
-    raise WorkInProgressError(
-        "Not yet implemented, use `dumps` and manually dump the string."
-    )
+    msg = "Not yet implemented, use `dumps` and manually dump the string."
+    raise WorkInProgressError(msg)
 
 
 def load(*_, **__):
-    raise WorkInProgressError(
-        "Not yet implemented, use `loads` and manually load the string."
-    )
+    msg = "Not yet implemented, use `loads` and manually load the string."
+    raise WorkInProgressError(msg)

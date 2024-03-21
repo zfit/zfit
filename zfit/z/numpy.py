@@ -1,4 +1,4 @@
-""" Numpy like interface for math functions and arrays. This module is intended to replace tensorflow specific methods
+"""Numpy like interface for math functions and arrays. This module is intended to replace tensorflow specific methods
 and datastructures with equivalent or similar versions in the numpy api. This should help make zfit as a project
 portable to alternatives of tensorflow should it be necessary in the future. At the moment it is simply an alias for the
 numpy api of tensorflow. See https://www.tensorflow.org/guide/tf_numpy for more a guide to numpy api in tensorflow. See
@@ -9,16 +9,19 @@ way of importing:
 """
 
 #  Copyright (c) 2024 zfit
+from __future__ import annotations
 
-import numpy as _np
-import tensorflow as _tf
-from tensorflow.experimental.numpy import *
+import numpy as np
+import tensorflow as tf
+from tensorflow.experimental.numpy import *  # noqa: F403
+
+# ruff: noqa: F405
 
 
 class linalg:
-    inv = staticmethod(_tf.linalg.inv)
-    det = staticmethod(_tf.linalg.det)
-    solve = staticmethod(_tf.linalg.solve)
+    inv = staticmethod(tf.linalg.inv)
+    det = staticmethod(tf.linalg.det)
+    solve = staticmethod(tf.linalg.solve)
 
 
 # TODO: move into special namespace when that's available
@@ -82,7 +85,7 @@ def faddeeva_humlicek(z, s=10.0):
         dtype=complex128,
     )
 
-    sqrt_piinv = 1.0 / _np.sqrt(_np.pi)
+    sqrt_piinv = 1.0 / np.sqrt(np.pi)
 
     zz = z * z
     w = 1j * z * (zz * sqrt_piinv - 1.410474) / (0.75 + zz * (zz - 3.0))
@@ -104,16 +107,7 @@ def faddeeva_humlicek(z, s=10.0):
                                 (
                                     (
                                         (
-                                            (
-                                                (
-                                                    ((AA[15] * Z + AA[14]) * Z + AA[13])
-                                                    * Z
-                                                    + AA[12]
-                                                )
-                                                * Z
-                                                + AA[11]
-                                            )
-                                            * Z
+                                            ((((AA[15] * Z + AA[14]) * Z + AA[13]) * Z + AA[12]) * Z + AA[11]) * Z
                                             + AA[10]
                                         )
                                         * Z
@@ -145,15 +139,7 @@ def faddeeva_humlicek(z, s=10.0):
     ) * Z + AA[0]
 
     denom = (
-        (
-            (((((ZZ + bb[7]) * ZZ + bb[6]) * ZZ + bb[5]) * ZZ + bb[4]) * ZZ + bb[3])
-            * ZZ
-            + bb[2]
-        )
-        * ZZ
-        + bb[1]
+        ((((((ZZ + bb[7]) * ZZ + bb[6]) * ZZ + bb[5]) * ZZ + bb[4]) * ZZ + bb[3]) * ZZ + bb[2]) * ZZ + bb[1]
     ) * ZZ + bb[0]
 
-    w = _tf.tensor_scatter_nd_update(w, _tf.where(mask), numer / denom)
-
-    return w
+    return tf.tensor_scatter_nd_update(w, tf.where(mask), numer / denom)

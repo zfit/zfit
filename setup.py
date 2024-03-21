@@ -1,23 +1,23 @@
 """The setup script."""
 
 #  Copyright (c) 2024 zfit
-import os
+from __future__ import annotations
+
+import functools
+import operator
 import platform
 import sys
-
 import warnings
+from pathlib import Path
+
 from setuptools import setup
 
-here = os.path.abspath(os.path.dirname(__file__))
+here = Path(__file__).resolve().parent
 
-with open(
-    os.path.join(here, "requirements.txt"), encoding="utf-8"
-) as requirements_file:
+with Path(here / "requirements.txt", encoding="utf-8").open() as requirements_file:
     requirements = requirements_file.read().splitlines()
 
-with open(
-    os.path.join(here, "requirements_dev.txt"), encoding="utf-8"
-) as requirements_dev_file:
+with Path(here / "requirements_dev.txt", encoding="utf-8").open() as requirements_dev_file:
     requirements_dev = requirements_dev_file.read().splitlines()
 requirements_dev = [req.split("#")[0].strip() for req in requirements_dev]
 
@@ -29,7 +29,7 @@ extras_require = {
     "hs3": ["asdf"],
     "uproot": ["awkward-pandas"],
 }
-allreq = sum(extras_require.values(), [])
+allreq = functools.reduce(operator.iadd, extras_require.values(), [])
 
 tests_require = [
     "pytest>=3.4.2",  # breaks unittests
@@ -51,9 +51,9 @@ extras_require["all-darwin"] = allreq_nonloptipyopt + extras_require["nlopt"]
 extras_require["all-windows"] = allreq_nonloptipyopt + extras_require["nlopt"]
 extras_require["all-silicon"] = allreq_nonloptipyopt
 
-extras_require["tests-linux"] = tests_require + [nlopt_req] + [ipyopt_req]
-extras_require["tests-darwin"] = tests_require + [nlopt_req]
-extras_require["tests-windows"] = tests_require + [nlopt_req]
+extras_require["tests-linux"] = [*tests_require, nlopt_req, ipyopt_req]
+extras_require["tests-darwin"] = [*tests_require, nlopt_req]
+extras_require["tests-windows"] = [*tests_require, nlopt_req]
 extras_require["tests-silicon"] = tests_require
 
 extras_require["dev-linux"] = requirements_dev + extras_require["tests-linux"]
@@ -61,23 +61,13 @@ extras_require["dev-darwin"] = requirements_dev + extras_require["tests-darwin"]
 extras_require["dev-windows"] = requirements_dev + extras_require["tests-windows"]
 extras_require["dev-silicon"] = requirements_dev + extras_require["tests-silicon"]
 
-extras_require["alldev-linux"] = (
-    extras_require["all-linux"] + extras_require["dev-linux"]
-)
-
-extras_require["alldev-darwin"] = (
-    extras_require["all-darwin"] + extras_require["dev-darwin"]
-)
-
-extras_require["alldev-silicon"] = (
-    extras_require["all-silicon"] + extras_require["dev-silicon"]
-)
+extras_require["alldev-linux"] = extras_require["all-linux"] + extras_require["dev-linux"]
+extras_require["alldev-darwin"] = extras_require["all-darwin"] + extras_require["dev-darwin"]
+extras_require["alldev-silicon"] = extras_require["all-silicon"] + extras_require["dev-silicon"]
 
 alldev_windows = extras_require["all-windows"] + extras_require["dev-windows"]
-
-alldev_windows.pop(
-    alldev_windows.index("jaxlib")
-)  # not available on Windows: https://github.com/google/jax/issues/438#issuecomment-939866186
+# not available on Windows: https://github.com/google/jax/issues/438#issuecomment-939866186
+alldev_windows.pop(alldev_windows.index("jaxlib"))
 extras_require["alldev-windows"] = alldev_windows
 
 # fill defaults depending on the system
@@ -85,7 +75,9 @@ if (platf := platform.system().lower()) == "darwin" and platform.processor() == 
     platf = "silicon"
 if platf not in ["linux", "windows", "silicon", "darwin"]:
     warnings.warn(
-        f"Platform {platf} not recognized, `dev`, `tests` and `alldev` extras contain all requirements. "
+        f"Platform {platf} not recognized, `dev`, `tests` and `alldev` extras contain all requirements. ",
+        UserWarning,
+        stacklevel=1,
     )
     platf = "linux"
 extras_require["tests"] = extras_require[f"tests-{platf}"]
@@ -100,7 +92,7 @@ for req_name, req in extras_require.items():
     req = [r.split("#")[0].strip() for r in req]
     req = [r for r in req if r]  # remove empty string
     cleaned_req[req_name] = req
-    if sys.version_info[1] > 11:  # nlopt, ipyopt not available
+    if sys.version_info >= (3, 12):  # nlopt, ipyopt not available
         if nlopt_req in req and req_name != "nlopt":
             req.remove(nlopt_req)
         if ipyopt_req in req and req_name != "ipyopt":

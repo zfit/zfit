@@ -1,4 +1,5 @@
 #  Copyright (c) 2024 zfit
+from __future__ import annotations
 
 import tensorflow as tf
 
@@ -33,8 +34,7 @@ class CustomPDF2D(zfit.pdf.BasePDF):
         param3 = self.params["param3"]
 
         # just a fantasy function
-        probs = param1 * tf.cos(energy**2) + tf.math.log(param2 * momentum**2) + param3
-        return probs
+        return param1 * tf.cos(energy**2) + tf.math.log(param2 * momentum**2) + param3
 
 
 # add an analytic integral
@@ -42,6 +42,7 @@ class CustomPDF2D(zfit.pdf.BasePDF):
 
 # define the integral function
 def integral_full(limits, norm_range, params, model):
+    del norm_range, model  # not used here
     (
         lower,
         upper,
@@ -54,8 +55,7 @@ def integral_full(limits, norm_range, params, model):
     upper = z.convert_to_tensor(upper)
 
     # calculate the integral here, dummy integral, wrong!
-    integral = param1 * param2 * param3 + z.reduce_sum([lower, upper])
-    return integral
+    return param1 * param2 * param3 + z.reduce_sum([lower, upper])
 
 
 # define the space over which it is defined. Here, we use the axes
@@ -68,6 +68,8 @@ CustomPDF2D.register_analytic_integral(func=integral_full, limits=integral_full_
 
 # define the partial integral function
 def integral_axis1(x, limits, norm_range, params, model):
+    del norm_range, model  # not used here
+
     data_0 = x.unstack_x()  # data from axis 0
 
     param1 = params["super_param"]
@@ -79,9 +81,8 @@ def integral_axis1(x, limits, norm_range, params, model):
     upper = z.convert_to_tensor(upper)
 
     # calculate the integral here, dummy integral
-    integral = data_0**2 * param1 * param2 * param3 + z.reduce_sum([lower, upper])
+    return data_0**2 * param1 * param2 * param3 + z.reduce_sum([lower, upper])
     # notice that the returned shape will be in the same as data_0, e.g. the number of events given in x
-    return integral
 
 
 # define the space over which it is defined. Here, we use the axes
@@ -92,9 +93,7 @@ integral_axis1_limits = zfit.Space(
     limits=(lower_axis1, upper_axis1),
 )
 
-CustomPDF2D.register_analytic_integral(
-    func=integral_axis1, limits=integral_axis1_limits
-)
+CustomPDF2D.register_analytic_integral(func=integral_axis1, limits=integral_axis1_limits)
 
 if __name__ == "__main__":
     import numpy as np

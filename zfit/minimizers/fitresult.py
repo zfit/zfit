@@ -2,15 +2,13 @@
 
 from __future__ import annotations
 
+import typing
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     import zfit
-    from .evaluation import LossEval
 
-from collections.abc import Mapping
-from collections.abc import Callable
-from collections.abc import Iterable
+    from .evaluation import LossEval
 
 import collections
 import contextlib
@@ -18,6 +16,7 @@ import itertools
 import math
 import warnings
 from collections import OrderedDict
+from collections.abc import Callable, Iterable, Mapping
 
 import colored
 import iminuit
@@ -30,32 +29,30 @@ from scipy.optimize import LbfgsInvHessProduct
 from tabulate import tabulate
 
 if TYPE_CHECKING:
-    try:
-        import ipyopt  # for type checking
-    except ImportError:
-        pass
+    with contextlib.suppress(ImportError):  # for type checking
+        import ipyopt
 
+from ..core.interfaces import (
+    ZfitData,
+    ZfitIndependentParameter,
+    ZfitLoss,
+    ZfitParameter,
+)
+from ..core.parameter import set_values
+from ..settings import run
+from ..util.container import convert_to_container
+from ..util.deprecation import deprecated, deprecated_args
+from ..util.warnings import ExperimentalFeatureWarning, warn_changed_feature
+from ..util.ztyping import ParamsTypeOpt
+from ..z import numpy as znp
 from .errors import (
     compute_errors,
     covariance_with_weights,
     dict_to_matrix,
     matrix_to_dict,
 )
-from ..z import numpy as znp
 from .interface import ZfitMinimizer, ZfitResult
 from .termination import ConvergenceCriterion
-from ..core.interfaces import (
-    ZfitIndependentParameter,
-    ZfitLoss,
-    ZfitParameter,
-    ZfitData,
-)
-from ..core.parameter import set_values
-from ..settings import run
-from ..util.container import convert_to_container
-from ..util.deprecation import deprecated_args, deprecated
-from ..util.warnings import ExperimentalFeatureWarning, warn_changed_feature
-from ..util.ztyping import ParamsTypeOpt
 
 init(autoreset=True)
 
@@ -86,9 +83,7 @@ class Approximations:
     def params(self):
         return self._params
 
-    def gradient(
-        self, params: ZfitParameter | Iterable[ZfitParameter] | None = None
-    ) -> np.ndarray | None:
+    def gradient(self, params: ZfitParameter | Iterable[ZfitParameter] | None = None) -> np.ndarray | None:
         """Return an approximation of the gradient _if available_.
 
         Args:
@@ -103,11 +98,7 @@ class Approximations:
 
         if params is not None:
             params = convert_to_container(params, container=tuple)
-            params_mapped = {
-                i: params.index(param)
-                for i, param in enumerate(self.params)
-                if param in params
-            }
+            params_mapped = {i: params.index(param) for i, param in enumerate(self.params) if param in params}
             indices = sorted(params_mapped, key=lambda x: params_mapped[x])
             grad = grad[indices]
         return grad
@@ -197,7 +188,9 @@ def _covariance_minuit(result, params):
             "minuit failed to calculate the covariance matrix or similar when calling `hesse`."
             "Try to use `hesse_np` as the method instead and try again."
             "This is unexpected and may has to do with iminuitV2. Either way, please fill an issue if"
-            " this is not expected to fail for you."
+            " this is not expected to fail for you.",
+            RuntimeWarning,
+            stacklevel=2,
         )
     else:
         for p1 in params:
@@ -209,13 +202,11 @@ def _covariance_minuit(result, params):
 
 
 def _covariance_np(result, params):
-    if any(
-        isinstance(data, ZfitData) and data.weights is not None
-        for data in result.loss.data
-    ):
+    if any(isinstance(data, ZfitData) and data.weights is not None for data in result.loss.data):
         warnings.warn(
             "The computation of the covariance matrix with weights is still experimental.",
             ExperimentalFeatureWarning,
+            stacklevel=3,
         )
 
     _, gradient, hessian = result.loss.value_gradient_hessian(params)
@@ -225,13 +216,11 @@ def _covariance_np(result, params):
 
 
 def _covariance_approx(result, params):
-    if any(
-        isinstance(data, ZfitData) and data.weights is not None
-        for data in result.loss.data
-    ):
+    if any(isinstance(data, ZfitData) and data.weights is not None for data in result.loss.data):
         warnings.warn(
             "Approximate covariance/hesse estimation with weights is not supported, returning None",
             RuntimeWarning,
+            stacklevel=3,
         )
 
     inv_hessian = result.approx.inv_hessian(invert=True)
@@ -240,13 +229,10 @@ def _covariance_approx(result, params):
 
     params_approx = list(result.params)
     param_indices = [params_approx.index(p) for p in params]
-    covariance_dict = {
+    return {
         (p1, p2): inv_hessian[(p1_index, p2_index)]
-        for (p1, p1_index), (p2, p2_index) in itertools.product(
-            zip(params, param_indices), zip(params, param_indices)
-        )
+        for (p1, p1_index), (p2, p2_index) in itertools.product(zip(params, param_indices), zip(params, param_indices))
     }
-    return covariance_dict
 
 
 class ParamToNameGetitem:
@@ -277,22 +263,21 @@ class NameToParamGetitem:
         except KeyError:
             return False
         except Exception as error:
-            raise RuntimeError(
-                "Unknown exception occurred! This should not happen."
-            ) from error
+            msg = "Unknown exception occurred! This should not happen."
+            raise RuntimeError(msg) from error
         else:
             return True
 
 
 class FitResult(ZfitResult):
     _default_hesse = "minuit_hesse"
-    _hesse_methods = {
+    _hesse_methods: typing.ClassVar = {
         "minuit_hesse": _covariance_minuit,
         "hesse_np": _covariance_np,
         "approx": _covariance_approx,
     }
     _default_error = "minuit_minos"
-    _error_methods = {
+    _error_methods: typing.ClassVar = {
         "minuit_minos": _minos_minuit,
         "zfit_error": compute_errors,
         "zfit_errors": compute_errors,
@@ -392,10 +377,7 @@ class FitResult(ZfitResult):
         if converged is None and valid:
             converged = True
         if message is None:
-            if valid:
-                message = ""
-            else:
-                message = "Invalid, unknown reason (not specified)"
+            message = "" if valid else "Invalid, unknown reason (not specified)"
 
         info = {} if info is None else info
         approx = self._input_convert_approx(approx, evaluator, info, params)
@@ -433,7 +415,9 @@ class FitResult(ZfitResult):
             fminfull = loss.value(full=True)
         except Exception as error:
             warnings.warn(
-                f"Could not calculate fminfull due to {error}. Setting to 0. This is a new feature and is caught to not break backwards compatibility."
+                f"Could not calculate fminfull due to {error}. Setting to 0. This is a new feature and is caught to not break backwards compatibility.",
+                RuntimeWarning,
+                stacklevel=3,
             )
             fminfull = 0
         self._fmin = float(fminfull)
@@ -475,13 +459,9 @@ class FitResult(ZfitResult):
                 if "gradient" not in approx:
                     approx["gradient"] = info.get("grad", info.get("gradient"))
                 if "hessian" not in approx:
-                    approx["hessian"] = info.get(
-                        "hess", info.get("hesse", info.get("hessian"))
-                    )
+                    approx["hessian"] = info.get("hess", info.get("hesse", info.get("hessian")))
                 if "inv_hessian" not in approx:
-                    approx["inv_hessian"] = info.get(
-                        "inv_hess", info.get("inv_hesse", info.get("inv_hessian"))
-                    )
+                    approx["inv_hessian"] = info.get("inv_hess", info.get("inv_hesse", info.get("inv_hessian")))
             if evaluator is not None:
                 if "gradient" not in approx:
                     approx["gradient"] = evaluator.last_gradient
@@ -499,16 +479,16 @@ class FitResult(ZfitResult):
         for p in params:
             errordict = self.params[p].get(method_name)
             # cl is < 1 and gets very close. The closer, the more it matters -> scale tolerance by it
-            if errordict is not None and not math.isclose(
-                errordict["cl"], cl, abs_tol=3e-3 * (1 - cl)
-            ):
-                raise NameError(
-                    f"Error with name {method_name} already exists in {repr(self)} with a different"
+            if errordict is not None and not math.isclose(errordict["cl"], cl, abs_tol=3e-3 * (1 - cl)):
+                msg = (
+                    f"Error with name {method_name} already exists in {self!r} with a different"
                     f" convidence level of {errordict['cl']} instead of the requested {cl}."
-                    f" Use a different name.",
+                    f" Use a different name."
                 )
-            else:
-                uncached.append(p)
+                raise NameError(
+                    msg,
+                )
+            uncached.append(p)
         return uncached
 
     def _create_minuit_instance(self):
@@ -519,12 +499,8 @@ class FitResult(ZfitResult):
             if isinstance(self.minimizer, Minuit):
                 minuit = self.minimizer._minuit_minimizer
             else:
-                minimizer = Minuit(
-                    tol=self.minimizer.tol, verbosity=0, name="ZFIT_TMP_UNCERTAINITIES"
-                )
-                minuit, _, _ = minimizer._make_minuit(
-                    loss=self.loss, params=self.params, init=self
-                )
+                minimizer = Minuit(tol=self.minimizer.tol, verbosity=0, name="ZFIT_TMP_UNCERTAINITIES")
+                minuit, _, _ = minimizer._make_minuit(loss=self.loss, params=self.params, init=self)
             self._cache_minuit = minuit
         return minuit
 
@@ -533,8 +509,8 @@ class FitResult(ZfitResult):
         cls,
         loss: ZfitLoss,
         params: Iterable[ZfitParameter],
-        problem: "ipyopt.Problem",
-        minimizer: "zfit.minimize.IpyoptV1",
+        problem: ipyopt.Problem,
+        minimizer: zfit.minimize.IpyoptV1,
         valid: bool,
         values: np.ndarray,
         message: str | None,
@@ -706,17 +682,14 @@ class FitResult(ZfitResult):
                 minimizer_new._minuit_minimizer = minimizer
                 minimizer = minimizer_new
             else:
-                raise ValueError(
-                    f"Minimizer {minimizer} not supported. Use `Minuit` from zfit or from iminuit."
-                )
+                msg = f"Minimizer {minimizer} not supported. Use `Minuit` from zfit or from iminuit."
+                raise ValueError(msg)
 
-        params_result = [p_dict for p_dict in minuit.params]
+        params_result = list(minuit.params)
 
         fmin_object = minuit.fmin
         minuit_converged = not fmin_object.is_above_max_edm
-        converged = (
-            minuit_converged if converged is None else (converged and minuit_converged)
-        )
+        converged = minuit_converged if converged is None else (converged and minuit_converged)
         niter = fmin_object.nfcn if niter is None else niter
         info = {
             "n_eval": niter,
@@ -838,10 +811,10 @@ class FitResult(ZfitResult):
             "evaluator": evaluator,
             "original": result,
         }
-        approx = dict(
-            params=params,
-            gradient=info.get("grad"),
-        )
+        approx = {
+            "params": params,
+            "gradient": info.get("grad"),
+        }
         if info.get("niter", 0) > 25:  # unreliable if too few iterations, fails for EDM
             inv_hesse = result.get("hess_inv")
             if isinstance(inv_hesse, LbfgsInvHessProduct):
@@ -857,7 +830,7 @@ class FitResult(ZfitResult):
         if evaluator is not None:
             valid = valid and not evaluator.maxiter_reached
 
-        fitresult = cls(
+        return cls(
             params=params,
             edm=edm,
             fminopt=fminopt,
@@ -873,7 +846,6 @@ class FitResult(ZfitResult):
             criterion=criterion,
             evaluator=evaluator,
         )
-        return fitresult
 
     @classmethod
     def from_nlopt(
@@ -957,7 +929,7 @@ class FitResult(ZfitResult):
             zfit.minimizers.fitresult.FitResult:
         """
         converged = converged if converged is None else bool(converged)
-        param_dict = {p: v for p, v in zip(params, values)}
+        param_dict = dict(zip(params, values))
         if fminopt is None:
             fminopt = opt.last_optimum_value()
         status_nlopt = opt.last_optimize_result()
@@ -996,9 +968,8 @@ class FitResult(ZfitResult):
             valid = valid and not evaluator.maxiter_reached
 
         approx = {}
-        if inv_hessian is None:
-            if hessian is None and evaluator is not None:
-                hessian = evaluator.last_hessian
+        if inv_hessian is None and hessian is None and evaluator is not None:
+            hessian = evaluator.last_hessian
             # if hessian is not None:  # TODO: remove?
             #     inv_hessian = np.linalg.inv(hessian)
 
@@ -1124,24 +1095,19 @@ class FitResult(ZfitResult):
                 "Exception occurred, parameter values are not reset and in an arbitrary, last"
                 " used state. If this happens during normal operation, make sure you reset the values.",
                 RuntimeWarning,
+                stacklevel=3,
             )
             raise
-        set_values(
-            params=params, values=old_values, allow_partial=True
-        )  # TODO: or set?
+        set_values(params=params, values=old_values, allow_partial=True)  # TODO: or set?
 
     def _input_check_params(self, params):
-        if params is not None:
-            params = convert_to_container(params)
-        else:
-            params = list(self.params.keys())
-        return params
+        return convert_to_container(params) if params is not None else list(self.params.keys())
 
     @deprecated_args(None, "Use `name` instead", "error_name")
     def hesse(
         self,
         params: ParamsTypeOpt = None,
-        method: str | Callable = None,
+        method: str | Callable | None = None,
         cl: float | None = None,
         name: str | bool | None = None,
         # DEPRECATED
@@ -1186,7 +1152,8 @@ class FitResult(ZfitResult):
         # for compatibility with `errors`
         cl = 0.68268949 if cl is None else cl  # scipy.stats.chi2(1).cdf(1)
         if cl >= 1:
-            raise ValueError(f"cl is the confidence limit and has to be < 1, not {cl}")
+            msg = f"cl is the confidence limit and has to be < 1, not {cl}"
+            raise ValueError(msg)
 
         if method is None:
             # LEGACY START
@@ -1203,7 +1170,8 @@ class FitResult(ZfitResult):
         name_warning_triggered = False
         if name is None:
             if not isinstance(method, str):
-                raise ValueError("Need to specify `name` or use a string as `method`")
+                msg = "Need to specify `name` or use a string as `method`"
+                raise ValueError(msg)
             message = (
                 "Default name of hesse (which is currently the method name such as `minuit_hesse`"
                 "or `hesse_np`) has changed to `hesse` (it still adds the old one as well. This will"
@@ -1218,9 +1186,7 @@ class FitResult(ZfitResult):
             name = "hesse"
 
         with self._input_check_reset_params(params) as params:
-            uncached_params = self._check_get_uncached_params(
-                params=params, method_name=name, cl=cl
-            )
+            uncached_params = self._check_get_uncached_params(params=params, method_name=name, cl=cl)
             if uncached_params:
                 error_dict = self._hesse(params=uncached_params, method=method, cl=cl)
                 if any(val["error"] is None for val in error_dict.values()):
@@ -1232,13 +1198,9 @@ class FitResult(ZfitResult):
             else:
                 error_dict = {}
 
-        error_dict.update(
-            {p: self.params[p][name] for p in params if p not in uncached_params}
-        )
+        error_dict.update({p: self.params[p][name] for p in params if p not in uncached_params})
         if name_warning_triggered:
-            error_dict.update(
-                {p: self.params[p][method] for p in params if p not in uncached_params}
-            )
+            error_dict.update({p: self.params[p][method] for p in params if p not in uncached_params})
         return {p: error_dict[p] for p in params}
 
     def _cache_errors(self, name, errors):
@@ -1263,8 +1225,8 @@ class FitResult(ZfitResult):
     def error(
         self,
         params: ParamsTypeOpt = None,
-        method: str | Callable = None,
-        error_name: str = None,
+        method: str | Callable | None = None,
+        error_name: str | None = None,
         sigma: float = 1.0,
     ) -> OrderedDict:
         r""".. deprecated:: unknown Use :func:`errors` instead.
@@ -1295,20 +1257,19 @@ class FitResult(ZfitResult):
             "to"
             "errors, new_res = result.errors()",
             DeprecationWarning,
+            stacklevel=2,
         )
-        return self.errors(params=params, method=method, name=error_name, sigma=sigma)[
-            0
-        ]
+        return self.errors(params=params, method=method, name=error_name, sigma=sigma)[0]
 
     @deprecated_args(None, "Use name instead.", "error_name")
     def errors(
         self,
         params: ParamsTypeOpt = None,
-        method: str | Callable = None,
-        name: str = None,
+        method: str | Callable | None = None,
+        name: str | None = None,
         cl: float | None = None,
         sigma=None,
-        error_name: str = None,
+        error_name: str | None = None,
     ) -> tuple[OrderedDict, None | FitResult]:
         r"""Calculate and set for `params` the asymmetric error using the set error method.
 
@@ -1338,9 +1299,9 @@ class FitResult(ZfitResult):
 
         if sigma is not None:
             if cl is not None:
-                raise ValueError("Cannot define sigma and cl, use only one.")
-            else:
-                cl = scipy.stats.chi2(1).cdf(sigma)
+                msg = "Cannot define sigma and cl, use only one."
+                raise ValueError(msg)
+            cl = scipy.stats.chi2(1).cdf(sigma)
 
         if cl is None:
             cl = 0.68268949  # scipy.stats.chi2(1).cdf(1)
@@ -1356,13 +1317,15 @@ class FitResult(ZfitResult):
                     "with the same functionality. If you want to make sure that 'minuit_minos' will be used "
                     "in the future, add it explicitly as in `errors(method='minuit_minos')`",
                     FutureWarning,
+                    stacklevel=2,
                 )
             else:
                 method = self._default_error
         name_warning_triggered = False
         if name is None:
             if not isinstance(method, str):
-                raise ValueError("Need to specify `name` or use a string as `method`")
+                msg = "Need to specify `name` or use a string as `method`"
+                raise ValueError(msg)
             message = (
                 "Default name of errors (which is currently the method name such as `minuit_minos`"
                 "or `zfit_errors`) has changed to `errors`. Old names are still added as well for compatibility"
@@ -1388,16 +1351,12 @@ class FitResult(ZfitResult):
         params = self._input_check_params(params)
 
         with self._input_check_reset_params(self.params.keys()):
-            uncached_params = self._check_get_uncached_params(
-                params=params, method_name=name, cl=cl
-            )
+            uncached_params = self._check_get_uncached_params(params=params, method_name=name, cl=cl)
 
             new_result = None
 
             if uncached_params:
-                error_dict, new_result = self._error(
-                    params=uncached_params, method=method, cl=cl
-                )
+                error_dict, new_result = self._error(params=uncached_params, method=method, cl=cl)
                 for p in error_dict:
                     error_dict[p]["cl"] = cl
                 self._cache_errors(name=name, errors=error_dict)
@@ -1419,15 +1378,14 @@ class FitResult(ZfitResult):
             try:
                 method = self._error_methods[method]
             except KeyError:
-                raise KeyError(
-                    f"The following method is not a valid, implemented method: {method}. Use one of {self._error_methods.keys()}"
-                )
+                msg = f"The following method is not a valid, implemented method: {method}. Use one of {self._error_methods.keys()}"
+                raise KeyError(msg) from None
         return method(result=self, params=params, cl=cl)
 
     def covariance(
         self,
         params: ParamsTypeOpt = None,
-        method: str | Callable = None,
+        method: str | Callable | None = None,
         as_dict: bool = False,
     ):
         """Calculate the covariance matrix for `params`.
@@ -1457,37 +1415,29 @@ class FitResult(ZfitResult):
                 self._covariance_dict[method] = self._covariance(method=method)
 
         params = self._input_check_params(params)
-        covariance = {
-            k: self._covariance_dict[method].get(k)
-            for k in itertools.product(params, params)
-        }
+        covariance = {k: self._covariance_dict[method].get(k) for k in itertools.product(params, params)}
 
         if as_dict:
             return covariance
-        else:
-            return dict_to_matrix(params, covariance)
+        return dict_to_matrix(params, covariance)
 
     def _covariance(self, method):
         if not callable(method):
             if method not in self._hesse_methods:
-                raise KeyError(
-                    f"The following method is not a valid, implemented method: {method}. Use one of {self._hesse_methods.keys()}"
-                )
+                msg = f"The following method is not a valid, implemented method: {method}. Use one of {self._hesse_methods.keys()}"
+                raise KeyError(msg)
             method = self._hesse_methods[method]
         params = list(self.params.keys())
 
-        if any(
-            isinstance(data, ZfitData) and data.weights is not None
-            for data in self.loss.data
-        ):
+        if any(isinstance(data, ZfitData) and data.weights is not None for data in self.loss.data):
             return covariance_with_weights(method=method, result=self, params=params)
-        else:
-            return method(result=self, params=params)
+
+        return method(result=self, params=params)
 
     def correlation(
         self,
         params: ParamsTypeOpt = None,
-        method: str | Callable = None,
+        method: str | Callable | None = None,
         as_dict: bool = False,
     ):
         """Calculate the correlation matrix for `params`.
@@ -1510,8 +1460,7 @@ class FitResult(ZfitResult):
         if as_dict:
             params = self._input_check_params(params)
             return matrix_to_dict(params, correlation)
-        else:
-            return correlation
+        return correlation
 
     def freeze(self):
         """Freeze the result to make it pickleable and convert all TensorFlow elements to names (parameters) or arrays.
@@ -1526,8 +1475,7 @@ class FitResult(ZfitResult):
         self._evaluator = None
         self.approx.freeze()
         self._covariance_dict = {
-            k: {(p[0].name, p[1].name): v for p, v in d.items()}
-            for k, d in self._covariance_dict.items()
+            k: {(p[0].name, p[1].name): v for p, v in d.items()} for k, d in self._covariance_dict.items()
         }
         self._values = ValuesHolder({p.name: self.values[p] for p in self.params})
         self._params = ParamHolder({k.name: v for k, v in self.params.items()})
@@ -1548,20 +1496,13 @@ class FitResult(ZfitResult):
         self._cache_minuit = None
 
     def __str__(self):
-        string = (
-            Style.BRIGHT
-            + "FitResult"
-            + Style.NORMAL
-            + f" of\n{self.loss} \nwith\n{self.minimizer}\n\n"
-        )
+        string = Style.BRIGHT + "FitResult" + Style.NORMAL + f" of\n{self.loss} \nwith\n{self.minimizer}\n\n"
         string += tabulate(
             [
                 [
                     color_on_bool(self.valid),
                     color_on_bool(self.converged, on_true=False),
-                    color_on_bool(
-                        self.params_at_limit, on_true=colored.bg(9), on_false=False
-                    ),
+                    color_on_bool(self.params_at_limit, on_true=colored.bg(9), on_false=False),
                     format_value(self.edm, highprec=False),
                     f"          {self._fmin:.2f} | {format_value(self.fminopt)}",
                 ]
@@ -1594,17 +1535,13 @@ def covariance_to_correlation(covariance):
 
 
 def format_value(value, highprec=True):
-    m_error_class = (
-        iminuit.util.MError
-    )  # if iminuit is not available (maybe in the future?), use dict instead
+    m_error_class = iminuit.util.MError  # if iminuit is not available (maybe in the future?), use dict instead
 
     if isinstance(value, dict) and "error" in value:
         value = value["error"]
         value = f"{value:> 6.2g}"
         value = f'+/-{" " * (8 - len(value))}' + value
-    if isinstance(value, m_error_class) or (
-        isinstance(value, dict) and "lower" in value and "upper" in value
-    ):
+    if isinstance(value, m_error_class) or (isinstance(value, dict) and "lower" in value and "upper" in value):
         if isinstance(value, m_error_class):
             lower = value.lower
             upper = value.upper
@@ -1620,22 +1557,23 @@ def format_value(value, highprec=True):
         value = lower + " " * 3 + upper
 
     if isinstance(value, float):
-        if highprec:
-            value = f"{value:> 6.7g}"
-        else:
-            value = f"{value:> 6.2g}"
+        value = f"{value:> 6.7g}" if highprec else f"{value:> 6.2g}"
     return value
 
 
-def color_on_bool(value, on_true=colored.bg(10), on_false=colored.bg(9)):
+def color_on_bool(value, on_true=None, on_false=None):
+    if on_true is None:
+        on_true = colored.bg(10)
+    if on_false is None:
+        on_false = colored.bg(9)
+
     if not value and on_false:
         value_add = on_false
     elif value and on_true:
         value_add = on_true
     else:
         value_add = ""
-    value = value_add + str(value) + Style.RESET_ALL
-    return value
+    return value_add + str(value) + Style.RESET_ALL
 
 
 class ListWithKeys(collections.UserList):
@@ -1682,9 +1620,6 @@ class ParamHolder(NameToParamGetitem, collections.UserDict):
                 )
             rows.append(row)
 
-        order_keys = ["name"] + list(order_keys) + ["at limit"]
+        order_keys = ["name", *list(order_keys), "at limit"]
         order_keys[order_keys.index("value")] = "value  (rounded)"
-        table = tabulate(
-            rows, order_keys, numalign="right", stralign="right", colalign=("left",)
-        )
-        return table
+        return tabulate(rows, order_keys, numalign="right", stralign="right", colalign=("left",))

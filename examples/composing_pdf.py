@@ -1,4 +1,5 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
+from __future__ import annotations
 
 import zfit
 

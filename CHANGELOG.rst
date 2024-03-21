@@ -11,14 +11,15 @@ Complete overhaul of zfit with a focus on performance, stability and usability.
 
 Major Features and Improvements
 -------------------------------
-- add ``GeneralizedCB`` PDF which is similar to the ``DoubleCB`` PDF but with different standard deviations for the left and right side.
-- Added functor for PDF caching ``CachedPDF``: ``pdf``, ``integrate`` PDF methods can be cacheable now
 - Python 3.12 support
 - add an unbinned ``Sampler`` to the public namespace under ``zfit.data.Sampler``: this object is returned in the ``create_sampler`` method and allows to resample from a function without recreating the compiled function, i.e. loss. It has an additional method ``update_data`` to update the data without recompiling the loss and can be created from a sample only. Useful to have a custom dataset in toys.
 - allow to use pandas DataFrame as input where zfit Data objects are expected
 - Parameter behavior has changed, multiple parameters with the same name can now coexist!
   The ``NameAlreadyTakenError`` has been successfully removed (yay!). The new behavior only enforces that
   names and matching parameters *within a function/PDF/loss* are unique, as otherwise inconsistent expectations appear (for a lengthy discussion on this, `see here <https://github.com/zfit/zfit/discussions/342>`_.
+- Python 3.12 support
+- add ``GeneralizedCB`` PDF which is similar to the ``DoubleCB`` PDF but with different standard deviations for the left and right side.
+- Added functor for PDF caching ``CachedPDF``: ``pdf``, ``integrate`` PDF methods can be cacheable now
 - add ``faddeeva_humlicek`` function under the ``zfit.z.numpy`` namespace. This is an implementation of the Faddeeva function, combining Humlicek's rational approximations according to Humlicek (JQSRT, 1979) and Humlicek (JQSRT, 1982).
 - add ``Voigt`` profile PDF which is a convolution of a Gaussian and a Cauchy distribution.
 - add ``TruncatedPDF`` that allows to truncate in one or multiple ranges (replaces "MultipleLimits" and "MultiSpace")

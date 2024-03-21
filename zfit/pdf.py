@@ -1,4 +1,5 @@
 #  Copyright (c) 2024 zfit
+from __future__ import annotations
 
 __all__ = [
     "BasePDF",
@@ -53,13 +54,13 @@ from .models.conditional import ConditionalPDFV1
 from .models.convolution import FFTConvPDFV1
 from .models.dist_tfp import (
     Cauchy,
-    Gauss,
-    Poisson,
     ChiSquared,
+    Gauss,
+    LogNormal,
+    Poisson,
     TruncatedGauss,
     Uniform,
     WrapDistribution,
-    LogNormal,
 )
 from .models.functor import BaseFunctor, ProductPDF, SumPDF
 from .models.histmodifier import BinwiseScaleModifier
@@ -74,7 +75,6 @@ from .models.kde import (
 )
 from .models.morphing import SplineMorphingPDF
 from .models.physics import CrystalBall, DoubleCB, GeneralizedCB
-from .models.truncated import TruncatedPDF
 from .models.polynomials import (
     Chebyshev,
     Chebyshev2,
@@ -85,4 +85,5 @@ from .models.polynomials import (
 )
 from .models.special import ZPDF, SimpleFunctorPDF, SimplePDF
 from .models.tobinned import BinnedFromUnbinnedPDF
+from .models.truncated import TruncatedPDF
 from .models.unbinnedpdf import UnbinnedFromBinnedPDF

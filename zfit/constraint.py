@@ -1,12 +1,13 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2024 zfit
+from __future__ import annotations
 
 import tensorflow as tf
 
 from .core.constraint import (
     GaussianConstraint,
+    LogNormalConstraint,
     PoissonConstraint,
     SimpleConstraint,
-    LogNormalConstraint,
 )
 from .util import ztyping
 
@@ -37,6 +38,4 @@ def nll_gaussian(
         ShapeIncompatibleError: if params, mu and sigma don't have the same size.
     """
 
-    return GaussianConstraint(
-        params=params, observation=observation, uncertainty=uncertainty
-    )
+    return GaussianConstraint(params=params, observation=observation, uncertainty=uncertainty)
