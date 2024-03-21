@@ -22,6 +22,8 @@ Major Features and Improvements
 - add ``LogNormal`` PDF, a log-normal distribution, which is a normal distribution of the logarithm of the variable.
 - add ``ChiSquared`` PDF, the standard chi2 distribution, taken from [https://www.tensorflow.org/probability/api_docs/python/tfp/distributions/Chi2](tensorflow-probability implementation).
 - add ``GaussExpTail`` and ``GeneralizedGaussExpTail`` PDFs, which are a Gaussian with an exponential tail on one side and a Gaussian with different sigmas on each side and different exponential tails on each side respectively.
+- add ``CBExGauss`` constructor which returns either a ``GeneralizedGaussExpTail`` or a ``GaussExpTail`` depending if the ``tailleft`` parameter is ``True`` or ``False``.
+  Implemented after [this ROOT implementation](https://github.com/cms-egamma/egm_tnp_analysis/blob/master/libCpp/RooCBExGaussShape.cc).
 
 
 Breaking changes
