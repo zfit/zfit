@@ -605,23 +605,23 @@ def gaussexptail_integral_func(mu, sigma, alpha, n, lower, upper):
         znp.where(alpha_negative, -tmax, tmin),
     )
 
-    gauss_entire_integral = abs_sigma * sqrt_pi_over_two * (tf.math.erf(tmax / sqrt2) - tf.math.erf(tmin / sqrt2))
-    exp_entire_integral = (
+    gauss_tmin_tmax_integral = abs_sigma * sqrt_pi_over_two * (tf.math.erf(tmax / sqrt2) - tf.math.erf(tmin / sqrt2))
+    exp_tmin_tmax_integral = (
         abs_sigma / n * znp.exp(-0.5 * znp.square(abs_alpha) + n * abs_alpha) * (znp.exp(n * tmax) - znp.exp(n * tmin))
     )
-    gauss_integral_alpha_tmax = (
+    gauss_minus_abs_alpha_tmax_integral = (
         abs_sigma * sqrt_pi_over_two * (tf.math.erf(tmax / sqrt2) - tf.math.erf(-abs_alpha / sqrt2))
     )
-    exp_integral_alpha_tmin = (
+    exp_minus_abs_alpha_tmin_integral = (
         abs_sigma
         / n
         * znp.exp(-0.5 * znp.square(abs_alpha) + n * abs_alpha)
         * (znp.exp(-n * abs_alpha) - znp.exp(n * tmin))
     )
-    integral_sum = exp_integral_alpha_tmin + gauss_integral_alpha_tmax
+    integral_sum = exp_minus_abs_alpha_tmin_integral + gauss_minus_abs_alpha_tmax_integral
 
-    conditional_integral = tf.where(tf.less_equal(tmax, -abs_alpha), exp_entire_integral, integral_sum)
-    result = tf.where(tf.greater_equal(tmin, -abs_alpha), gauss_entire_integral, conditional_integral)
+    conditional_integral = tf.where(tf.less_equal(tmax, -abs_alpha), exp_tmin_tmax_integral, integral_sum)
+    result = tf.where(tf.greater_equal(tmin, -abs_alpha), gauss_tmin_tmax_integral, conditional_integral)
     if result.shape.rank != 0:
         result = tf.gather(result, 0, axis=-1)
     return result
