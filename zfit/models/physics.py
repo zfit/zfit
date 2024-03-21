@@ -686,6 +686,42 @@ class GaussExpTail(BasePDF, SerializableMixin):
         norm: NormInputType = None,
         name: str = "GaussExpTail",
     ):
+        """GaussExpTail shaped PDF. A combination of a Gaussian with an exponential tail on one side.
+
+        The function is defined as follows:
+
+        .. math::
+            f(x;\\mu, \\sigma, \\alpha, n) =  \\begin{cases} \\exp(- \\frac{(x - \\mu)^2}{2 \\sigma^2}),
+            & \\mbox{for}\\frac{x - \\mu}{\\sigma} \\geqslant -\\alpha \\newline
+            \\exp{-\\frac{|\\alpha|^2}{2}} \\exp{n (\\frac{x - \\mu}{\\sigma} + \\alpha)},
+            & \\mbox{for}\\frac{x - \\mu}{\\sigma} < -\\alpha \\end{cases}
+
+        Args:
+            mu: The mean of the gaussian
+            sigma: Standard deviation of the gaussian
+            alpha: parameter where to switch from a gaussian to the powertail
+            n: Exponent of the powertail
+            obs: |@doc:pdf.init.obs| Observables of the
+               model. This will be used as the default space of the PDF and,
+               if not given explicitly, as the normalization range.
+
+               The default space is used for example in the sample method: if no
+               sampling limits are given, the default space is used.
+
+               The observables are not equal to the domain as it does not restrict or
+               truncate the model outside this range. |@docend:pdf.init.obs|
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+            norm: |@doc:pdf.init.norm| Normalization of the PDF.
+               By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
+            name: |@doc:pdf.init.name| Human-readable name
+               or label of
+               the PDF for better identification.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.name|
+        """
         params = {"mu": mu, "sigma": sigma, "alpha": alpha, "n": n}
         super().__init__(obs=obs, name=name, params=params, extended=extended, norm=norm)
 
@@ -731,6 +767,54 @@ class GeneralizedGaussExpTail(BasePDF, SerializableMixin):
         norm: NormInputType = None,
         name: str = "GeneralizedGaussExpTail",
     ):
+        """GeneralizedGaussedExpTail shaped PDF which is Generalized assymetric double-sided GaussExpTail shaped PDF. A
+        combination of two GaussExpTail using the **mu** (not a frac) and a different **sigma** on each side.
+
+        The function is defined as follows:
+
+        .. math::
+            f(x;\\mu, \\sigma_{L}, \\alpha_{L}, n_{L}, \\sigma_{R}, \\alpha_{R}, n_{R}) =  \\begin{cases}
+            \\exp{-\\frac{|\\alpha_{L}|^2}{2}} \\exp{n_{L} (\\frac{x - \\mu}{\\sigma_{L}} + \\alpha_{L})},
+             & \\mbox{for }\\frac{x - \\mu}{\\sigma_{L}} < -\\alpha_{L} \\newline
+            \\exp(- \\frac{(x - \\mu)^2}{2 \\sigma_{L}^2}),
+            & \\mbox{for }-\\alpha_{L} \\leqslant \\frac{x - \\mu}{\\sigma_{L}} \\leqslant 0 \\newline
+            \\exp(- \\frac{(x - \\mu)^2}{2 \\sigma_{R}^2}),
+            & \\mbox{for }0 \\leqslant \\frac{x - \\mu}{\\sigma_{R}} \\leqslant \\alpha_{R} \\newline
+            \\exp{-\\frac{|\\alpha_{R}|^2}{2}} \\exp{n_{R} (\\frac{x - \\mu}{\\sigma_{R}} - \\alpha_{R})},
+             & \\mbox{for }\\frac{x - \\mu}{\\sigma_{R}} > \\alpha_{R}
+            \\end{cases}
+
+        Args:
+            mu: The mean of the gaussian
+            sigmal: Standard deviation of the gaussian on the left side
+            alphal: parameter where to switch from a gaussian to the powertail on the left
+                side
+            nl: Exponent of the powertail on the left side
+            sigmar: Standard deviation of the gaussian on the right side
+            alphar: parameter where to switch from a gaussian to the powertail on the right
+                side
+            nr: Exponent of the powertail on the right side
+            obs: |@doc:pdf.init.obs| Observables of the
+               model. This will be used as the default space of the PDF and,
+               if not given explicitly, as the normalization range.
+
+               The default space is used for example in the sample method: if no
+               sampling limits are given, the default space is used.
+
+               The observables are not equal to the domain as it does not restrict or
+               truncate the model outside this range. |@docend:pdf.init.obs|
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+            norm: |@doc:pdf.init.norm| Normalization of the PDF.
+               By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
+            name: |@doc:pdf.init.name| Human-readable name
+               or label of
+               the PDF for better identification.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.name|
+        """
         params = {
             "mu": mu,
             "sigmal": sigmal,
