@@ -774,13 +774,13 @@ class GeneralizedGaussExpTail(BasePDF, SerializableMixin):
 
         .. math::
             f(x;\\mu, \\sigma_{L}, \\alpha_{L}, n_{L}, \\sigma_{R}, \\alpha_{R}, n_{R}) =  \\begin{cases}
-            \\exp(\\left(-\\frac{|\\alpha_{L}|^2}{2}\\right)) \\exp{\\left(n_{L} (\\frac{x - \\mu}{\\sigma_{L}} + |\\alpha_{L}|)\\right)},
+            \\exp{\\left(-\\frac{|\\alpha_{L}|^2}{2}\\right)} \\exp{\\left(n_{L} (\\frac{x - \\mu}{\\sigma_{L}} + |\\alpha_{L}|)\\right)},
              & \\mbox{for }\\frac{x - \\mu}{\\sigma_{L}} < -\\alpha_{L} \\newline
             \\exp(- \\frac{(x - \\mu)^2}{2 \\sigma_{L}^2}),
             & \\mbox{for }-\\alpha_{L} \\leqslant \\frac{x - \\mu}{\\sigma_{L}} \\leqslant 0 \\newline
             \\exp(- \\frac{(x - \\mu)^2}{2 \\sigma_{R}^2}),
             & \\mbox{for }0 \\leqslant \\frac{x - \\mu}{\\sigma_{R}} \\leqslant \\alpha_{R} \\newline
-            \\exp(\\left(-\\frac{|\\alpha_{R}|^2}{2}\\right)) \\exp{\\left(n_{R} (\\frac{x - \\mu}{\\sigma_{R}} + |\\alpha_{R}|)\\right)},
+            \\exp{\\left(-\\frac{|\\alpha_{R}|^2}{2}\\right)} \\exp{\\left(n_{R} (\\frac{x - \\mu}{\\sigma_{R}} - |\\alpha_{R}|)\\right)},
              & \\mbox{for }\\frac{x - \\mu}{\\sigma_{R}} > \\alpha_{R}
             \\end{cases}
 
