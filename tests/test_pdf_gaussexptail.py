@@ -1,6 +1,7 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2025 zfit
 import numpy as np
 import pytest
+from scipy import integrate
 
 import zfit
 from zfit.core.testing import tester
@@ -23,14 +24,22 @@ lbounds = (bounds[0], mu)
 rbounds = (mu, bounds[1])
 
 def _numpy_gaussexptail_pdf(x, mu, sigma, alpha, n):
-    t = (x - mu) / sigma
+    t = (x - mu) / sigma * np.sign(alpha)
     abs_alpha = np.abs(alpha)
     if t > -abs_alpha:
         return np.exp(-0.5 * t ** 2)
     else:
-        return np.exp(-0.5 * abs_alpha ** 2 + n * (abs_alpha + t))
+        return np.exp(-0.5 * abs_alpha ** 2) * np.exp(n * (t + abs_alpha))
 
 numpy_gaussexptail_pdf = np.vectorize(_numpy_gaussexptail_pdf, excluded=["mu", "sigma", "alpha", "n"])
+
+def _numpy_generalizedgaussexptail_pdf(x, mu, sigmal, alphal, nl, sigmar, alphar, nr):
+    if x < mu:
+        return _numpy_gaussexptail_pdf(x, mu, sigmal, alphal, nl)
+    else:
+        return _numpy_gaussexptail_pdf(x, mu, sigmar, -alphar, nr)
+
+numpy_generalizedgaussexptail_pdf = np.vectorize(_numpy_generalizedgaussexptail_pdf, excluded=["mu", "sigmal", "alphal", "nl", "sigmar", "alphar", "nr"])
 
 
 def _gaussexptail_params_factory(name_add=""):
@@ -71,8 +80,10 @@ def test_gaussexptail_integral():
     int_limits = (-1, 3)
     integral_numeric = gaussexptail.numeric_integrate(limits=int_limits, norm=False).numpy()
     integral = gaussexptail.analytic_integrate(limits=int_limits, norm=False).numpy()
+    integral_scipy = integrate.quad(numpy_gaussexptail_pdf, *int_limits, args=(mu, sigma, alphal, nl))[0]
 
     assert pytest.approx(integral_numeric, 1e-5) == integral
+    assert pytest.approx(integral_scipy, 1e-5) == integral
 
     rnd_limits = sorted(list(np.random.uniform(*bounds, 13)) + list(bounds))
     integrals = [
@@ -82,7 +93,7 @@ def test_gaussexptail_integral():
 
     integral = np.sum(integrals)
     integral_full = gaussexptail.integrate(bounds, norm=False).numpy()
-    assert pytest.approx(float(integral_full)) == float(integral)
+    assert pytest.approx(integral_full.item()) == integral.item()
 
 
 def test_gaussexptail_generalizedgaussexptail():
@@ -123,7 +134,7 @@ def test_gaussexptail_generalizedgaussexptail():
     assert not any(np.isnan(probsr))
 
     probsl_numpy = numpy_gaussexptail_pdf(x, mu, sigmal, alphal, nl)
-    probsr_numpy = numpy_gaussexptail_pdf(-x + 2 * mu, mu, sigmar, alphar, nr)
+    probsr_numpy = numpy_gaussexptail_pdf(x, mu, sigmar, -alphar, nr)
 
     ratio_l = probsl_numpy / probsl
     ratio_r = probsr_numpy / probsr
@@ -135,14 +146,24 @@ def test_gaussexptail_generalizedgaussexptail():
     intl = gaussexptaill.integrate(**kwargs) - generalizedgaussexptail.integrate(**kwargs)
     assert pytest.approx(intl.numpy(), abs=1e-3) == 0.0
     intl = gaussexptailr.integrate(**kwargs) - generalizedgaussexptail.integrate(**kwargs)
-    assert pytest.approx(intl.numpy(), abs=1e-4) != 0.0
+    assert pytest.approx(intl.numpy(), abs=2e-4) != 0.0
 
     kwargs = dict(limits=(mu, 2.0), norm_range=rbounds)
-    generalizedgaussexptail_integr1 = generalizedgaussexptail.integrate(**kwargs)
-    intr = gaussexptailr.integrate(**kwargs) - generalizedgaussexptail_integr1
+    intr = gaussexptailr.integrate(**kwargs) - generalizedgaussexptail.integrate(**kwargs)
     assert pytest.approx(intr.numpy(), abs=1e-3) == 0.0
     intr = gaussexptaill.integrate(**kwargs) - generalizedgaussexptail.integrate(**kwargs)
     assert pytest.approx(intr.numpy(), abs=1e-3) != 0.0
+
+    integrall = gaussexptaill.integrate(limits=bounds, norm=False).numpy()
+    integralr = gaussexptailr.integrate(limits=bounds, norm=False).numpy()
+    integral = generalizedgaussexptail.integrate(limits=bounds, norm=False).numpy()
+    integrall_scipy = integrate.quad(numpy_gaussexptail_pdf, *bounds, args=(mu, sigmal, alphal, nl))[0]
+    integralr_scipy = integrate.quad(numpy_gaussexptail_pdf, *bounds, args=(mu, sigmar, -alphar, nr))[0]
+    integral_scipy = integrate.quad(numpy_generalizedgaussexptail_pdf, *bounds, args=(mu, sigmal, alphal, nl, sigmar, alphar, nr))[0]
+
+    np.testing.assert_allclose(integrall, integrall_scipy)
+    np.testing.assert_allclose(integralr, integralr_scipy)
+    np.testing.assert_allclose(integral, integral_scipy)
 
     xl = x[x <= mu]
     xr = x[x > mu]
@@ -151,7 +172,7 @@ def test_gaussexptail_generalizedgaussexptail():
     probs_generalizedgaussexptail_r = eval_testing(generalizedgaussexptail, xr)
 
     probsl_numpy = numpy_gaussexptail_pdf(xl, mu, sigmal, alphal, nl)
-    probsr_numpy = numpy_gaussexptail_pdf(-xr + 2 * mu, mu, sigmar, alphar, nr)
+    probsr_numpy = numpy_gaussexptail_pdf(xr, mu, sigmar, -alphar, nr)
 
     ratio_l = probsl_numpy / probs_generalizedgaussexptail_l
     ratio_r = probsr_numpy / probs_generalizedgaussexptail_r
@@ -166,4 +187,4 @@ def test_gaussexptail_generalizedgaussexptail():
 
     integral = np.sum(integrals)
     integral_full = generalizedgaussexptail.integrate(bounds, norm=False).numpy()
-    assert pytest.approx(float(integral_full)) == float(integral)
+    assert pytest.approx(integral_full.item()) == integral.item()
