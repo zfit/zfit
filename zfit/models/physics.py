@@ -699,8 +699,8 @@ class GaussExpTail(BasePDF, SerializableMixin):
         Args:
             mu: The mean of the gaussian
             sigma: Standard deviation of the gaussian
-            alpha: parameter where to switch from a gaussian to the powertail
-            n: Exponent of the powertail
+            alpha: parameter where to switch from a gaussian to the expontial tail
+            n: Coefficient of the exponent in the exponential tail
             obs: |@doc:pdf.init.obs| Observables of the
                model. This will be used as the default space of the PDF and,
                if not given explicitly, as the normalization range.
@@ -787,13 +787,11 @@ class GeneralizedGaussExpTail(BasePDF, SerializableMixin):
         Args:
             mu: The mean of the gaussian
             sigmal: Standard deviation of the gaussian on the left side
-            alphal: parameter where to switch from a gaussian to the powertail on the left
-                side
-            nl: Exponent of the powertail on the left side
+            alphal: parameter where to switch from a gaussian to the expontial tail on the left side
+            nl: Coefficient of the exponent in the exponential tail on the left side
             sigmar: Standard deviation of the gaussian on the right side
-            alphar: parameter where to switch from a gaussian to the powertail on the right
-                side
-            nr: Exponent of the powertail on the right side
+            alphar: parameter where to switch from a gaussian to the expontial tail on the right side
+            nr: Coefficient of the exponent in the exponential tail on the right side
             obs: |@doc:pdf.init.obs| Observables of the
                model. This will be used as the default space of the PDF and,
                if not given explicitly, as the normalization range.
@@ -863,3 +861,84 @@ class GeneralizedGaussExpTailPDFRepr(BasePDFRepr):
 GeneralizedGaussExpTail.register_analytic_integral(
     func=generalized_gaussexptail_integral, limits=gaussexptail_integral_limits
 )
+
+
+class CBExGauss:
+    def __new__(
+        cls,
+        mu: ztyping.ParamTypeInput,
+        sigma: ztyping.ParamTypeInput,
+        alpha: ztyping.ParamTypeInput,
+        n: ztyping.ParamTypeInput,
+        sigma_2: ztyping.ParamTypeInput,
+        tailleft: bool,
+        obs: ztyping.ObsTypeInput,
+        *,
+        extended: ExtendedInputType = None,
+        norm: NormInputType = None,
+        name: str = "CBExGauss",
+    ):
+        """Custom constructor to dynamically return an instance of GeneralizedGaussExpTail or GeneralizedCB based on the
+        tailleft parameter.
+
+        Args:
+            mu: The mean of the gaussian
+            sigma: Standard deviation of the gaussian
+            alpha: Parameter to switch from a Gaussian to the powertail or exponential tail
+            n: Exponent of the powertail or coefficient of the exponent in the exponential tail
+            sigma_2: Standard deviation of the gaussian on the other side
+            tailleft: Boolean indicating if the tail is on the left side
+                if True, the tail is on the left side and it's equivalent to a GeneralizedGaussExpTail
+                if False, the tail is on the right side and it's equivalent to a GeneralizedCB
+            obs: |@doc:pdf.init.obs| Observables of the
+               model. This will be used as the default space of the PDF and,
+               if not given explicitly, as the normalization range.
+
+               The default space is used for example in the sample method: if no
+               sampling limits are given, the default space is used.
+
+               The observables are not equal to the domain as it does not restrict or
+               truncate the model outside this range. |@docend:pdf.init.obs|
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+            norm: |@doc:pdf.init.norm| Normalization of the PDF.
+               By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
+            name: |@doc:pdf.init.name| Human-readable name
+               or label of
+               the PDF for better identification.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.name|
+
+        Returns:
+            An instance of either GeneralizedGaussExpTail or GeneralizedCB
+        """
+        if tailleft:
+            return GeneralizedGaussExpTail(
+                mu=mu,
+                sigmal=sigma,
+                alphal=alpha,
+                nl=n,
+                sigmar=sigma_2,
+                alphar=1e20,  # Effectively disables the right tail
+                nr=n,
+                obs=obs,
+                extended=extended,
+                norm=norm,
+                name=name,
+            )
+        else:
+            return GeneralizedCB(
+                mu=mu,
+                sigmal=sigma,
+                alphal=1e20,  # Effectively disables the left tail
+                nl=n,
+                sigmar=sigma_2,
+                alphar=alpha,
+                nr=n,
+                obs=obs,
+                extended=extended,
+                norm=norm,
+                name=name,
+            )
