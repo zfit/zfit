@@ -157,6 +157,40 @@ def generalizedcb(extended=None, **kwargs):
         extended=extended,
     )
 
+def gaussexptail(extended=None, **kwargs):
+    import zfit
+
+    alpha = zfit.Parameter("alpha_gaussexptail", 0.1, -1, 1)
+    n = zfit.Parameter("n_gaussexptail", 0.1, 0, 1)
+    mu = zfit.Parameter("mu_gaussexptail", 0.1, -1, 1)
+    sigma = zfit.Parameter("sigma_gaussexptail", 0.1, 0, 1)
+    obs = zfit.Space("obs", default_limits)
+    return zfit.pdf.GaussExpTail(
+        alpha=alpha, n=n, mu=mu, sigma=sigma, obs=obs, extended=extended
+    )
+
+def generalizedgaussexptail(extended=None, **kwargs):
+    import zfit
+
+    sigmaL = zfit.Parameter("sigmaL_generalizedgaussexptail", 0.1, 0, 1)
+    alphaL = zfit.Parameter("alphaL_generalizedgaussexptail", 0.1, -1, 1)
+    nL = zfit.Parameter("nL_generalizedgaussexptail", 0.1, 0, 1)
+    sigmaR = zfit.Parameter("sigmaR_generalizedgaussexptail", 0.1, 0, 1)
+    alphaR = zfit.Parameter("alphaR_generalizedgaussexptail", 0.1, -1, 1)
+    nR = zfit.Parameter("nR_generalizedgaussexptail", 0.1, 0, 1)
+    mu = zfit.Parameter("mu_generalizedgaussexptail", 0.1, -1, 1)
+    obs = zfit.Space("obs", default_limits)
+    return zfit.pdf.GeneralizedGaussExpTail(
+        sigmal=sigmaL,
+        alphal=alphaL,
+        nl=nL,
+        sigmar=sigmaR,
+        alphar=alphaR,
+        nr=nR,
+        mu=mu,
+        obs=obs,
+        extended=extended,
+    )
 
 def legendre(extended=None, **kwargs):
     import zfit
@@ -360,6 +394,8 @@ basic_pdfs = [
     crystalball,
     doublecb,
     generalizedcb,
+    gaussexptail,
+    generalizedgaussexptail,
     legendre,
     chebyshev,
     chebyshev2,
