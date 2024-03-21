@@ -693,7 +693,7 @@ class GaussExpTail(BasePDF, SerializableMixin):
         .. math::
             f(x;\\mu, \\sigma, \\alpha, n) =  \\begin{cases} \\exp(- \\frac{(x - \\mu)^2}{2 \\sigma^2}),
             & \\mbox{for}\\frac{x - \\mu}{\\sigma} \\geqslant -\\alpha \\newline
-            \\exp{-\\frac{|\\alpha|^2}{2}} \\exp{n (\\frac{x - \\mu}{\\sigma} + \\alpha)},
+            \\exp{\\left(-\\frac{|\\alpha|^2}{2}\\right)} \\exp{\\left(n (\\frac{x - \\mu}{\\sigma} + |\\alpha|)\\right)},
             & \\mbox{for}\\frac{x - \\mu}{\\sigma} < -\\alpha \\end{cases}
 
         Args:
@@ -774,13 +774,13 @@ class GeneralizedGaussExpTail(BasePDF, SerializableMixin):
 
         .. math::
             f(x;\\mu, \\sigma_{L}, \\alpha_{L}, n_{L}, \\sigma_{R}, \\alpha_{R}, n_{R}) =  \\begin{cases}
-            \\exp{-\\frac{|\\alpha_{L}|^2}{2}} \\exp{n_{L} (\\frac{x - \\mu}{\\sigma_{L}} + \\alpha_{L})},
+            \\exp(\\left(-\\frac{|\\alpha_{L}|^2}{2}\\right)) \\exp{\\left(n_{L} (\\frac{x - \\mu}{\\sigma_{L}} + |\\alpha_{L}|)\\right)},
              & \\mbox{for }\\frac{x - \\mu}{\\sigma_{L}} < -\\alpha_{L} \\newline
             \\exp(- \\frac{(x - \\mu)^2}{2 \\sigma_{L}^2}),
             & \\mbox{for }-\\alpha_{L} \\leqslant \\frac{x - \\mu}{\\sigma_{L}} \\leqslant 0 \\newline
             \\exp(- \\frac{(x - \\mu)^2}{2 \\sigma_{R}^2}),
             & \\mbox{for }0 \\leqslant \\frac{x - \\mu}{\\sigma_{R}} \\leqslant \\alpha_{R} \\newline
-            \\exp{-\\frac{|\\alpha_{R}|^2}{2}} \\exp{n_{R} (\\frac{x - \\mu}{\\sigma_{R}} - \\alpha_{R})},
+            \\exp(\\left(-\\frac{|\\alpha_{R}|^2}{2}\\right)) \\exp{\\left(n_{R} (\\frac{x - \\mu}{\\sigma_{R}} + |\\alpha_{R}|)\\right)},
              & \\mbox{for }\\frac{x - \\mu}{\\sigma_{R}} > \\alpha_{R}
             \\end{cases}
 
