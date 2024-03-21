@@ -880,6 +880,8 @@ class CBExGauss:
     ):
         """CBExGauss shaped PDF. Constructor to dynamically return an instance of GeneralizedGaussExpTail or GeneralizedCB
         based on the tailleft parameter.
+        If tailleft is True, it returns an instance of GeneralizedGaussExpTail without the right tail.
+        If tailleft is False, it returns an instance of GeneralizedCB without the left tail.
         Implemented after https://github.com/cms-egamma/egm_tnp_analysis/blob/master/libCpp/RooCBExGaussShape.cc
 
         Args:
@@ -889,8 +891,8 @@ class CBExGauss:
             n: Exponent of the powertail or coefficient of the exponent in the exponential tail
             sigma_2: Standard deviation of the gaussian on the other side
             tailleft: Boolean indicating if the tail is on the left side
-                if True, the tail is on the left side and it's equivalent to a GeneralizedGaussExpTail
-                if False, the tail is on the right side and it's equivalent to a GeneralizedCB
+                if True, the tail is on the left side and it's equivalent to a GeneralizedGaussExpTail withouth the right tail
+                if False, the tail is on the right side and it's equivalent to a GeneralizedCB withouth the left tail
             obs: |@doc:pdf.init.obs| Observables of the
                model. This will be used as the default space of the PDF and,
                if not given explicitly, as the normalization range.
