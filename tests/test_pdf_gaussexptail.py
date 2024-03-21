@@ -32,14 +32,6 @@ def _numpy_gaussexptail_pdf(x, mu, sigma, alpha, n):
 
 numpy_gaussexptail_pdf = np.vectorize(_numpy_gaussexptail_pdf, excluded=["mu", "sigma", "alpha", "n"])
 
-def _numpy_generalizedgaussexptail_pdf(x, mu, sigmal, alphal, nl, sigmar, alphar, nr):
-    if x < mu:
-        return _numpy_gaussexptail_pdf(x, mu, sigmal, alphal, nl)
-    else:
-        return _numpy_gaussexptail_pdf(x, mu, sigmar, -alphar, nr)
-
-numpy_generalizedgaussexptail_pdf = np.vectorize(_numpy_generalizedgaussexptail_pdf, excluded=["mu", "sigmal", "alphal", "nl", "sigmar", "alphar", "nr"])
-
 
 def _gaussexptail_params_factory(name_add=""):
     mu_ = zfit.Parameter(f"mu_gaussexptail{name_add}", mu)
