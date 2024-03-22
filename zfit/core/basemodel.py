@@ -50,7 +50,7 @@ from ..util.exception import (
 from . import integration as zintegrate
 from . import sample as zsample
 from .baseobject import BaseNumeric
-from .data import Data, Sampler, convert_to_data
+from .data import Data, SamplerData, convert_to_data
 from .dependents import _extract_dependencies
 from .dimension import BaseDimensional
 from .interfaces import ZfitData, ZfitModel, ZfitParameter, ZfitSpace
@@ -983,8 +983,9 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         n: ztyping.nSamplingTypeIn = None,
         limits: ztyping.LimitsType = None,
         fixed_params: bool | list[ZfitParameter] | tuple[ZfitParameter] = True,
-    ) -> Sampler:
-        """Create a :py:class:`Sampler` that acts as `Data` but can be resampled, also with changed parameters and n.
+    ) -> SamplerData:
+        """Create a :py:class:`SamplerData` that acts as `Data` but can be resampled, also with changed parameters and
+        n.
 
             If `limits` is not specified, `space` is used (if the space contains limits).
             If `n` is None and the model is an extended pdf, 'extended' is used by default.
@@ -1001,11 +1002,11 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
                 If True, all are fixed, if False, all are floating. If a :py:class:`~zfit.Parameter` is not fixed and
                 its
                 value gets updated (e.g. by a `Parameter.set_value()` call), this will be reflected in
-                `resample`. If fixed, the Parameter will still have the same value as the `Sampler` has
+                `resample`. If fixed, the Parameter will still have the same value as the `SamplerData` has
                 been created with when it resamples.
 
         Returns:
-            :py:class:`~zfit.core.data.Sampler`
+            :py:class:`~zfit.core.data.SamplerData`
 
         Raises:
             NotExtendedPDFError: if 'extended' is chosen (implicitly by default or explicitly) as an
@@ -1038,7 +1039,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
                 n = znp.array(n)
             return self._create_sampler_tensor(limits=limits, n=n)
 
-        return Sampler.from_sampler(
+        return SamplerData.from_sampler(
             sample_func=sample_func,
             n=n,
             obs=limits,

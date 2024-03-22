@@ -544,7 +544,8 @@ class BaseBinnedPDFV1(
         limits: ztyping.LimitsType = None,
         fixed_params: bool | list[ZfitParameter] | tuple[ZfitParameter] = True,
     ) -> BinnedSampler:
-        """Create a :py:class:`Sampler` that acts as `Data` but can be resampled, also with changed parameters and n.
+        """Create a :py:class:`SamplerData` that acts as `Data` but can be resampled, also with changed parameters and
+        n.
 
             If `limits` is not specified, `space` is used (if the space contains limits).
             If `n` is None and the model is an extended pdf, 'extended' is used by default.
@@ -561,7 +562,7 @@ class BaseBinnedPDFV1(
                 If True, all are fixed, if False, all are floating. If a :py:class:`~zfit.Parameter` is not fixed and
                 its
                 value gets updated (e.g. by a `Parameter.set_value()` call), this will be reflected in
-                `resample`. If fixed, the Parameter will still have the same value as the `Sampler` has
+                `resample`. If fixed, the Parameter will still have the same value as the `SamplerData` has
                 been created with when it resamples.
 
         Returns:

@@ -440,7 +440,7 @@ class BinnedSampler(BinnedData):
         Args:
             param_values: a mapping from :py:class:`~zfit.Parameter` to a `value`. For the current sampling,
                 `Parameter` will use the `value`.
-            n: the number of samples to produce. If the `Sampler` was created with
+            n: the number of samples to produce. If the `SamplerData` was created with
                 anything else then a numerical or tf.Tensor, this can't be used.
         """
         if n is None:

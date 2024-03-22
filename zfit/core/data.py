@@ -134,13 +134,6 @@ class Data(
         self._set_weights(weights=weights)
         # check that dimensions are compatible
 
-        # this is a bit of legacy: we first set, then we preprocess, then we set again. At least now it's fully set
-        # value, weights = self._preprocess_get_weights_values()
-        # if weights is not None:
-        #     self._set_weights(weights=weights)
-        # if value is not None:
-        #     dataset = LightDataset.from_tensor(value, ndims=self.space.n_obs)
-        #     self.dataset = dataset.batch(100_000_000)
         self._update_hash()
 
     @property
@@ -209,13 +202,17 @@ class Data(
             "obs": self.space,
             "weights": self.weights,
             "name": name,
+            "dataset": self.dataset,
             **overwrite_params,
         }
-        obs = newpar["obs"]
-        if (tensor := newpar.pop("tensor", None)) is None:
-            tensor = self[obs]
+        # obs = newpar["obs"]
+        # if (dataset := newpar.pop("dataset", None)) is None:
+        #     dataset = self.dataset
+        if "tensor" in overwrite_params:
+            msg = "do not give tensor in copy, if, then give a LightDataset."
+            raise BreakingAPIChangeError(msg)
 
-        return type(self).from_tensor(tensor=tensor, **newpar)
+        return Data(**newpar)
 
     # def _preprocess_get_weights_values(self):
     #     """This is meant to be called if new limits are set."""
@@ -568,9 +565,10 @@ class Data(
             guarantee_limits = True
         elif obs == self.space.with_obs(obs):
             guarantee_limits = True
-        values = self.value(obs)
+        indices = self._get_permutation_indices(obs=obs)
+        dataset = self.dataset.with_indices(indices)
         weights = self.weights
-        return self.copy(obs=obs, tensor=values, weights=weights, guarantee_limits=guarantee_limits)
+        return self.copy(obs=obs, dataset=dataset, weights=weights, guarantee_limits=guarantee_limits)
 
     def to_pandas(self, obs: ztyping.ObsTypeInput = None, weightsname: str | None = None):
         """Create a ``pd.DataFrame`` from ``obs`` as columns and return it.
@@ -620,7 +618,16 @@ class Data(
 
         Returns:
         """
-        out = znp.asarray(self._value_internal(obs=obs))
+
+        # out = znp.asarray(self._value_internal(obs=obs))
+        # if isinstance(obs, str):
+        #     out = znp.squeeze(out, axis=-1)
+        # if obs is not None:
+        #     with_obs = self.with_obs(obs=obs)
+        # else:
+        #     with_obs = self
+        indices = self.space.with_obs(obs=obs).axes
+        out = self.dataset.value(indices)
         if isinstance(obs, str):
             out = znp.squeeze(out, axis=-1)
         return out
@@ -654,7 +661,6 @@ class Data(
         return self._sort_value(value=value, obs=obs)
 
     def _check_convert_value(self, value):
-        # TODO(Mayou36): add conversion to right dimension? (n_events, n_obs)? # check if 1-D?
         if len(value.shape.as_list()) == 0:
             value = znp.expand_dims(value, -1)
         if len(value.shape.as_list()) == 1:
@@ -668,8 +674,19 @@ class Data(
     def _sort_value(self, value, obs: tuple[str]):
         obs = convert_to_container(value=obs, container=tuple)
         # TODO CURRENT: deactivated below!
-        perm_indices = self.space.axes if self.space.axes != tuple(range(value.shape[-1])) else False
+        perm_indices = self._get_permutation_indices(obs)
+        no_change_indices = tuple(range(self.space.n_obs))
+        if perm_indices and perm_indices != no_change_indices:
+            value = tf.gather(value, perm_indices, axis=-1)
+            # value = z.unstack_x(value, always_list=True)
+            # value = [value[i] for i in perm_indices]
+            # value = z.stack_x(value)
 
+        return value
+
+    def _get_permutation_indices(self, obs):
+        obs = convert_to_obs_str(obs)
+        perm_indices = self.space.axes  # if self.space.axes != no_change_indices else False
         if obs:
             if not frozenset(obs) <= frozenset(self.obs):
                 msg = (
@@ -678,12 +695,8 @@ class Data(
                 )
                 raise ValueError(msg)
             perm_indices = self.space.get_reorder_indices(obs=obs)
-        if perm_indices:
-            value = z.unstack_x(value, always_list=True)
-            value = [value[i] for i in perm_indices]
-            value = z.stack_x(value)
 
-        return value
+        return perm_indices
 
     # TODO(Mayou36): use Space to permute data?
     # TODO(Mayou36): raise error is not obs <= self.obs?
@@ -902,7 +915,7 @@ def check_cut_data_weights(
     return data, weights
 
 
-class Sampler(Data):
+class SamplerData(Data):
     _cache_counting = 0
 
     def __init__(
@@ -921,7 +934,7 @@ class Sampler(Data):
         guarantee_limits: bool = False,
     ):
         if weights is not None:
-            msg = "Weights are not (ye) supported for a Sampler. Please open an issue if needed."
+            msg = "Weights are not (ye) supported for a SamplerData. Please open an issue if needed."
             raise ValueError(msg)
         super().__init__(
             dataset=dataset,
@@ -1103,12 +1116,12 @@ class Sampler(Data):
         """Load a new sample into the dataset, presumably similar to the previous one.
 
         Args:
-            sample: The new sample to load. Has to have the same number of observables as the `obs` of the `Sampler` but
+            sample: The new sample to load. Has to have the same number of observables as the `obs` of the `SamplerData` but
                 can have a different number of events.
-            weights: The weights of the new sample. If `None`, the weights are not changed. If the `Sampler` was
-                initialized with weights, this has to be given. If the `Sampler` was initialized without weights,
+            weights: The weights of the new sample. If `None`, the weights are not changed. If the `SamplerData` was
+                initialized with weights, this has to be given. If the `SamplerData` was initialized without weights,
                 this cannot be given.
-            guarantee_limits: If `True`, the sample will be cut to the limits of the `Sampler`. If `False`, the sample
+            guarantee_limits: If `True`, the sample will be cut to the limits of the `SamplerData`. If `False`, the sample
                 is assumed to be already cut to the limits.
         """
         sample = znp.asarray(sample, dtype=self.dtype)
@@ -1120,7 +1133,7 @@ class Sampler(Data):
             raise ValueError(msg)
         if sample.shape[-1] != self.space.n_obs:
             msg = (
-                f"Sample has to have the same number of observables as the `obs` of the `Sampler`. "
+                f"Sample has to have the same number of observables as the `obs` of the `SamplerData`. "
                 f"Got {sample.shape[-1]} observables, expected {self.space.n_obs}."
             )
             raise ValueError(msg)
@@ -1161,17 +1174,6 @@ class Sampler(Data):
             temp_param_values.update(param_values)
 
         with set_values(list(temp_param_values.keys()), list(temp_param_values.values())):
-            # if not (n and self._initial_resampled):  # we want to load and make sure that it's initialized
-            #     # means it's handled inside the function
-            #     # TODO(Mayou36): check logic; what if new_samples loaded? get's overwritten by initializer
-            #     # fixed with self.n, needs cleanup
-            #     if not (isinstance(self.n_samples, str) or self.n_samples is None):
-            #         self.sess.run(self.n_samples.initializer)
-            # if n:
-            #     if not isinstance(self.n_samples, tf.Variable):
-            #         raise RuntimeError("Cannot set a new `n` if not a Tensor-like object was given")
-            # self.n_samples.assign(n)
-
             new_sample, new_weight = self._sample_and_weights_func(n)
             new_sample.set_shape((n, self.space.n_obs))
             if new_weight is not None:
@@ -1179,23 +1181,34 @@ class Sampler(Data):
             self.update_data(sample=new_sample, weights=new_weight, guarantee_limits=self._sampler_guarantee_limits)
 
     def __str__(self) -> str:
-        return f"<Sampler: {self.name} obs={self.obs}>"
+        return f"<SamplerData: {self.name} obs={self.obs}>"
 
 
 # register_tensor_conversion(Data, name="Data", overload_operators=True)
 
 
 class LightDataset:
-    def __init__(self, tensor, ndims=None):
-        if not isinstance(tensor, (tf.Tensor, tf.Variable)):
-            tensor = znp.asarray(tensor)
-        if tensor.shape.rank != 2:
-            msg = "Only 2D tensors are allowed."
-            raise ValueError(msg)
-        if ndims is not None and tensor.shape[1] != ndims:
-            msg = f"Second dimension has to be {ndims} but is {tensor.shape[1]}"
-            raise ValueError(msg)
-        self.tensor = tensor
+    def __init__(self, tensor, tensormap=None, ndims=None):
+        if tensor is None and isinstance(tensormap, Mapping):
+            tensormap = tensormap.copy()
+        elif tensormap is None:  # the actual preprocessing, otherwise we pass it through
+            if not isinstance(tensor, tf.Variable):
+                tensor = znp.asarray(tensor)
+
+            if tensor.shape.rank != 2:
+                msg = "Only 2D tensors are allowed."
+                raise ValueError(msg)
+            if ndims is not None and tensor.shape[1] != ndims:
+                msg = f"Second dimension has to be {ndims} but is {tensor.shape[1]}"
+                raise ValueError(msg)
+            ndims = tensor.shape[1]
+            tensormap = {i: i for i in range(ndims)}
+
+        if ndims is None:
+            ndims = len(tensormap)
+        self._tensor = tensor
+        self._tensormap = tensormap
+        self.ndims = ndims
 
     def batch(self, _):  # ad-hoc just empty, mimicking tf.data.Dataset interface
         return self
@@ -1208,8 +1221,79 @@ class LightDataset:
         del ndims  # not used
         return cls(tensor=tensor, ndims=None)
 
-    def value(self):
-        return self.tensor
+    def with_indices(self, indices: int | tuple[int] | list[int]):
+        if isinstance(indices, int):
+            indices = (indices,)
+        if not isinstance(indices, (list, tuple)):
+            msg = f"Indices have to be an int, list or tuple, not {indices}"
+            raise TypeError(msg)
+
+        # if (tensor := self._tensor) is not None:
+        #     if len(set(indices)) < self.ndims:  # we will need a subset
+        #         self._transform_to_tensormap()
+        #     else:
+        #         tensor = znp.asarray(self._tensor)
+
+        tensor, tensormap = self._get_tensor_and_tensormap()
+
+        newmap = {}
+        for i, idx in enumerate(indices):  # these are either indices that we reshuffle or a mapping to the new array
+            newmap[i] = tensormap[idx]
+        return LightDataset(tensor=tensor, tensormap=newmap)
+
+    def _get_tensor_and_tensormap(self, forcemap=False):
+        tensormap = self._tensormap
+        if (tensor := self._tensor) is not None:
+            if isvar := isinstance(tensor, tf.Variable):
+                tensor = znp.asarray(tensor.value())  # to make sure the variable changes won't be reflected
+            if forcemap:
+                tensormap = {i: tensor[:, tensormap[i]] for i in range(self.ndims)}
+                tensor = None
+                if not isvar:  # we don't want to destroy the variable
+                    self._tensormap = tensormap
+                    self._tensor = None
+        # do NOT update self, it could be a variable that we don't want to touch
+        return tensor, tensormap
+
+    def _transform_to_tensormap(self):  # todo: only if not variable?
+        return
+        if self._tensor is not None:
+            self._tensormap = {i: self._tensor[:, self._tensormap[i]] for i in range(self.ndims)}
+            self._tensor = None
+
+    def _transform_to_tensor(self):
+        return
+        if self._tensor is None:
+            self._tensor = tf.stack([self._tensormap[i] for i in range(self.ndims)], axis=-1)
+            # reset the map, fill with numbers
+            self._tensormap = {i: i for i in range(self.ndims)}  # the tensor is now well ordered, it manifested
+
+    def value(self, index: int | tuple[int] | list[int] | None = None):
+        forcemap = False
+        trivial_index = tuple(range(self.ndims))
+        if index is None:
+            index = trivial_index
+        else:  # convert tensor to tensormap, if needed
+            if not isinstance(index, (int, tuple, list)):
+                msg = f"Index has to be an integer or a tuple/list of integers, not {index}"
+                raise TypeError(msg)
+            forcemap = len(set(index)) < self.ndims  # we will need a subset
+
+        tensor, tensormap = self._get_tensor_and_tensormap(forcemap=forcemap)
+        if tensor is None:
+            # tensormap is filled, we can now return the values, either a single one or a stacked tensor
+            if isinstance(index, int):
+                return tensormap[index]
+            return znp.stack([tensormap[i] for i in index], axis=-1)
+        else:
+            if isint := isinstance(index, int):
+                index = (index,)
+            newindex = [tensormap[i] for i in index]
+            if newindex != trivial_index:
+                tensor = tf.gather(tensor, newindex, axis=-1)
+            if isint:
+                tensor = znp.squeeze(tensor, axis=-1)
+            return tensor
 
 
 def sum_samples(
@@ -1232,3 +1316,9 @@ def sum_samples(
     weights = None
 
     return Data.from_tensor(tensor=tensor, obs=obs, weights=weights)
+
+
+class Sampler(SamplerData):
+    def __init__(self, *args, **kwargs):  # noqa: ARG002
+        msg = "The class `Sampler` has been renamed to `SamplerData`."
+        raise BreakingAPIChangeError(msg)

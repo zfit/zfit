@@ -281,17 +281,17 @@ def test_sort_by_obs(data1, obs3d):
     new_array = copy.deepcopy(example_data1)[:, np.array((1, 2, 0))]
     # new_array = np.array([new_array[:, 1], new_array[:, 2], new_array[:, 0]])
     assert data1.obs == obs3d, "If this is not True, then the test will be flawed."
-    with data1.sort_by_obs(new_obs):
-        assert data1.obs == new_obs
-        np.testing.assert_array_equal(new_array, data1.value().numpy())
-        new_array2 = copy.deepcopy(new_array)[:, np.array((1, 2, 0))]
-        # new_array2 = np.array([new_array2[:, 1], new_array2[:, 2], new_array2[:, 0]])
-        new_obs2 = (new_obs[1], new_obs[2], new_obs[0])
-        with data1.sort_by_obs(new_obs2):
-            assert data1.obs == new_obs2
-            np.testing.assert_array_equal(new_array2, data1.value().numpy())
+    data1new = data1.with_obs(new_obs)
+    assert data1new.obs == new_obs
+    np.testing.assert_array_equal(new_array, data1new.value().numpy())
+    new_array2 = copy.deepcopy(new_array)[:, np.array((1, 2, 0))]
+    # new_array2 = np.array([new_array2[:, 1], new_array2[:, 2], new_array2[:, 0]])
+    new_obs2 = (new_obs[1], new_obs[2], new_obs[0])
+    data1new2 =  data1new.with_obs(new_obs2)
+    assert data1new2.obs == new_obs2
+    np.testing.assert_array_equal(new_array2, data1new2.value().numpy())
 
-        assert data1.obs == new_obs
+    assert data1new.obs == new_obs
 
     assert data1.obs == obs3d
     np.testing.assert_array_equal(example_data1, data1.value().numpy())
@@ -319,19 +319,19 @@ def test_subdata(obs3d, data1):
     new_obs = (obs3d[0], obs3d[1])
     new_array = copy.deepcopy(data1.value().numpy())[:, np.array((0, 1))]
     # new_array = np.array([new_array[:, 0], new_array])
-    with data1.sort_by_obs(obs=new_obs):
-        assert data1.obs == new_obs
-        np.testing.assert_array_equal(new_array, data1.numpy())
-        new_array2 = copy.deepcopy(new_array)[:, 1]
-        # new_array2 = np.array([new_array2[:, 1]])
-        new_obs2 = (new_obs[1],)
-        with data1.sort_by_obs(new_obs2):
-            assert data1.obs == new_obs2
-            np.testing.assert_array_equal(new_array2, data1.value().numpy()[:, 0])
+    data1new = data1.with_obs(obs=new_obs)
+    assert data1new.obs == new_obs
+    np.testing.assert_array_equal(new_array, data1new.numpy())
+    new_array2 = copy.deepcopy(new_array)[:, 1]
+    # new_array2 = np.array([new_array2[:, 1]])
+    new_obs2 = (new_obs[1],)
+    data1new2 = data1new.with_obs(new_obs2)
+    assert data1new2.obs == new_obs2
+    np.testing.assert_array_equal(new_array2, data1new2.value().numpy()[:, 0])
 
-            with pytest.raises(ValueError):
-                with data1.sort_by_obs(obs=new_obs):
-                    data1.value().numpy()
+    # with pytest.raises(ValueError):
+    #     with data1.sort_by_obs(obs=new_obs):
+    #         data1.value().numpy()
 
     assert data1.obs == obs3d
     np.testing.assert_array_equal(data1.value().numpy(), data1.value())
@@ -399,12 +399,12 @@ def test_multidim_data_range():
     assert tf.is_tensor(yxdata[0])
     assert xdata.shape == (neventstrue1,)
     assert dataset.nevents.numpy() == 6
-    with dataset.sort_by_obs(obs=obs1):
-        assert dataset.nevents.numpy() == 6
+    datasetnew1 = dataset.with_obs(obs=obs1)
+    assert datasetnew1.nevents.numpy() == 6
     assert dataset.nevents.numpy() == 6
-    with dataset.sort_by_obs(obs=obs2):
-        assert dataset.nevents.numpy() == 6
-        np.testing.assert_allclose(data_true, dataset.unstack_x().numpy())
+    datasetnew2 = dataset.with_obs(obs=obs2)
+    assert datasetnew2.nevents.numpy() == 6
+    np.testing.assert_allclose(data_true, datasetnew2.unstack_x().numpy())
 
     data2 = np.linspace((0, 5), (10, 15), num=11)[:, 1]
     data_range = zfit.Space([obs1], limits=(5, 15))

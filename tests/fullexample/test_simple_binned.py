@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 import json
 
 # In[2]:
@@ -18,44 +18,44 @@ def test_simple_examples_1D():
     uncnp = [5.0, 12.0]
 
     serialized = (
-        """{
-                            "channels": [
-                                { "name": "singlechannel",
-                                  "samples": [
-                                    { "name": "signal",
-                                    """
-        + f"""
+            """{
+                                "channels": [
+                                    { "name": "singlechannel",
+                                      "samples": [
+                                        { "name": "signal",
+                                        """
+            + f"""
 
               "data": {signp},
               """
-        """
-                                                              "modifiers": [ { "name": "mu", "type": "normfactor", "data": null} ]
-                                                            },
-                                                            { "name": "background",
-                                                            """
-        f'"data": {bkgnp},'
-        """
-                                                              "modifiers": [ {"name": "uncorr_bkguncrt", "type": "shapesys",
-                                                              """
-        f'"data": {uncnp}'
-        """
-                                                          } ]
-                                                        }
-                                                      ]
-                                                    }
-                                                ],
-                                                "observations": [
-                                                    {
-                                                    """
-        f'"name": "singlechannel", "data": {datanp}'
-        """
-                                                            }
-                                                        ],
-                                                        "measurements": [
-                                                            { "name": "Measurement", "config": {"poi": "mu", "parameters": []} }
-                                                        ],
-                                                        "version": "1.0.0"
-                                                        }"""
+              """
+                                                                    "modifiers": [ { "name": "mu", "type": "normfactor", "data": null} ]
+                                                                  },
+                                                                  { "name": "background",
+                                                                  """
+              f'"data": {bkgnp},'
+              """
+                                                                    "modifiers": [ {"name": "uncorr_bkguncrt", "type": "shapesys",
+                                                                    """
+              f'"data": {uncnp}'
+              """
+                                                                } ]
+                                                              }
+                                                            ]
+                                                          }
+                                                      ],
+                                                      "observations": [
+                                                          {
+                                                          """
+              f'"name": "singlechannel", "data": {datanp}'
+              """
+                                                                  }
+                                                              ],
+                                                              "measurements": [
+                                                                  { "name": "Measurement", "config": {"poi": "mu", "parameters": []} }
+                                                              ],
+                                                              "version": "1.0.0"
+                                                              }"""
     )
 
     obs = zfit.Space(
@@ -136,11 +136,12 @@ def generate_source_static(n_bins):
     Returns:
         source
     """
+    scale = 10
     binning = [n_bins, -0.5, n_bins + 0.5]
-    data = [120.0] * n_bins
-    bkg = [100.0] * n_bins
-    bkgerr = [10.0] * n_bins
-    sig = [30.0] * n_bins
+    data = np.random.poisson(size=n_bins, lam=scale * 120).tolist()
+    bkg = np.random.poisson(size=n_bins, lam=scale * 100).tolist()
+    bkgerr = np.random.normal(size=n_bins, loc=scale * 10.0, scale=3).tolist()
+    sig = np.random.poisson(size=n_bins, lam=scale * 30).tolist()
 
     source = {
         "binning": binning,
@@ -156,19 +157,22 @@ def hypotest_pyhf(pdf, data):
 
 
 def hypotest_zfit(minimizer, nll):
-    with zfit.param.set_values(nll.get_params(), np.array(nll.get_params())):
-        _ = minimizer.minimize(nll)
+    params = nll.get_params()
+    init_vals = np.array(params)
+    _ = minimizer.minimize(nll)
+    zfit.param.set_values(params, init_vals)
 
 
 bins = [
     # 1,
     3,
     # 10,
-    # 50,
+    # 30,
     # 100,
-    # 200,
+    # 300,
     # 400,
     # 1000,
+    # 3000,
 ]
 bin_ids = [f"{n_bins}_bins" for n_bins in bins]
 
@@ -176,20 +180,30 @@ bin_ids = [f"{n_bins}_bins" for n_bins in bins]
 @pytest.mark.benchmark(
     # group="group-name",
     # min_time=0.1,
-    max_time=20,
+    max_time=0.5,
     min_rounds=1,
+
     # timer=time.time,
     disable_gc=True,
-    warmup=True,
-    warmup_iterations=1,
+    # warmup=True,
+    # warmup_iterations=1,
 )
 @pytest.mark.parametrize("n_bins", bins, ids=bin_ids)
 @pytest.mark.parametrize(
     "hypotest",
-    ["pyhf", "zfit"],
+    [
+        "pyhf:numpy:", "pyhf:jax:",
+        "zfit::minuit", "zfit::minuitzgrad",
+        # "zfit::minuitzgrad1",
+        "zfit::nloptmma", "zfit::nloptlbfgs", "zfit::scipylbfgs", "zfit::scipytrustconstr",
+        "zfit::ipopt"
+    ],
 )
 @pytest.mark.parametrize(
-    "eager", [False, True], ids=lambda x: "eager" if x else "graph"
+    "eager", [
+        False,
+        # True
+    ], ids=lambda x: "eager" if x else "graph"
 )
 def test_hypotest(benchmark, n_bins, hypotest, eager):
     """Benchmark the performance of pyhf.utils.hypotest() for various numbers of bins and different backends.
@@ -210,16 +224,16 @@ def test_hypotest(benchmark, n_bins, hypotest, eager):
     datanp = source["bindata"]["data"]
 
     if "pyhf" in hypotest:
+        backend = hypotest.split(":")[1]
         hypotest = hypotest_pyhf
-        if eager:
-            pyhf.set_backend("numpy")
-        else:
+        if backend == "jax":
+
             try:
                 import jax
             except ImportError:
                 return
-            else:
-                pyhf.set_backend("jax")
+
+        pyhf.set_backend(backend)
 
         pdf = uncorrelated_background(signp, bkgnp, uncnp)
         data = datanp + pdf.config.auxdata
@@ -229,8 +243,9 @@ def test_hypotest(benchmark, n_bins, hypotest, eager):
             data, pdf, pdf.config.suggested_init(), pdf.config.suggested_bounds()
         )
         benchmark(hypotest, pdf, data)
-    elif hypotest == "zfit":
+    elif "zfit" in hypotest:
         with zfit.run.set_graph_mode(not eager):
+            minimizer = hypotest.split(":")[2]
             hypotest = hypotest_zfit
             obs = zfit.Space(
                 "signal",
@@ -267,18 +282,27 @@ def test_hypotest(benchmark, n_bins, hypotest, eager):
                 constraints=constraint,
                 # options={"numhess": False}
             )
-
-            # minimizer = zfit.minimize.Minuit(tol=1e-3, gradient=True, mode=0, verbosity=8)
-            # minimizer = zfit.minimize.NLoptMMAV1(tol=1e-3, verbosity=8)
-            # minimizer = zfit.minimize.NLoptLBFGSV1()
-            # minimizer = zfit.minimize.ScipyLBFGSBV1()
-            minimizer = zfit.minimize.ScipyTrustConstrV1()
-            # minimizer = zfit.minimize.IpyoptV1()
+            if minimizer == "minuit":
+                minimizer = zfit.minimize.Minuit(tol=1e-3, gradient=True, mode=0)
+            elif minimizer == "minuitzgrad":
+                minimizer = zfit.minimize.Minuit(tol=1e-3, gradient=False, mode=0)
+            elif minimizer == "minuitzgrad1":
+                minimizer = zfit.minimize.Minuit(tol=1e-3, gradient=False, mode=1)
+            elif minimizer == "nloptmma":
+                minimizer = zfit.minimize.NLoptMMAV1(tol=1e-3, verbosity=10)
+            elif minimizer == "nloptlbfgs":
+                minimizer = zfit.minimize.NLoptLBFGSV1()
+            elif minimizer == "scipylbfgs":
+                minimizer = zfit.minimize.ScipyLBFGSBV1()
+            elif minimizer == "scipytrustconstr":
+                minimizer = zfit.minimize.ScipyTrustConstrV1()
+            elif minimizer == "ipopt":
+                minimizer = zfit.minimize.IpyoptV1()
 
             nll.value()
             nll.value()
             nll.gradient()
             nll.gradient()
-            nll.value_gradient_hessian(params=nll.get_params())
+            # nll.value_gradient_hessian(params=nll.get_params())
             benchmark(hypotest, minimizer, nll)
     assert True
