@@ -11,7 +11,6 @@ __all__ = [
     "GeneralizedCB",
     "GaussExpTail",
     "GeneralizedGaussExpTail",
-    "CBExGauss",
     "Gauss",
     "Uniform",
     "TruncatedGauss",
@@ -78,7 +77,6 @@ from .models.kde import (
 )
 from .models.morphing import SplineMorphingPDF
 from .models.physics import (
-    CBExGauss,
     CrystalBall,
     DoubleCB,
     GaussExpTail,
