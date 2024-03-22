@@ -11,12 +11,15 @@ def test_update_data_sampler(weights):
     sample2 = np.random.normal(0, 1, size=(1000, 3))
     sample3 = np.random.normal(0, 1, size=(1000, 3))
 
-    obs = zfit.Space('obs1', limits=(-1, 1)) * zfit.Space('obs2', limits=(-2, -1)) * zfit.Space('obs3', limits=(1.5, 2))
-    data = SamplerData(obs=obs, data=lambda n: sample, weights=weights)
+    obs = zfit.Space('obs1', limits=(-100, 100)) * zfit.Space('obs2', limits=(-200, 200)) * zfit.Space('obs3', limits=(-150, 150))
+    data = SamplerData.from_sampler(obs=obs, sample_and_weights_func=lambda n: (sample, weights), n=1000)
     if weights is not None:
         assert np.allclose(data.weights, weights)
     assert np.allclose(data.value(), sample)
-    data.update_data(sample2)
+    if weights is not None:
+        with pytest.raises(ValueError):
+            data.update_data(sample2, weights=None)
+    data.update_data(sample2, weights=weights)
     assert np.allclose(data.value(), sample2)
     if weights is not None:
         with pytest.raises(ValueError):

@@ -190,7 +190,7 @@ class Data(
     @invalidate_graph
     @deprecated(
         None,
-        "Do not change the range, preferrably use pandas or similar, or use `with_obs` instead.",
+        "Do not change the range, preferably use pandas or similar, or use `with_obs` instead.",
     )
     def set_data_range(self, data_range):
         data_range = self._check_input_data_range(data_range=data_range)
@@ -220,7 +220,7 @@ class Data(
             and overwrite_params.get("guarantee_limits") is not False
         )
         if "tensor" in overwrite_params:
-            msg = "do not give tensor in copy, if, then give a LightDataset."
+            msg = "do not give tensor in copy, instead give a LightDataset."
             raise BreakingAPIChangeError(msg)
 
         return Data(**newpar)
@@ -228,7 +228,6 @@ class Data(
     @property
     def weights(self):
         """Get the weights of the data."""
-        # TODO: refactor below more general, when to apply a cut?
         return self._weights
 
     def with_weights(self, weights: ztyping.WeightsInputType):
@@ -344,7 +343,6 @@ class Data(
             raise ValueError(msg)
 
         mapping = df[list(space.obs)].to_dict(orient="series")  # pandas indexes with lists, not tuples
-        # mapping = {i: df[ob] for i, ob in enumerate(space.obs)}
         return Data.from_mapping(
             mapping=mapping,
             obs=space,
@@ -590,7 +588,12 @@ class Data(
             ``zfit.Data``: A new ``Data`` object containing the subset of the data.
         """
         if not isinstance(obs, ZfitSpace):
-            obs = self.space.with_obs(obs)
+            if not isinstance(obs, (list, tuple)):
+                obs = [obs]
+            if isinstance(obs[0], str):
+                obs = self.space.with_obs(obs)
+            elif isinstance(obs[0], int):
+                obs = self.space.with_axes(obs)
             guarantee_limits = True
         elif obs == self.space.with_obs(obs):
             guarantee_limits = True
@@ -613,7 +616,6 @@ class Data(
             obs = self.obs
         obs_str = list(convert_to_obs_str(obs))
         data = {ob: self.value(obs=ob) for ob in obs_str}
-        # data = {obs_str[i]: values[:, i] for i in range(len(obs_str))}
         if self.has_weights:
             weights = self.weights.numpy()
             if weightsname is None:
@@ -634,9 +636,6 @@ class Data(
         if always_list is None:
             always_list = False
         nolist = (not always_list) and isinstance(obs, str)
-        # value = self.value(obs=obs)
-        # if len(value.shape) == 1:
-        #     value = znp.expand_dims(value, -1)  # to make sure we can unstack it again
         if obs is None:
             obs_str = self.obs
             if len(obs_str) == 1:
@@ -695,32 +694,8 @@ class Data(
     def _value_internal(self, obs: ztyping.ObsTypeInput = None):
         if obs is not None:
             obs = convert_to_obs_str(obs)
-        value = self.dataset.value()
-
-        # if filter:
-        #     value = self._cut_data(value, obs=self._original_space.obs)
-        return self._sort_value(value=value, obs=obs)
-
-    def _check_convert_value(self, value):
-        if len(value.shape.as_list()) == 0:
-            value = znp.expand_dims(value, -1)
-        if len(value.shape.as_list()) == 1:
-            value = znp.expand_dims(value, -1)
-
-        # cast data to right type
-        if value.dtype != self.dtype:
-            value = tf.cast(value, dtype=self.dtype)
-        return value
-
-    def _sort_value(self, value, obs: tuple[str]):
-        obs = convert_to_container(value=obs, container=tuple)
-        # TODO CURRENT: deactivated below!
         perm_indices = self._get_permutation_indices(obs)
-        no_change_indices = tuple(range(self.space.n_obs))
-        if perm_indices and perm_indices != no_change_indices:
-            value = tf.gather(value, perm_indices, axis=-1)
-
-        return value
+        return self.dataset.value(perm_indices)
 
     def _get_permutation_indices(self, obs):
         obs = convert_to_obs_str(obs)
@@ -739,6 +714,7 @@ class Data(
     # TODO(Mayou36): use Space to permute data?
     # TODO(Mayou36): raise error is not obs <= self.obs?
     @invalidate_graph
+    @deprecated(None, "Use `with_obs` instead.")
     def sort_by_axes(self, axes: ztyping.AxesTypeInput, allow_superset: bool = True):
         if not allow_superset and not frozenset(axes) <= frozenset(self.axes):
             msg = (
@@ -811,7 +787,7 @@ class Data(
         return space
 
     def _get_nevents(self):
-        return tf.shape(input=self.value())[0]
+        return self.dataset.ndims
 
     def __str__(self) -> str:
         return f"<zfit.Data: {self.name} obs={self.obs}>"
@@ -890,45 +866,6 @@ def getitem_obs(self, item):
     return self.value(item)
 
 
-# class SampleData(Data):
-#     _cache_counting = 0
-#
-#     def __init__(
-#         self,
-#         dataset: tf.data.Dataset | LightDataset,
-#         obs: ztyping.ObsTypeInput = None,
-#         weights=None,
-#         name: str | None = None,
-#         dtype: tf.DType = ztypes.float,
-#         use_hash: bool | None = None,
-#     ):
-#         super().__init__(
-#             dataset,
-#             obs,
-#             name=name,
-#             weights=weights,
-#             dtype=dtype,
-#             use_hash=use_hash,
-#         )
-#
-#     @classmethod
-#     def get_cache_counting(cls):
-#         counting = cls._cache_counting
-#         cls._cache_counting += 1
-#         return counting
-#
-#     @classmethod
-#     def from_sample(  # TODO(deprecate and remove? use normal data?
-#         cls,
-#         sample: tf.Tensor,
-#         obs: ztyping.ObsTypeInput,
-#         name: str | None = None,
-#         weights=None,
-#         use_hash: bool | None = None,
-#     ):
-#         return Data.from_tensor(tensor=sample, obs=obs, name=name, weights=weights, use_hash=use_hash)
-
-
 def check_cut_datamap_weights(limits, data, weights, guarantee_limits):
     inside = None
     datanew = {}
@@ -997,9 +934,6 @@ class SamplerData(Data):
         use_hash: bool | None = None,
         guarantee_limits: bool = False,
     ):
-        if weights is not None:
-            msg = "Weights are not (ye) supported for a SamplerData. Please open an issue if needed."
-            raise ValueError(msg)
         super().__init__(
             dataset=dataset,
             obs=obs,
@@ -1019,6 +953,7 @@ class SamplerData(Data):
         self.fixed_params = fixed_params
         self._sample_holder = sample_holder
         self._weights_holder = weights_holder
+        self._weights = self._weights_holder
         self._sample_and_weights_func = sample_and_weights_func
         if isinstance(n, tf.Variable):
             msg = "Using a tf.Variable as `n` is not supported anymore. Use a numerical value or a callable instead."
@@ -1026,7 +961,7 @@ class SamplerData(Data):
         self.n = n
         self._n_holder = n
         self._hashint_holder = tf.Variable(0, dtype=tf.int64, trainable=False)
-        self.update_data(dataset.value())  # to be used for precompilations etc
+        self.update_data(dataset.value(), weights=weights)  # to be used for precompilations etc
         self._sampler_guarantee_limits = guarantee_limits
 
     @property
@@ -1272,10 +1207,16 @@ class LightDataset:
             ndims = len(tensormap)
         self._tensor = tensor
         self._tensormap = tensormap
-        self.ndims = ndims
+        self._ndims = ndims
 
     def batch(self, _):  # ad-hoc just empty, mimicking tf.data.Dataset interface
         return self
+
+    @property
+    def ndims(self):
+        if (ndims := self._ndims) is None:
+            ndims = len(self._tensormap)
+        return ndims
 
     def __iter__(self):
         yield self.value()
@@ -1291,12 +1232,6 @@ class LightDataset:
         if not isinstance(indices, (list, tuple)):
             msg = f"Indices have to be an int, list or tuple, not {indices}"
             raise TypeError(msg)
-
-        # if (tensor := self._tensor) is not None:
-        #     if len(set(indices)) < self.ndims:  # we will need a subset
-        #         self._transform_to_tensormap()
-        #     else:
-        #         tensor = znp.asarray(self._tensor)
 
         tensor, tensormap = self._get_tensor_and_tensormap()
 
@@ -1318,19 +1253,6 @@ class LightDataset:
                     self._tensor = None
         # do NOT update self, it could be a variable that we don't want to touch
         return tensor, tensormap
-
-    def _transform_to_tensormap(self):  # todo: only if not variable?
-        return
-        if self._tensor is not None:
-            self._tensormap = {i: self._tensor[:, self._tensormap[i]] for i in range(self.ndims)}
-            self._tensor = None
-
-    def _transform_to_tensor(self):
-        return
-        if self._tensor is None:
-            self._tensor = tf.stack([self._tensormap[i] for i in range(self.ndims)], axis=-1)
-            # reset the map, fill with numbers
-            self._tensormap = {i: i for i in range(self.ndims)}  # the tensor is now well ordered, it manifested
 
     def value(self, index: int | tuple[int] | list[int] | None = None):
         forcemap = False

@@ -86,8 +86,8 @@ def _unbinned_nll_tf(
         nll_finished = nlls_summed
     else:
         if fit_range is not None:
-            with data.set_data_range(fit_range):
-                probs = model.pdf(data, norm_range=fit_range)
+            data = data.with_obs(fit_range)
+            probs = model.pdf(data, norm_range=fit_range)
         else:
             probs = model.pdf(data)
         log_probs = znp.log(probs + znp.asarray(1e-307, dtype=znp.float64))  # minor offset to avoid NaNs from log(0)

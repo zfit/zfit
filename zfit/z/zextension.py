@@ -18,7 +18,7 @@ import tensorflow as tf
 
 import zfit.z.numpy as znp
 
-from ..settings import ztypes
+from ..settings import run, ztypes
 from ..util.exception import BreakingAPIChangeError
 from ..util.warnings import warn_advanced_feature
 
@@ -250,7 +250,7 @@ class FunctionWrapperRegistry:
         from ..util.cache import FunctionCacheHolder
 
         def concrete_func(*args, **kwargs):
-            if not self.do_jit or func in self.currently_traced:
+            if not self.do_jit or func in self.currently_traced or not run.executing_eagerly():
                 return func(*args, **kwargs)
 
             self.currently_traced.add(func)

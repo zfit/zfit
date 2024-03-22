@@ -80,3 +80,31 @@ def test_data_conversion():
     np.testing.assert_allclose(out5["obs1"], single_value)
     with pytest.raises(ValueError):
         convert_to_data(single_value)
+
+def test_unbinneddata_getitem_index():
+    n = 1000
+    nobs = 3
+    space = zfit.Space(obs="obs1", axes=(0,), limits=(-1, 1)) * zfit.Space(obs="obs2", axes=(1,), limits=(-1, 1)) * zfit.Space(obs="obs3", axes=(2,), limits=(-1, 1))
+    space = space.with_autofill_axes()
+    arr = znp.random.uniform(size=(n, nobs))
+    weights = znp.random.uniform(size=(n,))
+    data = zfit.Data.from_numpy(obs=space, array=arr, weights=weights)
+    assert space.axes == (0, 1, 2)
+
+    data0 = data.with_obs(0)
+    data1 = data.with_obs(1)
+
+    assert data0.value().shape == (n, 1)
+    assert data1.value().shape == (n, 1)
+    np.testing.assert_array_equal(data0.value(), arr[:, 0:1])
+    np.testing.assert_array_equal(data1.value(), arr[:, 1:2])
+    np.testing.assert_array_equal(data0["obs1"], arr[:, 0])
+    np.testing.assert_array_equal(data1["obs2"], arr[:, 1])
+    np.testing.assert_array_equal(data["obs1"], arr[:, 0])
+    np.testing.assert_array_equal(data["obs2"], arr[:, 1])
+
+    data10 = data.with_obs([1, 0])
+    assert data10.value().shape == (n, 2)
+    np.testing.assert_array_equal(data10.value(), arr[:, 1::-1])
+    np.testing.assert_array_equal(data10["obs2"], arr[:, 1])
+    np.testing.assert_array_equal(data10["obs1"], arr[:, 0])
