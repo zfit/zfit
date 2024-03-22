@@ -432,8 +432,8 @@ def test_data_hashing(space2d):
         True
     ):  # meaning integration is now done in graph and has "None"
         oldhashint = data1.hashint
-        data1.set_weights(np.random.uniform(size=data1.nevents))
-        testhashpdf.pdf(data1)
+        data2 = data1.with_weights(np.random.uniform(size=data1.nevents))
+        testhashpdf.pdf(data2)
         assert oldhashint != testhashpdf.lasthash
         assert None is testhashpdf.lasthash
 

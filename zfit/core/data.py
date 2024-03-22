@@ -73,6 +73,8 @@ def convert_to_data(data, obs=None):
 
 
 # TODO: make cut only once, then remember
+
+
 class Data(
     ZfitUnbinnedData,
     BaseDimensional,
@@ -85,10 +87,11 @@ class Data(
 
     def __init__(
         self,
-        dataset: tf.data.Dataset | LightDataset,
+        dataset: LightDataset,
         obs: ztyping.ObsTypeInput = None,
         name: str | None = None,
         weights: TensorLike = None,
+        label=None,
         dtype: tf.DType = None,
         use_hash: bool | None = None,
         guarantee_limits: bool = False,
@@ -96,6 +99,7 @@ class Data(
         """Create a data holder from a ``dataset`` used to feed into ``models``.
 
         Args:
+            label:
             dataset: A dataset storing the actual values
             obs: Observables where the data is defined in
             name: Name of the ``Data``
@@ -117,6 +121,7 @@ class Data(
         self._dtype = dtype
         self._nevents = None
         self._weights = None
+        self._label = label if label is not None else name
 
         self._data_range = None
         self._set_space(obs)
@@ -124,8 +129,12 @@ class Data(
         self._data_range = self.space
 
         if not guarantee_limits:
-            value, weights = check_cut_data_weights(limits=self.space, data=dataset.value(), weights=weights)
-            dataset = LightDataset.from_tensor(value, ndims=self.space.n_obs)
+            tensormap = dataset._tensormap if (ismap := dataset._tensor is None) else dataset.value()
+            value, weights = check_cut_data_weights(limits=self.space, data=tensormap, weights=weights)
+            if ismap:
+                dataset = LightDataset(tensormap=value, ndims=self.space.n_obs)
+            else:
+                dataset = LightDataset.from_tensor(value, ndims=self.space.n_obs)
 
         self._name = name
         self._hashint = None
@@ -205,28 +214,16 @@ class Data(
             "dataset": self.dataset,
             **overwrite_params,
         }
-        # obs = newpar["obs"]
-        # if (dataset := newpar.pop("dataset", None)) is None:
-        #     dataset = self.dataset
+        newpar["guarantee_limits"] = (
+            "obs" not in overwrite_params
+            and "dataset" not in overwrite_params
+            and overwrite_params.get("guarantee_limits") is not False
+        )
         if "tensor" in overwrite_params:
             msg = "do not give tensor in copy, if, then give a LightDataset."
             raise BreakingAPIChangeError(msg)
 
         return Data(**newpar)
-
-    # def _preprocess_get_weights_values(self):
-    #     """This is meant to be called if new limits are set."""
-    #     if self.data_range.has_limits:
-    #         raw_values = self._value_internal(obs=self.data_range.obs)
-    #
-    #         is_inside = self.data_range.inside(raw_values)
-    #         value = self._cut_data(raw_values, obs=self._original_space.obs)
-    #         weights = self._weights[is_inside]
-    #
-    #     else:
-    #         weights = self._weights
-    #         value = self._value_internal(obs=self._original_space.obs, filter=False)
-    #     return value, weights
 
     @property
     def weights(self):
@@ -326,8 +323,7 @@ class Data(
         if isinstance(df, pd.Series):
             df = df.to_frame()
         obs = convert_to_space(obs)
-        not_in_df = set(obs.obs) - set(df.columns)
-        if not_in_df:
+        if not_in_df := set(obs.obs) - set(df.columns):
             msg = f"Observables {not_in_df} not in dataframe with columns {df.columns}"
             raise ValueError(msg)
         space = obs
@@ -342,20 +338,60 @@ class Data(
                 weights = df[weights].to_numpy(dtype=np.float64)
                 space = space.with_obs(obs=obs)
 
-        if weights is not None:
-            weights = znp.asarray(weights, dtype=ztypes.float)
         not_in_df = set(space.obs) - set(df.columns)
         if not_in_df:
             msg = f"Observables {not_in_df} not in dataframe with columns {df.columns}"
             raise ValueError(msg)
 
-        array = df[list(space.obs)].to_numpy()
-
-        return Data.from_numpy(  # *not* class, if subclass, keep constructor
+        mapping = df[list(space.obs)].to_dict(orient="series")  # pandas indexes with lists, not tuples
+        # mapping = {i: df[ob] for i, ob in enumerate(space.obs)}
+        return Data.from_mapping(
+            mapping=mapping,
             obs=space,
-            array=array,
             weights=weights,
             name=name,
+            dtype=dtype,
+            use_hash=use_hash,
+            guarantee_limits=guarantee_limits,
+        )
+
+    @classmethod
+    def from_mapping(
+        cls,
+        mapping: Mapping[str, np.ndarray],
+        obs: ztyping.ObsTypeInput = None,
+        *,
+        weights: TensorLike | None = None,
+        label: str | None = None,
+        name: str | None = None,
+        dtype: tf.DType = None,
+        use_hash: bool | None = None,
+        guarantee_limits: bool = False,
+    ) -> Data:
+        """Create a ``Data`` from a mapping of arrays.
+
+        Args:
+            mapping: A mapping from the observables to the data.
+            obs: Observables of the data. They will be matched to the data in the same order.
+
+        Returns:
+            ``zfit.Data``: A ``Data`` object containing the unbinned data.
+        """
+        if obs is None:
+            obs = tuple(mapping.keys())
+        obs = convert_to_space(obs)
+        if missing_obs := set(obs.obs) - set(mapping.keys()):
+            msg = f"Not all observables (missing: {missing_obs}) requested ({obs}) are in the mapping: {mapping}."
+            raise ValueError(msg)
+        tensormap = {i: znp.asarray(mapping[obs], dtype=dtype) for i, obs in enumerate(obs.obs)}
+        weights = znp.asarray(weights, dtype=dtype) if weights is not None else None
+        dataset = LightDataset(tensormap=tensormap, ndims=obs.n_obs)
+        return Data(  # *not* class, if subclass, keep constructor
+            dataset=dataset,
+            obs=obs,
+            weights=weights,
+            name=name,
+            label=label,
             dtype=dtype,
             use_hash=use_hash,
             guarantee_limits=guarantee_limits,
@@ -446,14 +482,7 @@ class Data(
             weights_np = weights
         dataset = LightDataset.from_tensor(data, ndims=obs.n_obs)
 
-        return Data(  # *not* class, if subclass, keep constructor
-            dataset=dataset,
-            obs=obs,
-            weights=weights_np,
-            name=name,
-            dtype=dtype,
-            use_hash=use_hash,
-        )
+        return Data(dataset=dataset, obs=obs, name=name, weights=weights_np, dtype=dtype, use_hash=use_hash)
 
     @classmethod
     def from_numpy(
@@ -528,7 +557,7 @@ class Data(
         space = convert_to_space(obs)
         dataset = LightDataset.from_tensor(tensor, ndims=space.n_obs)
 
-        return Data(  # *not* class, if subclass, keep constructor
+        return Data(
             dataset=dataset,
             obs=obs,
             name=name,
@@ -583,9 +612,8 @@ class Data(
         if obs is None:
             obs = self.obs
         obs_str = list(convert_to_obs_str(obs))
-        values = self.value(obs=obs_str)
-        values = values.numpy()
-        data = {obs_str[i]: values[:, i] for i in range(len(obs_str))}
+        data = {ob: self.value(obs=ob) for ob in obs_str}
+        # data = {obs_str[i]: values[:, i] for i in range(len(obs_str))}
         if self.has_weights:
             weights = self.weights.numpy()
             if weightsname is None:
@@ -603,12 +631,28 @@ class Data(
         Returns:
             List(tf.Tensor)
         """
-        value = self.value(obs=obs)
-        if len(value.shape) == 1:
-            value = znp.expand_dims(value, -1)  # to make sure we can unstack it again
-        return z.unstack_x(value, always_list=always_list)
+        if always_list is None:
+            always_list = False
+        nolist = (not always_list) and isinstance(obs, str)
+        # value = self.value(obs=obs)
+        # if len(value.shape) == 1:
+        #     value = znp.expand_dims(value, -1)  # to make sure we can unstack it again
+        if obs is None:
+            obs_str = self.obs
+            if len(obs_str) == 1:
+                nolist = True  # legacy behavior
+        else:
+            obs_str = convert_to_obs_str(obs)
 
-    def value(self, obs: ztyping.ObsTypeInput = None):
+            if missingobs := set(obs_str) - set(self.obs):
+                msg = f"Observables {missingobs} not in data. Available observables: {self.obs}"
+                raise ObsIncompatibleError(msg)
+        values = [self.value(obs=ob) for ob in obs_str]
+        if nolist:
+            return values[0]
+        return values
+
+    def value(self, obs: ztyping.ObsTypeInput = None, axis: int | None = None):
         """Return the data as a numpy-like object in ``obs`` order.
 
         Args:
@@ -618,17 +662,21 @@ class Data(
 
         Returns:
         """
-
-        # out = znp.asarray(self._value_internal(obs=obs))
-        # if isinstance(obs, str):
-        #     out = znp.squeeze(out, axis=-1)
-        # if obs is not None:
-        #     with_obs = self.with_obs(obs=obs)
-        # else:
-        #     with_obs = self
-        indices = self.space.with_obs(obs=obs).axes
+        if axis is not None:
+            if obs is not None:
+                msg = "Cannot specify both `obs` and `axis`."
+                raise ValueError(msg)
+            indices = convert_to_container(axis, container=tuple)
+            if not all(isinstance(indices, int) for ax in axis):
+                msg = "All axes have to be integers."
+                raise ValueError(msg)
+            if not set(indices).issubset(set(self.space.axes)):
+                msg = "All axes have to be in the space."
+                raise ValueError(msg)
+        else:
+            indices = self.space.with_obs(obs=obs).axes
         out = self.dataset.value(indices)
-        if isinstance(obs, str):
+        if isinstance(obs, str) or axis is not None:
             out = znp.squeeze(out, axis=-1)
         return out
 
@@ -643,13 +691,6 @@ class Data(
             np.ndarray: The data as a numpy array.
         """
         return self.value().numpy()
-
-    # def _cut_data(self, value, obs=None):
-    #     if self.data_range.has_limits:
-    #         data_range = self.data_range.with_obs(obs=obs)
-    #         value = data_range.filter(value)
-    #
-    #     return value
 
     def _value_internal(self, obs: ztyping.ObsTypeInput = None):
         if obs is not None:
@@ -678,9 +719,6 @@ class Data(
         no_change_indices = tuple(range(self.space.n_obs))
         if perm_indices and perm_indices != no_change_indices:
             value = tf.gather(value, perm_indices, axis=-1)
-            # value = z.unstack_x(value, always_list=True)
-            # value = [value[i] for i in perm_indices]
-            # value = z.stack_x(value)
 
         return value
 
@@ -784,15 +822,17 @@ class Data(
         return BinnedData.from_unbinned(space=space, data=self)
 
     def __getitem__(self, item):
+        if isinstance(item, int):
+            return self.value(axis=item)
         try:
             value = getitem_obs(self, item)
-        except Exception as error:
+        except Exception as errorobs:
             msg = (
                 f"Failed to retrieve {item} from data {self}. This can be changed behavior (since zfit 0.11): data can"
                 f" no longer be accessed numpy-like but instead the 'obs' can be used, i.e. strings or spaces. This"
                 f" resembles more closely the behavior of a pandas DataFrame."
             )
-            raise RuntimeError(msg) from error
+            raise RuntimeError(msg) from errorobs
         return value
 
 
@@ -889,22 +929,46 @@ def getitem_obs(self, item):
 #         return Data.from_tensor(tensor=sample, obs=obs, name=name, weights=weights, use_hash=use_hash)
 
 
+def check_cut_datamap_weights(limits, data, weights, guarantee_limits):
+    inside = None
+    datanew = {}
+    for ax in limits.axes:
+        limit = limits.with_axes(ax)
+        arr = data[ax]
+        arr = znp.atleast_1d(arr)
+        if not guarantee_limits and limit.has_limits:
+            inside = limit.inside(arr) if inside is None else inside & limit.inside(arr)
+        datanew[ax] = arr
+
+    if inside is not None and not (run.executing_eagerly() and np.all(inside)):
+        for ax, arr in datanew.items():
+            datanew[ax] = arr[inside]
+        if weights is not None:
+            weights = weights[inside]
+    return datanew, weights
+
+
 def check_cut_data_weights(
     limits: ZfitSpace, data: TensorLike, weights: TensorLike | None = None, guarantee_limits: bool = False
 ):
-    data = znp.atleast_1d(data)
-    if len(data.shape) == 1 and limits.n_obs == 1:
-        data = data[:, None]
-    if data.shape.ndims != 2:
-        msg = f"Data has to be 2-D, i.e. (nevents, nobs)., not {data.shape}, with data={data}."
-        raise ValueError(msg)
     if weights is not None:
         weights = znp.atleast_1d(weights)
         if weights.shape.ndims != 1:
             msg = f"Weights have to be 1-D, not {weights.shape}."
             raise ValueError(msg)
-        if run.executing_eagerly() and weights.shape[0] != data.shape[0]:
-            msg = f"Weights have to have the same length as the data, not {weights.shape[0]} != {data.shape[0]}."
+        datashape = next(iter(data.values())).shape[0] if isinstance(data, Mapping) else data.shape[0]
+        if run.executing_eagerly() and weights.shape[0] != datashape:
+            msg = f"Weights have to have the same length as the data, not {weights.shape[0]} != {datashape}."
+            raise ValueError(msg)
+
+    if isinstance(data, Mapping):
+        return check_cut_datamap_weights(limits=limits, data=data, weights=weights, guarantee_limits=guarantee_limits)
+    else:
+        data = znp.atleast_1d(data)
+        if len(data.shape) == 1 and limits.n_obs == 1:
+            data = data[:, None]
+        if data.shape.ndims != 2:
+            msg = f"Data has to be 2-D, i.e. (nevents, nobs)., not {data.shape}, with data={data}."
             raise ValueError(msg)
 
     if limits.has_limits and not guarantee_limits:
@@ -1188,7 +1252,7 @@ class SamplerData(Data):
 
 
 class LightDataset:
-    def __init__(self, tensor, tensormap=None, ndims=None):
+    def __init__(self, tensor=None, tensormap=None, ndims=None):
         if tensor is None and isinstance(tensormap, Mapping):
             tensormap = tensormap.copy()
         elif tensormap is None:  # the actual preprocessing, otherwise we pass it through
