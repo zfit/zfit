@@ -1113,7 +1113,9 @@ class Space(
                it is interpreted as the number of bins and
                a regular binning is automatically created using the limits as the
                start and end points. |@docend:space.init.binning|
-            name: |@doc:space.init.name| Human-readable name of the space. |@docend:space.init.name|
+            name: |@doc:space.init.name| Name of the space.
+               Maybe has implications on the serialization and deserialization of the space.
+               For a human-readable name, use the label. |@docend:space.init.name|
 
         Raises
             TypeError: If the axes in the binning do not have a name.

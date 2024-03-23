@@ -94,10 +94,9 @@ class SumPDF(BaseFunctor, SerializableMixin):  # TODO: add extended argument
                 - len(frac) == len(basic) - 1 results in the interpretation of a non-extended pdf.
                   The last coefficient will equal to 1 - sum(frac)
                 - len(frac) == len(pdf): the fracs will be used as is and no normalization attempt is taken.
-            name: |@doc:pdf.init.name| Human-readable name
-               or label of
-               the PDF for better identification.
-               Has no programmatical functional purpose as identification. |@docend:pdf.init.name|
+            name: |@doc:pdf.init.name| Name of the PDF.
+               Maybe has implications on the serialization and deserialization of the PDF.
+               For a human-readable name, use the label. |@docend:pdf.init.name|
 
         Raises
             ModelIncompatibleError: If model is incompatible.

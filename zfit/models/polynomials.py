@@ -268,10 +268,9 @@ class Legendre(RecursivePolynomial, SerializableMixin):
                ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
             norm: |@doc:pdf.init.norm| Normalization of the PDF.
                By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
-            name: |@doc:pdf.init.name| Human-readable name
-               or label of
-               the PDF for better identification.
-               Has no programmatical functional purpose as identification. |@docend:pdf.init.name|
+            name: |@doc:pdf.init.name| Name of the PDF.
+               Maybe has implications on the serialization and deserialization of the PDF.
+               For a human-readable name, use the label. |@docend:pdf.init.name|
         """
         super().__init__(
             obs=obs,
@@ -364,10 +363,9 @@ class Chebyshev(RecursivePolynomial, SerializableMixin):
                ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
             norm: |@doc:pdf.init.norm| Normalization of the PDF.
                By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
-            name: |@doc:pdf.init.name| Human-readable name
-               or label of
-               the PDF for better identification.
-               Has no programmatical functional purpose as identification. |@docend:pdf.init.name|
+            name: |@doc:pdf.init.name| Name of the PDF.
+               Maybe has implications on the serialization and deserialization of the PDF.
+               For a human-readable name, use the label. |@docend:pdf.init.name|
         """
         super().__init__(
             obs=obs,
