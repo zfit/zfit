@@ -787,7 +787,7 @@ class Data(
         return space
 
     def _get_nevents(self):
-        return self.dataset.ndims
+        return self.dataset.nevents
 
     def __str__(self) -> str:
         return f"<zfit.Data: {self.name} obs={self.obs}>"
@@ -1208,9 +1208,16 @@ class LightDataset:
         self._tensor = tensor
         self._tensormap = tensormap
         self._ndims = ndims
+        self._nevents = None
 
     def batch(self, _):  # ad-hoc just empty, mimicking tf.data.Dataset interface
         return self
+
+    @property
+    def nevents(self):
+        return (
+            tf.shape(self._tensor)[0] if self._tensor is not None else tf.shape(next(iter(self._tensormap.values())))[0]
+        )
 
     @property
     def ndims(self):
