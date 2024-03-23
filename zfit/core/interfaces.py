@@ -47,11 +47,10 @@ class ZfitDimensional(ZfitObject):
         """
         raise NotImplementedError
 
-    # TODO: activate?
-    # @property
-    # @abstractmethod
-    # def space(self):
-    #     raise NotImplementedError
+    @property
+    @abstractmethod
+    def space(self):
+        raise NotImplementedError
 
 
 class ZfitOrderableDimensional(ZfitDimensional, metaclass=ABCMeta):
@@ -229,14 +228,6 @@ class ZfitOrderableDimensional(ZfitDimensional, metaclass=ABCMeta):
 class ZfitData(ZfitDimensional):
     @abstractmethod
     def value(self, obs: list[str] | None = None) -> ztyping.XType:
-        raise NotImplementedError
-
-    @abstractmethod
-    def sort_by_obs(self, obs, allow_superset: bool = True):
-        raise NotImplementedError
-
-    @abstractmethod
-    def sort_by_axes(self, axes, allow_superset: bool = True):
         raise NotImplementedError
 
     @property

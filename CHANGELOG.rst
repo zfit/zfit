@@ -31,6 +31,7 @@ Major Features and Improvements
 
 Breaking changes
 ------------------
+- ``Data.from_root``: deprecated arguments ``branches`` and ``branch_aliases`` have been removed. Use ``obs`` and ``obs_aliases`` instead.
 - ``NameAlreadyTakenError`` was removed, see above for the new behavior. This should not have an effect on any existing code *except if you relied on the error being thrown*.
 - Data objects had an intrinsic, TensorFlow V1 legacy behavior: they were actually cut when the data was *retrieved*. This is now changed and the data is cut when it is created. This should not have any impact on existing code and just improve runtime and memory usage.
 - Partial integration used to use some broadcasting tricks that could potentially fail. It uses now a dynamic while loop that _could_ be slower but works for arbitrary PDFs. This should not have any impact on existing code and just improve stability (but technically, the data given to the PDF _if doing partial integration_ is now "different", in the sense that it's now not different anymore from any other call)
