@@ -533,8 +533,8 @@ def padreflect_data_weights_1dim(data, mode, weights=None, limits=None, bandwidt
         minimum = znp.min(data)
         maximum = znp.max(data)
     else:
-        minimum = znp.array(limits[0][0])
-        maximum = znp.array(limits[1][0])
+        minimum = znp.array(limits[0])
+        maximum = znp.array(limits[1])
 
     diff = maximum - minimum
     new_data = []
@@ -958,7 +958,7 @@ class KDE1DimExact(KDEHelper, WrapDistribution, SerializableMixin):
                 raise ValueError(msg)
             obs = data.space
         data, size, weights, bandwidth = self._convert_init_data_weights_size(
-            data, weights, padding=padding, limits=obs.limits, bandwidth=bandwidth
+            data, weights, padding=padding, limits=obs.v1.limits, bandwidth=bandwidth
         )
         self._padding = padding
         bandwidth, bandwidth_param = self._convert_input_bandwidth(
@@ -1233,7 +1233,7 @@ class KDE1DimGrid(KDEHelper, WrapDistribution, SerializableMixin):
                 raise ValueError(msg)
             obs = data.space
         data, size, weights, _ = self._convert_init_data_weights_size(
-            data, weights, padding=padding, limits=obs.limits, bandwidth=bandwidth
+            data, weights, padding=padding, limits=obs.v1.limits, bandwidth=bandwidth
         )
         self._padding = padding
 
@@ -1518,7 +1518,7 @@ class KDE1DimFFT(KDEHelper, BasePDF, SerializableMixin):
                 raise ValueError(msg)
             obs = data.space
         data, size, weights, _ = self._convert_init_data_weights_size(
-            data, weights, padding=padding, limits=obs.limits, bandwidth=bandwidth
+            data, weights, padding=padding, limits=obs.v1.limits, bandwidth=bandwidth
         )
         self._padding = padding
 
@@ -1756,7 +1756,7 @@ class KDE1DimISJ(KDEHelper, BasePDF, SerializableMixin):
                 raise ValueError(msg)
             obs = data.space
         data, size, weights, _ = self._convert_init_data_weights_size(
-            data, weights, padding=padding, limits=obs.limits, bandwidth=None
+            data, weights, padding=padding, limits=obs.v1.limits, bandwidth=None
         )
         self._padding = padding
 

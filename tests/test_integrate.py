@@ -174,9 +174,10 @@ def func3_2deps(x):
 
 
 def func3_2deps_fully_integrated(limits, params=None, model=None):
-    lower, upper = limits.rect_limits
-    with suppress(TypeError):
-        lower, upper = lower[0], upper[0]
+    lower, upper = limits.v1.limits
+    # todo: remove
+    # with suppress(TypeError):
+    #     lower, upper = lower, upper
 
     lower_a, lower_b = lower
     upper_a, upper_b = upper

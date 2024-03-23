@@ -316,7 +316,7 @@ def test_analytic_sampling(obs1):
     from zfit.core.space import ANY_UPPER
 
     SampleGauss.register_analytic_integral(
-        func=lambda limits, params, model: 2 * limits.upper[0][0],
+        func=lambda limits, params, model: 2 * limits.v1.upper,
         limits=zfit.Space(limits=(-float("inf"), ANY_UPPER), axes=(0,)),
     )  # DUMMY!
     SampleGauss.register_inverse_analytic_integral(func=lambda x, params: x)
@@ -416,7 +416,7 @@ def test_projection_pdf(test_values):
         return value
 
     def correlated_func_integrate_x(y, limits):
-        lower, upper = limits.rect_limits
+        lower, upper = limits.v0.limits
 
         def integ(x, y):
             return 0.333333333333333 * x**3 - 1.0 * x**2 * y**3 + x * (1.0 * y**6 + 0.1)
@@ -424,7 +424,7 @@ def test_projection_pdf(test_values):
         return integ(y, upper) - integ(y, lower)
 
     def correlated_func_integrate_y(x, limits):
-        lower, upper = limits.rect_limits
+        lower, upper = limits.v0.limits
 
         def integ(x, y):
             return -0.5 * x * y**4 + 0.142857142857143 * y**7 + y * (1.0 * x**2 + 0.1)

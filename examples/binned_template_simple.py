@@ -15,10 +15,14 @@ for i in range(5):
     x = np.random.normal(size=1_000_000 * (i + 1)) + i**1.5 / 2 * ((-1) ** i)
     h.fill(x=x)
     histos.append(h)
+plt.figure()
+plt.title("Histograms to be used as templates")
 mplhep.histplot(histos, stack=True, histtype="fill", label=[f"process {i + 1}" for i in range(5)])
 plt.legend()
-pdfs = [zfit.pdf.HistogramPDF(h) for h in histos]
-sumpdf = zfit.pdf.BinnedSumPDF(pdfs)
+sumpdf = zfit.pdf.BinnedSumPDF(pdfs=histos)
+# this is the shortcut for, equivalent:
+# pdfs = [zfit.pdf.HistogramPDF(h) for h in histos]
+# sumpdf = zfit.pdf.BinnedSumPDF(pdfs)
 
 
 h_back = sumpdf.to_hist()

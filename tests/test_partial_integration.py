@@ -69,10 +69,10 @@ def test_partial_integral():
     integral_x_np = integral_x_tf.numpy()
     integral_y_np = integral_y_tf.numpy()
 
-    lowerx, upperx = xspace.rect_limits
-    lowery, uppery = yspace.rect_limits
-    integral_x_true = integral_x(y=y, lowerx=lowerx[0], upperx=upperx[0]) * ratio
-    integral_y_true = integral_y(x=x, lowery=lowery[0], uppery=uppery[0]) * ratio
+    lowerx, upperx = xspace.v1.limits
+    lowery, uppery = yspace.v1.limits
+    integral_x_true = integral_x(y=y, lowerx=lowerx, upperx=upperx) * ratio
+    integral_y_true = integral_y(x=x, lowery=lowery, uppery=uppery) * ratio
 
     np.testing.assert_allclose(integral_x_true, integral_x_np, atol=1e-2)
     np.testing.assert_allclose(integral_y_true, integral_y_np, atol=1e-2)

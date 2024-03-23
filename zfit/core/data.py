@@ -82,6 +82,7 @@ class Data(
     SerializableMixin,
     ZfitSerializable,
 ):
+    USE_HASH = False
     BATCH_SIZE = 1000000  # 1 mio
 
     def __init__(
@@ -107,7 +108,7 @@ class Data(
             use_hash: Whether to use a hash for caching
         """
         if use_hash is None:
-            use_hash = run.hashing_data()
+            use_hash = self.USE_HASH
         self._use_hash = use_hash
 
         if dtype is None:
@@ -144,6 +145,10 @@ class Data(
         self._update_hash()
 
     @property
+    def _using_hash(self):
+        return self._use_hash and run.hashing_data()
+
+    @property
     def label(self):
         return self._label
 
@@ -153,6 +158,20 @@ class Data(
         if nevents is None:
             nevents = self._get_nevents()
         return nevents
+
+    def enable_hashing(self):
+        """Enable hashing for this data object if it was disabled.
+
+        A hash allows some objects to be cached and reused. If a hash is enabled, the data object will be hashed and the
+        hash _can_ be used for caching. This can speedup various objects, however, it maybe doesn't have an effect at
+        all. For example, if an object was already called before with the data object, the hash will probably not be
+        used, as the object is already compiled.
+        """
+        from zfit import run
+
+        run.assert_executing_eagerly()
+        self._use_hash = True
+        self._update_hash()
 
     @property
     def hashint(self) -> int | None:
@@ -215,6 +234,9 @@ class Data(
             "weights": self.weights,
             "name": name,
             "dataset": self.dataset,
+            "label": self.label,
+            "dtype": self.dtype,
+            "use_hash": self._use_hash,
             **overwrite_params,
         }
         newpar["guarantee_limits"] = (
@@ -312,7 +334,9 @@ class Data(
             weights: Weights of the data. Has to be 1-D and match the shape
                 of the data (nevents) or a string that is a column in the dataframe. By default, looks for a column ``""``, i.e.
                  an empty string.
-            name: |@doc:data.init.name||@docend:data.init.name|
+            name: |@doc:data.init.name| Name of the data.
+               Maybe has implications on the serialization and deserialization of the data.
+               For a human-readable name or description, use the label. |@docend:data.init.name|
             label: |@doc:data.init.label| Human-readable name
                or label of the data for a better description, to be used with plots etc.
                Has no programmatical functional purpose as identification. |@docend:data.init.label|
@@ -382,7 +406,9 @@ class Data(
             mapping: A mapping from the observables to the data.
             obs: Observables of the data. They will be matched to the data in the same order.
             weights: Weights of the data. Has to be 1-D and match the shape of the data (nevents).
-            name: |@doc:data.init.name||@docend:data.init.name|
+            name: |@doc:data.init.name| Name of the data.
+               Maybe has implications on the serialization and deserialization of the data.
+               For a human-readable name or description, use the label. |@docend:data.init.name|
             label: |@doc:data.init.label| Human-readable name
                or label of the data for a better description, to be used with plots etc.
                Has no programmatical functional purpose as identification. |@docend:data.init.label|
@@ -445,7 +471,9 @@ class Data(
                 column.
             obs_alias: A mapping from the ``obs`` (as keys) to the actual ``branches`` (as values) in the root file.
                 This allows to have different ``observable`` names, independent of the branch name in the file.
-            name: |@doc:data.init.name||@docend:data.init.name|
+            name: |@doc:data.init.name| Name of the data.
+               Maybe has implications on the serialization and deserialization of the data.
+               For a human-readable name or description, use the label. |@docend:data.init.name|
             label: |@doc:data.init.label| Human-readable name
                or label of the data for a better description, to be used with plots etc.
                Has no programmatical functional purpose as identification. |@docend:data.init.label|
@@ -515,7 +543,9 @@ class Data(
             obs: Observables of the data. They will be matched to the data in the same order.
             array: Numpy array containing the data.
             weights: Weights of the data. Has to be 1-D and match the shape of the data (nevents).
-            name: |@doc:data.init.name||@docend:data.init.name|
+            name: |@doc:data.init.name| Name of the data.
+               Maybe has implications on the serialization and deserialization of the data.
+               For a human-readable name or description, use the label. |@docend:data.init.name|
             dtype: dtype of the data.
             use_hash: If ``True``, a hash of the data is created and is used to identify it in caching.
             guarantee_limits: |@doc:data.init.guarantee_limits| Guarantee that the data is within the limits.
@@ -560,7 +590,9 @@ class Data(
             obs: Observables of the data. They will be matched to the data in the same order.
             tensor: Tensor containing the data.
             weights: Weights of the data. Has to be 1-D and match the shape of the data (nevents).
-            name: |@doc:data.init.name||@docend:data.init.name|
+            name: |@doc:data.init.name| Name of the data.
+               Maybe has implications on the serialization and deserialization of the data.
+               For a human-readable name or description, use the label. |@docend:data.init.name|
             label: |@doc:data.init.label| Human-readable name
                or label of the data for a better description, to be used with plots etc.
                Has no programmatical functional purpose as identification. |@docend:data.init.label|
@@ -596,7 +628,7 @@ class Data(
         if not run.executing_eagerly() or not self._use_hash:
             self._hashint = None
         else:
-            hashval = xxhash.xxh128(self.to_numpy())
+            hashval = self.dataset.calc_hash()
             if self.has_weights:
                 hashval.update(np.asarray(self.weights))
             if hasattr(self, "_hashint"):
@@ -1018,6 +1050,9 @@ class SamplerData(Data):
         return nevents
 
     def _update_hash(self):
+        if not run.executing_eagerly() or not self._using_hash:
+            self._hashint = None
+            return
         super()._update_hash()
         if hasattr(self, "_hashint_holder"):
             self._hashint_holder.assign(self._hashint % (64**2))
@@ -1255,6 +1290,10 @@ class SamplerData(Data):
     def __str__(self) -> str:
         return f"<SamplerData: {self.label} obs={self.obs} size={int(self.nevents)} weighted={self.has_weights}>"
 
+    @classmethod
+    def get_repr(cls):  # acts as data object once serialized
+        return DataRepr
+
 
 # register_tensor_conversion(Data, name="Data", overload_operators=True)
 
@@ -1387,6 +1426,26 @@ class LightDataset:
             if isint:
                 tensor = znp.squeeze(tensor, axis=-1)
             return tensor
+
+    def calc_hash(self):
+        """Calculate a hash of the data."""
+        tensor, tensormap = self._get_tensor_and_tensormap(forcemap=False)
+        hashval = xxhash.xxh128()
+        for dim in range(self.ndims):
+            index_or_array = tensormap[dim]
+            if tensor is not None:
+                index_or_array = tensor[:, index_or_array]
+            hashval.update(index_or_array)
+
+        return hashval
+
+    def __hash__(self):
+        return self.calc_hash().intdigest()
+
+    def __eq__(self, other):
+        if not isinstance(other, LightDataset):
+            return False
+        return self.calc_hash() == other.calc_hash()
 
 
 def sum_samples(

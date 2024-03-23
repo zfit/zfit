@@ -1153,7 +1153,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
     def _analytic_sample(self, n, limits: ZfitSpace):  # TODO(Mayou36) implement multiple limits sampling
         if not self._inverse_analytic_integral:
             raise AnalyticSamplingNotImplemented  # TODO(Mayou36): create proper analytic sampling
-        if limits.n_limits > 1:
+        if limits._depr_n_limits > 1:
             raise AnalyticSamplingNotImplemented
         try:
             lower_bound, upper_bound = limits.rect_limits_np

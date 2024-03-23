@@ -96,7 +96,7 @@ class RecursivePolynomial(BasePDF):
         params = {f"c_{i}": coeff for i, coeff in enumerate(coeffs)}
         self._degree = len(coeffs) - 1  # 1 coeff -> 0th degree
         self._apply_scale = apply_scaling
-        if apply_scaling and not (isinstance(obs, Space) and obs.n_limits == 1):
+        if apply_scaling and not (isinstance(obs, Space) and obs._depr_n_limits == 1):
             msg = "obs need to be a Space with exactly one limit if rescaling is requested."
             raise ValueError(msg)
         super().__init__(obs=obs, name=name, params=params, extended=extended, norm=norm)

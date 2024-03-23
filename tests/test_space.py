@@ -1,4 +1,6 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
+import numpy as np
+import pandas as pd
 import pytest
 import tensorflow as tf
 
@@ -139,15 +141,15 @@ def test_rect_limits():
     assert space1.has_rect_limits
     space1_lim = space1_nolim.with_limits((0, 1))
     space1_ax = Space(axes=0, limits=(0, 1))
-    lower, upper = space1.rect_limits
+    lower, upper = space1.v1.limits
     assert lower == 0
     assert upper == 1
 
-    lower, upper = space1_ax.rect_limits
+    lower, upper = space1_ax.v1.limits
     assert lower == 0
     assert upper == 1
 
-    lower, upper = space1_lim.rect_limits
+    lower, upper = space1_lim.v1.limits
     assert lower == 0
     assert upper == 1
 
@@ -264,13 +266,13 @@ def test_with_obs(limits, binning):
     space1axes = space_factory(limits=limits1, axes=axes1)
     using_space_as_lim = isinstance(limits1, Space)
     if isinstance(limits1, Space):
-        limits1 = limits1.rect_limits
+        limits1 = limits1.v1.limits
     space1mixed = space_factory(obs1, limits=limits1, axes=axes2, binning=binning1)
 
     space2obs = space_factory(obs2, limits=limits2, binning=binning2)
     space2 = space_factory(obs2, limits=limits2, axes=axes2, binning=binning2)
     if isinstance(limits2, Space):
-        limits2 = limits2.rect_limits
+        limits2 = limits2.v1.limits
     space2axes = space_factory(limits=limits2, axes=axes2)
     space2mixed = space_factory(obs2, limits=limits1, axes=axes1, binning=binning2)
 
@@ -319,12 +321,12 @@ def test_with_axes(limits):
     space1axes = space_factory(limits=limits1, axes=axes1)
     using_space_as_lim = isinstance(limits1, Space)
     if isinstance(limits1, Space):
-        limits1 = limits1.rect_limits
+        limits1 = limits1.v1.limits
     space1mixed = space_factory(obs1, limits=limits1, axes=axes2)
 
     space2 = space_factory(obs2, limits=limits2, axes=axes2)
     if isinstance(limits2, Space):
-        limits2 = limits2.rect_limits
+        limits2 = limits2.v1.limits
     space2axes = space_factory(limits=limits2, axes=axes2)
 
     # define which space to use in this tests
@@ -370,7 +372,7 @@ def test_space_add(limits):
     space1 = space_factory(obs1, limits=limits1, axes=axes1)
     space1axes = space_factory(limits=limits1, axes=axes1)
     if isinstance(limits1, Space):
-        limits1 = limits1.rect_limits
+        limits1 = limits1.v1.limits
     space1mixed = space_factory(obs1, limits=limits1, axes=axes2)
 
     space2obs = space_factory(obs2, limits=limits2)
@@ -378,7 +380,7 @@ def test_space_add(limits):
 
     space2axes = space_factory(limits=limits2, axes=axes2)
     if isinstance(limits2, Space):
-        limits2 = limits2.rect_limits
+        limits2 = limits2.v1.limits
     space2mixed = space_factory(obs2, limits=limits2, axes=axes1)
 
     space = space1 + space2
@@ -505,20 +507,20 @@ def test_create_binned_space():
     binning = zfit.binned.RegularBinning(50, -10, 10, name="x")
     obs_bin = zfit.Space("x", binning=binning)
     assert obs_bin.binning["x"] == binning
-    assert obs_bin.lower[0][0] == -10
-    assert obs_bin.upper[0][0] == 10
+    assert obs_bin.v1.lower[0] == -10
+    assert obs_bin.v1.upper[0] == 10
 
     binning_n = 50
     obs2 = zfit.Space("x", limits=(-10, 10), binning=binning_n)
     assert obs2.binning["x"] == binning
-    assert obs2.lower[0][0] == -10
-    assert obs2.upper[0][0] == 10
+    assert obs2.v1.lower[0] == -10
+    assert obs2.v1.upper[0] == 10
 
     binning = zfit.binned.VariableBinning([1, 5, 7.3, 11.2], name="x")
     obs_bin = zfit.Space("x", binning=binning)
     assert obs_bin.binning["x"] == binning
-    assert obs_bin.lower[0][0] == 1
-    assert obs_bin.upper[0][0] == 11.2
+    assert obs_bin.v1.lower[0] == 1
+    assert obs_bin.v1.upper[0] == 11.2
 
 
 def test_create_binned_raises():
@@ -536,3 +538,24 @@ def test_create_binned_raises():
         _ = zfit.Space("x", binning=binning)
     with pytest.raises(ObsIncompatibleError):
         _ = zfit.Space(["x", "z"], binning=binning)
+
+
+def test_compat_layer_space():
+    space1 = zfit.Space("x", -1, 1)
+    space2 = zfit.Space("y", -3, 5)
+    space = space1 * space2
+    assert space.v1.lower[0] == -1
+    assert space.v1.upper[0] == 1
+    assert space.v1.lower[1] == -3
+    assert space.v1.upper[1] == 5
+
+def test_filter_pandas_space():
+    df = pd.DataFrame({"x": np.random.normal(0, 1, 1000), "y": np.random.normal(-100, 1, 1000)})
+    space1 = zfit.Space("x", -1, 1)
+    space2 = zfit.Space("y", -100, -99)
+    space = space2 * space1
+    df = space.filter(df)
+    assert df["x"].min() >= -1
+    assert df["x"].max() <= 1
+    assert df["y"].min() >= -100
+    assert df["y"].max() <= -99

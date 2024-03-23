@@ -187,10 +187,10 @@ class FFTConvPDFV1(BaseFunctor, SerializableMixin):
         if limits_func is None:
             limits_func = func.space
         limits_func = self._check_input_limits(limits=limits_func)
-        if limits_func.n_limits == 0:
+        if limits_func._depr_n_limits == 0:
             msg = "obs have to have limits to define where to integrate over."
             raise exception.LimitsNotSpecifiedError(msg)
-        if limits_func.n_limits > 1:
+        if limits_func._depr_n_limits > 1:
             msg = "Multiple Limits not implemented"
             raise WorkInProgressError(msg)
 
@@ -199,10 +199,10 @@ class FFTConvPDFV1(BaseFunctor, SerializableMixin):
             limits_kernel = kernel.space
         limits_kernel = self._check_input_limits(limits=limits_kernel)
 
-        if limits_kernel.n_limits == 0:
+        if limits_kernel._depr_n_limits == 0:
             msg = "obs have to have limits to define where to integrate over."
             raise exception.LimitsNotSpecifiedError(msg)
-        if limits_kernel.n_limits > 1:
+        if limits_kernel._depr_n_limits > 1:
             msg = "Multiple Limits not implemented"
             raise WorkInProgressError(msg)
 
@@ -230,8 +230,8 @@ class FFTConvPDFV1(BaseFunctor, SerializableMixin):
         if not n % 2:
             n += 1  # make it odd to have a unique shifting when using "same" in the convolution
 
-        lower_func, upper_func = limits_func.rect_limits
-        lower_kernel, upper_kernel = limits_kernel.rect_limits
+        lower_func, upper_func = limits_func.v0.limits
+        lower_kernel, upper_kernel = limits_kernel.v0.limits
         lower_sample = lower_func + lower_kernel
         upper_sample = upper_func + upper_kernel
 
@@ -442,8 +442,8 @@ class AddingSampleAndWeights:
 
     def __call__(self, n_to_produce: int | tf.Tensor, limits, dtype):
         del dtype
-        kernel_lower, kernel_upper = self.kernel.space.rect_limits
-        sample_lower, sample_upper = limits.rect_limits
+        kernel_lower, kernel_upper = self.kernel.space.v0.limits
+        sample_lower, sample_upper = limits.v0.limits
 
         sample_ext_lower = sample_lower + kernel_lower
         sample_ext_upper = sample_upper + kernel_upper

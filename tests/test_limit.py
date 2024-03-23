@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2024 zfit
 import pytest
 import tensorflow as tf
 
@@ -32,8 +32,8 @@ def test_rect_limits_1d(graph, rect_limits, testclass):
         limit = testclass(rect_limits)
         limit2 = testclass(rect_limits=rect_limits)
 
-        lower, upper = limit.rect_limits
-        lower2, upper2 = limit2.rect_limits
+        lower, upper = limit.v0.limits
+        lower2, upper2 = limit2.v0.limits
         assert limit.has_rect_limits
         inside = limit.inside(2)
         inside2 = limit.inside(2, guarantee_limits=True)

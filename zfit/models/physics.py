@@ -309,7 +309,7 @@ class CrystalBallPDFRepr(BasePDFRepr):
     n: Serializer.types.ParamTypeDiscriminated
 
 
-crystalball_integral_limits = Space(axes=(0,), limits=(((ANY_LOWER,),), ((ANY_UPPER,),)))
+crystalball_integral_limits = Space(axes=(0,), lower=ANY_LOWER, upper=ANY_UPPER)
 
 CrystalBall.register_analytic_integral(func=crystalball_integral, limits=crystalball_integral_limits)
 

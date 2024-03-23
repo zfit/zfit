@@ -415,12 +415,13 @@ def test_multidim_data_range():
 def test_data_hashing(space2d):
     npdata1 = np.random.uniform(size=(3352, 2))
     # data1 = data1.transpose()
-    data1 = zfit.Data.from_numpy(obs=space2d, array=npdata1)
+    data1 = zfit.Data.from_numpy(obs=space2d, array=npdata1, use_hash=True)
     assert data1.hashint is not None
     testhashpdf = TestHashPDF(obs=space2d, lasthash=data1.hashint)
     assert testhashpdf.lasthash == data1.hashint
     oldhashint = data1.hashint
     data1 = data1.with_weights(np.random.uniform(size=data1.nevents))
+    assert data1.hashint is not None
     assert oldhashint != data1.hashint
     assert data1.hashint != testhashpdf.lasthash
     assert oldhashint == testhashpdf.lasthash
@@ -435,13 +436,13 @@ def test_data_hashing(space2d):
         data2 = data1.with_weights(np.random.uniform(size=data1.nevents))
         testhashpdf.pdf(data2)
         assert oldhashint != testhashpdf.lasthash
-        assert None is testhashpdf.lasthash
 
 
 def test_hashing_resample(space2d):
     n = 1534
     pdf = zfit.pdf.Gauss(obs=space2d.with_obs(space2d.obs[0]), mu=0.4, sigma=0.8)
     sample = pdf.create_sampler(n)
+    sample._use_hash = True
     hashint = sample.hashint
     sample.resample()
     assert sample.hashint != hashint

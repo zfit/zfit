@@ -33,7 +33,7 @@ class UniformSampleAndWeights:
         weights = tf.broadcast_to(z.constant(1.0, shape=(1,)), shape=(n_to_produce,))
         n_produced = tf.constant(0, tf.int64)
         for i, space in enumerate(limits):
-            lower, upper = space.rect_limits  # TODO: remove new space
+            lower, upper = space.v0.limits  # TODO: remove new space
             if i == len(limits) - 1:
                 n_partial_to_produce = n_to_produce - n_produced  # to prevent roundoff errors, shortcut for 1 space
             else:

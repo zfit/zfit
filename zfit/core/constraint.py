@@ -126,12 +126,12 @@ class ProbabilityConstraint(BaseConstraint):
                 to constraint obtained from auxiliary measurements.
         """
         # TODO: proper handling of input params, arrays. ArrayParam?
-        params = convert_to_container(params)
+        params = convert_to_container(params, ignore=np.ndarray)
         params_dict = {f"param_{i}": p for i, p in enumerate(params)}
         super().__init__(name=name, dtype=dtype, params=params_dict, **kwargs)
         params = tuple(self.params.values())
 
-        observation = convert_to_container(observation, tuple)
+        observation = convert_to_container(observation, tuple, ignore=np.ndarray)
         if len(observation) != len(params):
             msg = (
                 "observation and params have to be the same length. Currently"
@@ -253,9 +253,9 @@ class GaussianConstraint(TFProbabilityConstraint, SerializableMixin):
             ShapeIncompatibleError: If params, mu and sigma have incompatible shapes.
         """
 
-        observation = convert_to_container(observation, tuple)
-        params = convert_to_container(params, tuple)
-        uncertainty = convert_to_container(uncertainty, tuple)
+        observation = convert_to_container(observation, tuple, ignore=np.ndarray)
+        params = convert_to_container(params, tuple, ignore=np.ndarray)
+        uncertainty = convert_to_container(uncertainty, tuple, ignore=np.ndarray)
         if isinstance(uncertainty[0], (np.ndarray, tf.Tensor)) and len(uncertainty) == 1:
             uncertainty = tuple(uncertainty[0])
         original_init = {

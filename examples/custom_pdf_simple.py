@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import zfit
 import zfit.z.numpy as znp
-from zfit import z
 
 
 class CustomPDF(zfit.pdf.ZPDF):
@@ -12,13 +11,13 @@ class CustomPDF(zfit.pdf.ZPDF):
     _PARAMS = ("alpha",)  # specify which parameters to take
 
     def _unnormalized_pdf(self, x):  # implement function
-        data = z.unstack_x(x)
+        data = x[0]  # axis 0
         alpha = self.params["alpha"]
 
         return znp.exp(alpha * data)
 
 
-obs = zfit.Space("obs1", limits=(-4, 4))
+obs = zfit.Space("obs1", -4, 4)
 
 custom_pdf = CustomPDF(obs=obs, alpha=0.2)
 

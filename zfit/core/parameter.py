@@ -1337,7 +1337,9 @@ def convert_to_parameters(
         "upper": upper,
         "step_size": step_size,
     }
-    params_dict = {key: convert_to_container(val) for key, val in params_dict.items() if val is not None}
+    params_dict = {
+        key: convert_to_container(val, ignore=np.ndarray) for key, val in params_dict.items() if val is not None
+    }
     lengths = {len(v) for v in params_dict.values()}
     if len(lengths) != 1:
         msg = f"Inconsistent length in values when converting the parameters: {params_dict}"
@@ -1567,11 +1569,16 @@ def check_convert_param_values_assign(params, values, allow_partial=False):
         params = new_params
 
     elif len(params) > 1:
-        if not tf.is_tensor(values) or isinstance(values, np.ndarray):
+        if not (tf.is_tensor(values) or isinstance(values, np.ndarray)):
             values = convert_to_container(values)
-            if len(params) != len(values):
-                msg = f"Incompatible length of parameters and values: {params}, {values}"
-                raise ValueError(msg)
+            lenvalues = len(values)
+        else:
+            shape = values.shape
+            lenvalues = shape[0] if shape is not None else None
+        if lenvalues is not None and lenvalues != len(params):
+            msg = f"Incompatible length of parameters and values: {params}, {values}"
+            raise ValueError(msg)
+
     not_param = [param for param in params if not isinstance(param, ZfitParameter)]
     if not_param:
         msg = f"The following are not parameters (but should be): {not_param}"

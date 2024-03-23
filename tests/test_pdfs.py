@@ -184,7 +184,8 @@ def test_prod_gauss_nd():
     assert product_pdf.n_obs == 3
     probs = product_pdf.pdf(x=test_values_data)
     gaussians = create_gaussians()
-    for gauss, space in zip(gaussians, [obs1, obs2, obs3]):
+    raise RuntimeError("Cleanup test!")
+    for gauss, space in zip(gaussians, [obs1, obs2, obs3]):  # TODO: cleanup test
         gauss.set_norm_range(space.rect_limits)
     true_probs = np.prod(
         [gauss.pdf(test_values[:, i]) for i, gauss in enumerate(gaussians)], axis=0
@@ -299,7 +300,7 @@ def normalization_testing(pdf, limits=None):
     space = Space(obs=obs1, limits=limits)
     with pdf.set_norm_range(space):
         samples = znp.random.uniform(
-            low=space.lower[0], high=space.upper[0], size=(100_000, pdf.n_obs)
+            low=space.v1.lower, high=space.v1.upper, size=(100_000, pdf.n_obs)
         )
 
         samples = zfit.Data.from_tensor(obs=space, tensor=samples)

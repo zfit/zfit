@@ -79,7 +79,9 @@ class BinnedData(
     ZfitBinnedData,
     # tfp.experimental.AutoCompositeTensor, OverloadableMixinValues, ZfitBinnedData
 ):
-    def __init__(self, *, holder):
+    USE_HASH = False
+
+    def __init__(self, *, holder, use_hash=None):
         """Create a binned data object from a :py:class:`~zfit.core.data.BinnedHolder`.
 
         Prefer to use the constructors ``from_*`` of :py:class:`~zfit.core.data.BinnedData`
@@ -89,11 +91,33 @@ class BinnedData(
         Args:
             holder:
         """
-        self._use_hash = True
+        if use_hash is None:
+            use_hash = self.USE_HASH
+        self._use_hash = use_hash
         self._hashint = None
         self.holder: BinnedHolder = holder
         self.name = "BinnedData"  # TODO: improve naming
         self._update_hash()
+
+    def enable_hashing(self):
+        """Enable hashing for this data object if it was disabled.
+
+        A hash allows some objects to be cached and reused. If a hash is enabled, the data object will be hashed and the
+        hash _can_ be used for caching. This can speedup various objects, however, it maybe doesn't have an effect at
+        all. For example, if an object was already called before with the data object, the hash will probably not be
+        used, as the object is already compiled.
+        """
+        from zfit import run
+
+        run.assert_executing_eagerly()
+        self._use_hash = True
+        self._update_hash()
+
+    @property
+    def _using_hash(self):
+        from zfit import run
+
+        return self._use_hash and run.hashing_data()
 
     @classmethod  # TODO: add overflow bins if needed
     def from_tensor(cls, space: ZfitSpace, values: znp.array, variances: znp.array | None = None) -> BinnedData:
@@ -163,7 +187,7 @@ class BinnedData(
     def _update_hash(self):
         from zfit import run
 
-        if not run.executing_eagerly() or not self._use_hash:
+        if not run.executing_eagerly() or not self._using_hash:
             self._hashint = None
         else:
             hashval = xxhash.xxh128(np.asarray(self.values()))

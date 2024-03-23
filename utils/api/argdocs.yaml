@@ -1,6 +1,13 @@
 space.init.obs: |1+
     Observable of the space.
 
+
+
+space.init.lowerupper: |1+
+    Lower and upper limits of the space, respectively.
+                Each of them should be a scalar-like object.
+
+
 space.init.limits: |1+
     A tuple-like object of the limits of the space.
                 These are the lower and upper limits.

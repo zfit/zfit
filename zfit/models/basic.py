@@ -117,7 +117,7 @@ class Exponential(BasePDF, SerializableMixin):
             def calc_numerics_data_shift():
                 lower, upper = [], []
                 for limit in limits:
-                    low, up = limit.rect_limits
+                    low, up = limit.v0.limits
                     lower.append(z.convert_to_tensor(low[:, 0]))
                     upper.append(z.convert_to_tensor(up[:, 0]))
                 lower = z.convert_to_tensor(lower)
@@ -193,7 +193,7 @@ class Exponential(BasePDF, SerializableMixin):
 
 def _exp_integral_from_any_to_any(limits, params, model):
     lambda_ = params["lambda"]
-    lower, upper = limits.rect_limits
+    lower, upper = limits.v0.limits
     # if any(np.isinf([lower, upper])):
     #     raise AnalyticIntegralNotImplemented
 
