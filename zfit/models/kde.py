@@ -532,7 +532,7 @@ def padreflect_data_weights_1dim(data, mode, weights=None, limits=None, bandwidt
     if limits is None:
         minimum = znp.min(data)
         maximum = znp.max(data)
-    else:
+    else:  # todo: debug: check if limits are correct?
         minimum = znp.array(limits[0])
         maximum = znp.array(limits[1])
 

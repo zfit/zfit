@@ -1007,6 +1007,10 @@ class SamplerData(Data):
         use_hash: bool | None = None,
         guarantee_limits: bool = False,
     ):
+        if use_hash is not None and not use_hash:
+            msg = "use_hash is required for SamplerData."
+            raise ValueError(msg)
+        use_hash = True
         super().__init__(
             dataset=dataset,
             obs=obs,

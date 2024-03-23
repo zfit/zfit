@@ -184,9 +184,10 @@ def test_prod_gauss_nd():
     assert product_pdf.n_obs == 3
     probs = product_pdf.pdf(x=test_values_data)
     gaussians = create_gaussians()
-    raise RuntimeError("Cleanup test!")
+    # raise RuntimeError("Cleanup test!")
     for gauss, space in zip(gaussians, [obs1, obs2, obs3]):  # TODO: cleanup test
         gauss.set_norm_range(space.rect_limits)
+
     true_probs = np.prod(
         [gauss.pdf(test_values[:, i]) for i, gauss in enumerate(gaussians)], axis=0
     )

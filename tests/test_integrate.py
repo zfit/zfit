@@ -175,9 +175,6 @@ def func3_2deps(x):
 
 def func3_2deps_fully_integrated(limits, params=None, model=None):
     lower, upper = limits.v1.limits
-    # todo: remove
-    # with suppress(TypeError):
-    #     lower, upper = lower, upper
 
     lower_a, lower_b = lower
     upper_a, upper_b = upper
@@ -200,7 +197,7 @@ def func4_3deps(x):
         b = x["obs2"]
         c = x["obs3"]
 
-    else:
+    else:  # numpy array
         a, b, c = x
 
     return a**2 + b**3 + 0.5 * c

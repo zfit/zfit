@@ -157,12 +157,12 @@ def simpson_integrate(func, limits, num_points):  # currently not vectorized
     num_points = tf.cast(num_points, znp.int32)
     num_points += num_points % 2 + 1  # sanitize number of points
     for space in limits:
-        lower, upper = space.v1.limits
+        lower, upper = space.v0.limits
         if lower.shape[0] > 1:
             msg = "Vectorized spaces in integration currently not supported."
             raise ValueError(msg)
-        lower = znp.array(lower)[0]  # TODO: can we keep the last dimension?
-        upper = znp.array(upper)[0]
+        lower = znp.array(lower)[0, 0]
+        upper = znp.array(upper)[0, 0]
         tf.debugging.assert_all_finite(
             (lower, upper),
             "MC integration does (currently) not support unbound limits (np.infty) as given here:"
@@ -253,7 +253,7 @@ def mc_integrate(
             raise RuntimeError(msg)
 
         @z.function(wraps="tensor")
-        def part_integrate_func(x):
+        def part_integrate_func(x):  # TODO: improve? as_tensormap or similar?
             x = dict(zip(data_obs, tf.unstack(x, axis=0)))
             return mc_integrate(
                 func=func,

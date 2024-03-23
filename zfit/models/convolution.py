@@ -233,7 +233,7 @@ class FFTConvPDFV1(BaseFunctor, SerializableMixin):
         lower_func, upper_func = limits_func.v0.limits
         lower_kernel, upper_kernel = limits_kernel.v0.limits
         lower_sample = lower_func + lower_kernel
-        upper_sample = upper_func + upper_kernel
+        upper_sample = upper_func + upper_kernel  # todo: debug, check shapes of limits
 
         # TODO: what if kernel area is larger?
         if limits_kernel.rect_area() > limits_func.rect_area():

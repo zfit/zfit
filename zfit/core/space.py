@@ -294,7 +294,7 @@ class Limit(
             limit = limit_fn
 
             limit_fn = limit.limit_fn
-            rect_limits = limit.limits
+            rect_limits = limit.rect_limits
             n_obs = limit.n_obs
         limits_are_rect = True
 
@@ -420,7 +420,7 @@ class Limit(
 
     @property  # todo: remove, legacy object
     def rect_limits(self) -> ztyping.RectLimitsReturnType:
-        """Return the rectangular limits as ``np.ndarray``tf.Tensor`` if they are set and not false.
+        """Return the rectangular limits as ``np.ndarray/tf.Tensor`` if they are set and not false.
 
             The rectangular limits can be used for sampling. They do not in general represent the limits
             of the object as a functional limit can be set and to check if something is inside the limits,
@@ -472,21 +472,13 @@ class Limit(
         return lower, upper
 
     @property
-    def lower(self) -> ztyping.RectLowerReturnType:
-        return self.rect_lower
-
-    @property
     def rect_lower(self) -> ztyping.RectLowerReturnType:
         """The lower, rectangular limits, equivalent to `rect_limits[0] with shape (..., n_obs)`
 
         Returns:
             The lower, rectangular limits as `np.ndarray` or `tf.Tensor`
         """
-        return self.limits[0]
-
-    @property
-    def upper(self) -> ztyping.RectUpperReturnType:
-        return self.rect_upper
+        return self.rect_limits[0]
 
     @property
     def rect_upper(self) -> ztyping.RectUpperReturnType:
@@ -495,16 +487,13 @@ class Limit(
         Returns:
             The lower, rectangular limits as `np.ndarray` or `tf.Tensor`
         """
-        return self.limits[1]
+        return self.rect_limits[1]
 
     def rect_area(self) -> float | np.ndarray | znp.array:
         """Calculate the total rectangular area of all the limits and axes.
 
         Useful, for example, for MC integration.
         """
-        return self.area()
-
-    def area(self):
         return calculate_rect_area(rect_limits=self._rect_limits_tf)
 
     def inside(self, x: ztyping.XTypeInput, guarantee_limits: bool = False) -> ztyping.XTypeReturnNoData:
@@ -728,7 +717,7 @@ class Limit(
         elif self.limits_are_false:
             limits = False
         elif self.n_obs < 5 and not self.n_events > 1:
-            limits = self.v0.limits
+            limits = self.rect_limits
         else:
             limits = "rectangular"
 
@@ -757,8 +746,8 @@ def less_equal_limits(limit1: Limit, limit2: Limit, allow_graph=True) -> znp.arr
             )
             raise IllegalInGraphModeError(msg) from error
 
-        lower1, upper1 = limit1.v0.limits
-        lower2, upper2 = limit2.v0.limits
+        lower1, upper1 = limit1.rect_limits
+        lower2, upper2 = limit2.rect_limits
 
     lower_le = z.unstable.reduce_all(z.unstable.less_equal(lower1, lower2), axis=-1)
     upper_le = z.unstable.reduce_all(z.unstable.less_equal(upper1, upper2), axis=-1)
@@ -795,8 +784,8 @@ def equal_limits(limit1: Limit, limit2: Limit, allow_graph=True) -> bool:
             )
             raise IllegalInGraphModeError(msg) from error
 
-        lower, upper = limit1.v0.limits
-        lower_other, upper_other = limit2.v0.limits
+        lower, upper = limit1.rect_limits
+        lower_other, upper_other = limit2.rect_limits
 
     # TODO add tols
     lower_limits_equal = z.unstable.reduce_all(z.unstable.allclose_anyaware(lower, lower_other))
@@ -1045,7 +1034,7 @@ class BaseSpace(ZfitSpace, BaseObject):
         elif self.limits_are_false:
             limits = False
         elif self.has_rect_limits:
-            limits = self.v0.limits if self.n_obs < 3 and not self.n_events > 1 else "rectangular"
+            limits = self.rect_limits if self.n_obs < 3 and not self.n_events > 1 else "rectangular"
         else:
             limits = "functional"
         return f"<zfit {class_name} obs={self.obs}, axes={self.axes}, limits={limits}, binned={self.is_binned}>"
@@ -1323,8 +1312,8 @@ class Space(
                     msg = "If binning is an integer, it must be > 0"
                     raise ValueError(msg)
 
-                lower = self.v1.lower[i]
-                upper = self.v1.upper[i]
+                lower = self.lower[0][i]
+                upper = self.upper[0][i]
                 regular_binnings.append(RegularBinning(bins=nbins, start=lower, stop=upper, name=self.obs[i]))
 
             binning = Binnings(regular_binnings)
@@ -1603,7 +1592,7 @@ class Space(
             limit,
         ) in limits_dict.items():  # TODO: maybe refactor with extract limits?
             limits_coords.extend(coord_limit)
-            lower, upper = limit.limits  # to get the numpy or tensor
+            lower, upper = limit.rect_limits  # to get the numpy or tensor
             rect_lower_unordered.append(lower)
             rect_upper_unordered.append(upper)
         reorder_kwargs = {"x_obs" if obs_in_use else "x_axes": limits_coords}
@@ -1721,13 +1710,54 @@ class Space(
         """
         return len(tuple(self))
 
+    # def with_limits(
+    #         self,
+    #         *args,
+    #         limits: ztyping.LimitsTypeInput = None,
+    #         rect_limits: ztyping.RectLimitsInputType | None = None,
+    #         lower: ztyping.LimitsTypeInputV1 | None = None,
+    #         upper: ztyping.LimitsTypeInputV1 | None = None,
+    #         name: str | None = None,
+    # ) -> ZfitSpace:
+    #     """Return a copy of the space with the new `limits` (and the new `name`).
+    #
+    #     Args:
+    #         limits: Limits to use. Can be rectangular, a function (requires to also specify `rect_limits`
+    #             or an instance of ZfitLimit.
+    #         rect_limits: Rectangular limits that will be assigned with the instance
+    #         name: Human readable name
+    #
+    #     Returns:
+    #         Copy of the current object with the new limits.
+    #     """
+    #     if len(args) > 2:
+    #         msg = "Cannot take more than 3 positional arguments"
+    #         raise ValueError(msg)
+    #     if len(args) == 2:
+    #         limits, rect_limits = args
+    #     elif len(args) == 1:
+    #         limits = args[0]
+    #     if limits is not None and rect_limits is not None and all(isinstance(lim, (int, float, Any)) for lim in (limits, rect_limits)):
+    #         if lower is not None or upper is not None:
+    #             msg = "Cannot set both limits and lower, upper."
+    #             raise ValueError(msg)
+    #         lower, upper = limits, rect_limits
+    #
+    #     limits = [lower, upper]
+    #     rect_limits = limits
+    #
+    #     return type(self)(
+    #         obs=self.coords,
+    #         limits=limits,
+    #         rect_limits=rect_limits,
+    #         binning=self.binning,
+    #         name=name,
+    #     )
+
     def with_limits(
         self,
-        *args,
         limits: ztyping.LimitsTypeInput = None,
         rect_limits: ztyping.RectLimitsInputType | None = None,
-        lower: ztyping.LimitsTypeInputV1 | None = None,
-        upper: ztyping.LimitsTypeInputV1 | None = None,
         name: str | None = None,
     ) -> ZfitSpace:
         """Return a copy of the space with the new `limits` (and the new `name`).
@@ -1741,21 +1771,6 @@ class Space(
         Returns:
             Copy of the current object with the new limits.
         """
-        if len(args) > 2:
-            msg = "Cannot take more than 3 positional arguments"
-            raise ValueError(msg)
-        if len(args) == 2:
-            limits, rect_limits = args
-        elif len(args) == 1:
-            limits = args[0]
-        if limits is not None and rect_limits is not None and all(isinstance(lim, (int, float, Any)) for lim in limits):
-            if lower is not None or upper is not None:
-                msg = "Cannot set both limits and lower, upper."
-                raise ValueError(msg)
-            lower, upper = limits, rect_limits
-
-        limits = [lower, upper]
-
         return type(self)(
             obs=self.coords,
             limits=limits,
@@ -2116,8 +2131,8 @@ class Space(
         if self._depr_n_limits > 1:
             msg = f"Cannot call `limit1d, as `Space` has several limits: {self._depr_n_limits}"
             raise RuntimeError(msg)
-        lower, upper = self.v1.limits
-        return lower[0], upper[0]
+        lower, upper = self.rect_limits
+        return lower[0][0], upper[0][0]
 
     @classmethod
     @deprecated(

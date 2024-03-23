@@ -32,8 +32,8 @@ def test_rect_limits_1d(graph, rect_limits, testclass):
         limit = testclass(rect_limits)
         limit2 = testclass(rect_limits=rect_limits)
 
-        lower, upper = limit.v0.limits
-        lower2, upper2 = limit2.v0.limits
+        lower, upper = limit.limits
+        lower2, upper2 = limit2.limits
         assert limit.has_rect_limits
         inside = limit.inside(2)
         inside2 = limit.inside(2, guarantee_limits=True)

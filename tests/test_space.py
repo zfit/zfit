@@ -249,7 +249,7 @@ def test_with_coords(limits):
 
 @pytest.mark.parametrize("binning", [None, [binning1, binning2]])
 @pytest.mark.parametrize("limits", limits_to_test)
-def test_with_obs(limits, binning):
+def test_with_obs_binning_limits1(limits, binning):
     """
     Args:
         limits:

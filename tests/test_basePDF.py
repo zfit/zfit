@@ -316,7 +316,7 @@ def test_analytic_sampling(obs1):
     from zfit.core.space import ANY_UPPER
 
     SampleGauss.register_analytic_integral(
-        func=lambda limits, params, model: 2 * limits.v1.upper,
+        func=lambda limits, params, model: 2 * limits.v1.upper[0],
         limits=zfit.Space(limits=(-float("inf"), ANY_UPPER), axes=(0,)),
     )  # DUMMY!
     SampleGauss.register_inverse_analytic_integral(func=lambda x, params: x)
@@ -326,8 +326,8 @@ def test_analytic_sampling(obs1):
     sample = gauss1.sample(n=10000, limits=(2.0, 5.0))
     sample = sample.numpy()
 
-    assert 4.0 <= min(sample)
-    assert 5 >= max(sample)
+    assert 4.0 <= min(sample[0])
+    assert 10.0 >= max(sample[0])
 
 
 def test_multiple_limits(obs1):

@@ -1066,13 +1066,13 @@ def cut_edges_and_bins(
     all_lower_bins = []
     all_upper_bins = []
     if isinstance(limits, ZfitSpace):
-        lower, upper = limits.v1.limits
+        lower, upper = limits.v0.limits
     else:
         lower, upper = limits
-        lower = znp.asarray(lower)[0]
-        upper = znp.asarray(upper)[0]
-    lower_all = lower
-    upper_all = upper
+        lower = znp.asarray(lower)
+        upper = znp.asarray(upper)
+    lower_all = lower[0]
+    upper_all = upper[0]
     rank = len(edges)
     current_axis = 0
     for i, edge in enumerate(edges):
