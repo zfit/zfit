@@ -47,11 +47,6 @@ class ZfitDimensional(ZfitObject):
         """
         raise NotImplementedError
 
-    @property
-    @abstractmethod
-    def space(self):
-        raise NotImplementedError
-
 
 class ZfitOrderableDimensional(ZfitDimensional, metaclass=ABCMeta):
     @abstractmethod
