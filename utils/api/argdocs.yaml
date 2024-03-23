@@ -66,6 +66,10 @@ binneddata.param.variances: |1+
 data.param.obs: |1+
     Space of the data.
                 The space is used to define the observables and the limits of the data.
+data.init.name: |1+
+    Name of the data.
+                Maybe has implications on the serialization and deserialization of the data.
+                For a human-readable name or description, use the label.
 data.init.label: |1+
     Human-readable name
                 or label of the data for a better description, to be used with plots etc.
