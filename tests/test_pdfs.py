@@ -307,7 +307,7 @@ def normalization_testing(pdf, limits=None):
         samples = zfit.Data.from_tensor(obs=space, tensor=samples)
         probs = pdf.pdf(samples)
         result = probs.numpy()
-        result = zfit.run(np.average(result) * space.rect_area())
+        result = zfit.run(np.average(result) * space.area())
         assert pytest.approx(result, rel=0.03) == 1
 
 

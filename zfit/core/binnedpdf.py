@@ -1065,7 +1065,7 @@ def cut_edges_and_bins(
 
     all_lower_bins = []
     all_upper_bins = []
-    if isinstance(limits, ZfitSpace):
+    if isinstance(limits, ZfitSpace):  # todo: check shapes?
         lower, upper = limits.v0.limits
     else:
         lower, upper = limits

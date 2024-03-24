@@ -157,7 +157,7 @@ def simpson_integrate(func, limits, num_points):  # currently not vectorized
     num_points = tf.cast(num_points, znp.int32)
     num_points += num_points % 2 + 1  # sanitize number of points
     for space in limits:
-        lower, upper = space.v0.limits
+        lower, upper = space.v0.limits  # todo: shape of spaces?
         if lower.shape[0] > 1:
             msg = "Vectorized spaces in integration currently not supported."
             raise ValueError(msg)
@@ -395,7 +395,7 @@ def mc_integrate(
 
             if not vectorizable:
                 tf.cond(error > tol, print_none_return, lambda: None)
-        integral = avg * tf.cast(z.convert_to_tensor(space.rect_area()), dtype=avg.dtype)
+        integral = avg * tf.cast(z.convert_to_tensor(space.area()), dtype=avg.dtype)
         integrals.append(integral)
     return z.reduce_sum(integrals, axis=0)
 
@@ -404,7 +404,7 @@ def mc_integrate(
 # @z.function
 def normalization_nograd(func, n_axes, batch_size, num_batches, dtype, space, x=None, shape_after=()):
     del x  # unused
-    upper, lower = space.rect_limits
+    upper, lower = space.v1.limits
     lower = z.convert_to_tensor(lower, dtype=dtype)
     upper = z.convert_to_tensor(upper, dtype=dtype)
 
@@ -499,7 +499,7 @@ def normalization_chunked(func, n_axes, batch_size, num_batches, dtype, space, x
 
 # @z.function
 def chunked_average(func, x, num_batches, batch_size, space, mc_sampler):
-    lower, upper = space.limits
+    lower, upper = space.v0.limits
 
     fake_resource_var = tf.Variable("fake_hack_ResVar_for_custom_gradient", initializer=z.constant(4242.0))
     fake_x = z.constant(42.0) * fake_resource_var

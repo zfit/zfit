@@ -40,8 +40,8 @@ class UniformSampleAndWeights:
                 if isinstance(space, EventSpace):
                     frac = 1.0  # TODO(Mayou36): remove hack for Eventspace
                 else:
-                    tot_area = limits.rect_area()
-                    frac = (space.rect_area() / tot_area)[0]
+                    tot_area = limits.area()
+                    frac = (space.area() / tot_area)[0]
                 n_partial_to_produce = tf.cast(
                     z.to_real(n_to_produce) * z.to_real(frac), dtype=tf.int64
                 )  # TODO(Mayou36): split right!

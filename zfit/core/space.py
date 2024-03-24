@@ -717,7 +717,7 @@ class Limit(
         elif self.limits_are_false:
             limits = False
         elif self.n_obs < 5 and not self.n_events > 1:
-            limits = self.rect_limits
+            limits = self.v1.limits
         else:
             limits = "rectangular"
 
@@ -2710,7 +2710,7 @@ class MultiSpace(BaseSpace):
 
         Useful, for example, for MC integration.
         """
-        return z.reduce_sum([space.rect_area() for space in self], axis=0)
+        return z.reduce_sum([space.area() for space in self], axis=0)
 
     @property
     def rect_limits_are_tensors(self) -> bool:

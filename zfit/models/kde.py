@@ -747,8 +747,8 @@ class GaussianKDE1DimV1(KDEHelper, WrapDistribution):
                 return tfp.distributions.TruncatedNormal(
                     loc=self._data,
                     scale=self._bandwidth,
-                    low=self.space.rect_lower,
-                    high=self.space.rect_upper,
+                    low=self.space.v1.lower,
+                    high=self.space.v1.upper,
                 )
 
         else:

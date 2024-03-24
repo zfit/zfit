@@ -236,7 +236,7 @@ class FFTConvPDFV1(BaseFunctor, SerializableMixin):
         upper_sample = upper_func + upper_kernel  # todo: debug, check shapes of limits
 
         # TODO: what if kernel area is larger?
-        if limits_kernel.rect_area() > limits_func.rect_area():
+        if limits_kernel.area() > limits_func.area():
             msg = (
                 "Currently, only kernels that are smaller than the func are supported."
                 "Simply switch the two should resolve the problem."
@@ -246,7 +246,7 @@ class FFTConvPDFV1(BaseFunctor, SerializableMixin):
         # get the finest resolution. Find the dimensions with the largest kernel-space to func-space ratio
         # We take the binwidth of the kernel as the overall binwidth and need to have the same binning in
         # the function as well
-        area_ratios = (upper_sample - lower_sample) / (limits_kernel.rect_upper - limits_kernel.rect_lower)
+        area_ratios = (upper_sample - lower_sample) / (limits_kernel.v0.upper - limits_kernel.v0.lower)
         nbins_func_exact_max = znp.max(area_ratios * n)
         nbins_func = znp.ceil(nbins_func_exact_max)  # plus one and floor is like ceiling (we want more bins) with the
         # guarantee that we add one bin (e.g. if we hit exactly the boundaries, we add one.

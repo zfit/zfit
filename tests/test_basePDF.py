@@ -324,10 +324,10 @@ def test_analytic_sampling(obs1):
     mu, sigma = create_mu_sigma_true_params()
     gauss1 = SampleGauss(obs=obs1, mu=mu, sigma=sigma)
     sample = gauss1.sample(n=10000, limits=(2.0, 5.0))
-    sample = sample.numpy()
 
-    assert 4.0 <= min(sample[0])
-    assert 10.0 >= max(sample[0])
+
+    assert 4.0 <= min(sample['obs1'])
+    assert 10.0 >= max(sample['obs1'])
 
 
 def test_multiple_limits(obs1):
@@ -416,7 +416,7 @@ def test_projection_pdf(test_values):
         return value
 
     def correlated_func_integrate_x(y, limits):
-        lower, upper = limits.v0.limits
+        lower, upper = limits.v1.limits
 
         def integ(x, y):
             return 0.333333333333333 * x**3 - 1.0 * x**2 * y**3 + x * (1.0 * y**6 + 0.1)
@@ -424,7 +424,7 @@ def test_projection_pdf(test_values):
         return integ(y, upper) - integ(y, lower)
 
     def correlated_func_integrate_y(x, limits):
-        lower, upper = limits.v0.limits
+        lower, upper = limits.v1.limits
 
         def integ(x, y):
             return -0.5 * x * y**4 + 0.142857142857143 * y**7 + y * (1.0 * x**2 + 0.1)

@@ -389,7 +389,7 @@ class ChebyshevRepr(BaseRecursivePolynomialRepr):
 
 def func_integral_chebyshev1(limits, norm, params, model):
     del norm  # not used here
-    lower, upper = limits.rect_limits
+    lower, upper = limits.v1.limits
     lower_rescaled = model._polynomials_rescale(lower)
     upper_rescaled = model._polynomials_rescale(upper)
 

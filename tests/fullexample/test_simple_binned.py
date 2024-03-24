@@ -195,7 +195,8 @@ bin_ids = [f"{n_bins}_bins" for n_bins in bins]
         "pyhf:numpy:", "pyhf:jax:",
         "zfit::minuit", "zfit::minuitzgrad",
         # "zfit::minuitzgrad1",
-        "zfit::nloptmma", "zfit::nloptlbfgs", "zfit::scipylbfgs", "zfit::scipytrustconstr",
+        "zfit::nloptmma", "zfit::nloptlbfgs",
+        "zfit::scipylbfgs", "zfit::scipytrustconstr",
         "zfit::ipopt"
     ],
 )

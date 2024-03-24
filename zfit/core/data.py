@@ -849,9 +849,6 @@ class Data(
     def _get_nevents(self):
         return self.dataset.nevents
 
-    def __str__(self) -> str:
-        return f"<zfit.Data: {self.label} obs={self.obs}>"
-
     def to_binned(self, space):
         from zfit._data.binneddatav1 import BinnedData
 
@@ -870,6 +867,9 @@ class Data(
             )
             raise RuntimeError(msg) from errorobs
         return value
+
+    def __str__(self) -> str:
+        return f"<zfit.Data: {self.label} obs={self.obs} array={self.value()}>"
 
 
 class DataRepr(BaseRepr):
@@ -1292,7 +1292,7 @@ class SamplerData(Data):
             self.update_data(sample=new_sample, weights=new_weight, guarantee_limits=self._sampler_guarantee_limits)
 
     def __str__(self) -> str:
-        return f"<SamplerData: {self.label} obs={self.obs} size={int(self.nevents)} weighted={self.has_weights}>"
+        return f"<SamplerData: {self.label} obs={self.obs} size={int(self.nevents)} weighted={self.has_weights} array={self.value()}>"
 
     @classmethod
     def get_repr(cls):  # acts as data object once serialized

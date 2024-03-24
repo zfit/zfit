@@ -48,7 +48,7 @@ def tfd_analytic_sample(n: int, dist: tfd.Distribution, limits: ztyping.ObsTypeI
     Returns:
         The sampled data with the number of samples and the number of observables.
     """
-    lower_bound, upper_bound = limits.rect_limits  # todo: check shapes
+    lower_bound, upper_bound = limits.v1.limits
     lower_prob_lim = dist.cdf(lower_bound)
     upper_prob_lim = dist.cdf(upper_bound)
 
