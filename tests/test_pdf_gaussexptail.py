@@ -14,10 +14,10 @@ sigmal = 1.1
 sigmar = 1.1
 
 alphal = 0.8
-nl = 2.0
+nl = alphal
 
 alphar = 1.4
-nr = 4.0
+nr = alphar
 
 bounds = (-6, 4)
 lbounds = (bounds[0], mu)
@@ -46,8 +46,7 @@ def _gaussexptail_params_factory(name_add=""):
     mu_ = zfit.Parameter(f"mu_gaussexptail{name_add}", mu)
     sigma_ = zfit.Parameter(f"sigma_gaussexptail{name_add}", sigma)
     alphal_ = zfit.Parameter(f"alphal_gaussexptail{name_add}", alphal)
-    nl_ = zfit.Parameter(f"nl_gaussexptail{name_add}", nl)
-    return {"mu": mu_, "sigma": sigma_, "alpha": alphal_, "n": nl_}
+    return {"mu": mu_, "sigma": sigma_, "alpha": alphal_}
 
 tester.register_pdf(pdf_class=GaussExpTail, params_factories=_gaussexptail_params_factory)
 
@@ -74,9 +73,8 @@ def test_gaussexptail_integral():
     mu_ = zfit.Parameter("mu", mu)
     sigma_ = zfit.Parameter("sigma", sigma)
     alphal_ = zfit.Parameter("alphal", alphal)
-    nl_ = zfit.Parameter("nl", nl)
 
-    gaussexptail = GaussExpTail(obs=obs, mu=mu_, sigma=sigma_, alpha=alphal_, n=nl_)
+    gaussexptail = GaussExpTail(obs=obs, mu=mu_, sigma=sigma_, alpha=alphal_)
     int_limits = (-1, 3)
     integral_numeric = gaussexptail.numeric_integrate(limits=int_limits, norm=False).numpy()
     integral = gaussexptail.analytic_integrate(limits=int_limits, norm=False).numpy()
@@ -103,22 +101,18 @@ def test_gaussexptail_generalizedgaussexptail():
     sigma_ = zfit.Parameter("sigma", sigma)
     sigmal_ = zfit.Parameter("sigmal", sigmal)
     alphal_ = zfit.Parameter("alphal", alphal)
-    nl_ = zfit.Parameter("nl", nl)
     sigmar_ = zfit.Parameter("sigmar", sigmar)
     alphar_ = zfit.Parameter("alphar", alphar)
-    nr_ = zfit.Parameter("nr", nr)
 
-    gaussexptaill = GaussExpTail(obs=obs, mu=mu_, sigma=sigmal_, alpha=alphal_, n=nl_)
-    gaussexptailr = GaussExpTail(obs=obs, mu=mu_, sigma=sigmar_, alpha=-alphar_, n=nr_)
+    gaussexptaill = GaussExpTail(obs=obs, mu=mu_, sigma=sigmal_, alpha=alphal_)
+    gaussexptailr = GaussExpTail(obs=obs, mu=mu_, sigma=sigmar_, alpha=-alphar_)
     generalizedgaussexptail = GeneralizedGaussExpTail(
         obs=obs,
         mu=mu_,
         sigmal=sigmal_,
         alphal=alphal_,
-        nl=nl_,
         sigmar=sigmar_,
         alphar=alphar_,
-        nr=nr_,
     )
 
     sample_testing(gaussexptaill)

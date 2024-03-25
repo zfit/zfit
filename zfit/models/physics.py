@@ -551,28 +551,28 @@ GeneralizedCB.register_analytic_integral(func=generalized_crystalball_mu_integra
 
 
 @z.function(wraps="tensor", keepalive=True)
-def gaussexptail_func(x, mu, sigma, alpha, n):
+def gaussexptail_func(x, mu, sigma, alpha):
     t = (x - mu) / sigma * tf.sign(alpha)
     abs_alpha = znp.abs(alpha)
     cond = tf.less(t, -abs_alpha)
     func = z.safe_where(
         cond,
-        lambda t: znp.exp(-0.5 * znp.square(abs_alpha) + n * (abs_alpha + t)),
+        lambda t: znp.exp(0.5 * znp.square(abs_alpha) + abs_alpha * t),
         lambda t: znp.exp(-0.5 * znp.square(t)),
         values=t,
-        value_safer=lambda t: znp.ones_like(t) * (abs_alpha - 2),
+        value_safer=lambda t: znp.ones_like(t) * abs_alpha,
     )
     return znp.maximum(func, znp.zeros_like(func))
 
 
 @z.function(wraps="tensor", keepalive=True, stateless_args=False)
-def generalized_gaussexptail_func(x, mu, sigmal, alphal, nl, sigmar, alphar, nr):
+def generalized_gaussexptail_func(x, mu, sigmal, alphal, sigmar, alphar):
     cond = tf.less(x, mu)
 
     return tf.where(
         cond,
-        gaussexptail_func(x, mu, sigmal, alphal, nl),
-        gaussexptail_func(x, mu, sigmar, -alphar, nr),
+        gaussexptail_func(x, mu, sigmal, alphal),
+        gaussexptail_func(x, mu, sigmar, -alphar),
     )
 
 
@@ -581,15 +581,14 @@ def gaussexptail_integral(limits, params, model):
     mu = params["mu"]
     sigma = params["sigma"]
     alpha = params["alpha"]
-    n = params["n"]
 
     lower, upper = limits._rect_limits_tf
 
-    return gaussexptail_integral_func(mu, sigma, alpha, n, lower, upper)
+    return gaussexptail_integral_func(mu, sigma, alpha, lower, upper)
 
 
 @z.function(wraps="tensor", keepalive=True)
-def gaussexptail_integral_func(mu, sigma, alpha, n, lower, upper):
+def gaussexptail_integral_func(mu, sigma, alpha, lower, upper):
     sqrt_pi_over_two = np.sqrt(np.pi / 2)
     sqrt2 = np.sqrt(2)
 
@@ -607,16 +606,19 @@ def gaussexptail_integral_func(mu, sigma, alpha, n, lower, upper):
 
     gauss_tmin_tmax_integral = abs_sigma * sqrt_pi_over_two * (tf.math.erf(tmax / sqrt2) - tf.math.erf(tmin / sqrt2))
     exp_tmin_tmax_integral = (
-        abs_sigma / n * znp.exp(-0.5 * znp.square(abs_alpha) + n * abs_alpha) * (znp.exp(n * tmax) - znp.exp(n * tmin))
+        abs_sigma
+        / abs_alpha
+        * znp.exp(0.5 * znp.square(abs_alpha))
+        * (znp.exp(abs_alpha * tmax) - znp.exp(abs_alpha * tmin))
     )
     gauss_minus_abs_alpha_tmax_integral = (
         abs_sigma * sqrt_pi_over_two * (tf.math.erf(tmax / sqrt2) - tf.math.erf(-abs_alpha / sqrt2))
     )
     exp_tmin_minus_abs_alpha_integral = (
         abs_sigma
-        / n
-        * znp.exp(-0.5 * znp.square(abs_alpha) + n * abs_alpha)
-        * (znp.exp(-n * abs_alpha) - znp.exp(n * tmin))
+        / abs_alpha
+        * znp.exp(0.5 * znp.square(abs_alpha))
+        * (znp.exp(-znp.square(abs_alpha)) - znp.exp(abs_alpha * tmin))
     )
     integral_sum = exp_tmin_minus_abs_alpha_integral + gauss_minus_abs_alpha_tmax_integral
 
@@ -632,10 +634,8 @@ def generalized_gaussexptail_integral(limits, params, model):
     mu = params["mu"]
     sigmal = params["sigmal"]
     alphal = params["alphal"]
-    nl = params["nl"]
     sigmar = params["sigmar"]
     alphar = params["alphar"]
-    nr = params["nr"]
 
     lower, upper = limits._rect_limits_tf
     lower = lower[:, 0]
@@ -645,26 +645,22 @@ def generalized_gaussexptail_integral(limits, params, model):
         mu=mu,
         sigmal=sigmal,
         alphal=alphal,
-        nl=nl,
         sigmar=sigmar,
         alphar=alphar,
-        nr=nr,
         lower=lower,
         upper=upper,
     )
 
 
 @z.function(wraps="tensor", keepalive=True)
-def generalized_gaussexptail_integral_func(mu, sigmal, alphal, nl, sigmar, alphar, nr, lower, upper):
+def generalized_gaussexptail_integral_func(mu, sigmal, alphal, sigmar, alphar, lower, upper):
     upper_of_lowerint = znp.minimum(mu, upper)
-    integral_left = gaussexptail_integral_func(
-        mu=mu, sigma=sigmal, alpha=alphal, n=nl, lower=lower, upper=upper_of_lowerint
-    )
+    integral_left = gaussexptail_integral_func(mu=mu, sigma=sigmal, alpha=alphal, lower=lower, upper=upper_of_lowerint)
     left = tf.where(tf.less(mu, lower), znp.zeros_like(integral_left), integral_left)
 
     lower_of_upperint = znp.maximum(mu, lower)
     integral_right = gaussexptail_integral_func(
-        mu=mu, sigma=sigmar, alpha=-alphar, n=nr, lower=lower_of_upperint, upper=upper
+        mu=mu, sigma=sigmar, alpha=-alphar, lower=lower_of_upperint, upper=upper
     )
     right = tf.where(tf.greater(mu, upper), znp.zeros_like(integral_right), integral_right)
 
@@ -679,7 +675,6 @@ class GaussExpTail(BasePDF, SerializableMixin):
         mu: ztyping.ParamTypeInput,
         sigma: ztyping.ParamTypeInput,
         alpha: ztyping.ParamTypeInput,
-        n: ztyping.ParamTypeInput,
         obs: ztyping.ObsTypeInput,
         *,
         extended: ExtendedInputType = None,
@@ -722,16 +717,15 @@ class GaussExpTail(BasePDF, SerializableMixin):
                the PDF for better identification.
                Has no programmatical functional purpose as identification. |@docend:pdf.init.name|
         """
-        params = {"mu": mu, "sigma": sigma, "alpha": alpha, "n": n}
+        params = {"mu": mu, "sigma": sigma, "alpha": alpha}
         super().__init__(obs=obs, name=name, params=params, extended=extended, norm=norm)
 
     def _unnormalized_pdf(self, x):
         mu = self.params["mu"].value()
         sigma = self.params["sigma"].value()
         alpha = self.params["alpha"].value()
-        n = self.params["n"].value()
         x = z.unstack_x(x)
-        return gaussexptail_func(x=x, mu=mu, sigma=sigma, alpha=alpha, n=n)
+        return gaussexptail_func(x=x, mu=mu, sigma=sigma, alpha=alpha)
 
 
 class GaussExpTailPDFRepr(BasePDFRepr):
@@ -741,7 +735,6 @@ class GaussExpTailPDFRepr(BasePDFRepr):
     mu: Serializer.types.ParamTypeDiscriminated
     sigma: Serializer.types.ParamTypeDiscriminated
     alpha: Serializer.types.ParamTypeDiscriminated
-    n: Serializer.types.ParamTypeDiscriminated
 
 
 gaussexptail_integral_limits = Space(axes=(0,), limits=(((ANY_LOWER,),), ((ANY_UPPER,),)))
@@ -757,10 +750,8 @@ class GeneralizedGaussExpTail(BasePDF, SerializableMixin):
         mu: ztyping.ParamTypeInput,
         sigmal: ztyping.ParamTypeInput,
         alphal: ztyping.ParamTypeInput,
-        nl: ztyping.ParamTypeInput,
         sigmar: ztyping.ParamTypeInput,
         alphar: ztyping.ParamTypeInput,
-        nr: ztyping.ParamTypeInput,
         obs: ztyping.ObsTypeInput,
         *,
         extended: ExtendedInputType = None,
@@ -817,10 +808,8 @@ class GeneralizedGaussExpTail(BasePDF, SerializableMixin):
             "mu": mu,
             "sigmal": sigmal,
             "alphal": alphal,
-            "nl": nl,
             "sigmar": sigmar,
             "alphar": alphar,
-            "nr": nr,
         }
         super().__init__(obs=obs, name=name, params=params, extended=extended, norm=norm)
 
@@ -829,9 +818,7 @@ class GeneralizedGaussExpTail(BasePDF, SerializableMixin):
         sigmal = self.params["sigmal"].value()
         alphal = self.params["alphal"].value()
         sigmar = self.params["sigmar"].value()
-        nl = self.params["nl"].value()
         alphar = self.params["alphar"].value()
-        nr = self.params["nr"].value()
         x = z.unstack_x(x)
         return generalized_gaussexptail_func(
             x=x,
@@ -839,9 +826,7 @@ class GeneralizedGaussExpTail(BasePDF, SerializableMixin):
             sigmal=sigmal,
             alphal=alphal,
             sigmar=sigmar,
-            nl=nl,
             alphar=alphar,
-            nr=nr,
         )
 
 
@@ -853,9 +838,7 @@ class GeneralizedGaussExpTailPDFRepr(BasePDFRepr):
     sigmal: Serializer.types.ParamTypeDiscriminated
     alphal: Serializer.types.ParamTypeDiscriminated
     sigmar: Serializer.types.ParamTypeDiscriminated
-    nl: Serializer.types.ParamTypeDiscriminated
     alphar: Serializer.types.ParamTypeDiscriminated
-    nr: Serializer.types.ParamTypeDiscriminated
 
 
 GeneralizedGaussExpTail.register_analytic_integral(
