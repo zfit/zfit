@@ -26,6 +26,7 @@ Major Features and Improvements
 - add ``LogNormal`` PDF, a log-normal distribution, which is a normal distribution of the logarithm of the variable.
 - add ``ChiSquared`` PDF, the standard chi2 distribution, taken from the tensorflow-probability implementation.
 - ``Data`` has now a ``with_weights`` method that returns a new data object with different weights and an improved ``with_obs`` that allows to set obs with new limits. These replace the ``set_weights`` and ``set_data_range`` methods for a more functional approach.
+- add ``label`` to different objects (PDF, Data, etc.) that allows to give a human-readable name to the object. This is used in the plotting and can be used to identify objects.
 
 
 

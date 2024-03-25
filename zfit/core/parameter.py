@@ -1322,7 +1322,7 @@ class ComplexParameter(ComposedParameter):  # TODO: change to real, imag as inpu
 
         if self._conj is None:
             name = f"{self.name}_conj"
-            if self._label is not None:
+            if (label := self._label) is not None:
                 label = f"Conjugate of {self.label}"
             self._conj = ComplexParameter(
                 name=name,

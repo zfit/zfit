@@ -900,6 +900,10 @@ class BaseSpace(ZfitSpace, BaseObject):
     def area(self) -> float | znp.array:
         return self._legacy_area()
 
+    @property
+    def volume(self) -> float | znp.array:
+        return self._legacy_area()
+
     @abstractmethod
     def _inside(self, x, guarantee_limits):
         raise NotImplementedError
@@ -2153,7 +2157,7 @@ class Space(
             "binning": self.binning,
             "axes": self.axes,
             "obs": self.obs,
-            "labels": self.labels,
+            "label": self.labels,
         }
         kwargs.update(overwrite_kwargs)
         if set(overwrite_kwargs) - set(kwargs):
@@ -2668,8 +2672,19 @@ class MultiSpace(BaseSpace):
         if name is None:
             name = "MultiSpace"
         super().__init__(obs, axes, name)
+
+        self._labels = {ob: ob for ob in self.obs} if self.obs is not None else None
+
         self.spaces = spaces
         self.v0 = V0Space(self)
+
+    @property
+    def label(self):
+        return None
+
+    @property
+    def labels(self):
+        return self.obs if self.obs is not None else None
 
     @staticmethod
     def _initialize_space(space, spaces, obs, axes):
