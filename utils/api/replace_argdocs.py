@@ -68,5 +68,5 @@ for filepath in cfg.files:
         if cfg.dry:
             pass
         elif needs_replacement:
-            with Path(filepath, "w").open() as file:
+            with Path(filepath).open("w") as file:
                 file.write(filedata)

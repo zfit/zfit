@@ -2964,6 +2964,28 @@ def check_norm(supports=None):
     return no_norm_range
 
 
+def param_args_supported(func):
+    """Decorator: Catch the 'params' kwargs if not supported."""
+
+    @functools.wraps(func)
+    def new_func(*args, **kwargs):
+        self = args[0] if len(args) > 0 else None
+
+        if self is not None:
+            kwargs["params"] = self.params
+
+        try:
+            return func(*args, **kwargs)
+        except TypeError as error:
+            if "got an unexpected keyword argument 'params'" in str(error):
+                kwargs.pop("params")
+            else:
+                raise
+            return func(*args, **kwargs)
+
+    return new_func
+
+
 def no_multiple_limits(func):
     """Decorator: Catch the 'limits' kwargs.
 
@@ -3018,6 +3040,8 @@ def supports(
 
     if norm is not None:  # check True. Could also be a str
         decorator_stack.append(check_norm(norm))
+
+    decorator_stack.append(param_args_supported)
 
     def create_deco_stack(func):
         for decorator in reversed(decorator_stack):

@@ -37,6 +37,13 @@ model.init.obs: |1+
 
                 The observables are not equal to the domain as it does not restrict or
                 truncate the model outside this range.
+
+model.args.params: |1+
+    Mapping of the parameter names to the actual
+                values. The parameter names refer to the names of the parameters,
+                typically :py:class:`~zfit.Parameter`, that
+                the model was _initialized_ with, not the name of the models
+                parametrization.
 binneddata.param.space: |1+
     Binned space of the data.
                 The space is used to define the binning and the limits of the data.

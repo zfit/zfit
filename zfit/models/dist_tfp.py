@@ -228,7 +228,7 @@ class Gauss(WrapDistribution, SerializableMixin):
                the PDF for better identification.
                Has no programmatical functional purpose as identification. |@docend:model.init.name|
         """
-        mu, sigma = self._check_input_params(mu, sigma)
+        mu, sigma = self._check_set_input_params_tfp(mu, sigma)
         params = OrderedDict((("mu", mu), ("sigma", sigma)))
 
         def dist_params():
@@ -263,7 +263,7 @@ class ExponentialTFP(WrapDistribution):
         obs: ztyping.ObsTypeInput,
         name: str = "Exponential",
     ):
-        (tau,) = self._check_input_params(tau)
+        (tau,) = self._check_set_input_params_tfp(tau)
         params = OrderedDict((("tau", tau),))
         dist_params = {"rate": tau}
         distribution = tfp.distributions.Exponential
@@ -304,7 +304,7 @@ class Uniform(WrapDistribution):
                By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
             name: |@doc:model.init.pdf||@docend:model.init.pdf|
         """
-        low, high = self._check_input_params(low, high)
+        low, high = self._check_set_input_params_tfp(low, high)
         params = OrderedDict((("low", low), ("high", high)))
 
         def dist_params():
@@ -357,7 +357,7 @@ class TruncatedGauss(WrapDistribution):
                the PDF for better identification.
                Has no programmatical functional purpose as identification. |@docend:model.init.name|
         """
-        mu, sigma, low, high = self._check_input_params(mu, sigma, low, high)
+        mu, sigma, low, high = self._check_set_input_params_tfp(mu, sigma, low, high)
         params = OrderedDict((("mu", mu), ("sigma", sigma), ("low", low), ("high", high)))
         distribution = tfp.distributions.TruncatedNormal
 
@@ -414,7 +414,7 @@ class Cauchy(WrapDistribution, SerializableMixin):
                the PDF for better identification.
                Has no programmatical functional purpose as identification. |@docend:model.init.name|
         """
-        m, gamma = self._check_input_params(m, gamma)
+        m, gamma = self._check_set_input_params_tfp(m, gamma)
         params = OrderedDict((("m", m), ("gamma", gamma)))
         distribution = tfp.distributions.Cauchy
 
@@ -476,7 +476,7 @@ class Poisson(WrapDistribution, SerializableMixin):
         if lamb is not None:
             lam = lamb
         del lamb
-        (lam,) = self._check_input_params(lam)
+        (lam,) = self._check_set_input_params_tfp(lam)
         params = {"lam": lam}
 
         def dist_params():
@@ -540,7 +540,7 @@ class LogNormal(WrapDistribution, SerializableMixin):
                the PDF for better identification.
                Has no programmatical functional purpose as identification. |@docend:model.init.name|
         """
-        mu, sigma = self._check_input_params(mu, sigma)
+        mu, sigma = self._check_set_input_params_tfp(mu, sigma)
 
         params = OrderedDict((("mu", mu), ("sigma", sigma)))
 
@@ -610,7 +610,7 @@ class ChiSquared(WrapDistribution, SerializableMixin):
                the PDF for better identification.
                Has no programmatical functional purpose as identification. |@docend:model.init.name|
         """
-        (ndof,) = self._check_input_params(ndof)
+        (ndof,) = self._check_set_input_params_tfp(ndof)
         params = OrderedDict((("ndof", ndof),))
 
         def dist_params():
