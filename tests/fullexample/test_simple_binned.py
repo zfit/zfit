@@ -290,14 +290,17 @@ def test_hypotest(benchmark, n_bins, hypotest, eager):
             elif minimizer == "minuitzgrad1":
                 minimizer = zfit.minimize.Minuit(tol=1e-3, gradient=False, mode=1)
             elif minimizer == "nloptmma":
+                nlopt = pytest.importorskip("nlopt")
                 minimizer = zfit.minimize.NLoptMMAV1(tol=1e-3, verbosity=10)
             elif minimizer == "nloptlbfgs":
+                nlopt = pytest.importorskip("nlopt")
                 minimizer = zfit.minimize.NLoptLBFGSV1()
             elif minimizer == "scipylbfgs":
                 minimizer = zfit.minimize.ScipyLBFGSBV1()
             elif minimizer == "scipytrustconstr":
                 minimizer = zfit.minimize.ScipyTrustConstrV1()
             elif minimizer == "ipopt":
+                ipyopt = pytest.importorskip("ipyopt")
                 minimizer = zfit.minimize.IpyoptV1()
 
             nll.value()

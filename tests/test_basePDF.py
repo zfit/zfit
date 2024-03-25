@@ -405,10 +405,11 @@ def test_projection_pdf(test_values):
     import numpy as np
 
     import zfit
+    # zfit.run.set_graph_mode(False)
     import zfit.z.numpy as znp
 
-    x = zfit.Space("x", limits=(-1, 1))
-    y = zfit.Space("y", limits=(-1, 1))
+    x = zfit.Space("x", -1, 1)
+    y = zfit.Space("y", -1, 1)
 
     def correlated_func(self, x):
         x, y = x.unstack_x()
@@ -429,13 +430,13 @@ def test_projection_pdf(test_values):
         def integ(x, y):
             return -0.5 * x * y**4 + 0.142857142857143 * y**7 + y * (1.0 * x**2 + 0.1)
 
-        return (integ(x, upper) - integ(x, lower))[0]
+        return (integ(x, upper) - integ(x, lower))
 
     obs = x * y
     from zfit.models.special import SimplePDF
 
     gauss_xy = SimplePDF(func=correlated_func, obs=obs)
-    assert gauss_xy.create_projection_pdf(limits=y).norm_range == x
+    assert gauss_xy.create_projection_pdf(limits=y).norm == x
     proj_pdf = gauss_xy.create_projection_pdf(limits=y)
     test_values = znp.array(
         [

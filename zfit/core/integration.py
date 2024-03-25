@@ -271,12 +271,12 @@ def mc_integrate(
 
     integrals = []
     for space in limits:
-        lower, upper = space._rect_limits_tf
-        tf.debugging.assert_all_finite(
-            (lower, upper),
-            "MC integration does (currently) not support unbound limits (np.infty) as given here:"
-            f"\nlower: {lower}, upper: {upper}",
-        )
+        lower, upper = space.v1.limits
+        # tf.debugging.assert_all_finite(
+        #     (lower, upper),
+        #     "MC integration does (currently) not support unbound limits (np.infty) as given here:"
+        #     f"\nlower: {lower}, upper: {upper}",
+        # )
 
         n_samples = draws_per_dim * n_axes
 

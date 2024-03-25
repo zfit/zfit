@@ -869,7 +869,15 @@ class Data(
         return value
 
     def __str__(self) -> str:
-        return f"<zfit.Data: {self.label} obs={self.obs} array={self.value()}>"
+        return f"zfit.Data: {self.label} obs={self.obs} array={self.value()}"
+
+    def __repr__(self) -> str:
+        nevents = self.nevents
+        try:
+            nevents = round(float(nevents), ndigits=2)
+        except Exception:
+            nevents = None
+        return f"<zfit.Data: {self.label} obs={self.obs} shape={(nevents, self.n_obs)}>"
 
 
 class DataRepr(BaseRepr):

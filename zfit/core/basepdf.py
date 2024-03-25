@@ -729,7 +729,9 @@ class BasePDF(ZfitPDF, BaseModel):
 
         def partial_integrate_wrapped(self_simple, x):
             del self_simple
-            return self.partial_integrate(x, limits=limits, options=options)
+            return self.partial_integrate(
+                x, limits=limits, options=options, norm=False
+            )  # todo: it should be fine not to normalize, right?
 
         return SimpleFunctorPDF(
             obs=self.space.get_subspace(obs=[obs for obs in self.obs if obs not in limits.obs]),

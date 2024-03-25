@@ -934,6 +934,12 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
     def _auto_numeric_integrate(self, func, limits, x=None, options=None, **overwrite_options):
         if options is None:
             options = {}
+        norm_option = overwrite_options.pop("norm", None)
+        assert (norm_option) in (
+            None,
+            False,
+        ), f"norm should be None or False, should be caught, is {norm_option}"
+
         is_binned = options.get("type") == "bins"
         vectorizable = is_binned
         draws_per_dim = self.integration.draws_per_dim
