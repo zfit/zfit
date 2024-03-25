@@ -665,3 +665,12 @@ class StudentT(WrapDistribution, SerializableMixin):
             extended=extended,
             norm=norm,
         )
+
+
+class StudentTPDFRepr(BasePDFRepr):
+    _implementation = StudentT
+    hs3_type: Literal["StudentT"] = Field("StudentT", alias="type")
+    x: SpaceRepr
+    ndof: Serializer.types.ParamTypeDiscriminated
+    mu: Serializer.types.ParamTypeDiscriminated
+    sigma: Serializer.types.ParamTypeDiscriminated
