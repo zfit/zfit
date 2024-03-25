@@ -21,6 +21,7 @@ Major Features and Improvements
 - add ``TruncatedPDF`` that allows to truncate in one or multiple ranges (replaces "MultipleLimits" and "MultiSpace")
 - add ``LogNormal`` PDF, a log-normal distribution, which is a normal distribution of the logarithm of the variable.
 - add ``ChiSquared`` PDF, the standard chi2 distribution, taken from [https://www.tensorflow.org/probability/api_docs/python/tfp/distributions/Chi2](tensorflow-probability implementation).
+- add ``StudentT`` PDF, the standard Student's t distribution, taken from [https://www.tensorflow.org/probability/api_docs/python/tfp/distributions/StudentT](tensorflow-probability implementation).
 
 
 Breaking changes
