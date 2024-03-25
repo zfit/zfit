@@ -77,11 +77,11 @@ def _maybe_disable_warnings():
 
 _maybe_disable_warnings()
 
-import tensorflow as tf
+import tensorflow as _tf
 
-if int(tf.__version__[0]) < 2:
+if int(_tf.__version__[0]) < 2:
     raise RuntimeError(
-        f"You are using TensorFlow version {tf.__version__}. This zfit version ({__version__}) works"
+        f"You are using TensorFlow version {_tf.__version__}. This zfit version ({__version__}) works"
         f" only with TF >= 2"
     )
 
@@ -143,5 +143,5 @@ def _maybe_disable_jit():
 
 
 _maybe_disable_jit()
-
+_tf.debugging.disable_traceback_filtering()  # for performance reasons
 # EOF

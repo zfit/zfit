@@ -11,7 +11,7 @@ Complete overhaul of zfit with a focus on performance, stability and usability.
 
 Major Features and Improvements
 -------------------------------
-- Python 3.12 support
+- ``Space`` and limits have a complete overhaul in front of them, in short, these overcomplicated objects get simplified and the limits become more usable, in terms of dimensions. The full discussion and changes can be `found here <https://github.com/zfit/zfit/discussions/533>`_ .
 - add an unbinned ``Sampler`` to the public namespace under ``zfit.data.Sampler``: this object is returned in the ``create_sampler`` method and allows to resample from a function without recreating the compiled function, i.e. loss. It has an additional method ``update_data`` to update the data without recompiling the loss and can be created from a sample only. Useful to have a custom dataset in toys.
 - allow to use pandas DataFrame as input where zfit Data objects are expected
 - Parameter behavior has changed, multiple parameters with the same name can now coexist!
@@ -27,6 +27,7 @@ Major Features and Improvements
 - add ``ChiSquared`` PDF, the standard chi2 distribution, taken from the tensorflow-probability implementation.
 - ``Data`` has now a ``with_weights`` method that returns a new data object with different weights and an improved ``with_obs`` that allows to set obs with new limits. These replace the ``set_weights`` and ``set_data_range`` methods for a more functional approach.
 - add ``label`` to different objects (PDF, Data, etc.) that allows to give a human-readable name to the object. This is used in the plotting and can be used to identify objects.
+  Notably, Parameters have a label that can be arbitrary. ``Space`` has one label for each observable if the space is a product of spaces. ``Space.label`` is a string and only possible for one-dimensional spaces, while ``Space.labels`` is a list of strings and can be used for any, one- or multi-dimensional spaces.
 
 
 
@@ -45,6 +46,7 @@ Deprecations
 -------------
 - ``result.fminfull`` is deprecated and will be removed in the future. Use ``result.fmin`` instead.
 - ``Data.set_data_range`` is deprecated and will be removed in the future. Use ``with_range`` instead.
+- ``Space`` has many deprecated methods, such as ``rect_limits`` and quite a few more. The full discussion can be found `here <https://github.com/zfit/zfit/discussions/533>`_.
 
 Bug fixes and small changes
 ---------------------------
@@ -53,7 +55,7 @@ Bug fixes and small changes
 - serialization only allowed for one specific limit (space) of each obs. Multiple, independent
   limits can now be serialized.
 - improved hashing and precompilation in loss, works now safely also with samplers.
-- seed setting is by default completetly randomized
+- seed setting is by default completely randomized. This is a change from the previous behavior where the seed was set to a more deterministic value. Use seeds only for reproducibility and not for real randomness, as some strange correlations between seeds have been observed. To guarantee full randomness, just call ``zfit.run.set_seed()`` without arguments.
 
 Experimental
 ------------
