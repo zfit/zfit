@@ -641,7 +641,7 @@ class StudentT(WrapDistribution, SerializableMixin):
     def __init__(
         self,
         ndof: ztyping.ParamTypeInput,
-        m: ztyping.ParamTypeInput,
+        mu: ztyping.ParamTypeInput,
         sigma: ztyping.ParamTypeInput,
         obs: ztyping.ObsTypeInput,
         extended: ExtendedInputType = None,
@@ -649,11 +649,11 @@ class StudentT(WrapDistribution, SerializableMixin):
         name: str = "StudentT",
     ):
         """StudentT distribution for ndof degrees of freedom."""
-        ndof, m, sigma = self._check_input_params(ndof, m, sigma)
-        params = OrderedDict((("ndof", ndof), ("m", m), ("sigma", sigma)))
+        ndof, mu, sigma = self._check_input_params(ndof, mu, sigma)
+        params = OrderedDict((("ndof", ndof), ("mu", mu), ("sigma", sigma)))
 
         def dist_params():
-            return {"df": ndof.value(), "loc": m.value(), "scale": sigma.value()}
+            return {"df": ndof.value(), "loc": mu.value(), "scale": sigma.value()}
 
         distribution = tfp.distributions.StudentT
         super().__init__(
