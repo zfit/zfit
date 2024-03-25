@@ -1547,7 +1547,7 @@ class KDE1DimFFT(KDEHelper, BasePDF, SerializableMixin):
         self._kernel = kernel
         self._weights = weights
         if support is None:
-            area = znp.reshape(self.space.area(), ())
+            area = znp.reshape(self.space.volume, ())
             if area is not None:
                 support = area * 1.2
         self._support = support

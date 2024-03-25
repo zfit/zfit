@@ -131,15 +131,22 @@ class V1Space:
 
     @property
     def lower(self):
-        return self.space.lower[0]
+        return znp.atleast_1d(self.space.lower[0])
 
     @property
     def upper(self):
-        return self.space.upper[0]
+        return znp.atleast_1d(self.space.upper[0])
 
     @property
     def limits(self):
         return self.lower, self.upper
+
+    @property
+    def volume(self):
+        return znp.atleast_1d(self.space._legacy_area())
+
+    def area(self):
+        return znp.atleast_1d(self.space.area())  # intentional, we want the deprecated one to trigger
 
 
 class V0Space:
@@ -157,6 +164,34 @@ class V0Space:
     @property
     def limits(self):
         return self.space.limits
+
+    @property
+    def volume(self):
+        return self.space._legacy_area()
+
+    def area(self):
+        self.space.area()  # intentional, we want the deprecated one to trigger
+
+
+class VectorizeLimits:
+    def __init__(self, space):
+        self.space = space
+
+    @property
+    def lower(self):
+        return self.space.v1.lower[None, :]
+
+    @property
+    def upper(self):
+        return self.space.v1.upper[None, :]
+
+    @property
+    def limits(self):
+        return znp.stack([self.lower, self.upper], axis=0)
+
+    @property
+    def volume(self):
+        return self.space.v1.volume[None, :]
 
 
 # TODO(warning): set a changeable warning system in zfit
@@ -859,6 +894,12 @@ class BaseSpace(ZfitSpace, BaseObject):
             return tf.broadcast_to(True, x.shape)
         return self._inside(x, guarantee_limits)
 
+    @deprecated(
+        None, "Use the `volume` attribute instead (don't call it, i.e. convert `space.area()` to `space.volume`."
+    )
+    def area(self) -> float | znp.array:
+        return self._legacy_area()
+
     @abstractmethod
     def _inside(self, x, guarantee_limits):
         raise NotImplementedError
@@ -1213,7 +1254,7 @@ class Space(
         axes=None,
         rect_limits=None,
         name: str | None = None,
-        labels: Union[str, Iterable[str]] | None = None,
+        label: Union[str, Iterable[str]] | None = None,
         lower: ztyping.LimitsTypeInputV1 | None = None,
         upper: ztyping.LimitsTypeInputV1 | None = None,
     ):
@@ -1254,6 +1295,7 @@ class Space(
 
         self.v1 = V1Space(self)
         self.v0 = V0Space(self)
+        self.vec = VectorizeLimits(self)
 
         limits, binning = _legacy_get_arguments_space(obs, args, limits, binning, axes, rect_limits, lower, upper)
         # limits = [lower, upper]  # temporary
@@ -1274,12 +1316,19 @@ class Space(
                 obs = [axis.name for axis in binning]
         super().__init__(obs=obs, axes=axes, name=name)
 
-        labels = convert_to_container(labels, container=tuple)
-        if labels is not None and len(labels) != self.n_obs:
-            msg = f"Number of labels ({len(labels)}) does not match the number of observables ({self.n_obs})"
+        label = convert_to_container(label, container=tuple)
+        if label is not None and len(label) != self.n_obs:
+            msg = f"Number of labels ({len(label)}) does not match the number of observables ({self.n_obs})"
             raise ValueError(msg)
 
-        self._labels = labels
+        if self.obs is not None:  # if None, the obs are not given, only axes -> no labels
+            if label is None:
+                label = self.obs
+            elif len(label) != self.n_obs:
+                msg = f"Number of labels ({label}) does not match the number of observables ({self.obs})"
+                raise ValueError(msg)
+            label = dict(zip(self.obs, label))
+        self._labels = label
 
         if binning is not None and not isinstance(binning, int) and limits is None and rect_limits is None:
             limits = [[], []]
@@ -1333,9 +1382,16 @@ class Space(
 
     @property
     def labels(self):
-        if (labels := self._labels) is None:
-            labels = self.obs
-        return labels
+        if (obs := self.obs) is not None:
+            return tuple(self._labels[ob] for ob in obs)
+        return None  # we have axis -> no labels
+
+    @property
+    def label(self):
+        if self.n_obs > 1:
+            msg = f"{self} has more than one observable, use `labels` instead."
+            raise ValueError(msg)
+        return self.labels[0]
 
     @property
     def binning(self):
@@ -1613,7 +1669,7 @@ class Space(
 
         Useful, for example, for MC integration.
         """
-        return self.area()
+        return self._legacy_area()
 
     @property
     def rect_limits_are_tensors(self) -> bool:
@@ -1772,11 +1828,7 @@ class Space(
             Copy of the current object with the new limits.
         """
         return type(self)(
-            obs=self.coords,
-            limits=limits,
-            rect_limits=rect_limits,
-            binning=self.binning,
-            name=name,
+            obs=self.coords, limits=limits, rect_limits=rect_limits, binning=self.binning, name=name, label=self.labels
         )
 
     def reorder_x(
@@ -1870,7 +1922,9 @@ class Space(
             binning = self.binning
             if binning is not None:
                 binning = [binning[ob] for ob in obs if ob in self.obs]
-            new_space = type(self)(coords, limits=self._limits_dict, binning=binning)
+            if (newlabels := self.labels) is not None:
+                newlabels = tuple(self._labels[ob] for ob in coords.obs)  # use just the obs that are available
+            new_space = type(self)(coords, limits=self._limits_dict, binning=binning, label=newlabels)
         return new_space
 
     def with_axes(
@@ -1920,17 +1974,23 @@ class Space(
                 msg = "Cannot remove axes (using None) for a Space without obs"
                 raise ObsIncompatibleError(msg)
             new_limits = self._limits_dict.copy()
-            new_space = self.copy(axes=axes, limits=new_limits)
+            if (newlabels := self.labels) is not None and (obs := self.obs) is not None:
+                newlabels = tuple(self._labels[ob] for ob in obs)
+            new_space = self.copy(axes=axes, limits=new_limits, label=newlabels)
         else:
             axes = convert_to_axes(axes)
             if self.axes is None:
                 if len(axes) != len(self.obs):
                     msg = f"Trying to set axes {axes} to object with obs {self.obs}"
                     raise AxesIncompatibleError(msg)
-                new_space = self.copy(axes=axes, limits=self._limits_dict)
+                if (newlabels := self.labels) is not None and (obs := self.obs) is not None:
+                    newlabels = tuple(self._labels[ob] for ob in obs)
+                new_space = self.copy(axes=axes, limits=self._limits_dict, label=newlabels)
             else:
                 coords = self.coords.with_axes(axes=axes, allow_superset=allow_superset, allow_subset=allow_subset)
-                new_space = type(self)(coords, limits=self._limits_dict, binning=self.binning)
+                if (newlabels := self.labels) is not None and (obs := coords.obs) is not None:
+                    newlabels = tuple(self._labels[ob] for ob in obs)
+                new_space = type(self)(coords, limits=self._limits_dict, binning=self.binning, label=newlabels)
 
         return new_space
 
@@ -2058,10 +2118,12 @@ class Space(
         else:
             limits_dict = self.get_limits(axes=axes)
             new_coords = self.coords.with_axes(axes=axes, allow_subset=True, allow_superset=True)
-        return type(self)(obs=new_coords, limits=limits_dict)
+        if (newlabels := self.labels) is not None and (obs := new_coords.obs) is not None:
+            newlabels = tuple(self._labels[ob] for ob in obs)
+        return type(self)(obs=new_coords, limits=limits_dict, label=newlabels)
 
     @fail_not_rect
-    def area(self) -> float:
+    def _legacy_area(self) -> float:
         """Return the total area of all the limits and axes.
 
         Useful, for example, for MC integration.
@@ -2091,14 +2153,13 @@ class Space(
             "binning": self.binning,
             "axes": self.axes,
             "obs": self.obs,
+            "labels": self.labels,
         }
         kwargs.update(overwrite_kwargs)
         if set(overwrite_kwargs) - set(kwargs):
             msg = f"Not usable keys in `overwrite_kwargs`: {set(overwrite_kwargs) - set(kwargs)}"
             raise KeyError(msg)
         kwargs.get("binning")
-        # if binning is not None and kwargs.get('obs'):
-        #     kwargs['binning'] = [binning[ob] for ob in kwargs['obs']]
         return type(self)(**kwargs)
 
     def _inside(self, x, guarantee_limits):
@@ -2262,6 +2323,10 @@ def combine_spaces(*spaces: Iterable[Space]):
             f" while others are not {[s for s in spaces if not s.is_binned]}. Cannot mix."
         )
         raise ValueError(msg)
+
+    all_labels_map = {}
+    for space in spaces:
+        all_labels_map.update(space._labels)
     if all_spaces_binned:
         binnings_ordererd = []
         for ob in common_obs_ordered:
@@ -2442,14 +2507,14 @@ def combine_spaces(*spaces: Iterable[Space]):
     #     return False
     # else:
     #     limits = (new_lower, new_upper)
+
     return Space(
         obs=common_obs_ordered if using_obs else None,
         axes=None if using_obs else common_axes_ordered,
         binning=binning,
         limits=limits,
+        label=tuple(all_labels_map[ob] for ob in common_coords_ordered) if using_obs else None,
     )
-    # if new_space._depr_n_limits > 1:
-    #     new_space = MultiSpace(Space, obs=all_obs)
 
 
 def less_equal_space(space1, space2, allow_graph=True):
@@ -2710,7 +2775,7 @@ class MultiSpace(BaseSpace):
 
         Useful, for example, for MC integration.
         """
-        return z.reduce_sum([space.area() for space in self], axis=0)
+        return z.reduce_sum([space._legacy_area() for space in self], axis=0)
 
     @property
     def rect_limits_are_tensors(self) -> bool:
@@ -2796,7 +2861,7 @@ class MultiSpace(BaseSpace):
         )
 
     @fail_not_rect
-    def area(self) -> float:
+    def _legacy_area(self) -> float:
         return self.rect_area()
 
     def with_obs(

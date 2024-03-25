@@ -529,7 +529,7 @@ class ZfitSpace(ZfitLimit, ZfitOrderableDimensional, ZfitObject, metaclass=ABCMe
 
     # TODO: legacy?
     @abstractmethod
-    def area(self) -> float:
+    def _legacy_area(self) -> float:
         """Return the total area of all the limits and axes.
 
         Useful, for example, for MC integration.

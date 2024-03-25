@@ -559,3 +559,57 @@ def test_filter_pandas_space():
     assert df["x"].max() <= 1
     assert df["y"].min() >= -100
     assert df["y"].max() <= -99
+
+def test_vectorized_limits_v1_dummy():
+    import zfit.z.numpy as znp
+
+    obs1 = zfit.Space("x", -1, 1)
+    obs2 = zfit.Space("y", -3, 5)
+    space = obs1 * obs2
+
+    assert space.v1.lower[0] == -1
+    assert space.v1.upper[0] == 1
+    assert space.v1.lower[1] == -3
+    assert space.v1.upper[1] == 5
+
+    assert space.vec.lower.shape == (1, 2)
+    assert space.vec.upper.shape == (1, 2)
+    assert space.vec.lower[0, 0] == -1
+    assert space.vec.upper[0, 0] == 1
+    assert space.vec.lower[0, 1] == -3
+    assert space.vec.upper[0, 1] == 5
+
+    np.testing.assert_array_equal(space.v1.limits, ([-1, -3], [1, 5]))
+    np.testing.assert_array_equal(space.vec.limits, znp.array([[[-1, -3]], [[1, 5]]]))
+    diffs = space.vec.upper - space.vec.lower
+    diffs_lim = space.vec.limits[1] - space.vec.limits[0]
+    np.testing.assert_array_equal(diffs, diffs_lim)
+
+    assert space.v1._legacy_area == 8
+
+
+def test_labels_space():
+
+    obs1 = zfit.Space("x", -1, 1)
+    ylabel = "y_label"
+    obs2 = zfit.Space("y", -3, 5, label=ylabel)
+    zlabel = "z_label"
+    obs3 = zfit.Space("z", -3, 5, label=zlabel)
+    obs4 = zfit.Space("w", -3, 5)
+
+    assert obs1.labels == ("x",)
+    assert obs1._labels == {"x": "x"}
+    assert obs2.labels == (ylabel,)
+    assert obs2._labels == {"y": ylabel}
+    assert obs3.labels == (zlabel,)
+    assert obs3._labels == {"z": zlabel}
+    assert obs4.labels == ("w",)
+    assert obs4._labels == {"w": "w"}
+
+
+    space = obs1 * obs2 * obs3 * obs4
+    assert space.labels == ("x", ylabel, zlabel, "w")
+    assert space._labels == {"x": "x", "y": ylabel, "z": zlabel, "w": "w"}
+
+    space243 = space.with_obs(["y", "w", "z"])
+    assert space243.labels == (ylabel, "w", zlabel)

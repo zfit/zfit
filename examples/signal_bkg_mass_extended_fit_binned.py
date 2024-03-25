@@ -48,7 +48,7 @@ data = model.sample(n=n_sample)
 
 n_bins = 50
 
-plot_scaling = n_sample / n_bins * obs.area()
+plot_scaling = n_sample / n_bins * obs.volume
 
 x = np.linspace(obs.v1.lower, obs.v1.upper, 1000)
 

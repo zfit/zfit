@@ -44,7 +44,7 @@ zfit.param.set_values([mu, sigma, lambd, frac], [0.5, 1.2, -0.05, 0.07])
 # plot the data
 n_bins = 50
 
-plot_scaling = n_sample / n_bins * obs.area()
+plot_scaling = n_sample / n_bins * obs.volume
 
 x = np.linspace(obs.v1.lower, obs.v1.upper, 1000)
 

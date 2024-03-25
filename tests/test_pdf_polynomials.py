@@ -96,6 +96,6 @@ def test_polynomials(poly_cfg, coeffs):
     lower, upper = obs1_random.limit1d
     sample = z.random.uniform((n_sampling, 1), lower, upper, dtype=tf.float64)
     test_integral = (
-        np.average(polynomial.pdf(sample, norm=False)) * obs1_random.area()
+        np.average(polynomial.pdf(sample, norm=False)) * obs1_random.volume
     )
     assert pytest.approx(analytic_integral, rel=rel_integral * 3) == test_integral

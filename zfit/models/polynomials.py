@@ -212,7 +212,7 @@ def legendre_integral(
 
         integral = indefinite_integral(upper) - indefinite_integral(lower) + integral_0
         integral = znp.reshape(integral, newshape=())
-    integral *= 0.5 * model.space.area()  # rescale back to whole width
+    integral *= 0.5 * model.space.volume  # rescale back to whole width
 
     return integral
 
@@ -421,7 +421,7 @@ def func_integral_chebyshev1(limits, norm, params, model):
 
         integral += indefinite_integral(upper) - indefinite_integral(lower)
         integral = znp.reshape(integral, newshape=())
-    integral *= 0.5 * model.space.area()  # rescale back to whole width
+    integral *= 0.5 * model.space.volume  # rescale back to whole width
     return tf.gather(integral, indices=0, axis=-1)
 
 
@@ -526,7 +526,7 @@ def func_integral_chebyshev2(limits, norm, params, model):
 
     integral = indefinite_integral(upper) - indefinite_integral(lower)
     integral = znp.reshape(integral, newshape=())
-    integral *= 0.5 * model.space.area()  # rescale back to whole width
+    integral *= 0.5 * model.space.volume  # rescale back to whole width
 
     return integral
 
@@ -670,7 +670,7 @@ def func_integral_laguerre(limits, norm, params: dict, model):
 
     integral = indefinite_integral(upper) - indefinite_integral(lower)
     integral = znp.reshape(integral, newshape=())
-    integral *= 0.5 * model.space.area()  # rescale back to whole width
+    integral *= 0.5 * model.space.volume  # rescale back to whole width
     return integral
 
 
@@ -780,7 +780,7 @@ def func_integral_hermite(limits, norm, params, model):
 
     integral = indefinite_integral(upper) - indefinite_integral(lower)
     integral = znp.reshape(integral, newshape=())
-    integral *= 0.5 * model.space.area()  # rescale back to whole width
+    integral *= 0.5 * model.space.volume  # rescale back to whole width
 
     return integral
 

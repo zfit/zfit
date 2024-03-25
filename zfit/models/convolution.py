@@ -236,7 +236,7 @@ class FFTConvPDFV1(BaseFunctor, SerializableMixin):
         upper_sample = upper_func + upper_kernel  # todo: debug, check shapes of limits
 
         # TODO: what if kernel area is larger?
-        if limits_kernel.area() > limits_func.area():
+        if limits_kernel.volume > limits_func.volume:
             msg = (
                 "Currently, only kernels that are smaller than the func are supported."
                 "Simply switch the two should resolve the problem."

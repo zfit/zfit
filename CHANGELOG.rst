@@ -31,16 +31,19 @@ Major Features and Improvements
 
 Breaking changes
 ------------------
+This release contains multiple "breaking changes", however, the vast majority if not all apply only for edge cases and undocummented functions.
+
 - ``Data.from_root``: deprecated arguments ``branches`` and ``branch_aliases`` have been removed. Use ``obs`` and ``obs_aliases`` instead.
 - ``NameAlreadyTakenError`` was removed, see above for the new behavior. This should not have an effect on any existing code *except if you relied on the error being thrown*.
 - Data objects had an intrinsic, TensorFlow V1 legacy behavior: they were actually cut when the data was *retrieved*. This is now changed and the data is cut when it is created. This should not have any impact on existing code and just improve runtime and memory usage.
 - Partial integration used to use some broadcasting tricks that could potentially fail. It uses now a dynamic while loop that _could_ be slower but works for arbitrary PDFs. This should not have any impact on existing code and just improve stability (but technically, the data given to the PDF _if doing partial integration_ is now "different", in the sense that it's now not different anymore from any other call)
 - if a ``tf.Variable`` was used to store the number of sampled values in a sampler, it was possible to change the value of that variable to change the number of samples drawn. This is now not possible anymore and the number of samples should be given as an argument ``n`` to the ``resample`` method, as was possible since a long time.
 
+
 Deprecations
 -------------
 - ``result.fminfull`` is deprecated and will be removed in the future. Use ``result.fmin`` instead.
-- ``set_data_range`` is deprecated and will be removed in the future. Use ``with_range`` instead.
+- ``Data.set_data_range`` is deprecated and will be removed in the future. Use ``with_range`` instead.
 
 Bug fixes and small changes
 ---------------------------
@@ -49,6 +52,7 @@ Bug fixes and small changes
 - serialization only allowed for one specific limit (space) of each obs. Multiple, independent
   limits can now be serialized.
 - improved hashing and precompilation in loss, works now safely also with samplers.
+- seed setting is by default completetly randomized
 
 Experimental
 ------------

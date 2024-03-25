@@ -11,8 +11,14 @@ run = RunManager()
 
 
 def set_seed(seed=None, numpy=None, backend=None):
-    """Set random seed for zfit, numpy and the backend. The seed isn't directly set but used to generate a seed for each
-    of the three.
+    """Set random seed for zfit, numpy and the backend. If seed is given, this is used to generate deterministic seeds
+    for numpy and the backend.
+
+    .. warning::
+        To use this function to guarantee randomness, do *not* specify a seed.
+        Use a seed _only_ for reproducibility: there have been weird cases of correlation between the seed and the result.
+
+    Uses `os.urandom` to generate a seed if `None` is given, which guarantees cryptographically secure randomness.
 
     Args:
         seed (int, optional): Seed to set for the random number generator of the seeds for within zfit. If `None` (default), the seed is set to a random value.
@@ -20,7 +26,7 @@ def set_seed(seed=None, numpy=None, backend=None):
         backend (int, bool, optional): Seed to set for the backend. If `True` (default), a random seed depending on the seed as used for zfit is used. If `False`, the seed is not set.
     """
     if seed is None:
-        seed = generate_urandom_seed()
+        seed = True
 
     if numpy is None:
         numpy = True
@@ -28,13 +34,19 @@ def set_seed(seed=None, numpy=None, backend=None):
         backend = True
 
     if numpy is True:
-        rng = np.random.default_rng(seed)
-        seed = rng.integers(0, 2**31 - 1)
-        numpy = seed
+        if seed is True:
+            numpy = generate_urandom_seed()
+        else:
+            rng = np.random.default_rng(seed)
+            seed = rng.integers(0, 2**31 - 1)
+            numpy = seed
     if backend is True:
-        rng = np.random.default_rng(seed)
-        seed = rng.integers(0, 2**31 - 1)
-        backend = seed
+        if seed is True:
+            backend = generate_urandom_seed()
+        else:
+            rng = np.random.default_rng(seed)
+            seed = rng.integers(0, 2**31 - 1)
+            backend = seed
 
     if numpy is not None and numpy is not False:
         np.random.seed(numpy)
@@ -43,8 +55,11 @@ def set_seed(seed=None, numpy=None, backend=None):
 
     from .z.random import get_prng
 
-    rng = np.random.default_rng(seed)
-    seed = rng.integers(0, 2**31 - 1)
+    if seed is True:
+        seed = generate_urandom_seed()
+    else:
+        rng = np.random.default_rng(seed)
+        seed = rng.integers(0, 2**31 - 1)
 
     get_prng().reset_from_seed(seed)
 

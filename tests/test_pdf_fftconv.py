@@ -192,7 +192,7 @@ def true_conv_np(func, gauss1, obs, x, xkernel):
     y_kernel = gauss1.pdf(xkernel)
     y_func = func.pdf(x)
     true_conv = scipy.signal.fftconvolve(y_func, y_kernel, mode="same")
-    true_conv /= np.mean(true_conv) * obs.area()
+    true_conv /= np.mean(true_conv) * obs.volume
     return true_conv
 
 
@@ -204,7 +204,7 @@ def true_conv_2d_np(func, gauss1, obsfunc, xfunc, xkernel):
     nkernel = int(np.sqrt(xkernel.shape[0]))
     y_kernel = tf.reshape(y_kernel, (nkernel, nkernel))
     true_conv = scipy.signal.convolve(y_func, y_kernel, mode="same")
-    true_conv /= np.mean(true_conv) * obsfunc.area()
+    true_conv /= np.mean(true_conv) * obsfunc.volume
     return tf.reshape(true_conv, xfunc.shape[0])
 
 
