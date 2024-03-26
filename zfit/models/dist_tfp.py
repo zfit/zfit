@@ -18,9 +18,7 @@ import tensorflow_probability.python.distributions as tfd
 from pydantic import Field
 
 from zfit import z
-from zfit.util.exception import (
-    AnalyticSamplingNotImplemented,
-)
+from zfit.util.exception import AnalyticSamplingNotImplemented
 
 from ..core.basepdf import BasePDF
 from ..core.interfaces import ZfitData
@@ -362,7 +360,12 @@ class TruncatedGauss(WrapDistribution):
         distribution = tfp.distributions.TruncatedNormal
 
         def dist_params():
-            return {"loc": mu.value(), "scale": sigma.value(), "low": low.value(), "high": high.value()}
+            return {
+                "loc": mu.value(),
+                "scale": sigma.value(),
+                "low": low.value(),
+                "high": high.value(),
+            }
 
         super().__init__(
             distribution=distribution,
@@ -581,11 +584,11 @@ class ChiSquared(WrapDistribution, SerializableMixin):
     ):
         """ChiSquared distribution for ndof degrees of freedom.
 
-        The chisquared shape for $d$ degrees of freedom is defined as
+        The chisquared shape for `d` degrees of freedom is defined as
 
         .. math::
 
-            f(x \\mid d) = x**(d/2 - 1) \\exp(-x/2) / Z
+            f(x \\mid d) = x^(d/2 - 1) \\exp(-x/2) / Z
 
         with the normalization over [0, inf] of
 
@@ -633,6 +636,87 @@ class ChiSquaredPDFRepr(BasePDFRepr):
     hs3_type: Literal["ChiSquared"] = Field("ChiSquared", alias="type")
     x: SpaceRepr
     ndof: Serializer.types.ParamTypeDiscriminated
+
+
+class StudentT(WrapDistribution, SerializableMixin):
+    _N_OBS = 1
+
+    def __init__(
+        self,
+        ndof: ztyping.ParamTypeInput,
+        mu: ztyping.ParamTypeInput,
+        sigma: ztyping.ParamTypeInput,
+        obs: ztyping.ObsTypeInput,
+        extended: ExtendedInputType = None,
+        norm: NormInputType = None,
+        name: str = "StudentT",
+    ):
+        """StudentT distribution for ndof degrees of freedom.
+
+        The StudentT shape for `d` degrees of freedom is defined as
+
+        .. math::
+
+            f(x \\mid d, \\mu, \\sigma) = \\left(1 + \\frac{1}{d} \\left(\\frac{x - \\mu}{\\sigma}\\right)^2\\right)^{-\\frac{d+1}{2}} / Z
+
+        with the normalization over [-inf, inf] of
+
+        .. math::
+
+            Z = \\frac{\\sqrt{d \\pi} \\Gamma(\\frac{d}{2})}{\\Gamma(\\frac{d+1}{2})}
+
+        The effective normalization is given, as for all PDFs in `zfit`, through the `norm` argument that defaults to `obs`.
+
+        Args:
+            ndof: Number of degrees of freedom
+            mu: Mean of the distribution
+            sigma: Scale of the distribution
+            obs: |@doc:model.init.obs| Observables of the
+               model. This will be used as the default space of the PDF and,
+               if not given explicitly, as the normalization range.
+
+               The default space is used for example in the sample method: if no
+               sampling limits are given, the default space is used.
+
+               The observables are not equal to the domain as it does not restrict or
+               truncate the model outside this range. |@docend:model.init.obs|
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+            norm: |@doc:pdf.init.norm| Normalization of the PDF.
+               By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
+            name: |@doc:model.init.name| Human-readable name
+               or label of
+               the PDF for better identification.
+               Has no programmatical functional purpose as identification. |@docend:model.init.name|
+        """
+        ndof, mu, sigma = self._check_input_params(ndof, mu, sigma)
+        params = {"ndof": ndof, "mu": mu, "sigma": sigma}
+
+        def dist_params():
+            return {"df": ndof.value(), "loc": mu.value(), "scale": sigma.value()}
+
+        distribution = tfp.distributions.StudentT
+        super().__init__(
+            distribution=distribution,
+            dist_params=dist_params,
+            obs=obs,
+            params=params,
+            name=name,
+            extended=extended,
+            norm=norm,
+        )
+
+
+class StudentTPDFRepr(BasePDFRepr):
+    _implementation = StudentT
+    hs3_type: Literal["StudentT"] = Field("StudentT", alias="type")
+    x: SpaceRepr
+    ndof: Serializer.types.ParamTypeDiscriminated
+    mu: Serializer.types.ParamTypeDiscriminated
+    sigma: Serializer.types.ParamTypeDiscriminated
 
 
 class QGauss(WrapDistribution, SerializableMixin):

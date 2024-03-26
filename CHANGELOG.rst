@@ -20,7 +20,9 @@ Major Features and Improvements
 - add ``Voigt`` profile PDF which is a convolution of a Gaussian and a Cauchy distribution.
 - add ``TruncatedPDF`` that allows to truncate in one or multiple ranges (replaces "MultipleLimits" and "MultiSpace")
 - add ``LogNormal`` PDF, a log-normal distribution, which is a normal distribution of the logarithm of the variable.
-- add ``ChiSquared`` PDF, the standard chi2 distribution, taken from [https://www.tensorflow.org/probability/api_docs/python/tfp/distributions/Chi2](tensorflow-probability implementation).
+- add ``ChiSquared`` PDF, the standard chi2 distribution, taken from `tensorflow-probability implementation <https://www.tensorflow.org/probability/api_docs/python/tfp/distributions/Chi2>`_.
+- add ``StudentT`` PDF, the standard Student's t distribution, taken from `tensorflow-probability implementation <https://www.tensorflow.org/probability/api_docs/python/tfp/distributions/StudentT>`_.
+- add ``GaussExpTail`` and ``GeneralizedGaussExpTail`` PDFs, which are a Gaussian with an exponential tail on one side and a Gaussian with different sigmas on each side and different exponential tails on each side respectively.
 - add ``QGauss`` PDF, a distribution that arises from the maximization of the Tsallis entropy under appropriate constraints, see [here](https://en.wikipedia.org/wiki/Q-Gaussian_distribution).
 
 
