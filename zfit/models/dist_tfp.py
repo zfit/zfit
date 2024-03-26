@@ -668,7 +668,15 @@ class StudentT(WrapDistribution, SerializableMixin):
             ndof: Number of degrees of freedom
             mu: Mean of the distribution
             sigma: Scale of the distribution
-            obs: |@doc:model.init.obs||@docend:model.init.obs|
+            obs: |@doc:model.init.obs| Observables of the
+               model. This will be used as the default space of the PDF and,
+               if not given explicitly, as the normalization range.
+
+               The default space is used for example in the sample method: if no
+               sampling limits are given, the default space is used.
+
+               The observables are not equal to the domain as it does not restrict or
+               truncate the model outside this range. |@docend:model.init.obs|
             extended: |@doc:pdf.init.extended| The overall yield of the PDF.
                If this is parameter-like, it will be used as the yield,
                the expected number of events, and the PDF will be extended.
@@ -682,7 +690,7 @@ class StudentT(WrapDistribution, SerializableMixin):
                Has no programmatical functional purpose as identification. |@docend:model.init.name|
         """
         ndof, mu, sigma = self._check_input_params(ndof, mu, sigma)
-        params = dict(ndof=ndof, mu=mu, sigma=sigma)
+        params = {"ndof": ndof, "mu": mu, "sigma": sigma}
 
         def dist_params():
             return {"df": ndof.value(), "loc": mu.value(), "scale": sigma.value()}
