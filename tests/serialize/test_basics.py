@@ -246,7 +246,7 @@ def lognormal(extended=None, **kwargs):
 def qgauss(extended=None, **kwargs):
     import zfit
 
-    q = zfit.Parameter("q_qgauss", 0.1, -1, 1)
+    q = zfit.Parameter("q_qgauss", 2, 1, 3)
     mu = zfit.Parameter("mu_qgauss", 0.1, -1, 1)
     sigma = zfit.Parameter("sigma_qgauss", 0.1, 0, 1)
     obs = zfit.Space("obs", default_limits)

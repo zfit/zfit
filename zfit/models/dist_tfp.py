@@ -748,7 +748,7 @@ class QGauss(WrapDistribution, SerializableMixin):
 
         .. math::
 
-            f(x \\mid q, \\mu, \\sigma) = \\frac{1}{\\sigma} e_q(-\\frac{(x - \\mu)^2}{2 \\sigma^2}) / C_{q}
+            f(x \\mid q, \\mu, \\sigma) = \\frac{1}{C_{q} \\sigma} e_{q}\\left(-\\left(\\frac{x - \\mu}{\\sigma}\\right)^{2}\\right)
 
         with
 
@@ -760,7 +760,7 @@ class QGauss(WrapDistribution, SerializableMixin):
 
         .. math::
 
-            C_{q} == \\frac{\\sqrt{\\pi} \\Gamma \\left(\\frac{3 - q}{2 (q - 1)}\\right)}{\\sqrt{q - 1}\\Gamma \\left(\\frac{1}{q - 1}\\right)}
+            C_{q} = \\frac{\\sqrt{\\pi} \\Gamma \\left(\\frac{3 - q}{2 (q - 1)}\\right)}{\\sqrt{q - 1}\\Gamma \\left(\\frac{1}{q - 1}\\right)}
 
         The normalization changes for different normalization ranges
 
