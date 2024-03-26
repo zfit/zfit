@@ -1294,10 +1294,10 @@ class SamplerData(Data):
 
         with set_values(list(temp_param_values.keys()), list(temp_param_values.values())):
             new_sample, new_weight = self._sample_and_weights_func(n)
-            new_sample.set_shape((n, self.space.n_obs))
-            if new_weight is not None:
-                new_weight.set_shape((n,))
-            self.update_data(sample=new_sample, weights=new_weight, guarantee_limits=self._sampler_guarantee_limits)
+        new_sample.set_shape((n, self.space.n_obs))
+        if new_weight is not None:
+            new_weight.set_shape((n,))
+        self.update_data(sample=new_sample, weights=new_weight, guarantee_limits=self._sampler_guarantee_limits)
 
     def __str__(self) -> str:
         return f"<SamplerData: {self.label} obs={self.obs} size={int(self.nevents)} weighted={self.has_weights} array={self.value()}>"
@@ -1305,6 +1305,90 @@ class SamplerData(Data):
     @classmethod
     def get_repr(cls):  # acts as data object once serialized
         return DataRepr
+
+
+def concat(
+    datasets: Iterable[Data],
+    *,
+    obs: ztyping.ObsTypeInput = None,
+    axis: int | str | None = None,
+    name: str | None = None,
+    label: str | None = None,
+    use_hash: bool | None = None,
+) -> Data:
+    """Concatenate multiple `Data` objects into a single one.
+
+    Args:
+        datasets: The `Data` objects to concatenate.
+        obs: The observables to use. If `None`, the observables of the first `Data` object are used.
+        axis: The axis along which to concatenate the data. If `None`, the data is concatenated along the first axis.
+            Possible options are `0/index` or `1/obs/columns`. If `obs`, the data is concatenated along the observable axis.
+        name: The name of the new `Data` object.
+        label: The label of the new `Data` object.
+        use_hash: If `True`, a hash of the data is created and is used to identify it in caching.
+
+
+    Returns:
+        A new `Data` object containing the concatenated data.
+    """
+    # todo: only works for obs, not yet for axes
+    if axis is None or axis in (0, "index"):
+        axis = 0
+    elif axis in (1, "obs", "columns"):
+        axis = 1
+    else:
+        msg = f"Invalid axis {axis}. Valid options are 0/index or 1/obs/columns."
+        raise ValueError(msg)
+
+    if axis == 1:
+        msg = "todo: Take it form the product PDF and refactor here"
+        raise WorkInProgressError(msg)
+
+    datasets = convert_to_container(datasets, container=tuple)
+    if len(datasets) == 0:
+        msg = "No `Data` objects given to concatenate."
+        raise ValueError(msg)
+
+    if obs is None:
+        space = datasets[0].space
+        obs = space.obs
+    else:
+        if not isinstance((space := obs), ZfitSpace):
+            space = datasets[0].space.with_obs(obs)
+        obs = space.obs
+
+    if obs is None:
+        msg = "No observables given to concatenate or cannot be extracted from the data."
+        raise ValueError(msg)
+    if no_obs := [data for data in datasets if data.space.obs is None]:
+        msg = f"Data objects {no_obs} have no observables."
+        raise ValueError(msg)
+    if not all(set(obs) == set(data.obs) for data in datasets):
+        msg = "All `Data` objects have to have the same observables."
+        raise ValueError(msg)
+    weighted = any(data.has_weights for data in datasets)
+
+    if (all_space_equal := None) is None:
+        all_space_equal = all(data.space.with_obs(obs) == space for data in datasets)
+        if not all_space_equal:
+            msg = "All `Data` objects have to have the same space, i.e. the same limits."
+            raise ValueError(msg)
+
+    newval = []
+    if weighted:
+        newweights = []
+    for data in datasets:
+        values = data.value(obs=obs)
+        newval.append(values)
+        if weighted:
+            weights = tf.ones_like(values[:, 0]) if not data.has_weights else data.weights
+            newweights.append(weights)
+    newval = znp.concatenate(newval, axis=axis)
+    newweights = znp.concatenate(newweights, axis=0) if weighted else None
+
+    return Data.from_tensor(
+        tensor=newval, obs=space, weights=newweights, name=name, label=label, use_hash=use_hash, guarantee_limits=True
+    )
 
 
 # register_tensor_conversion(Data, name="Data", overload_operators=True)

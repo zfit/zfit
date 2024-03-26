@@ -108,3 +108,58 @@ def test_unbinneddata_getitem_index():
     np.testing.assert_array_equal(data10.value(), arr[:, 1::-1])
     np.testing.assert_array_equal(data10["obs2"], arr[:, 1])
     np.testing.assert_array_equal(data10["obs1"], arr[:, 0])
+
+
+def test_unbinned_data_concat_index():
+    n = 1000
+    n2 = 552
+    n3 = 123
+    nobs = 3
+    space1 = zfit.Space(obs="obs1", limits=(-1, 1))
+    space2 = zfit.Space(obs="obs2", limits=(-11, 5))
+    space3 = zfit.Space(obs="obs3", limits=(-15, 3))
+    space = space1 * space2 * space3
+
+    arr1 = znp.random.uniform(size=(n, nobs))
+    weights1 = znp.random.uniform(size=(n,))
+    data1w = zfit.Data.from_numpy(obs=space, array=arr1, weights=weights1)
+    data1now = zfit.Data.from_numpy(obs=space, array=arr1)
+
+    arr2 = znp.random.uniform(size=(n2, nobs))
+    weights2 = znp.random.uniform(size=(n2,))
+    data2w = zfit.Data.from_numpy(obs=space, array=arr2, weights=weights2)
+    data2now = zfit.Data.from_numpy(obs=space, array=arr2)
+
+    arr3 = znp.random.uniform(size=(n3, nobs))
+    weights3 = znp.random.uniform(size=(n3,))
+    data3w = zfit.Data.from_numpy(obs=space, array=arr3, weights=weights3)
+    data3now = zfit.Data.from_numpy(obs=space, array=arr3)
+
+    dataw = zfit.data.concat([data1w, data2w])
+    np.testing.assert_array_equal(dataw.value(), np.concatenate([arr1, arr2]))
+    assert dataw.space == space
+    np.testing.assert_array_equal(dataw.weights, np.concatenate([weights1, weights2]))
+
+    datawall = zfit.data.concat([data1w, data2w, data3w])
+    np.testing.assert_array_equal(datawall.value(), np.concatenate([arr1, arr2, arr3]))
+    assert datawall.space == space
+    np.testing.assert_array_equal(datawall.weights, np.concatenate([weights1, weights2, weights3]))
+    assert datawall.space == space
+    spacemixed = space1 * space3 * space2
+
+    mixedarray = np.concatenate([np.array(arr1)[:, [0, 2, 1]], np.array(arr2)[:, [0, 2, 1]], np.array(arr3)[:, [0, 2, 1]],], axis=0)
+
+    datawallmixed = zfit.data.concat([data1w, data2w, data3w], obs=spacemixed)
+    np.testing.assert_array_equal(datawallmixed.value(), mixedarray)
+    assert datawallmixed.space == spacemixed
+    np.testing.assert_array_equal(datawallmixed.weights, np.concatenate([weights1, weights2, weights3]))
+
+    datanow = zfit.data.concat([data1now, data2now])
+    np.testing.assert_array_equal(datanow.value(), np.concatenate([arr1, arr2]))
+    assert datanow.space == space
+    assert datanow.weights is None
+
+    datamixedw = zfit.data.concat([data1w, data2now, data3w])
+    np.testing.assert_array_equal(datamixedw.value(), np.concatenate([arr1, arr2, arr3]))
+    assert datamixedw.space == space
+    np.testing.assert_array_equal(datamixedw.weights, np.concatenate([weights1, np.ones_like(weights2), weights3]))

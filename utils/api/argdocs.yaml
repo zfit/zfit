@@ -34,7 +34,6 @@ model.init.name: |1+
     Human-readable name
                 or label of
                 the PDF for better identification.
-                Has no programmatical functional purpose as identification.
 
 pdf.init.name: |1+
     Name of the PDF.

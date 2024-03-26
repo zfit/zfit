@@ -20,7 +20,7 @@ from uhi.typing.plottable import PlottableHistogram
 import zfit
 import zfit.z.numpy as znp
 from zfit import z
-from zfit._data.binneddatav1 import BinnedData, BinnedSampler, move_axis_obs
+from zfit._data.binneddatav1 import BinnedData, BinnedSamplerData, move_axis_obs
 
 from ..util import ztyping
 from ..util.cache import GraphCachable
@@ -305,7 +305,7 @@ class BaseBinnedPDFV1(
             )  # for overflow
             ordered_values = tf.gather_nd(padded_values, indices=binindices)
         else:
-            ordered_values = move_axis_obs(self.space, original_space, values)
+            ordered_values = move_axis_obs(self.space, original_space, values)[0]  # only use values, not variance
         return znp.asarray(ordered_values)
 
     @z.function(wraps="model_binned")
@@ -386,7 +386,7 @@ class BaseBinnedPDFV1(
             )  # for overflow
             ordered_values = tf.gather_nd(padded_values, indices=binindices)
         else:
-            ordered_values = move_axis_obs(self.space, original_space, values)
+            ordered_values = move_axis_obs(self.space, original_space, values)[0]  # only use values, not variance
         return znp.asarray(ordered_values)
 
     @z.function(wraps="model_binned")
@@ -543,7 +543,7 @@ class BaseBinnedPDFV1(
         n: ztyping.nSamplingTypeIn = None,
         limits: ztyping.LimitsType = None,
         fixed_params: bool | list[ZfitParameter] | tuple[ZfitParameter] = True,
-    ) -> BinnedSampler:
+    ) -> BinnedSamplerData:
         """Create a :py:class:`SamplerData` that acts as `Data` but can be resampled, also with changed parameters and
         n.
 
@@ -595,12 +595,11 @@ class BaseBinnedPDFV1(
             n = znp.array(n)
             return self._create_sampler_tensor(limits=limits, n=n)
 
-        return BinnedSampler.from_sample(
-            sample_func,
+        return BinnedSamplerData.from_sampler(
+            sample_func=sample_func,
             n=n,
             obs=limits,
             fixed_params=fixed_params,
-            dtype=self.dtype,
         )
 
     @z.function(wraps="sampler")
@@ -797,7 +796,7 @@ class BaseBinnedPDFV1(
         x = x.with_obs(self.space.obs)  # we don't want to cut anything off -> only obs, not space
         norm = self._check_convert_norm(norm)
         counts = self._call_counts(x, norm)
-        return move_axis_obs(self.space, space, counts)
+        return move_axis_obs(self.space, space, counts)[0]  # only use values, not variance
 
     @z.function(wraps="model_binned")
     def _call_counts(self, x, norm):
@@ -859,7 +858,7 @@ class BaseBinnedPDFV1(
         x = x.with_obs(self.space.obs)  # we don't want to cut anything off -> only obs, not space
         norm = self._check_convert_norm(norm)
         values = self._call_rel_counts(x, norm)
-        return move_axis_obs(self.space, space, values)
+        return move_axis_obs(self.space, space, values)[0]  # only use values, not variance
 
     @z.function(wraps="model_binned")
     def _call_rel_counts(self, x, norm):

@@ -585,7 +585,8 @@ def test_vectorized_limits_v1_dummy():
     diffs_lim = space.vec.limits[1] - space.vec.limits[0]
     np.testing.assert_array_equal(diffs, diffs_lim)
 
-    assert space.v1.volume == 8
+    assert space.v1.volume == 16
+    assert space.vec.volume == znp.array([[16.]])
 
 
 def test_labels_space():
