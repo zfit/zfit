@@ -40,8 +40,8 @@ def test_qgauss_pdf(q):
 @pytest.mark.parametrize("q", [1.00001, 1.5, 2.0, 2.5, 2.9, 2.99])
 def test_qgauss_integral(q):
     qgauss, obs = create_qgauss(q=q, mu=mu_true, sigma=sigma_true, limits=(-5, 5))
-    full_interval_analytic = qgauss.analytic_integrate(obs, norm=False).numpy().item()
-    full_interval_numeric = qgauss.numeric_integrate(obs, norm=False).numpy().item()
+    full_interval_analytic = qgauss.analytic_integrate(obs, norm=False).numpy()
+    full_interval_numeric = qgauss.numeric_integrate(obs, norm=False).numpy()
     true_integral = true_integral_dict[q]
     numba_stats_full_integral = qgaussian_numba.cdf(5, q=q, mu=mu_true, sigma=sigma_true) - qgaussian_numba.cdf(
         -5, q=q, mu=mu_true, sigma=sigma_true
@@ -51,8 +51,8 @@ def test_qgauss_integral(q):
     assert full_interval_analytic == pytest.approx(numba_stats_full_integral, 1e-6)
     assert full_interval_numeric == pytest.approx(numba_stats_full_integral, 1e-6)
 
-    analytic_integral = qgauss.analytic_integrate(limits=(-1, 1), norm=False).numpy().item()
-    numeric_integral = qgauss.numeric_integrate(limits=(-1, 1), norm=False).numpy().item()
+    analytic_integral = qgauss.analytic_integrate(limits=(-1, 1), norm=False).numpy()
+    numeric_integral = qgauss.numeric_integrate(limits=(-1, 1), norm=False).numpy()
     numba_stats_integral = qgaussian_numba.cdf(1, q=q, mu=mu_true, sigma=sigma_true) - qgaussian_numba.cdf(
         -1, q=q, mu=mu_true, sigma=sigma_true
     )

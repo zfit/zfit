@@ -665,7 +665,7 @@ class StudentT(WrapDistribution, SerializableMixin):
 
             Z = \\frac{\\sqrt{d \\pi} \\Gamma(\\frac{d}{2})}{\\Gamma(\\frac{d+1}{2})}
 
-        The effective normalization is given, as for all PDFs in `zfit`, through the `norm` argument that defaults to `obs`.
+        The normalization changes for different normalization ranges
 
         Args:
             ndof: Number of degrees of freedom
@@ -733,7 +733,62 @@ class QGauss(WrapDistribution, SerializableMixin):
         norm: NormInputType = None,
         name: str = "QGauss",
     ):
-        """Q-Gaussian distribution with parameter `q`."""
+        """Q-Gaussian distribution with parameter `q`.
+
+        The q-Gaussian is a probability distribution arising from the maximization of the Tsallis entropy under appropriate constraints.
+        It is defined for q < 3 and the Gaussian distribution is recovered as q -> 1.
+        For q < 1, is it the PDF of a bounded random variable.
+        We only support 1 < q < 3 in this implementation.
+        If you want to use exactly q = 1, use the `zfit.pdf.Gauss` class.
+        During fitting, if you want to start from a Gaussian shape, you can initialize the `q` parameter to be really close to 1.
+        It is related to the Student's t-distribution according to https://en.wikipedia.org/wiki/Q-Gaussian_distribution#Student's_t-distribution
+        and that is how it is implemented here.
+
+        The q-Gaussian shape for 1 < q < 3 is defined as
+
+        .. math::
+
+            f(x \\mid q, \\mu, \\sigma) = \\frac{1}{\\sigma} e_q(-\\frac{(x - \\mu)^2}{2 \\sigma^2}) / C_{q}
+
+        with
+
+        .. math::
+
+            e_q(x) = \\left[1 + (1 - q) x\\right]_{+}^{\\frac{1}{1 - q}}
+
+        and the normalization over [-inf, inf] of
+
+        .. math::
+
+            C_{q} == \\frac{\\sqrt{\\pi} \\Gamma \\left(\\frac{3 - q}{2 (q - 1)}\\right)}{\\sqrt{q - 1}\\Gamma \\left(\\frac{1}{q - 1}\\right)}
+
+        The normalization changes for different normalization ranges
+
+        Args:
+            q: Shape parameter of the q-Gaussian. Must be 1 < q < 3.
+            mu: Mean of the distribution
+            sigma: Scale of the distribution
+            obs: |@doc:model.init.obs| Observables of the
+               model. This will be used as the default space of the PDF and,
+               if not given explicitly, as the normalization range.
+
+               The default space is used for example in the sample method: if no
+               sampling limits are given, the default space is used.
+
+               The observables are not equal to the domain as it does not restrict or
+               truncate the model outside this range. |@docend:model.init.obs|
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+            norm: |@doc:pdf.init.norm| Normalization of the PDF.
+               By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
+            name: |@doc:model.init.name| Human-readable name
+               or label of
+               the PDF for better identification.
+               Has no programmatical functional purpose as identification. |@docend:model.init.name|
+        """
         q, mu, sigma = self._check_input_params(q, mu, sigma)
         if q < 1 or q > 3:
             msg = "q < 1 or q > 3 are not supported"
