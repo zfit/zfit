@@ -18,7 +18,7 @@ from .serialmixin import SerializableMixin, ZfitSerializable
 if TYPE_CHECKING:
     import zfit
 
-from collections import OrderedDict
+from collections import Counter, OrderedDict
 from collections.abc import Callable, Mapping
 
 import numpy as np
@@ -1322,7 +1322,7 @@ def concat(
         datasets: The `Data` objects to concatenate.
         obs: The observables to use. If `None`, the observables of the first `Data` object are used.
         axis: The axis along which to concatenate the data. If `None`, the data is concatenated along the first axis.
-            Possible options are `0/index` or `1/obs/columns`. If `obs`, the data is concatenated along the observable axis.
+            Possible options are `0/index` or `1/obs`. If `obs`, the data is concatenated along the observable axis.
         name: The name of the new `Data` object.
         label: The label of the new `Data` object.
         use_hash: If `True`, a hash of the data is created and is used to identify it in caching.
@@ -1330,25 +1330,88 @@ def concat(
 
     Returns:
         A new `Data` object containing the concatenated data.
+
+    Raises:
+        tf.errors.InvalidArgumentError: If the number of events in the datasets is not equal.
+        ObsIncompatibleError: If the observables are not unique or not the same in all datasets for merging along the observable axis.
     """
-    # todo: only works for obs, not yet for axes
+    # todo: only works for obs, not yet for axes, but needed?
     if axis is None or axis in (0, "index"):
         axis = 0
     elif axis in (1, "obs", "columns"):
         axis = 1
     else:
-        msg = f"Invalid axis {axis}. Valid options are 0/index or 1/obs/columns."
+        msg = f"Invalid axis {axis}. Valid options are 0/index or 1/obs."
         raise ValueError(msg)
-
-    if axis == 1:
-        msg = "todo: Take it form the product PDF and refactor here"
-        raise WorkInProgressError(msg)
 
     datasets = convert_to_container(datasets, container=tuple)
     if len(datasets) == 0:
         msg = "No `Data` objects given to concatenate."
         raise ValueError(msg)
 
+    if axis == 0:
+        return concat_data_index(datasets=datasets, obs=obs, name=name, label=label, use_hash=use_hash)
+    else:
+        return concat_data_obs(datasets=datasets, obs=obs, name=name, label=label, use_hash=use_hash)
+
+
+def concat_data_obs(datasets, obs, name, label, use_hash):
+    # check if there are overlapping observables
+    all_obs = [ob for data in datasets for ob in data.obs]
+    obscounter = Counter(all_obs)
+    if any(count > 1 for count in obscounter.values()):
+        msg = "Observables have to be unique in the concatenated data."
+        raise ObsIncompatibleError(msg)
+    space = None
+    if obs is not None:
+        space = convert_to_space(obs)
+        if set(space.obs) != (set_allobs := set(all_obs)):
+            msg = f"The given observables ({space.obs}) have to be the same as the observables in the data ({set_allobs})."
+            raise ObsIncompatibleError(msg)
+    # else:
+    #     obs_ordered = []
+    #     for ob in all_obs:
+    #         if ob not in obs_ordered:
+    #             obs_ordered.append(ob)
+    #     space = convert_to_space(obs_ordered)
+    data_new = []
+    weights_new = []
+    new_spaces = None
+    nevents = []
+    for data in datasets:
+        value = data.value()
+        nevents.append(tf.shape(value)[0])
+        data_new.append(value)
+        if new_spaces is None:
+            new_spaces = data.space
+        else:
+            new_spaces *= data.space
+
+        if data.has_weights:
+            weights_new.append(data.weights)
+
+    tf.debugging.assert_equal(
+        tf.reduce_all(tf.equal(nevents, nevents[0])),
+        True,
+        message=f"Number of events in the datasets {datasets} have to be equal.",
+    )
+    newval = znp.concatenate(data_new, axis=-1)
+    newweights = znp.prod(weights_new, axis=0) if weights_new else None
+    data = Data.from_tensor(
+        tensor=newval,
+        obs=new_spaces,
+        weights=newweights,
+        name=name,
+        label=label,
+        use_hash=use_hash,
+        guarantee_limits=True,
+    )
+    if space is not None:
+        data = data.with_obs(space)
+    return data
+
+
+def concat_data_index(datasets, obs, name, label, use_hash):
     if obs is None:
         space = datasets[0].space
         obs = space.obs
@@ -1371,15 +1434,6 @@ def concat(
             msg = "All `Data` objects have to have the same space, i.e. the same limits."
             raise ValueError(msg)
 
-    if axis == 0:
-        return concat_data_index(
-            datasets=datasets, space=space, name=name, label=label, use_hash=use_hash, weighted=weighted
-        )
-    else:
-        return concat_data_obs(datasets=datasets, obs=obs, name=name, label=label, use_hash=use_hash, weighted=weighted)
-
-
-def concat_data_index(datasets, space, name, label, use_hash, weighted):
     newval = []
     if weighted:
         newweights = []
@@ -1387,7 +1441,7 @@ def concat_data_index(datasets, space, name, label, use_hash, weighted):
         values = data.value(obs=space.obs)
         newval.append(values)
         if weighted:
-            weights = tf.ones_like(values[:, 0]) if not data.has_weights else data.weights
+            weights = tf.ones(tf.shape(values)[0:1]) if not data.has_weights else data.weights
             newweights.append(weights)
     newval = znp.concatenate(newval, axis=0)
     newweights = znp.concatenate(newweights, axis=0) if weighted else None

@@ -414,11 +414,12 @@ class ProductPDF(BaseFunctor, SerializableMixin):
         values = functools.reduce(operator.mul, values)
         return z.convert_to_tensor(values)
 
+    @supports(multiple_limits=True)
     def _sample(self, n, limits: ZfitSpace):
         if self._prod_is_same_obs_pdf:
             raise SpecificFunctionNotImplemented
         pdfs = self._prod_disjoint_obs_pdfs
-        samples = [pdf.sample(n=n, limits=limits) for pdf in pdfs]
+        samples = [pdf.sample(n=n, limits=limits.with_obs(pdf.obs)) for pdf in pdfs]
         return zfit.data.concat(samples, axis="obs")
 
 
