@@ -557,12 +557,12 @@ def gaussexptail_func(x, mu, sigma, alpha):
     cond = tf.less(t, -abs_alpha)
     func = z.safe_where(
         cond,
-        lambda t: znp.exp(0.5 * znp.square(abs_alpha) + abs_alpha * t),
-        lambda t: znp.exp(-0.5 * znp.square(t)),
+        lambda t: 0.5 * znp.square(abs_alpha) + abs_alpha * t,
+        lambda t: -0.5 * znp.square(t),
         values=t,
         value_safer=lambda t: znp.ones_like(t) * abs_alpha,
     )
-    return znp.maximum(func, znp.zeros_like(func))
+    return znp.exp(func)
 
 
 @z.function(wraps="tensor", keepalive=True, stateless_args=False)
