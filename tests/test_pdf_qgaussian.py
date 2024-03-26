@@ -9,17 +9,14 @@ import tensorflow as tf
 
 mu_true = 0.5
 sigma_true = 1.1
-true_integral_dict={1.00001: 0.9999782,
- 1.5: 0.9695,
- 2.0: 0.8063152,
- 2.5: 0.4805167,
- 2.9: 0.1078687,
- 2.99: 0.011044}
+true_integral_dict = {1.00001: 0.9999782, 1.5: 0.9695, 2.0: 0.8063152, 2.5: 0.4805167, 2.9: 0.1078687, 2.99: 0.011044}
+
 
 def create_qgaussian(q, mu, sigma, limits):
     obs = zfit.Space("obs1", limits)
     qgaussian = zfit.pdf.QGaussian(q=q, mu=mu, sigma=sigma, obs=obs)
     return qgaussian, obs
+
 
 @pytest.mark.parametrize("q", [1.00001, 1.5, 2.0, 2.5, 2.9, 2.99])
 def test_qgaussian_pdf(q):
@@ -39,13 +36,16 @@ def test_qgaussian_pdf(q):
     assert sample.n_events == 1000
     assert all(tf.logical_and(-5 <= sample.value(), sample.value() <= 5))
 
+
 @pytest.mark.parametrize("q", [1.00001, 1.5, 2.0, 2.5, 2.9, 2.99])
 def test_qgaussian_integral(q):
     qgaussian, obs = create_qgaussian(q=q, mu=mu_true, sigma=sigma_true, limits=(-5, 5))
     full_interval_analytic = qgaussian.analytic_integrate(obs, norm=False).numpy().item()
     full_interval_numeric = qgaussian.numeric_integrate(obs, norm=False).numpy().item()
     true_integral = true_integral_dict[q]
-    numba_stats_full_integral = qgaussian_numba.cdf(5, q=q, mu=mu_true, sigma=sigma_true) - qgaussian_numba.cdf(-5, q=q, mu=mu_true, sigma=sigma_true)
+    numba_stats_full_integral = qgaussian_numba.cdf(5, q=q, mu=mu_true, sigma=sigma_true) - qgaussian_numba.cdf(
+        -5, q=q, mu=mu_true, sigma=sigma_true
+    )
     assert full_interval_analytic == pytest.approx(true_integral, 1e-4)
     assert full_interval_numeric == pytest.approx(true_integral, 1e-4)
     assert full_interval_analytic == pytest.approx(numba_stats_full_integral, 1e-6)
@@ -53,6 +53,8 @@ def test_qgaussian_integral(q):
 
     analytic_integral = qgaussian.analytic_integrate(limits=(-1, 1), norm=False).numpy().item()
     numeric_integral = qgaussian.numeric_integrate(limits=(-1, 1), norm=False).numpy().item()
-    numba_stats_integral = qgaussian_numba.cdf(1, q=q, mu=mu_true, sigma=sigma_true) - qgaussian_numba.cdf(-1, q=q, mu=mu_true, sigma=sigma_true)
+    numba_stats_integral = qgaussian_numba.cdf(1, q=q, mu=mu_true, sigma=sigma_true) - qgaussian_numba.cdf(
+        -1, q=q, mu=mu_true, sigma=sigma_true
+    )
     assert analytic_integral == pytest.approx(numeric_integral, 1e-5)
     assert analytic_integral == pytest.approx(numba_stats_integral, 1e-5)
