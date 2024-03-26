@@ -28,7 +28,7 @@ Major Features and Improvements
 - ``Data`` has now a ``with_weights`` method that returns a new data object with different weights and an improved ``with_obs`` that allows to set obs with new limits. These replace the ``set_weights`` and ``set_data_range`` methods for a more functional approach.
 - add ``label`` to different objects (PDF, Data, etc.) that allows to give a human-readable name to the object. This is used in the plotting and can be used to identify objects.
   Notably, Parameters have a label that can be arbitrary. ``Space`` has one label for each observable if the space is a product of spaces. ``Space.label`` is a string and only possible for one-dimensional spaces, while ``Space.labels`` is a list of strings and can be used for any, one- or multi-dimensional spaces.
-- add ``zfit.data.concat(...)`` to concatenate multiple data objects into one along the index. Similar to ``pd.concat``.
+- add ``zfit.data.concat(...)`` to concatenate multiple data objects into one along the index or along the observables. Similar to ``pd.concat``.
 
 
 
