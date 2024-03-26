@@ -157,6 +157,35 @@ def generalizedcb(extended=None, **kwargs):
         extended=extended,
     )
 
+def gaussexptail(extended=None, **kwargs):
+    import zfit
+
+    alpha = zfit.Parameter("alpha_gaussexptail", 0.1, -1, 1)
+    mu = zfit.Parameter("mu_gaussexptail", 0.1, -1, 1)
+    sigma = zfit.Parameter("sigma_gaussexptail", 0.1, 0, 1)
+    obs = zfit.Space("obs", default_limits)
+    return zfit.pdf.GaussExpTail(
+        alpha=alpha, mu=mu, sigma=sigma, obs=obs, extended=extended
+    )
+
+def generalizedgaussexptail(extended=None, **kwargs):
+    import zfit
+
+    sigmaL = zfit.Parameter("sigmaL_generalizedgaussexptail", 0.1, 0, 1)
+    alphaL = zfit.Parameter("alphaL_generalizedgaussexptail", 0.1, -1, 1)
+    sigmaR = zfit.Parameter("sigmaR_generalizedgaussexptail", 0.1, 0, 1)
+    alphaR = zfit.Parameter("alphaR_generalizedgaussexptail", 0.1, -1, 1)
+    mu = zfit.Parameter("mu_generalizedgaussexptail", 0.1, -1, 1)
+    obs = zfit.Space("obs", default_limits)
+    return zfit.pdf.GeneralizedGaussExpTail(
+        sigmal=sigmaL,
+        alphal=alphaL,
+        sigmar=sigmaR,
+        alphar=alphaR,
+        mu=mu,
+        obs=obs,
+        extended=extended,
+    )
 
 def legendre(extended=None, **kwargs):
     import zfit
@@ -221,6 +250,16 @@ def chisquared(extended=None, **kwargs):
     ndof = zfit.Parameter("ndof_chisquared", 4, 1, 10)
     obs = zfit.Space("obs", positive_limits)
     return zfit.pdf.ChiSquared(ndof=ndof, obs=obs, extended=extended)
+
+
+def studentt(extended=None, **kwarfs):
+    import zfit
+
+    ndof = zfit.Parameter("ndof_studentt", 4, 1, 10)
+    mu = zfit.Parameter("mu_studentt", 0.1, -1, 1)
+    sigma = zfit.Parameter("sigma_studentt", 0.1, 0, 1)
+    obs = zfit.Space("obs", default_limits)
+    return zfit.pdf.StudentT(ndof=ndof, mu=mu, sigma=sigma, obs=obs, extended=extended)
 
 
 def kde1dimexact(pdfs=None, extended=None, **kwargs):
@@ -357,9 +396,12 @@ basic_pdfs = [
     cauchy,
     voigt,
     exponential,
+    studentt,
     crystalball,
     doublecb,
     generalizedcb,
+    gaussexptail,
+    generalizedgaussexptail,
     legendre,
     chebyshev,
     chebyshev2,
