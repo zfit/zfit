@@ -252,6 +252,16 @@ def chisquared(extended=None, **kwargs):
     return zfit.pdf.ChiSquared(ndof=ndof, obs=obs, extended=extended)
 
 
+def studentt(extended=None, **kwarfs):
+    import zfit
+
+    ndof = zfit.Parameter("ndof_studentt", 4, 1, 10)
+    mu = zfit.Parameter("mu_studentt", 0.1, -1, 1)
+    sigma = zfit.Parameter("sigma_studentt", 0.1, 0, 1)
+    obs = zfit.Space("obs", default_limits)
+    return zfit.pdf.StudentT(ndof=ndof, mu=mu, sigma=sigma, obs=obs, extended=extended)
+
+
 def kde1dimexact(pdfs=None, extended=None, **kwargs):
     data = np.array(
         [
@@ -386,6 +396,7 @@ basic_pdfs = [
     cauchy,
     voigt,
     exponential,
+    studentt,
     crystalball,
     doublecb,
     generalizedcb,
