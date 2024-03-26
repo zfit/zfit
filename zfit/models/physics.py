@@ -548,3 +548,296 @@ class GeneralizedCBPDFRepr(BasePDFRepr):
 
 
 GeneralizedCB.register_analytic_integral(func=generalized_crystalball_mu_integral, limits=crystalball_integral_limits)
+
+
+@z.function(wraps="tensor", keepalive=True)
+def gaussexptail_func(x, mu, sigma, alpha):
+    t = (x - mu) / sigma * tf.sign(alpha)
+    abs_alpha = znp.abs(alpha)
+    cond = tf.less(t, -abs_alpha)
+    func = z.safe_where(
+        cond,
+        lambda t: 0.5 * znp.square(abs_alpha) + abs_alpha * t,
+        lambda t: -0.5 * znp.square(t),
+        values=t,
+        value_safer=lambda t: znp.ones_like(t) * abs_alpha,
+    )
+    return znp.exp(func)
+
+
+@z.function(wraps="tensor", keepalive=True, stateless_args=False)
+def generalized_gaussexptail_func(x, mu, sigmal, alphal, sigmar, alphar):
+    cond = tf.less(x, mu)
+
+    return tf.where(
+        cond,
+        gaussexptail_func(x, mu, sigmal, alphal),
+        gaussexptail_func(x, mu, sigmar, -alphar),
+    )
+
+
+def gaussexptail_integral(limits, params, model):
+    del model
+    mu = params["mu"]
+    sigma = params["sigma"]
+    alpha = params["alpha"]
+
+    lower, upper = limits._rect_limits_tf
+
+    return gaussexptail_integral_func(mu, sigma, alpha, lower, upper)
+
+
+@z.function(wraps="tensor", keepalive=True)
+def gaussexptail_integral_func(mu, sigma, alpha, lower, upper):
+    sqrt_pi_over_two = np.sqrt(np.pi / 2)
+    sqrt2 = np.sqrt(2)
+
+    abs_sigma = znp.abs(sigma)
+    abs_alpha = znp.abs(alpha)
+    tmin = (lower - mu) / abs_sigma
+    tmax = (upper - mu) / abs_sigma
+
+    alpha_negative = tf.less(alpha, 0)
+    # do not move on two lines, logic will fail...
+    tmax, tmin = (
+        znp.where(alpha_negative, -tmin, tmax),
+        znp.where(alpha_negative, -tmax, tmin),
+    )
+
+    gauss_tmin_tmax_integral = abs_sigma * sqrt_pi_over_two * (tf.math.erf(tmax / sqrt2) - tf.math.erf(tmin / sqrt2))
+    exp_tmin_tmax_integral = (
+        abs_sigma
+        / abs_alpha
+        * znp.exp(0.5 * znp.square(abs_alpha))
+        * (znp.exp(abs_alpha * tmax) - znp.exp(abs_alpha * tmin))
+    )
+    gauss_minus_abs_alpha_tmax_integral = (
+        abs_sigma * sqrt_pi_over_two * (tf.math.erf(tmax / sqrt2) - tf.math.erf(-abs_alpha / sqrt2))
+    )
+    exp_tmin_minus_abs_alpha_integral = (
+        abs_sigma
+        / abs_alpha
+        * znp.exp(0.5 * znp.square(abs_alpha))
+        * (znp.exp(-znp.square(abs_alpha)) - znp.exp(abs_alpha * tmin))
+    )
+    integral_sum = exp_tmin_minus_abs_alpha_integral + gauss_minus_abs_alpha_tmax_integral
+
+    conditional_integral = tf.where(tf.less_equal(tmax, -abs_alpha), exp_tmin_tmax_integral, integral_sum)
+    result = tf.where(tf.greater_equal(tmin, -abs_alpha), gauss_tmin_tmax_integral, conditional_integral)
+    if result.shape.rank != 0:
+        result = tf.gather(result, 0, axis=-1)
+    return result
+
+
+def generalized_gaussexptail_integral(limits, params, model):
+    del model
+    mu = params["mu"]
+    sigmal = params["sigmal"]
+    alphal = params["alphal"]
+    sigmar = params["sigmar"]
+    alphar = params["alphar"]
+
+    lower, upper = limits._rect_limits_tf
+    lower = lower[:, 0]
+    upper = upper[:, 0]
+
+    return generalized_gaussexptail_integral_func(
+        mu=mu,
+        sigmal=sigmal,
+        alphal=alphal,
+        sigmar=sigmar,
+        alphar=alphar,
+        lower=lower,
+        upper=upper,
+    )
+
+
+@z.function(wraps="tensor", keepalive=True)
+def generalized_gaussexptail_integral_func(mu, sigmal, alphal, sigmar, alphar, lower, upper):
+    upper_of_lowerint = znp.minimum(mu, upper)
+    integral_left = gaussexptail_integral_func(mu=mu, sigma=sigmal, alpha=alphal, lower=lower, upper=upper_of_lowerint)
+    left = tf.where(tf.less(mu, lower), znp.zeros_like(integral_left), integral_left)
+
+    lower_of_upperint = znp.maximum(mu, lower)
+    integral_right = gaussexptail_integral_func(
+        mu=mu, sigma=sigmar, alpha=-alphar, lower=lower_of_upperint, upper=upper
+    )
+    right = tf.where(tf.greater(mu, upper), znp.zeros_like(integral_right), integral_right)
+
+    return left + right
+
+
+class GaussExpTail(BasePDF, SerializableMixin):
+    _N_OBS = 1
+
+    def __init__(
+        self,
+        mu: ztyping.ParamTypeInput,
+        sigma: ztyping.ParamTypeInput,
+        alpha: ztyping.ParamTypeInput,
+        obs: ztyping.ObsTypeInput,
+        *,
+        extended: ExtendedInputType = None,
+        norm: NormInputType = None,
+        name: str = "GaussExpTail",
+    ):
+        """GaussExpTail shaped PDF. A combination of a Gaussian with an exponential tail on one side.
+
+        The function is defined as follows:
+
+        .. math::
+            f(x;\\mu, \\sigma, \\alpha) =  \\begin{cases} \\exp(- \\frac{(x - \\mu)^2}{2 \\sigma^2}),
+            & \\mbox{for}\\frac{x - \\mu}{\\sigma} \\geqslant -\\alpha \\newline
+            \\exp{\\left(\\frac{|\\alpha|^2}{2} + |\\alpha|  \\left(\\frac{x - \\mu}{\\sigma}\\right)\\right)},
+            & \\mbox{for}\\frac{x - \\mu}{\\sigma} < -\\alpha \\end{cases}
+
+        Args:
+            mu: The mean of the gaussian
+            sigma: Standard deviation of the gaussian
+            alpha: parameter where to switch from a gaussian to the expontial tail
+            obs: |@doc:pdf.init.obs| Observables of the
+               model. This will be used as the default space of the PDF and,
+               if not given explicitly, as the normalization range.
+
+               The default space is used for example in the sample method: if no
+               sampling limits are given, the default space is used.
+
+               The observables are not equal to the domain as it does not restrict or
+               truncate the model outside this range. |@docend:pdf.init.obs|
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+            norm: |@doc:pdf.init.norm| Normalization of the PDF.
+               By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
+            name: |@doc:pdf.init.name| Human-readable name
+               or label of
+               the PDF for better identification.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.name|
+        """
+        params = {"mu": mu, "sigma": sigma, "alpha": alpha}
+        super().__init__(obs=obs, name=name, params=params, extended=extended, norm=norm)
+
+    def _unnormalized_pdf(self, x):
+        mu = self.params["mu"].value()
+        sigma = self.params["sigma"].value()
+        alpha = self.params["alpha"].value()
+        x = z.unstack_x(x)
+        return gaussexptail_func(x=x, mu=mu, sigma=sigma, alpha=alpha)
+
+
+class GaussExpTailPDFRepr(BasePDFRepr):
+    _implementation = GaussExpTail
+    hs3_type: Literal["GaussExpTail"] = pydantic.Field("GaussExpTail", alias="type")
+    x: SpaceRepr
+    mu: Serializer.types.ParamTypeDiscriminated
+    sigma: Serializer.types.ParamTypeDiscriminated
+    alpha: Serializer.types.ParamTypeDiscriminated
+
+
+gaussexptail_integral_limits = Space(axes=0, limits=(ANY_LOWER, ANY_UPPER))
+
+GaussExpTail.register_analytic_integral(func=gaussexptail_integral, limits=gaussexptail_integral_limits)
+
+
+class GeneralizedGaussExpTail(BasePDF, SerializableMixin):
+    _N_OBS = 1
+
+    def __init__(
+        self,
+        mu: ztyping.ParamTypeInput,
+        sigmal: ztyping.ParamTypeInput,
+        alphal: ztyping.ParamTypeInput,
+        sigmar: ztyping.ParamTypeInput,
+        alphar: ztyping.ParamTypeInput,
+        obs: ztyping.ObsTypeInput,
+        *,
+        extended: ExtendedInputType = None,
+        norm: NormInputType = None,
+        name: str = "GeneralizedGaussExpTail",
+    ):
+        """GeneralizedGaussedExpTail shaped PDF which is Generalized assymetric double-sided GaussExpTail shaped PDF. A
+        combination of two GaussExpTail using the **mu** (not a frac) and a different **sigma** on each side.
+
+        The function is defined as follows:
+
+        .. math::
+            f(x;\\mu, \\sigma_{L}, \\alpha_{L}, \\sigma_{R}, \\alpha_{R}) =  \\begin{cases}
+            \\exp{\\left(\\frac{|\\alpha_{L}|^2}{2} + |\\alpha_{L}|  \\left(\\frac{x - \\mu}{\\sigma_{L}}\\right)\\right)},
+             & \\mbox{for }\\frac{x - \\mu}{\\sigma_{L}} < -\\alpha_{L} \\newline
+            \\exp(- \\frac{(x - \\mu)^2}{2 \\sigma_{L}^2}),
+            & \\mbox{for }-\\alpha_{L} \\leqslant \\frac{x - \\mu}{\\sigma_{L}} \\leqslant 0 \\newline
+            \\exp(- \\frac{(x - \\mu)^2}{2 \\sigma_{R}^2}),
+            & \\mbox{for }0 \\leqslant \\frac{x - \\mu}{\\sigma_{R}} \\leqslant \\alpha_{R} \\newline
+            \\exp{\\left(\\frac{|\\alpha_{R}|^2}{2} - |\\alpha_{R}|  \\left(\\frac{x - \\mu}{\\sigma_{R}}\\right)\\right)},
+             & \\mbox{for }\\frac{x - \\mu}{\\sigma_{R}} > \\alpha_{R}
+            \\end{cases}
+
+        Args:
+            mu: The mean of the gaussian
+            sigmal: Standard deviation of the gaussian on the left side
+            alphal: parameter where to switch from a gaussian to the expontial tail on the left side
+            sigmar: Standard deviation of the gaussian on the right side
+            alphar: parameter where to switch from a gaussian to the expontial tail on the right side
+            obs: |@doc:pdf.init.obs| Observables of the
+               model. This will be used as the default space of the PDF and,
+               if not given explicitly, as the normalization range.
+
+               The default space is used for example in the sample method: if no
+               sampling limits are given, the default space is used.
+
+               The observables are not equal to the domain as it does not restrict or
+               truncate the model outside this range. |@docend:pdf.init.obs|
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+            norm: |@doc:pdf.init.norm| Normalization of the PDF.
+               By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
+            name: |@doc:pdf.init.name| Human-readable name
+               or label of
+               the PDF for better identification.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.name|
+        """
+        params = {
+            "mu": mu,
+            "sigmal": sigmal,
+            "alphal": alphal,
+            "sigmar": sigmar,
+            "alphar": alphar,
+        }
+        super().__init__(obs=obs, name=name, params=params, extended=extended, norm=norm)
+
+    def _unnormalized_pdf(self, x):
+        mu = self.params["mu"].value()
+        sigmal = self.params["sigmal"].value()
+        alphal = self.params["alphal"].value()
+        sigmar = self.params["sigmar"].value()
+        alphar = self.params["alphar"].value()
+        x = z.unstack_x(x)
+        return generalized_gaussexptail_func(
+            x=x,
+            mu=mu,
+            sigmal=sigmal,
+            alphal=alphal,
+            sigmar=sigmar,
+            alphar=alphar,
+        )
+
+
+class GeneralizedGaussExpTailPDFRepr(BasePDFRepr):
+    _implementation = GeneralizedGaussExpTail
+    hs3_type: Literal["GeneralizedGaussExpTail"] = pydantic.Field("GeneralizedGaussExpTail", alias="type")
+    x: SpaceRepr
+    mu: Serializer.types.ParamTypeDiscriminated
+    sigmal: Serializer.types.ParamTypeDiscriminated
+    alphal: Serializer.types.ParamTypeDiscriminated
+    sigmar: Serializer.types.ParamTypeDiscriminated
+    alphar: Serializer.types.ParamTypeDiscriminated
+
+
+GeneralizedGaussExpTail.register_analytic_integral(
+    func=generalized_gaussexptail_integral, limits=gaussexptail_integral_limits
+)

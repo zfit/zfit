@@ -11,6 +11,8 @@ Any missing shape can be easily wrapped using :py:class:`~zfit.pdf.WrapDistribut
     zfit.pdf.CrystalBall
     zfit.pdf.DoubleCB
     zfit.pdf.GeneralizedCB
+    zfit.pdf.GaussExpTail
+    zfit.pdf.GeneralizedGaussExpTail
     zfit.pdf.Uniform
     zfit.pdf.Cauchy
     zfit.pdf.Voigt
