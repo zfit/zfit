@@ -21,7 +21,7 @@ Major Features and Improvements
 - add ``TruncatedPDF`` that allows to truncate in one or multiple ranges (replaces "MultipleLimits" and "MultiSpace")
 - add ``LogNormal`` PDF, a log-normal distribution, which is a normal distribution of the logarithm of the variable.
 - add ``ChiSquared`` PDF, the standard chi2 distribution, taken from [https://www.tensorflow.org/probability/api_docs/python/tfp/distributions/Chi2](tensorflow-probability implementation).
-- add ``QGaussian`` PDF, a distribution that arises from the maximization of the Tsallis entropy under appropriate constraints, see [here](https://en.wikipedia.org/wiki/Q-Gaussian_distribution).
+- add ``QGauss`` PDF, a distribution that arises from the maximization of the Tsallis entropy under appropriate constraints, see [here](https://en.wikipedia.org/wiki/Q-Gaussian_distribution).
 
 
 Breaking changes

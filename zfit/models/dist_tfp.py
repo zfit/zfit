@@ -635,7 +635,7 @@ class ChiSquaredPDFRepr(BasePDFRepr):
     ndof: Serializer.types.ParamTypeDiscriminated
 
 
-class QGaussian(WrapDistribution, SerializableMixin):
+class QGauss(WrapDistribution, SerializableMixin):
     _N_OBS = 1
 
     def __init__(
@@ -647,7 +647,7 @@ class QGaussian(WrapDistribution, SerializableMixin):
         *,
         extended: ExtendedInputType = None,
         norm: NormInputType = None,
-        name: str = "QGaussian",
+        name: str = "QGauss",
     ):
         """Q-Gaussian distribution with parameter `q`."""
         q, mu, sigma = self._check_input_params(q, mu, sigma)
@@ -683,9 +683,9 @@ class QGaussian(WrapDistribution, SerializableMixin):
         )
 
 
-class QGaussianPDFRepr(BasePDFRepr):
-    _implementation = QGaussian
-    hs3_type: Literal["QGaussian"] = Field("QGaussian", alias="type")
+class QGaussPDFRepr(BasePDFRepr):
+    _implementation = QGauss
+    hs3_type: Literal["QGauss"] = Field("QGauss", alias="type")
     x: SpaceRepr
     q: Serializer.types.ParamTypeDiscriminated
     mu: Serializer.types.ParamTypeDiscriminated
