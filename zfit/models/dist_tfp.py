@@ -662,7 +662,7 @@ class StudentT(WrapDistribution, SerializableMixin):
 
             Z = \\frac{\\Gamma(\\frac{d+1}{2})}{\\sqrt{\\pi d} \\Gamma(\\frac{d}{2})}
 
-        The normalization changes for different normalization ranges
+        The effective normalization is given, as for all PDFs in `zfit`, through the `norm` argument that defaults to `obs`.
 
         Args:
             ndof: Number of degrees of freedom
