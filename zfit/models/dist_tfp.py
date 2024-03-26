@@ -682,7 +682,7 @@ class StudentT(WrapDistribution, SerializableMixin):
                Has no programmatical functional purpose as identification. |@docend:model.init.name|
         """
         ndof, mu, sigma = self._check_input_params(ndof, mu, sigma)
-        params = OrderedDict((("ndof", ndof), ("mu", mu), ("sigma", sigma)))
+        params = dict(ndof=ndof, mu=mu, sigma=sigma)
 
         def dist_params():
             return {"df": ndof.value(), "loc": mu.value(), "scale": sigma.value()}
