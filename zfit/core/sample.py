@@ -42,7 +42,7 @@ class UniformSampleAndWeights:
                 else:
                     tot_area = limits.rect_area()
                     frac = (space.rect_area() / tot_area)[0]
-                n_partial_to_produce = tf.cast(
+                n_partial_to_produce = znp.asarray(
                     z.to_real(n_to_produce) * z.to_real(frac), dtype=tf.int64
                 )  # TODO(Mayou36): split right!
 
@@ -198,7 +198,7 @@ def accept_reject_sample(
         overestimate_factor_scaling = 1.001
 
     sample_and_weights = sample_and_weights_factory()
-    n = tf.cast(n, dtype=tf.int64)
+    n = znp.asarray(n, dtype=tf.int64)
     if run.numeric_checks:
         tf.debugging.assert_non_negative(n)
 
@@ -214,7 +214,7 @@ def accept_reject_sample(
     if (isinstance(limits, EventSpace) and not limits.is_generator) or limits.n_events > 1:
         dynamic_array_shape = False
         if run.numeric_checks:
-            tf.debugging.assert_equal(tf.cast(limits.n_events, dtype=tf.int64), n)
+            tf.debugging.assert_equal(znp.asarray(limits.n_events, dtype=tf.int64), n)
 
         initial_is_sampled = tf.fill(value=False, dims=(n,))
         efficiency_estimation = 1.0  # generate exactly n
@@ -223,7 +223,7 @@ def accept_reject_sample(
     initial_n_drawn = tf.constant(0, dtype=tf.int64)
     sample = tf.TensorArray(
         dtype=dtype,
-        size=tf.cast(n, dtype=tf.int32),
+        size=znp.asarray(n, dtype=tf.int32),
         dynamic_size=dynamic_array_shape,
         clear_after_read=True,  # we read only once at end to tensor
         element_shape=(limits.n_obs,),
@@ -286,11 +286,11 @@ def accept_reject_sample(
             # and convert it to an int, effectively precision after the floating point.
             # Then we scale it down again.
             eff_precision: int = 100
-            one_over_eff_int = tf.cast(1.0 / eff * 1.01 * eff_precision, dtype=tf.int64)
+            one_over_eff_int = znp.asarray(1.0 / eff * 1.01 * eff_precision, dtype=tf.int64)
             n_to_produce *= one_over_eff_int
             n_to_produce = znp.floor_divide(n_to_produce, eff_precision)
             # tf.debugging.assert_positive(n_to_produce_float, "n_to_produce went negative, overflow?")
-            # n_to_produce = tf.cast(n_to_produce_float, dtype=tf.int64) + 3  # just to make sure
+            # n_to_produce = znp.asarray(n_to_produce_float, dtype=tf.int64) + 3  # just to make sure
             n_to_produce = znp.maximum(n_to_produce, n_min_to_produce)
             # TODO: adjustable efficiency cap for memory efficiency (prevent too many samples at once produced)
             max_produce_cap = tf.constant(800000, dtype=tf.int64)
@@ -320,7 +320,7 @@ def accept_reject_sample(
         ) = sample_and_weights(n_to_produce=n_to_produce, limits=new_limits, dtype=dtype)
 
         rnd_sample_data = Data.from_tensor(obs=new_limits, tensor=rnd_sample)
-        n_drawn = tf.cast(n_drawn, dtype=tf.int64)
+        n_drawn = znp.asarray(n_drawn, dtype=tf.int64)
         if run.numeric_checks:
             tf.debugging.assert_non_negative(n_drawn)
         n_total_drawn += n_drawn
@@ -362,9 +362,9 @@ def accept_reject_sample(
             )
 
             def calc_new_n_produced():
-                n_produced_float = tf.cast(n_produced, dtype=ztypes.float)
+                n_produced_float = znp.asarray(n_produced, dtype=ztypes.float)
                 binomial = tfd.Binomial(n_produced_float, probs=old_scaling / weights_scaling)
-                return tf.cast(tf.round(binomial.sample()), dtype=tf.int64)
+                return znp.asarray(tf.round(binomial.sample()), dtype=tf.int64)
 
             n_produced = tf.cond(new_scaling_needed, calc_new_n_produced, lambda: n_produced)
             # TODO: for fixed array shape?
@@ -425,7 +425,7 @@ def accept_reject_sample(
                 tf.SparseTensor(
                     indices=indices,
                     values=tf.broadcast_to(input=(True,), shape=(n_accepted,)),
-                    dense_shape=(tf.cast(n, dtype=tf.int64),),
+                    dense_shape=(znp.asarray(n, dtype=tf.int64),),
                 ),
                 default_value=False,
             )
@@ -435,7 +435,7 @@ def accept_reject_sample(
             indices = tf.range(n_produced, n_produced_new)
 
         # TODO: pack into tf.function to speedup considerable the eager sampling? Is bottleneck currently
-        sample_new = sample.scatter(indices=tf.cast(indices, dtype=tf.int32), value=filtered_sample)
+        sample_new = sample.scatter(indices=znp.asarray(indices, dtype=tf.int32), value=filtered_sample)
 
         # efficiency (estimate) of how many samples we get
         eff = znp.max([z.to_real(n_produced_new), z.to_real(0.5)]) / znp.max([z.to_real(n_total_drawn), z.to_real(1.0)])
@@ -456,9 +456,9 @@ def accept_reject_sample(
     weights_scaling = z.constant(0.0)
     weights_maximum = z.constant(0.0)
     prob_maximum = z.constant(0.0)
-    n_min_to_produce = tf.cast(n_min_to_produce, dtype=tf.int64)
-    inital_n_produced = tf.cast(inital_n_produced, dtype=tf.int64)
-    initial_n_drawn = tf.cast(initial_n_drawn, dtype=tf.int64)
+    n_min_to_produce = znp.asarray(n_min_to_produce, dtype=tf.int64)
+    inital_n_produced = znp.asarray(inital_n_produced, dtype=tf.int64)
+    initial_n_drawn = znp.asarray(initial_n_drawn, dtype=tf.int64)
 
     loop_vars = (
         n,
@@ -543,7 +543,7 @@ def extended_sampling(pdfs: Iterable[ZfitPDF] | ZfitPDF, limits: Space) -> tf.Te
 
     for pdf in pdfs:
         n = z.random.poisson(lam=pdf.get_yield(), shape=(), dtype=ztypes.float)
-        n = tf.cast(n, dtype=tf.int64)
+        n = znp.asarray(n, dtype=tf.int64)
         sample = pdf.sample(limits=limits, n=n)
         # sample.set_shape((n, limits.n_obs))
         samples.append(sample.value())

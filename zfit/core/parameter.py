@@ -404,10 +404,10 @@ class Parameter(
         self._lower_limit_neg_inf = None
         self._upper_limit_neg_inf = None
         if lower is None:
-            self._lower_limit_neg_inf = tf.cast(-np.inf, dtype)
+            self._lower_limit_neg_inf = znp.asarray(-np.inf, dtype)
         if upper is None:
-            self._upper_limit_neg_inf = tf.cast(np.inf, dtype)
-        value = tf.cast(value, dtype=ztypes.float)
+            self._upper_limit_neg_inf = znp.asarray(np.inf, dtype)
+        value = znp.asarray(value, dtype=ztypes.float)
 
         def constraint(x):
             return tfp.math.clip_by_value_preserve_gradient(x, clip_value_min=self.lower, clip_value_max=self.upper)
@@ -449,9 +449,9 @@ class Parameter(
     # @invalidate_graph
     def lower(self, value):
         if value is None and self._lower_limit_neg_inf is None:
-            self._lower_limit_neg_inf = tf.cast(-np.inf, dtype=ztypes.float)
+            self._lower_limit_neg_inf = znp.asarray(-np.inf, dtype=ztypes.float)
         elif value is not None:
-            value = tf.cast(value, dtype=ztypes.float)
+            value = znp.asarray(value, dtype=ztypes.float)
         self._lower = value
 
     @property
@@ -465,9 +465,9 @@ class Parameter(
     # @invalidate_graph
     def upper(self, value):
         if value is None and self._upper_limit_neg_inf is None:
-            self._upper_limit_neg_inf = tf.cast(np.inf, dtype=ztypes.float)
+            self._upper_limit_neg_inf = znp.asarray(np.inf, dtype=ztypes.float)
         elif value is not None:
-            value = tf.cast(value, dtype=ztypes.float)
+            value = znp.asarray(value, dtype=ztypes.float)
         self._upper = value
 
     @property
@@ -585,7 +585,7 @@ class Parameter(
         if value is not None:
             value = float(value)
             # value = z.convert_to_tensor(value, preferred_dtype=ztypes.float)
-            # value = tf.cast(value, dtype=ztypes.float)
+            # value = znp.asarray(value, dtype=ztypes.float)
         self._step_size = value
 
     def set_value(self, value: ztyping.NumericalScalarType):
@@ -617,13 +617,13 @@ class Parameter(
                         raise ValueError(message)
                 else:
                     tf.debugging.assert_greater(
-                        tf.cast(value, tf.float64),
-                        tf.cast(self.lower, tf.float64),
+                        znp.asarray(value, tf.float64),
+                        znp.asarray(self.lower, tf.float64),
                         message=message,
                     )
                     tf.debugging.assert_less(
-                        tf.cast(value, tf.float64),
-                        tf.cast(self.upper, tf.float64),
+                        znp.asarray(value, tf.float64),
+                        znp.asarray(self.upper, tf.float64),
                         message=message,
                     )
             #     tf.debugging.Assert(self._check_at_limit(value), [value])
@@ -661,8 +661,8 @@ class Parameter(
         if not tf.executing_eagerly():
             msg = "Randomizing values in a parameter within Graph mode is most probably not" " what is "
             raise IllegalInGraphModeError(msg)
-        minval = self.lower if minval is None else tf.cast(minval, dtype=self.dtype)
-        maxval = self.upper if maxval is None else tf.cast(maxval, dtype=self.dtype)
+        minval = self.lower if minval is None else znp.asarray(minval, dtype=self.dtype)
+        maxval = self.upper if maxval is None else znp.asarray(maxval, dtype=self.dtype)
         if maxval is None or minval is None:
             msg = "Cannot randomize a parameter without limits or limits given."
             raise RuntimeError(msg)
@@ -1233,7 +1233,7 @@ class ComplexParameter(ComposedParameter):  # TODO: change to real, imag as inpu
         imag = convert_to_parameter(imag, name=name + "_imag", prefer_constant=not floating)
         param = cls(
             name=name,
-            value_fn=lambda _real, _imag: tf.cast(tf.complex(_real, _imag), dtype=dtype),
+            value_fn=lambda _real, _imag: znp.asarray(tf.complex(_real, _imag), dtype=dtype),
             params=[real, imag],
         )
         param._real = real
@@ -1253,7 +1253,9 @@ class ComplexParameter(ComposedParameter):  # TODO: change to real, imag as inpu
         arg = convert_to_parameter(arg, name=name + "_arg", prefer_constant=not floating)
         param = cls(
             name=name,
-            value_fn=lambda _mod, _arg: tf.cast(tf.complex(_mod * znp.cos(_arg), _mod * znp.sin(_arg)), dtype=dtype),
+            value_fn=lambda _mod, _arg: znp.asarray(
+                tf.complex(_mod * znp.cos(_arg), _mod * znp.sin(_arg)), dtype=dtype
+            ),
             params=[mod, arg],
         )
         param._mod = mod

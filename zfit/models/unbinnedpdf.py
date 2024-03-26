@@ -113,7 +113,7 @@ class UnbinnedFromBinnedPDF(BaseFunctor):
         upper_flat = znp.stack(uppers_meshed_flat, axis=-1)
 
         counts_flat = znp.reshape(sample.values(), (-1,))
-        counts_flat = tf.cast(counts_flat, znp.int32)  # TODO: what if we have fractions?
+        counts_flat = znp.asarray(counts_flat, znp.int32)  # TODO: what if we have fractions?
         lower_flat_repeated = tf.repeat(lower_flat, counts_flat, axis=0)
         upper_flat_repeated = tf.repeat(upper_flat, counts_flat, axis=0)
         return prng.uniform(

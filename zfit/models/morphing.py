@@ -33,7 +33,7 @@ def spline_interpolator(alpha, alphas, densities):
         order=2,
     )
     y_flat = y_flat[0, 0]
-    return tf.reshape(y_flat, shape)
+    return znp.reshape(y_flat, shape)
 
 
 class SplineMorphingPDF(BaseBinnedPDFV1):

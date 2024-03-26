@@ -419,7 +419,7 @@ class Data(
         if dtype is None:
             dtype = ztypes.float
         array = znp.asarray(array)
-        tensor = tf.cast(array, dtype=dtype)
+        tensor = znp.asarray(array, dtype=dtype)
         return Data.from_tensor(  # *not* class, if subclass, keep constructor
             obs=obs,
             tensor=tensor,
@@ -452,7 +452,7 @@ class Data(
         """
         if dtype is None:
             dtype = ztypes.float
-        tensor = tf.cast(tensor, dtype=dtype)
+        tensor = znp.asarray(tensor, dtype=dtype)
         if len(tensor.shape) == 0:
             tensor = znp.expand_dims(tensor, -1)
         if len(tensor.shape) == 1:
@@ -574,7 +574,7 @@ class Data(
 
         # cast data to right type
         if value.dtype != self.dtype:
-            value = tf.cast(value, dtype=self.dtype)
+            value = znp.asarray(value, dtype=self.dtype)
         return value
 
     def _sort_value(self, value, obs: tuple[str]):
