@@ -668,7 +668,7 @@ class StudentT(WrapDistribution, SerializableMixin):
             ndof: Number of degrees of freedom
             mu: Mean of the distribution
             sigma: Scale of the distribution
-            obs: Observables and normalization range the pdf is defined in
+            obs: |@doc:model.init.obs||@docend:model.init.obs|
             extended: |@doc:pdf.init.extended| The overall yield of the PDF.
                If this is parameter-like, it will be used as the yield,
                the expected number of events, and the PDF will be extended.
