@@ -1357,9 +1357,6 @@ def concat(
             space = datasets[0].space.with_obs(obs)
         obs = space.obs
 
-    if obs is None:
-        msg = "No observables given to concatenate or cannot be extracted from the data."
-        raise ValueError(msg)
     if no_obs := [data for data in datasets if data.space.obs is None]:
         msg = f"Data objects {no_obs} have no observables."
         raise ValueError(msg)
@@ -1368,22 +1365,31 @@ def concat(
         raise ValueError(msg)
     weighted = any(data.has_weights for data in datasets)
 
-    if (all_space_equal := None) is None:
+    if obs is None:
         all_space_equal = all(data.space.with_obs(obs) == space for data in datasets)
         if not all_space_equal:
             msg = "All `Data` objects have to have the same space, i.e. the same limits."
             raise ValueError(msg)
 
+    if axis == 0:
+        return concat_data_index(
+            datasets=datasets, space=space, name=name, label=label, use_hash=use_hash, weighted=weighted
+        )
+    else:
+        return concat_data_obs(datasets=datasets, obs=obs, name=name, label=label, use_hash=use_hash, weighted=weighted)
+
+
+def concat_data_index(datasets, space, name, label, use_hash, weighted):
     newval = []
     if weighted:
         newweights = []
     for data in datasets:
-        values = data.value(obs=obs)
+        values = data.value(obs=space.obs)
         newval.append(values)
         if weighted:
             weights = tf.ones_like(values[:, 0]) if not data.has_weights else data.weights
             newweights.append(weights)
-    newval = znp.concatenate(newval, axis=axis)
+    newval = znp.concatenate(newval, axis=0)
     newweights = znp.concatenate(newweights, axis=0) if weighted else None
 
     return Data.from_tensor(
