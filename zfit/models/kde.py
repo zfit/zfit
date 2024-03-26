@@ -477,6 +477,7 @@ class KDEHelper:
             )
         shape_data = tf.shape(data)
         size = znp.asarray(shape_data[0], ztypes.float)
+        data = znp.asarray(data, dtype=ztypes.float)
         return data, size, weights, bandwidth
 
     def _convert_input_bandwidth(self, bandwidth, data, **kwargs):
@@ -1555,8 +1556,8 @@ class KDE1DimFFT(KDEHelper, BasePDF, SerializableMixin):
         self._grid = None
         self._grid_data = None
 
-        self._grid = binning_util.generate_1d_grid(self._data.value()[:, 0], num_grid_points=self._num_grid_points)
-        self._grid_data = binning_util.bin_1d(self._binning_method, self._data.value()[:, 0], self._grid, self._weights)
+        self._grid = binning_util.generate_1d_grid(self._data, num_grid_points=self._num_grid_points)
+        self._grid_data = binning_util.bin_1d(self._binning_method, self._data, self._grid, self._weights)
         self._grid_estimations = convolution_util.convolve_1d_data_with_kernel(
             self._kernel,
             self._bandwidth,

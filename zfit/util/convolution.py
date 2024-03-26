@@ -40,8 +40,8 @@ def convolve_1d_data_with_kernel(kernel, bandwidth, data, grid, support=None, ff
     kernel_grid_min = znp.min(grid)
     kernel_grid_max = znp.max(grid)
 
-    num_grid_points = znp.size(grid, ztypes.int)
-    num_intervals = num_grid_points - tf.constant(1, ztypes.int)
+    num_grid_points = tf.size(grid)
+    num_intervals = num_grid_points - 1
     space_width = kernel_grid_max - kernel_grid_min
     dx = space_width / znp.asarray(num_intervals, ztypes.float)
 
@@ -56,19 +56,19 @@ def convolve_1d_data_with_kernel(kernel, bandwidth, data, grid, support=None, ff
 
     # Calculate the kernel weights
     zero = tf.constant(0, ztypes.float)
-    kernel_grid = znp.linspace(zero, dx * L, znp.asarray(L, ztypes.int) + tf.constant(1, ztypes.int))
+    kernel_grid = tf.linspace(zero, dx * L, znp.asarray(L, ztypes.int) + tf.constant(1, ztypes.int))
     kernel_weights = kernel(loc=zero, scale=bandwidth).prob(kernel_grid)
-    kernel_weights = znp.concatenate(values=[tf.reverse(kernel_weights, axis=[0])[:-1], kernel_weights], axis=0)
+    kernel_weights = znp.concatenate([tf.reverse(kernel_weights, axis=[0])[:-1], kernel_weights], axis=0)
 
     c = data
     k = kernel_weights
 
     if fft_method == "conv1d":
-        c_size = znp.size(c, ztypes.int)
-        c = znp.reshape(c, [1, c_size, 1], name="c")
+        c_size = tf.size(c, ztypes.int)
+        c = znp.reshape(c, [1, c_size, 1])
 
-        k_size = znp.size(k, ztypes.int)
-        k = znp.reshape(k, [k_size, 1, 1], name="k")
+        k_size = tf.size(k, ztypes.int)
+        k = znp.reshape(k, [k_size, 1, 1])
 
         return znp.squeeze(tf.nn.conv1d(c, k, 1, "SAME"))
 

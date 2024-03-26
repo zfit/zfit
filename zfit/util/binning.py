@@ -11,12 +11,16 @@ from ..settings import ztypes
 def generate_1d_grid(data, num_grid_points, absolute_boundary=0.0, relative_boundary=0.05):
     absolute_boundary = znp.asarray(absolute_boundary, ztypes.float)
     relative_boundary = znp.asarray(relative_boundary, ztypes.float)
+    num_grid_points = znp.asarray(num_grid_points, ztypes.int)
     minimum = znp.min(data)
     maximum = znp.max(data)
     space_width = maximum - minimum
     outside_borders = znp.maximum(relative_boundary * space_width, absolute_boundary)
 
-    return znp.linspace(minimum - outside_borders, maximum + outside_borders, num=num_grid_points)
+    return tf.linspace(
+        minimum - outside_borders, maximum + outside_borders, num=num_grid_points
+    )  # requires tf, znp doesn't work
+    # znp requires num_grid_points to be a python int and then can't do the division (as the others are floats)
 
 
 def bin_1d(binning_method, data, grid, weights=None):
