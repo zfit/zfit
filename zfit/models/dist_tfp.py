@@ -581,11 +581,11 @@ class ChiSquared(WrapDistribution, SerializableMixin):
     ):
         """ChiSquared distribution for ndof degrees of freedom.
 
-        The chisquared shape for $d$ degrees of freedom is defined as
+        The chisquared shape for `d` degrees of freedom is defined as
 
         .. math::
 
-            f(x \\mid d) = x**(d/2 - 1) \\exp(-x/2) / Z
+            f(x \\mid d) = x^(d/2 - 1) \\exp(-x/2) / Z
 
         with the normalization over [0, inf] of
 
@@ -648,7 +648,39 @@ class StudentT(WrapDistribution, SerializableMixin):
         norm: NormInputType = None,
         name: str = "StudentT",
     ):
-        """StudentT distribution for ndof degrees of freedom."""
+        """StudentT distribution for ndof degrees of freedom.
+
+        The StudentT shape for `d` degrees of freedom is defined as
+
+        .. math::
+
+            f(x \\mid d, \\mu, \\sigma) = \\left(1 + \\frac{1}{d} \\left(\\frac{x - \\mu}{\\sigma}\\right)^2\\right)^{-\\frac{d+1}{2}} / Z
+
+        with the normalization over [-inf, inf] of
+
+        .. math::
+
+            Z = \\frac{\\Gamma(\\frac{d+1}{2})}{\\sqrt{\\pi d} \\Gamma(\\frac{d}{2})}
+
+        The normalization changes for different normalization ranges
+
+        Args:
+            ndof: Number of degrees of freedom
+            mu: Mean of the distribution
+            sigma: Scale of the distribution
+            obs: Observables and normalization range the pdf is defined in
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+            norm: |@doc:pdf.init.norm| Normalization of the PDF.
+               By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
+            name: |@doc:model.init.name| Human-readable name
+               or label of
+               the PDF for better identification.
+               Has no programmatical functional purpose as identification. |@docend:model.init.name|
+        """
         ndof, mu, sigma = self._check_input_params(ndof, mu, sigma)
         params = OrderedDict((("ndof", ndof), ("mu", mu), ("sigma", sigma)))
 
