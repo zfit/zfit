@@ -91,7 +91,7 @@ def test_gaussexptail_integral():
 
     integral = np.sum(integrals)
     integral_full = gaussexptail.integrate(bounds, norm=False).numpy()
-    assert pytest.approx(integral_full.item()) == integral.item()
+    assert pytest.approx(integral_full) == integral
 
 
 def test_gaussexptail_generalizedgaussexptail():
@@ -181,4 +181,4 @@ def test_gaussexptail_generalizedgaussexptail():
 
     integral = np.sum(integrals)
     integral_full = generalizedgaussexptail.integrate(bounds, norm=False).numpy()
-    assert pytest.approx(integral_full.item()) == integral.item()
+    assert pytest.approx(integral_full) == integral
