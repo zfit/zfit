@@ -9,6 +9,8 @@ __all__ = [
     "CrystalBall",
     "DoubleCB",
     "GeneralizedCB",
+    "GaussExpTail",
+    "GeneralizedGaussExpTail",
     "Gauss",
     "Uniform",
     "TruncatedGauss",
@@ -74,7 +76,13 @@ from .models.kde import (
     KDE1DimISJ,
 )
 from .models.morphing import SplineMorphingPDF
-from .models.physics import CrystalBall, DoubleCB, GeneralizedCB
+from .models.physics import (
+    CrystalBall,
+    DoubleCB,
+    GaussExpTail,
+    GeneralizedCB,
+    GeneralizedGaussExpTail,
+)
 from .models.polynomials import (
     Chebyshev,
     Chebyshev2,
