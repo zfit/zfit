@@ -741,7 +741,7 @@ class QGauss(WrapDistribution, SerializableMixin):
         We only support 1 < q < 3 in this implementation.
         If you want to use exactly q = 1, use the `zfit.pdf.Gauss` class.
         During fitting, if you want to start from a Gaussian shape, you can initialize the `q` parameter to be really close to 1.
-        It is related to the Student's t-distribution according to https://en.wikipedia.org/wiki/Q-Gaussian_distribution#Student's_t-distribution
+        It is related to the Student's t-distribution according to the `corresponding Wikipedia entry <https://en.wikipedia.org/wiki/Q-Gaussian_distribution#Student's_t-distribution>`_
         and that is how it is implemented here.
 
         The q-Gaussian shape for 1 < q < 3 is defined as
