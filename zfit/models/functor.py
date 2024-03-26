@@ -420,7 +420,10 @@ class ProductPDF(BaseFunctor, SerializableMixin):
             raise SpecificFunctionNotImplemented
         pdfs = self._prod_disjoint_obs_pdfs
         samples = [pdf.sample(n=n, limits=limits.with_obs(pdf.obs)) for pdf in pdfs]
-        return zfit.data.concat(samples, axis="obs")
+        # samples = [sample.value() if isinstance(sample, ZfitData) else sample for sample in samples]
+        for sample in samples:
+            assert isinstance(sample, ZfitData), "Sample must be a ZfitData"
+        return zfit.data.concat(samples, axis=1).value()
 
 
 class ProductPDFRepr(FunctorPDFRepr):

@@ -161,7 +161,7 @@ def test_setting_axes(space, obs):
     )
     new_axes = tuple(range(len(new_obs)))
     coords = Space(obs=new_obs, axes=new_axes)
-    # obs_axes = OrderedDict((o, ax) for o, ax in zip(new_obs, new_axes))
+    # obs_axes = dict((o, ax) for o, ax in zip(new_obs, new_axes))
 
     if len(obs) > 1:
         # make sure it was shuffled

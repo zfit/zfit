@@ -2,7 +2,6 @@
 import itertools
 import platform
 import sys
-from collections import OrderedDict
 
 import numpy as np
 import pytest
@@ -611,7 +610,7 @@ def test_minimizers(minimizer_class_and_kwargs, chunksize, numgrad, spaces, requ
                     # test custom error
                     def custom_error_func(result, params, cl):
                         return (
-                            OrderedDict((param, {"myval": 42}) for param in params),
+                            dict((param, {"myval": 42}) for param in params),
                             None,
                         )
 

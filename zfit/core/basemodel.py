@@ -18,7 +18,6 @@ import contextlib
 import inspect
 import math
 import warnings
-from collections import OrderedDict
 from collections.abc import Callable
 from contextlib import suppress
 
@@ -1103,8 +1102,8 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
                 raise tf.errors.InvalidArgumentError(msg)
         limits = self._check_input_limits(limits=limits, none_is_error=True)
 
-        def run_tf(n, limits, x):
-            return self._single_hook_sample(n=n, limits=limits, x=x)
+        def run_tf(n, limits, x):  # todo: add params
+            return self._single_hook_sample(n=n, limits=limits, x=x)  # todo: make data a composite object
 
         with self._convert_sort_x(x, allow_none=True) as x:
             new_obs = limits * x.data_range if x is not None else limits
@@ -1228,7 +1227,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         sorted = builtins.sorted
         # nice name change end
 
-        additional_repr = OrderedDict()
+        additional_repr = {}
         for key, val in self._additional_repr.items():
             try:
                 new_obj = getattr(self, val)
@@ -1244,7 +1243,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
                     new_obj = new_obj()
             additional_repr[key] = new_obj
         if sorted_:
-            additional_repr = OrderedDict(sorted(additional_repr))
+            additional_repr = dict(sorted(additional_repr))
         return additional_repr
 
     def __repr__(self):  # TODO(mayou36):repr to baseobject with _repr
@@ -1307,7 +1306,7 @@ class SimpleModelSubclassMixin:
 
     def __init__(self, *args, **kwargs):
         try:
-            params = OrderedDict((name, kwargs.pop(name)) for name in self._PARAMS)
+            params = {name: kwargs.pop(name) for name in self._PARAMS}
         except KeyError as error:
             msg = (
                 f"The following parameters are not given (as keyword arguments): {[k for k in self._PARAMS if k not in kwargs]}"

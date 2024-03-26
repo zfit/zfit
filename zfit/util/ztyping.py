@@ -133,7 +133,6 @@ CacherOrCachersType = Union[
     Iterable["zfit.core.interfaces.ZfitGraphCachable"],
 ]  #:
 
-OrderedDict = Dict
 
 LimitsDictAxes = Dict[Tuple[int], "zfit.core.interfaces.ZfitLimit"]  #:
 LimitsDictObs = Dict[Tuple[str], "zfit.core.interfaces.ZfitLimit"]  #:

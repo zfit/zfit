@@ -18,7 +18,7 @@ from .serialmixin import SerializableMixin, ZfitSerializable
 if TYPE_CHECKING:
     import zfit
 
-from collections import Counter, OrderedDict
+from collections import Counter
 from collections.abc import Callable, Mapping
 
 import numpy as np
@@ -1030,9 +1030,9 @@ class SamplerData(Data):
             guarantee_limits=guarantee_limits,
         )
         if fixed_params is None:
-            fixed_params = OrderedDict()
+            fixed_params = {}
         if isinstance(fixed_params, (list, tuple)):
-            fixed_params = OrderedDict((param, param.numpy()) for param in fixed_params)  # TODO: numpy -> read_value?
+            fixed_params = {param: param.numpy() for param in fixed_params}  # TODO: numpy -> read_value?
 
         self._initial_resampled = False
 
@@ -1374,13 +1374,19 @@ def concat_data_obs(datasets, obs, name, label, use_hash):
     #         if ob not in obs_ordered:
     #             obs_ordered.append(ob)
     #     space = convert_to_space(obs_ordered)
-    data_new = []
     weights_new = []
     new_spaces = None
     nevents = []
+    data_new = {} if (use_tensormap := all(data.dataset._tensor is None for data in datasets)) else []
+
     for data in datasets:
-        value = data.value()
-        nevents.append(tf.shape(value)[0])
+        if use_tensormap:
+            value = {ob: data.value(ob) for ob in data.obs}
+            data_new.update(value)
+            nevents.extend([tf.shape(val) for val in value.values()])
+        else:
+            value = data.value()
+            nevents.append(tf.shape(value)[0])
         data_new.append(value)
         if new_spaces is None:
             new_spaces = data.space
@@ -1395,19 +1401,22 @@ def concat_data_obs(datasets, obs, name, label, use_hash):
         True,
         message=f"Number of events in the datasets {datasets} have to be equal.",
     )
-    newval = znp.concatenate(data_new, axis=-1)
     newweights = znp.prod(weights_new, axis=0) if weights_new else None
-    data = Data.from_tensor(
-        tensor=newval,
-        obs=new_spaces,
-        weights=newweights,
-        name=name,
-        label=label,
-        use_hash=use_hash,
-        guarantee_limits=True,
-    )
-    if space is not None:
-        data = data.with_obs(space)
+    if use_tensormap:
+        Data.from_mapping(data_new, obs=space, weights=newweights, name=name, label=label, use_hash=use_hash)
+    else:
+        newval = znp.concatenate(data_new, axis=-1)
+        data = Data.from_tensor(
+            tensor=newval,
+            obs=new_spaces,
+            weights=newweights,
+            name=name,
+            label=label,
+            use_hash=use_hash,
+            guarantee_limits=True,
+        )
+        if space is not None:
+            data = data.with_obs(space)
     return data
 
 

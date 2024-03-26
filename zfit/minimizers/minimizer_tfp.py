@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from collections import OrderedDict
 from collections.abc import Mapping
 
 import numpy as np
@@ -138,7 +137,7 @@ class BFGS(BaseMinimizer):
         fmin = run(result.objective_value)
         status = None
         converged = run(result.converged)
-        params = OrderedDict((p, val) for p, val in zip(params, params_result))
+        params = dict(zip(params, params_result))
         return FitResult(
             params=params,
             edm=edm,

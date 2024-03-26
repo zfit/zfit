@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import contextlib
 import itertools
-from collections import Counter, OrderedDict
+from collections import Counter
 from collections.abc import Iterable
 
 import tensorflow as tf
@@ -69,11 +69,11 @@ class BaseParametrized(BaseObject, ZfitParametrized):
         super().__init__(**kwargs)
         from zfit.core.parameter import convert_to_parameter
 
-        params = params or OrderedDict()
-        # params = OrderedDict(sorted((n, convert_to_parameter(p)) for n, p in params.items()))
+        params = params or {}
+        # params = dict(sorted((n, convert_to_parameter(p)) for n, p in params.items()))
         params = {n: convert_to_parameter(p) for n, p in params.items()}  # why sorted?
 
-        # parameters = OrderedDict(sorted(parameters))  # to always have a consistent order
+        # parameters = dict(sorted(parameters))  # to always have a consistent order
         self._params = params
         self._repr["params"] = self.params
         # check if the object has duplicated names as parameters

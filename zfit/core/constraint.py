@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import abc
 import collections
-from collections import OrderedDict
 from collections.abc import Callable
 from typing import Iterable, Literal, Mapping
 
@@ -93,10 +92,7 @@ class SimpleConstraint(BaseConstraint):
         self._simple_func_dependents = convert_to_container(params, container=OrderedSet)
 
         params = convert_to_container(params, container=list)
-        if self._func_params is None:
-            params = OrderedDict((f"param_{i}", p) for i, p in enumerate(params))
-        else:
-            params = self._func_params
+        params = {f"param_{i}": p for i, p in enumerate(params)} if self._func_params is None else self._func_params
 
         super().__init__(name=name, params=params)
 
