@@ -69,8 +69,7 @@ class CachedPDF(BaseFunctor, SerializableMixin):
             norm: |@doc:model.init.norm| The normalization of the PDF. |@docend:model.init.norm|
             name: |@doc:model.init.name| Human-readable name
                or label of
-               the PDF for better identification.
-               Has no programmatical functional purpose as identification. |@docend:model.init.name|
+               the PDF for better identification. |@docend:model.init.name|
         """
         obs = pdf.space
         hs3_init = {

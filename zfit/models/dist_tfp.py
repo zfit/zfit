@@ -225,8 +225,7 @@ class Gauss(WrapDistribution, SerializableMixin):
                By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
             name: |@doc:model.init.name| Human-readable name
                or label of
-               the PDF for better identification.
-               Has no programmatical functional purpose as identification. |@docend:model.init.name|
+               the PDF for better identification. |@docend:model.init.name|
         """
         mu, sigma = self._check_input_params(mu, sigma)
         params = OrderedDict((("mu", mu), ("sigma", sigma)))
@@ -354,8 +353,7 @@ class TruncatedGauss(WrapDistribution):
                By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
             name: |@doc:model.init.name| Human-readable name
                or label of
-               the PDF for better identification.
-               Has no programmatical functional purpose as identification. |@docend:model.init.name|
+               the PDF for better identification. |@docend:model.init.name|
         """
         mu, sigma, low, high = self._check_input_params(mu, sigma, low, high)
         params = OrderedDict((("mu", mu), ("sigma", sigma), ("low", low), ("high", high)))
@@ -411,8 +409,7 @@ class Cauchy(WrapDistribution, SerializableMixin):
                By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
             name: |@doc:model.init.name| Human-readable name
                or label of
-               the PDF for better identification.
-               Has no programmatical functional purpose as identification. |@docend:model.init.name|
+               the PDF for better identification. |@docend:model.init.name|
         """
         m, gamma = self._check_input_params(m, gamma)
         params = OrderedDict((("m", m), ("gamma", gamma)))
@@ -537,8 +534,7 @@ class LogNormal(WrapDistribution, SerializableMixin):
                By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
             name: |@doc:model.init.name| Human-readable name
                or label of
-               the PDF for better identification.
-               Has no programmatical functional purpose as identification. |@docend:model.init.name|
+               the PDF for better identification. |@docend:model.init.name|
         """
         mu, sigma = self._check_input_params(mu, sigma)
 
@@ -607,8 +603,7 @@ class ChiSquared(WrapDistribution, SerializableMixin):
                By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
             name: |@doc:model.init.name| Human-readable name
                or label of
-               the PDF for better identification.
-               Has no programmatical functional purpose as identification. |@docend:model.init.name|
+               the PDF for better identification. |@docend:model.init.name|
         """
         (ndof,) = self._check_input_params(ndof)
         params = OrderedDict((("ndof", ndof),))
