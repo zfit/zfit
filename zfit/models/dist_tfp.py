@@ -633,3 +633,60 @@ class ChiSquaredPDFRepr(BasePDFRepr):
     hs3_type: Literal["ChiSquared"] = Field("ChiSquared", alias="type")
     x: SpaceRepr
     ndof: Serializer.types.ParamTypeDiscriminated
+
+
+class QGaussian(WrapDistribution, SerializableMixin):
+    _N_OBS = 1
+
+    def __init__(
+        self,
+        q: ztyping.ParamTypeInput,
+        mu: ztyping.ParamTypeInput,
+        sigma: ztyping.ParamTypeInput,
+        obs: ztyping.ObsTypeInput,
+        *,
+        extended: ExtendedInputType = None,
+        norm: NormInputType = None,
+        name: str = "QGaussian",
+    ):
+        """Q-Gaussian distribution with parameter `q`."""
+        q, mu, sigma = self._check_input_params(q, mu, sigma)
+        if q < 1 or q > 3:
+            msg = "q < 1 or q > 3 are not supported"
+            raise ValueError(msg)
+        if q == 1:
+            msg = "q = 1 is a Gaussian, use Gauss instead."
+            raise ValueError(msg)
+        params = OrderedDict((("q", q), ("mu", mu), ("sigma", sigma)))
+
+        # https://en.wikipedia.org/wiki/Q-Gaussian_distribution
+        # relation to Student's t-distribution
+
+        # 1/(2 sigma^2) = 1 / (3 - q)
+        # 2 sigma^2 = 3 - q
+        # sigma = sqrt((3 - q)/2)
+
+        def dist_params():
+            df = (3 - q.value()) / (q.value() - 1)
+            scale = sigma.value() / tf.sqrt(0.5 * (3 - q.value()))
+            return {"df": df, "loc": mu.value(), "scale": scale}
+
+        distribution = tfp.distributions.StudentT
+        super().__init__(
+            distribution=distribution,
+            dist_params=dist_params,
+            obs=obs,
+            params=params,
+            name=name,
+            extended=extended,
+            norm=norm,
+        )
+
+
+class QGaussianPDFRepr(BasePDFRepr):
+    _implementation = QGaussian
+    hs3_type: Literal["QGaussian"] = Field("QGaussian", alias="type")
+    x: SpaceRepr
+    q: Serializer.types.ParamTypeDiscriminated
+    mu: Serializer.types.ParamTypeDiscriminated
+    sigma: Serializer.types.ParamTypeDiscriminated
