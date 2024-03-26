@@ -695,7 +695,6 @@ class GaussExpTail(BasePDF, SerializableMixin):
             mu: The mean of the gaussian
             sigma: Standard deviation of the gaussian
             alpha: parameter where to switch from a gaussian to the expontial tail
-            n: Coefficient of the exponent in the exponential tail
             obs: |@doc:pdf.init.obs| Observables of the
                model. This will be used as the default space of the PDF and,
                if not given explicitly, as the normalization range.
@@ -737,7 +736,7 @@ class GaussExpTailPDFRepr(BasePDFRepr):
     alpha: Serializer.types.ParamTypeDiscriminated
 
 
-gaussexptail_integral_limits = Space(axes=(0,), limits=(((ANY_LOWER,),), ((ANY_UPPER,),)))
+gaussexptail_integral_limits = Space(axes=0, limits=(ANY_LOWER, ANY_UPPER))
 
 GaussExpTail.register_analytic_integral(func=gaussexptail_integral, limits=gaussexptail_integral_limits)
 
@@ -779,10 +778,8 @@ class GeneralizedGaussExpTail(BasePDF, SerializableMixin):
             mu: The mean of the gaussian
             sigmal: Standard deviation of the gaussian on the left side
             alphal: parameter where to switch from a gaussian to the expontial tail on the left side
-            nl: Coefficient of the exponent in the exponential tail on the left side
             sigmar: Standard deviation of the gaussian on the right side
             alphar: parameter where to switch from a gaussian to the expontial tail on the right side
-            nr: Coefficient of the exponent in the exponential tail on the right side
             obs: |@doc:pdf.init.obs| Observables of the
                model. This will be used as the default space of the PDF and,
                if not given explicitly, as the normalization range.
