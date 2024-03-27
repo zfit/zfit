@@ -651,7 +651,6 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         params = self._input_check_params(params)
         numgrad = self._options["numhess"] if numgrad is None else numgrad
         params_checked = False
-        params = {p.name: p for p in params}
         if not self._is_precompiled:
             with self._check_set_input_params(paramvals) as paramvals:
                 self._precompile()
