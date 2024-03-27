@@ -17,6 +17,7 @@ import tensorflow_probability as tfp
 import tensorflow_probability.python.distributions as tfd
 from pydantic import Field
 
+import zfit.z.numpy as znp
 from zfit import z
 from zfit.util.exception import AnalyticSamplingNotImplemented
 
@@ -809,8 +810,8 @@ class QGauss(WrapDistribution, SerializableMixin):
             from zfit import run
 
             if run.numeric_checks:
-                tf.debugging.assert_greater(q, z.numpy.asarray(1.0), "q must be > 1")
-                tf.debugging.assert_less(q, z.numpy.asarray(3.0), "q must be < 3")
+                tf.debugging.assert_greater(q, znp.asarray(1.0), "q must be > 1")
+                tf.debugging.assert_less(q, znp.asarray(3.0), "q must be < 3")
             df = (3 - q.value()) / (q.value() - 1)
             scale = sigma.value() / tf.sqrt(0.5 * (3 - q.value()))
             return {"df": df, "loc": mu.value(), "scale": scale}
