@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 import copy
 
 import numpy as np
@@ -43,8 +43,8 @@ def test_polynomials(poly_cfg, coeffs):
     polynomial2 = poly_pdf(obs=obs1, coeffs=coeffs)
 
     polynomial_coeff0 = poly_pdf(obs=obs1, coeffs=coeffs, coeff0=1.0)
-    lower, upper = obs1.rect_limits
-    x = np.random.uniform(size=(1000,), low=lower[0], high=upper[0])
+    lower, upper = obs1.v1.limits
+    x = np.random.uniform(size=(1000,), low=lower, high=upper)
     y_poly = polynomial.pdf(x)
     y_poly_u = polynomial.pdf(x, norm=False)
     y_poly2 = polynomial2.pdf(x)
@@ -96,6 +96,6 @@ def test_polynomials(poly_cfg, coeffs):
     lower, upper = obs1_random.limit1d
     sample = z.random.uniform((n_sampling, 1), lower, upper, dtype=tf.float64)
     test_integral = (
-        np.average(polynomial.pdf(sample, norm=False)) * obs1_random.rect_area()
+        np.average(polynomial.pdf(sample, norm=False)) * obs1_random.volume
     )
     assert pytest.approx(analytic_integral, rel=rel_integral * 3) == test_integral

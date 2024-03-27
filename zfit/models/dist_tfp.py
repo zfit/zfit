@@ -9,7 +9,6 @@ Therefore, a convenient wrapper as well as a lot of implementations are provided
 #  Copyright (c) 2024 zfit
 from __future__ import annotations
 
-from collections import OrderedDict
 from typing import Literal
 
 import tensorflow as tf
@@ -47,7 +46,7 @@ def tfd_analytic_sample(n: int, dist: tfd.Distribution, limits: ztyping.ObsTypeI
     Returns:
         The sampled data with the number of samples and the number of observables.
     """
-    lower_bound, upper_bound = limits.rect_limits
+    lower_bound, upper_bound = limits.v0.limits  # not working with MultiSpace
     lower_prob_lim = dist.cdf(lower_bound)
     upper_prob_lim = dist.cdf(upper_bound)
 
@@ -83,10 +82,7 @@ class WrapDistribution(BasePDF):  # TODO: extend functionality of wrapper, like 
         if dist_params is None:
             dist_params = {}
         name = name or distribution.name
-        if params is None:
-            params = OrderedDict((k, p) for k, p in dist_params.items())
-        else:
-            params = OrderedDict((k, convert_to_parameter(p)) for k, p in params.items())
+        params = dist_params.copy() if params is None else {k: convert_to_parameter(p) for k, p in params.items()}
 
         super().__init__(obs=obs, dtype=dtype, name=name, params=params, **kwargs)
 
@@ -224,11 +220,10 @@ class Gauss(WrapDistribution, SerializableMixin):
                By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
             name: |@doc:model.init.name| Human-readable name
                or label of
-               the PDF for better identification.
-               Has no programmatical functional purpose as identification. |@docend:model.init.name|
+               the PDF for better identification. |@docend:model.init.name|
         """
         mu, sigma = self._check_input_params(mu, sigma)
-        params = OrderedDict((("mu", mu), ("sigma", sigma)))
+        params = {"mu": mu, "sigma": sigma}
 
         def dist_params():
             return {"loc": mu.value(), "scale": sigma.value()}
@@ -263,7 +258,7 @@ class ExponentialTFP(WrapDistribution):
         name: str = "Exponential",
     ):
         (tau,) = self._check_input_params(tau)
-        params = OrderedDict((("tau", tau),))
+        params = {"tau", tau}
         dist_params = {"rate": tau}
         distribution = tfp.distributions.Exponential
         super().__init__(
@@ -304,7 +299,7 @@ class Uniform(WrapDistribution):
             name: |@doc:model.init.pdf||@docend:model.init.pdf|
         """
         low, high = self._check_input_params(low, high)
-        params = OrderedDict((("low", low), ("high", high)))
+        params = {"low": low, "high": high}
 
         def dist_params():
             return {"low": low.value(), "high": high.value()}
@@ -353,11 +348,10 @@ class TruncatedGauss(WrapDistribution):
                By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
             name: |@doc:model.init.name| Human-readable name
                or label of
-               the PDF for better identification.
-               Has no programmatical functional purpose as identification. |@docend:model.init.name|
+               the PDF for better identification. |@docend:model.init.name|
         """
         mu, sigma, low, high = self._check_input_params(mu, sigma, low, high)
-        params = OrderedDict((("mu", mu), ("sigma", sigma), ("low", low), ("high", high)))
+        params = {"mu": mu, "sigma": sigma, "low": low, "high": high}
         distribution = tfp.distributions.TruncatedNormal
 
         def dist_params():
@@ -415,11 +409,10 @@ class Cauchy(WrapDistribution, SerializableMixin):
                By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
             name: |@doc:model.init.name| Human-readable name
                or label of
-               the PDF for better identification.
-               Has no programmatical functional purpose as identification. |@docend:model.init.name|
+               the PDF for better identification. |@docend:model.init.name|
         """
         m, gamma = self._check_input_params(m, gamma)
-        params = OrderedDict((("m", m), ("gamma", gamma)))
+        params = {"m": m, "gamma": gamma}
         distribution = tfp.distributions.Cauchy
 
         def dist_params():
@@ -541,12 +534,11 @@ class LogNormal(WrapDistribution, SerializableMixin):
                By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
             name: |@doc:model.init.name| Human-readable name
                or label of
-               the PDF for better identification.
-               Has no programmatical functional purpose as identification. |@docend:model.init.name|
+               the PDF for better identification. |@docend:model.init.name|
         """
         mu, sigma = self._check_input_params(mu, sigma)
 
-        params = OrderedDict((("mu", mu), ("sigma", sigma)))
+        params = {"mu": mu, "sigma": sigma}
 
         def dist_params():
             return {"loc": mu.value(), "scale": sigma.value()}
@@ -611,11 +603,10 @@ class ChiSquared(WrapDistribution, SerializableMixin):
                By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
             name: |@doc:model.init.name| Human-readable name
                or label of
-               the PDF for better identification.
-               Has no programmatical functional purpose as identification. |@docend:model.init.name|
+               the PDF for better identification. |@docend:model.init.name|
         """
         (ndof,) = self._check_input_params(ndof)
-        params = OrderedDict((("ndof", ndof),))
+        params = {"ndof": ndof}
 
         def dist_params():
             return {"df": ndof.value()}
@@ -690,8 +681,7 @@ class StudentT(WrapDistribution, SerializableMixin):
                By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
             name: |@doc:model.init.name| Human-readable name
                or label of
-               the PDF for better identification.
-               Has no programmatical functional purpose as identification. |@docend:model.init.name|
+               the PDF for better identification. |@docend:model.init.name|
         """
         ndof, mu, sigma = self._check_input_params(ndof, mu, sigma)
         params = {"ndof": ndof, "mu": mu, "sigma": sigma}
@@ -787,8 +777,7 @@ class QGauss(WrapDistribution, SerializableMixin):
                By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
             name: |@doc:model.init.name| Human-readable name
                or label of
-               the PDF for better identification.
-               Has no programmatical functional purpose as identification. |@docend:model.init.name|
+               the PDF for better identification. |@docend:model.init.name|
         """
         from zfit import run
 

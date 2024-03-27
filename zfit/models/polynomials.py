@@ -96,7 +96,7 @@ class RecursivePolynomial(BasePDF):
         params = {f"c_{i}": coeff for i, coeff in enumerate(coeffs)}
         self._degree = len(coeffs) - 1  # 1 coeff -> 0th degree
         self._apply_scale = apply_scaling
-        if apply_scaling and not (isinstance(obs, Space) and obs.n_limits == 1):
+        if apply_scaling and not (isinstance(obs, Space) and obs._depr_n_limits == 1):
             msg = "obs need to be a Space with exactly one limit if rescaling is requested."
             raise ValueError(msg)
         super().__init__(obs=obs, name=name, params=params, extended=extended, norm=norm)
@@ -212,7 +212,7 @@ def legendre_integral(
 
         integral = indefinite_integral(upper) - indefinite_integral(lower) + integral_0
         integral = znp.reshape(integral, newshape=())
-    integral *= 0.5 * model.space.area()  # rescale back to whole width
+    integral *= 0.5 * model.space.volume  # rescale back to whole width
 
     return integral
 
@@ -268,10 +268,9 @@ class Legendre(RecursivePolynomial, SerializableMixin):
                ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
             norm: |@doc:pdf.init.norm| Normalization of the PDF.
                By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
-            name: |@doc:pdf.init.name| Human-readable name
-               or label of
-               the PDF for better identification.
-               Has no programmatical functional purpose as identification. |@docend:pdf.init.name|
+            name: |@doc:pdf.init.name| Name of the PDF.
+               Maybe has implications on the serialization and deserialization of the PDF.
+               For a human-readable name, use the label. |@docend:pdf.init.name|
         """
         super().__init__(
             obs=obs,
@@ -364,10 +363,9 @@ class Chebyshev(RecursivePolynomial, SerializableMixin):
                ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
             norm: |@doc:pdf.init.norm| Normalization of the PDF.
                By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
-            name: |@doc:pdf.init.name| Human-readable name
-               or label of
-               the PDF for better identification.
-               Has no programmatical functional purpose as identification. |@docend:pdf.init.name|
+            name: |@doc:pdf.init.name| Name of the PDF.
+               Maybe has implications on the serialization and deserialization of the PDF.
+               For a human-readable name, use the label. |@docend:pdf.init.name|
         """
         super().__init__(
             obs=obs,
@@ -391,7 +389,7 @@ class ChebyshevRepr(BaseRecursivePolynomialRepr):
 
 def func_integral_chebyshev1(limits, norm, params, model):
     del norm  # not used here
-    lower, upper = limits.rect_limits
+    lower, upper = limits.v1.limits
     lower_rescaled = model._polynomials_rescale(lower)
     upper_rescaled = model._polynomials_rescale(upper)
 
@@ -423,7 +421,7 @@ def func_integral_chebyshev1(limits, norm, params, model):
 
         integral += indefinite_integral(upper) - indefinite_integral(lower)
         integral = znp.reshape(integral, newshape=())
-    integral *= 0.5 * model.space.area()  # rescale back to whole width
+    integral *= 0.5 * model.space.volume  # rescale back to whole width
     return tf.gather(integral, indices=0, axis=-1)
 
 
@@ -528,7 +526,7 @@ def func_integral_chebyshev2(limits, norm, params, model):
 
     integral = indefinite_integral(upper) - indefinite_integral(lower)
     integral = znp.reshape(integral, newshape=())
-    integral *= 0.5 * model.space.area()  # rescale back to whole width
+    integral *= 0.5 * model.space.volume  # rescale back to whole width
 
     return integral
 
@@ -672,7 +670,7 @@ def func_integral_laguerre(limits, norm, params: dict, model):
 
     integral = indefinite_integral(upper) - indefinite_integral(lower)
     integral = znp.reshape(integral, newshape=())
-    integral *= 0.5 * model.space.area()  # rescale back to whole width
+    integral *= 0.5 * model.space.volume  # rescale back to whole width
     return integral
 
 
@@ -782,7 +780,7 @@ def func_integral_hermite(limits, norm, params, model):
 
     integral = indefinite_integral(upper) - indefinite_integral(lower)
     integral = znp.reshape(integral, newshape=())
-    integral *= 0.5 * model.space.area()  # rescale back to whole width
+    integral *= 0.5 * model.space.volume  # rescale back to whole width
 
     return integral
 

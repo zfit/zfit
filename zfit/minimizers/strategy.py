@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import abc
 from abc import abstractmethod
-from collections import OrderedDict
 from collections.abc import Mapping
 
 import numpy as np
@@ -74,7 +73,7 @@ class ToyStrategyFail(BaseStrategy):
     def minimize_nan(self, loss: ZfitLoss, params: ztyping.ParamTypeInput, values: Mapping | None = None) -> float:
         del values  # unused
         param_vals = run(params)
-        param_vals = OrderedDict((param, value) for param, value in zip(params, param_vals))
+        param_vals = dict(zip(params, param_vals))
         self.fit_result = FitResult(
             params=param_vals,
             edm=None,

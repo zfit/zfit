@@ -267,7 +267,7 @@ class BaseParameter(Variable, ZfitParameter, TensorType, metaclass=MetaBaseParam
 class ZfitParameterMixin(BaseNumeric):
     _existing_params: typing.ClassVar = {}
 
-    def __init__(self, name, **kwargs):
+    def __init__(self, name, label=None, **kwargs):
         if name not in self._existing_params:
             self._existing_params[name] = WeakSet()
             # Is an alternative arg for pop needed in case it fails? Why would it fail?
@@ -278,6 +278,7 @@ class ZfitParameterMixin(BaseNumeric):
             )
         self._existing_params[name].add(self)
         self._name = name
+        self._label = label
 
         super().__init__(name=name, **kwargs)
         self._assert_params_unique()
@@ -286,6 +287,12 @@ class ZfitParameterMixin(BaseNumeric):
     @property
     def name(self) -> str:
         return self._name
+
+    @property
+    def label(self) -> str:
+        if (label := self._label) is None:
+            label = self.name
+        return label
 
     def __del__(self):
         with suppress(AttributeError, NotImplementedError):  # if super does not have a __del__
@@ -366,6 +373,7 @@ class Parameter(
         floating: bool = True,
         *,
         dtype: tf.DType = None,
+        label: str | None = None,
         # legacy
         lower_limit: ztyping.NumericalScalarType | None = None,
         upper_limit: ztyping.NumericalScalarType | None = None,
@@ -377,11 +385,13 @@ class Parameter(
         they cannot be in the same PDF/func/loss as the value would not be uniquely defined.
 
         Args:
-            name : name of the parameter
-            value : starting value
-            lower : lower limit
-            upper : upper limit
-            step_size : step size
+            name : Name of the parameter. Should be unique within a model/likelihood.
+            value : Default value of the parameter. Also used as the starting value in minimization.
+            lower : lower limit of the parameter. If the parameter is set to a value below the lower limit, it will raise an error.
+            upper : upper limit of the parameter. If the parameter is set to a value above the upper limit, it will raise an error.
+            floating : If the parameter is floating (can change value) or fixed (constant) in the minimization.
+            label: |@doc:param.init.label||@docend:param.init.label|
+            step_size : Initial step size for minimization. If not set, a default value is used.
         """
         self._independent_params.add(self)
 
@@ -418,6 +428,7 @@ class Parameter(
             name=name,
             constraint=constraint,
             params={},
+            label=label,
         )
 
         self.lower = lower
@@ -841,7 +852,7 @@ class ParameterType(VariableSpec):
 #         return type(other) == self.parameter_type and self.name == other.name
 
 
-class ParameterRepr(BaseRepr):
+class ParameterRepr(BaseRepr):  # add label?
     _implementation = Parameter
     _constructor = pydantic.PrivateAttr(make_param_constructor(Parameter))
     hs3_type: Literal["Parameter"] = Field("Parameter", alias="type")
@@ -945,14 +956,21 @@ class ConstantParameter(OverloadableMixin, ZfitParameterMixin, BaseParameter, Se
     Value cannot change.
     """
 
-    def __init__(self, name, value):
+    def __init__(
+        self,
+        name,
+        value,
+        *,
+        label: str | None = None,
+    ):
         """Constant parameter that cannot change its value.
 
         Args:
             name: Unique identifier of the parameter.
             value: Constant value.
+            label: |@doc:param.init.label||@docend:param.init.label|
         """
-        super().__init__(name=name, params={}, dtype=ztypes.float)
+        super().__init__(name=name, params={}, dtype=ztypes.float, label=label)
         self._value_np = tf.get_static_value(value, partial=True)
         self._value = tf.guarantee_const(tf.convert_to_tensor(value, dtype=self.dtype))
 
@@ -1030,6 +1048,7 @@ class ComposedParameter(SerializableMixin, BaseComposedParameter):
         params: (dict[str, ZfitParameter] | Iterable[ZfitParameter] | ZfitParameter) = NotSpecified,
         dtype: tf.dtypes.DType = ztypes.float,
         *,
+        label: str | None = None,
         unpack_params: bool | None = None,
         dependents: (dict[str, ZfitParameter] | Iterable[ZfitParameter] | ZfitParameter) = NotSpecified,
     ):
@@ -1067,6 +1086,10 @@ class ComposedParameter(SerializableMixin, BaseComposedParameter):
             params: If it is a `dict`, this will directly be used as the `params` attribute, otherwise the
                 parameters will be automatically named with f"param_{i}". The values act as arguments to `value_fn`.
             dtype: Output of `value_fn` dtype
+            label: |@doc:param.init.label||@docend:param.init.label|
+            unpack_params: If True, the parameters will be unpacked and passed as arguments to `value_fn`. If False, the
+                parameters will be passed as a dict/tuple. If None, it will be automatically determined and raise an error
+                if it cannot be determined.
             dependents:
                 .. deprecated:: unknown
                     use `params` instead.
@@ -1152,7 +1175,7 @@ class ComposedParameter(SerializableMixin, BaseComposedParameter):
 
         original_init["params"] = params_dict  # needs to be here, we need the params to be a dict for the serialization
 
-        super().__init__(params=params_dict, value_fn=stratified_fn, name=name, dtype=dtype)
+        super().__init__(params=params_dict, value_fn=stratified_fn, name=name, dtype=dtype, label=label)
         self.hs3.original_init.update(original_init)
 
     def __repr__(self):
@@ -1202,7 +1225,7 @@ class ComposedParameterRepr(BaseRepr):
 
 
 class ComplexParameter(ComposedParameter):  # TODO: change to real, imag as input?
-    def __init__(self, name, value_fn, params, dtype=ztypes.complex):
+    def __init__(self, name, value_fn, params, dtype=ztypes.complex, *, label: str | None = None):
         """Create a complex parameter.
 
         .. note::
@@ -1210,8 +1233,16 @@ class ComplexParameter(ComposedParameter):  # TODO: change to real, imag as inpu
 
             - :py:meth:`ComplexParameter.from_cartesian`
             - :py:meth:`ComplexParameter.from_polar`
+
+        Args:
+            name: Name of the parameter.
+            value_fn: Function that returns the value of the complex parameter and takes as arguments the real and
+                imaginary part.
+            params: List of the real and imaginary part of the complex parameter.
+            dtype: Data type of the complex parameter.
+            label: |@doc:param.init.label||@docend:param.init.label|
         """
-        super().__init__(name, value_fn=value_fn, params=params, dtype=dtype)
+        super().__init__(name, value_fn=value_fn, params=params, dtype=dtype, label=label)
         self._conj = None
         self._mod = None
         self._arg = None
@@ -1220,7 +1251,14 @@ class ComplexParameter(ComposedParameter):  # TODO: change to real, imag as inpu
 
     @classmethod
     def from_cartesian(
-        cls, name, real, imag, dtype=ztypes.complex, floating=True
+        cls,
+        name: str,
+        real: ztyping.NumericalScalarType,
+        imag: ztyping.NumericalScalarType,
+        floating: bool = True,
+        *,
+        dtype=ztypes.complex,
+        label: str | None = None,
     ) -> ComplexParameter:  # TODO: correct dtype handling, also below
         """Create a complex parameter from cartesian coordinates.
 
@@ -1228,6 +1266,9 @@ class ComplexParameter(ComposedParameter):  # TODO: change to real, imag as inpu
             name: Name of the parameter.
             real: Real part of the complex number.
             imag: Imaginary part of the complex number.
+            floating: If True, the parameter is floating. If False, the parameter is constant.
+            dtype: Data type of the complex parameter.
+            label: |@doc:param.init.label||@docend:param.init.label|
         """
         real = convert_to_parameter(real, name=name + "_real", prefer_constant=not floating)
         imag = convert_to_parameter(imag, name=name + "_imag", prefer_constant=not floating)
@@ -1235,19 +1276,33 @@ class ComplexParameter(ComposedParameter):  # TODO: change to real, imag as inpu
             name=name,
             value_fn=lambda _real, _imag: znp.asarray(tf.complex(_real, _imag), dtype=dtype),
             params=[real, imag],
+            label=label,
         )
         param._real = real
         param._imag = imag
         return param
 
     @classmethod
-    def from_polar(cls, name, mod, arg, dtype=ztypes.complex, floating=True, **__) -> ComplexParameter:
+    def from_polar(
+        cls,
+        name: str,
+        mod: ztyping.NumericalScalarType,
+        arg: ztyping.NumericalScalarType,
+        floating=True,
+        *,
+        dtype=ztypes.complex,
+        label: str | None = None,
+        **__,
+    ) -> ComplexParameter:
         """Create a complex parameter from polar coordinates.
 
         Args:
             name: Name of the parameter.
             mod: Modulus (r) the complex number.
             arg: Argument (phi) of the complex number.
+            dtype: Data type of the complex parameter.
+            floating: If True, the parameter is floating. If False, the parameter is constant.
+            label: |@doc:param.init.label||@docend:param.init.label|
         """
         mod = convert_to_parameter(mod, name=name + "_mod", prefer_constant=not floating)
         arg = convert_to_parameter(arg, name=name + "_arg", prefer_constant=not floating)
@@ -1257,6 +1312,7 @@ class ComplexParameter(ComposedParameter):  # TODO: change to real, imag as inpu
                 tf.complex(_mod * znp.cos(_arg), _mod * znp.sin(_arg)), dtype=dtype
             ),
             params=[mod, arg],
+            label=label,
         )
         param._mod = mod
         param._arg = arg
@@ -1265,12 +1321,17 @@ class ComplexParameter(ComposedParameter):  # TODO: change to real, imag as inpu
     @property
     def conj(self):
         """Returns a complex conjugated copy of the complex parameter."""
+
         if self._conj is None:
+            name = f"{self.name}_conj"
+            if (label := self._label) is not None:
+                label = f"Conjugate of {self.label}"
             self._conj = ComplexParameter(
-                name=f"{self.name}_conj",
+                name=name,
                 value_fn=lambda: znp.conj(self),
                 params=self.get_cache_deps(),
                 dtype=self.dtype,
+                label=label,
             )
         return self._conj
 
@@ -1339,7 +1400,9 @@ def convert_to_parameters(
         "upper": upper,
         "step_size": step_size,
     }
-    params_dict = {key: convert_to_container(val) for key, val in params_dict.items() if val is not None}
+    params_dict = {
+        key: convert_to_container(val, ignore=np.ndarray) for key, val in params_dict.items() if val is not None
+    }
     lengths = {len(v) for v in params_dict.values()}
     if len(lengths) != 1:
         msg = f"Inconsistent length in values when converting the parameters: {params_dict}"
@@ -1354,26 +1417,29 @@ def convert_to_parameters(
 
 @deprecated_args(None, "Use `params` instead.", "dependents")
 def convert_to_parameter(
-    value,
+    value: ztyping.NumericalScalarType | ZfitParameter | Callable,
     name: str | None = None,
     prefer_constant: bool = True,
-    params=None,
-    lower=None,
-    upper=None,
-    step_size=None,
+    params: ZfitParameter | Iterable[ZfitParameter] | None = None,
+    lower: ztyping.NumericalScalarType | None = None,
+    upper: ztyping.NumericalScalarType | None = None,
+    step_size: ztyping.NumericalScalarType | None = None,
+    *,
+    label: str | None = None,
     # legacy
     dependents=None,
 ) -> ZfitParameter:
     """Convert a *numerical* to a constant/floating parameter or return if already a parameter.
 
     Args:
-        value:
-        name:
+        value: Value of the parameter. If a `ZfitParameter` is passed, it will be returned as is.
+        name: Name of the parameter. If None, a unique name will be created.
         prefer_constant: If True, create a ConstantParameter instead of a Parameter, if possible.
-        params:
-        lower:
-        upper:
-        step_size:
+        params: If the value is a callable, the parameters that are passed to the callable.
+        lower: Lower limit of the parameter.
+        upper: Upper limit of the parameter.
+        step_size: Step size of the parameter.
+        label: |@doc:param.init.label||@docend:param.init.label|
     """
     # legacy start
     if dependents is not None:
@@ -1386,7 +1452,7 @@ def convert_to_parameter(
         if params is None:
             msg = "If the value is a callable, the params have to be specified as an empty list/tuple"
             raise ValueError(msg)
-        return ComposedParameter(f"Composed_autoparam_{get_auto_number()}", value_fn=value, params=params)
+        return ComposedParameter(f"Composed_autoparam_{get_auto_number()}", value_fn=value, params=params, label=label)
 
     if isinstance(value, ZfitParameter):  # TODO(Mayou36): autoconvert variable. TF 2.0?
         return value
@@ -1414,16 +1480,16 @@ def convert_to_parameter(
                 Parameter(name + "_REALPART", value=znp.real(value)),
                 Parameter(name + "_IMAGPART", value=znp.imag(value)),
             )
-        value = ComplexParameter.from_cartesian(name, real=complex_params[0], imag=complex_params[1])
+        value = ComplexParameter.from_cartesian(name, real=complex_params[0], imag=complex_params[1], label=label)
 
     elif prefer_constant:
         if name is None:
             name = "FIXED_autoparam_" + str(get_auto_number()) if name is None else name
-        value = ConstantParameter(name, value=value)
+        value = ConstantParameter(name, value=value, label=label)
 
     else:
         name = "autoparam_" + str(get_auto_number()) if name is None else name
-        value = Parameter(name=name, value=value, lower=lower, upper=upper, step_size=step_size)
+        value = Parameter(name=name, value=value, lower=lower, upper=upper, step_size=step_size, label=label)
 
     return value
 
@@ -1569,11 +1635,16 @@ def check_convert_param_values_assign(params, values, allow_partial=False):
         params = new_params
 
     elif len(params) > 1:
-        if not tf.is_tensor(values) or isinstance(values, np.ndarray):
+        if not (tf.is_tensor(values) or isinstance(values, np.ndarray)):
             values = convert_to_container(values)
-            if len(params) != len(values):
-                msg = f"Incompatible length of parameters and values: {params}, {values}"
-                raise ValueError(msg)
+            lenvalues = len(values)
+        else:
+            shape = values.shape
+            lenvalues = shape[0] if shape is not None else None
+        if lenvalues is not None and lenvalues != len(params):
+            msg = f"Incompatible length of parameters and values: {params}, {values}"
+            raise ValueError(msg)
+
     not_param = [param for param in params if not isinstance(param, ZfitParameter)]
     if not_param:
         msg = f"The following are not parameters (but should be): {not_param}"

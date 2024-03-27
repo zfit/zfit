@@ -43,7 +43,7 @@ class RuntimeDependency:
         if item in self.__dict__:
             return self.__dict__[item]
         raise ImportError(
-            (f"Original import error{self.__error_msg}.\n" if self.__error_msg is not None else "")
+            (f"Original import error {self.__error_msg}.\n" if self.__error_msg is not None else "")
             + f"This requires {self.__name}"
             " to be installed. You can usually install it with"
             f"`pip install zfit[{self.__name}]` or"

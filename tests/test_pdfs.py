@@ -184,8 +184,10 @@ def test_prod_gauss_nd():
     assert product_pdf.n_obs == 3
     probs = product_pdf.pdf(x=test_values_data)
     gaussians = create_gaussians()
-    for gauss, space in zip(gaussians, [obs1, obs2, obs3]):
+    # raise RuntimeError("Cleanup test!")
+    for gauss, space in zip(gaussians, [obs1, obs2, obs3]):  # TODO: cleanup test
         gauss.set_norm_range(space.rect_limits)
+
     true_probs = np.prod(
         [gauss.pdf(test_values[:, i]) for i, gauss in enumerate(gaussians)], axis=0
     )
@@ -228,7 +230,7 @@ def test_prod_gauss_nd_mixed():
 
     true_unnormalized_probs = probs_4d(values=test_values)
 
-    normalization_probs = limits_4d.area() * probs_4d(
+    normalization_probs = limits_4d.volume * probs_4d(
         z.random.uniform(minval=low, maxval=high, shape=(40**4, 4))
     )
     true_probs = true_unnormalized_probs / tf.reduce_mean(
@@ -236,7 +238,7 @@ def test_prod_gauss_nd_mixed():
     )
     probs_np = probs.numpy()
     true_probs_np = true_probs.numpy()
-    assert np.average(probs_np * limits_4d.area()) == pytest.approx(
+    assert np.average(probs_np * limits_4d._legacy_area()) == pytest.approx(
         1.0, rel=0.33
     )  # low n mc
     np.testing.assert_allclose(true_probs_np, probs_np, rtol=2e-2)
@@ -298,16 +300,14 @@ def normalization_testing(pdf, limits=None):
     limits = (low, high) if limits is None else limits
     space = Space(obs=obs1, limits=limits)
     with pdf.set_norm_range(space):
-        samples = (
-            znp.random.uniform(
-                low=space.lower, high=space.upper, size=(100_000, pdf.n_obs)
-            ),
+        samples = znp.random.uniform(
+            low=space.v1.lower, high=space.v1.upper, size=(100_000, pdf.n_obs)
         )
 
         samples = zfit.Data.from_tensor(obs=space, tensor=samples)
         probs = pdf.pdf(samples)
         result = probs.numpy()
-        result = zfit.run(np.average(result) * space.rect_area())
+        result = zfit.run(np.average(result) * space._legacy_area())
         assert pytest.approx(result, rel=0.03) == 1
 
 

@@ -20,7 +20,7 @@ from uhi.typing.plottable import PlottableHistogram
 import zfit
 import zfit.z.numpy as znp
 from zfit import z
-from zfit._data.binneddatav1 import BinnedData, BinnedSampler, move_axis_obs
+from zfit._data.binneddatav1 import BinnedData, BinnedSamplerData, move_axis_obs
 
 from ..util import ztyping
 from ..util.cache import GraphCachable
@@ -286,7 +286,7 @@ class BaseBinnedPDFV1(
 
         # sort it and remember the original sorting
         original_space = x if isinstance(x, ZfitSpace) else x.space
-        x = x.with_obs(self.space)
+        x = x.with_obs(self.space.obs)  # we don't want to cut anything off -> only obs, not space
 
         # if it is unbinned, we get the binned version and gather the corresponding values
         is_unbinned = isinstance(x, ZfitUnbinnedData)
@@ -305,7 +305,7 @@ class BaseBinnedPDFV1(
             )  # for overflow
             ordered_values = tf.gather_nd(padded_values, indices=binindices)
         else:
-            ordered_values = move_axis_obs(self.space, original_space, values)
+            ordered_values = move_axis_obs(self.space, original_space, values)[0]  # only use values, not variance
         return znp.asarray(ordered_values)
 
     @z.function(wraps="model_binned")
@@ -367,7 +367,7 @@ class BaseBinnedPDFV1(
         norm = self._check_convert_norm(norm, none_is_error=True)
         # sort it and remember the original sorting
         original_space = x if isinstance(x, ZfitSpace) else x.space
-        x = x.with_obs(self.space)
+        x = x.with_obs(self.space.obs)  # we don't want to cut anything off -> only obs, not space
 
         # if it is unbinned, we get the binned version and gather the corresponding values
         is_unbinned = isinstance(x, ZfitUnbinnedData)
@@ -386,7 +386,7 @@ class BaseBinnedPDFV1(
             )  # for overflow
             ordered_values = tf.gather_nd(padded_values, indices=binindices)
         else:
-            ordered_values = move_axis_obs(self.space, original_space, values)
+            ordered_values = move_axis_obs(self.space, original_space, values)[0]  # only use values, not variance
         return znp.asarray(ordered_values)
 
     @z.function(wraps="model_binned")
@@ -543,8 +543,9 @@ class BaseBinnedPDFV1(
         n: ztyping.nSamplingTypeIn = None,
         limits: ztyping.LimitsType = None,
         fixed_params: bool | list[ZfitParameter] | tuple[ZfitParameter] = True,
-    ) -> BinnedSampler:
-        """Create a :py:class:`Sampler` that acts as `Data` but can be resampled, also with changed parameters and n.
+    ) -> BinnedSamplerData:
+        """Create a :py:class:`SamplerData` that acts as `Data` but can be resampled, also with changed parameters and
+        n.
 
             If `limits` is not specified, `space` is used (if the space contains limits).
             If `n` is None and the model is an extended pdf, 'extended' is used by default.
@@ -561,7 +562,7 @@ class BaseBinnedPDFV1(
                 If True, all are fixed, if False, all are floating. If a :py:class:`~zfit.Parameter` is not fixed and
                 its
                 value gets updated (e.g. by a `Parameter.set_value()` call), this will be reflected in
-                `resample`. If fixed, the Parameter will still have the same value as the `Sampler` has
+                `resample`. If fixed, the Parameter will still have the same value as the `SamplerData` has
                 been created with when it resamples.
 
         Returns:
@@ -594,12 +595,11 @@ class BaseBinnedPDFV1(
             n = znp.array(n)
             return self._create_sampler_tensor(limits=limits, n=n)
 
-        return BinnedSampler.from_sample(
+        return BinnedSamplerData.from_sampler(
             sample_func=sample_func,
             n=n,
             obs=limits,
             fixed_params=fixed_params,
-            dtype=self.dtype,
         )
 
     @z.function(wraps="sampler")
@@ -793,10 +793,10 @@ class BaseBinnedPDFV1(
             raise NotExtendedPDFError
         x = self._convert_input_binned_x(x, none_is_space=True)
         space = x if isinstance(x, ZfitSpace) else x.space  # TODO: split the convert and sort, make Sorter?
-        x = x.with_obs(self.space)
+        x = x.with_obs(self.space.obs)  # we don't want to cut anything off -> only obs, not space
         norm = self._check_convert_norm(norm)
         counts = self._call_counts(x, norm)
-        return move_axis_obs(self.space, space, counts)
+        return move_axis_obs(self.space, space, counts)[0]  # only use values, not variance
 
     @z.function(wraps="model_binned")
     def _call_counts(self, x, norm):
@@ -855,10 +855,10 @@ class BaseBinnedPDFV1(
         """
         x = self._convert_input_binned_x(x, none_is_space=True)
         space = x if isinstance(x, ZfitSpace) else x.space  # TODO: split the convert and sort, make Sorter?
-        x = x.with_obs(self.space)
+        x = x.with_obs(self.space.obs)  # we don't want to cut anything off -> only obs, not space
         norm = self._check_convert_norm(norm)
         values = self._call_rel_counts(x, norm)
-        return move_axis_obs(self.space, space, values)
+        return move_axis_obs(self.space, space, values)[0]  # only use values, not variance
 
     @z.function(wraps="model_binned")
     def _call_rel_counts(self, x, norm):
@@ -1064,8 +1064,8 @@ def cut_edges_and_bins(
 
     all_lower_bins = []
     all_upper_bins = []
-    if isinstance(limits, ZfitSpace):
-        lower, upper = limits.limits
+    if isinstance(limits, ZfitSpace):  # todo: check shapes?
+        lower, upper = limits.v0.limits
     else:
         lower, upper = limits
         lower = znp.asarray(lower)

@@ -3,7 +3,11 @@
 from __future__ import annotations
 
 from collections.abc import Callable, Mapping
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
+
+import numpy as np
+import xxhash
+from zfit_interface.typing import TensorLike
 
 from ..core.parameter import set_values
 
@@ -19,7 +23,7 @@ from zfit.core.interfaces import ZfitBinnedData, ZfitData, ZfitSpace
 from zfit.z import numpy as znp
 
 from ..util import ztyping
-from ..util.exception import ShapeIncompatibleError
+from ..util.exception import BreakingAPIChangeError, ShapeIncompatibleError
 
 
 # @tfp.experimental.auto_composite_tensor()
@@ -54,18 +58,45 @@ class BinnedHolder:
             message=f"Edges (minus one) and values do not have the same shape:" f" {edges_shape} vs {value_shape}",
         )
 
-    def with_obs(self, obs):
+    def with_obs(self, obs: ztyping.ObsTypeInput):
+        """Return a new binned data object with updated observables order.
+
+        Args:
+            obs: The observables in the new order.
+        """
         space = self.space.with_obs(obs)
-        values = move_axis_obs(self.space, space, self.values)
-        variances = self.variances
-        if variances is not None:
-            variances = move_axis_obs(self.space, space, self.variances)
+        values, variances = move_axis_obs(self.space, space, values=self.values, variances=self.variances)
         return type(self)(space=space, values=values, variances=variances)
 
+    def with_variances(self, variances: znp.array | None):
+        """Return a new binned data object with updated variances.
 
-def move_axis_obs(original, target, values):
+        Args:
+            variances: The new variances
+
+        Returns:
+            BinnedHolder: A new binned data object with updated variances.
+        """
+        if variances is not None:
+            variances = znp.asarray(variances)
+            from zfit import run
+
+            if run.numeric_checks:
+                tf.debugging.assert_equal(
+                    tf.shape(variances),
+                    tf.shape(self.values),
+                    message=f"Variances {variances} and values {self.values} do not have the same shape",
+                )
+        return type(self)(space=self.space, values=self.values, variances=variances)
+
+
+def move_axis_obs(original, target, values, variances=None):
     new_axes = [original.obs.index(ob) for ob in target.obs]
-    return znp.moveaxis(values, tuple(range(target.n_obs)), new_axes)
+    newobs = tuple(range(target.n_obs))
+    values = znp.moveaxis(values, newobs, new_axes)
+    if variances is not None:
+        variances = znp.moveaxis(variances, newobs, new_axes)
+    return values, variances
 
 
 flow = False  # TODO: track the flow or not?
@@ -76,7 +107,9 @@ class BinnedData(
     ZfitBinnedData,
     # tfp.experimental.AutoCompositeTensor, OverloadableMixinValues, ZfitBinnedData
 ):
-    def __init__(self, *, holder):
+    USE_HASH = False
+
+    def __init__(self, *, holder, use_hash=None, name: Optional[str] = None, label: Optional[str] = None):
         """Create a binned data object from a :py:class:`~zfit.core.data.BinnedHolder`.
 
         Prefer to use the constructors ``from_*`` of :py:class:`~zfit.core.data.BinnedData`
@@ -86,8 +119,42 @@ class BinnedData(
         Args:
             holder:
         """
+        if use_hash is None:
+            use_hash = self.USE_HASH
+        self._use_hash = use_hash
+        self._hashint = None
         self.holder: BinnedHolder = holder
-        self.name = "BinnedData"  # TODO: improve naming
+        self.name = name or "BinnedData"
+        self.label = label or self.name
+        self._update_hash()
+
+    def with_variances(self, variances: znp.array) -> BinnedData:
+        """Return a new binned data object with updated variances.
+
+        Args:
+            variances: The new variances
+        """
+        return type(self)(holder=self.holder.with_variances(variances), name=self.name, label=self.label)
+
+    def enable_hashing(self):
+        """Enable hashing for this data object if it was disabled.
+
+        A hash allows some objects to be cached and reused. If a hash is enabled, the data object will be hashed and the
+        hash _can_ be used for caching. This can speedup various objects, however, it maybe doesn't have an effect at
+        all. For example, if an object was already called before with the data object, the hash will probably not be
+        used, as the object is already compiled.
+        """
+        from zfit import run
+
+        run.assert_executing_eagerly()
+        self._use_hash = True
+        self._update_hash()
+
+    @property
+    def _using_hash(self):
+        from zfit import run
+
+        return self._use_hash and run.hashing_data()
 
     @classmethod  # TODO: add overflow bins if needed
     def from_tensor(cls, space: ZfitSpace, values: znp.array, variances: znp.array | None = None) -> BinnedData:
@@ -152,7 +219,25 @@ class BinnedData(
         Args:
             obs: Which obs to return
         """
-        return type(self)(holder=self.holder.with_obs(obs))
+        return type(self)(holder=self.holder.with_obs(obs), name=self.name, label=self.label)
+
+    def _update_hash(self):
+        from zfit import run
+
+        if not run.executing_eagerly() or not self._using_hash:
+            self._hashint = None
+        else:
+            hashval = xxhash.xxh128(np.asarray(self.values()))
+            if (variances := self.variances()) is not None:
+                hashval.update(np.asarray(variances))
+            if hasattr(self, "_hashint"):
+                self._hashint = hashval.intdigest() % (64**2)
+            else:  # if the dataset is not yet initialized; this is allowed
+                self._hashint = None
+
+    @property
+    def hashint(self) -> int | None:
+        return self._hashint
 
     @property
     def kind(self):
@@ -284,14 +369,14 @@ class BinnedData(
 
         if zfit.run.executing_eagerly():
             return self.to_hist().__str__()
-        return f"Binned data, {self.obs} (non-eager)"
+        return f"Binned data {self.axes} (compiled, no preview)"
 
     def _repr_html_(self):
         import zfit
 
         if zfit.run.executing_eagerly():
             return self.to_hist()._repr_html_()
-        return f"Binned data, {self.obs} (non-eager)"
+        return f"Binned data {self.axes} (compiled, no preview)"
 
 
 # tensorlike.register_tensor_conversion(BinnedData, name='BinnedData', overload_operators=True)
@@ -303,18 +388,37 @@ class SampleHolder(BinnedHolder):
         raise AssertionError(msg)
 
 
-class BinnedSampler(BinnedData):
+class BinnedSamplerData(BinnedData):
     _cache_counting = 0
 
     def __init__(
         self,
         dataset: SampleHolder,
-        sample_func: Callable,
-        sample_holder: tf.Variable,
-        n: ztyping.NumericalScalarType | Callable,
+        sample_and_variances_func: Callable,
+        sample_holder: tf.Variable = None,
+        variances_holder: tf.Variable = None,
+        n: ztyping.NumericalScalarType | Callable = None,
         fixed_params: dict[zfit.Parameter, ztyping.NumericalScalarType] | None = None,
+        *,
+        name: str | None = None,
+        label: str | None = None,
     ):
-        super().__init__(holder=dataset)
+        """The ``BinnedSampler`` is a binned data object that can be resampled, i.e. modified in-place.
+
+        Use `from_sampler` to create a `BinnedSampler`.
+
+        Args:
+            dataset: The data holder that contains the sample and the variances.
+            sample_and_variances_func: A function that samples the data and returns the sample and the variances.
+            sample_holder: The tensor that holds the sample.
+            variances_holder: The tensor that holds the variances.
+            n: The number of samples to produce. If the `SamplerData` was created with
+                anything else then a numerical or tf.Tensor, this can't be used.
+            fixed_params: A mapping from `Parameter` to a fixed value that should be used for the sampling.
+            name: The name of the data object.
+            label: The label of the data object.
+        """
+        super().__init__(holder=dataset, name=name, label=label, use_hash=True)
         if fixed_params is None:
             fixed_params = {}
         if isinstance(fixed_params, (list, tuple)):
@@ -323,11 +427,20 @@ class BinnedSampler(BinnedData):
         self._initial_resampled = False
 
         self.fixed_params = fixed_params
-        self.sample_holder = sample_holder
-        self.sample_func = sample_func
+        self._sample_holder = sample_holder
+        self._variances_holder = variances_holder
+        self._sample_and_variances_func = sample_and_variances_func
         self.n = n
         self._n_holder = n
-        self.resample()  # to be used for precompilations etc
+
+        # we need to use a hash because it could change -> for loss etc to know when data changes
+        self._hashint_holder = tf.Variable(
+            initial_value=0,
+            dtype=tf.int64,
+            trainable=False,
+            shape=(),
+        )
+        self.update_data(dataset.values, variances=dataset.variances)
 
     @property
     def n_samples(self):
@@ -342,8 +455,12 @@ class BinnedSampler(BinnedData):
 
     @property
     def hashint(self) -> int | None:
-        return None  # since the variable can be changed but this may stays static... and using 128 bits we can't have
-        # a tf.Variable that keeps the int
+        return self._hashint_holder.value()
+
+    def _update_hash(self):
+        super()._update_hash()
+        if hasattr(self, "_hashint_holder"):  # initialization
+            self._hashint_holder.assign(self._hashint % (64**2))
 
     @classmethod
     def get_cache_counting(cls):
@@ -354,37 +471,91 @@ class BinnedSampler(BinnedData):
     @classmethod
     def from_sample(
         cls,
-        sample_func: Callable,
-        n: ztyping.NumericalScalarType,
-        obs: ztyping.ObsTypeInput,
-        fixed_params=None,
-        dtype=None,
+        sample_func: Callable,  # noqa: ARG003
+        n: ztyping.NumericalScalarType,  # noqa: ARG003
+        obs: ztyping.ObsTypeInput,  # noqa: ARG003
+        fixed_params=None,  # noqa: ARG003
     ):
+        msg = " Use `from_sampler` (with `r` at the end instead."
+        raise BreakingAPIChangeError(msg)
+
+    @classmethod
+    def from_sampler(
+        cls,
+        *,
+        sample_func: Callable | None = None,
+        sample_and_variances_func: Callable | None = None,
+        n: ztyping.NumericalScalarType,
+        obs: ztyping.AxesTypeInput,
+        fixed_params=None,
+        name: str | None = None,
+        label: str | None = None,
+    ):
+        """Create a binned sampler from a sample function.
+
+        This is a binned data object that can be modified in-place by updating/resampling the sample.
+
+        Args:
+            sample_func: A function that samples the data.
+            sample_and_variances_func: A function that samples the data and returns the sample and the variances.
+            n: The number of samples to produce.
+            obs: The observables of the data.
+            fixed_params: A mapping from `Parameter` to a fixed value that should be used for the sampling.
+            name: The name of the data object.
+            label: The label of the data object.
+        """
+        if int(sample_func is not None) + int(sample_and_variances_func is not None) != 1:
+            msg = "Exactly one of `sample`, `sample_func` or `sample_and_variances_func` must be provided."
+            raise ValueError(msg)
+
+        if sample_func is not None:
+
+            def sample_and_variances_func(n, sample_func=sample_func):
+                sample = sample_func(n)
+                return sample, None
+
+            del sample_func
+
         from ..core.space import convert_to_space
 
         obs = convert_to_space(obs)
 
         if fixed_params is None:
             fixed_params = []
-        if dtype is None:
-            from .. import ztypes
 
-            dtype = ztypes.float
-        # from tensorflow.python.ops.variables import VariableV1
+        from .. import ztypes
+
+        dtype = ztypes.float
+
+        initval, initvar = sample_and_variances_func(n)  # todo: preprocess, cut data?
         sample_holder = tf.Variable(
-            initial_value=sample_func(n),
+            initial_value=initval,
             dtype=dtype,
             trainable=False,
             # validate_shape=False,
             shape=(None,) * obs.n_obs,
             name=f"sample_hist_holder_{cls.get_cache_counting()}",
         )
-        dataset = SampleHolder(space=obs, values=sample_holder, variances=None)
+        if initvar is not None:
+            variances_holder = tf.Variable(
+                initial_value=initvar,
+                dtype=dtype,
+                trainable=False,
+                # validate_shape=False,
+                shape=(None,) * obs.n_obs,
+                name=f"variances_hist_holder_{cls.get_cache_counting()}",
+            )
+        else:
+            variances_holder = None
+        dataset = SampleHolder(space=obs, values=sample_holder, variances=variances_holder)
 
         return cls(
             dataset=dataset,
             sample_holder=sample_holder,
-            sample_func=sample_func,
+            sample_and_variances_func=sample_and_variances_func,
+            variances_holder=variances_holder,
+            name=name,
+            label=label,
             fixed_params=fixed_params,
             n=n,
         )
@@ -399,7 +570,7 @@ class BinnedSampler(BinnedData):
         Args:
             param_values: a mapping from :py:class:`~zfit.Parameter` to a `value`. For the current sampling,
                 `Parameter` will use the `value`.
-            n: the number of samples to produce. If the `Sampler` was created with
+            n: the number of samples to produce. If the `SamplerData` was created with
                 anything else then a numerical or tf.Tensor, this can't be used.
         """
         if n is None:
@@ -410,11 +581,35 @@ class BinnedSampler(BinnedData):
             temp_param_values.update(param_values)
 
         with set_values(list(temp_param_values.keys()), list(temp_param_values.values())):
-            new_sample = self.sample_func(n)
-            self.sample_holder.assign(new_sample, read_value=False)
-            self._initial_resampled = True
+            new_sample, new_variances = self._sample_and_variances_func(n)
+        self.update_data(new_sample, new_variances)
 
-    def with_obs(self, obs: ztyping.ObsTypeInput) -> BinnedSampler:
+    def update_data(self, sample: TensorLike, variances: TensorLike | None = None):
+        """Update the data, and optionally the variances, of the sampler in-place.
+
+        This change will be reflected in any object that used this data already.
+
+        Args:
+            sample: The new sample.
+            variances: The new variances. Can only be provided if the sampler was initialized with variances and *must* be
+                provided if the sampler was initialized with variances.
+        """
+        sample = znp.asarray(sample)
+        if variances is not None:
+            variances = znp.asarray(variances)
+        self._sample_holder.assign(sample, read_value=False)
+        if variances is not None:
+            if self._variances_holder is None:
+                msg = "Variances were not initialized, cannot update them."
+                raise ValueError(msg)
+            self._variances_holder.assign(variances, read_value=False)
+        elif self._variances_holder is not None:
+            msg = "Variances were initialized, cannot remove them."
+            raise ValueError(msg)
+        self._initial_resampled = True
+        self._update_hash()
+
+    def with_obs(self, obs: ztyping.ObsTypeInput) -> BinnedSamplerData:
         """Create a new :py:class:`~zfit.core.data.BinnedSampler` with the same sample but different ordered
         observables.
 
@@ -427,19 +622,35 @@ class BinnedSampler(BinnedData):
         if obs.obs == self.obs:
             return self
 
-        def new_sample_func(n):
-            sample = self.sample_func(n)
-            return move_axis_obs(self.space, obs, sample)
+        # todo: should we allow this? Does unbinned allow it?
+        def new_sample_and_variances_func(n):
+            sample, variances = self._sample_and_variances_func(n)
+            return move_axis_obs(self.space, obs, sample, variances=variances)
 
-        return BinnedSampler.from_sample(
-            sample_func=new_sample_func,
+        return BinnedSamplerData.from_sampler(
+            sample_and_variances_func=new_sample_and_variances_func,
             n=self.n,
             obs=obs,
             fixed_params=self.fixed_params,
         )
 
     def values(self) -> znp.array:
-        return znp.asarray(super().values())
+        """Values/counts of the histogram as an ndim array.
 
-    def __str__(self) -> str:
+        Returns:
+            Tensor of shape (nbins0, nbins1, ...) with nbins the number of bins in each observable.
+        """
+        return znp.asarray(super().values())  # otherwise, shape is not correct -> use handler if variable is needed
+
+    def variances(self) -> znp.array:
+        """Variances of the histogram as an ndim array or `None` if no variances are available.
+
+        Returns:
+            Tensor of shape (nbins0, nbins1, ...) with nbins the number of bins in each observable.
+        """
+        if (variances := super().variances()) is not None:
+            variances = znp.asarray(variances)
+        return variances
+
+    def __repr__(self) -> str:
         return f"<BinnedSampler: {self.name} obs={self.obs}>"

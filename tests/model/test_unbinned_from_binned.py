@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 
 import numpy as np
 
@@ -38,7 +38,8 @@ def test_unbinned_histogramPDF():
     pdfs = [unbinned_pdf, unbinned_sum]
     binned_pdfs = [pdf1, pdf_sum]
 
-    sample = znp.random.uniform(data.space.lower, data.space.upper, size=(1000, 2))
+    # TODO(now): now this fail?
+    sample = znp.random.uniform(data.space.v1.lower, data.space.v1.upper, size=(1000, 2))
 
     for pdf, binned in zip(pdfs, binned_pdfs):
         assert pdf1.is_extended

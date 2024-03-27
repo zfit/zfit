@@ -8,7 +8,7 @@ import zfit
 n_bins = 50
 
 # create space
-obs = zfit.Space("x", limits=(-10, 10))
+obs = zfit.Space("x", -10, 10)
 
 # parameters
 mu = zfit.Parameter("mu", 1.0, -4, 6)
@@ -22,9 +22,6 @@ gauss_extended = zfit.pdf.Gauss(mu=mu, sigma=sigma, obs=obs, extended=n_sig)
 exp_extended = zfit.pdf.Exponential(lambd, obs=obs, extended=n_bkg)
 
 model = zfit.pdf.SumPDF([gauss_extended, exp_extended])
-
-# data
-# n_sample = 10000
 
 data = model.create_sampler(n=21200)
 data.resample()
@@ -51,6 +48,11 @@ param_hesse = result.hesse()
 # or we can simply pickle the result (first freezing it)
 
 # human readable representation
+hs3like = zfit.hs3.dumps(nll)
+# print(hs3like)
+# and we can load it again
+nll_loaded = zfit.hs3.loads(hs3like)
+
 
 result.freeze()
 dumped = pickle.dumps(result)

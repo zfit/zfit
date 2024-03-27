@@ -47,12 +47,6 @@ class ZfitDimensional(ZfitObject):
         """
         raise NotImplementedError
 
-    # TODO: activate?
-    # @property
-    # @abstractmethod
-    # def space(self):
-    #     raise NotImplementedError
-
 
 class ZfitOrderableDimensional(ZfitDimensional, metaclass=ABCMeta):
     @abstractmethod
@@ -231,14 +225,6 @@ class ZfitData(ZfitDimensional):
     def value(self, obs: list[str] | None = None) -> ztyping.XType:
         raise NotImplementedError
 
-    @abstractmethod
-    def sort_by_obs(self, obs, allow_superset: bool = True):
-        raise NotImplementedError
-
-    @abstractmethod
-    def sort_by_axes(self, axes, allow_superset: bool = True):
-        raise NotImplementedError
-
     @property
     @abstractmethod
     def weights(self):
@@ -246,7 +232,15 @@ class ZfitData(ZfitDimensional):
 
 
 class ZfitUnbinnedData(ZfitData):
-    pass
+    @property
+    @abstractmethod
+    def nevents(self) -> int:
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def has_weights(self):
+        raise NotImplementedError
 
 
 class ZfitLimit(abc.ABC, metaclass=ABCMeta):
@@ -535,7 +529,7 @@ class ZfitSpace(ZfitLimit, ZfitOrderableDimensional, ZfitObject, metaclass=ABCMe
 
     # TODO: legacy?
     @abstractmethod
-    def area(self) -> float:
+    def _legacy_area(self) -> float:
         """Return the total area of all the limits and axes.
 
         Useful, for example, for MC integration.

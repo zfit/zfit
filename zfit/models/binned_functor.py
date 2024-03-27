@@ -3,6 +3,9 @@
 from __future__ import annotations
 
 from collections.abc import Iterable
+from typing import Union
+
+from uhi.typing.plottable import PlottableHistogram
 
 from .. import z
 from ..core.binnedpdf import BaseBinnedPDFV1
@@ -12,14 +15,23 @@ from ..util import ztyping
 from ..util.container import convert_to_container
 from ..util.deprecation import deprecated_norm_range
 from ..util.exception import NormNotImplemented
+from ..util.ztyping import BinnedDataInputType
 from ..z import numpy as znp
 from .basefunctor import FunctorMixin, _preprocess_init_sum
+
+
+def preprocess_pdf_or_hist(models: Union[ZfitPDF, Iterable[ZfitPDF], BinnedDataInputType]):
+    models = convert_to_container(models)
+    from zfit.models.histogram import HistogramPDF
+
+    return [HistogramPDF(model) if isinstance(model, PlottableHistogram) else model for model in models]
 
 
 class BaseBinnedFunctorPDF(FunctorMixin, BaseBinnedPDFV1):
     """Base class for binned functors."""
 
     def __init__(self, models, obs, **kwargs):
+        models = preprocess_pdf_or_hist(models)
         super().__init__(models, obs, **kwargs)
         self.pdfs = self.models
 
@@ -27,14 +39,14 @@ class BaseBinnedFunctorPDF(FunctorMixin, BaseBinnedPDFV1):
 class BinnedSumPDF(BaseBinnedFunctorPDF):
     def __init__(
         self,
-        pdfs: Iterable[ZfitPDF],
+        pdfs: ztyping.BinnedHistPDFInputType,
         fracs: ztyping.ParamTypeInput | None = None,
         obs: ztyping.ObsTypeInput = None,
         name: str = "BinnedSumPDF",
     ):
         self._fracs = None
 
-        pdfs = convert_to_container(pdfs)
+        pdfs = preprocess_pdf_or_hist(pdfs)
         self.pdfs = pdfs
 
         (
@@ -52,11 +64,6 @@ class BinnedSumPDF(BaseBinnedFunctorPDF):
 
         extended = sum_yields if all_extended else None
         super().__init__(models=pdfs, obs=obs, params=params, name=name, extended=extended)
-
-    # def _unnormalized_pdf(self, x):
-    #     models = self.models
-    #     prob = tf.reduce_sum([model._unnormalized_pdf(x) for model in models], axis=0)
-    #     return prob
 
     @supports(norm=True)
     def _pdf(self, x, norm):

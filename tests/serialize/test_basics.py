@@ -629,7 +629,7 @@ def test_serial_hs3_pdfs(pdf, extended):
 
     loaded_pdf = list(loaded["distributions"].values())[0]
     assert str(pdf) == str(loaded_pdf)
-    lower, upper = pdf.space.lower[0], pdf.space.upper[0]
+    lower, upper = pdf.space.v1.lower, pdf.space.v1.upper
     x = znp.random.uniform(lower, upper, size=(107, pdf.n_obs))
     np.testing.assert_allclose(pdf.pdf(x), loaded_pdf.pdf(x))
     if extended:
@@ -783,7 +783,7 @@ def test_dumpload_pdf(pdfcreator, reuse_params):
             json1cleaned = json2cleaned.replace(f"autoparam_{i}", "autoparam_ANY")
         assert json1cleaned == json2cleaned  # Just a technicality
 
-    lower, upper = pdf.space.lower[0], pdf.space.upper[0]
+    lower, upper = pdf.space.v1.lower, pdf.space.v1.upper
     x = znp.random.uniform(lower, upper, size=(1000, pdf.n_obs))
     true_y = pdf.pdf(x)
     gauss3_y = gauss3.pdf(x)
@@ -843,12 +843,12 @@ data_factories = enumerate(
         lambda: zfit.data.Data.from_numpy(
             obs=zfit.Space("obs1", (-3.0, 5.0)),
             array=rndgens[2].normal(size=(100, 1)),
-            weights=rndgens[2].normal(size=(100, 1)),
+            weights=rndgens[2].normal(size=(100,)),
         ),
         lambda: zfit.data.Data.from_numpy(
             obs=zfit.Space("obs1", (-3.0, 5.0)) * zfit.Space("obs2", (-13.0, 15.0)),
             array=rndgens[3].normal(size=(100, 2)),
-            weights=rndgens[3].normal(size=(100, 1)),
+            weights=rndgens[3].normal(size=(100,)),
         ),
         lambda: zfit.data.Data.from_numpy(
             obs=zfit.Space("obs1", (-3.0, 5.0)) * zfit.Space("obs2", (-13.0, 15.0)),

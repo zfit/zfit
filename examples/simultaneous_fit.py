@@ -7,7 +7,7 @@ import numpy as np
 
 import zfit
 
-obs = zfit.Space("x", limits=(-10, 10))
+obs = zfit.Space("x", -10, 10)
 
 # parameters
 mu_shared = zfit.Parameter("mu_shared", 1.0, -4, 6)  # mu is a shared parameter
@@ -20,7 +20,8 @@ gauss2 = zfit.pdf.Gauss(mu=mu_shared, sigma=sigma2, obs=obs)
 
 # data
 normal_np = np.random.normal(loc=2.0, scale=3.0, size=10000)
-data1 = zfit.Data.from_numpy(obs=obs, array=normal_np)
+data1 = zfit.Data.from_numpy(obs=obs, array=normal_np)  # data for the first model, can also be just a numpy array
+# the data objects just makes sure that the data is within the limits
 
 # data
 normal_np = np.random.normal(loc=2.0, scale=4.0, size=10000)

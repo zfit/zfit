@@ -134,7 +134,7 @@ def test_conv_1d_shifted(interpolation):
 
     conv = zfit.pdf.FFTConvPDFV1(func=func, kernel=funck, n=200)
 
-    xnp = znp.linspace(obs_kernel.rect_lower, obs.rect_upper, 4023)
+    xnp = znp.linspace(obs_kernel.v1.lower, obs.v1.upper, 4023)
 
     # true convolution
     kernel_points = obs_kernel.filter(xnp)
@@ -192,7 +192,7 @@ def true_conv_np(func, gauss1, obs, x, xkernel):
     y_kernel = gauss1.pdf(xkernel)
     y_func = func.pdf(x)
     true_conv = scipy.signal.fftconvolve(y_func, y_kernel, mode="same")
-    true_conv /= np.mean(true_conv) * obs.rect_area()
+    true_conv /= np.mean(true_conv) * obs.volume
     return true_conv
 
 
@@ -204,7 +204,7 @@ def true_conv_2d_np(func, gauss1, obsfunc, xfunc, xkernel):
     nkernel = int(np.sqrt(xkernel.shape[0]))
     y_kernel = znp.reshape(y_kernel, (nkernel, nkernel))
     true_conv = scipy.signal.convolve(y_func, y_kernel, mode="same")
-    true_conv /= np.mean(true_conv) * obsfunc.rect_area()
+    true_conv /= np.mean(true_conv) * obsfunc.volume
     return znp.reshape(true_conv, xfunc.shape[0])
 
 
@@ -259,8 +259,8 @@ def test_conv_2D_simple():
     gauss = gauss1 * gauss22
     conv = zfit.pdf.FFTConvPDFV1(func=func, kernel=gauss)
 
-    start = obs_func.rect_lower
-    stop = obs_func.rect_upper
+    start = obs_func.v1.lower
+    stop = obs_func.v1.upper
     x_tensor = z.random.uniform((n_points, 2), start, stop)
     x_tensor = znp.reshape(x_tensor, (-1, 2))
     linspace = tf.linspace(start, stop, num=n_points)
@@ -272,7 +272,7 @@ def test_conv_2D_simple():
     # linspace_full = znp.reshape(linspace_full, (-1, 2))
 
     linspace_kernel = tf.linspace(
-        obskernel.rect_lower, obskernel.rect_upper, num=n_points
+        obskernel.v1.lower, obskernel.v1.upper, num=n_points
     )
     linspace_kernel = tf.transpose(tf.meshgrid(*tf.unstack(linspace_kernel, axis=-1)))
     linspace_kernel = znp.reshape(linspace_kernel, (-1, 2))

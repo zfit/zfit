@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import contextlib
 import itertools
-from collections import Counter, OrderedDict
+from collections import Counter
 from collections.abc import Iterable
 
 import tensorflow as tf
@@ -46,7 +46,7 @@ class BaseObject(ZfitObject):
     def copy(self, deep: bool = False, name: str | None = None, **overwrite_params) -> ZfitObject:
         return self._copy(deep=deep, name=name, overwrite_params=overwrite_params)
 
-    def _copy(self, deep, name, overwrite_params):  # TODO(Mayou36) L: representation?  # noqa: ARG002
+    def _copy(self, deep, name, overwrite_params):  # noqa: ARG002
         msg = "This copy should not be used."
         raise NotImplementedError(msg)
 
@@ -69,11 +69,11 @@ class BaseParametrized(BaseObject, ZfitParametrized):
         super().__init__(**kwargs)
         from zfit.core.parameter import convert_to_parameter
 
-        params = params or OrderedDict()
-        # params = OrderedDict(sorted((n, convert_to_parameter(p)) for n, p in params.items()))
+        params = params or {}
+        # params = dict(sorted((n, convert_to_parameter(p)) for n, p in params.items()))
         params = {n: convert_to_parameter(p) for n, p in params.items()}  # why sorted?
 
-        # parameters = OrderedDict(sorted(parameters))  # to always have a consistent order
+        # parameters = dict(sorted(parameters))  # to always have a consistent order
         self._params = params
         self._repr["params"] = self.params
         # check if the object has duplicated names as parameters
