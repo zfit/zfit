@@ -1032,7 +1032,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
                 raise ValueError(msg)
 
         if fixed_params is True:
-            fixed_params = list(self.get_cache_deps(only_floating=False))
+            fixed_params = list(self.get_params(floating=None, is_yield=None))
         elif fixed_params is False:
             fixed_params = []
         elif not isinstance(fixed_params, (list, tuple)):

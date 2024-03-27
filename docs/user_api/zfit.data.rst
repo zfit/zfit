@@ -19,4 +19,4 @@ object that implements the UHI.
     zfit.data.RegularBinning
     zfit.data.VariableBinning
     zfit.data.SamplerData
-    zfit.data.SamplerBinnedData
+    zfit.data.BinnedSamplerData
