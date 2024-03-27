@@ -72,7 +72,7 @@ def convolve_1d_data_with_kernel(kernel, bandwidth, data, grid, support=None, ff
 
         return znp.squeeze(tf.nn.conv1d(c, k, 1, "SAME"))
 
-    P = znp.pow(
+    P = znp.power(
         tf.constant(2, ztypes.int),
         znp.asarray(
             znp.ceil(

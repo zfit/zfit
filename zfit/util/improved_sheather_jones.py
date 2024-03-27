@@ -23,14 +23,16 @@ def calc_f(s, f, squared_integers, grid_data_dct2, N):
 
     odd_numbers_prod = znp.prod(znp.range(one, two * s + one, 2))
     K0 = odd_numbers_prod / znp.sqrt(two * pi)
-    const = (one + znp.pow(one_half, s + one_half)) / three
-    time = znp.pow(two * const * K0 / (N * f), two / (three + two * s))
+    const = (one + znp.power(one_half, s + one_half)) / three
+    time = znp.power(two * const * K0 / (N * f), two / (three + two * s))
 
     # Step two: estimate |f^s| from t_s
     return (
         one_half
-        * znp.pow(pi, (two * s))
-        * znp.sum(znp.pow(squared_integers, s) * grid_data_dct2 * znp.exp(-squared_integers * znp.pow(pi, two) * time))
+        * znp.power(pi, (two * s))
+        * znp.sum(
+            znp.power(squared_integers, s) * grid_data_dct2 * znp.exp(-squared_integers * znp.power(pi, two) * time)
+        )
     )
 
 
@@ -70,11 +72,13 @@ def _fixed_point(t, N, squared_integers, grid_data_dct2):
     # Fast evaluation of |f^l|^2 using the DCT, see Plancherel theorem
     f = (
         tf.constant(0.5, ztypes.float)
-        * znp.pow(tf.constant(np.pi, ztypes.float), (tf.constant(2.0, ztypes.float) * ell))
+        * znp.power(tf.constant(np.pi, ztypes.float), (tf.constant(2.0, ztypes.float) * ell))
         * znp.sum(
-            znp.pow(squared_integers, ell)
+            znp.power(squared_integers, ell)
             * grid_data_dct2
-            * znp.exp(-squared_integers * znp.pow(tf.constant(np.pi, ztypes.float), tf.constant(2.0, ztypes.float)) * t)
+            * znp.exp(
+                -squared_integers * znp.power(tf.constant(np.pi, ztypes.float), tf.constant(2.0, ztypes.float)) * t
+            )
         )
     )
 
@@ -94,7 +98,7 @@ def _fixed_point(t, N, squared_integers, grid_data_dct2):
     fnew = tf.while_loop(while_condition, body, (i, f), maximum_iterations=5, parallel_iterations=5)[1]
 
     # This is the minimizer of the AMISE
-    t_opt = znp.pow(
+    t_opt = znp.power(
         tf.constant(2 * np.sqrt(np.pi), ztypes.float) * N * fnew,
         tf.constant(-2.0 / 5.0, ztypes.float),
     )
@@ -172,8 +176,8 @@ def _calculate_t_star(data, num_grid_points, binning_method, weights):
     grid_data_dct = tf.signal.dct(grid_data, type=2)
 
     # Compute the bandwidth
-    squared_integers = znp.pow(znp.range(1, num_grid_points, dtype=ztypes.float), tf.constant(2, ztypes.float))
-    grid_data_dct2 = znp.pow(grid_data_dct[1:], 2) / 4
+    squared_integers = znp.power(znp.range(1, num_grid_points, dtype=ztypes.float), tf.constant(2, ztypes.float))
+    grid_data_dct2 = znp.power(grid_data_dct[1:], 2) / 4
 
     # Solve for the optimal (in the AMISE sense) t
     t_star = _find_root(_fixed_point, N, squared_integers, grid_data_dct2)
@@ -189,7 +193,7 @@ def _calculate_density(t_star, R, squared_integers, grid_data_dct):
     # Multiplication in frequency domain is convolution
     grid_data_dct_t = grid_data_dct * znp.exp(
         -squared_integers
-        * znp.pow(tf.constant(np.pi, ztypes.float), tf.constant(2.0, ztypes.float))
+        * znp.power(tf.constant(np.pi, ztypes.float), tf.constant(2.0, ztypes.float))
         * t_star
         / tf.constant(2.0, ztypes.float)
     )
