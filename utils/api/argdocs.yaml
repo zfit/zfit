@@ -622,6 +622,12 @@ loss.init.options: |1+
                 a new loss as the former will automatically overtake any relevant constants
                 and behavior.
 
+loss.args.params: |1+
+    Mapping of the parameter names to the actual
+                values. The parameter names refer to the names of the parameters,
+                typically :py:class:`~zfit.Parameter`, that is returned by
+                `get_params()`. If no params are given, the current default
+                values of the parameters are used.
 
 loss.value.full: |1+
     If True, return the full loss value, otherwise

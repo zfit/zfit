@@ -2971,8 +2971,9 @@ def param_args_supported(func):
     def new_func(*args, **kwargs):
         self = args[0] if len(args) > 0 else None
 
-        if self is not None:
-            kwargs["params"] = self.params
+        if "params" not in kwargs and self is not None:
+            params = {key: znp.asarray(val) for key, val in self.params.items()}
+            kwargs["params"] = params
 
         try:
             return func(*args, **kwargs)

@@ -188,7 +188,7 @@ class BasePDF(ZfitPDF, BaseModel):
         return norm
 
     @invalidate_graph
-    @deprecated(None, "Prefer to create a new PDF with `norm` set.")
+    @deprecated(None, "Prefer to create a new PDF with `norm` set or wrap the existing in a `TruncatedPDF`.")
     def set_norm_range(self, norm: ztyping.LimitsTypeInput):
         """Set the normalization range (temporarily if used with contextmanager).
 
@@ -206,7 +206,7 @@ class BasePDF(ZfitPDF, BaseModel):
         return TemporarilySet(value=norm, setter=setter, getter=getter)
 
     @_BasePDF_register_check_support(True)
-    def _normalization(self, norm, options):  # noqa: ARG002
+    def _normalization(self, norm, options, *, params=None):  # noqa: ARG002
         raise SpecificFunctionNotImplemented
 
     @deprecated_args(None, "Use `norm` instead.", "limits")
@@ -237,7 +237,7 @@ class BasePDF(ZfitPDF, BaseModel):
         """
         del limits
         if options is None:
-            options = {}  # TODO: pass options through
+            options = {}
         norm = self._check_input_norm(norm, none_is_error=True)
         with self._check_set_input_params(params=params):
             return self._single_hook_normalization(norm=norm, options=options)
@@ -257,7 +257,7 @@ class BasePDF(ZfitPDF, BaseModel):
     def _fallback_normalization(self, norm, options):
         return self._hook_integrate(limits=norm, norm=False, options=options)
 
-    def _unnormalized_pdf(self, x):  # noqa: ARG002
+    def _unnormalized_pdf(self, x, *, params=None):  # noqa: ARG002
         raise SpecificFunctionNotImplemented
 
     @deprecated(None, "Use `pdf(norm=False)` instead")
@@ -337,7 +337,7 @@ class BasePDF(ZfitPDF, BaseModel):
         return probs
 
     @_BasePDF_register_check_support(True)
-    def _ext_pdf(self, x, norm, *, norm_range=None):  # noqa: ARG002
+    def _ext_pdf(self, x, norm, *, norm_range=None, params=None):  # noqa: ARG002
         raise SpecificFunctionNotImplemented  # TODO: implement properly
 
     @z.function(wraps="model")
@@ -392,7 +392,7 @@ class BasePDF(ZfitPDF, BaseModel):
             pdf = self._ext_log_pdf(x, norm)
         except NormNotImplemented:
             unnormed_pdf = self._ext_log_pdf(x, False)
-            normalization = znp.log(self.normalization(norm))
+            normalization = self.log_normalization(norm)
             pdf = unnormed_pdf - normalization
         return pdf
 
@@ -401,7 +401,7 @@ class BasePDF(ZfitPDF, BaseModel):
         raise SpecificFunctionNotImplemented
 
     @_BasePDF_register_check_support(True)
-    def _pdf(self, x, norm, *, norm_range=None):  # noqa: ARG002
+    def _pdf(self, x, norm, *, norm_range=None, params=None):  # noqa: ARG002
         raise SpecificFunctionNotImplemented
 
     @deprecated_norm_range
@@ -438,9 +438,9 @@ class BasePDF(ZfitPDF, BaseModel):
         norm = self._check_input_norm(norm, none_is_error=True)
         with self._convert_sort_x(x) as x, self._check_set_input_params(params=params):
             value = self._single_hook_pdf(x=x, norm=norm)
-            if run.numeric_checks:
-                z.check_numerics(value, message="Check if pdf output contains any NaNs of Infs")
-            return znp.asarray(z.to_real(value))
+        if run.numeric_checks:
+            z.check_numerics(value, message="Check if pdf output contains any NaNs of Infs")
+        return znp.asarray(z.to_real(value))
 
     def _single_hook_pdf(self, x, norm):
         return self._hook_pdf(x=x, norm=norm)
@@ -449,7 +449,12 @@ class BasePDF(ZfitPDF, BaseModel):
         return self._norm_pdf(x=x, norm=norm)
 
     def _norm_pdf(self, x, norm):
-        return self._call_pdf(x=x, norm=norm)
+        try:
+            return self._call_pdf(x=x, norm=norm)
+        except NormNotImplemented:
+            unnormed_pdf = self._call_pdf(x=x, norm=False)
+            normalization = self.normalization(norm)
+            return unnormed_pdf / normalization
 
     def _call_pdf(self, x, norm):
         with suppress(FunctionNotImplemented):
@@ -468,7 +473,7 @@ class BasePDF(ZfitPDF, BaseModel):
             pdf /= self._hook_normalization(norm=norm, options={})
         return pdf
 
-    @_BasePDF_register_check_support(False)
+    @_BasePDF_register_check_support(True)
     @deprecated_norm_range
     def _log_pdf(self, x, norm):  # noqa: ARG002
         raise SpecificFunctionNotImplemented
@@ -514,7 +519,12 @@ class BasePDF(ZfitPDF, BaseModel):
         return self._norm_log_pdf(x=x, norm=norm)
 
     def _norm_log_pdf(self, x, norm):
-        return self._call_log_pdf(x=x, norm=norm)
+        try:
+            return self._call_log_pdf(x=x, norm=norm)
+        except NormNotImplemented:
+            unnormed_log_pdf = self._call_log_pdf(x=x, norm=False)
+            normalization = self.log_normalization(norm)
+            return unnormed_log_pdf - normalization
 
     def _call_log_pdf(self, x, norm):
         with suppress(FunctionNotImplemented):
@@ -525,6 +535,56 @@ class BasePDF(ZfitPDF, BaseModel):
 
     def _fallback_log_pdf(self, x, norm):
         return znp.log(self._hook_pdf(x=x, norm=norm))
+
+    @_BasePDF_register_check_support(True)
+    @deprecated_norm_range
+    def _log_normalization(self, norm, *, params=None, options):  # noqa: ARG002
+        raise SpecificFunctionNotImplemented
+
+    def log_normalization(
+        self,
+        norm: ztyping.LimitsType,
+        *,
+        options=None,
+        params: ztyping.ParamsTypeOpt = None,
+    ) -> ztyping.XType:
+        """Return the normalization of the function (usually the integral over ``norm``).
+
+        Args:
+            norm:  |@doc:pdf.param.norm| Normalization of the function.
+               By default, this is the ``norm`` of the PDF (which by default is the same as
+               the space of the PDF). Should be ``ZfitSpace`` to define the space
+               to normalize over. |@docend:pdf.param.norm|
+            options: |@doc:pdf.param.options||@docend:pdf.param.options|
+            params: |@doc:model.args.params| Mapping of the parameter names to the actual
+               values. The parameter names refer to the names of the parameters,
+               typically :py:class:`~zfit.Parameter`, that
+               the model was _initialized_ with, not the name of the models
+               parametrization. |@docend:model.args.params|
+
+        Returns:
+            The normalization value
+        """
+        if options is None:
+            options = {}
+        norm = self._check_input_norm(norm, none_is_error=True)
+        with self._check_set_input_params(params=params):
+            return self._single_hook_log_normalization(norm=norm, options=options)
+
+    def _single_hook_log_normalization(self, norm, options):  # TODO(Mayou36): add yield?
+        return self._hook_normalization(norm=norm, options=options)
+
+    def _hook_log_normalization(self, norm, options):
+        return self._call_normalization(norm=norm, options=options)  # no _norm_* needed
+
+    def _call_log_normalization(self, norm, options):
+        # TODO: caching? alternative
+        with suppress(FunctionNotImplemented):
+            return self._normalization(norm=norm, options=options)
+        return self._fallback_normalization(norm, options=options)
+
+    def _fallback_log_normalization(self, norm, options):
+        return znp.log(self._hook_normalization(norm=norm, options=options))
 
     @z.function(wraps="model")
     @deprecated_norm_range
@@ -568,7 +628,9 @@ class BasePDF(ZfitPDF, BaseModel):
             msg = f"{self} is not extended, cannot call `ext_pdf`"
             raise NotExtendedPDFError(msg)
         with self._check_set_input_params(params=params):
-            return self.integrate(limits=limits, norm=norm, options=options) * self.get_yield()
+            return (
+                self.integrate(limits=limits, norm=norm, options=options) * self.get_yield()
+            )  # todo: integrate over extended pdf?
 
     def _apply_yield(self, value: float, norm: ztyping.LimitsType, log: bool) -> float | tf.Tensor:
         if self.is_extended and not norm.limits_are_false:

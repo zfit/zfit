@@ -13,7 +13,7 @@ from zfit import z
 
 from ..core.basepdf import BasePDF
 from ..core.serialmixin import SerializableMixin
-from ..core.space import ANY_LOWER, ANY_UPPER, Space
+from ..core.space import ANY_LOWER, ANY_UPPER, Space, supports
 from ..serialization import Serializer, SpaceRepr
 from ..serialization.pdfrepr import BasePDFRepr
 from ..util import ztyping
@@ -291,12 +291,14 @@ class CrystalBall(BasePDF, SerializableMixin):
         params = {"mu": mu, "sigma": sigma, "alpha": alpha, "n": n}
         super().__init__(obs=obs, name=name, params=params, extended=extended, norm=norm)
 
-    def _unnormalized_pdf(self, x):
-        mu = self.params["mu"].value()
-        sigma = self.params["sigma"].value()
-        alpha = self.params["alpha"].value()
-        n = self.params["n"].value()
-        x = x.unstack_x()
+    @supports(norm=False)
+    def _pdf(self, x, norm, params):
+        del norm
+        mu = params["mu"]
+        sigma = params["sigma"]
+        alpha = params["alpha"]
+        n = params["n"]
+        x = z.unstack_x(x)
         return crystalball_func(x=x, mu=mu, sigma=sigma, alpha=alpha, n=n)
 
 

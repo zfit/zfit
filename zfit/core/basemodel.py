@@ -7,7 +7,7 @@ Handle integration and sampling
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Mapping
 
 if TYPE_CHECKING:
     pass
@@ -362,7 +362,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         norm: ztyping.LimitsType = None,
         *,
         options=None,
-        params: ztyping.ParamsTypeInput = None,
+        params: ztyping.ParamTypeInput = None,
         var=None,
     ) -> ztyping.XType:
         """Integrate the function over ``limits`` (normalized over ``norm_range`` if not False).
@@ -520,7 +520,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         limits: ztyping.LimitsType,
         norm: ztyping.LimitsType = None,
         *,
-        params: ztyping.ParamsTypeInput = None,
+        params: ztyping.ParamTypeInput = None,
         norm_range=None,
     ) -> ztyping.XType:
         """Analytical integration over function and raise Error if not possible.
@@ -608,7 +608,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
 
     @_BaseModel_register_check_support(True)
     @deprecated_norm_range
-    def _numeric_integrate(self, limits, norm, *, norm_range=None, options=None):  # noqa: ARG002
+    def _numeric_integrate(self, limits, norm, *, params: Mapping[str, ZfitParameter], options=None):  # noqa: ARG002
         raise SpecificFunctionNotImplemented
 
     @deprecated_norm_range
@@ -618,7 +618,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         norm: ztyping.LimitsType = None,
         *,
         options=None,
-        params: ztyping.ParamsTypeInput = None,
+        params: ztyping.ParamTypeInput = None,
         norm_range=None,
     ) -> ztyping.XType:
         """Numerical integration over the model.
@@ -679,14 +679,14 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
 
     def _call_numeric_integrate(self, limits, norm, options):
         with suppress(FunctionNotImplemented):
-            return self._numeric_integrate(limits, norm, options=options)
+            return self._numeric_integrate(limits, norm, options=options, params=self.params)
         return self._fallback_numeric_integrate(limits=limits, norm=norm, options=options)
 
     def _fallback_numeric_integrate(self, limits, norm, options):
         return self._auto_numeric_integrate(func=self._func_to_integrate, limits=limits, norm=norm, options=options)
 
     @_BaseModel_register_check_support(True)
-    def _partial_integrate(self, x, limits, norm, *, options):  # noqa: ARG002
+    def _partial_integrate(self, x, limits, norm, *, params=None, options):  # noqa: ARG002
         raise SpecificFunctionNotImplemented
 
     @z.function(wraps="model")
@@ -698,7 +698,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         *,
         norm=None,
         options=None,
-        params: ztyping.ParamsTypeInput = None,
+        params: ztyping.ParamTypeInput = None,
         norm_range: ztyping.LimitsType = None,  # noqa: ARG002
     ) -> ztyping.XTypeReturn:
         """Partially integrate the function over the `limits` and evaluate it at `x`.
@@ -791,7 +791,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
 
     @_BaseModel_register_check_support(True)
     @deprecated_norm_range
-    def _partial_analytic_integrate(self, x, limits, norm, *, norm_range=None):  # noqa: ARG002
+    def _partial_analytic_integrate(self, x, limits, norm, *, params=None, norm_range=None):  # noqa: ARG002
         raise SpecificFunctionNotImplemented
 
     @z.function(wraps="model")
@@ -802,7 +802,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         limits: ztyping.LimitsType,
         norm: ztyping.LimitsType = None,
         *,
-        params: ztyping.ParamsTypeInput = None,
+        params: ztyping.ParamTypeInput = None,
         norm_range=None,
     ) -> ztyping.XTypeReturn:
         """Do analytical partial integration of the function over the `limits` and evaluate it at `x`.
@@ -906,7 +906,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         limits: ztyping.LimitsType,
         norm: ztyping.LimitsType = None,
         *,
-        params: ztyping.ParamsTypeInput = None,
+        params: ztyping.ParamTypeInput = None,
         norm_range=None,
     ) -> ztyping.XType:
         """Force numerical partial integration of the function over the `limits` and evaluate it at `x`.
@@ -1024,7 +1024,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         limits: ztyping.LimitsType = None,
         fixed_params: bool | list[ZfitParameter] | tuple[ZfitParameter] = True,
         *,
-        params: ztyping.ParamsTypeInput = None,  # noqa: ARG002
+        params: ztyping.ParamTypeInput = None,  # noqa: ARG002
         # todo: deprecate `fixed_params` in favor of `params`, change logic (dict?), needs cleanup to be merged with new Sampler
     ) -> Sampler:
         """Create a :py:class:`Sampler` that acts as `Data` but can be resampled, also with changed parameters and n.
@@ -1099,7 +1099,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         return self._single_hook_sample(n=n, limits=limits, x=None)
 
     @_BaseModel_register_check_support(True)
-    def _sample(self, n, limits: ZfitSpace):  # noqa: ARG002
+    def _sample(self, n, limits: ZfitSpace, *, params=None):  # noqa: ARG002
         raise SpecificFunctionNotImplemented
 
     def sample(
@@ -1108,7 +1108,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         limits: ztyping.LimitsType = None,
         x: ztyping.DataInputType | None = None,
         *,
-        params: ztyping.ParamsTypeInput = None,
+        params: ztyping.ParamTypeInput = None,
     ) -> SampleData:  # TODO: change poissonian top-level with multinomial
         """Sample `n` points within `limits` from the model.
 
@@ -1158,10 +1158,6 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         return self._hook_sample(n=n, limits=limits)
 
     def _hook_sample(self, limits, n):
-        return self._norm_sample(n=n, limits=limits)
-
-    def _norm_sample(self, n, limits):
-        """Dummy function."""
         return self._limits_sample(n=n, limits=limits)
 
     def _limits_sample(self, n, limits):

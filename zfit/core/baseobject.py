@@ -146,37 +146,41 @@ class BaseParametrized(BaseObject, ZfitParametrized):
         return self._params
 
     @contextlib.contextmanager
-    def _check_set_input_params(self, params):
+    def _check_set_input_params(self, params, guarantee_checked=None):
+        if guarantee_checked is None:
+            guarantee_checked = True
         if params is not None and not isinstance(params, dict):
             msg = "`params` has to be a dictionary."
             raise TypeError(msg)
 
-        newpars = {}
         if params is not None:
-            all_params = self.get_params(floating=None, is_yield=None)
-            toset_params = params.copy()
-            for param in all_params:
-                if (p := param) in params or (p := param.name) in params:
-                    newpars[param] = params[p]
-                    del toset_params[p]
+            if guarantee_checked:
+                newpars = params
+            else:
+                newpars = {}
+                all_params = self.get_params(floating=None, is_yield=None)
+                toset_params = params.copy()
+                for param in all_params:
+                    if (p := param) in params or (p := param.name) in params:
+                        newpars[param] = params[p]
+                        del toset_params[p]
 
-            if toset_params:
-                msg = f"Parameters {toset_params} were not found in the parameters of {self}."
-                raise ValueError(msg)
+                if toset_params:
+                    msg = f"Parameters {toset_params} were not found in the parameters of {self}."
+                    raise ValueError(msg)
 
-            # This is for converting and passing through, complicated?
-            # for param in all_params:
-            #     if param in params or param.name in params:
-            #         newpars[param] = params[param]
-            #     else:
-            #         newpars[param] = znp.asarray(param.value())
-
+                # This is for converting and passing through, complicated?
+                # for param in all_params:
+                #     if param in params or param.name in params:
+                #         newpars[param] = params[param]
+                #     else:
+                #         newpars[param] = znp.asarray(param.value())
             import zfit
 
             with zfit.param.set_values(tuple(newpars.keys()), tuple(newpars.values())):
                 yield newpars  # maybe improve in the future? surely dict-like
         else:
-            yield newpars
+            yield None
 
 
 class BaseNumeric(

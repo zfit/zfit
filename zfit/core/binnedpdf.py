@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from tensorflow.python.util.deprecation import deprecated_args
+
 if TYPE_CHECKING:
     import zfit
 
@@ -262,7 +264,14 @@ class BaseBinnedPDFV1(
         return self._call_rel_counts(x, norm=norm) / np.prod(self.space.binning.widths, axis=0)
 
     @deprecated_norm_range
-    def pdf(self, x: ztyping.XType, norm: ztyping.LimitsType = None, *, norm_range=None) -> ztyping.XType:
+    def pdf(
+        self,
+        x: ztyping.XType,
+        norm: ztyping.LimitsType = None,
+        *,
+        params: ztyping.ParamTypeInput = None,
+        norm_range=None,
+    ) -> ztyping.XType:
         """Probability density function, evaluated at ``x`` or in the bins of ``x``
 
         Args:
@@ -273,6 +282,11 @@ class BaseBinnedPDFV1(
             norm: |@doc:pdf.pdf.norm| Normalization of the function.
                By default, this is the ``norm`` of the PDF (which by default is the same as
                the space of the PDF). |@docend:pdf.pdf.norm|
+            params: |@doc:model.args.params| Mapping of the parameter names to the actual
+               values. The parameter names refer to the names of the parameters,
+               typically :py:class:`~zfit.Parameter`, that
+               the model was _initialized_ with, not the name of the models
+               parametrization. |@docend:model.args.params|
 
         Returns:
             ``Array-like``: probability density
@@ -294,8 +308,8 @@ class BaseBinnedPDFV1(
         if is_unbinned:
             binindices = unbinned_to_binindex(x, self.space, flow=True)
             x = self.space
-
-        values = self._call_pdf(x, norm=norm)
+        with self._check_set_input_params(params=params):
+            values = self._call_pdf(x, norm=norm)
 
         if binindices is not None:  # because we have the flow, so we need to make it here with pads
             padded_values = znp.pad(
@@ -342,7 +356,14 @@ class BaseBinnedPDFV1(
         raise SpecificFunctionNotImplemented
 
     @deprecated_norm_range
-    def ext_pdf(self, x: ztyping.XType, norm: ztyping.LimitsType = None, *, norm_range=None) -> ztyping.XType:
+    def ext_pdf(
+        self,
+        x: ztyping.XType,
+        norm: ztyping.LimitsType = None,
+        *,
+        params: ztyping.ParamTypeInput = None,
+        norm_range=None,
+    ) -> ztyping.XType:
         """Probability density function scaled by yield, evaluated at ``x`` or in the bins of ``x``
 
         Args:
@@ -353,6 +374,11 @@ class BaseBinnedPDFV1(
             norm: |@doc:pdf.pdf.norm| Normalization of the function.
                By default, this is the ``norm`` of the PDF (which by default is the same as
                the space of the PDF). |@docend:pdf.pdf.norm|
+            params: |@doc:model.args.params| Mapping of the parameter names to the actual
+               values. The parameter names refer to the names of the parameters,
+               typically :py:class:`~zfit.Parameter`, that
+               the model was _initialized_ with, not the name of the models
+               parametrization. |@docend:model.args.params|
 
         Returns:
             |@doc:binnedpdf.out.problike| If the input was unbinned, it returns an array
@@ -376,7 +402,8 @@ class BaseBinnedPDFV1(
             binindices = unbinned_to_binindex(x, self.space, flow=True)
             x = self.space
 
-        values = self._call_ext_pdf(x, norm=norm)
+        with self._check_set_input_params(params=params):
+            values = self._call_ext_pdf(x, norm=norm)
 
         if binindices is not None:  # because we have the flow, so we need to make it here with pads
             padded_values = znp.pad(
@@ -410,13 +437,35 @@ class BaseBinnedPDFV1(
         values = self._call_pdf(x, norm=norm)
         return values * self.get_yield()
 
-    def normalization(self, limits, *, options=None) -> ztyping.NumericalTypeReturn:
+    @deprecated_args(None, "Use `norm` instead.", "limits")
+    def normalization(self, norm, *, params=None, options=None, limits=None) -> ztyping.NumericalTypeReturn:
+        """Normalization of the PDF. For a binned PDF, this is the sum over the counts or the integral over the density.
+
+        Args:
+            norm: |@doc:pdf.normalization.norm| Normalization of the function.
+                By default, this is the ``norm`` of the PDF (which by default is the same as
+                the space of the PDF). |@docend:pdf.normalization.norm|
+            options:   |@doc:pdf.normalization.options| Additional options for the normalization.
+                Currently supported options are:
+                - type: one of (``bins``)
+                  This hints that bins are integrated. A method that is vectorizable, non-dynamic and
+                  therefore less suitable for complicated functions is chosen. |@docend:pdf.normalization.options|
+
+            params: |@doc:model.args.params| Mapping of the parameter names to the actual
+               values. The parameter names refer to the names of the parameters,
+               typically :py:class:`~zfit.Parameter`, that
+               the model was _initialized_ with, not the name of the models
+               parametrization. |@docend:model.args.params|
+
+        Returns:
+        """
         if limits is not None:
             norm = limits
         if options is None:
             options = {}
         norm = self._check_convert_norm(norm, none_is_error=True)
-        return self._call_normalization(norm, options=options)
+        with self._check_set_input_params(params=params):
+            return self._call_normalization(norm, options=options)
 
     def _call_normalization(self, norm, *, options):
         with suppress(SpecificFunctionNotImplemented):
@@ -426,11 +475,11 @@ class BaseBinnedPDFV1(
         return self._call_integrate(norm, norm=False, options=None)
 
     @_BinnedPDF_register_check_support(True)
-    def _normalization(self, limits, *, options):  # noqa: ARG002
+    def _normalization(self, limits, *, options, params=None):  # noqa: ARG002
         raise SpecificFunctionNotImplemented
 
     @_BinnedPDF_register_check_support(True)
-    def _integrate(self, limits, norm, options):  # noqa: ARG002
+    def _integrate(self, limits, norm, options, params=None):  # noqa: ARG002
         raise SpecificFunctionNotImplemented
 
     def integrate(
@@ -439,12 +488,14 @@ class BaseBinnedPDFV1(
         norm: ztyping.LimitsType = None,
         *,
         options=None,
+        params: ztyping.ParamTypeInput = None,
     ) -> ztyping.XType:
         if options is None:
             options = {}
         norm = self._check_convert_norm(norm)
         limits = self._check_convert_limits(limits)
-        return self._call_integrate(limits, norm, options)
+        with self._check_set_input_params(params=params):
+            return self._call_integrate(limits, norm, options)
 
     @z.function(wraps="model_binned")
     def _call_integrate(self, limits, norm, options=None):
@@ -481,6 +532,7 @@ class BaseBinnedPDFV1(
         norm: ztyping.LimitsType = None,
         *,
         options=None,
+        params: ztyping.ParamTypeInput = None,
         norm_range=None,
     ) -> ztyping.XType:
         """Extended integral of the PDF, i.e. the expected counts or the integral scaled by the yield.
@@ -495,6 +547,11 @@ class BaseBinnedPDFV1(
                - type: one of (``bins``)
                  This hints that bins are integrated. A method that is vectorizable, non-dynamic and
                  therefore less suitable for complicated functions is chosen. |@docend:pdf.integrate.options|
+            params: |@doc:model.args.params| Mapping of the parameter names to the actual
+               values. The parameter names refer to the names of the parameters,
+               typically :py:class:`~zfit.Parameter`, that
+               the model was _initialized_ with, not the name of the models
+               parametrization. |@docend:model.args.params|
 
         Returns:
             Scalar integration value.
@@ -506,7 +563,8 @@ class BaseBinnedPDFV1(
             options = {}
         norm = self._check_convert_norm(norm)
         limits = self._check_convert_limits(limits)
-        return self._call_ext_integrate(limits, norm, options=options)
+        with self._check_set_input_params(params=params):
+            return self._call_ext_integrate(limits, norm, options=options)
 
     @z.function(wraps="model_binned")
     def _call_ext_integrate(self, limits, norm, *, options):
@@ -535,14 +593,16 @@ class BaseBinnedPDFV1(
         return integral
 
     @_BinnedPDF_register_check_support(True)
-    def _ext_integrate(self, limits, norm, *, options):  # noqa: ARG002
+    def _ext_integrate(self, limits, norm, *, options, params=None):  # noqa: ARG002
         raise SpecificFunctionNotImplemented
 
     def create_sampler(
         self,
         n: ztyping.nSamplingTypeIn = None,
         limits: ztyping.LimitsType = None,
-        fixed_params: bool | list[ZfitParameter] | tuple[ZfitParameter] = True,
+        *,
+        params: ztyping.ParamTypeInput = None,
+        fixed_params: bool | list[ZfitParameter] | tuple[ZfitParameter] = True,  # todo: use params instead only?
     ) -> BinnedSampler:
         """Create a :py:class:`Sampler` that acts as `Data` but can be resampled, also with changed parameters and n.
 
@@ -557,6 +617,11 @@ class BaseBinnedPDFV1(
                     - 'extended': samples `poisson(yield)` from each pdf that is extended.
 
             limits: From which space to sample.
+            params: |@doc:model.args.params| Mapping of the parameter names to the actual
+               values. The parameter names refer to the names of the parameters,
+               typically :py:class:`~zfit.Parameter`, that
+               the model was _initialized_ with, not the name of the models
+               parametrization. |@docend:model.args.params|
             fixed_params: A list of `Parameters` that will be fixed during several `resample` calls.
                 If True, all are fixed, if False, all are floating. If a :py:class:`~zfit.Parameter` is not fixed and
                 its
@@ -594,19 +659,22 @@ class BaseBinnedPDFV1(
             n = znp.array(n)
             return self._create_sampler_tensor(limits=limits, n=n)
 
-        return BinnedSampler.from_sample(
-            sample_func=sample_func,
-            n=n,
-            obs=limits,
-            fixed_params=fixed_params,
-            dtype=self.dtype,
-        )
+        with self._check_set_input_params(params=params):
+            return BinnedSampler.from_sample(
+                sample_func=sample_func,
+                n=n,
+                obs=limits,
+                fixed_params=fixed_params,
+                dtype=self.dtype,
+            )
 
     @z.function(wraps="sampler")
     def _create_sampler_tensor(self, limits, n):
         return self._call_sample(n=n, limits=limits)
 
-    def sample(self, n: int | None = None, limits: ztyping.LimitsType = None) -> ZfitBinnedData:
+    def sample(
+        self, n: int | None = None, limits: ztyping.LimitsType = None, *, params: ztyping.ParamTypeInput = None
+    ) -> ZfitBinnedData:
         """Draw a random binned sample from the PDF.
 
         Args:
@@ -615,6 +683,11 @@ class BaseBinnedPDFV1(
                poisson-fluctuated expected number of events, i.e. the yield. |@docend:pdf.sample.n|
             limits: |@doc:pdf.sample.limits| Limits of the sampling.
                By default, this is the same as the default space of the PDF. |@docend:pdf.sample.limits|
+            params: |@doc:model.args.params| Mapping of the parameter names to the actual
+               values. The parameter names refer to the names of the parameters,
+               typically :py:class:`~zfit.Parameter`, that
+               the model was _initialized_ with, not the name of the models
+               parametrization. |@docend:model.args.params|
 
         Returns:
             ``ZfitBinnedData``: Sampled dataset
@@ -627,7 +700,8 @@ class BaseBinnedPDFV1(
                 raise ValueError(msg)
         original_limits = limits
         limits = self._check_convert_limits(limits)
-        values = self._call_sample(n, limits)
+        with self._check_set_input_params(params=params):
+            values = self._call_sample(n, limits)
         if not isinstance(values, ZfitBinnedData):
             values = BinnedData.from_tensor(space=limits, values=values, variances=None)
         if isinstance(original_limits, ZfitSpace):
@@ -652,10 +726,17 @@ class BaseBinnedPDFV1(
         return z.random.counts_multinomial(n, probs=probs, dtype=znp.float64)
 
     # ZfitMinimalHist implementation
-    def values(self, *, var=None):
+    def values(self, *, var=None, params=None):
         """Histogram values that are either the counts or the normalized counts.
 
         If the PDF is extended, the counts are returned, otherwise the normalized counts are returned.
+
+        Args:
+            params: |@doc:model.args.params| Mapping of the parameter names to the actual
+               values. The parameter names refer to the names of the parameters,
+               typically :py:class:`~zfit.Parameter`, that
+               the model was _initialized_ with, not the name of the models
+               parametrization. |@docend:model.args.params|
 
         Returns:
             ``ZfitBinnedData``: Histogram values
@@ -664,9 +745,9 @@ class BaseBinnedPDFV1(
             msg = "var argument for `values` is not supported in V1"
             raise RuntimeError(msg)
         if self.is_extended:
-            return self.counts(var)
+            return self.counts(var, params=params)
         else:
-            return self.rel_counts(var)
+            return self.rel_counts(var, params=params)
 
     def update_integration_options(self, *_, **__):
         msg = "Integration options not available for BinnedPDF"
@@ -725,7 +806,7 @@ class BaseBinnedPDFV1(
         raise RuntimeError(msg)
 
     @_BinnedPDF_register_check_support(True)
-    def _sample(self, n, limits):  # noqa: ARG002
+    def _sample(self, n, limits, *, params=None):  # noqa: ARG002
         raise SpecificFunctionNotImplemented
 
     def _copy(self, deep, name, overwrite_params):  # noqa: ARG002
@@ -774,7 +855,12 @@ class BaseBinnedPDFV1(
             space = space.with_coords(self.space, allow_superset=True, allow_subset=True)
         return space
 
-    def counts(self, x: ztyping.BinnedDataInputType = None, norm: ztyping.NormInputType = None) -> ZfitBinnedData:
+    def counts(
+        self,
+        x: ztyping.BinnedDataInputType = None,
+        norm: ztyping.NormInputType = None,
+        params: ztyping.ParamTypeInput = None,
+    ) -> ZfitBinnedData:
         """Calculate the number of events in each bin.
 
         This is the integrals of the PDF in each bin.
@@ -785,6 +871,11 @@ class BaseBinnedPDFV1(
             norm: |@doc:pdf.binned.counts.norm| Normalization of the counts.
                This normalizes the counts so that the actual sum of all counts is
                equal to the yield. |@docend:pdf.binned.counts.norm|
+            params: |@doc:model.args.params| Mapping of the parameter names to the actual
+               values. The parameter names refer to the names of the parameters,
+               typically :py:class:`~zfit.Parameter`, that
+               the model was _initialized_ with, not the name of the models
+               parametrization. |@docend:model.args.params|
 
         Returns:
             ZfitBinnedData: A histogram with the number of events in each bin.
@@ -795,7 +886,8 @@ class BaseBinnedPDFV1(
         space = x if isinstance(x, ZfitSpace) else x.space  # TODO: split the convert and sort, make Sorter?
         x = x.with_obs(self.space)
         norm = self._check_convert_norm(norm)
-        counts = self._call_counts(x, norm)
+        with self._check_set_input_params(params=params):
+            counts = self._call_counts(x, norm)
         return move_axis_obs(self.space, space, counts)
 
     @z.function(wraps="model_binned")
@@ -804,13 +896,36 @@ class BaseBinnedPDFV1(
             return self._auto_counts(x, norm)
         return self._fallback_counts(x, norm)
 
-    def ext_normalization(self, norm, *, options=None):
+    def ext_normalization(
+        self, norm: ztyping.NormInputType, *, options=None, params: ztyping.ParamTypeInput = None
+    ) -> ztyping.NumericalTypeReturn:
+        """Calculate the normalization of the extended PDF, for a binned PDF this is the sum of the counts.
+
+        Args:
+            norm: |@doc:pdf.normalization.norm| Normalization of the function.
+                By default, this is the ``norm`` of the PDF (which by default is the same as
+                the space of the PDF). |@docend:pdf.normalization.norm|
+            options:  |@doc:pdf.normalization.options| Additional options for the normalization.
+                Currently supported options are:
+                - type: one of (``bins``)
+                    This hints that bins are integrated. A method that is vectorizable, non-dynamic and
+                    therefore less suitable for complicated functions is chosen. |@docend:pdf.normalization.options|
+            params: |@doc:model.args.params| Mapping of the parameter names to the actual
+               values. The parameter names refer to the names of the parameters,
+               typically :py:class:`~zfit.Parameter`, that
+               the model was _initialized_ with, not the name of the models
+               parametrization. |@docend:model.args.params|
+
+        Returns:
+            Scalar-like: The normalization of the extended PDF.
+        """
         if not self.is_extended:
             raise NotExtendedPDFError
         if options is None:
             options = {}
         norm = self._check_convert_norm(norm, none_is_error=True)
-        return self._call_ext_normalization(norm, options=options)
+        with self._check_set_input_params(params=params):
+            return self._call_ext_normalization(norm, options=options)
 
     def _call_ext_normalization(self, norm, *, options):
         with suppress(SpecificFunctionNotImplemented):
@@ -837,7 +952,13 @@ class BaseBinnedPDFV1(
     def _counts(self, x, norm):  # noqa: ARG002
         raise SpecificFunctionNotImplemented
 
-    def rel_counts(self, x: ztyping.BinnedDataInputType = None, norm: ztyping.NormInputType = None) -> ZfitBinnedData:
+    def rel_counts(
+        self,
+        x: ztyping.BinnedDataInputType = None,
+        *,
+        norm: ztyping.NormInputType = None,
+        params: ztyping.ParamTypeInput = None,
+    ) -> ZfitBinnedData:
         """Calculate the relative number of events in each bin.
 
         This is the integrals of the PDF in each bin divided by the integral of the PDF over the whole space.
@@ -849,6 +970,11 @@ class BaseBinnedPDFV1(
             norm: |@doc:pdf.binned.counts.norm| Normalization of the counts.
                This normalizes the counts so that the actual sum of all counts is
                equal to the yield. |@docend:pdf.binned.counts.norm|
+            params: |@doc:model.args.params| Mapping of the parameter names to the actual
+               values. The parameter names refer to the names of the parameters,
+               typically :py:class:`~zfit.Parameter`, that
+               the model was _initialized_ with, not the name of the models
+               parametrization. |@docend:model.args.params|
 
         Returns:
             ZfitBinnedData: A histogram with the relative number of events in each bin.
@@ -857,7 +983,8 @@ class BaseBinnedPDFV1(
         space = x if isinstance(x, ZfitSpace) else x.space  # TODO: split the convert and sort, make Sorter?
         x = x.with_obs(self.space)
         norm = self._check_convert_norm(norm)
-        values = self._call_rel_counts(x, norm)
+        with self._check_set_input_params(params=params):
+            values = self._call_rel_counts(x, norm)
         return move_axis_obs(self.space, space, values)
 
     @z.function(wraps="model_binned")
@@ -869,7 +996,7 @@ class BaseBinnedPDFV1(
         return self._fallback_rel_counts(x, norm)
 
     @_BinnedPDF_register_check_support(True)
-    def _rel_counts(self, x, norm):  # noqa: ARG002
+    def _rel_counts(self, x, norm, *, params=None):  # noqa: ARG002
         raise SpecificFunctionNotImplemented
 
     def _auto_rel_counts(self, x, norm):
