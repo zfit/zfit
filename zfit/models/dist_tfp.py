@@ -790,13 +790,19 @@ class QGauss(WrapDistribution, SerializableMixin):
                the PDF for better identification.
                Has no programmatical functional purpose as identification. |@docend:model.init.name|
         """
+        from zfit import run
+
         q, mu, sigma = self._check_input_params(q, mu, sigma)
-        if q < 1 or q > 3:
-            msg = "q < 1 or q > 3 are not supported"
-            raise ValueError(msg)
-        if q == 1:
-            msg = "q = 1 is a Gaussian, use Gauss instead."
-            raise ValueError(msg)
+        if run.executing_eagerly():
+            if q < 1 or q > 3:
+                msg = "q < 1 or q > 3 are not supported"
+                raise ValueError(msg)
+            if q == 1:
+                msg = "q = 1 is a Gaussian, use Gauss instead."
+                raise ValueError(msg)
+        elif run.numeric_checks:
+            tf.debugging.assert_greater(q, znp.asarray(1.0), "q must be > 1")
+            tf.debugging.assert_less(q, znp.asarray(3.0), "q must be < 3")
         params = {"q": q, "mu": mu, "sigma": sigma}
 
         # https://en.wikipedia.org/wiki/Q-Gaussian_distribution
@@ -807,8 +813,6 @@ class QGauss(WrapDistribution, SerializableMixin):
         # sigma = sqrt((3 - q)/2)
 
         def dist_params(q=q, mu=mu, sigma=sigma):
-            from zfit import run
-
             if run.numeric_checks:
                 tf.debugging.assert_greater(q, znp.asarray(1.0), "q must be > 1")
                 tf.debugging.assert_less(q, znp.asarray(3.0), "q must be < 3")
