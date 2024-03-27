@@ -2330,7 +2330,8 @@ def combine_spaces(*spaces: Iterable[Space]):
 
     all_labels_map = {}
     for space in spaces:
-        all_labels_map.update(space._labels)
+        if (lab := space._labels) is not None:
+            all_labels_map.update(lab)
     if all_spaces_binned:
         binnings_ordererd = []
         for ob in common_obs_ordered:
