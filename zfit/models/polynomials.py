@@ -90,7 +90,7 @@ class RecursivePolynomial(BasePDF):
                By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
         """
         # 0th coefficient set to 1 by default
-        coeff0 = z.constant(1.0) if coeff0 is None else tf.cast(coeff0, dtype=ztypes.float)
+        coeff0 = z.constant(1.0) if coeff0 is None else znp.asarray(coeff0, dtype=ztypes.float)
         coeffs = convert_to_container(coeffs).copy()
         coeffs.insert(0, coeff0)
         params = {f"c_{i}": coeff for i, coeff in enumerate(coeffs)}

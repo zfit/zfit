@@ -243,6 +243,15 @@ def lognormal(extended=None, **kwargs):
     obs = zfit.Space("obs", positive_limits)
     return zfit.pdf.LogNormal(mu=mu, sigma=sigma, obs=obs, extended=extended)
 
+def qgauss(extended=None, **kwargs):
+    import zfit
+
+    q = zfit.Parameter("q_qgauss", 2, 1, 3)
+    mu = zfit.Parameter("mu_qgauss", 0.1, -1, 1)
+    sigma = zfit.Parameter("sigma_qgauss", 0.1, 0, 1)
+    obs = zfit.Space("obs", default_limits)
+    return zfit.pdf.QGauss(q=q, mu=mu, sigma=sigma, obs=obs, extended=extended)
+
 
 def chisquared(extended=None, **kwargs):
     import zfit
@@ -393,6 +402,7 @@ def kde1disj(pdfs=None, extended=None, **kwargs):
 
 basic_pdfs = [
     gauss,
+    qgauss,
     cauchy,
     voigt,
     exponential,

@@ -1092,7 +1092,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             n = None
         if n is not None:
             n = tf.convert_to_tensor(n)
-            n = tf.cast(n, dtype=tf.int32)
+            n = znp.asarray(n, dtype=tf.int32)
 
         limits = self._check_input_limits(limits=limits)
         if not limits.limits_are_set:

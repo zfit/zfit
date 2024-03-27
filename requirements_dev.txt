@@ -12,6 +12,7 @@ jupyter-sphinx
 matplotlib  # docs, tests
 mplhep  # docs
 myst-nb
+numba-stats @ git+https://github.com/HDembinski/numba-stats.git  # CMSShape not yet released (expected 1.8.0)
 pip>=9.0.1
 pre-commit
 progressbar2

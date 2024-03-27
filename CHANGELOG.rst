@@ -16,7 +16,7 @@ Major Features and Improvements
 - allow to use pandas DataFrame as input where zfit Data objects are expected
 - Parameter behavior has changed, multiple parameters with the same name can now coexist!
   The ``NameAlreadyTakenError`` has been successfully removed (yay!). The new behavior only enforces that
-  names and matching parameters *within a function/PDF/loss* are unique, as otherwise inconsistent expectations appear (for a lengthy discussion on this, `see here <https://github.com/zfit/zfit/discussions/342>`_.
+  names and matching parameters *within a function/PDF/loss* are unique, as otherwise inconsistent expectations appear (for the full discussion on this, see `here <https://github.com/zfit/zfit/discussions/342>`_).
 - Python 3.12 support
 - add ``GeneralizedCB`` PDF which is similar to the ``DoubleCB`` PDF but with different standard deviations for the left and right side.
 - Added functor for PDF caching ``CachedPDF``: ``pdf``, ``integrate`` PDF methods can be cacheable now
@@ -27,6 +27,7 @@ Major Features and Improvements
 - add ``ChiSquared`` PDF, the standard chi2 distribution, taken from `tensorflow-probability implementation <https://www.tensorflow.org/probability/api_docs/python/tfp/distributions/Chi2>`_.
 - add ``StudentT`` PDF, the standard Student's t distribution, taken from `tensorflow-probability implementation <https://www.tensorflow.org/probability/api_docs/python/tfp/distributions/StudentT>`_.
 - add ``GaussExpTail`` and ``GeneralizedGaussExpTail`` PDFs, which are a Gaussian with an exponential tail on one side and a Gaussian with different sigmas on each side and different exponential tails on each side respectively.
+- add ``QGauss`` PDF, a distribution that arises from the maximization of the Tsallis entropy under appropriate constraints, see `here <https://en.wikipedia.org/wiki/Q-Gaussian_distribution>`_.
 - ``Data`` has now a ``with_weights`` method that returns a new data object with different weights and an improved ``with_obs`` that allows to set obs with new limits. These replace the ``set_weights`` and ``set_data_range`` methods for a more functional approach.
 - add ``label`` to different objects (PDF, Data, etc.) that allows to give a human-readable name to the object. This is used in the plotting and can be used to identify objects.
   Notably, Parameters have a label that can be arbitrary. ``Space`` has one label for each observable if the space is a product of spaces. ``Space.label`` is a string and only possible for one-dimensional spaces, while ``Space.labels`` is a list of strings and can be used for any, one- or multi-dimensional spaces.
@@ -58,6 +59,7 @@ Bug fixes and small changes
 - ``result.fmin`` now returns the full likelihood, while ``result.fminopt`` returns the optimized likelihood with potential constant subtraction. The latter is mostly used by the minimizer and other libraries. This behavior is consistent with the behavior of other methods in the loss that return by default the full, unoptimized value.
 - serialization only allowed for one specific limit (space) of each obs. Multiple, independent
   limits can now be serialized.
+- Increased numerical stability: this was compromised due to some involuntary float32 conversions in TF. This has been fixed.
 - improved hashing and precompilation in loss, works now safely also with samplers.
 - seed setting is by default completely randomized. This is a change from the previous behavior where the seed was set to a more deterministic value. Use seeds only for reproducibility and not for real randomness, as some strange correlations between seeds have been observed. To guarantee full randomness, just call ``zfit.run.set_seed()`` without arguments.
 

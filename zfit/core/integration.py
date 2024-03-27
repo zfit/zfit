@@ -140,10 +140,10 @@ def simpson(func, lower, upper, num_points=1001, dtype=None):
     ]
 
     with tf.control_dependencies(assertions):
-        dx = (upper - lower) / (tf.cast(num_points, dtype=dtype) - 1)
+        dx = (upper - lower) / (znp.asarray(num_points, dtype=dtype) - 1)
         dx_expand = tf.expand_dims(dx, -1)
         lower_exp = tf.expand_dims(lower, -1)
-        grid = lower_exp + dx_expand * tf.cast(tf.range(num_points), dtype=dtype)
+        grid = lower_exp + dx_expand * znp.asarray(tf.range(num_points), dtype=dtype)
         weights_first = tf.constant([1.0], dtype=dtype)
         weights_mid = tf.tile(tf.constant([4.0, 2.0], dtype=dtype), [(num_points - 3) // 2])
         weights_last = tf.constant([4.0, 1.0], dtype=dtype)
@@ -154,7 +154,7 @@ def simpson(func, lower, upper, num_points=1001, dtype=None):
 
 def simpson_integrate(func, limits, num_points):  # currently not vectorized
     integrals = []
-    num_points = tf.cast(num_points, znp.int32)
+    num_points = znp.asarray(num_points, znp.int32)
     num_points += num_points % 2 + 1  # sanitize number of points
     for space in limits:
         lower, upper = space.v0.limits  # todo: shape of spaces?
@@ -340,7 +340,7 @@ def mc_integrate(
 
                 xval = samples
                 y = func(xval)
-                ifloat = tf.cast(i, dtype=tf.float64)
+                ifloat = znp.asarray(i, dtype=tf.float64)
                 avg = avg / (ifloat + 1.0) * ifloat + znp.mean(y) / (ifloat + 1.0)
                 std = std / (ifloat + 1.0) * ifloat + znp.std(y) / (ifloat + 1.0)
                 ntot_float = znp.asarray(ntot, dtype=znp.float64)
@@ -395,7 +395,7 @@ def mc_integrate(
 
             if not vectorizable:
                 tf.cond(error > tol, print_none_return, lambda: None)
-        integral = avg * tf.cast(z.convert_to_tensor(space.area()), dtype=avg.dtype)
+        integral = avg * znp.asarray(z.convert_to_tensor(space.area()), dtype=avg.dtype)
         integrals.append(integral)
     return z.reduce_sum(integrals, axis=0)
 
@@ -431,7 +431,7 @@ def normalization_nograd(func, n_axes, batch_size, num_batches, dtype, space, x=
             if len(func_vals.shape) == 1:
                 func_vals = znp.expand_dims(func_vals, -1)
         batch_mean = znp.mean(func_vals, axis=reduce_axis)  # if there are gradients
-        err_weight = 1 / tf.cast(batch_num + 1, dtype=tf.float64)
+        err_weight = 1 / znp.asarray(batch_num + 1, dtype=tf.float64)
 
         do_print = False
         if do_print:
@@ -531,7 +531,7 @@ def chunked_average(func, x, num_batches, batch_size, space, mc_sampler):
 
             batch_mean = znp.mean(sample)
             batch_mean = tf.guarantee_const(batch_mean)
-            err_weight = 1 / tf.cast(batch_num + 1, dtype=tf.float64)
+            err_weight = 1 / znp.asarray(batch_num + 1, dtype=tf.float64)
             # err_weight /= err_weight + 1
             # print_op = tf.print(batch_mean)
             do_print = False

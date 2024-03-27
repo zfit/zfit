@@ -5,6 +5,7 @@ import tensorflow as tf
 
 import zfit
 from zfit import Space, z
+import zfit.z.numpy as znp
 from zfit.core.space import Limit
 from zfit.util.exception import AnalyticSamplingNotImplemented
 
@@ -289,7 +290,7 @@ def test_importance_sampling(n):
         @z.function
         def __call__(self, n_to_produce, limits, dtype):
             importance_sampling_called[0] = True
-            n_to_produce = tf.cast(n_to_produce, dtype=tf.int32)
+            n_to_produce = znp.asarray(n_to_produce, dtype=tf.int32)
             gaussian_sample = gauss_sampler.sample(
                 n=n_to_produce, limits=limits
             ).value()
@@ -333,7 +334,7 @@ def test_importance_sampling_uniform():
 
             import tensorflow_probability.python.distributions as tfd
 
-            n_to_produce = tf.cast(n_to_produce, dtype=tf.int32)
+            n_to_produce = znp.asarray(n_to_produce, dtype=tf.int32)
             gaussian = tfd.TruncatedNormal(
                 loc=z.constant(-1.0), scale=z.constant(2.0), low=low, high=high
             )

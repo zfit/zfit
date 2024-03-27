@@ -85,15 +85,15 @@ def counts_multinomial(
     logits = tf.convert_to_tensor(logits) if logits is not None else logits
 
     if probs is not None:
-        probs = tf.cast(probs, dtype=tf.float64)
+        probs = _znp.asarray(probs, dtype=tf.float64)
         float_dtype = probs.dtype
     elif logits is not None:
-        logits = tf.cast(logits, tf.float64)
+        logits = _znp.asarray(logits, tf.float64)
         float_dtype = logits.dtype
     else:
         msg = "Exactly one of `probs` or`logits` have to be specified"
         raise ValueError(msg)
-    total_count = tf.cast(total_count, dtype=float_dtype)
+    total_count = _znp.asarray(total_count, dtype=float_dtype)
 
     # needed since otherwise shape of sample will be (1, n_probs)
     # total_count = tf.broadcast_to(total_count, shape=probs_logits_shape)
@@ -111,7 +111,7 @@ def _wrapped_multinomial_func(dtype, logits, probs, total_count):
         logits = _znp.reshape(logits, [-1])
     dist = tfp.distributions.Multinomial(total_count=total_count, probs=probs, logits=logits)
     counts_flat = dist.sample()
-    counts_flat = tf.cast(counts_flat, dtype=dtype)
+    counts_flat = _znp.asarray(counts_flat, dtype=dtype)
     return _znp.reshape(counts_flat, shape)
 
 

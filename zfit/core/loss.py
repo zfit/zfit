@@ -1028,7 +1028,7 @@ class ExtendedUnbinnedNLL(BaseUnbinnedNLL):
                 msg = f"The pdf {mod} is not extended but has to be (for an extended fit)"
                 raise NotExtendedPDFError(msg)
             nevents = dat.n_events if dat.weights is None else z.reduce_sum(dat.weights)
-            nevents = tf.cast(nevents, tf.float64)
+            nevents = znp.asarray(nevents, tf.float64)
             nevents_collected.append(nevents)
             yields.append(mod.get_yield())
         yields = znp.stack(yields, axis=0)

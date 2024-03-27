@@ -200,12 +200,12 @@ def true_conv_2d_np(func, gauss1, obsfunc, xfunc, xkernel):
     y_func = func.pdf(xfunc)
     y_kernel = gauss1.pdf(xkernel)
     nfunc = int(np.sqrt(xfunc.shape[0]))
-    y_func = tf.reshape(y_func, (nfunc, nfunc))
+    y_func = znp.reshape(y_func, (nfunc, nfunc))
     nkernel = int(np.sqrt(xkernel.shape[0]))
-    y_kernel = tf.reshape(y_kernel, (nkernel, nkernel))
+    y_kernel = znp.reshape(y_kernel, (nkernel, nkernel))
     true_conv = scipy.signal.convolve(y_func, y_kernel, mode="same")
     true_conv /= np.mean(true_conv) * obsfunc.volume
-    return tf.reshape(true_conv, xfunc.shape[0])
+    return znp.reshape(true_conv, xfunc.shape[0])
 
 
 def test_max_1dim():
@@ -262,20 +262,20 @@ def test_conv_2D_simple():
     start = obs_func.v1.lower
     stop = obs_func.v1.upper
     x_tensor = z.random.uniform((n_points, 2), start, stop)
-    x_tensor = tf.reshape(x_tensor, (-1, 2))
+    x_tensor = znp.reshape(x_tensor, (-1, 2))
     linspace = tf.linspace(start, stop, num=n_points)
     linspace = tf.transpose(tf.meshgrid(*tf.unstack(linspace, axis=-1)))
-    linspace_func = tf.reshape(linspace, (-1, 2))
+    linspace_func = znp.reshape(linspace, (-1, 2))
 
     # linspace_full = tf.linspace((-8, -8), (12, 12), num=n_points)
     # linspace_full = tf.transpose(tf.meshgrid(*tf.unstack(linspace_full, axis=-1)))
-    # linspace_full = tf.reshape(linspace_full, (-1, 2))
+    # linspace_full = znp.reshape(linspace_full, (-1, 2))
 
     linspace_kernel = tf.linspace(
         obskernel.v1.lower, obskernel.v1.upper, num=n_points
     )
     linspace_kernel = tf.transpose(tf.meshgrid(*tf.unstack(linspace_kernel, axis=-1)))
-    linspace_kernel = tf.reshape(linspace_kernel, (-1, 2))
+    linspace_kernel = znp.reshape(linspace_kernel, (-1, 2))
     # linspace_kernel = obskernel.filter(linspace_full)
     # linspace_func = obs_func.filter(linspace_full)
 
@@ -305,8 +305,8 @@ def test_conv_2D_simple():
     # plt.imshow(probs_plot)
     # plt.show()
 
-    true_probsr = tf.reshape(true_probs, (n_points, n_points))
-    probsr = tf.reshape(probs, (n_points, n_points))
+    true_probsr = znp.reshape(true_probs, (n_points, n_points))
+    probsr = znp.reshape(probs, (n_points, n_points))
     plt.figure()
     plt.imshow(true_probsr, label="true probs")
     plt.title("true probs")
