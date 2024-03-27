@@ -216,9 +216,9 @@ def test_normalization(obs1, pdf_factory):
 
     test_yield = 1524.3
     dist = pdf_factory()
-    samples = znp.random.uniform(low=low, high=high, size=100000)
+    samples = znp.random.uniform(low=low, high=high, size=(100000,))
 
-    small_samples = znp.random.uniform(low=low, high=high, size=10)
+    small_samples = znp.random.uniform(low=low, high=high, size=(10,))
 
     with dist.set_norm_range(zfit.Space(obs1, limits=(low, high))):
         probs = dist.pdf(samples)

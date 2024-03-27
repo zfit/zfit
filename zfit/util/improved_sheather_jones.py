@@ -21,7 +21,7 @@ def calc_f(s, f, squared_integers, grid_data_dct2, N):
     three = tf.constant(3.0, ztypes.float)
     pi = tf.constant(np.pi, ztypes.float)
 
-    odd_numbers_prod = znp.prod(znp.range(one, two * s + one, 2))
+    odd_numbers_prod = znp.prod(tf.range(one, two * s + one, 2))
     K0 = odd_numbers_prod / znp.sqrt(two * pi)
     const = (one + znp.power(one_half, s + one_half)) / three
     time = znp.power(two * const * K0 / (N * f), two / (three + two * s))
@@ -176,7 +176,7 @@ def _calculate_t_star(data, num_grid_points, binning_method, weights):
     grid_data_dct = tf.signal.dct(grid_data, type=2)
 
     # Compute the bandwidth
-    squared_integers = znp.power(znp.range(1, num_grid_points, dtype=ztypes.float), tf.constant(2, ztypes.float))
+    squared_integers = znp.power(tf.range(1, num_grid_points, dtype=ztypes.float), tf.constant(2, ztypes.float))
     grid_data_dct2 = znp.power(grid_data_dct[1:], 2) / 4
 
     # Solve for the optimal (in the AMISE sense) t
