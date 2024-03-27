@@ -9,6 +9,7 @@ import tensorflow as tf
 
 mu_true = 0.5
 sigma_true = 1.1
+# obtained from the numba_stats package by numerically integrating the qgaussian PDF
 true_integral_dict = {1.00001: 0.9999782, 1.5: 0.9695, 2.0: 0.8063152, 2.5: 0.4805167, 2.9: 0.1078687, 2.99: 0.011044}
 
 
@@ -24,15 +25,16 @@ def test_qgauss_pdf(q):
     assert qgauss.pdf(0.5, norm=False).numpy().item() == pytest.approx(
         qgaussian_numba.pdf(0.5, q=q, mu=mu_true, sigma=sigma_true), rel=1e-5
     )
+    test_values = tf.range(-5, 5, 10_000)
     np.testing.assert_allclose(
-        qgauss.pdf(tf.range(-5, 5, 10_000), norm=False).numpy(),
-        qgaussian_numba.pdf(tf.range(-5, 5, 10_000), q=q, mu=mu_true, sigma=sigma_true),
+        qgauss.pdf(test_values, norm=False).numpy(),
+        qgaussian_numba.pdf(test_values, q=q, mu=mu_true, sigma=sigma_true),
         rtol=1e-5,
     )
-    assert qgauss.pdf(tf.range(-5, 5, 10_000), norm=False) <= qgauss.pdf(0.5, norm=False)
+    assert qgauss.pdf(test_values, norm=False) <= qgauss.pdf(0.5, norm=False)
 
     sample = qgauss.sample(1000)
-    tf.debugging.assert_all_finite(sample.value(), "Some samples from the qgauss PDF are NaN or infinite")
+    assert all(np.isfinite(sample.value())), "Some samples from the qgauss PDF are NaN or infinite"
     assert sample.n_events == 1000
     assert all(tf.logical_and(-5 <= sample.value(), sample.value() <= 5))
 

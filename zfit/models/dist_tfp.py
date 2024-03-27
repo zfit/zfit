@@ -796,7 +796,7 @@ class QGauss(WrapDistribution, SerializableMixin):
         if q == 1:
             msg = "q = 1 is a Gaussian, use Gauss instead."
             raise ValueError(msg)
-        params = OrderedDict((("q", q), ("mu", mu), ("sigma", sigma)))
+        params = {"q": q, "mu": mu, "sigma": sigma}
 
         # https://en.wikipedia.org/wiki/Q-Gaussian_distribution
         # relation to Student's t-distribution
@@ -805,7 +805,7 @@ class QGauss(WrapDistribution, SerializableMixin):
         # 2 sigma^2 = 3 - q
         # sigma = sqrt((3 - q)/2)
 
-        def dist_params():
+        def dist_params(q=q, mu=mu, sigma=sigma):
             df = (3 - q.value()) / (q.value() - 1)
             scale = sigma.value() / tf.sqrt(0.5 * (3 - q.value()))
             return {"df": df, "loc": mu.value(), "scale": scale}
