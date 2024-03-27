@@ -78,14 +78,3 @@ They offer more or less support and freedom.
     :maxdepth: 2
 
     pdf/custom_base
-
-High Energy Physics (HEP) PDFs
-###############################
-
-These PDFs are often used in the field of high energy physics.
-To use them, the package zfit-physics has to be installed additionally and they have to be imported from there.
-
-.. toctree::
-    :maxdepth: 2
-
-    pdf/physics

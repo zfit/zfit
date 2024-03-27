@@ -17,6 +17,7 @@ Major Features and Improvements
 - Parameter behavior has changed, multiple parameters with the same name can now coexist!
   The ``NameAlreadyTakenError`` has been successfully removed (yay!). The new behavior only enforces that
   names and matching parameters *within a function/PDF/loss* are unique, as otherwise inconsistent expectations appear (for the full discussion on this, see `here <https://github.com/zfit/zfit/discussions/342>`_).
+- Methods of PDFs and loss functions that depend on parameters take now the value of a parameter explicitly as arguments, as a mapping of str (parameter name) to value.
 - Python 3.12 support
 - add ``GeneralizedCB`` PDF which is similar to the ``DoubleCB`` PDF but with different standard deviations for the left and right side.
 - Added functor for PDF caching ``CachedPDF``: ``pdf``, ``integrate`` PDF methods can be cacheable now
