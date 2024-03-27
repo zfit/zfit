@@ -6,7 +6,7 @@ from typing import Any
 
 import tensorflow as tf
 
-import zfit.z.numpy as znp
+import zfit.z.numpy as _znp
 
 from ..settings import ztypes
 from ..util.deprecation import deprecated
@@ -14,13 +14,12 @@ from .tools import _auto_upcast
 
 
 def exp(x):
-    return _auto_upcast(znp.exp(x=x))
+    return _auto_upcast(_znp.exp(x=x))
 
 
 @functools.wraps(tf.convert_to_tensor)
-def convert_to_tensor(value, dtype=ztypes.float, name=None, preferred_dtype=ztypes.float):
-    value = tf.cast(value, dtype=dtype)
-    return tf.convert_to_tensor(value=value, dtype=dtype, name=name, dtype_hint=preferred_dtype)
+def convert_to_tensor(value, dtype=ztypes.float):
+    return _znp.asarray(value, dtype)
 
 
 @deprecated(None, "Use z.random.normal instead.")
@@ -77,14 +76,14 @@ def check_numerics(tensor: Any, message: Any, name: Any = None):
     Returns:
     """
     if tf.as_dtype(tensor.dtype).is_complex:
-        real_check = tf.debugging.check_numerics(tensor=znp.real(tensor), message=message, name=name)
-        imag_check = tf.debugging.check_numerics(tensor=znp.imag(tensor), message=message, name=name)
+        real_check = tf.debugging.check_numerics(tensor=_znp.real(tensor), message=message, name=name)
+        imag_check = tf.debugging.check_numerics(tensor=_znp.imag(tensor), message=message, name=name)
         check_op = tf.group(real_check, imag_check)
     else:
         check_op = tf.debugging.check_numerics(tensor=tensor, message=message, name=name)
     return check_op
 
 
-reduce_sum = znp.sum
+reduce_sum = _znp.sum
 
-reduce_prod = znp.prod
+reduce_prod = _znp.prod

@@ -73,7 +73,7 @@ def bandwidth_rule_of_thumb(
     """
     if factor is None:
         factor = tf.constant(0.9)
-    return min_std_or_iqr(data, weights) * tf.cast(tf.shape(data)[0], ztypes.float) ** (-1 / 5.0) * factor
+    return min_std_or_iqr(data, weights) * znp.asarray(tf.shape(data)[0], ztypes.float) ** (-1 / 5.0) * factor
 
 
 @z.function(wraps="tensor", keepalive=True)
@@ -222,7 +222,7 @@ def bandwidth_adaptive_geomV1(data, func, weights):
         Estimated bandwidth of size data
     """
     data = z.convert_to_tensor(data)
-    n = znp.sum(weights) if weights is not None else tf.cast(tf.shape(data)[0], ztypes.float)
+    n = znp.sum(weights) if weights is not None else znp.asarray(tf.shape(data)[0], ztypes.float)
     probs = func(data)
     lambda_i = 1 / znp.sqrt(probs / z.math.reduce_geometric_mean(probs, weights=weights))
 
@@ -347,11 +347,11 @@ def bandwidth_adaptive_stdV1(data, func, weights):
         Estimated bandwidth array of same size as data
     """
     data = z.convert_to_tensor(data)
-    n = znp.sum(weights) if weights is not None else tf.cast(tf.shape(data)[0], ztypes.float)
+    n = znp.sum(weights) if weights is not None else znp.asarray(tf.shape(data)[0], ztypes.float)
     probs = func(data)
     divisor = min_std_or_iqr(data, weights)
     bandwidth = z.sqrt(divisor / probs)
-    bandwidth *= tf.cast(n, ztypes.float) ** (-1.0 / 5.0) * 1.059
+    bandwidth *= znp.asarray(n, ztypes.float) ** (-1.0 / 5.0) * 1.059
     return bandwidth
 
 
@@ -371,7 +371,7 @@ def adaptive_factory(func, grid):
             return func(
                 data=grid,
                 func=kde_silverman.pdf,
-                weights=weights * tf.cast(tf.shape(data)[0], ztypes.float),
+                weights=weights * znp.asarray(tf.shape(data)[0], ztypes.float),
             )
 
     else:
@@ -444,7 +444,7 @@ def calc_kernel_probs(size, weights):
     if weights is not None:
         return weights / znp.sum(weights)
     else:
-        return tf.broadcast_to(1 / size, shape=(tf.cast(size, tf.int32),))
+        return tf.broadcast_to(1 / size, shape=(znp.asarray(size, tf.int32),))
 
 
 class KDEHelper:
@@ -476,7 +476,8 @@ class KDEHelper:
                 data, weights=weights, mode=padding, limits=limits, bandwidth=bandwidth
             )
         shape_data = tf.shape(data)
-        size = tf.cast(shape_data[0], ztypes.float)
+        size = znp.asarray(shape_data[0], ztypes.float)
+        data = znp.asarray(data, dtype=ztypes.float)
         return data, size, weights, bandwidth
 
     def _convert_input_bandwidth(self, bandwidth, data, **kwargs):
@@ -1244,7 +1245,7 @@ class KDE1DimGrid(KDEHelper, WrapDistribution, SerializableMixin):
             return tfd.Independent(kernel(loc=loc, scale=scale))
 
         if num_grid_points is not None:
-            num_grid_points = tf.minimum(tf.cast(size, ztypes.int), tf.cast(num_grid_points, ztypes.int))
+            num_grid_points = tf.minimum(znp.asarray(size, ztypes.int), znp.asarray(num_grid_points, ztypes.int))
         self._num_grid_points = num_grid_points
         self._binning_method = binning_method
         self._data = data
@@ -1534,7 +1535,7 @@ class KDE1DimFFT(KDEHelper, BasePDF, SerializableMixin):
             obs=obs,
             weights=weights,
         )
-        num_grid_points = tf.minimum(tf.cast(size, ztypes.int), tf.constant(num_grid_points, ztypes.int))
+        num_grid_points = tf.minimum(znp.asarray(size, ztypes.int), tf.constant(num_grid_points, ztypes.int))
         check_bw_grid_shapes(bandwidth, n_grid=num_grid_points)
         self._num_grid_points = num_grid_points
         self._binning_method = binning_method
@@ -1761,7 +1762,7 @@ class KDE1DimISJ(KDEHelper, BasePDF, SerializableMixin):
         )
         self._padding = padding
 
-        num_grid_points = tf.minimum(tf.cast(size, ztypes.int), tf.constant(num_grid_points, ztypes.int))
+        num_grid_points = tf.minimum(znp.asarray(size, ztypes.int), tf.constant(num_grid_points, ztypes.int))
         self._num_grid_points = num_grid_points
         self._binning_method = binning_method
         self._data = tf.convert_to_tensor(data, ztypes.float)

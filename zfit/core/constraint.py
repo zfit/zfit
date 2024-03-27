@@ -214,11 +214,11 @@ class TFProbabilityConstraint(ProbabilityConstraint):
         kwargs = self.dist_kwargs
         if callable(kwargs):
             kwargs = kwargs()
-        params = {k: tf.cast(v, ztypes.float) for k, v in params.items()}
+        params = {k: znp.asarray(v, ztypes.float) for k, v in params.items()}
         return self._distribution(**params, **kwargs, name=f"{self.name}_tfp")
 
     def _value(self):
-        array = tf.cast(self._params_array, ztypes.float)
+        array = znp.asarray(self._params_array, ztypes.float)
         value = -self.distribution.log_prob(array)
         return tf.reduce_sum(value)
 

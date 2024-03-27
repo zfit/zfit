@@ -37,7 +37,7 @@ class BinnedTemplatePDFV1(BaseBinnedPDFV1):
                     values = self._data.values()
                     if sysshape := list(params.values()):
                         sysshape_flat = tf.stack(sysshape)
-                        sysshape = tf.reshape(sysshape_flat, values.shape)
+                        sysshape = znp.reshape(sysshape_flat, values.shape)
                         values = values * sysshape
                     return znp.sum(values)
 
@@ -71,7 +71,7 @@ class BinnedTemplatePDFV1(BaseBinnedPDFV1):
         values = self._data.values()
         if sysshape := list(self._template_sysshape.values()):
             sysshape_flat = tf.stack(sysshape)
-            sysshape = tf.reshape(sysshape_flat, values.shape)
+            sysshape = znp.reshape(sysshape_flat, values.shape)
             values = values * sysshape
         return values
 
@@ -80,7 +80,7 @@ class BinnedTemplatePDFV1(BaseBinnedPDFV1):
         values = self._data.values()
         if sysshape := list(self._template_sysshape.values()):
             sysshape_flat = tf.stack(sysshape)
-            sysshape = tf.reshape(sysshape_flat, values.shape)
+            sysshape = znp.reshape(sysshape_flat, values.shape)
             values = values * sysshape
         return values / znp.sum(values)
 
@@ -119,14 +119,14 @@ class BinnedTemplatePDFV1(BaseBinnedPDFV1):
 #
 #         sysshape_flat = tf.stack([p for name, p in self.params.items() if name.startswith('sysshape')])
 #         counts = self._data.values()
-#         sysshape = tf.reshape(sysshape_flat, counts.shape)
+#         sysshape = znp.reshape(sysshape_flat, counts.shape)
 #         return counts * sysshape
 #
 #     @supports(norm='norm')
 #     def _rel_counts(self, x, norm=None):
 #         sysshape_flat = tf.stack([p for name, p in self.params.items() if name.startswith('sysshape')])
 #         counts = self._data.values()
-#         sysshape = tf.reshape(sysshape_flat, counts.shape)
+#         sysshape = znp.reshape(sysshape_flat, counts.shape)
 #         values = counts * sysshape
 #         return values / znp.sum(values)
 #
@@ -161,7 +161,7 @@ class BinnedTemplatePDFV1(BaseBinnedPDFV1):
 #         counts = self.data.values()
 #         if self.sysshape is not None:
 #             sysshape_flat = tf.stack([p for name, p in self.params.items() if name.startswith('sysshape')])
-#             sysshape = tf.reshape(sysshape_flat, counts.shape)
+#             sysshape = znp.reshape(sysshape_flat, counts.shape)
 #             counts = counts * sysshape
 #         if self.space == var.space and self.space.is_binned \
 #                 and (not norm.space or norm.space == self.space):

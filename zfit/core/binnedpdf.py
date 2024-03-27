@@ -1089,12 +1089,12 @@ def cut_edges_and_bins(
             # we get the bins that are just one too far. Then we update this whole bin tensor with the actual edge.
             # The bins index is the index below the value.
             lower_bin_float = tfp.stats.find_bins(lower_i, edge, extend_lower_interval=True, extend_upper_interval=True)
-            lower_bin = tf.reshape(tf.cast(lower_bin_float, dtype=znp.int32), [-1])
+            lower_bin = znp.reshape(znp.asarray(lower_bin_float, dtype=znp.int32), [-1])
             # lower_bins = tf.tensor_scatter_nd_update(zero_bins, [[i]], lower_bin)
             # +1 below because the outer bin is searched, meaning the one that is higher than the value
 
             upper_bin_float = tfp.stats.find_bins(upper_i, edge, extend_lower_interval=True, extend_upper_interval=True)
-            upper_bin = tf.reshape(tf.cast(upper_bin_float, dtype=znp.int32), [-1]) + 1
+            upper_bin = znp.reshape(znp.asarray(upper_bin_float, dtype=znp.int32), [-1]) + 1
             size = upper_bin - lower_bin
             new_edge = tf.slice(edge, lower_bin, size + 1)  # +1 because stop is exclusive
             new_edge = tf.tensor_scatter_nd_update(new_edge, [tf.constant([0]), size], [lower_i[0], upper_i[0]])
@@ -1132,7 +1132,7 @@ def cut_edges_and_bins(
     #                                              indices, upper_bins)
     # lower_bins_indices = tf.stack([lower_bins, dims], axis=-1)
     # upper_bins_indices = tf.stack([upper_bins, dims], axis=-1)
-    # all_lower_bins = tf.cast(znp.sum(all_lower_bins, axis=0), dtype=znp.int32)
+    # all_lower_bins = znp.asarray(znp.sum(all_lower_bins, axis=0), dtype=znp.int32)
     all_lower_bins = tf.concat(all_lower_bins, axis=0)
     all_upper_bins = tf.concat(all_upper_bins, axis=0)
     return cut_scaled_edges, (all_lower_bins, all_upper_bins), cut_unscaled_edges
