@@ -156,7 +156,7 @@ class BasePDF(ZfitPDF, BaseModel):
             norm = self.norm
         return super()._check_input_norm(norm=norm, none_is_error=none_is_error)
 
-    def _check_set_input_params_tfp(self, *params):
+    def _check_input_params_tfp(self, *params):
         return tuple(convert_to_parameter(p) for p in params)
 
     def _func_to_integrate(self, x: ztyping.XType):
@@ -833,7 +833,9 @@ class BasePDF(ZfitPDF, BaseModel):
 
         def partial_integrate_wrapped(self_simple, x):
             del self_simple
-            return self.partial_integrate(x, limits=limits, options=options)
+            return self.partial_integrate(
+                x, limits=limits, options=options, norm=False
+            )  # todo: it should be fine not to normalize, right?
 
         return SimpleFunctorPDF(
             obs=self.space.get_subspace(obs=[obs for obs in self.obs if obs not in limits.obs]),
@@ -934,7 +936,7 @@ class BasePDF(ZfitPDF, BaseModel):
         return convert_pdf_to_func(pdf=self, norm=norm)
 
     def __str__(self):
-        return f"zfit.model.{type(self).__name__}(" f'"{self.name}"' f", dtype={self.dtype.name})"
+        return f"zfit.model.{type(self).__name__}(" f'"{self.name}"' f", dtype={self.dtype})"
 
     def to_unbinned(self):
         """Convert to unbinned pdf, returns self if already unbinned."""

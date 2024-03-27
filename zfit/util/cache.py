@@ -276,9 +276,9 @@ class FunctionCacheHolder(GraphCachable):
         """
         # is initialized before the core
 
-        args = list(args)
-        kwargs = list(kwargs.keys()) + list(kwargs.values())
-        combined = args + kwargs
+        # args = tuple(args)
+        # kwargs = list(kwargs.keys()) + list(kwargs.values())
+        combined = (*args, *kwargs.keys(), *kwargs.values())
         combined_cleaned = []
         for obj in combined:
             obj = self.get_immutable_repr_obj(obj)

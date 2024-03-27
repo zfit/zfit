@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import abc
 import collections
-from collections import OrderedDict
 from collections.abc import Callable
 from typing import Iterable, Literal, Mapping
 
@@ -30,7 +29,6 @@ from .serialmixin import SerializableMixin
 tfd = tfp.distributions
 
 
-# TODO(serialization): add to serializer
 class BaseConstraintRepr(BaseRepr):
     _implementation = None
     _owndict = pydantic.PrivateAttr(default_factory=dict)
@@ -94,10 +92,7 @@ class SimpleConstraint(BaseConstraint):
         self._simple_func_dependents = convert_to_container(params, container=OrderedSet)
 
         params = convert_to_container(params, container=list)
-        if self._func_params is None:
-            params = OrderedDict((f"param_{i}", p) for i, p in enumerate(params))
-        else:
-            params = self._func_params
+        params = {f"param_{i}": p for i, p in enumerate(params)} if self._func_params is None else self._func_params
 
         super().__init__(name=name, params=params)
 
@@ -127,12 +122,12 @@ class ProbabilityConstraint(BaseConstraint):
                 to constraint obtained from auxiliary measurements.
         """
         # TODO: proper handling of input params, arrays. ArrayParam?
-        params = convert_to_container(params)
+        params = convert_to_container(params, ignore=np.ndarray)
         params_dict = {f"param_{i}": p for i, p in enumerate(params)}
         super().__init__(name=name, dtype=dtype, params=params_dict, **kwargs)
         params = tuple(self.params.values())
 
-        observation = convert_to_container(observation, tuple)
+        observation = convert_to_container(observation, tuple, ignore=np.ndarray)
         if len(observation) != len(params):
             msg = (
                 "observation and params have to be the same length. Currently"
@@ -214,11 +209,11 @@ class TFProbabilityConstraint(ProbabilityConstraint):
         kwargs = self.dist_kwargs
         if callable(kwargs):
             kwargs = kwargs()
-        params = {k: tf.cast(v, ztypes.float) for k, v in params.items()}
+        params = {k: znp.asarray(v, ztypes.float) for k, v in params.items()}
         return self._distribution(**params, **kwargs, name=f"{self.name}_tfp")
 
     def _value(self):
-        array = tf.cast(self._params_array, ztypes.float)
+        array = znp.asarray(self._params_array, ztypes.float)
         value = -self.distribution.log_prob(array)
         return tf.reduce_sum(value)
 
@@ -254,9 +249,9 @@ class GaussianConstraint(TFProbabilityConstraint, SerializableMixin):
             ShapeIncompatibleError: If params, mu and sigma have incompatible shapes.
         """
 
-        observation = convert_to_container(observation, tuple)
-        params = convert_to_container(params, tuple)
-        uncertainty = convert_to_container(uncertainty, tuple)
+        observation = convert_to_container(observation, tuple, ignore=np.ndarray)
+        params = convert_to_container(params, tuple, ignore=np.ndarray)
+        uncertainty = convert_to_container(uncertainty, tuple, ignore=np.ndarray)
         if isinstance(uncertainty[0], (np.ndarray, tf.Tensor)) and len(uncertainty) == 1:
             uncertainty = tuple(uncertainty[0])
         original_init = {

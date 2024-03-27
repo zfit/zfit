@@ -1,6 +1,6 @@
 """Top-level package for zfit."""
 
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 import sys
 import warnings
 

@@ -159,7 +159,7 @@ def test_binned_loss(weights, Loss, simultaneous):
     test_values = zfit.Data.from_tensor(obs=obs, tensor=test_values, weights=weights)
     init_yield = test_values_np.shape[0] * 1.2
     scale = zfit.Parameter("yield", init_yield, 0, init_yield * 4, step_size=1)
-    binning = zfit.binned.RegularBinning(92, obs.lower[0], obs.upper[0], name="obs1")
+    binning = zfit.binned.RegularBinning(92, obs.v1.lower, obs.v1.upper, name="obs1")
     obs_binned = obs.with_binning(binning)
     test_values_binned = test_values.to_binned(obs_binned)
     binned_gauss = zfit.pdf.BinnedFromUnbinnedPDF(gaussian1, obs_binned, extended=scale)
@@ -287,7 +287,7 @@ def test_binned_chi2_loss(Loss, empty, errors):  # TODO: add test with zeros in 
     test_values = zfit.Data.from_tensor(obs=obs, tensor=test_values)
     init_yield = test_values_np.shape[0] * 1.2
     scale = zfit.Parameter("yield", init_yield, 0, init_yield * 4, step_size=1)
-    binning = zfit.binned.RegularBinning(32, obs.lower[0], obs.upper[0], name="obs1")
+    binning = zfit.binned.RegularBinning(32, obs.v1.lower, obs.v1.upper, name="obs1")
     obs_binned = obs.with_binning(binning)
     test_values_binned = test_values.to_binned(obs_binned)
     binned_gauss = zfit.models.tobinned.BinnedFromUnbinnedPDF(
@@ -325,7 +325,7 @@ def test_binned_loss_hist(weights, Loss):
     test_values = zfit.Data.from_tensor(obs=obs, tensor=test_values, weights=weights)
     init_yield = test_values_np.shape[0] * 1.2
     scale = zfit.Parameter("yield", init_yield, 0, init_yield * 4, step_size=1)
-    binning = zfit.binned.RegularBinning(32, obs.lower[0], obs.upper[0], name="obs1")
+    binning = zfit.binned.RegularBinning(32, obs.v1.lower, obs.v1.upper, name="obs1")
     obs_binned = obs.with_binning(binning)
     test_values_binned = test_values.to_binned(obs_binned)
     h = test_values_binned.to_hist()

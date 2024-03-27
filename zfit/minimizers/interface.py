@@ -36,7 +36,7 @@ class ZfitResult:
                 {'minuit_minos'} or a Callable.
 
         Returns:
-            A ``OrderedDict`` containing as keys the parameter names and as value a ``dict`` which
+            A ``dict`` containing as keys the parameter names and as value a ``dict`` which
                 contains (next to probably more things) two keys 'lower' and 'upper',
                 holding the calculated errors.
                 Example: result['par1']['upper'] -> the asymmetric upper error of 'par1'

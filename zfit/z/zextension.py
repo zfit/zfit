@@ -18,7 +18,7 @@ import tensorflow as tf
 
 import zfit.z.numpy as znp
 
-from ..settings import ztypes
+from ..settings import run, ztypes
 from ..util.exception import BreakingAPIChangeError
 from ..util.warnings import warn_advanced_feature
 
@@ -32,11 +32,11 @@ pi = np.float64(_mt.pi)
 
 
 def to_complex(number, dtype=ztypes.complex):
-    return tf.cast(number, dtype=dtype)
+    return znp.asarray(number, dtype=dtype)
 
 
 def to_real(x, dtype=ztypes.float):
-    return znp.asarray(tf.cast(x, dtype=dtype))
+    return znp.asarray(x, dtype=dtype)
 
 
 def abs_square(x):
@@ -143,7 +143,7 @@ def run_no_nan(func, x):
     value_with_nans = func(x=x)
     if value_with_nans.dtype in (tf.complex128, tf.complex64):
         value_with_nans = znp.real(value_with_nans) + znp.imag(value_with_nans)  # we care only about NaN or not
-    finite_bools = znp.isfinite(tf.cast(value_with_nans, dtype=tf.float64))
+    finite_bools = znp.isfinite(znp.asarray(value_with_nans, dtype=tf.float64))
     finite_indices = tf.where(finite_bools)
     new_x = tf.gather_nd(params=x, indices=finite_indices)
     new_x = Data.from_tensor(obs=x.obs, tensor=new_x)
@@ -250,7 +250,7 @@ class FunctionWrapperRegistry:
         from ..util.cache import FunctionCacheHolder
 
         def concrete_func(*args, **kwargs):
-            if not self.do_jit or func in self.currently_traced:
+            if not self.do_jit or func in self.currently_traced or not run.executing_eagerly():
                 return func(*args, **kwargs)
 
             self.currently_traced.add(func)

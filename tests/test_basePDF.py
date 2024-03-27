@@ -56,13 +56,13 @@ def TmpGaussian():
 
     class TmpGaussian(zfit.pdf.BasePDF):
         def __init__(
-            self,
-            obs,
-            mu,
-            sigma,
-            dtype: type = zfit.ztypes.float,
-            name: str = "BasePDF",
-            **kwargs,
+                self,
+                obs,
+                mu,
+                sigma,
+                dtype: type = zfit.ztypes.float,
+                name: str = "BasePDF",
+                **kwargs,
         ):
             params = {"mu": mu, "sigma": sigma}
             super().__init__(obs, params, dtype, name, **kwargs)
@@ -74,7 +74,7 @@ def TmpGaussian():
 
             from zfit import z
 
-            return z.exp((-((x - mu) ** 2)) / (2 * sigma**2))  # non-normalized gaussian
+            return z.exp((-((x - mu) ** 2)) / (2 * sigma ** 2))  # non-normalized gaussian
 
     return TmpGaussian
 
@@ -82,26 +82,26 @@ def TmpGaussian():
 def true_gaussian_unnorm_func(x):
     import numpy as np
 
-    return np.exp(-((x - mu_true) ** 2) / (2 * sigma_true**2))
+    return np.exp(-((x - mu_true) ** 2) / (2 * sigma_true ** 2))
 
 
 def true_gaussian_grad(x):
     import numpy as np
 
     grad_mu = (
-        -0.199471140200716
-        * (2 * mu_true - 2 * x)
-        * np.exp(-((-mu_true + x) ** 2) / (2 * sigma_true**2))
-        / sigma_true**3
+            -0.199471140200716
+            * (2 * mu_true - 2 * x)
+            * np.exp(-((-mu_true + x) ** 2) / (2 * sigma_true ** 2))
+            / sigma_true ** 3
     )
     grad_sigma = (
-        -0.398942280401433
-        * np.exp(-((-mu_true + x) ** 2) / (2 * sigma_true**2))
-        / sigma_true**2
-        + 0.398942280401433
-        * (-mu_true + x) ** 2
-        * np.exp(-((-mu_true + x) ** 2) / (2 * sigma_true**2))
-        / sigma_true**4
+            -0.398942280401433
+            * np.exp(-((-mu_true + x) ** 2) / (2 * sigma_true ** 2))
+            / sigma_true ** 2
+            + 0.398942280401433
+            * (-mu_true + x) ** 2
+            * np.exp(-((-mu_true + x) ** 2) / (2 * sigma_true ** 2))
+            / sigma_true ** 4
     )
     return np.array((grad_mu, grad_sigma)).transpose()
 
@@ -212,15 +212,14 @@ def test_normalization(obs1, pdf_factory):
 
     import zfit
     from zfit import z
+    import zfit.z.numpy as znp
 
     test_yield = 1524.3
     dist = pdf_factory()
-    samples = tf.cast(
-        np.random.uniform(low=low, high=high, size=100000), dtype=tf.float64
-    )
-    small_samples = tf.cast(
-        np.random.uniform(low=low, high=high, size=10), dtype=tf.float64
-    )
+    samples = znp.random.uniform(low=low, high=high, size=(100000,))
+
+    small_samples = znp.random.uniform(low=low, high=high, size=(10,))
+
     with dist.set_norm_range(zfit.Space(obs1, limits=(low, high))):
         probs = dist.pdf(samples)
         probs_small = dist.pdf(small_samples)
@@ -316,20 +315,18 @@ def test_analytic_sampling(obs1):
     from zfit.core.space import ANY_UPPER
 
     SampleGauss.register_analytic_integral(
-        func=lambda limits, params, model: 2 * limits.upper[0][0],
+        func=lambda limits, params, model: 2 * limits.v1.upper[0],
         limits=zfit.Space(limits=(-float("inf"), ANY_UPPER), axes=(0,)),
     )  # DUMMY!
-    SampleGauss.register_inverse_analytic_integral(func=lambda x, params: x + 1000.0)
+    SampleGauss.register_inverse_analytic_integral(func=lambda x, params: x)
 
     mu, sigma = create_mu_sigma_true_params()
     gauss1 = SampleGauss(obs=obs1, mu=mu, sigma=sigma)
     sample = gauss1.sample(n=10000, limits=(2.0, 5.0))
-    sample.set_data_range((1002, 1005))
 
-    sample = sample.numpy()
 
-    assert 1004.0 <= min(sample[0])
-    assert 10010.0 >= max(sample[0])
+    assert 4.0 <= min(sample['obs1'])
+    assert 10.0 >= max(sample['obs1'])
 
 
 def test_multiple_limits(obs1):
@@ -407,37 +404,38 @@ def test_projection_pdf(test_values):
     import numpy as np
 
     import zfit
+    # zfit.run.set_graph_mode(False)
     import zfit.z.numpy as znp
 
-    x = zfit.Space("x", limits=(-1, 1))
-    y = zfit.Space("y", limits=(-1, 1))
+    x = zfit.Space("x", -1, 1)
+    y = zfit.Space("y", -1, 1)
 
     def correlated_func(self, x):
         x, y = x.unstack_x()
-        value = ((x - y**3) ** 2) + 0.1
+        value = ((x - y ** 3) ** 2) + 0.1
         return value
 
     def correlated_func_integrate_x(y, limits):
-        lower, upper = limits.rect_limits
+        lower, upper = limits.v1.limits
 
         def integ(x, y):
-            return 0.333333333333333 * x**3 - 1.0 * x**2 * y**3 + x * (1.0 * y**6 + 0.1)
+            return 0.333333333333333 * x ** 3 - 1.0 * x ** 2 * y ** 3 + x * (1.0 * y ** 6 + 0.1)
 
         return integ(y, upper) - integ(y, lower)
 
     def correlated_func_integrate_y(x, limits):
-        lower, upper = limits.rect_limits
+        lower, upper = limits.v1.limits
 
         def integ(x, y):
-            return -0.5 * x * y**4 + 0.142857142857143 * y**7 + y * (1.0 * x**2 + 0.1)
+            return -0.5 * x * y ** 4 + 0.142857142857143 * y ** 7 + y * (1.0 * x ** 2 + 0.1)
 
-        return (integ(x, upper) - integ(x, lower))[0]
+        return (integ(x, upper) - integ(x, lower))
 
     obs = x * y
     from zfit.models.special import SimplePDF
 
     gauss_xy = SimplePDF(func=correlated_func, obs=obs)
-    assert gauss_xy.create_projection_pdf(limits=y).norm_range == x
+    assert gauss_xy.create_projection_pdf(limits=y).norm == x
     proj_pdf = gauss_xy.create_projection_pdf(limits=y)
     test_values = znp.array(
         [

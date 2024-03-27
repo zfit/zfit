@@ -69,8 +69,7 @@ class CachedPDF(BaseFunctor, SerializableMixin):
             norm: |@doc:model.init.norm| The normalization of the PDF. |@docend:model.init.norm|
             name: |@doc:model.init.name| Human-readable name
                or label of
-               the PDF for better identification.
-               Has no programmatical functional purpose as identification. |@docend:model.init.name|
+               the PDF for better identification. |@docend:model.init.name|
         """
         obs = pdf.space
         hs3_init = {
@@ -157,7 +156,7 @@ class CachedPDF(BaseFunctor, SerializableMixin):
     def _integrate(self, limits, norm, options=None):
         if self._cached_integral_limits is None:
             self._cached_integral_limits = tf.Variable(
-                tf.stack(limits.limits) + 19.0,  # to make sure it's not the same
+                tf.stack(limits.v1.limits) + 19.0,  # to make sure it's not the same
                 trainable=False,
                 validate_shape=False,
                 dtype=ztypes.float,
@@ -171,7 +170,7 @@ class CachedPDF(BaseFunctor, SerializableMixin):
                 dtype=ztypes.float,
             )
 
-        stacked_integral_limits = tf.stack(limits.limits)
+        stacked_integral_limits = tf.stack(limits.v1.limits)
         limits_same = tf.math.reduce_all(
             znp.abs(stacked_integral_limits - self._cached_integral_limits) < self._cache_tolerance
         )

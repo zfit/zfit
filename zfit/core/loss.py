@@ -87,8 +87,8 @@ def _unbinned_nll_tf(
         nll_finished = nlls_summed
     else:
         if fit_range is not None:
-            with data.set_data_range(fit_range):
-                probs = model.pdf(data, norm_range=fit_range)
+            data = data.with_obs(fit_range)
+            probs = model.pdf(data, norm_range=fit_range)
         else:
             probs = model.pdf(data)
         log_probs = znp.log(probs + znp.asarray(1e-307, dtype=znp.float64))  # minor offset to avoid NaNs from log(0)
@@ -197,10 +197,25 @@ class BaseLoss(ZfitLoss, BaseNumeric):
             constraints = []
         self._constraints = _constraint_check_convert(convert_to_container(constraints, list))
 
-        self._is_precompiled = False
+        self.is_precompiled = False
+        self._precompiled_hashes = []
 
         # not ideal, should be in parametrized. But we don't have too many base classes, so this should work
         self._assert_params_unique()
+
+    @property
+    def is_precompiled(self):
+        for data, h in zip(self.data, self._precompiled_hashes):
+            if data.hashint != h:
+                self.is_precompiled = False
+                break
+        return self._is_precompiled
+
+    @is_precompiled.setter
+    def is_precompiled(self, value):
+        self._is_precompiled = value
+        if value:
+            self._precompiled_hashes = [data.hashint for data in self.data]
 
     def _check_init_options(self, options, data):
         try:
@@ -313,30 +328,35 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         self.add_cache_deps(cache_deps=data)
         return pdf, data, fit_range
 
-    def _precompile(self):
-        if do_subtr := self._options.get("subtr_const", False):
-            if do_subtr is not True:
-                self._options["subtr_const_value"] = do_subtr
-            log_offset = self._options.get("subtr_const_value")
-            if log_offset is None:
-                from zfit import run
+    def check_precompile(self, *, params=None, force=False):
+        from zfit import run
 
-                run.assert_executing_eagerly()  # first time subtr
-                nevents_tot = znp.sum([d._approx_nevents for d in self.data])
-                log_offset_sum = (
-                    self._call_value(
-                        data=self.data,
-                        model=self.model,
-                        fit_range=self.fit_range,
-                        constraints=self.constraints,
-                        # presumably were not at the minimum,
-                        # so the loss will decrease
-                        log_offset=z.convert_to_tensor(0.0),
+        if (not run.executing_eagerly()) or (self.is_precompiled and not force):
+            return params, False
+        with self._check_set_input_params(params, guarantee_checked=False) as checked_params:
+            if do_subtr := self._options.get("subtr_const", False):
+                if do_subtr is not True:
+                    self._options["subtr_const_value"] = do_subtr
+                log_offset = self._options.get("subtr_const_value")
+                if log_offset is None:
+                    run.assert_executing_eagerly()  # first time subtr
+                    nevents_tot = znp.sum([d._approx_nevents for d in self.data])
+                    log_offset_sum = (
+                        self._call_value(
+                            data=self.data,
+                            model=self.model,
+                            fit_range=self.fit_range,
+                            constraints=self.constraints,
+                            # presumably were not at the minimum,
+                            # so the loss will decrease
+                            log_offset=z.convert_to_tensor(0.0),
+                        )
+                        - 10000.0
                     )
-                    - 10000.0
-                )
-                log_offset = tf.stop_gradient(-znp.divide(log_offset_sum, nevents_tot))
-                self._options["subtr_const_value"] = log_offset
+                    log_offset = tf.stop_gradient(-znp.divide(log_offset_sum, nevents_tot))
+                    self._options["subtr_const_value"] = log_offset
+        self.is_precompiled = True
+        return checked_params, True
 
     def _check_convert_model_data(self, model, data, fit_range):
         model, data = tuple(convert_to_container(obj) for obj in (model, data))
@@ -457,12 +477,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         Returns:
             Calculated loss value as a scalar.
         """
-        params_checked = False
-        if not self._is_precompiled:
-            with self._check_set_input_params(params) as params:
-                params_checked = True
-                self._precompile()
-            self._is_precompiled = True
+        params, checked = self.check_precompile(params=params)
         if full is None:
             full = DEFAULT_FULL_ARG
         log_offset = 0.0 if full else self._options.get("subtr_const_value")
@@ -471,7 +486,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
             log_offset = z.convert_to_tensor(log_offset)
 
         # log_offset = z.convert_to_tensor(log_offset)
-        with self._check_set_input_params(params, guarantee_checked=params_checked):
+        with self._check_set_input_params(params, guarantee_checked=checked):
             return self._call_value(self.model, self.data, self.fit_range, self.constraints, log_offset)
 
     def _call_value(self, model, data, fit_range, constraints, log_offset):
@@ -541,13 +556,8 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         params = self._input_check_params(params)
         numgrad = self._options["numgrad"] if numgrad is None else numgrad
         params = {p.name: p for p in params}
-        params_checked = False
-        if not self._is_precompiled:
-            with self._check_set_input_params(paramvals) as paramvals:
-                self._precompile()
-            self._is_precompiled = True
-            params_checked = True
-        with self._check_set_input_params(paramvals, guarantee_checked=params_checked):
+        paramvals, checked = self.check_precompile(params=paramvals)
+        with self._check_set_input_params(paramvals, guarantee_checked=checked):
             return self._gradient(params=params, numgrad=numgrad)
 
     def gradients(self, *_, **__):
@@ -601,14 +611,8 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         params = {p.name: p for p in params}
         if full is None:
             full = DEFAULT_FULL_ARG
-
-        params_checked = False
-        if not self._is_precompiled:
-            with self._check_set_input_params(paramvals) as paramvals:
-                self._precompile()
-            self._is_precompiled = True
-            params_checked = True
-        with self._check_set_input_params(paramvals, guarantee_checked=params_checked):
+        paramvals, checked = self.check_precompile(params=paramvals)
+        with self._check_set_input_params(paramvals, guarantee_checked=checked):
             return self._value_gradient(params=params, numgrad=numgrad, full=full)
 
     def value_gradients(self, *_, **__):
@@ -649,14 +653,9 @@ class BaseLoss(ZfitLoss, BaseNumeric):
                Default will fall back to what the loss is set to. |@docend:loss.args.numgrad|
         """
         params = self._input_check_params(params)
-        numgrad = self._options["numhess"] if numgrad is None else numgrad
-        params_checked = False
-        if not self._is_precompiled:
-            with self._check_set_input_params(paramvals) as paramvals:
-                self._precompile()
-            self._is_precompiled = True
-            params_checked = True
-        with self._check_set_input_params(paramvals, guarantee_checked=params_checked):
+        numgrad = self._options["numgrad"] if numgrad is None else numgrad
+        paramvals, checked = self.check_precompile(params=paramvals)
+        with self._check_set_input_params(paramvals, guarantee_checked=checked):
             return self.value_gradient_hessian(params=params, hessian=hessian, full=False, numgrad=numgrad)[2]
 
     def value_gradient_hessian(
@@ -698,14 +697,9 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         params = {p.name: p for p in params}
         if full is None:
             full = DEFAULT_FULL_ARG
-        params_checked = False
-        if not self._is_precompiled:
-            with self._check_set_input_params(paramvals) as paramvals:
-                self._precompile()
 
-            self._is_precompiled = True
-            params_checked = True
-        with self._check_set_input_params(paramvals, guarantee_checked=params_checked):
+        paramvals, checked = self.check_precompile(params=paramvals)
+        with self._check_set_input_params(paramvals, guarantee_checked=checked):
             vals = self._value_gradient_hessian(params=params, hessian=hessian, numerical=numgrad, full=full)
 
         return vals[0], z.convert_to_tensor(vals[1]), vals[2]
@@ -1067,7 +1061,7 @@ class ExtendedUnbinnedNLL(BaseUnbinnedNLL):
                 msg = f"The pdf {mod} is not extended but has to be (for an extended fit)"
                 raise NotExtendedPDFError(msg)
             nevents = dat.n_events if dat.weights is None else z.reduce_sum(dat.weights)
-            nevents = tf.cast(nevents, tf.float64)
+            nevents = znp.asarray(nevents, tf.float64)
             nevents_collected.append(nevents)
             yields.append(mod.get_yield())
         yields = znp.stack(yields, axis=0)

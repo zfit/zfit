@@ -1,3 +1,5 @@
+#  Copyright (c) 2024 zfit
+
 import numpy as np
 import pytest
 
@@ -30,14 +32,21 @@ class TestPDF(zfit.pdf.BaseFunctor):
 
 
 def test_cached_pdf_equals_pdf_without_cache():
+
     mu = zfit.Parameter("mu", 1.0, -5, 5)
     sigma = zfit.Parameter("sigma", 1, 0, 10)
     obs = zfit.Space("x", limits=[-5.0, 5.0])
     gauss = zfit.pdf.Gauss(mu=mu, sigma=sigma, obs=obs)
     cached_gauss = CachedPDF(gauss)
     x = znp.linspace(-5, 5, 500)
-
-    assert tf.math.reduce_all(tf.equal(gauss.pdf(x), cached_gauss.pdf(x)))
+    xhashed = zfit.data.Data.from_numpy(obs=obs, array=x, use_hash=True)
+    assert xhashed.hashint is not None
+    xunhashed = zfit.data.Data.from_numpy(obs=obs, array=x, use_hash=False)
+    assert xunhashed.hashint is None
+    assert tf.math.reduce_all(tf.equal(gauss.pdf(xhashed), cached_gauss.pdf(xhashed)))
+    # hash not yet used inside cached pdf
+    # with pytest.raises(ValueError):
+    #     _ = gauss.pdf(xunhashed)
 
 
 def test_pdf_cache_is_used():

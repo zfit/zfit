@@ -15,7 +15,6 @@ import contextlib
 import itertools
 import math
 import warnings
-from collections import OrderedDict
 from collections.abc import Callable, Iterable, Mapping
 
 import colored
@@ -1228,7 +1227,7 @@ class FitResult(ZfitResult):
         method: str | Callable | None = None,
         error_name: str | None = None,
         sigma: float = 1.0,
-    ) -> OrderedDict:
+    ) -> dict:
         r""".. deprecated:: unknown Use :func:`errors` instead.
 
         Args:
@@ -1245,7 +1244,7 @@ class FitResult(ZfitResult):
 
 
         Returns:
-            A `OrderedDict` containing as keys the parameter names and as value a `dict` which
+            A `dict` containing as keys the parameter names and as value a `dict` which
                 contains (next to probably more things) two keys 'lower' and 'upper',
                 holding the calculated errors.
                 Example: result['par1']['upper'] -> the asymmetric upper error of 'par1'
@@ -1270,7 +1269,7 @@ class FitResult(ZfitResult):
         cl: float | None = None,
         sigma=None,
         error_name: str | None = None,
-    ) -> tuple[OrderedDict, None | FitResult]:
+    ) -> tuple[dict, None | FitResult]:
         r"""Calculate and set for `params` the asymmetric error using the set error method.
 
         Args:
@@ -1287,7 +1286,7 @@ class FitResult(ZfitResult):
 
 
         Returns:
-            A `OrderedDict` containing as keys the parameter and as value a `dict` which
+            A `dict` containing as keys the parameter and as value a `dict` which
                 contains (next to often more things) two keys 'lower' and 'upper',
                 holding the calculated errors. Furthermore, it has `cl` to indicate the convidence level
                 the uncertainty was calculated with.

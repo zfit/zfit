@@ -5,6 +5,8 @@ import numpy as np
 import pytest
 import tensorflow as tf
 
+import zfit
+
 
 @pytest.fixture
 def hist1():
@@ -186,3 +188,31 @@ def test_variance():
     data = zfit.data.BinnedData.from_tensor(obs, values=values, variances=True)
     data2 = zfit.data.BinnedData.from_tensor(obs, values=values, variances=values**0.5)
     np.testing.assert_allclose(data.variances(), data2.variances())
+
+
+def test_binneddata_with_variance_method():
+    bins1 = 51
+    bins2 = 55
+    bins3 = 64
+    size = (bins1, bins2, bins3)
+    sample = np.random.uniform(100, 10000, size=size)
+    variance = np.random.uniform(100, 10000, size=size)
+    variance2 = np.random.uniform(100, 10000, size=size)
+
+    space1 = zfit.Space('obs1', limits=(-100, 100), binning=bins1)
+    space2 = zfit.Space('obs2', limits=(-200, 100), binning=bins2)
+    space3 = zfit.Space('obs3', limits=(-150, 350), binning=bins3)
+    obs = space1 * space2 * space3
+
+    data = zfit.data.BinnedData.from_tensor(space=obs, values=sample, variances=variance)
+    assert data.variances() is not None
+    np.testing.assert_allclose(data.variances(), variance)
+    data2 = data.with_variances(variance2)
+    np.testing.assert_allclose(data2.variances(), variance2)
+    data3 = data2.with_variances(None)
+    assert data3.variances() is None
+    data4 = data3.with_variances(variance)
+    np.testing.assert_allclose(data4.variances(), variance)
+    data4obs = data4.with_obs(obs=space2 * space1 * space3)
+    assert data4obs.space == space2 * space1 * space3
+    np.testing.assert_allclose(data4obs.values(), np.moveaxis(sample, [0, 1, 2], [1, 0, 2]))

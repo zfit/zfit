@@ -18,11 +18,12 @@ from typing import Literal, Optional
 import pydantic
 import tensorflow as tf
 
+import zfit.data
 import zfit.z.numpy as znp
 
 from .. import z
 from ..core.basepdf import BasePDF
-from ..core.interfaces import ZfitData, ZfitPDF
+from ..core.interfaces import ZfitData, ZfitPDF, ZfitSpace
 from ..core.serialmixin import SerializableMixin
 from ..core.space import supports
 from ..models.basefunctor import FunctorMixin, extract_daughter_input_obs
@@ -94,10 +95,9 @@ class SumPDF(BaseFunctor, SerializableMixin):  # TODO: add extended argument
                 - len(frac) == len(basic) - 1 results in the interpretation of a non-extended pdf.
                   The last coefficient will equal to 1 - sum(frac)
                 - len(frac) == len(pdf): the fracs will be used as is and no normalization attempt is taken.
-            name: |@doc:pdf.init.name| Human-readable name
-               or label of
-               the PDF for better identification.
-               Has no programmatical functional purpose as identification. |@docend:pdf.init.name|
+            name: |@doc:pdf.init.name| Name of the PDF.
+               Maybe has implications on the serialization and deserialization of the PDF.
+               For a human-readable name, use the label. |@docend:pdf.init.name|
 
         Raises
             ModelIncompatibleError: If model is incompatible.
@@ -273,6 +273,7 @@ class SumPDFRepr(FunctorPDFRepr):
 
     @pydantic.root_validator(pre=True)
     def validate_all_sumpdf(cls, values):
+        # todo: remove?
         # if cls.orm_mode(values):
         #     init = values["hs3"].original_init
         #     values = dict(values)
@@ -319,6 +320,11 @@ class ProductPDF(BaseFunctor, SerializableMixin):
         super().__init__(pdfs=pdfs, obs=obs, name=name, extended=extended, norm=norm)
         self.hs3.original_init.update(original_init)
 
+        # check if the pdfs have overlapping observables and separate them
+        # the ones without overlapping observables can be integrated and sampled separately
+        # the ones with overlapping observables need to be integrated together
+        # Therefore, the overlapping ones are put into a separate ProductPDF, meaning we end up with
+        # product pdfs that have either all overlapping or all disjoint observables.
         same_obs_pdfs = []
         disjoint_obs_pdfs = []
         same_obs = Counter([ob for pdf in self.pdfs for ob in pdf.obs])
@@ -338,9 +344,9 @@ class ProductPDF(BaseFunctor, SerializableMixin):
             self._prod_is_same_obs_pdf = False
             self._prod_disjoint_obs_pdfs = disjoint_obs_pdfs
             assert set(disjoint_obs_pdfs) == set(self.pdfs)
-        else:
+        else:  # we need this third category, that means we cannot do any tricks as all are overlapping
             self._prod_is_same_obs_pdf = True
-            self._prod_disjoint_obs_pdfs = None
+            self._prod_disjoint_obs_pdfs = None  # cannot add self here as it would be a circular reference
 
     def _unnormalized_pdf(self, x: ztyping.XType):
         probs = [pdf.pdf(x, norm=False) for pdf in self.pdfs]
@@ -407,6 +413,17 @@ class ProductPDF(BaseFunctor, SerializableMixin):
                 values.append(pdf.pdf(x, norm_range=norm))
         values = functools.reduce(operator.mul, values)
         return z.convert_to_tensor(values)
+
+    @supports(multiple_limits=True)
+    def _sample(self, n, limits: ZfitSpace):
+        if self._prod_is_same_obs_pdf:
+            raise SpecificFunctionNotImplemented
+        pdfs = self._prod_disjoint_obs_pdfs
+        samples = [pdf.sample(n=n, limits=limits.with_obs(pdf.obs)) for pdf in pdfs]
+        # samples = [sample.value() if isinstance(sample, ZfitData) else sample for sample in samples]
+        for sample in samples:
+            assert isinstance(sample, ZfitData), "Sample must be a ZfitData"
+        return zfit.data.concat(samples, axis=1).value()
 
 
 class ProductPDFRepr(FunctorPDFRepr):

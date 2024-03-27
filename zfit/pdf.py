@@ -9,13 +9,17 @@ __all__ = [
     "CrystalBall",
     "DoubleCB",
     "GeneralizedCB",
+    "GaussExpTail",
+    "GeneralizedGaussExpTail",
     "Gauss",
     "Uniform",
     "TruncatedGauss",
     "WrapDistribution",
     "Cauchy",
     "Poisson",
+    "QGauss",
     "ChiSquared",
+    "StudentT",
     "Chebyshev",
     "Legendre",
     "Chebyshev2",
@@ -58,6 +62,8 @@ from .models.dist_tfp import (
     Gauss,
     LogNormal,
     Poisson,
+    QGauss,
+    StudentT,
     TruncatedGauss,
     Uniform,
     WrapDistribution,
@@ -74,7 +80,13 @@ from .models.kde import (
     KDE1DimISJ,
 )
 from .models.morphing import SplineMorphingPDF
-from .models.physics import CrystalBall, DoubleCB, GeneralizedCB
+from .models.physics import (
+    CrystalBall,
+    DoubleCB,
+    GaussExpTail,
+    GeneralizedCB,
+    GeneralizedGaussExpTail,
+)
 from .models.polynomials import (
     Chebyshev,
     Chebyshev2,

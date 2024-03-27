@@ -25,9 +25,9 @@ class CustomPDF(zfit.pdf.ZPDF):
         return x_new**2 + y_new**2 + z_new**2
 
 
-xobs = zfit.Space("xobs", (-4, 4))
-yobs = zfit.Space("yobs", (-3, 3))
-zobs = zfit.Space("z", (-2, 2))
+xobs = zfit.Space("xobs", -4, 4)
+yobs = zfit.Space("yobs", -3, 3)
+zobs = zfit.Space("z", -2, 2)
 obs = xobs * yobs * zobs
 
 alpha = zfit.Parameter("alpha", 0.2)  # floating

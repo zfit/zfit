@@ -7,35 +7,61 @@ Changelog
 Develop
 ========================
 
+Complete overhaul of zfit with a focus on performance, stability and usability.
+
 Major Features and Improvements
 -------------------------------
+- ``Space`` and limits have a complete overhaul in front of them, in short, these overcomplicated objects get simplified and the limits become more usable, in terms of dimensions. The full discussion and changes can be `found here <https://github.com/zfit/zfit/discussions/533>`_ .
+- add an unbinned ``Sampler`` to the public namespace under ``zfit.data.Sampler``: this object is returned in the ``create_sampler`` method and allows to resample from a function without recreating the compiled function, i.e. loss. It has an additional method ``update_data`` to update the data without recompiling the loss and can be created from a sample only. Useful to have a custom dataset in toys.
 - allow to use pandas DataFrame as input where zfit Data objects are expected
 - Parameter behavior has changed, multiple parameters with the same name can now coexist!
   The ``NameAlreadyTakenError`` has been successfully removed (yay!). The new behavior only enforces that
-  names and matching parameters *within a function/PDF/loss* are unique, as otherwise inconsistent expectations appear (for a lengthy discussion on this, see [here](https://github.com/zfit/zfit/discussions/342).
+  names and matching parameters *within a function/PDF/loss* are unique, as otherwise inconsistent expectations appear (for the full discussion on this, see `here <https://github.com/zfit/zfit/discussions/342>`_).
 - Python 3.12 support
-- add ``GeneralizedCB` PDF which is similar to the ``DoubleCB`` PDF but with different standard deviations for the left and right side.
+- add ``GeneralizedCB`` PDF which is similar to the ``DoubleCB`` PDF but with different standard deviations for the left and right side.
 - Added functor for PDF caching ``CachedPDF``: ``pdf``, ``integrate`` PDF methods can be cacheable now
 - add ``faddeeva_humlicek`` function under the ``zfit.z.numpy`` namespace. This is an implementation of the Faddeeva function, combining Humlicek's rational approximations according to Humlicek (JQSRT, 1979) and Humlicek (JQSRT, 1982).
 - add ``Voigt`` profile PDF which is a convolution of a Gaussian and a Cauchy distribution.
 - add ``TruncatedPDF`` that allows to truncate in one or multiple ranges (replaces "MultipleLimits" and "MultiSpace")
 - add ``LogNormal`` PDF, a log-normal distribution, which is a normal distribution of the logarithm of the variable.
-- add ``ChiSquared`` PDF, the standard chi2 distribution, taken from [https://www.tensorflow.org/probability/api_docs/python/tfp/distributions/Chi2](tensorflow-probability implementation).
+- add ``ChiSquared`` PDF, the standard chi2 distribution, taken from `tensorflow-probability implementation <https://www.tensorflow.org/probability/api_docs/python/tfp/distributions/Chi2>`_.
+- add ``StudentT`` PDF, the standard Student's t distribution, taken from `tensorflow-probability implementation <https://www.tensorflow.org/probability/api_docs/python/tfp/distributions/StudentT>`_.
+- add ``GaussExpTail`` and ``GeneralizedGaussExpTail`` PDFs, which are a Gaussian with an exponential tail on one side and a Gaussian with different sigmas on each side and different exponential tails on each side respectively.
+- add ``QGauss`` PDF, a distribution that arises from the maximization of the Tsallis entropy under appropriate constraints, see `here <https://en.wikipedia.org/wiki/Q-Gaussian_distribution>`_.
+- ``Data`` has now a ``with_weights`` method that returns a new data object with different weights and an improved ``with_obs`` that allows to set obs with new limits. These replace the ``set_weights`` and ``set_data_range`` methods for a more functional approach.
+- add ``label`` to different objects (PDF, Data, etc.) that allows to give a human-readable name to the object. This is used in the plotting and can be used to identify objects.
+  Notably, Parameters have a label that can be arbitrary. ``Space`` has one label for each observable if the space is a product of spaces. ``Space.label`` is a string and only possible for one-dimensional spaces, while ``Space.labels`` is a list of strings and can be used for any, one- or multi-dimensional spaces.
+- add ``zfit.data.concat(...)`` to concatenate multiple data objects into one along the index or along the observables. Similar to ``pd.concat``.
+
+
 
 
 Breaking changes
 ------------------
-- ``NameAlreadyTakenError`` was removed, see above for the new behavior.
+This release contains multiple "breaking changes", however, the vast majority if not all apply only for edge cases and undocummented functions.
+
+- ``Data.from_root``: deprecated arguments ``branches`` and ``branch_aliases`` have been removed. Use ``obs`` and ``obs_aliases`` instead.
+- ``NameAlreadyTakenError`` was removed, see above for the new behavior. This should not have an effect on any existing code *except if you relied on the error being thrown*.
+- Data objects had an intrinsic, TensorFlow V1 legacy behavior: they were actually cut when the data was *retrieved*. This is now changed and the data is cut when it is created. This should not have any impact on existing code and just improve runtime and memory usage.
+- Partial integration used to use some broadcasting tricks that could potentially fail. It uses now a dynamic while loop that _could_ be slower but works for arbitrary PDFs. This should not have any impact on existing code and just improve stability (but technically, the data given to the PDF _if doing partial integration_ is now "different", in the sense that it's now not different anymore from any other call)
+- if a ``tf.Variable`` was used to store the number of sampled values in a sampler, it was possible to change the value of that variable to change the number of samples drawn. This is now not possible anymore and the number of samples should be given as an argument ``n`` to the ``resample`` method, as was possible since a long time.
+
 
 Deprecations
 -------------
 - ``result.fminfull`` is deprecated and will be removed in the future. Use ``result.fmin`` instead.
+- ``Data.set_data_range`` is deprecated and will be removed in the future. Use ``with_range`` instead.
+- ``Space`` has many deprecated methods, such as ``rect_limits`` and quite a few more. The full discussion can be found `here <https://github.com/zfit/zfit/discussions/533>`_.
 
 Bug fixes and small changes
 ---------------------------
+- complete overhaul of partial integration that used some broadcasting tricks that could potentially fail. It uses now a dynamic while loop that _could_ be slower but works for arbitrary PDFs and no problems should be encountered anymore.
 - ``result.fmin`` now returns the full likelihood, while ``result.fminopt`` returns the optimized likelihood with potential constant subtraction. The latter is mostly used by the minimizer and other libraries. This behavior is consistent with the behavior of other methods in the loss that return by default the full, unoptimized value.
 - serialization only allowed for one specific limit (space) of each obs. Multiple, independent
   limits can now be serialized.
+- Increased numerical stability: this was compromised due to some involuntary float32 conversions in TF. This has been fixed.
+- improved hashing and precompilation in loss, works now safely also with samplers.
+- seed setting is by default completely randomized. This is a change from the previous behavior where the seed was set to a more deterministic value. Use seeds only for reproducibility and not for real randomness, as some strange correlations between seeds have been observed. To guarantee full randomness, just call ``zfit.run.set_seed()`` without arguments.
 
 Experimental
 ------------

@@ -78,7 +78,7 @@ def limits_overlap(spaces: ztyping.SpaceOrSpacesTypeInput, allow_exact_match: bo
             index = space.obs.index(obs)
 
             for spa in space:
-                lower, upper = spa.rect_limits  # TODO: new space
+                lower, upper = spa.v0.limits  # TODO: new space
                 low = lower[:, index]
                 up = upper[:, index]
 

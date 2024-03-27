@@ -18,7 +18,6 @@ import contextlib
 import inspect
 import math
 import warnings
-from collections import OrderedDict
 from collections.abc import Callable
 from contextlib import suppress
 
@@ -50,7 +49,7 @@ from ..util.exception import (
 from . import integration as zintegrate
 from . import sample as zsample
 from .baseobject import BaseNumeric
-from .data import Data, SampleData, Sampler, convert_to_data
+from .data import Data, SamplerData, convert_to_data
 from .dependents import _extract_dependencies
 from .dimension import BaseDimensional
 from .interfaces import ZfitData, ZfitModel, ZfitParameter, ZfitSpace
@@ -237,11 +236,13 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         else:
             x = convert_to_data(x, obs=self.obs)
             if x.obs is not None:
-                with x.sort_by_obs(obs=self.obs, allow_superset=True):
-                    yield x
+                x = x.with_obs(self.obs)
+                # with x.sort_by_obs(obs=self.obs, allow_superset=True):
+                yield x
             elif x.axes is not None:
-                with x.sort_by_axes(axes=self.axes):
-                    yield x
+                x = x.with_axes(self.space.axes)
+                # with x.sort_by_axes(axes=self.axes):
+                yield x
             else:
                 msg = "Neither the `obs` nor the `axes` are specified in `Data`"
                 raise AssertionError(msg)
@@ -974,6 +975,12 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
     def _auto_numeric_integrate(self, func, limits, x=None, options=None, **overwrite_options):
         if options is None:
             options = {}
+        norm_option = overwrite_options.pop("norm", None)
+        assert (norm_option) in (
+            None,
+            False,
+        ), f"norm should be None or False, should be caught, is {norm_option}"
+
         is_binned = options.get("type") == "bins"
         vectorizable = is_binned
         draws_per_dim = self.integration.draws_per_dim
@@ -1026,8 +1033,9 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         *,
         params: ztyping.ParamTypeInput = None,  # noqa: ARG002
         # todo: deprecate `fixed_params` in favor of `params`, change logic (dict?), needs cleanup to be merged with new Sampler
-    ) -> Sampler:
-        """Create a :py:class:`Sampler` that acts as `Data` but can be resampled, also with changed parameters and n.
+    ) -> SamplerData:
+        """Create a :py:class:`SamplerData` that acts as `Data` but can be resampled, also with changed parameters and
+        n.
 
             If `limits` is not specified, `space` is used (if the space contains limits).
             If `n` is None and the model is an extended pdf, 'extended' is used by default.
@@ -1044,7 +1052,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
                 If True, all are fixed, if False, all are floating. If a :py:class:`~zfit.Parameter` is not fixed and
                 its
                 value gets updated (e.g. by a `Parameter.set_value()` call), this will be reflected in
-                `resample`. If fixed, the Parameter will still have the same value as the `Sampler` has
+                `resample`. If fixed, the Parameter will still have the same value as the `SamplerData` has
                 been created with when it resamples.
             params: |@doc:model.args.params| Mapping of the parameter names to the actual
                values. The parameter names refer to the names of the parameters,
@@ -1053,7 +1061,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
                parametrization. |@docend:model.args.params|
 
         Returns:
-            :py:class:`~zfit.core.data.Sampler`
+            :py:class:`~zfit.core.data.SamplerData`
 
         Raises:
             NotExtendedPDFError: if 'extended' is chosen (implicitly by default or explicitly) as an
@@ -1074,7 +1082,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
                 raise ValueError(msg)
 
         if fixed_params is True:
-            fixed_params = list(self.get_cache_deps(only_floating=False))
+            fixed_params = list(self.get_params(floating=None, is_yield=None))
         elif fixed_params is False:
             fixed_params = []
         elif not isinstance(fixed_params, (list, tuple)):
@@ -1086,12 +1094,13 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
                 n = znp.array(n)
             return self._create_sampler_tensor(limits=limits, n=n)
 
-        return Sampler.from_sample(
+        return SamplerData.from_sampler(
             sample_func=sample_func,
             n=n,
             obs=limits,
             fixed_params=fixed_params,
             dtype=self.dtype,
+            guarantee_limits=True,
         )
 
     @z.function(wraps="sampler")
@@ -1109,7 +1118,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         x: ztyping.DataInputType | None = None,
         *,
         params: ztyping.ParamTypeInput = None,
-    ) -> SampleData:  # TODO: change poissonian top-level with multinomial
+    ) -> Data:  # TODO: change poissonian top-level with multinomial
         """Sample `n` points within `limits` from the model.
 
         If `limits` is not specified, `space` is used (if the space contains limits).
@@ -1123,7 +1132,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             limits: In which region to sample in
 
         Returns:
-            SampleData(n_obs, n_samples)
+            Data(n_obs, n_samples)
 
         Raises:
             NotExtendedPDFError: if 'extended' is (implicitly by default or explicitly) chosen as an
@@ -1135,7 +1144,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             n = None
         if n is not None:
             n = tf.convert_to_tensor(n)
-            n = tf.cast(n, dtype=tf.int32)
+            n = znp.asarray(n, dtype=tf.int32)
 
         limits = self._check_input_limits(limits=limits)
         if not limits.limits_are_set:
@@ -1145,12 +1154,13 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
                 raise tf.errors.InvalidArgumentError(msg)
         limits = self._check_input_limits(limits=limits, none_is_error=True)
 
-        def run_tf(n, limits, x):
-            return self._single_hook_sample(n=n, limits=limits, x=x)
+        def run_tf(n, limits, x):  # todo: add params
+            return self._single_hook_sample(n=n, limits=limits, x=x)  # todo: make data a composite object
 
         with self._convert_sort_x(x, allow_none=True) as x, self._check_set_input_params(params=params):
             new_obs = limits * x.data_range if x is not None else limits
-            return SampleData.from_sample(sample=run_tf(n=n, limits=limits, x=x), obs=new_obs)  # TODO: which limits?
+            tensor = run_tf(n=n, limits=limits, x=x)
+            return Data.from_tensor(tensor=tensor, obs=new_obs)  # TODO: which limits?
 
     @z.function(wraps="sample")
     def _single_hook_sample(self, n, limits, x=None):
@@ -1196,7 +1206,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
     def _analytic_sample(self, n, limits: ZfitSpace):  # TODO(Mayou36) implement multiple limits sampling
         if not self._inverse_analytic_integral:
             raise AnalyticSamplingNotImplemented  # TODO(Mayou36): create proper analytic sampling
-        if limits.n_limits > 1:
+        if limits._depr_n_limits > 1:
             raise AnalyticSamplingNotImplemented
         try:
             lower_bound, upper_bound = limits.rect_limits_np
@@ -1265,7 +1275,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         sorted = builtins.sorted
         # nice name change end
 
-        additional_repr = OrderedDict()
+        additional_repr = {}
         for key, val in self._additional_repr.items():
             try:
                 new_obj = getattr(self, val)
@@ -1281,7 +1291,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
                     new_obj = new_obj()
             additional_repr[key] = new_obj
         if sorted_:
-            additional_repr = OrderedDict(sorted(additional_repr))
+            additional_repr = dict(sorted(additional_repr))
         return additional_repr
 
     def __repr__(self):  # TODO(mayou36):repr to baseobject with _repr
@@ -1344,7 +1354,7 @@ class SimpleModelSubclassMixin:
 
     def __init__(self, *args, **kwargs):
         try:
-            params = OrderedDict((name, kwargs.pop(name)) for name in self._PARAMS)
+            params = {name: kwargs.pop(name) for name in self._PARAMS}
         except KeyError as error:
             msg = (
                 f"The following parameters are not given (as keyword arguments): {[k for k in self._PARAMS if k not in kwargs]}"

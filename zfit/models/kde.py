@@ -73,7 +73,7 @@ def bandwidth_rule_of_thumb(
     """
     if factor is None:
         factor = tf.constant(0.9)
-    return min_std_or_iqr(data, weights) * tf.cast(tf.shape(data)[0], ztypes.float) ** (-1 / 5.0) * factor
+    return min_std_or_iqr(data, weights) * znp.asarray(tf.shape(data)[0], ztypes.float) ** (-1 / 5.0) * factor
 
 
 @z.function(wraps="tensor", keepalive=True)
@@ -222,7 +222,7 @@ def bandwidth_adaptive_geomV1(data, func, weights):
         Estimated bandwidth of size data
     """
     data = z.convert_to_tensor(data)
-    n = znp.sum(weights) if weights is not None else tf.cast(tf.shape(data)[0], ztypes.float)
+    n = znp.sum(weights) if weights is not None else znp.asarray(tf.shape(data)[0], ztypes.float)
     probs = func(data)
     lambda_i = 1 / znp.sqrt(probs / z.math.reduce_geometric_mean(probs, weights=weights))
 
@@ -347,11 +347,11 @@ def bandwidth_adaptive_stdV1(data, func, weights):
         Estimated bandwidth array of same size as data
     """
     data = z.convert_to_tensor(data)
-    n = znp.sum(weights) if weights is not None else tf.cast(tf.shape(data)[0], ztypes.float)
+    n = znp.sum(weights) if weights is not None else znp.asarray(tf.shape(data)[0], ztypes.float)
     probs = func(data)
     divisor = min_std_or_iqr(data, weights)
     bandwidth = z.sqrt(divisor / probs)
-    bandwidth *= tf.cast(n, ztypes.float) ** (-1.0 / 5.0) * 1.059
+    bandwidth *= znp.asarray(n, ztypes.float) ** (-1.0 / 5.0) * 1.059
     return bandwidth
 
 
@@ -371,7 +371,7 @@ def adaptive_factory(func, grid):
             return func(
                 data=grid,
                 func=kde_silverman.pdf,
-                weights=weights * tf.cast(tf.shape(data)[0], ztypes.float),
+                weights=weights * znp.asarray(tf.shape(data)[0], ztypes.float),
             )
 
     else:
@@ -444,7 +444,7 @@ def calc_kernel_probs(size, weights):
     if weights is not None:
         return weights / znp.sum(weights)
     else:
-        return tf.broadcast_to(1 / size, shape=(tf.cast(size, tf.int32),))
+        return tf.broadcast_to(1 / size, shape=(znp.asarray(size, tf.int32),))
 
 
 class KDEHelper:
@@ -476,7 +476,8 @@ class KDEHelper:
                 data, weights=weights, mode=padding, limits=limits, bandwidth=bandwidth
             )
         shape_data = tf.shape(data)
-        size = tf.cast(shape_data[0], ztypes.float)
+        size = znp.asarray(shape_data[0], ztypes.float)
+        data = znp.asarray(data, dtype=ztypes.float)
         return data, size, weights, bandwidth
 
     def _convert_input_bandwidth(self, bandwidth, data, **kwargs):
@@ -532,9 +533,9 @@ def padreflect_data_weights_1dim(data, mode, weights=None, limits=None, bandwidt
     if limits is None:
         minimum = znp.min(data)
         maximum = znp.max(data)
-    else:
-        minimum = znp.array(limits[0][0])
-        maximum = znp.array(limits[1][0])
+    else:  # todo: debug: check if limits are correct?
+        minimum = znp.array(limits[0])
+        maximum = znp.array(limits[1])
 
     diff = maximum - minimum
     new_data = []
@@ -699,10 +700,9 @@ class GaussianKDE1DimV1(KDEHelper, WrapDistribution):
                ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
             norm: |@doc:pdf.init.norm| Normalization of the PDF.
                By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
-            name: |@doc:pdf.init.name| Human-readable name
-               or label of
-               the PDF for better identification.
-               Has no programmatical functional purpose as identification. |@docend:pdf.init.name|
+            name: |@doc:pdf.init.name| Name of the PDF.
+               Maybe has implications on the serialization and deserialization of the PDF.
+               For a human-readable name, use the label. |@docend:pdf.init.name|
             extended: |@doc:pdf.init.extended| The overall yield of the PDF.
                If this is parameter-like, it will be used as the yield,
                the expected number of events, and the PDF will be extended.
@@ -748,8 +748,8 @@ class GaussianKDE1DimV1(KDEHelper, WrapDistribution):
                 return tfp.distributions.TruncatedNormal(
                     loc=self._data,
                     scale=self._bandwidth,
-                    low=self.space.rect_lower,
-                    high=self.space.rect_upper,
+                    low=self.space.v1.lower,
+                    high=self.space.v1.upper,
                 )
 
         else:
@@ -929,8 +929,7 @@ class KDE1DimExact(KDEHelper, WrapDistribution, SerializableMixin):
                By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
             name: |@doc:model.init.name| Human-readable name
                or label of
-               the PDF for better identification.
-               Has no programmatical functional purpose as identification. |@docend:model.init.name|
+               the PDF for better identification. |@docend:model.init.name|
             extended: |@doc:pdf.init.extended| The overall yield of the PDF.
                If this is parameter-like, it will be used as the yield,
                the expected number of events, and the PDF will be extended.
@@ -959,7 +958,7 @@ class KDE1DimExact(KDEHelper, WrapDistribution, SerializableMixin):
                 raise ValueError(msg)
             obs = data.space
         data, size, weights, bandwidth = self._convert_init_data_weights_size(
-            data, weights, padding=padding, limits=obs.limits, bandwidth=bandwidth
+            data, weights, padding=padding, limits=obs.v1.limits, bandwidth=bandwidth
         )
         self._padding = padding
         bandwidth, bandwidth_param = self._convert_input_bandwidth(
@@ -1188,8 +1187,7 @@ class KDE1DimGrid(KDEHelper, WrapDistribution, SerializableMixin):
                By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
             name: |@doc:model.init.name| Human-readable name
                or label of
-               the PDF for better identification.
-               Has no programmatical functional purpose as identification. |@docend:model.init.name|
+               the PDF for better identification. |@docend:model.init.name|
             extended: |@doc:model.init.extended| Whether the PDF is extended
                 or not. If True, the PDF can be integrated over the full space
                 and the integral will be 1. If False, the integral will be the
@@ -1234,7 +1232,7 @@ class KDE1DimGrid(KDEHelper, WrapDistribution, SerializableMixin):
                 raise ValueError(msg)
             obs = data.space
         data, size, weights, _ = self._convert_init_data_weights_size(
-            data, weights, padding=padding, limits=obs.limits, bandwidth=bandwidth
+            data, weights, padding=padding, limits=obs.v1.limits, bandwidth=bandwidth
         )
         self._padding = padding
 
@@ -1244,7 +1242,7 @@ class KDE1DimGrid(KDEHelper, WrapDistribution, SerializableMixin):
             return tfd.Independent(kernel(loc=loc, scale=scale))
 
         if num_grid_points is not None:
-            num_grid_points = tf.minimum(tf.cast(size, ztypes.int), tf.cast(num_grid_points, ztypes.int))
+            num_grid_points = tf.minimum(znp.asarray(size, ztypes.int), znp.asarray(num_grid_points, ztypes.int))
         self._num_grid_points = num_grid_points
         self._binning_method = binning_method
         self._data = data
@@ -1482,8 +1480,7 @@ class KDE1DimFFT(KDEHelper, BasePDF, SerializableMixin):
                By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
             name: |@doc:model.init.name| Human-readable name
                or label of
-               the PDF for better identification.
-               Has no programmatical functional purpose as identification. |@docend:model.init.name|
+               the PDF for better identification. |@docend:model.init.name|
             extended: |@doc:model.init.extended||@docend:model.init.extended|
         """
         original_init = {
@@ -1519,7 +1516,7 @@ class KDE1DimFFT(KDEHelper, BasePDF, SerializableMixin):
                 raise ValueError(msg)
             obs = data.space
         data, size, weights, _ = self._convert_init_data_weights_size(
-            data, weights, padding=padding, limits=obs.limits, bandwidth=bandwidth
+            data, weights, padding=padding, limits=obs.v1.limits, bandwidth=bandwidth
         )
         self._padding = padding
 
@@ -1534,7 +1531,7 @@ class KDE1DimFFT(KDEHelper, BasePDF, SerializableMixin):
             obs=obs,
             weights=weights,
         )
-        num_grid_points = tf.minimum(tf.cast(size, ztypes.int), tf.constant(num_grid_points, ztypes.int))
+        num_grid_points = tf.minimum(znp.asarray(size, ztypes.int), tf.constant(num_grid_points, ztypes.int))
         check_bw_grid_shapes(bandwidth, n_grid=num_grid_points)
         self._num_grid_points = num_grid_points
         self._binning_method = binning_method
@@ -1548,7 +1545,7 @@ class KDE1DimFFT(KDEHelper, BasePDF, SerializableMixin):
         self._kernel = kernel
         self._weights = weights
         if support is None:
-            area = znp.reshape(self.space.area(), ())
+            area = znp.reshape(self.space.volume, ())
             if area is not None:
                 support = area * 1.2
         self._support = support
@@ -1726,8 +1723,7 @@ class KDE1DimISJ(KDEHelper, BasePDF, SerializableMixin):
                By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
             name: |@doc:model.init.name| Human-readable name
                or label of
-               the PDF for better identification.
-               Has no programmatical functional purpose as identification. |@docend:model.init.name|
+               the PDF for better identification. |@docend:model.init.name|
             extended: |@doc:pdf.init.extended| The overall yield of the PDF.
                If this is parameter-like, it will be used as the yield,
                the expected number of events, and the PDF will be extended.
@@ -1757,11 +1753,11 @@ class KDE1DimISJ(KDEHelper, BasePDF, SerializableMixin):
                 raise ValueError(msg)
             obs = data.space
         data, size, weights, _ = self._convert_init_data_weights_size(
-            data, weights, padding=padding, limits=obs.limits, bandwidth=None
+            data, weights, padding=padding, limits=obs.v1.limits, bandwidth=None
         )
         self._padding = padding
 
-        num_grid_points = tf.minimum(tf.cast(size, ztypes.int), tf.constant(num_grid_points, ztypes.int))
+        num_grid_points = tf.minimum(znp.asarray(size, ztypes.int), tf.constant(num_grid_points, ztypes.int))
         self._num_grid_points = num_grid_points
         self._binning_method = binning_method
         self._data = tf.convert_to_tensor(data, ztypes.float)

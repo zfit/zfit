@@ -1,10 +1,11 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 import numpy as np
 import pytest
 import tensorflow as tf
 
 import zfit
 from zfit import Space, z
+import zfit.z.numpy as znp
 from zfit.core.space import Limit
 from zfit.util.exception import AnalyticSamplingNotImplemented
 
@@ -146,10 +147,7 @@ def test_sampling_fixed(gauss_factory):
     gauss, mu, sigma = gauss_factory()
 
     n_draws = 1000
-    n_draws_param = tf.Variable(
-        initial_value=n_draws, trainable=False, dtype=tf.int64, name="n_draws"
-    )  # variable to have something changeable, predictable
-    sample_tensor = gauss.create_sampler(n=n_draws_param, limits=(low, high))
+    sample_tensor = gauss.create_sampler(n=n_draws, limits=(low, high))
     sample_tensor.resample()
     sampled_from_gauss1 = sample_tensor.numpy()
     assert max(sampled_from_gauss1[:, 0]) <= high
@@ -157,12 +155,10 @@ def test_sampling_fixed(gauss_factory):
     assert n_draws == len(sampled_from_gauss1[:, 0])
 
     new_n_draws = 867
-    n_draws_param.assign(new_n_draws)
-    sample_tensor.resample()
+    sample_tensor.resample(n=new_n_draws)
     sampled_from_gauss1_small = sample_tensor.numpy()
     assert new_n_draws == len(sampled_from_gauss1_small[:, 0])
     assert not np.allclose(sampled_from_gauss1[:new_n_draws], sampled_from_gauss1_small)
-    n_draws_param.assign(n_draws)
 
     gauss_full_sample = gauss.create_sampler(
         n=10000, limits=(mu_true - abs(sigma_true) * 3, mu_true + abs(sigma_true) * 3)
@@ -294,7 +290,7 @@ def test_importance_sampling(n):
         @z.function
         def __call__(self, n_to_produce, limits, dtype):
             importance_sampling_called[0] = True
-            n_to_produce = tf.cast(n_to_produce, dtype=tf.int32)
+            n_to_produce = znp.asarray(n_to_produce, dtype=tf.int32)
             gaussian_sample = gauss_sampler.sample(
                 n=n_to_produce, limits=limits
             ).value()
@@ -338,7 +334,7 @@ def test_importance_sampling_uniform():
 
             import tensorflow_probability.python.distributions as tfd
 
-            n_to_produce = tf.cast(n_to_produce, dtype=tf.int32)
+            n_to_produce = znp.asarray(n_to_produce, dtype=tf.int32)
             gaussian = tfd.TruncatedNormal(
                 loc=z.constant(-1.0), scale=z.constant(2.0), low=low, high=high
             )

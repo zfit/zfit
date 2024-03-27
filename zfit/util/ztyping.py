@@ -19,6 +19,7 @@ import tensorflow as tf
 
 # space
 from ordered_set import OrderedSet
+from tensorflow.python.types.core import TensorLike
 
 # The #: symbols at the end of every type alias are for marking the module level variables
 # as documented, such that sphinx will document them.
@@ -50,7 +51,9 @@ LimitsTypeSimpleInput = Union[Tuple[float, float], bool]  #:
 LimitsTypeInput = Union[Tuple[Tuple[Tuple[float, ...]]], Tuple[float, float], bool]  #:
 LimitsTypeReturn = Union[Tuple[Tuple[Tuple[float, ...]], Tuple[Tuple[float, ...]]], None, bool]  #:
 
+NumericalType = Union[int, float, np.ndarray, TensorLike]  #:
 LimitsTypeInput = Union["zfit.core.interfaces.ZfitLimit", RectLimitsInputType, bool, None]  #:
+LimitsTypeInputV1 = Union[Iterable[NumericalType], NumericalType, bool, None]  #:
 LimitsFuncTypeInput = Union[LimitsTypeInput, Callable]  #:
 LimitsTypeReturn = Union[Tuple[np.ndarray, np.ndarray], None, bool]  #:
 
@@ -88,6 +91,7 @@ ModelsInputType = Union["zfit.core.interfaces.ZfitModel", Iterable["zfit.core.in
 
 PDFInputType = Union["zfit.core.interfaces.ZfitPDF", Iterable["zfit.core.interfaces.ZfitPDF"]]  #:
 BinnedPDFInputType = Union["zfit.core.interfaces.ZfitBinnedPDF", Iterable["zfit.core.interfaces.ZfitBinnedPDF"]]  #:
+BinnedHistPDFInputType = Union[BinnedPDFInputType, PlottableHistogram, Iterable[PlottableHistogram]]  #:
 
 FuncInputType = Union["zfit.core.interfaces.ZfitFunc", Iterable["zfit.core.interfaces.ZfitFunc"]]  #:
 
@@ -129,7 +133,6 @@ CacherOrCachersType = Union[
     Iterable["zfit.core.interfaces.ZfitGraphCachable"],
 ]  #:
 
-OrderedDict = Dict
 
 LimitsDictAxes = Dict[Tuple[int], "zfit.core.interfaces.ZfitLimit"]  #:
 LimitsDictObs = Dict[Tuple[str], "zfit.core.interfaces.ZfitLimit"]  #:

@@ -6,9 +6,9 @@ import numpy as np
 import zfit
 
 # create space
-xobs = zfit.Space("xobs", (-4, 4))
-yobs = zfit.Space("yobs", (-3, 5))
-zobs = zfit.Space("z", (-2, 4))
+xobs = zfit.Space("xobs", -4, 4)
+yobs = zfit.Space("yobs", -3, 5)
+zobs = zfit.Space("z", -2, 4)
 obs = xobs * yobs * zobs
 
 # parameters
@@ -34,7 +34,10 @@ data_raw = zfit.Data.from_numpy(obs=obs, array=normal_np)  # or from anywhere el
 df = data_raw.to_pandas()
 # preprocessing here, rename things. Match column names with the observable names "xobs", "yobs", "z" (they have to be
 # contained, more columns in the df is not a problem)
-data = zfit.Data.from_pandas(df, obs=obs)
+
+data = df  # we can directly use the dataframe
+# data = normal_np  # or the numpy array
+# data = zfit.Data.from_pandas(df, obs=obs)  # or create another zfit data object
 
 # create NLL
 nll = zfit.loss.UnbinnedNLL(model=product_gauss, data=data)

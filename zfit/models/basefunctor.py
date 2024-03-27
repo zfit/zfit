@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from collections import OrderedDict
 from collections.abc import Iterable
 from typing import Optional
 
@@ -243,7 +242,7 @@ def _preprocess_init_sum(fracs, obs, pdfs):
 
         fracs_cleaned = None
         param_fracs = yield_fracs
-    params = OrderedDict()
+    params = {}
     for i, frac in enumerate(param_fracs):
         params[f"frac_{i}"] = frac
     return (

@@ -187,10 +187,10 @@ class FFTConvPDFV1(BaseFunctor, SerializableMixin):
         if limits_func is None:
             limits_func = func.space
         limits_func = self._check_input_limits(limits=limits_func)
-        if limits_func.n_limits == 0:
+        if limits_func._depr_n_limits == 0:
             msg = "obs have to have limits to define where to integrate over."
             raise exception.LimitsNotSpecifiedError(msg)
-        if limits_func.n_limits > 1:
+        if limits_func._depr_n_limits > 1:
             msg = "Multiple Limits not implemented"
             raise WorkInProgressError(msg)
 
@@ -199,10 +199,10 @@ class FFTConvPDFV1(BaseFunctor, SerializableMixin):
             limits_kernel = kernel.space
         limits_kernel = self._check_input_limits(limits=limits_kernel)
 
-        if limits_kernel.n_limits == 0:
+        if limits_kernel._depr_n_limits == 0:
             msg = "obs have to have limits to define where to integrate over."
             raise exception.LimitsNotSpecifiedError(msg)
-        if limits_kernel.n_limits > 1:
+        if limits_kernel._depr_n_limits > 1:
             msg = "Multiple Limits not implemented"
             raise WorkInProgressError(msg)
 
@@ -230,13 +230,13 @@ class FFTConvPDFV1(BaseFunctor, SerializableMixin):
         if not n % 2:
             n += 1  # make it odd to have a unique shifting when using "same" in the convolution
 
-        lower_func, upper_func = limits_func.rect_limits
-        lower_kernel, upper_kernel = limits_kernel.rect_limits
+        lower_func, upper_func = limits_func.v0.limits
+        lower_kernel, upper_kernel = limits_kernel.v0.limits
         lower_sample = lower_func + lower_kernel
-        upper_sample = upper_func + upper_kernel
+        upper_sample = upper_func + upper_kernel  # todo: debug, check shapes of limits
 
         # TODO: what if kernel area is larger?
-        if limits_kernel.rect_area() > limits_func.rect_area():
+        if limits_kernel.volume > limits_func.volume:
             msg = (
                 "Currently, only kernels that are smaller than the func are supported."
                 "Simply switch the two should resolve the problem."
@@ -246,7 +246,7 @@ class FFTConvPDFV1(BaseFunctor, SerializableMixin):
         # get the finest resolution. Find the dimensions with the largest kernel-space to func-space ratio
         # We take the binwidth of the kernel as the overall binwidth and need to have the same binning in
         # the function as well
-        area_ratios = (upper_sample - lower_sample) / (limits_kernel.rect_upper - limits_kernel.rect_lower)
+        area_ratios = (upper_sample - lower_sample) / (limits_kernel.v0.upper - limits_kernel.v0.lower)
         nbins_func_exact_max = znp.max(area_ratios * n)
         nbins_func = znp.ceil(nbins_func_exact_max)  # plus one and floor is like ceiling (we want more bins) with the
         # guarantee that we add one bin (e.g. if we hit exactly the boundaries, we add one.
@@ -255,7 +255,7 @@ class FFTConvPDFV1(BaseFunctor, SerializableMixin):
         # TODO: below needed if we try to estimate the number of points
         # tf.assert_less(
         #     n - 1,  # so that for three dimension it's 999'999, not 10^6
-        #     tf.cast(1e6, tf.int32),
+        #     znp.asarray(1e6, tf.int32),
         #     message="Number of points automatically calculated to be used for the FFT"
         #     " based convolution exceeds 1e6. If you want to use this number - "
         #     "or an even higher value - use explicitly the `n` argument.",
@@ -284,11 +284,11 @@ class FFTConvPDFV1(BaseFunctor, SerializableMixin):
     def _unnormalized_pdf(self, x):
         lower_func, upper_func = self._conv_limits["func"]
         nbins_func = self._conv_limits["nbins_func"]
-        x_funcs = tf.linspace(lower_func, upper_func, tf.cast(nbins_func, tf.int32))
+        x_funcs = tf.linspace(lower_func, upper_func, znp.asarray(nbins_func, tf.int32))
 
         lower_kernel, upper_kernel = self._conv_limits["kernel"]
         nbins_kernel = self._conv_limits["nbins_kernel"]
-        x_kernels = tf.linspace(lower_kernel, upper_kernel, tf.cast(nbins_kernel, tf.int32))
+        x_kernels = tf.linspace(lower_kernel, upper_kernel, znp.asarray(nbins_kernel, tf.int32))
 
         x_func = tf.meshgrid(*tf.unstack(x_funcs, axis=-1), indexing="ij")
         x_func = znp.transpose(x_func)
@@ -442,8 +442,8 @@ class AddingSampleAndWeights:
 
     def __call__(self, n_to_produce: int | tf.Tensor, limits, dtype):
         del dtype
-        kernel_lower, kernel_upper = self.kernel.space.rect_limits
-        sample_lower, sample_upper = limits.rect_limits
+        kernel_lower, kernel_upper = self.kernel.space.v0.limits
+        sample_lower, sample_upper = limits.v0.limits
 
         sample_ext_lower = sample_lower + kernel_lower
         sample_ext_upper = sample_upper + kernel_upper

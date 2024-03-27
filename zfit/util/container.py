@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+import numpy as np
 import pandas as pd
 
 if TYPE_CHECKING:
@@ -17,7 +18,7 @@ from uhi.typing.plottable import PlottableHistogram
 
 
 def convert_to_container(
-    value: Any, container: Callable = list, non_containers=None, convert_none=False
+    value: Any, container: Callable = list, non_containers=None, ignore=None, convert_none=False
 ) -> None | Iterable:
     """Convert `value` into a `container` storing `value` if `value` is not yet a python container.
 
@@ -31,7 +32,7 @@ def convert_to_container(
 
             By default, the following types are added to `non_containers`:
             [str, tf.Tensor, ZfitData, ZfitLoss, ZfitModel, ZfitSpace, ZfitParameter, ZfitBinnedData,
-            ZfitBinning, PlottableHistogram]
+            ZfitBinning, PlottableHistogram, pd.DataFrame, pd.Series, np.ndarray]
 
     Returns:
     """
@@ -52,11 +53,12 @@ def convert_to_container(
         raise TypeError(msg)
     if value is None and not convert_none:
         return value
-    if type(value) != container:
+    if type(value) != container and non_containers is not False:
         non_containers.extend(
             [
                 str,
                 tf.Tensor,
+                np.ndarray,
                 ZfitData,
                 ZfitLoss,
                 ZfitModel,
@@ -66,9 +68,12 @@ def convert_to_container(
                 ZfitBinning,
                 PlottableHistogram,
                 pd.DataFrame,
+                pd.Series,
             ]
         )
         non_containers = tuple(non_containers)
+        if ignore is not None and isinstance(value, ignore):
+            return value
         try:
             if isinstance(value, non_containers):
                 raise TypeError  # we can't convert, it's a non-container

@@ -628,11 +628,14 @@ class BinnedChi2(BaseBinned):
                 identifier="extended_in_BinnedChi2",
             )
 
-    def _precompile(self):
-        super()._precompile()
-        ignore_empty = self._options.get("empty") == "ignore" or self._options.get("errors") == "expected"
-        data = self.data
-        _check_small_counts_chi2(data, ignore_empty)
+    def check_precompile(self, *, params=None, force=False):
+        params, needs_compile = super().check_precompile(force=force, params=params)
+        if needs_compile:
+            ignore_empty = self._options.get("empty") == "ignore" or self._options.get("errors") == "expected"
+
+            data = self.data
+            _check_small_counts_chi2(data, ignore_empty)
+        return params, needs_compile
 
     @z.function(wraps="loss", keepalive=True)
     def _loss_func(
@@ -778,11 +781,14 @@ class ExtendedBinnedChi2(BaseBinned):
             options["errors"] = "data"
         super().__init__(model=model, data=data, constraints=constraints, options=options)
 
-    def _precompile(self):
-        super()._precompile()
-        ignore_empty = self._options.get("empty") == "ignore" or self._options.get("errors") == "expected"
-        data = self.data
-        _check_small_counts_chi2(data, ignore_empty)
+    def check_precompile(self, *, params=None, force=None):
+        params, needs_compile = super().check_precompile(params=params, force=force)
+        if needs_compile:
+            ignore_empty = self._options.get("empty") == "ignore" or self._options.get("errors") == "expected"
+
+            data = self.data
+            _check_small_counts_chi2(data, ignore_empty)
+        return params, needs_compile
 
     @z.function(wraps="loss", keepalive=True)
     def _loss_func(
