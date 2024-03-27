@@ -148,7 +148,7 @@ class BaseParametrized(BaseObject, ZfitParametrized):
     @contextlib.contextmanager
     def _check_set_input_params(self, params, guarantee_checked=None):
         if guarantee_checked is None:
-            guarantee_checked = True
+            guarantee_checked = False
         if params is not None and not isinstance(params, dict):
             msg = "`params` has to be a dictionary."
             raise TypeError(msg)
@@ -162,8 +162,7 @@ class BaseParametrized(BaseObject, ZfitParametrized):
                 toset_params = params.copy()
                 for param in all_params:
                     if (p := param) in params or (p := param.name) in params:
-                        newpars[param] = params[p]
-                        del toset_params[p]
+                        newpars[param] = toset_params.pop(p)
 
                 if toset_params:
                     msg = f"Parameters {toset_params} were not found in the parameters of {self}."

@@ -38,7 +38,6 @@ def test_unbinned_histogramPDF():
     pdfs = [unbinned_pdf, unbinned_sum]
     binned_pdfs = [pdf1, pdf_sum]
 
-    # TODO(now): now this fail?
     sample = znp.random.uniform(data.space.v1.lower, data.space.v1.upper, size=(1000, 2))
 
     for pdf, binned in zip(pdfs, binned_pdfs):
