@@ -58,7 +58,13 @@ class BaseFuncV1(BaseModel, ZfitFunc):
     def _func(self, x):
         raise SpecificFunctionNotImplemented
 
-    def func(self, x: ztyping.XType, name: str = "value") -> ztyping.XType:
+    def func(
+        self,
+        x: ztyping.XType,
+        name: str = "value",
+        *,
+        params: ztyping.ParamsTypeInput = None,
+    ) -> ztyping.XType:
         """The function evaluated at ``x``.
 
         Args:
@@ -68,7 +74,7 @@ class BaseFuncV1(BaseModel, ZfitFunc):
         Returns:
              # TODO(Mayou36): or dataset? Update: rather not, what would obs be?
         """
-        with self._convert_sort_x(x) as x:
+        with self._convert_sort_x(x) as x, self._check_set_input_params(params=params):
             return self._single_hook_value(x=x, name=name)
 
     def _single_hook_value(self, x, name):

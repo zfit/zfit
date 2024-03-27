@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, Literal, Optional, Union
 
 import pydantic
 from pydantic import Field
+from tensorflow.python.util.deprecation import deprecated
 
 from ..serialization.serializer import BaseRepr, Serializer
 from .data import convert_to_data
@@ -327,34 +328,35 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         self.add_cache_deps(cache_deps=data)
         return pdf, data, fit_range
 
-    def check_precompile(self, *, force=False):
+    def check_precompile(self, *, params=None, force=False):
         from zfit import run
 
         if (not run.executing_eagerly()) or (self.is_precompiled and not force):
-            return False
-        if do_subtr := self._options.get("subtr_const", False):
-            if do_subtr is not True:
-                self._options["subtr_const_value"] = do_subtr
-            log_offset = self._options.get("subtr_const_value")
-            if log_offset is None:
-                run.assert_executing_eagerly()  # first time subtr
-                nevents_tot = znp.sum([d._approx_nevents for d in self.data])
-                log_offset_sum = (
-                    self._call_value(
-                        data=self.data,
-                        model=self.model,
-                        fit_range=self.fit_range,
-                        constraints=self.constraints,
-                        # presumably were not at the minimum,
-                        # so the loss will decrease
-                        log_offset=z.convert_to_tensor(0.0),
+            return params, False
+        with self._check_set_input_params(params, guarantee_checked=False) as checked_params:
+            if do_subtr := self._options.get("subtr_const", False):
+                if do_subtr is not True:
+                    self._options["subtr_const_value"] = do_subtr
+                log_offset = self._options.get("subtr_const_value")
+                if log_offset is None:
+                    run.assert_executing_eagerly()  # first time subtr
+                    nevents_tot = znp.sum([d._approx_nevents for d in self.data])
+                    log_offset_sum = (
+                        self._call_value(
+                            data=self.data,
+                            model=self.model,
+                            fit_range=self.fit_range,
+                            constraints=self.constraints,
+                            # presumably were not at the minimum,
+                            # so the loss will decrease
+                            log_offset=z.convert_to_tensor(0.0),
+                        )
+                        - 10000.0
                     )
-                    - 10000.0
-                )
-                log_offset = tf.stop_gradient(-znp.divide(log_offset_sum, nevents_tot))
-                self._options["subtr_const_value"] = log_offset
+                    log_offset = tf.stop_gradient(-znp.divide(log_offset_sum, nevents_tot))
+                    self._options["subtr_const_value"] = log_offset
         self.is_precompiled = True
-        return True
+        return checked_params, True
 
     def _check_convert_model_data(self, model, data, fit_range):
         model, data = tuple(convert_to_container(obj) for obj in (model, data))
@@ -375,6 +377,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
     def _input_check_params(self, params):
         return list(self.get_params()) if params is None else convert_to_container(params)
 
+    @deprecated(None, "Use `create_new` instead and fill the constraints there.")
     def add_constraints(self, constraints):
         constraints = convert_to_container(constraints)
         return self._add_constraints(constraints)
@@ -455,10 +458,15 @@ class BaseLoss(ZfitLoss, BaseNumeric):
             with set_values(params, _x):
                 return self.value(full=True)
 
-    def value(self, *, full: bool | None = None) -> znp.ndarray:
+    def value(self, *, params: ztyping.ParamTypeInput = None, full: bool | None = None) -> znp.ndarray:
         """Calculate the loss value with the current values of the free parameters.
 
         Args:
+            params: |@doc:loss.args.params| Mapping of the parameter names to the actual
+               values. The parameter names refer to the names of the parameters,
+               typically :py:class:`~zfit.Parameter`, that is returned by
+               `get_params()`. If no params are given, the current default
+               values of the parameters are used. |@docend:loss.args.params|
             full: |@doc:loss.value.full| If True, return the full loss value, otherwise
                allow for the removal of constants and only return
                the part that depends on the parameters. Constants
@@ -469,7 +477,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         Returns:
             Calculated loss value as a scalar.
         """
-        self.check_precompile()
+        params, checked = self.check_precompile(params=params)
         if full is None:
             full = DEFAULT_FULL_ARG
         log_offset = 0.0 if full else self._options.get("subtr_const_value")
@@ -478,7 +486,8 @@ class BaseLoss(ZfitLoss, BaseNumeric):
             log_offset = z.convert_to_tensor(log_offset)
 
         # log_offset = z.convert_to_tensor(log_offset)
-        return self._call_value(self.model, self.data, self.fit_range, self.constraints, log_offset)
+        with self._check_set_input_params(params, guarantee_checked=checked):
+            return self._call_value(self.model, self.data, self.fit_range, self.constraints, log_offset)
 
     def _call_value(self, model, data, fit_range, constraints, log_offset):
         return self._value(
@@ -520,7 +529,9 @@ class BaseLoss(ZfitLoss, BaseNumeric):
             kwargs["fit_range"] = fit_range
         return type(self)(**kwargs)
 
-    def gradient(self, params: ztyping.ParamTypeInput = None, *, numgrad=None) -> list[tf.Tensor]:
+    def gradient(
+        self, params: ztyping.ParamTypeInput = None, *, numgrad=None, paramvals: ztyping.ParamTypeInput = None
+    ) -> list[tf.Tensor]:
         """Calculate the gradient of the loss with respect to the given parameters.
 
         Args:
@@ -532,6 +543,11 @@ class BaseLoss(ZfitLoss, BaseNumeric):
                be used if the automatic gradient fails (e.g. if
                the model is not differentiable, written not in znp.* etc).
                Default will fall back to what the loss is set to. |@docend:loss.args.numgrad|
+            paramvals: |@doc:loss.args.params| Mapping of the parameter names to the actual
+               values. The parameter names refer to the names of the parameters,
+               typically :py:class:`~zfit.Parameter`, that is returned by
+               `get_params()`. If no params are given, the current default
+               values of the parameters are used. |@docend:loss.args.params|
 
 
         Returns:
@@ -540,8 +556,9 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         params = self._input_check_params(params)
         numgrad = self._options["numgrad"] if numgrad is None else numgrad
         params = {p.name: p for p in params}
-        self.check_precompile()
-        return self._gradient(params=params, numgrad=numgrad)
+        paramvals, checked = self.check_precompile(params=paramvals)
+        with self._check_set_input_params(paramvals, guarantee_checked=checked):
+            return self._gradient(params=params, numgrad=numgrad)
 
     def gradients(self, *_, **__):
         msg = "`gradients` is deprecated, use `gradient` instead."
@@ -563,6 +580,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         *,
         full: bool | None = None,
         numgrad: bool | None = None,
+        paramvals: ztyping.ParamTypeInput = None,
     ) -> tuple[tf.Tensor, tf.Tensor]:
         """Calculate the loss value and the gradient with the current values of the free parameters.
 
@@ -579,6 +597,11 @@ class BaseLoss(ZfitLoss, BaseNumeric):
                be used if the automatic gradient fails (e.g. if
                the model is not differentiable, written not in znp.* etc).
                Default will fall back to what the loss is set to. |@docend:loss.args.numgrad|
+            paramvals: |@doc:loss.args.params| Mapping of the parameter names to the actual
+               values. The parameter names refer to the names of the parameters,
+               typically :py:class:`~zfit.Parameter`, that is returned by
+               `get_params()`. If no params are given, the current default
+               values of the parameters are used. |@docend:loss.args.params|
 
         Returns:
             Calculated loss value as a scalar and the gradient as a tensor.
@@ -588,8 +611,9 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         params = {p.name: p for p in params}
         if full is None:
             full = DEFAULT_FULL_ARG
-        self.check_precompile()
-        return self._value_gradient(params=params, numgrad=numgrad, full=full)
+        paramvals, checked = self.check_precompile(params=paramvals)
+        with self._check_set_input_params(paramvals, guarantee_checked=checked):
+            return self._value_gradient(params=params, numgrad=numgrad, full=full)
 
     def value_gradients(self, *_, **__):
         msg = "`value_gradients` is deprecated, use `value_gradient` instead."
@@ -613,7 +637,8 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         hessian=None,
         *,
         numgrad: bool | None = None,
-    ):
+        paramvals: ztyping.ParamTypeInput = None,
+    ) -> tf.Tensor:
         """Calculate the hessian of the loss with respect to the given parameters.
 
         Args:
@@ -629,8 +654,9 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         """
         params = self._input_check_params(params)
         numgrad = self._options["numgrad"] if numgrad is None else numgrad
-        self.check_precompile()
-        return self.value_gradient_hessian(params=params, hessian=hessian, full=False, numgrad=numgrad)[2]
+        paramvals, checked = self.check_precompile(params=paramvals)
+        with self._check_set_input_params(paramvals, guarantee_checked=checked):
+            return self.value_gradient_hessian(params=params, hessian=hessian, full=False, numgrad=numgrad)[2]
 
     def value_gradient_hessian(
         self,
@@ -639,6 +665,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         *,
         full: bool | None = None,
         numgrad=None,
+        paramvals: ztyping.ParamTypeInput = None,
     ) -> tuple[tf.Tensor, tf.Tensor, tf.Tensor]:
         """Calculate the loss value, the gradient and the hessian with the current values of the free parameters.
 
@@ -656,6 +683,11 @@ class BaseLoss(ZfitLoss, BaseNumeric):
                be used if the automatic gradient fails (e.g. if
                the model is not differentiable, written not in znp.* etc).
                Default will fall back to what the loss is set to. |@docend:loss.args.numgrad|
+            paramvals: |@doc:loss.args.params| Mapping of the parameter names to the actual
+               values. The parameter names refer to the names of the parameters,
+               typically :py:class:`~zfit.Parameter`, that is returned by
+               `get_params()`. If no params are given, the current default
+               values of the parameters are used. |@docend:loss.args.params|
 
         Returns:
             Calculated loss value as a scalar, the gradient as a tensor and the hessian as a tensor.
@@ -666,8 +698,9 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         if full is None:
             full = DEFAULT_FULL_ARG
 
-        self.check_precompile()
-        vals = self._value_gradient_hessian(params=params, hessian=hessian, numerical=numgrad, full=full)
+        paramvals, checked = self.check_precompile(params=paramvals)
+        with self._check_set_input_params(paramvals, guarantee_checked=checked):
+            vals = self._value_gradient_hessian(params=params, hessian=hessian, numerical=numgrad, full=full)
 
         return vals[0], z.convert_to_tensor(vals[1]), vals[2]
 

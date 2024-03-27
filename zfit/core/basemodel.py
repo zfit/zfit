@@ -7,7 +7,7 @@ Handle integration and sampling
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Mapping
 
 if TYPE_CHECKING:
     pass
@@ -85,6 +85,10 @@ def _BaseModel_register_check_support(has_support: bool):
         return func
 
     return register
+
+
+class ParamArgsNotImplemented(Exception):
+    pass
 
 
 class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
@@ -203,11 +207,11 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
 
     # since subclasses can be funcs of pdfs, we need to now what to sample/integrate from
     @abc.abstractmethod
-    def _func_to_integrate(self, x: ztyping.XType) -> tf.Tensor:
+    def _func_to_integrate(self, x: ztyping.XType, *, params=None) -> tf.Tensor:
         raise NotImplementedError
 
     @abc.abstractmethod
-    def _func_to_sample_from(self, x: ztyping.XType) -> Data:
+    def _func_to_sample_from(self, x: ztyping.XType, *, params=None) -> Data:
         raise NotImplementedError
 
     @property
@@ -348,7 +352,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
 
     @_BaseModel_register_check_support(True)
     @deprecated_norm_range
-    def _integrate(self, limits, norm, options=None):  # noqa: ARG002
+    def _integrate(self, limits, norm, *, options=None, params=None):  # noqa: ARG002
         raise SpecificFunctionNotImplemented
 
     @deprecated_norm_range
@@ -359,6 +363,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         norm: ztyping.LimitsType = None,
         *,
         options=None,
+        params: ztyping.ParamTypeInput = None,
         var=None,
     ) -> ztyping.XType:
         """Integrate the function over ``limits`` (normalized over ``norm_range`` if not False).
@@ -377,6 +382,11 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
                - type: one of (``bins``)
                  This hints that bins are integrated. A method that is vectorizable, non-dynamic and
                  therefore less suitable for complicated functions is chosen. |@docend:pdf.integrate.options|
+            params: |@doc:model.args.params| Mapping of the parameter names to the actual
+               values. The parameter names refer to the names of the parameters,
+               typically :py:class:`~zfit.Parameter`, that
+               the model was _initialized_ with, not the name of the models
+               parametrization. |@docend:model.args.params|
 
         Returns:
             The integral value as a scalar with shape ()
@@ -385,18 +395,18 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         limits = self._check_input_limits(limits=limits)
         if options is None:
             options = {}
-        with self._convert_sort_x(var, allow_none=True) as var:
+        with self._convert_sort_x(var, allow_none=True) as var, self._check_set_input_params(params=params):
             integral = self._single_hook_integrate(limits=limits, norm=norm, x=var, options=options)
         return znp.reshape(integral, -1)
 
-    def _single_hook_integrate(self, limits, norm, x, options):
+    def _single_hook_integrate(self, limits, norm, x, *, options):
         del x  # TODO HACK: how and what to pass through?
         return self._hook_integrate(limits=limits, norm=norm, options=options)
 
-    def _hook_integrate(self, limits, norm, options=None):
+    def _hook_integrate(self, limits, norm, *, options=None):
         return self._norm_integrate(limits=limits, norm=norm, options=options)
 
-    def _norm_integrate(self, limits, norm, options=None):
+    def _norm_integrate(self, limits, norm, *, options=None):
         try:
             integral = self._limits_integrate(limits=limits, norm=norm, options=options)
         except NormRangeNotImplemented:
@@ -405,7 +415,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             integral = unnormalized_integral / normalization
         return integral
 
-    def _limits_integrate(self, limits, norm, options=None):
+    def _limits_integrate(self, limits, norm, *, options=None):
         try:
             integral = self._call_integrate(limits=limits, norm=norm, options=options)
         except MultipleLimitsNotImplemented:
@@ -511,6 +521,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         limits: ztyping.LimitsType,
         norm: ztyping.LimitsType = None,
         *,
+        params: ztyping.ParamTypeInput = None,
         norm_range=None,
     ) -> ztyping.XType:
         """Analytical integration over function and raise Error if not possible.
@@ -520,6 +531,11 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             norm: |@doc:pdf.integrate.norm| Normalization of the integration.
                By default, this is the same as the default space of the PDF.
                ``False`` means no normalization and returns the unnormed integral. |@docend:pdf.integrate.norm|
+            params: |@doc:model.args.params| Mapping of the parameter names to the actual
+               values. The parameter names refer to the names of the parameters,
+               typically :py:class:`~zfit.Parameter`, that
+               the model was _initialized_ with, not the name of the models
+               parametrization. |@docend:model.args.params|
 
         Returns:
             The integral value
@@ -532,7 +548,8 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         del norm_range  # taken care of in the deprecation decorator
         norm = self._check_input_norm(norm)
         limits = self._check_input_limits(limits=limits)
-        return self._single_hook_analytic_integrate(limits=limits, norm=norm)
+        with self._check_set_input_params(params=params):
+            return self._single_hook_analytic_integrate(limits=limits, norm=norm)
 
     def _single_hook_analytic_integrate(self, limits, norm):
         return self._hook_analytic_integrate(limits=limits, norm=norm)
@@ -592,7 +609,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
 
     @_BaseModel_register_check_support(True)
     @deprecated_norm_range
-    def _numeric_integrate(self, limits, norm, *, norm_range=None, options=None):  # noqa: ARG002
+    def _numeric_integrate(self, limits, norm, *, params: Mapping[str, ZfitParameter], options=None):  # noqa: ARG002
         raise SpecificFunctionNotImplemented
 
     @deprecated_norm_range
@@ -602,6 +619,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         norm: ztyping.LimitsType = None,
         *,
         options=None,
+        params: ztyping.ParamTypeInput = None,
         norm_range=None,
     ) -> ztyping.XType:
         """Numerical integration over the model.
@@ -616,6 +634,11 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
                - type: one of (``bins``)
                  This hints that bins are integrated. A method that is vectorizable, non-dynamic and
                  therefore less suitable for complicated functions is chosen. |@docend:pdf.integrate.options|
+            params: |@doc:model.args.params| Mapping of the parameter names to the actual
+               values. The parameter names refer to the names of the parameters,
+               typically :py:class:`~zfit.Parameter`, that
+               the model was _initialized_ with, not the name of the models
+               parametrization. |@docend:model.args.params|
 
         Returns:
             The integral value
@@ -625,7 +648,8 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         limits = self._check_input_limits(limits=limits)
         if options is None:
             options = {}
-        return self._single_hook_numeric_integrate(limits=limits, norm=norm, options=options)
+        with self._check_set_input_params(params=params):
+            return self._single_hook_numeric_integrate(limits=limits, norm=norm, options=options)
 
     def _single_hook_numeric_integrate(self, limits, norm, options):
         return self._hook_numeric_integrate(limits=limits, norm=norm, options=options)
@@ -656,14 +680,14 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
 
     def _call_numeric_integrate(self, limits, norm, options):
         with suppress(FunctionNotImplemented):
-            return self._numeric_integrate(limits, norm, options=options)
+            return self._numeric_integrate(limits, norm, options=options, params=self.params)
         return self._fallback_numeric_integrate(limits=limits, norm=norm, options=options)
 
     def _fallback_numeric_integrate(self, limits, norm, options):
         return self._auto_numeric_integrate(func=self._func_to_integrate, limits=limits, norm=norm, options=options)
 
     @_BaseModel_register_check_support(True)
-    def _partial_integrate(self, x, limits, norm, *, options):  # noqa: ARG002
+    def _partial_integrate(self, x, limits, norm, *, params=None, options):  # noqa: ARG002
         raise SpecificFunctionNotImplemented
 
     @z.function(wraps="model")
@@ -675,6 +699,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         *,
         norm=None,
         options=None,
+        params: ztyping.ParamTypeInput = None,
         norm_range: ztyping.LimitsType = None,  # noqa: ARG002
     ) -> ztyping.XTypeReturn:
         """Partially integrate the function over the `limits` and evaluate it at `x`.
@@ -694,6 +719,11 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
                - type: one of (``bins``)
                  This hints that bins are integrated. A method that is vectorizable, non-dynamic and
                  therefore less suitable for complicated functions is chosen. |@docend:pdf.integrate.options|
+            params: |@doc:model.args.params| Mapping of the parameter names to the actual
+               values. The parameter names refer to the names of the parameters,
+               typically :py:class:`~zfit.Parameter`, that
+               the model was _initialized_ with, not the name of the models
+               parametrization. |@docend:model.args.params|
 
         Returns:
             The value of the partially integrated function evaluated at `x`.
@@ -702,7 +732,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             options = {}
         norm = self._check_input_norm(norm=norm)
         limits = self._check_input_limits(limits=limits)
-        with self._convert_sort_x(x, partial=True) as x:
+        with self._convert_sort_x(x, partial=True) as x, self._check_set_input_params(params=params):
             return self._single_hook_partial_integrate(x=x, limits=limits, norm=norm, options=options)
 
     def _single_hook_partial_integrate(self, x, limits, norm, *, options):
@@ -762,7 +792,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
 
     @_BaseModel_register_check_support(True)
     @deprecated_norm_range
-    def _partial_analytic_integrate(self, x, limits, norm, *, norm_range=None):  # noqa: ARG002
+    def _partial_analytic_integrate(self, x, limits, norm, *, params=None, norm_range=None):  # noqa: ARG002
         raise SpecificFunctionNotImplemented
 
     @z.function(wraps="model")
@@ -773,6 +803,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         limits: ztyping.LimitsType,
         norm: ztyping.LimitsType = None,
         *,
+        params: ztyping.ParamTypeInput = None,
         norm_range=None,
     ) -> ztyping.XTypeReturn:
         """Do analytical partial integration of the function over the `limits` and evaluate it at `x`.
@@ -787,6 +818,11 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             norm: |@doc:pdf.integrate.norm| Normalization of the integration.
                By default, this is the same as the default space of the PDF.
                ``False`` means no normalization and returns the unnormed integral. |@docend:pdf.integrate.norm|
+            params: |@doc:model.args.params| Mapping of the parameter names to the actual
+               values. The parameter names refer to the names of the parameters,
+               typically :py:class:`~zfit.Parameter`, that
+               the model was _initialized_ with, not the name of the models
+               parametrization. |@docend:model.args.params|
 
         Returns:
             The value of the partially integrated function evaluated at `x`.
@@ -800,7 +836,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         del norm_range  # taken care of in the deprecation decorator
         norm = self._check_input_norm(norm=norm)
         limits = self._check_input_limits(limits=limits)
-        with self._convert_sort_x(x, partial=True) as x:
+        with self._convert_sort_x(x, partial=True) as x, self._check_set_input_params(params=params):
             return self._single_hook_partial_analytic_integrate(x=x, limits=limits, norm=norm)
 
     def _single_hook_partial_analytic_integrate(self, x, limits, norm):
@@ -871,6 +907,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         limits: ztyping.LimitsType,
         norm: ztyping.LimitsType = None,
         *,
+        params: ztyping.ParamTypeInput = None,
         norm_range=None,
     ) -> ztyping.XType:
         """Force numerical partial integration of the function over the `limits` and evaluate it at `x`.
@@ -885,6 +922,11 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             norm: |@doc:pdf.integrate.norm| Normalization of the integration.
                By default, this is the same as the default space of the PDF.
                ``False`` means no normalization and returns the unnormed integral. |@docend:pdf.integrate.norm|
+            params: |@doc:model.args.params| Mapping of the parameter names to the actual
+               values. The parameter names refer to the names of the parameters,
+               typically :py:class:`~zfit.Parameter`, that
+               the model was _initialized_ with, not the name of the models
+               parametrization. |@docend:model.args.params|
 
         Returns:
             The value of the partially integrated function evaluated at `x`.
@@ -892,7 +934,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         del norm_range  # taken care of in the deprecation decorator
         norm = self._check_input_norm(norm)
         limits = self._check_input_limits(limits=limits)
-        with self._convert_sort_x(x, partial=True) as x:
+        with self._convert_sort_x(x, partial=True) as x, self._check_set_input_params(params=params):
             return self._single_hook_partial_numeric_integrate(x=x, limits=limits, norm=norm)
 
     def _single_hook_partial_numeric_integrate(self, x, limits, norm):
@@ -988,6 +1030,9 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         n: ztyping.nSamplingTypeIn = None,
         limits: ztyping.LimitsType = None,
         fixed_params: bool | list[ZfitParameter] | tuple[ZfitParameter] = True,
+        *,
+        params: ztyping.ParamTypeInput = None,  # noqa: ARG002
+        # todo: deprecate `fixed_params` in favor of `params`, change logic (dict?), needs cleanup to be merged with new Sampler
     ) -> SamplerData:
         """Create a :py:class:`SamplerData` that acts as `Data` but can be resampled, also with changed parameters and
         n.
@@ -1009,6 +1054,11 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
                 value gets updated (e.g. by a `Parameter.set_value()` call), this will be reflected in
                 `resample`. If fixed, the Parameter will still have the same value as the `SamplerData` has
                 been created with when it resamples.
+            params: |@doc:model.args.params| Mapping of the parameter names to the actual
+               values. The parameter names refer to the names of the parameters,
+               typically :py:class:`~zfit.Parameter`, that
+               the model was _initialized_ with, not the name of the models
+               parametrization. |@docend:model.args.params|
 
         Returns:
             :py:class:`~zfit.core.data.SamplerData`
@@ -1058,7 +1108,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         return self._single_hook_sample(n=n, limits=limits, x=None)
 
     @_BaseModel_register_check_support(True)
-    def _sample(self, n, limits: ZfitSpace):  # noqa: ARG002
+    def _sample(self, n, limits: ZfitSpace, *, params=None):  # noqa: ARG002
         raise SpecificFunctionNotImplemented
 
     def sample(
@@ -1066,6 +1116,8 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         n: ztyping.nSamplingTypeIn = None,
         limits: ztyping.LimitsType = None,
         x: ztyping.DataInputType | None = None,
+        *,
+        params: ztyping.ParamTypeInput = None,
     ) -> Data:  # TODO: change poissonian top-level with multinomial
         """Sample `n` points within `limits` from the model.
 
@@ -1105,7 +1157,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         def run_tf(n, limits, x):  # todo: add params
             return self._single_hook_sample(n=n, limits=limits, x=x)  # todo: make data a composite object
 
-        with self._convert_sort_x(x, allow_none=True) as x:
+        with self._convert_sort_x(x, allow_none=True) as x, self._check_set_input_params(params=params):
             new_obs = limits * x.data_range if x is not None else limits
             tensor = run_tf(n=n, limits=limits, x=x)
             return Data.from_tensor(tensor=tensor, obs=new_obs)  # TODO: which limits?
@@ -1116,10 +1168,6 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         return self._hook_sample(n=n, limits=limits)
 
     def _hook_sample(self, limits, n):
-        return self._norm_sample(n=n, limits=limits)
-
-    def _norm_sample(self, n, limits):
-        """Dummy function."""
         return self._limits_sample(n=n, limits=limits)
 
     def _limits_sample(self, n, limits):
