@@ -851,8 +851,8 @@ class BifurGauss(WrapDistribution, SerializableMixin):
         .. math::
 
             f(x \\mid \\mu, \\sigma_{L}, \\sigma_{R}) = \\begin{cases}
-            A \\exp{\\left(-\\frac{(x - \\mu)^2}{2 \\sigma_{L}^2}\\right)}, \\mbox{for} x < \\mu \\newline
-            A \\exp{\\left(-\\frac{(x - \\mu)^2}{2 \\sigma_{R}^2}\\right)}, \\mbox{for} x \\geq \\mu
+            A \\exp{\\left(-\\frac{(x - \\mu)^2}{2 \\sigma_{L}^2}\\right)}, & \\mbox{for } x < \\mu \\newline
+            A \\exp{\\left(-\\frac{(x - \\mu)^2}{2 \\sigma_{R}^2}\\right)}, & \\mbox{for } x \\geq \\mu
             \\end{cases}
 
         with the normalization over [-inf, inf] of
