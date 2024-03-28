@@ -243,6 +243,18 @@ def lognormal(extended=None, **kwargs):
     obs = zfit.Space("obs", positive_limits)
     return zfit.pdf.LogNormal(mu=mu, sigma=sigma, obs=obs, extended=extended)
 
+
+def bifurgauss(extended=None, **kwargs):
+    import zfit
+
+    mu = zfit.Parameter("mu_bifurgauss", 0.1, -1, 1)
+    sigmaL = zfit.Parameter("sigmaL_bifurgauss", 0.1, 0, 1)
+    sigmaR = zfit.Parameter("sigmaR_bifurgauss", 0.1, 0, 1)
+    obs = zfit.Space("obs", default_limits)
+    return zfit.pdf.BifurGauss(
+        mu=mu, sigmaL=sigmaL, sigmaR=sigmaR, obs=obs, extended=extended
+    )
+
 def qgauss(extended=None, **kwargs):
     import zfit
 
@@ -403,6 +415,7 @@ def kde1disj(pdfs=None, extended=None, **kwargs):
 basic_pdfs = [
     gauss,
     qgauss,
+    bifurgauss,
     cauchy,
     voigt,
     exponential,
