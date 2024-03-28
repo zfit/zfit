@@ -252,7 +252,7 @@ def bifurgauss(extended=None, **kwargs):
     sigmaR = zfit.Parameter("sigmaR_bifurgauss", 0.1, 0, 1)
     obs = zfit.Space("obs", default_limits)
     return zfit.pdf.BifurGauss(
-        mu=mu, sigmaL=sigmaL, sigmaR=sigmaR, obs=obs, extended=extended
+        mu=mu, sigmal=sigmaL, sigmar=sigmaR, obs=obs, extended=extended
     )
 
 def qgauss(extended=None, **kwargs):
