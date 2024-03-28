@@ -248,7 +248,7 @@ class CrystalBall(BasePDF, SerializableMixin):
 
         .. math::
             f(x;\\mu, \\sigma, \\alpha, n) =  \\begin{cases} \\exp(- \\frac{(x - \\mu)^2}{2 \\sigma^2}),
-            & \\mbox{for}\\frac{x - \\mu}{\\sigma} \\geqslant -\\alpha \\newline
+            & \\mbox{for }\\frac{x - \\mu}{\\sigma} \\geqslant -\\alpha \\newline
             A \\cdot (B - \\frac{x - \\mu}{\\sigma})^{-n}, & \\mbox{for }\\frac{x - \\mu}{\\sigma}
              < -\\alpha \\end{cases}
 
@@ -684,9 +684,9 @@ class GaussExpTail(BasePDF, SerializableMixin):
 
         .. math::
             f(x;\\mu, \\sigma, \\alpha) =  \\begin{cases} \\exp(- \\frac{(x - \\mu)^2}{2 \\sigma^2}),
-            & \\mbox{for}\\frac{x - \\mu}{\\sigma} \\geqslant -\\alpha \\newline
+            & \\mbox{for }\\frac{x - \\mu}{\\sigma} \\geqslant -\\alpha \\newline
             \\exp{\\left(\\frac{|\\alpha|^2}{2} + |\\alpha|  \\left(\\frac{x - \\mu}{\\sigma}\\right)\\right)},
-            & \\mbox{for}\\frac{x - \\mu}{\\sigma} < -\\alpha \\end{cases}
+            & \\mbox{for }\\frac{x - \\mu}{\\sigma} < -\\alpha \\end{cases}
 
         Args:
             mu: The mean of the gaussian
