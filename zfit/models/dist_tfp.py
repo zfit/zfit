@@ -912,3 +912,12 @@ class BifurGauss(WrapDistribution, SerializableMixin):
             extended=extended,
             norm=norm,
         )
+
+
+class BifurGaussPDFRepr(BasePDFRepr):
+    _implementation = BifurGauss
+    hs3_type: Literal["BifurGauss"] = Field("BifurGauss", alias="type")
+    x: SpaceRepr
+    mu: Serializer.types.ParamTypeDiscriminated
+    sigmal: Serializer.types.ParamTypeDiscriminated
+    sigmar: Serializer.types.ParamTypeDiscriminated
