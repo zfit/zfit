@@ -850,16 +850,16 @@ class BifurGauss(WrapDistribution, SerializableMixin):
 
         .. math::
 
-            f(x \\mid \\mu, \\sigma_l, \\sigma_r) = \\begin{cases}
-            A e^{-\\frac{(x - \\mu)^2}{2 \\sigma_l^2}} & x < \\mu \\newline
-            A e^{-\\frac{(x - \\mu)^2}{2 \\sigma_r^2}} & x \\geq \\mu
+            f(x \\mid \\mu, \\sigma_{L}, \\sigma_{R}) = \\begin{cases}
+            A \\exp{\\lefgt(-\\frac{(x - \\mu)^2}{2 \\sigma_{L}^2}\\right)}, \\mbox{for} x < \\mu \\newline
+            A \\exp{\\lefgt(-\\frac{(x - \\mu)^2}{2 \\sigma_{R}^2}\\right)}, \\mbox{for} x \\geq \\mu
             \\end{cases}
 
         with the normalization over [-inf, inf] of
 
         .. math::
 
-            A = \\sqrt{\\frac{2}{\\pi}} \\frac{1}{\\sigma_l + \\sigma_r}
+            A = \\sqrt{\\frac{2}{\\pi}} \\frac{1}{\\sigma_{L} + \\sigma_{R}}
 
         The normalization changes for different normalization ranges
 
