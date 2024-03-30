@@ -309,18 +309,6 @@ class Voigt(BasePDF, SerializableMixin):
         return znp.real(znp.faddeeva_humlicek(complex_z)) / (sigma * np.sqrt(2 * np.pi))
 
 
-def _voigt_integral_from_inf_to_inf(limits, params, model):
-    del model, limits  # unused, fixed limits
-    params["m"]
-    sigma = params["sigma"]
-    params["gamma"]
-    return sigma * np.sqrt(2 * np.pi)
-
-
-limits = Space(axes=0, limits=(-znp.inf, znp.inf))
-Voigt.register_analytic_integral(func=_voigt_integral_from_inf_to_inf, limits=limits)
-
-
 class VoigtPDFRepr(BasePDFRepr):
     _implementation = Voigt
     hs3_type: Literal["Voigt"] = Field("Voigt", alias="type")
