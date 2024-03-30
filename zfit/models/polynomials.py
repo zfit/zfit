@@ -875,31 +875,34 @@ class BernsteinRepr(BaseRecursivePolynomialRepr):
     hs3_type: Literal["Bernstein"] = pydantic.Field("Bernstein", alias="type")
 
 
-def _beta_int(beta):
-    n = len(beta)
+def _coeffs_int(coeffs):
+    n = len(coeffs)
     r = [0] * (n + 1)
     for j in range(1, n + 1):
         for k in range(j):
-            r[j] += beta[k]
+            r[j] += coeffs[k]
     return [rj / n for rj in r]
 
 
-@z.function(wraps="tensor")
-def bernstein_integral_from_xmin_to_x(x, coeffs, limits):
-    x = rescale_zero_one(x, limits)
-    beta = _beta_int(coeffs)
-    return de_casteljau(x, beta) * limits.volume
-
-
-def func_integral_bernstein(limits, params, model):
+def func_integral_bernstein(limits, norm, params, model):
+    del norm
     lower, upper = limits.limit1d
+    lower_rescaled = model._polynomials_rescale(lower)
+    upper_rescaled = model._polynomials_rescale(upper)
 
-    coeffs = convert_coeffs_dict_to_list(params)
+    lower = z.convert_to_tensor(lower_rescaled)
+    upper = z.convert_to_tensor(upper_rescaled)
 
-    upper_integral = bernstein_integral_from_xmin_to_x(upper, coeffs, model.space)
-    lower_integral = bernstein_integral_from_xmin_to_x(lower, coeffs, model.space)
+    coeffs = _coeffs_int(convert_coeffs_dict_to_list(params))
 
-    return upper_integral - lower_integral
+    def indefinite_integral(limits):
+        return bernstein_shape(x=limits, coeffs=coeffs)
+
+    integral = indefinite_integral(upper)
+    integral = znp.reshape(integral, newshape=())
+    integral *= model.space.volume  # rescale back to whole width
+
+    return integral
 
 
 bernstein_limits_integral = Space(axes=0, limits=(Space.ANY_LOWER, Space.ANY_UPPER))
