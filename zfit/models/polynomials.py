@@ -875,19 +875,19 @@ class BernsteinRepr(BaseRecursivePolynomialRepr):
     hs3_type: Literal["Bernstein"] = pydantic.Field("Bernstein", alias="type")
 
 
-def _beta_int(beta):
-    n = len(beta)
+def _coeffs_int(coeffs):
+    n = len(coeffs)
     r = [0] * (n + 1)
     for j in range(1, n + 1):
         for k in range(j):
-            r[j] += beta[k]
+            r[j] += coeffs[k]
     return [rj / n for rj in r]
 
 
 @z.function(wraps="tensor")
 def bernstein_integral_from_xmin_to_x(x, coeffs, limits):
     x = rescale_zero_one(x, limits)
-    beta = _beta_int(coeffs)
+    beta = _coeffs_int(coeffs)
     return de_casteljau(x, beta) * limits.volume
 
 
