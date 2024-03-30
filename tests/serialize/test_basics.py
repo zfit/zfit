@@ -227,6 +227,14 @@ def hermite(extended=None, **kwargs):
     return zfit.pdf.Hermite(obs=obs, coeffs=coeffs, extended=extended)
 
 
+def bernstein(extended=None, **kwargs):
+    import zfit
+
+    obs = zfit.Space("obs", default_limits)
+    coeffs = [zfit.Parameter(f"coeff{i}_bernstein", 0.1, 0, 1) for i in range(5)]
+    return zfit.pdf.Bernstein(obs=obs, coeffs=coeffs, extended=extended)
+
+
 def poisson(extended=None, **kwargs):
     import zfit
 
@@ -413,6 +421,7 @@ basic_pdfs = [
     gaussexptail,
     generalizedgaussexptail,
     legendre,
+    bernstein,
     chebyshev,
     chebyshev2,
     laguerre,
