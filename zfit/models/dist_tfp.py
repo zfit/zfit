@@ -828,3 +828,96 @@ class QGaussPDFRepr(BasePDFRepr):
     q: Serializer.types.ParamTypeDiscriminated
     mu: Serializer.types.ParamTypeDiscriminated
     sigma: Serializer.types.ParamTypeDiscriminated
+
+
+class BifurGauss(WrapDistribution, SerializableMixin):
+    _N_OBS = 1
+
+    def __init__(
+        self,
+        mu: ztyping.ParamTypeInput,
+        sigmal: ztyping.ParamTypeInput,
+        sigmar: ztyping.ParamTypeInput,
+        obs: ztyping.ObsTypeInput,
+        *,
+        extended: ExtendedInputType = None,
+        norm: NormInputType = None,
+        name: str = "BifurGauss",
+    ):
+        """Bifurcated Gaussian distribution different standard deviations for the left and right side of the mean.
+
+        The bifurcated Gaussian shape is defined as
+
+        .. math::
+
+            f(x \\mid \\mu, \\sigma_{L}, \\sigma_{R}) = \\begin{cases}
+            A \\exp{\\left(-\\frac{(x - \\mu)^2}{2 \\sigma_{L}^2}\\right)}, & \\mbox{for } x < \\mu \\newline
+            A \\exp{\\left(-\\frac{(x - \\mu)^2}{2 \\sigma_{R}^2}\\right)}, & \\mbox{for } x \\geq \\mu
+            \\end{cases}
+
+        with the normalization over [-inf, inf] of
+
+        .. math::
+
+            A = \\sqrt{\\frac{2}{\\pi}} \\frac{1}{\\sigma_{L} + \\sigma_{R}}
+
+        The normalization changes for different normalization ranges
+
+        Args:
+            mu: Mean of the distribution
+            sigmal: Standard deviation on the left side of the mean
+            sigmar: Standard deviation for the right side of the mean
+            obs: |@doc:model.init.obs| Observables of the
+               model. This will be used as the default space of the PDF and,
+               if not given explicitly, as the normalization range.
+
+               The default space is used for example in the sample method: if no
+               sampling limits are given, the default space is used.
+
+               The observables are not equal to the domain as it does not restrict or
+               truncate the model outside this range. |@docend:model.init.obs|
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+            norm: |@doc:pdf.init.norm| Normalization of the PDF.
+               By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
+            name: |@doc:model.init.name| Human-readable name
+               or label of
+               the PDF for better identification. |@docend:model.init.name|
+        """
+        mu, sigmal, sigmar = self._check_input_params(mu, sigmal, sigmar)
+        params = {"mu": mu, "sigmal": sigmal, "sigmar": sigmar}
+
+        # sigmal = scale / skewness
+        # sigmar = scale * skewness
+        # scale = sigmal * skewness
+        # sigmar = sigmal * skewness^2
+        # skewness = sqrt(sigmar / sigmal)
+        # scale = sigmal * sqrt(sigmar / sigmal)
+
+        def dist_params():
+            scale = sigmal.value() * znp.sqrt(sigmar.value() / sigmal.value())
+            skewness = znp.sqrt(sigmar.value() / sigmal.value())
+            return {"loc": mu.value(), "scale": scale, "skewness": skewness}
+
+        distribution = tfp.distributions.TwoPieceNormal
+        super().__init__(
+            distribution=distribution,
+            dist_params=dist_params,
+            obs=obs,
+            params=params,
+            name=name,
+            extended=extended,
+            norm=norm,
+        )
+
+
+class BifurGaussPDFRepr(BasePDFRepr):
+    _implementation = BifurGauss
+    hs3_type: Literal["BifurGauss"] = Field("BifurGauss", alias="type")
+    x: SpaceRepr
+    mu: Serializer.types.ParamTypeDiscriminated
+    sigmal: Serializer.types.ParamTypeDiscriminated
+    sigmar: Serializer.types.ParamTypeDiscriminated

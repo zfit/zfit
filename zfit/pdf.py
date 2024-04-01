@@ -12,6 +12,7 @@ __all__ = [
     "GaussExpTail",
     "GeneralizedGaussExpTail",
     "Gauss",
+    "BifurGauss",
     "Uniform",
     "TruncatedGauss",
     "WrapDistribution",
@@ -58,6 +59,7 @@ from .models.cache import CachedPDF
 from .models.conditional import ConditionalPDFV1
 from .models.convolution import FFTConvPDFV1
 from .models.dist_tfp import (
+    BifurGauss,
     Cauchy,
     ChiSquared,
     Gauss,
