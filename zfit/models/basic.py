@@ -308,6 +308,7 @@ class Voigt(BasePDF, SerializableMixin):
         complex_z = (x + 1j * gamma_complex) / (np.sqrt(2) * sigma_complex)
         return znp.real(znp.faddeeva_humlicek(complex_z)) / (sigma * np.sqrt(2 * np.pi))
 
+
 def _voigt_integral_from_inf_to_inf(limits, params, model):
     del model, limits  # unused, fixed limits
     params["m"]
@@ -317,6 +318,8 @@ def _voigt_integral_from_inf_to_inf(limits, params, model):
 
 
 limits = Space(axes=0, limits=(-znp.inf, znp.inf))
+
+
 # todo: this only works if executing eagerly, which fails for at least the binned PDFs
 # possible solution comes with the `space.static` concept (?) and a StaticLimitsNotAvailable error,
 # falling back to whatever is available
