@@ -887,8 +887,8 @@ def _coeffs_int(coeffs):
 @z.function(wraps="tensor")
 def bernstein_integral_from_xmin_to_x(x, coeffs, limits):
     x = rescale_zero_one(x, limits)
-    beta = _coeffs_int(coeffs)
-    return de_casteljau(x, beta) * limits.volume
+    coeffs = _coeffs_int(coeffs)
+    return bernstein_shape(x, coeffs) * limits.volume
 
 
 def func_integral_bernstein(limits, params, model):
