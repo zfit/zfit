@@ -894,7 +894,7 @@ class BernsteinPDFRepr(BasePDFRepr):
     def convert_params(cls, values):  # does not propagate `params` into the fields
         if cls.orm_mode(values):
             values = dict(values)
-            values["coeffs"] = values.pop("params")
+            values["x"] = values.pop("space")
         return values
 
     def _to_orm(self, init):
