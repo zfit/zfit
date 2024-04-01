@@ -830,7 +830,7 @@ class Bernstein(BasePDF, SerializableMixin):
         norm: NormInputType = None,
         name: str = "Bernstein",
     ):
-        """Linear combination of Bernstein polynomials of order len(coeffs), the coeffs are overall scaling factors.
+        """Linear combination of Bernstein polynomials of order len(coeffs) - 1, the coeffs are overall scaling factors.
 
         Notice that this is already a sum of polynomials and the coeffs are simply scaling the individual orders of the
         polynomials.
