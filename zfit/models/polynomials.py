@@ -819,7 +819,7 @@ def bernstein_shape(x, coeffs):
     return de_casteljau(x, coeffs)
 
 
-class Bernstein(RecursivePolynomial, SerializableMixin):
+class Bernstein(BasePDF, SerializableMixin):
     def __init__(
         self,
         obs,
@@ -850,29 +850,57 @@ class Bernstein(RecursivePolynomial, SerializableMixin):
                By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
             name: Name of the polynomial
         """
-        super().__init__(
-            obs=obs,
-            name=name,
-            coeffs=coeffs[1:],
-            coeff0=coeffs[0],
-            apply_scaling=apply_scaling,
-            extended=extended,
-            norm=norm,
-        )
+        # 0th coefficient set to 1 by default
+        coeffs = convert_to_container(coeffs).copy()
+        params = {f"c_{i}": coeff for i, coeff in enumerate(coeffs)}
+        self._degree = len(coeffs) - 1
+        self._apply_scale = apply_scaling
+        if apply_scaling and not (isinstance(obs, Space) and obs._depr_n_limits == 1):
+            msg = "obs need to be a Space with exactly one limit if rescaling is requested."
+            raise ValueError(msg)
+        super().__init__(obs=obs, name=name, params=params, extended=extended, norm=norm)
 
     def _polynomials_rescale(self, x):
         if self._apply_scale:
             x = rescale_zero_one(x, limits=self.space)
         return x
 
+    @property
+    def apply_scaling(self):
+        return self._apply_scale
+
+    @property
+    def degree(self):
+        """Int: degree of the polynomial, starting from 0."""
+        return self._degree
+
+    def _unnormalized_pdf(self, x):
+        x = x.unstack_x()
+        x = self._polynomials_rescale(x)
+        return self._poly_func(x=x)
+
     def _poly_func(self, x):
         coeffs = convert_coeffs_dict_to_list(self.params)
         return bernstein_shape(x=x, coeffs=coeffs)
 
 
-class BernsteinRepr(BaseRecursivePolynomialRepr):
+class BernsteinPDFRepr(BasePDFRepr):
     _implementation = Bernstein
     hs3_type: Literal["Bernstein"] = pydantic.Field("Bernstein", alias="type")
+    x: SpaceRepr
+    params: Mapping[str, Serializer.types.ParamTypeDiscriminated] = pydantic.Field(alias="coeffs")
+    apply_scaling: Optional[bool]
+
+    @pydantic.root_validator(pre=True)
+    def convert_params(cls, values):  # does not propagate `params` into the fields
+        if cls.orm_mode(values):
+            values = dict(values)
+            values["coeffs"] = values.pop("params")
+        return values
+
+    def _to_orm(self, init):
+        init["coeffs"] = list(init.pop("params").values())
+        return super()._to_orm(init)
 
 
 def _coeffs_int(coeffs):
