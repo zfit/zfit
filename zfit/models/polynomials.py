@@ -789,6 +789,150 @@ hermite_limits_integral = Space(axes=0, limits=(Space.ANY_LOWER, Space.ANY_UPPER
 Hermite.register_analytic_integral(func=func_integral_hermite, limits=hermite_limits_integral)
 
 
+def rescale_zero_one(x, limits):
+    """Rescale and shift *x* as *limits* were rescaled and shifted to be in (0, 1). Useful for polynomials defined in
+    (0, 1).
+
+    Args:
+        x: Array like data
+        limits: 1-D limits
+
+    Returns:
+        The rescaled tensor
+    """
+    lim_low, lim_high = limits.limit1d
+    return (x - lim_low) / (lim_high - lim_low)
+
+
+@z.function(wraps="tensor")
+def de_casteljau(x, coeffs):
+    """De Casteljau's algorithm."""
+    beta = list(coeffs)  # values in this list are overridden
+    n = len(beta)
+    for j in range(1, n):
+        for k in range(n - j):
+            beta[k] = beta[k] * (1 - x) + beta[k + 1] * x
+    return beta[0]
+
+
+def bernstein_shape(x, coeffs):
+    return de_casteljau(x, coeffs)
+
+
+class Bernstein(BasePDF, SerializableMixin):
+    def __init__(
+        self,
+        obs,
+        coeffs: list,
+        apply_scaling: bool = True,
+        *,
+        extended: ExtendedInputType = None,
+        norm: NormInputType = None,
+        name: str = "Bernstein",
+    ):
+        """Linear combination of Bernstein polynomials of order len(coeffs) - 1, the coeffs are overall scaling factors.
+
+        Notice that this is already a sum of polynomials and the coeffs are simply scaling the individual orders of the
+        polynomials.
+
+        The linear combination of Bernstein polynomials is implemented using De Casteljau's algorithm.
+
+        Args:
+            obs: The default space the PDF is defined in.
+            coeffs: A list of the coefficients for the polynomials of order len(coeffs) in the sum.
+            apply_scaling: Rescale the data so that the actual limits represent (0, 1).
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+            norm: |@doc:pdf.init.norm| Normalization of the PDF.
+               By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
+            name: Name of the polynomial
+        """
+        coeffs = convert_to_container(coeffs)
+        params = {f"c_{i}": coeff for i, coeff in enumerate(coeffs)}
+        self._degree = len(coeffs) - 1
+        self._apply_scale = apply_scaling
+        if apply_scaling and not (isinstance(obs, Space) and obs._depr_n_limits == 1):
+            msg = "obs need to be a Space with exactly one limit if rescaling is requested."
+            raise ValueError(msg)
+        super().__init__(obs=obs, name=name, params=params, extended=extended, norm=norm)
+
+    def _polynomials_rescale(self, x):
+        if self._apply_scale:
+            x = rescale_zero_one(x, limits=self.space)
+        return x
+
+    @property
+    def apply_scaling(self):
+        return self._apply_scale
+
+    @property
+    def degree(self):
+        """Int: degree of the polynomial, starting from 0."""
+        return self._degree
+
+    def _unnormalized_pdf(self, x):
+        x = x.unstack_x()
+        x = self._polynomials_rescale(x)
+        return self._poly_func(x=x)
+
+    def _poly_func(self, x):
+        coeffs = convert_coeffs_dict_to_list(self.params)
+        return bernstein_shape(x=x, coeffs=coeffs)
+
+
+class BernsteinPDFRepr(BasePDFRepr):
+    _implementation = Bernstein
+    hs3_type: Literal["Bernstein"] = pydantic.Field("Bernstein", alias="type")
+    x: SpaceRepr
+    params: Mapping[str, Serializer.types.ParamTypeDiscriminated] = pydantic.Field(alias="coeffs")
+    apply_scaling: Optional[bool]
+
+    @pydantic.root_validator(pre=True)
+    def convert_params(cls, values):  # does not propagate `params` into the fields
+        if cls.orm_mode(values):
+            values = dict(values)
+            values["x"] = values.pop("space")
+        return values
+
+    def _to_orm(self, init):
+        init["coeffs"] = list(init.pop("params").values())
+        return super()._to_orm(init)
+
+
+def _coeffs_int(coeffs):
+    n = len(coeffs)
+    r = [0] * (n + 1)
+    for j in range(1, n + 1):
+        for k in range(j):
+            r[j] += coeffs[k]
+    return [rj / n for rj in r]
+
+
+@z.function(wraps="tensor")
+def bernstein_integral_from_xmin_to_x(x, coeffs, limits):
+    x = rescale_zero_one(x, limits)
+    coeffs = _coeffs_int(coeffs)
+    return bernstein_shape(x, coeffs) * limits.volume
+
+
+def func_integral_bernstein(limits, params, model):
+    lower, upper = limits.limit1d
+
+    coeffs = convert_coeffs_dict_to_list(params)
+
+    upper_integral = bernstein_integral_from_xmin_to_x(upper, coeffs, model.space)
+    lower_integral = bernstein_integral_from_xmin_to_x(lower, coeffs, model.space)
+
+    return upper_integral - lower_integral
+
+
+bernstein_limits_integral = Space(axes=0, limits=(Space.ANY_LOWER, Space.ANY_UPPER))
+Bernstein.register_analytic_integral(func=func_integral_bernstein, limits=bernstein_limits_integral)
+
+
 def convert_coeffs_dict_to_list(coeffs: Mapping) -> list:
     # HACK(Mayou36): how to solve elegantly? yield not a param, only a dependent?
     coeffs_list = []

@@ -21,6 +21,7 @@ __all__ = [
     "QGauss",
     "ChiSquared",
     "StudentT",
+    "Bernstein",
     "Chebyshev",
     "Legendre",
     "Chebyshev2",
@@ -90,6 +91,7 @@ from .models.physics import (
     GeneralizedGaussExpTail,
 )
 from .models.polynomials import (
+    Bernstein,
     Chebyshev,
     Chebyshev2,
     Hermite,

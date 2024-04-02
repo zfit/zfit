@@ -4,12 +4,15 @@ import copy
 import numpy as np
 import pytest
 import tensorflow as tf
+from numba_stats import bernstein as bernstein_numba
 
 import zfit
 from zfit import z
 
 obs1_random = zfit.Space(obs="obs1", limits=(-1.5, 1.2))
 obs1 = zfit.Space(obs="obs1", limits=(-1, 1))
+obs2_random = zfit.Space(obs="obs2", limits=(0.5, 1.8))
+obs2 = zfit.Space(obs="obs2", limits=(0, 1))
 
 coeffs_parametrization = [
     1.4,
@@ -30,6 +33,7 @@ poly_pdfs = [
     (zfit.pdf.Chebyshev2, default_sampling),
     (zfit.pdf.Hermite, default_sampling * 20),
     (zfit.pdf.Laguerre, default_sampling * 20),
+    (zfit.pdf.Bernstein, default_sampling),
 ]
 
 
@@ -42,7 +46,10 @@ def test_polynomials(poly_cfg, coeffs):
     polynomial = poly_pdf(obs=obs1, coeffs=coeffs)
     polynomial2 = poly_pdf(obs=obs1, coeffs=coeffs)
 
-    polynomial_coeff0 = poly_pdf(obs=obs1, coeffs=coeffs, coeff0=1.0)
+    if poly_pdf == zfit.pdf.Bernstein:
+        polynomial_coeff0 = poly_pdf(obs=obs1, coeffs=coeffs)
+    else:
+        polynomial_coeff0 = poly_pdf(obs=obs1, coeffs=coeffs, coeff0=1.0)
     lower, upper = obs1.v1.limits
     x = np.random.uniform(size=(1000,), low=lower, high=upper)
     y_poly = polynomial.pdf(x)
@@ -67,6 +74,7 @@ def test_polynomials(poly_cfg, coeffs):
     np.testing.assert_allclose(y_poly_np, y_poly_coeff0_np)
 
     # test 1 to 1 range
+    polynomial = poly_pdf(obs=obs1, coeffs=coeffs)
     integral = polynomial.analytic_integrate(limits=obs1, norm=False)
     numerical_integral = polynomial.numeric_integrate(limits=obs1, norm=False)
     analytic_integral = integral.numpy()
@@ -74,7 +82,16 @@ def test_polynomials(poly_cfg, coeffs):
         pytest.approx(analytic_integral, rel=rel_integral) == numerical_integral.numpy()
     )
 
-    # test with different range scaling
+    # test 0 to 1 range
+    polynomial = poly_pdf(obs=obs2, coeffs=coeffs)
+    integral = polynomial.analytic_integrate(limits=obs2, norm=False)
+    numerical_integral = polynomial.numeric_integrate(limits=obs2, norm=False)
+    analytic_integral = integral.numpy()
+    assert (
+        pytest.approx(analytic_integral, rel=rel_integral) == numerical_integral.numpy()
+    )
+
+    # test with different range scaling, 1 to 1
     polynomial = poly_pdf(obs=obs1_random, coeffs=coeffs)
 
     # test with limits != space
@@ -99,3 +116,72 @@ def test_polynomials(poly_cfg, coeffs):
         np.average(polynomial.pdf(sample, norm=False)) * obs1_random.volume
     )
     assert pytest.approx(analytic_integral, rel=rel_integral * 3) == test_integral
+
+    # test with different range scaling, 0 to 1
+    polynomial = poly_pdf(obs=obs2_random, coeffs=coeffs)
+
+    # test with limits != space
+    integral = polynomial.analytic_integrate(limits=obs2, norm=False)
+    numerical_integral = polynomial.numeric_integrate(limits=obs2, norm=False)
+    analytic_integral = integral.numpy()
+    assert (
+        pytest.approx(analytic_integral, rel=rel_integral) == numerical_integral.numpy()
+    )
+
+    # test with limits == space
+    integral = polynomial.analytic_integrate(limits=obs2_random, norm=False)
+    numerical_integral = polynomial.numeric_integrate(limits=obs2_random, norm=False)
+    analytic_integral = integral.numpy()
+    assert (
+        pytest.approx(analytic_integral, rel=rel_integral) == numerical_integral.numpy()
+    )
+
+    lower, upper = obs2_random.limit1d
+    sample = z.random.uniform((n_sampling, 1), lower, upper, dtype=tf.float64)
+    test_integral = (
+        np.average(polynomial.pdf(sample, norm=False)) * obs2_random.volume
+     )
+    assert pytest.approx(analytic_integral, rel=rel_integral * 3) == test_integral
+
+
+
+
+@pytest.mark.parametrize("coeffs", coeffs_parametrization)
+@pytest.mark.parametrize("obs", [obs1, obs2, obs1_random, obs2_random])
+def test_bernstein(coeffs, obs):
+    bernstein = zfit.pdf.Bernstein(obs=obs, coeffs=coeffs)
+    lower, upper = obs.limit1d
+
+    assert bernstein.pdf(0.8, norm=False).numpy().item() == pytest.approx(
+        bernstein_numba.density(0.8, beta=coeffs, xmin=lower, xmax=upper), rel=1e-5
+    )
+    test_values = tf.range(lower, upper, 10_000)
+    np.testing.assert_allclose(
+        bernstein.pdf(test_values, norm=False).numpy(),
+        bernstein_numba.density(test_values, beta=coeffs, xmin=lower, xmax=upper),
+        rtol=1e-5,
+    )
+
+    sample = bernstein.sample(1000)
+    assert all(np.isfinite(sample.value())), "Some samples from the Bernstein PDF are NaN or infinite"
+    assert sample.n_events == 1000
+    assert all(tf.logical_and(lower <= sample.value(), sample.value() <= upper))
+
+
+    full_interval_analytic = bernstein.analytic_integrate(obs, norm=False).numpy()
+    full_interval_numeric = bernstein.numeric_integrate(obs, norm=False).numpy()
+    numba_stats_full_integral = bernstein_numba.integral(x=upper, beta=coeffs, xmin=lower, xmax=upper) - bernstein_numba.integral(
+        x=lower, beta=coeffs, xmin=lower, xmax=upper
+    )
+    assert full_interval_analytic == pytest.approx(full_interval_numeric, 1e-4)
+    assert full_interval_analytic == pytest.approx(numba_stats_full_integral, 1e-6)
+    assert full_interval_numeric == pytest.approx(numba_stats_full_integral, 1e-6)
+
+    analytic_integral = bernstein.analytic_integrate(limits=(0.6, 0.9), norm=False).numpy()
+    numeric_integral = bernstein.numeric_integrate(limits=(0.6, 0.9), norm=False).numpy()
+    numba_stats_integral = bernstein_numba.integral(x=0.9, beta=coeffs, xmin=lower, xmax=upper) - bernstein_numba.integral(
+        x=0.6, beta=coeffs, xmin=lower, xmax=upper
+    )
+    assert analytic_integral == pytest.approx(numeric_integral, 1e-5)
+    assert analytic_integral == pytest.approx(numba_stats_integral, 1e-5)
+    assert numeric_integral == pytest.approx(numba_stats_integral, 1e-5)
