@@ -887,7 +887,7 @@ class BifurGauss(WrapDistribution, SerializableMixin):
                or label of
                the PDF for better identification. |@docend:model.init.name|
         """
-        mu, sigmal, sigmar = self._check_input_params(mu, sigmal, sigmar)
+        mu, sigmal, sigmar = self._check_input_params_tfp(mu, sigmal, sigmar)
         params = {"mu": mu, "sigmal": sigmal, "sigmar": sigmar}
 
         # sigmal = scale / skewness
