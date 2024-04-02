@@ -10,6 +10,8 @@ from zfit import z
 
 obs1_random = zfit.Space(obs="obs1", limits=(-1.5, 1.2))
 obs1 = zfit.Space(obs="obs1", limits=(-1, 1))
+obs2_random = zfit.Space(obs="obs2", limits=(0.5, 1.8))
+obs2 = zfit.Space(obs="obs2", limits=(0, 1))
 
 coeffs_parametrization = [
     1.4,
@@ -30,6 +32,7 @@ poly_pdfs = [
     (zfit.pdf.Chebyshev2, default_sampling),
     (zfit.pdf.Hermite, default_sampling * 20),
     (zfit.pdf.Laguerre, default_sampling * 20),
+    (zfit.pdf.Bernstein, default_sampling),
 ]
 
 
@@ -42,7 +45,10 @@ def test_polynomials(poly_cfg, coeffs):
     polynomial = poly_pdf(obs=obs1, coeffs=coeffs)
     polynomial2 = poly_pdf(obs=obs1, coeffs=coeffs)
 
-    polynomial_coeff0 = poly_pdf(obs=obs1, coeffs=coeffs, coeff0=1.0)
+    if poly_pdf == zfit.pdf.Bernstein:
+        polynomial_coeff0 = poly_pdf(obs=obs1, coeffs=coeffs)
+    else:
+        polynomial_coeff0 = poly_pdf(obs=obs1, coeffs=coeffs, coeff0=1.0)
     lower, upper = obs1.v1.limits
     x = np.random.uniform(size=(1000,), low=lower, high=upper)
     y_poly = polynomial.pdf(x)
@@ -67,6 +73,7 @@ def test_polynomials(poly_cfg, coeffs):
     np.testing.assert_allclose(y_poly_np, y_poly_coeff0_np)
 
     # test 1 to 1 range
+    polynomial = poly_pdf(obs=obs1, coeffs=coeffs)
     integral = polynomial.analytic_integrate(limits=obs1, norm=False)
     numerical_integral = polynomial.numeric_integrate(limits=obs1, norm=False)
     analytic_integral = integral.numpy()
@@ -74,7 +81,16 @@ def test_polynomials(poly_cfg, coeffs):
         pytest.approx(analytic_integral, rel=rel_integral) == numerical_integral.numpy()
     )
 
-    # test with different range scaling
+    # test 0 to 1 range
+    polynomial = poly_pdf(obs=obs2, coeffs=coeffs)
+    integral = polynomial.analytic_integrate(limits=obs2, norm=False)
+    numerical_integral = polynomial.numeric_integrate(limits=obs2, norm=False)
+    analytic_integral = integral.numpy()
+    assert (
+        pytest.approx(analytic_integral, rel=rel_integral) == numerical_integral.numpy()
+    )
+
+    # test with different range scaling, 1 to 1
     polynomial = poly_pdf(obs=obs1_random, coeffs=coeffs)
 
     # test with limits != space
@@ -98,4 +114,30 @@ def test_polynomials(poly_cfg, coeffs):
     test_integral = (
         np.average(polynomial.pdf(sample, norm=False)) * obs1_random.volume
     )
+    assert pytest.approx(analytic_integral, rel=rel_integral * 3) == test_integral
+
+    # test with different range scaling, 0 to 1
+    polynomial = poly_pdf(obs=obs2_random, coeffs=coeffs)
+
+    # test with limits != space
+    integral = polynomial.analytic_integrate(limits=obs2, norm=False)
+    numerical_integral = polynomial.numeric_integrate(limits=obs2, norm=False)
+    analytic_integral = integral.numpy()
+    assert (
+        pytest.approx(analytic_integral, rel=rel_integral) == numerical_integral.numpy()
+    )
+
+    # test with limits == space
+    integral = polynomial.analytic_integrate(limits=obs2_random, norm=False)
+    numerical_integral = polynomial.numeric_integrate(limits=obs2_random, norm=False)
+    analytic_integral = integral.numpy()
+    assert (
+        pytest.approx(analytic_integral, rel=rel_integral) == numerical_integral.numpy()
+    )
+
+    lower, upper = obs2_random.limit1d
+    sample = z.random.uniform((n_sampling, 1), lower, upper, dtype=tf.float64)
+    test_integral = (
+        np.average(polynomial.pdf(sample, norm=False)) * obs2_random.volume
+     )
     assert pytest.approx(analytic_integral, rel=rel_integral * 3) == test_integral
