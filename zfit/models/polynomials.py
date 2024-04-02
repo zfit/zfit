@@ -850,7 +850,7 @@ class Bernstein(BasePDF, SerializableMixin):
                By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
             name: Name of the polynomial
         """
-        coeffs = convert_to_container(coeffs).copy()
+        coeffs = convert_to_container(coeffs)
         params = {f"c_{i}": coeff for i, coeff in enumerate(coeffs)}
         self._degree = len(coeffs) - 1
         self._apply_scale = apply_scaling
