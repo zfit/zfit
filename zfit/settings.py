@@ -12,11 +12,15 @@ run = RunManager()
 
 def set_seed(seed=None, numpy=None, backend=None, zfit=None):
     """Set random seed for zfit, numpy and the backend. If seed is given, this is used to generate deterministic seeds
-    for numpy and the backend.
+    for numpy, zfit and the backend.
+
+    Notably, no python random seed is set.
 
     .. warning::
+
         To use this function to guarantee randomness, do *not* specify a seed.
-        Use a seed _only_ for reproducibility: there have been weird cases of correlation between the seed and the result.
+        Use a seed _only_ for reproducibility: there have been unique cases of correlation between the seed and the result.
+        As the seeds are returned, you can save them and rerun _if needed_.
 
     Uses `os.urandom` to generate a seed if `None` is given, which guarantees cryptographically secure randomness.
 
