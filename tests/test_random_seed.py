@@ -147,7 +147,7 @@ def test_reproducibility():
         result_fixed_seed_tvary_np4.values, result_no_seed.values
     ), "Results without a fixed seed should be different"
 
-    zfit.settings.set_seed(seed, numpy=4, backend=5)
+    seeds = zfit.settings.set_seed(seed, numpy=4, backend=5)
     loss = create_loss(mu=mu, sigma=sigma)
     with zfit.param.set_values(params, vals):
         result_fixed_seed_tvary_np4_2 = minimizer.minimize(loss)
@@ -158,3 +158,15 @@ def test_reproducibility():
         ),
         "Results with the same fixed seed should be the same",
     )
+    new_seeds = zfit.settings.set_seed(**seeds)
+    loss = create_loss(mu=mu, sigma=sigma)
+    with zfit.param.set_values(params, vals):
+        result_fixed_seed_tvary_np4_3 = minimizer.minimize(loss)
+
+    (
+        np.testing.assert_allclose(
+            result_fixed_seed_tvary_np4_3.values, result_fixed_seed_tvary_np4.values
+        ),
+        "Results with the same fixed seed should be the same",
+    )
+    assert new_seeds == seeds

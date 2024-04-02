@@ -64,6 +64,7 @@ Bug fixes and small changes
 - Increased numerical stability: this was compromised due to some involuntary float32 conversions in TF. This has been fixed.
 - improved hashing and precompilation in loss, works now safely also with samplers.
 - seed setting is by default completely randomized. This is a change from the previous behavior where the seed was set to a more deterministic value. Use seeds only for reproducibility and not for real randomness, as some strange correlations between seeds have been observed. To guarantee full randomness, just call ``zfit.run.set_seed()`` without arguments.
+- ``zfit.run.set_seed`` now returns the seed that was set. This is useful for reproducibility.
 
 Experimental
 ------------
