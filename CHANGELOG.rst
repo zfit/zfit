@@ -29,6 +29,7 @@ Major Features and Improvements
 - add ``StudentT`` PDF, the standard Student's t distribution, taken from `tensorflow-probability implementation <https://www.tensorflow.org/probability/api_docs/python/tfp/distributions/StudentT>`_.
 - add ``GaussExpTail`` and ``GeneralizedGaussExpTail`` PDFs, which are a Gaussian with an exponential tail on one side and a Gaussian with different sigmas on each side and different exponential tails on each side respectively.
 - add ``QGauss`` PDF, a distribution that arises from the maximization of the Tsallis entropy under appropriate constraints, see `here <https://en.wikipedia.org/wiki/Q-Gaussian_distribution>`_.
+- add ``BifurGauss` PDF, a Gaussian distribution with different sigmas on each side of the mean.
 - ``Data`` has now a ``with_weights`` method that returns a new data object with different weights and an improved ``with_obs`` that allows to set obs with new limits. These replace the ``set_weights`` and ``set_data_range`` methods for a more functional approach.
 - add ``label`` to different objects (PDF, Data, etc.) that allows to give a human-readable name to the object. This is used in the plotting and can be used to identify objects.
   Notably, Parameters have a label that can be arbitrary. ``Space`` has one label for each observable if the space is a product of spaces. ``Space.label`` is a string and only possible for one-dimensional spaces, while ``Space.labels`` is a list of strings and can be used for any, one- or multi-dimensional spaces.
