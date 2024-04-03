@@ -47,6 +47,11 @@ This release contains multiple "breaking changes", however, the vast majority if
 - Data objects had an intrinsic, TensorFlow V1 legacy behavior: they were actually cut when the data was *retrieved*. This is now changed and the data is cut when it is created. This should not have any impact on existing code and just improve runtime and memory usage.
 - Partial integration used to use some broadcasting tricks that could potentially fail. It uses now a dynamic while loop that _could_ be slower but works for arbitrary PDFs. This should not have any impact on existing code and just improve stability (but technically, the data given to the PDF _if doing partial integration_ is now "different", in the sense that it's now not different anymore from any other call)
 - if a ``tf.Variable`` was used to store the number of sampled values in a sampler, it was possible to change the value of that variable to change the number of samples drawn. This is now not possible anymore and the number of samples should be given as an argument ``n`` to the ``resample`` method, as was possible since a long time.
+- ``create_sampler`` has a breaking change for ``fixed_params``: when the argument was set to False, any change in the
+  parameters would be reflected when resampling. This highly statebased behavior was confusing and is now removed. The
+    argument is now called ``params`` and behaves as expected: the sampler will remember the parameters at the time of
+    creation, possibly updated with ``params`` and will not change anymore.
+    To sample from a different set of parameters, the params have to be passed to the ``resample`` method _explicitly_.
 
 
 Deprecations
@@ -54,6 +59,8 @@ Deprecations
 - ``result.fminfull`` is deprecated and will be removed in the future. Use ``result.fmin`` instead.
 - ``Data.set_data_range`` is deprecated and will be removed in the future. Use ``with_range`` instead.
 - ``Space`` has many deprecated methods, such as ``rect_limits`` and quite a few more. The full discussion can be found `here <https://github.com/zfit/zfit/discussions/533>`_.
+- ``fixed_params`` in ``create_sampler`` is deprecated and will be removed in the future. Use ``params`` instead.
+- ``fixed_params`` attribute of the ``Sampler`` is deprecated and will be removed in the future. Use ``params`` instead.
 
 Bug fixes and small changes
 ---------------------------

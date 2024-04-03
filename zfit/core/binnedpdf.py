@@ -10,7 +10,7 @@ if TYPE_CHECKING:
     import zfit
 
 import operator
-from collections.abc import Callable, Iterable, Mapping
+from collections.abc import Callable, Iterable
 from contextlib import suppress
 from functools import reduce
 
@@ -271,7 +271,6 @@ class BaseBinnedPDFV1(
         norm: ztyping.LimitsType = None,
         *,
         params: ztyping.ParamTypeInput = None,
-        norm_range=None,
     ) -> ztyping.XType:
         """Probability density function, evaluated at ``x`` or in the bins of ``x``
 
@@ -292,8 +291,6 @@ class BaseBinnedPDFV1(
         Returns:
             ``Array-like``: probability density
         """
-        assert norm_range is None
-        del norm_range  # taken care of in the deprecation decorator
 
         # convert the input argument to a standardized form
         x = self._convert_input_binned_x(x, none_is_space=True)
@@ -363,7 +360,6 @@ class BaseBinnedPDFV1(
         norm: ztyping.LimitsType = None,
         *,
         params: ztyping.ParamTypeInput = None,
-        norm_range=None,
     ) -> ztyping.XType:
         """Probability density function scaled by yield, evaluated at ``x`` or in the bins of ``x``
 
@@ -386,7 +382,6 @@ class BaseBinnedPDFV1(
                of shape (nevents,). If the input was binned, the dimensions and ordering of
                the axes corresponds to the input axes. |@docend:binnedpdf.out.problike|
         """
-        del norm_range  # should be taken care of by deprecation decorator
         if not self.is_extended:
             raise NotExtendedPDFError
         # convert the input argument to a standardized form
@@ -695,6 +690,27 @@ class BaseBinnedPDFV1(
         options=None,
         params: ztyping.ParamTypeInput = None,
     ) -> ztyping.XType:
+        """Integral of the PDF, the sum over all the bins normalized to the total integral.
+
+        Args:
+            limits: |@doc:pdf.integrate.limits| Limits of the integration. |@docend:pdf.integrate.limits|
+            norm: |@doc:pdf.integrate.norm| Normalization of the integration.
+               By default, this is the same as the default space of the PDF.
+               ``False`` means no normalization and returns the unnormed integral. |@docend:pdf.integrate.norm|
+            options: |@doc:pdf.integrate.options| Options for the integration.
+               Additional options for the integration. Currently supported options are:
+               - type: one of (``bins``)
+                 This hints that bins are integrated. A method that is vectorizable, non-dynamic and
+                 therefore less suitable for complicated functions is chosen. |@docend:pdf.integrate.options|
+            params: |@doc:model.args.params| Mapping of the parameter names to the actual
+               values. The parameter names refer to the names of the parameters,
+               typically :py:class:`~zfit.Parameter`, that
+               the model was _initialized_ with, not the name of the models
+               parametrization. |@docend:model.args.params|
+
+        Returns:
+            Scalar integration value.
+        """
         if options is None:
             options = {}
         norm = self._check_convert_norm(norm)
@@ -738,7 +754,6 @@ class BaseBinnedPDFV1(
         *,
         options=None,
         params: ztyping.ParamTypeInput = None,
-        norm_range=None,
     ) -> ztyping.XType:
         """Extended integral of the PDF, i.e. the expected counts or the integral scaled by the yield.
 
@@ -761,7 +776,6 @@ class BaseBinnedPDFV1(
         Returns:
             Scalar integration value.
         """
-        del norm_range  # taken care of by deprecation decorator
         if not self.is_extended:
             raise NotExtendedPDFError
         if options is None:
@@ -864,16 +878,11 @@ class BaseBinnedPDFV1(
                 )
                 raise BreakingAPIChangeError(msg)
             if fixed_params is True:
-                fixed_params = None  # default behavior is to catch all anyways
+                fixed_params = None  # default behavior is to catch all anyway
             params = fixed_params
 
         # legacy end
-        if params is None:
-            params = {}
-        if not isinstance(params, Mapping):
-            msg = f"`params` has to be a mapping (dict-like), is currently {params}."
-            raise TypeError(msg)
-
+        params = self._check_convert_input_paramvalues(params=params)
         params = {
             p.name: params[pname] if (pname := p) in params or (pname := p.name) in params else p.value()
             for p in self.get_params(floating=None, is_yield=None)
@@ -1017,7 +1026,6 @@ class BaseBinnedPDFV1(
         *,
         norm=None,  # noqa: ARG002
         options=None,  # noqa: ARG002
-        norm_range: ztyping.LimitsType = None,  # noqa: ARG002
     ) -> ztyping.XType:
         msg = "partial_integrate not yet available for BinnedPDF"
         raise WorkInProgressError(msg)

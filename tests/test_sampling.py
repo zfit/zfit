@@ -194,7 +194,7 @@ def test_sampling_fixed(gauss_factory):
     gauss_full_sample2 = gauss.create_sampler(n=10000, limits=(-10, 10))
 
     gauss_full_sample2.resample(params={mu: mu_true - 1.0})
-    sampled_gauss2_full = gauss_full_sample2.numpy()
+    sampled_gauss2_full = gauss_full_sample2.value()
     mu_sampled = np.mean(sampled_gauss2_full)
     sigma_sampled = np.std(sampled_gauss2_full)
     assert mu_sampled == pytest.approx(mu_true - 1.0, rel=0.08)
@@ -232,7 +232,7 @@ def test_sampling_floating(gauss_factory):
     )
     gauss_full_sample.resample()
     gauss_full_sample_fixed.resample()
-    assert gauss_full_sample_fixed.fixed_params == {mu.name: mu_true, sigma.name: sigma_true}
+    assert gauss_full_sample_fixed.params == {mu.name: mu_true, sigma.name: sigma_true}
     sampled_gauss1_full = gauss_full_sample.numpy()
     mu_sampled = np.mean(sampled_gauss1_full)
     sigma_sampled = np.std(sampled_gauss1_full)
@@ -290,7 +290,7 @@ def test_binned_sampling_floating(gauss_binnedfactory):
     )
     gauss_full_sample.resample()
     gauss_full_sample_fixed.resample()
-    assert gauss_full_sample_fixed.fixed_params == {mu.name: mu_true, sigma.name: sigma_true}
+    assert gauss_full_sample_fixed.params == {mu.name: mu_true, sigma.name: sigma_true}
     sampled_gauss1_full = gauss_full_sample.counts()
     centers = gauss.space.binning.centers[0]
     mu_sampled = np.average(centers, weights=sampled_gauss1_full)

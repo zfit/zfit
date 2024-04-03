@@ -42,7 +42,7 @@ def pdf_sumnonext():
 
 
 def pdf_exp():
-    lambda_ = zfit.Parameter('lambda', -0.5, -2., 0.)
+    lambda_ = zfit.Parameter('lambda', -0.3, -2., 0.)
     scale = zfit.Parameter('scale2', 10001.)
     obs = zfit.Space('obs1', -10, 10)
 

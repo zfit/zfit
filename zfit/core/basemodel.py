@@ -523,7 +523,6 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         norm: ztyping.LimitsType = None,
         *,
         params: ztyping.ParamTypeInput = None,
-        norm_range=None,
     ) -> ztyping.XType:
         """Analytical integration over function and raise Error if not possible.
 
@@ -546,7 +545,6 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
                 means that no analytical normalization is available, explicitly: the **analytical**
                 integral over the limits = norm is not available.
         """
-        del norm_range  # taken care of in the deprecation decorator
         norm = self._check_input_norm(norm)
         limits = self._check_input_limits(limits=limits)
         with self._check_set_input_params(params=params):
@@ -621,7 +619,6 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         *,
         options=None,
         params: ztyping.ParamTypeInput = None,
-        norm_range=None,
     ) -> ztyping.XType:
         """Numerical integration over the model.
 
@@ -644,7 +641,6 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         Returns:
             The integral value
         """
-        del norm_range  # taken care of in the deprecation decorator
         norm = self._check_input_norm(norm)
         limits = self._check_input_limits(limits=limits)
         if options is None:
@@ -701,7 +697,6 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         norm=None,
         options=None,
         params: ztyping.ParamTypeInput = None,
-        norm_range: ztyping.LimitsType = None,  # noqa: ARG002
     ) -> ztyping.XTypeReturn:
         """Partially integrate the function over the `limits` and evaluate it at `x`.
 
@@ -805,7 +800,6 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         norm: ztyping.LimitsType = None,
         *,
         params: ztyping.ParamTypeInput = None,
-        norm_range=None,
     ) -> ztyping.XTypeReturn:
         """Do analytical partial integration of the function over the `limits` and evaluate it at `x`.
 
@@ -834,7 +828,6 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
                 means that no analytical normalization is available, explicitly: the **analytical**
                 integral over the limits = norm is not available.
         """
-        del norm_range  # taken care of in the deprecation decorator
         norm = self._check_input_norm(norm=norm)
         limits = self._check_input_limits(limits=limits)
         with self._convert_sort_x(x, partial=True) as x, self._check_set_input_params(params=params):
@@ -909,7 +902,6 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         norm: ztyping.LimitsType = None,
         *,
         params: ztyping.ParamTypeInput = None,
-        norm_range=None,
     ) -> ztyping.XType:
         """Force numerical partial integration of the function over the `limits` and evaluate it at `x`.
 
@@ -932,7 +924,6 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         Returns:
             The value of the partially integrated function evaluated at `x`.
         """
-        del norm_range  # taken care of in the deprecation decorator
         norm = self._check_input_norm(norm)
         limits = self._check_input_limits(limits=limits)
         with self._convert_sort_x(x, partial=True) as x, self._check_set_input_params(params=params):
@@ -1034,7 +1025,6 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         *,
         fixed_params: Optional[bool | list[ZfitParameter] | tuple[ZfitParameter]] = None,
         params: ztyping.ParamTypeInput = None,
-        # todo: deprecate `fixed_params` in favor of `params`, change logic (dict?), needs cleanup to be merged with new Sampler
     ) -> SamplerData:
         """Create a :py:class:`SamplerData` that acts as `Data` but can be resampled, also with changed parameters and
         n.
@@ -1087,11 +1077,6 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             params = fixed_params
 
         # legacy end
-        if params is None:
-            params = {}
-        if not isinstance(params, Mapping):
-            msg = f"`params` has to be a mapping (dict-like), is currently {params}."
-            raise TypeError(msg)
 
         limits = self._check_input_limits(limits=limits)
         if isinstance(n, str):
@@ -1104,8 +1089,9 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
                 msg = "limits are False/None, have to be specified"
                 raise ValueError(msg)
 
+        params = self._check_convert_input_paramvalues(params=params)
         params = {
-            p.name: params[pname] if (pname := p) in params or (pname := p.name) in params else p.value()
+            p.name: params[p.name] if p.name in params else p.value()
             for p in self.get_params(floating=None, is_yield=None)
         }
 
@@ -1133,8 +1119,8 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         self,
         n: ztyping.nSamplingTypeIn = None,
         limits: ztyping.LimitsType = None,
-        x: ztyping.DataInputType | None = None,
         *,
+        x: ztyping.DataInputType | None = None,
         params: ztyping.ParamTypeInput = None,
     ) -> Data:  # TODO: change poissonian top-level with multinomial
         """Sample `n` points within `limits` from the model.
@@ -1148,9 +1134,14 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
 
                     - 'extended': samples `poisson(yield)` from each pdf that is extended.
             limits: In which region to sample in
+            params: |@doc:model.args.params| Mapping of the parameter names to the actual
+               values. The parameter names refer to the names of the parameters,
+               typically :py:class:`~zfit.Parameter`, that
+               the model was _initialized_ with, not the name of the models
+               parametrization. |@docend:model.args.params|
 
         Returns:
-            Data(n_obs, n_samples)
+            Data(n_obs, n_samples): The observables are the `limits`
 
         Raises:
             NotExtendedPDFError: if 'extended' is (implicitly by default or explicitly) chosen as an
@@ -1161,7 +1152,6 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         if isinstance(n, str):
             n = None
         if n is not None:
-            n = tf.convert_to_tensor(n)
             n = znp.asarray(n, dtype=tf.int32)
 
         limits = self._check_input_limits(limits=limits)

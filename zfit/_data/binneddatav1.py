@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, Optional
 
 import numpy as np
 import xxhash
+from tensorflow.python.util.deprecation import deprecated
 from zfit_interface.typing import TensorLike
 
 from ..core.baseobject import convert_param_values
@@ -383,12 +384,6 @@ class BinnedData(
 # tensorlike.register_tensor_conversion(BinnedData, name='BinnedData', overload_operators=True)
 
 
-class SampleHolder(BinnedHolder):
-    def with_obs(self, obs):  # noqa: ARG002
-        msg = "INTERNAL ERROR, should never be used directly"
-        raise AssertionError(msg)
-
-
 class BinnedSamplerData(BinnedData):
     _cache_counting = 0
 
@@ -420,15 +415,11 @@ class BinnedSamplerData(BinnedData):
             label: The label of the data object.
         """
         super().__init__(holder=dataset, name=name, label=label, use_hash=True)
-        if params is None:
-            params = {}
-        if not isinstance(params, dict):
-            msg = "params has to be a dictionary."
-            raise TypeError(msg)
+        params = convert_param_values(params)
 
         self._initial_resampled = False
 
-        self.fixed_params = params
+        self.params = params
         self._sample_holder = sample_holder
         self._variances_holder = variances_holder
         self._sample_and_variances_func = sample_and_variances_func
@@ -443,6 +434,11 @@ class BinnedSamplerData(BinnedData):
             shape=(),
         )
         self.update_data(dataset.values, variances=dataset.variances)
+
+    @property
+    @deprecated(None, "Use `params` instead.")
+    def fixed_params(self):
+        return self.params
 
     @property
     def n_samples(self):
@@ -503,7 +499,7 @@ class BinnedSamplerData(BinnedData):
             sample_and_variances_func: A function that samples the data and returns the sample and the variances.
             n: The number of samples to produce.
             obs: The observables of the data.
-            fixed_params: A mapping from `Parameter` to a fixed value that should be used for the sampling.
+            params: A mapping from :py:class:~`zfit.Parameter` or string (the name) to a fixed value that should be used for the sampling.
             name: The name of the data object.
             label: The label of the data object.
         """
@@ -529,6 +525,8 @@ class BinnedSamplerData(BinnedData):
         from .. import ztypes
 
         dtype = ztypes.float
+
+        params = convert_param_values(params)
 
         initval, initvar = sample_and_variances_func(n, params=params)  # todo: preprocess, cut data?
         sample_holder = tf.Variable(
@@ -572,13 +570,13 @@ class BinnedSamplerData(BinnedData):
     ):
         """Update the sample by new sampling *inplace*; This affects any object that used this data already.
 
-        All params that are not in the attribute ``fixed_params`` will use their current value for
+        All params that are not in the attribute ``params`` will use their current value for
         the creation of the new sample. The value can also be overwritten for one sampling by providing
         a mapping with ``param_values`` from ``Parameter`` to the temporary ``value``.
 
         Args:
-            params: a mapping from :py:class:`~zfit.Parameter` to a `value`. For the current sampling,
-                `Parameter` will use the `value`.
+            params: a mapping from :py:class:`~zfit.Parameter` to a `value` that should be used for the sampling.
+                Any parameter that is not in this mapping will use the value in `params`.
             n: the number of samples to produce. If the `SamplerData` was created with
                 anything else then a numerical or tf.Tensor, this can't be used.
         """
@@ -590,7 +588,7 @@ class BinnedSamplerData(BinnedData):
                 msg = "Cannot specify both `fixed_params` and `params`."
                 raise ValueError(msg)
             params = param_values
-        temp_param_values = self.fixed_params.copy()
+        temp_param_values = self.params.copy()
         if params is not None:
             params = convert_param_values(params)
             temp_param_values.update(params)
@@ -622,31 +620,6 @@ class BinnedSamplerData(BinnedData):
             raise ValueError(msg)
         self._initial_resampled = True
         self._update_hash()
-
-    # def with_obs(self, obs: ztyping.ObsTypeInput) -> BinnedSamplerData:
-    #     """Create a new :py:class:`~zfit.core.data.BinnedSampler` with the same sample but different ordered
-    #     observables.
-    #
-    #     Args:
-    #         obs: The new observables
-    #     """
-    #     from ..core.space import convert_to_space
-    #
-    #     obs = convert_to_space(obs)
-    #     if obs.obs == self.obs:
-    #         return self
-    #
-    #     # todo: should we allow this? Does unbinned allow it?
-    #     def new_sample_and_variances_func(n):
-    #         sample, variances = self._sample_and_variances_func(n)
-    #         return move_axis_obs(self.space, obs, sample, variances=variances)
-    #
-    #     return BinnedSamplerData.from_sampler(
-    #         sample_and_variances_func=new_sample_and_variances_func,
-    #         n=self.n,
-    #         obs=obs,
-    #         fixed_params=self.fixed_params,
-    #     )
 
     def values(self) -> znp.array:
         """Values/counts of the histogram as an ndim array.

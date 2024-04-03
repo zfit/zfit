@@ -998,7 +998,6 @@ def check_cut_data_weights(
 class SamplerData(Data):
     _cache_counting = 0
 
-    @deprecated_args(None, "Use `params` instead.", "fixed_params")
     def __init__(
         self,
         dataset: LightDataset,
@@ -1009,7 +1008,6 @@ class SamplerData(Data):
         weights=None,
         weights_holder: tf.Variable | None = None,
         params: dict[zfit.Parameter, ztyping.NumericalScalarType] | None = None,
-        fixed_params: dict[zfit.Parameter, ztyping.NumericalScalarType] | None = None,
         obs: ztyping.ObsTypeInput = None,
         name: str | None = None,
         label: str | None = None,
@@ -1031,20 +1029,11 @@ class SamplerData(Data):
             use_hash=use_hash,
             guarantee_limits=guarantee_limits,
         )
-        if fixed_params is not None:
-            if params is not None:
-                msg = "Cannot specify both `fixed_params` and `params`."
-                raise ValueError(msg)
-            params = fixed_params
-        if params is None:
-            params = {}
-        if not isinstance(params, dict):
-            msg = "params has to be a dictionary."
-            raise TypeError(msg)
+        params = convert_param_values(params)
 
         self._initial_resampled = False
 
-        self.fixed_params = params
+        self.params = params
         self._sample_holder = sample_holder
         self._weights_holder = weights_holder
         self._weights = self._weights_holder
@@ -1058,6 +1047,13 @@ class SamplerData(Data):
         self.update_data(dataset.value(), weights=weights)  # to be used for precompilations etc
         self._sampler_guarantee_limits = guarantee_limits
 
+    # legacy
+    @property
+    @deprecated(None, "Use `params` instead.")
+    def fixed_params(self):
+        return self.params
+
+    # legacy end
     @property
     def n_samples(self):
         return self._n_holder
@@ -1162,8 +1158,8 @@ class SamplerData(Data):
 
             n: The number of samples to produce initially. This is used to have a first sample that can be used for compilation.
             obs: The observables of the data.
-            fixed_params: A mapping from `Parameter` to a fixed value. If a fixed value is given, the parameter will
-                not be sampled but instead use the fixed value.
+            params: A mapping from `Parameter` or a string to a numerical value. This is used as the default values for the
+                parameters in the `sample_func` or `sample_and_weights_func` and needs to fully specify the parameters.
             label: |@doc:data.init.label| Human-readable name
                or label of the data for a better description, to be used with plots etc.
                Has no programmatical functional purpose as identification. |@docend:data.init.label|
@@ -1202,6 +1198,7 @@ class SamplerData(Data):
         if dtype is None:
             dtype = ztypes.float
 
+        params = convert_param_values(params)
         init_val, init_weights = sample_and_weights_func(n, params)
 
         init_val, init_weights = check_cut_data_weights(
@@ -1295,13 +1292,13 @@ class SamplerData(Data):
     ):
         """Update the sample by newly sampling. This affects any object that used this data already internally.
 
-        All params that are not in the attribute ``fixed_params`` will use their current value for
+        All params that are not in the attribute ``params`` will use their current value for
         the creation of the new sample. The value can also be overwritten for one sampling by providing
         a mapping with ``param_values`` from ``Parameter`` to the temporary ``value``.
 
         Args:
-            params: a mapping from :py:class:`~zfit.Parameter` or string to a `value`. For the current sampling,
-                `Parameter` will use the `value`.
+            params: a mapping from :py:class:`~zfit.Parameter` or string to a `value` so that the sampler will use
+                this value for the sampling. If not given, the `params` will be used.
             n: the number of samples to produce. If the `Sampler` was created with
                 anything else then a numerical or tf.Tensor, this can't be used.
         """
@@ -1313,7 +1310,7 @@ class SamplerData(Data):
                 msg = "Cannot specify both `fixed_params` and `params`."
                 raise ValueError(msg)
             params = param_values
-        temp_param_values = self.fixed_params.copy()
+        temp_param_values = self.params.copy()
         if params is not None:
             params = convert_param_values(params)
             temp_param_values.update(params)

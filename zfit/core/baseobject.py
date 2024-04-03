@@ -171,15 +171,22 @@ class BaseParametrized(BaseObject, ZfitParametrized):
 
     @contextlib.contextmanager
     def _check_set_input_params(self, params, guarantee_checked=None):
+        paramvalues = self._check_convert_input_paramvalues(params, guarantee_checked)
+        import zfit
+
+        with zfit.param.set_values(tuple(paramvalues.keys()), tuple(paramvalues.values())):
+            yield paramvalues
+
+    def _check_convert_input_paramvalues(self, params, guarantee_checked=None) -> dict[str, float] | None:
         if guarantee_checked is None:
             guarantee_checked = False
 
-        params = convert_param_values(params)
-
+        newpars = {}
         if params is not None:
             if guarantee_checked:
                 newpars = params
             else:
+                params = convert_param_values(params)
                 newpars = {}
                 all_params = self.get_params(floating=None, is_yield=None)
                 toset_params = params.copy()
@@ -197,12 +204,8 @@ class BaseParametrized(BaseObject, ZfitParametrized):
                 #         newpars[param] = params[param]
                 #     else:
                 #         newpars[param] = znp.asarray(param.value())
-            import zfit
 
-            with zfit.param.set_values(tuple(newpars.keys()), tuple(newpars.values())):
-                yield newpars  # maybe improve in the future? surely dict-like
-        else:
-            yield None
+        return newpars
 
 
 class BaseNumeric(
