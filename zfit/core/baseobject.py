@@ -165,7 +165,7 @@ class BaseParametrized(BaseObject, ZfitParametrized):
                         newpars[param] = toset_params.pop(p)
 
                 if toset_params:
-                    msg = f"Parameters {toset_params} were not found in the parameters of {self}."
+                    msg = f"Parameters {toset_params} were not found in the parameters of {self}: {all_params}."
                     raise ValueError(msg)
 
                 # This is for converting and passing through, complicated?

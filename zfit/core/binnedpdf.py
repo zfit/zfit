@@ -10,7 +10,7 @@ if TYPE_CHECKING:
     import zfit
 
 import operator
-from collections.abc import Callable, Iterable
+from collections.abc import Callable, Iterable, Mapping
 from contextlib import suppress
 from functools import reduce
 
@@ -31,6 +31,7 @@ from ..util.deprecation import deprecated, deprecated_norm_range
 from ..util.exception import (
     AlreadyExtendedPDFError,
     BasePDFSubclassingError,
+    BreakingAPIChangeError,
     MultipleLimitsNotImplemented,
     NormNotImplemented,
     NotExtendedPDFError,
@@ -852,25 +853,42 @@ class BaseBinnedPDFV1(
                 raise ValueError(msg)
         limits = self._check_convert_limits(limits)
 
-        if fixed_params is True:
-            fixed_params = list(self.get_params(floating=False))
-        elif fixed_params is False:
-            fixed_params = []
-        elif not isinstance(fixed_params, (list, tuple)):
-            msg = "`Fixed_params` has to be a list, tuple or a boolean."
+        if fixed_params is not None:
+            if params is not None:
+                msg = "Cannot specify both `fixed_params` and `params`. Use `params` only."
+                raise ValueError(msg)
+            if fixed_params is False:
+                msg = (
+                    "`fixed_params` has been removed, the sampler will always sample from the parameters at the time of the creation/given to the creator"
+                    " _or_ by giving params to the `resample` method."
+                )
+                raise BreakingAPIChangeError(msg)
+            if fixed_params is True:
+                fixed_params = None  # default behavior is to catch all anyways
+            params = fixed_params
+
+        # legacy end
+        if params is None:
+            params = {}
+        if not isinstance(params, Mapping):
+            msg = f"`params` has to be a mapping (dict-like), is currently {params}."
             raise TypeError(msg)
 
-        def sample_func(n=n):
-            n = znp.array(n)
-            return self._create_sampler_tensor(limits=limits, n=n)
+        params = {
+            p.name: params[pname] if (pname := p) in params or (pname := p.name) in params else p.value()
+            for p in self.get_params(floating=None, is_yield=None)
+        }
 
-        with self._check_set_input_params(params=params):
-            return BinnedSamplerData.from_sampler(
-                sample_func=sample_func,
-                n=n,
-                obs=limits,
-                fixed_params=fixed_params,
-            )
+        def sample_and_variances_func(n, params, *, limits=limits):
+            sample = self.sample(n=n, limits=limits, params=params)
+            return sample.values(), sample.variances()
+
+        return BinnedSamplerData.from_sampler(
+            sample_and_variances_func=sample_and_variances_func,
+            n=n,
+            obs=limits,
+            params=params,
+        )
 
     @z.function(wraps="sampler")
     def _create_sampler_tensor(self, limits, n):

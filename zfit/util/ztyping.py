@@ -148,3 +148,6 @@ ConstraintsInputType = Optional[
     ]
 ]  #:
 ArrayLike = tf.types.experimental.TensorLike  #:
+
+
+ParamValuesMap = Optional[Mapping[Union[str, "zfit.core.interfaces.ZfitParameter"], NumericalScalarType]]

@@ -7,7 +7,7 @@ Handle integration and sampling
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Mapping
+from typing import TYPE_CHECKING, Mapping, Optional
 
 if TYPE_CHECKING:
     pass
@@ -37,6 +37,7 @@ from ..util.exception import (
     AnalyticIntegralNotImplemented,
     AnalyticSamplingNotImplemented,
     BasePDFSubclassingError,
+    BreakingAPIChangeError,
     CannotConvertToNumpyError,
     FunctionNotImplemented,
     MultipleLimitsNotImplemented,
@@ -1025,13 +1026,14 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             msg = f"icdf function does not have the right signature: {icdf}"
             raise RuntimeError(msg)
 
+    @deprecated_args(None, "Use `params` instead.", "fixed_params")
     def create_sampler(
         self,
         n: ztyping.nSamplingTypeIn = None,
         limits: ztyping.LimitsType = None,
-        fixed_params: bool | list[ZfitParameter] | tuple[ZfitParameter] = True,
         *,
-        params: ztyping.ParamTypeInput = None,  # noqa: ARG002
+        fixed_params: Optional[bool | list[ZfitParameter] | tuple[ZfitParameter]] = None,
+        params: ztyping.ParamTypeInput = None,
         # todo: deprecate `fixed_params` in favor of `params`, change logic (dict?), needs cleanup to be merged with new Sampler
     ) -> SamplerData:
         """Create a :py:class:`SamplerData` that acts as `Data` but can be resampled, also with changed parameters and
@@ -1069,6 +1071,27 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             ValueError: if n is an invalid string option.
             InvalidArgumentError: if n is not specified and pdf is not extended.
         """
+        # legacy start
+        if fixed_params is not None:
+            if params is not None:
+                msg = "Cannot specify both `fixed_params` and `params`. Use `params` only."
+                raise ValueError(msg)
+            if fixed_params is False:
+                msg = (
+                    "`fixed_params` has been removed, the sampler will always sample from the parameters at the time of the creation/given to the creator"
+                    " _or_ by giving params to the `resample` method."
+                )
+                raise BreakingAPIChangeError(msg)
+            if fixed_params is True:
+                fixed_params = None  # default behavior is to catch all anyways
+            params = fixed_params
+
+        # legacy end
+        if params is None:
+            params = {}
+        if not isinstance(params, Mapping):
+            msg = f"`params` has to be a mapping (dict-like), is currently {params}."
+            raise TypeError(msg)
 
         limits = self._check_input_limits(limits=limits)
         if isinstance(n, str):
@@ -1076,29 +1099,24 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         # Do NOT convert to tensor here, it will be done in the sampler (could be stateful object)
 
         if not limits.limits_are_set:
-            limits = self.space  # TODO(Mayou36): clean up, better norm_range?
+            limits = self.space
             if not limits.has_limits:
                 msg = "limits are False/None, have to be specified"
                 raise ValueError(msg)
 
-        if fixed_params is True:
-            fixed_params = list(self.get_params(floating=None, is_yield=None))
-        elif fixed_params is False:
-            fixed_params = []
-        elif not isinstance(fixed_params, (list, tuple)):
-            msg = "`Fixed_params` has to be a list, tuple or a boolean."
-            raise TypeError(msg)
+        params = {
+            p.name: params[pname] if (pname := p) in params or (pname := p.name) in params else p.value()
+            for p in self.get_params(floating=None, is_yield=None)
+        }
 
-        def sample_func(n=n):
-            if n is not None:
-                n = znp.array(n)
-            return self._create_sampler_tensor(limits=limits, n=n)
+        def sample_func(n, params, *, limits=limits):
+            return self.sample(n=n, limits=limits, params=params).value()
 
         return SamplerData.from_sampler(
             sample_func=sample_func,
             n=n,
             obs=limits,
-            fixed_params=fixed_params,
+            params=params,
             dtype=self.dtype,
             guarantee_limits=True,
         )
@@ -1160,7 +1178,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         with self._convert_sort_x(x, allow_none=True) as x, self._check_set_input_params(params=params):
             new_obs = limits * x.data_range if x is not None else limits
             tensor = run_tf(n=n, limits=limits, x=x)
-            return Data.from_tensor(tensor=tensor, obs=new_obs)  # TODO: which limits?
+        return Data.from_tensor(tensor=tensor, obs=new_obs)  # TODO: which limits?
 
     @z.function(wraps="sample")
     def _single_hook_sample(self, n, limits, x=None):

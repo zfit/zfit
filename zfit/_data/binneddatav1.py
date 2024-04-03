@@ -2,26 +2,24 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable, Mapping
+from collections.abc import Callable
 from typing import TYPE_CHECKING, Optional
 
 import numpy as np
 import xxhash
 from zfit_interface.typing import TensorLike
 
-from ..core.parameter import set_values
-
 if TYPE_CHECKING:
-    import zfit
+    pass
 
 import boost_histogram as bh
 import hist
 import tensorflow as tf
 
-from zfit._variables.axis import binning_to_histaxes, histaxes_to_binning
-from zfit.core.interfaces import ZfitBinnedData, ZfitData, ZfitSpace
 from zfit.z import numpy as znp
 
+from .._variables.axis import binning_to_histaxes, histaxes_to_binning
+from ..core.interfaces import ZfitBinnedData, ZfitData, ZfitParameter, ZfitSpace
 from ..util import ztyping
 from ..util.exception import BreakingAPIChangeError, ShapeIncompatibleError
 
@@ -394,12 +392,12 @@ class BinnedSamplerData(BinnedData):
     def __init__(
         self,
         dataset: SampleHolder,
+        *,
         sample_and_variances_func: Callable,
         sample_holder: tf.Variable = None,
         variances_holder: tf.Variable = None,
         n: ztyping.NumericalScalarType | Callable = None,
-        fixed_params: dict[zfit.Parameter, ztyping.NumericalScalarType] | None = None,
-        *,
+        params: ztyping.ParamValuesMap = None,
         name: str | None = None,
         label: str | None = None,
     ):
@@ -414,19 +412,20 @@ class BinnedSamplerData(BinnedData):
             variances_holder: The tensor that holds the variances.
             n: The number of samples to produce. If the `SamplerData` was created with
                 anything else then a numerical or tf.Tensor, this can't be used.
-            fixed_params: A mapping from `Parameter` to a fixed value that should be used for the sampling.
+            params: A mapping from `Parameter` to a fixed value that should be used for the sampling.
             name: The name of the data object.
             label: The label of the data object.
         """
         super().__init__(holder=dataset, name=name, label=label, use_hash=True)
-        if fixed_params is None:
-            fixed_params = {}
-        if isinstance(fixed_params, (list, tuple)):
-            fixed_params = {param: param.numpy() for param in fixed_params}
+        if params is None:
+            params = {}
+        if not isinstance(params, dict):
+            msg = "params has to be a dictionary."
+            raise TypeError(msg)
 
         self._initial_resampled = False
 
-        self.fixed_params = fixed_params
+        self.fixed_params = params
         self._sample_holder = sample_holder
         self._variances_holder = variances_holder
         self._sample_and_variances_func = sample_and_variances_func
@@ -487,6 +486,7 @@ class BinnedSamplerData(BinnedData):
         sample_and_variances_func: Callable | None = None,
         n: ztyping.NumericalScalarType,
         obs: ztyping.AxesTypeInput,
+        params: ztyping.ParamValuesMap = None,
         fixed_params=None,
         name: str | None = None,
         label: str | None = None,
@@ -504,14 +504,17 @@ class BinnedSamplerData(BinnedData):
             name: The name of the data object.
             label: The label of the data object.
         """
+        if fixed_params is not None:
+            msg = "Use `params` instead of `fixed_params`."
+            raise BreakingAPIChangeError(msg)
         if int(sample_func is not None) + int(sample_and_variances_func is not None) != 1:
             msg = "Exactly one of `sample`, `sample_func` or `sample_and_variances_func` must be provided."
             raise ValueError(msg)
 
         if sample_func is not None:
 
-            def sample_and_variances_func(n, sample_func=sample_func):
-                sample = sample_func(n)
+            def sample_and_variances_func(n, params, *, sample_func=sample_func):
+                sample = sample_func(n, params=params)
                 return sample, None
 
             del sample_func
@@ -520,14 +523,11 @@ class BinnedSamplerData(BinnedData):
 
         obs = convert_to_space(obs)
 
-        if fixed_params is None:
-            fixed_params = []
-
         from .. import ztypes
 
         dtype = ztypes.float
 
-        initval, initvar = sample_and_variances_func(n)  # todo: preprocess, cut data?
+        initval, initvar = sample_and_variances_func(n, params=params)  # todo: preprocess, cut data?
         sample_holder = tf.Variable(
             initial_value=initval,
             dtype=dtype,
@@ -556,19 +556,25 @@ class BinnedSamplerData(BinnedData):
             variances_holder=variances_holder,
             name=name,
             label=label,
-            fixed_params=fixed_params,
+            params=params,
             n=n,
         )
 
-    def resample(self, param_values: Mapping | None = None, n: int | tf.Tensor = None):
-        """Update the sample by newly sampling. This affects any object that used this data already.
+    def resample(
+        self,
+        params: ztyping.ParamValuesMap = None,
+        *,
+        n: int | tf.Tensor = None,
+        param_values: ztyping.ParamValuesMap = None,
+    ):
+        """Update the sample by new sampling *inplace*; This affects any object that used this data already.
 
         All params that are not in the attribute ``fixed_params`` will use their current value for
         the creation of the new sample. The value can also be overwritten for one sampling by providing
         a mapping with ``param_values`` from ``Parameter`` to the temporary ``value``.
 
         Args:
-            param_values: a mapping from :py:class:`~zfit.Parameter` to a `value`. For the current sampling,
+            params: a mapping from :py:class:`~zfit.Parameter` to a `value`. For the current sampling,
                 `Parameter` will use the `value`.
             n: the number of samples to produce. If the `SamplerData` was created with
                 anything else then a numerical or tf.Tensor, this can't be used.
@@ -576,12 +582,20 @@ class BinnedSamplerData(BinnedData):
         if n is None:
             n = self.n
 
-        temp_param_values = self.fixed_params.copy()
         if param_values is not None:
-            temp_param_values.update(param_values)
+            if params is not None:
+                msg = "Cannot specify both `fixed_params` and `params`."
+                raise ValueError(msg)
+            params = param_values
+        temp_param_values = self.fixed_params.copy()
+        if params is not None:
+            if not isinstance(params, dict):
+                msg = "params has to be a dictionary."
+                raise TypeError(msg)
+            params = {p.name if isinstance(p, ZfitParameter) else p: v for p, v in params.items()}
+            temp_param_values.update(params)
 
-        with set_values(list(temp_param_values.keys()), list(temp_param_values.values())):
-            new_sample, new_variances = self._sample_and_variances_func(n)
+        new_sample, new_variances = self._sample_and_variances_func(n, params=temp_param_values)
         self.update_data(new_sample, new_variances)
 
     def update_data(self, sample: TensorLike, variances: TensorLike | None = None):

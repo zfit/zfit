@@ -12,7 +12,7 @@ def test_update_data_sampler(weights):
     sample3 = np.random.normal(0, 1, size=(1000, 3))
 
     obs = zfit.Space('obs1', limits=(-100, 100)) * zfit.Space('obs2', limits=(-200, 200)) * zfit.Space('obs3', limits=(-150, 150))
-    data = SamplerData.from_sampler(obs=obs, sample_and_weights_func=lambda n: (sample, weights), n=1000)
+    data = SamplerData.from_sampler(obs=obs, sample_and_weights_func=lambda n, params: (sample, weights), n=1000)
     if weights is not None:
         assert np.allclose(data.weights, weights)
     assert np.allclose(data.value(), sample)
