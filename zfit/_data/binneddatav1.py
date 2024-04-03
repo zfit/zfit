@@ -9,6 +9,8 @@ import numpy as np
 import xxhash
 from zfit_interface.typing import TensorLike
 
+from ..core.baseobject import convert_param_values
+
 if TYPE_CHECKING:
     pass
 
@@ -19,7 +21,7 @@ import tensorflow as tf
 from zfit.z import numpy as znp
 
 from .._variables.axis import binning_to_histaxes, histaxes_to_binning
-from ..core.interfaces import ZfitBinnedData, ZfitData, ZfitParameter, ZfitSpace
+from ..core.interfaces import ZfitBinnedData, ZfitData, ZfitSpace
 from ..util import ztyping
 from ..util.exception import BreakingAPIChangeError, ShapeIncompatibleError
 
@@ -217,7 +219,8 @@ class BinnedData(
         Args:
             obs: Which obs to return
         """
-        return type(self)(holder=self.holder.with_obs(obs), name=self.name, label=self.label)
+        return BinnedData(holder=self.holder.with_obs(obs), name=self.name, label=self.label)
+        # no subclass, as this allows the sampler to be the same still and not reinitiated
 
     def _update_hash(self):
         from zfit import run
@@ -391,7 +394,7 @@ class BinnedSamplerData(BinnedData):
 
     def __init__(
         self,
-        dataset: SampleHolder,
+        dataset: BinnedHolder,
         *,
         sample_and_variances_func: Callable,
         sample_holder: tf.Variable = None,
@@ -547,7 +550,7 @@ class BinnedSamplerData(BinnedData):
             )
         else:
             variances_holder = None
-        dataset = SampleHolder(space=obs, values=sample_holder, variances=variances_holder)
+        dataset = BinnedHolder(space=obs, values=sample_holder, variances=variances_holder)
 
         return cls(
             dataset=dataset,
@@ -589,10 +592,7 @@ class BinnedSamplerData(BinnedData):
             params = param_values
         temp_param_values = self.fixed_params.copy()
         if params is not None:
-            if not isinstance(params, dict):
-                msg = "params has to be a dictionary."
-                raise TypeError(msg)
-            params = {p.name if isinstance(p, ZfitParameter) else p: v for p, v in params.items()}
+            params = convert_param_values(params)
             temp_param_values.update(params)
 
         new_sample, new_variances = self._sample_and_variances_func(n, params=temp_param_values)
@@ -623,30 +623,30 @@ class BinnedSamplerData(BinnedData):
         self._initial_resampled = True
         self._update_hash()
 
-    def with_obs(self, obs: ztyping.ObsTypeInput) -> BinnedSamplerData:
-        """Create a new :py:class:`~zfit.core.data.BinnedSampler` with the same sample but different ordered
-        observables.
-
-        Args:
-            obs: The new observables
-        """
-        from ..core.space import convert_to_space
-
-        obs = convert_to_space(obs)
-        if obs.obs == self.obs:
-            return self
-
-        # todo: should we allow this? Does unbinned allow it?
-        def new_sample_and_variances_func(n):
-            sample, variances = self._sample_and_variances_func(n)
-            return move_axis_obs(self.space, obs, sample, variances=variances)
-
-        return BinnedSamplerData.from_sampler(
-            sample_and_variances_func=new_sample_and_variances_func,
-            n=self.n,
-            obs=obs,
-            fixed_params=self.fixed_params,
-        )
+    # def with_obs(self, obs: ztyping.ObsTypeInput) -> BinnedSamplerData:
+    #     """Create a new :py:class:`~zfit.core.data.BinnedSampler` with the same sample but different ordered
+    #     observables.
+    #
+    #     Args:
+    #         obs: The new observables
+    #     """
+    #     from ..core.space import convert_to_space
+    #
+    #     obs = convert_to_space(obs)
+    #     if obs.obs == self.obs:
+    #         return self
+    #
+    #     # todo: should we allow this? Does unbinned allow it?
+    #     def new_sample_and_variances_func(n):
+    #         sample, variances = self._sample_and_variances_func(n)
+    #         return move_axis_obs(self.space, obs, sample, variances=variances)
+    #
+    #     return BinnedSamplerData.from_sampler(
+    #         sample_and_variances_func=new_sample_and_variances_func,
+    #         n=self.n,
+    #         obs=obs,
+    #         fixed_params=self.fixed_params,
+    #     )
 
     def values(self) -> znp.array:
         """Values/counts of the histogram as an ndim array.

@@ -40,10 +40,10 @@ from ..util.exception import (
     WorkInProgressError,
 )
 from ..util.temporary import TemporarilySet
-from .baseobject import BaseObject
+from .baseobject import BaseObject, convert_param_values
 from .coordinates import convert_to_obs_str
 from .dimension import BaseDimensional
-from .interfaces import ZfitParameter, ZfitSpace, ZfitUnbinnedData
+from .interfaces import ZfitSpace, ZfitUnbinnedData
 from .space import Space, convert_to_space
 
 
@@ -1315,13 +1315,9 @@ class SamplerData(Data):
             params = param_values
         temp_param_values = self.fixed_params.copy()
         if params is not None:
-            if not isinstance(params, dict):
-                msg = "params has to be a dictionary."
-                raise TypeError(msg)
-            params = {p.name if isinstance(p, ZfitParameter) else p: v for p, v in params.items()}
+            params = convert_param_values(params)
             temp_param_values.update(params)
 
-        # with set_values(list(temp_param_values.keys()), list(temp_param_values.values())):
         new_sample, new_weight = self._sample_and_weights_func(n, params=temp_param_values)
         new_sample.set_shape((n, self.space.n_obs))
         if new_weight is not None:

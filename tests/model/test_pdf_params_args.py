@@ -189,3 +189,22 @@ def test_params_as_args_loss(loss):
     assert np.isfinite(loss_values)
     loss_values_params = loss.value(params={param1.name: param1 * 1.1})
     assert abs(loss_values - loss_values_params) > 0.1
+
+@pytest.mark.parametrize('loss', losses)
+def test_params_as_args_fitresult(loss):
+    loss = loss()
+    minimizer = zfit.minimize.Minuit()
+    result = minimizer.minimize(loss)
+    params = loss.get_params(is_yield=False)
+    param1 = list(params)[0]
+    loss_values = result.fmin
+    assert np.isfinite(loss_values)
+    param1min = param1.value()
+    param1.set_value(param1 *0.1)
+    loss_values_nonmin = loss.value()
+    assert np.isfinite(loss_values_nonmin), "Test is flawed, loss is not finite"
+    assert loss_values_nonmin - loss_values > 0.1
+    loss_values_params = loss.value(params={param1.name: param1min})
+    assert pytest.approx(loss_values) == loss_values_params
+    loss_values_result = loss.value(params=result)
+    assert pytest.approx(loss_values) == loss_values_result

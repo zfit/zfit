@@ -7,11 +7,13 @@ from __future__ import annotations
 import contextlib
 import itertools
 from collections import Counter
-from collections.abc import Iterable
+from collections.abc import Iterable, Mapping
+from typing import Union
 
 import tensorflow as tf
 from ordered_set import OrderedSet
 
+from ..minimizers.interface import ZfitResult
 from ..util import ztyping
 from ..util.cache import GraphCachable
 from ..util.checks import NotSpecified
@@ -62,6 +64,28 @@ class BaseObject(ZfitObject):
 
     def __hash__(self):
         return object.__hash__(self)
+
+
+def convert_param_values(params: Union[Mapping[Union[str, ztyping.ParamType], float], ZfitResult]):
+    """Convert the mapping or `ZfitResult` to a dictionary of str -> value.
+
+    Args:
+        params: A mapping of parameter names to values or a `ZfitResult`.
+
+    Returns:
+        A dictionary of parameter names to values.
+
+    Raises:
+        TypeError: If `params` is not a mapping or a `ZfitResult`.
+    """
+    if params is None:
+        params = {}
+    elif isinstance(params, ZfitResult):
+        params = params.values
+    elif not isinstance(params, Mapping):
+        msg = f"`params` has to be a mapping (dict-like) or a `ZfitResult`, is {params} of type {type(params)}."
+        raise TypeError(msg)
+    return {param.name if isinstance(param, ZfitParameter) else param: value for param, value in params.items()}
 
 
 class BaseParametrized(BaseObject, ZfitParametrized):
@@ -149,9 +173,8 @@ class BaseParametrized(BaseObject, ZfitParametrized):
     def _check_set_input_params(self, params, guarantee_checked=None):
         if guarantee_checked is None:
             guarantee_checked = False
-        if params is not None and not isinstance(params, dict):
-            msg = "`params` has to be a dictionary."
-            raise TypeError(msg)
+
+        params = convert_param_values(params)
 
         if params is not None:
             if guarantee_checked:
@@ -161,8 +184,8 @@ class BaseParametrized(BaseObject, ZfitParametrized):
                 all_params = self.get_params(floating=None, is_yield=None)
                 toset_params = params.copy()
                 for param in all_params:
-                    if (p := param) in params or (p := param.name) in params:
-                        newpars[param] = toset_params.pop(p)
+                    if (pname := param.name) in params:
+                        newpars[param] = toset_params.pop(pname)
 
                 if toset_params:
                     msg = f"Parameters {toset_params} were not found in the parameters of {self}: {all_params}."

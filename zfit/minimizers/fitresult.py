@@ -1590,6 +1590,12 @@ class ListWithKeys(collections.UserList):
     def keys(self):
         return self._initdict.keys()
 
+    def values(self):
+        return self._initdict.values()
+
+    def items(self):
+        return self._initdict.items()
+
 
 class ValuesHolder(NameToParamGetitem, ListWithKeys):
     __slots__ = ()
