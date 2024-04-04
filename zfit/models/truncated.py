@@ -29,7 +29,7 @@ def check_limits(limits: Union[ZfitSpace, list[ZfitSpace]]):
         if notspace:
             msg = f"limits {notspace} are not of type ZfitSpace."
             raise TypeError(msg)
-    limits_sorted = sorted(limits, key=lambda limit: limit.v1.lower)
+    limits_sorted = tuple(sorted(limits, key=lambda limit: limit.v1.lower))
     return check_overlap(limits_sorted)
 
 
