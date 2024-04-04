@@ -55,7 +55,7 @@ also the advanced models in `zfit models <https://github.com/zfit/zfit-tutorials
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Iterable
 
 from tensorflow.python.util.deprecation import deprecated_args
 
@@ -87,7 +87,7 @@ from ..util.exception import (
 from ..util.temporary import TemporarilySet
 from .basemodel import BaseModel
 from .baseobject import extract_filter_params
-from .interfaces import ZfitParameter, ZfitPDF
+from .interfaces import ZfitParameter, ZfitPDF, ZfitSpace
 from .parameter import Parameter, convert_to_parameter
 from .sample import extended_sampling
 from .space import Space
@@ -218,7 +218,7 @@ class BasePDF(ZfitPDF, BaseModel):
     @deprecated_args(None, "Use `norm` instead.", "limits")
     def normalization(
         self,
-        norm: ztyping.LimitsType,
+        norm: ztyping.LimitsType = None,
         *,
         options=None,
         limits: ztyping.LimitsType = None,
@@ -244,7 +244,7 @@ class BasePDF(ZfitPDF, BaseModel):
         del limits
         if options is None:
             options = {}
-        norm = self._check_input_norm(norm, none_is_error=True)
+        norm = self._check_input_norm(norm)
         with self._check_set_input_params(params=params):
             return self._single_hook_normalization(norm=norm, options=options)
 
@@ -935,3 +935,59 @@ class BasePDF(ZfitPDF, BaseModel):
         from ..models.tobinned import BinnedFromUnbinnedPDF
 
         return BinnedFromUnbinnedPDF(pdf=self, space=space, extended=extended, norm=norm)
+
+    def to_truncated(
+        self,
+        limits: ZfitSpace | Iterable[ZfitSpace] | None = None,
+        *,
+        obs=None,
+        extended=None,
+        norm=None,
+        name: str | None = None,
+        label: str | None = None,
+    ):
+        """Convert the PDF to a truncated version with possibly different and multiple limits.
+
+        The arguments are the same as for :py:class:`~zfit.pdf.TruncatedPDF`, the only difference being that
+        if no limits are given, the limit of the PDF is used, thereby truncating the PDF to its original limits.
+
+        Args:
+            pdf: The PDF to be truncated.
+            limits: The limits to truncate the PDF. Can be a single limit or multiple limits.
+            obs: |@doc:pdf.init.obs| Observables of the
+               model. This will be used as the default space of the PDF and,
+               if not given explicitly, as the normalization range.
+
+               The default space is used for example in the sample method: if no
+               sampling limits are given, the default space is used.
+
+               The observables are not equal to the domain as it does not restrict or
+               truncate the model outside this range. |@docend:pdf.init.obs|
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+               If None, the PDF will be extended if the original PDF is extended.
+               If ``True`` and the original PDF is extended, the yield will be scaled to the
+               fraction of the total integral that is within the limits.
+               Therefore, the overall yield is comparable, i.e. the pdfs can be plotted
+               "on top of each other".
+            norm: |@doc:pdf.init.norm| Normalization of the PDF.
+               By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
+            name: |@doc:pdf.init.name| Name of the PDF.
+               Maybe has implications on the serialization and deserialization of the PDF.
+               For a human-readable name, use the label. |@docend:pdf.init.name|
+        """
+
+        from ..models.truncated import TruncatedPDF
+
+        if limits is None:
+            limits = self.space
+        if obs is None:
+            obs = self.space
+        if name is None:
+            name = self.name + "_truncated"
+        if label is None:
+            label = self.label + " truncated"
+        return TruncatedPDF(pdf=self, obs=obs, limits=limits, extended=extended, norm=norm, name=name, label=label)

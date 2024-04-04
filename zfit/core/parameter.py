@@ -1120,7 +1120,7 @@ class ComposedParameter(SerializableMixin, BaseComposedParameter):
             if isinstance(params, ZfitParameter):
                 params = [params]
                 unpack_params = True
-            elif len(parameters) == 1 and (len(params) > 1 or "params" in parameters):
+            elif len(parameters) == 1 and (len(params) > 1) or "params" in parameters:
                 unpack_params = False
             elif len(parameters) - len(params) >= 0:
                 unpack_params = True

@@ -642,7 +642,7 @@ class BaseBinnedPDFV1(
         raise SpecificFunctionNotImplemented
 
     @deprecated_args(None, "Use `norm` instead.", "limits")
-    def normalization(self, norm, *, params=None, options=None, limits=None) -> ztyping.NumericalTypeReturn:
+    def normalization(self, norm=None, *, params=None, options=None, limits=None) -> ztyping.NumericalTypeReturn:
         """Normalization of the PDF. For a binned PDF, this is the sum over the counts or the integral over the density.
 
         Args:
@@ -667,7 +667,7 @@ class BaseBinnedPDFV1(
             norm = limits
         if options is None:
             options = {}
-        norm = self._check_convert_norm(norm, none_is_error=True)
+        norm = self._check_convert_norm(norm)
         with self._check_set_input_params(params=params):
             return self._call_normalization(norm, options=options)
 

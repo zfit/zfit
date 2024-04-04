@@ -492,6 +492,9 @@ class ZfitLimit(abc.ABC, metaclass=ABCMeta):
 
 
 class ZfitSpace(ZfitLimit, ZfitOrderableDimensional, ZfitObject, metaclass=ABCMeta):
+    V1: ZfitSpace
+    V0: ZfitSpace
+
     @property
     def is_binned(self):
         raise NotImplementedError
@@ -827,7 +830,7 @@ class ZfitModel(ZfitNumericParametrized, ZfitDimensional):
         raise NotImplementedError
 
     @abstractmethod
-    def integrate(self, limits: ztyping.LimitsType, norm: ztyping.LimitsType = None, *, options) -> ztyping.XType:
+    def integrate(self, limits: ztyping.LimitsType, norm: ztyping.LimitsType = None, *, options=None) -> ztyping.XType:
         """Integrate the function over `limits` (normalized over `norm_range` if not False).
 
         Args:
@@ -953,7 +956,7 @@ class ZfitPDF(ZfitModel):
         raise NotImplementedError
 
     @abstractmethod
-    def normalization(self, limits: ztyping.LimitsType, *, options) -> ztyping.NumericalTypeReturn:
+    def normalization(self, norm: ztyping.LimitsType, *, options) -> ztyping.NumericalTypeReturn:
         raise NotImplementedError
 
     @abstractmethod
