@@ -60,12 +60,10 @@ def TmpGaussian():
                 obs,
                 mu,
                 sigma,
-                dtype: type = zfit.ztypes.float,
-                name: str = "BasePDF",
                 **kwargs,
         ):
             params = {"mu": mu, "sigma": sigma}
-            super().__init__(obs, params, dtype, name, **kwargs)
+            super().__init__(obs, params=params, **kwargs)
 
         def _unnormalized_pdf(self, x):
             x = x.unstack_x()

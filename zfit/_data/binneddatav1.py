@@ -2,26 +2,27 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable, Mapping
+from collections.abc import Callable
 from typing import TYPE_CHECKING, Optional
 
 import numpy as np
 import xxhash
+from tensorflow.python.util.deprecation import deprecated
 from zfit_interface.typing import TensorLike
 
-from ..core.parameter import set_values
+from ..core.baseobject import convert_param_values
 
 if TYPE_CHECKING:
-    import zfit
+    pass
 
 import boost_histogram as bh
 import hist
 import tensorflow as tf
 
-from zfit._variables.axis import binning_to_histaxes, histaxes_to_binning
-from zfit.core.interfaces import ZfitBinnedData, ZfitData, ZfitSpace
 from zfit.z import numpy as znp
 
+from .._variables.axis import binning_to_histaxes, histaxes_to_binning
+from ..core.interfaces import ZfitBinnedData, ZfitData, ZfitSpace
 from ..util import ztyping
 from ..util.exception import BreakingAPIChangeError, ShapeIncompatibleError
 
@@ -219,7 +220,8 @@ class BinnedData(
         Args:
             obs: Which obs to return
         """
-        return type(self)(holder=self.holder.with_obs(obs), name=self.name, label=self.label)
+        return BinnedData(holder=self.holder.with_obs(obs), name=self.name, label=self.label)
+        # no subclass, as this allows the sampler to be the same still and not reinitiated
 
     def _update_hash(self):
         from zfit import run
@@ -382,24 +384,18 @@ class BinnedData(
 # tensorlike.register_tensor_conversion(BinnedData, name='BinnedData', overload_operators=True)
 
 
-class SampleHolder(BinnedHolder):
-    def with_obs(self, obs):  # noqa: ARG002
-        msg = "INTERNAL ERROR, should never be used directly"
-        raise AssertionError(msg)
-
-
 class BinnedSamplerData(BinnedData):
     _cache_counting = 0
 
     def __init__(
         self,
-        dataset: SampleHolder,
+        dataset: BinnedHolder,
+        *,
         sample_and_variances_func: Callable,
         sample_holder: tf.Variable = None,
         variances_holder: tf.Variable = None,
         n: ztyping.NumericalScalarType | Callable = None,
-        fixed_params: dict[zfit.Parameter, ztyping.NumericalScalarType] | None = None,
-        *,
+        params: ztyping.ParamValuesMap = None,
         name: str | None = None,
         label: str | None = None,
     ):
@@ -414,19 +410,16 @@ class BinnedSamplerData(BinnedData):
             variances_holder: The tensor that holds the variances.
             n: The number of samples to produce. If the `SamplerData` was created with
                 anything else then a numerical or tf.Tensor, this can't be used.
-            fixed_params: A mapping from `Parameter` to a fixed value that should be used for the sampling.
+            params: A mapping from `Parameter` to a fixed value that should be used for the sampling.
             name: The name of the data object.
             label: The label of the data object.
         """
         super().__init__(holder=dataset, name=name, label=label, use_hash=True)
-        if fixed_params is None:
-            fixed_params = {}
-        if isinstance(fixed_params, (list, tuple)):
-            fixed_params = {param: param.numpy() for param in fixed_params}
+        params = convert_param_values(params)
 
         self._initial_resampled = False
 
-        self.fixed_params = fixed_params
+        self.params = params
         self._sample_holder = sample_holder
         self._variances_holder = variances_holder
         self._sample_and_variances_func = sample_and_variances_func
@@ -441,6 +434,11 @@ class BinnedSamplerData(BinnedData):
             shape=(),
         )
         self.update_data(dataset.values, variances=dataset.variances)
+
+    @property
+    @deprecated(None, "Use `params` instead.")
+    def fixed_params(self):
+        return self.params
 
     @property
     def n_samples(self):
@@ -487,6 +485,7 @@ class BinnedSamplerData(BinnedData):
         sample_and_variances_func: Callable | None = None,
         n: ztyping.NumericalScalarType,
         obs: ztyping.AxesTypeInput,
+        params: ztyping.ParamValuesMap = None,
         fixed_params=None,
         name: str | None = None,
         label: str | None = None,
@@ -500,18 +499,21 @@ class BinnedSamplerData(BinnedData):
             sample_and_variances_func: A function that samples the data and returns the sample and the variances.
             n: The number of samples to produce.
             obs: The observables of the data.
-            fixed_params: A mapping from `Parameter` to a fixed value that should be used for the sampling.
+            params: A mapping from :py:class:~`zfit.Parameter` or string (the name) to a fixed value that should be used for the sampling.
             name: The name of the data object.
             label: The label of the data object.
         """
+        if fixed_params is not None:
+            msg = "Use `params` instead of `fixed_params`."
+            raise BreakingAPIChangeError(msg)
         if int(sample_func is not None) + int(sample_and_variances_func is not None) != 1:
             msg = "Exactly one of `sample`, `sample_func` or `sample_and_variances_func` must be provided."
             raise ValueError(msg)
 
         if sample_func is not None:
 
-            def sample_and_variances_func(n, sample_func=sample_func):
-                sample = sample_func(n)
+            def sample_and_variances_func(n, params, *, sample_func=sample_func):
+                sample = sample_func(n, params=params)
                 return sample, None
 
             del sample_func
@@ -520,14 +522,13 @@ class BinnedSamplerData(BinnedData):
 
         obs = convert_to_space(obs)
 
-        if fixed_params is None:
-            fixed_params = []
-
         from .. import ztypes
 
         dtype = ztypes.float
 
-        initval, initvar = sample_and_variances_func(n)  # todo: preprocess, cut data?
+        params = convert_param_values(params)
+
+        initval, initvar = sample_and_variances_func(n, params=params)  # todo: preprocess, cut data?
         sample_holder = tf.Variable(
             initial_value=initval,
             dtype=dtype,
@@ -547,7 +548,7 @@ class BinnedSamplerData(BinnedData):
             )
         else:
             variances_holder = None
-        dataset = SampleHolder(space=obs, values=sample_holder, variances=variances_holder)
+        dataset = BinnedHolder(space=obs, values=sample_holder, variances=variances_holder)
 
         return cls(
             dataset=dataset,
@@ -556,32 +557,43 @@ class BinnedSamplerData(BinnedData):
             variances_holder=variances_holder,
             name=name,
             label=label,
-            fixed_params=fixed_params,
+            params=params,
             n=n,
         )
 
-    def resample(self, param_values: Mapping | None = None, n: int | tf.Tensor = None):
-        """Update the sample by newly sampling. This affects any object that used this data already.
+    def resample(
+        self,
+        params: ztyping.ParamValuesMap = None,
+        *,
+        n: int | tf.Tensor = None,
+        param_values: ztyping.ParamValuesMap = None,
+    ):
+        """Update the sample by new sampling *inplace*; This affects any object that used this data already.
 
-        All params that are not in the attribute ``fixed_params`` will use their current value for
+        All params that are not in the attribute ``params`` will use their current value for
         the creation of the new sample. The value can also be overwritten for one sampling by providing
         a mapping with ``param_values`` from ``Parameter`` to the temporary ``value``.
 
         Args:
-            param_values: a mapping from :py:class:`~zfit.Parameter` to a `value`. For the current sampling,
-                `Parameter` will use the `value`.
+            params: a mapping from :py:class:`~zfit.Parameter` to a `value` that should be used for the sampling.
+                Any parameter that is not in this mapping will use the value in `params`.
             n: the number of samples to produce. If the `SamplerData` was created with
                 anything else then a numerical or tf.Tensor, this can't be used.
         """
         if n is None:
             n = self.n
 
-        temp_param_values = self.fixed_params.copy()
         if param_values is not None:
-            temp_param_values.update(param_values)
+            if params is not None:
+                msg = "Cannot specify both `fixed_params` and `params`."
+                raise ValueError(msg)
+            params = param_values
+        temp_param_values = self.params.copy()
+        if params is not None:
+            params = convert_param_values(params)
+            temp_param_values.update(params)
 
-        with set_values(list(temp_param_values.keys()), list(temp_param_values.values())):
-            new_sample, new_variances = self._sample_and_variances_func(n)
+        new_sample, new_variances = self._sample_and_variances_func(n, params=temp_param_values)
         self.update_data(new_sample, new_variances)
 
     def update_data(self, sample: TensorLike, variances: TensorLike | None = None):
@@ -608,31 +620,6 @@ class BinnedSamplerData(BinnedData):
             raise ValueError(msg)
         self._initial_resampled = True
         self._update_hash()
-
-    def with_obs(self, obs: ztyping.ObsTypeInput) -> BinnedSamplerData:
-        """Create a new :py:class:`~zfit.core.data.BinnedSampler` with the same sample but different ordered
-        observables.
-
-        Args:
-            obs: The new observables
-        """
-        from ..core.space import convert_to_space
-
-        obs = convert_to_space(obs)
-        if obs.obs == self.obs:
-            return self
-
-        # todo: should we allow this? Does unbinned allow it?
-        def new_sample_and_variances_func(n):
-            sample, variances = self._sample_and_variances_func(n)
-            return move_axis_obs(self.space, obs, sample, variances=variances)
-
-        return BinnedSamplerData.from_sampler(
-            sample_and_variances_func=new_sample_and_variances_func,
-            n=self.n,
-            obs=obs,
-            fixed_params=self.fixed_params,
-        )
 
     def values(self) -> znp.array:
         """Values/counts of the histogram as an ndim array.

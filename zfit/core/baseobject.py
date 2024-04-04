@@ -7,11 +7,13 @@ from __future__ import annotations
 import contextlib
 import itertools
 from collections import Counter
-from collections.abc import Iterable
+from collections.abc import Iterable, Mapping
+from typing import Union
 
 import tensorflow as tf
 from ordered_set import OrderedSet
 
+from ..minimizers.interface import ZfitResult
 from ..util import ztyping
 from ..util.cache import GraphCachable
 from ..util.checks import NotSpecified
@@ -62,6 +64,28 @@ class BaseObject(ZfitObject):
 
     def __hash__(self):
         return object.__hash__(self)
+
+
+def convert_param_values(params: Union[Mapping[Union[str, ztyping.ParamType], float], ZfitResult]):
+    """Convert the mapping or `ZfitResult` to a dictionary of str -> value.
+
+    Args:
+        params: A mapping of parameter names to values or a `ZfitResult`.
+
+    Returns:
+        A dictionary of parameter names to values.
+
+    Raises:
+        TypeError: If `params` is not a mapping or a `ZfitResult`.
+    """
+    if params is None:
+        params = {}
+    elif isinstance(params, ZfitResult):
+        params = params.values
+    elif not isinstance(params, Mapping):
+        msg = f"`params` has to be a mapping (dict-like) or a `ZfitResult`, is {params} of type {type(params)}."
+        raise TypeError(msg)
+    return {param.name if isinstance(param, ZfitParameter) else param: value for param, value in params.items()}
 
 
 class BaseParametrized(BaseObject, ZfitParametrized):
@@ -144,6 +168,44 @@ class BaseParametrized(BaseObject, ZfitParametrized):
     @property
     def params(self) -> ztyping.ParameterType:
         return self._params
+
+    @contextlib.contextmanager
+    def _check_set_input_params(self, params, guarantee_checked=None):
+        paramvalues = self._check_convert_input_paramvalues(params, guarantee_checked)
+        import zfit
+
+        with zfit.param.set_values(tuple(paramvalues.keys()), tuple(paramvalues.values())):
+            yield paramvalues
+
+    def _check_convert_input_paramvalues(self, params, guarantee_checked=None) -> dict[str, float] | None:
+        if guarantee_checked is None:
+            guarantee_checked = False
+
+        newpars = {}
+        if params is not None:
+            if guarantee_checked:
+                newpars = params
+            else:
+                params = convert_param_values(params)
+                newpars = {}
+                all_params = self.get_params(floating=None, is_yield=None)
+                toset_params = params.copy()
+                for param in all_params:
+                    if (pname := param.name) in params:
+                        newpars[param] = toset_params.pop(pname)
+
+                if toset_params:
+                    msg = f"Parameters {toset_params} were not found in the parameters of {self}: {all_params}."
+                    raise ValueError(msg)
+
+                # This is for converting and passing through, complicated?
+                # for param in all_params:
+                #     if param in params or param.name in params:
+                #         newpars[param] = params[param]
+                #     else:
+                #         newpars[param] = znp.asarray(param.value())
+
+        return newpars
 
 
 class BaseNumeric(

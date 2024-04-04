@@ -8,11 +8,10 @@ import pydantic
 import xxhash
 from pydantic import Field
 from tensorflow.python.types.core import TensorLike
-from tensorflow.python.util.deprecation import deprecated
+from tensorflow.python.util.deprecation import deprecated, deprecated_args
 
 from ..serialization import SpaceRepr
 from ..serialization.serializer import BaseRepr, to_orm_init
-from .parameter import set_values
 from .serialmixin import SerializableMixin, ZfitSerializable
 
 if TYPE_CHECKING:
@@ -41,7 +40,7 @@ from ..util.exception import (
     WorkInProgressError,
 )
 from ..util.temporary import TemporarilySet
-from .baseobject import BaseObject
+from .baseobject import BaseObject, convert_param_values
 from .coordinates import convert_to_obs_str
 from .dimension import BaseDimensional
 from .interfaces import ZfitSpace, ZfitUnbinnedData
@@ -1002,12 +1001,13 @@ class SamplerData(Data):
     def __init__(
         self,
         dataset: LightDataset,
+        *,
         sample_and_weights_func: Callable,
         sample_holder: tf.Variable,
         n: ztyping.NumericalScalarType | Callable,
         weights=None,
         weights_holder: tf.Variable | None = None,
-        fixed_params: dict[zfit.Parameter, ztyping.NumericalScalarType] | None = None,
+        params: dict[zfit.Parameter, ztyping.NumericalScalarType] | None = None,
         obs: ztyping.ObsTypeInput = None,
         name: str | None = None,
         label: str | None = None,
@@ -1029,14 +1029,11 @@ class SamplerData(Data):
             use_hash=use_hash,
             guarantee_limits=guarantee_limits,
         )
-        if fixed_params is None:
-            fixed_params = {}
-        if isinstance(fixed_params, (list, tuple)):
-            fixed_params = {param: param.numpy() for param in fixed_params}  # TODO: numpy -> read_value?
+        params = convert_param_values(params)
 
         self._initial_resampled = False
 
-        self.fixed_params = fixed_params
+        self.params = params
         self._sample_holder = sample_holder
         self._weights_holder = weights_holder
         self._weights = self._weights_holder
@@ -1050,6 +1047,13 @@ class SamplerData(Data):
         self.update_data(dataset.value(), weights=weights)  # to be used for precompilations etc
         self._sampler_guarantee_limits = guarantee_limits
 
+    # legacy
+    @property
+    @deprecated(None, "Use `params` instead.")
+    def fixed_params(self):
+        return self.params
+
+    # legacy end
     @property
     def n_samples(self):
         return self._n_holder
@@ -1119,6 +1123,7 @@ class SamplerData(Data):
         )
 
     @classmethod
+    @deprecated_args(None, "Use `params` instead.", "fixed_params")
     def from_sampler(
         cls,
         *,
@@ -1126,6 +1131,7 @@ class SamplerData(Data):
         sample_and_weights_func: Optional[Callable] = None,
         n: ztyping.NumericalScalarType,
         obs: ztyping.ObsTypeInput,
+        params: ztyping.ParamValuesMap = None,
         fixed_params=None,
         name: str | None = None,
         label: str | None = None,
@@ -1152,8 +1158,8 @@ class SamplerData(Data):
 
             n: The number of samples to produce initially. This is used to have a first sample that can be used for compilation.
             obs: The observables of the data.
-            fixed_params: A mapping from `Parameter` to a fixed value. If a fixed value is given, the parameter will
-                not be sampled but instead use the fixed value.
+            params: A mapping from `Parameter` or a string to a numerical value. This is used as the default values for the
+                parameters in the `sample_func` or `sample_and_weights_func` and needs to fully specify the parameters.
             label: |@doc:data.init.label| Human-readable name
                or label of the data for a better description, to be used with plots etc.
                Has no programmatical functional purpose as identification. |@docend:data.init.label|
@@ -1162,6 +1168,11 @@ class SamplerData(Data):
             guarantee_limits: |@doc:data.init.guarantee_limits| Guarantee that the data is within the limits.
                If ``True``, the data will not be checked and _is assumed_ to be within the limits. |@docend:data.init.guarantee_limits|
         """
+        # legacy start
+        if fixed_params is not None:
+            msg = "Use `params` instead of `fixed_params`."
+            raise BreakingAPIChangeError(msg)
+        # legacy end
         if sample_func is None and sample_and_weights_func is None:
             msg = "Either `sample_func` or `sample_and_weights_func` has to be given."
             raise ValueError(msg)
@@ -1176,20 +1187,19 @@ class SamplerData(Data):
                 )
                 raise TypeError(msg)
 
-            def sample_and_weights_func(n):
-                return sample_func(n), None
+            def sample_and_weights_func(n, params):
+                return sample_func(n, params), None
         elif not callable(sample_and_weights_func):
             msg = "sample_and_weights_func has to be a callable."
             raise TypeError(msg)
 
         obs = convert_to_space(obs)
 
-        if fixed_params is None:
-            fixed_params = []
         if dtype is None:
             dtype = ztypes.float
 
-        init_val, init_weights = sample_and_weights_func(n)
+        params = convert_param_values(params)
+        init_val, init_weights = sample_and_weights_func(n, params)
 
         init_val, init_weights = check_cut_data_weights(
             limits=obs, data=init_val, weights=init_weights, guarantee_limits=guarantee_limits
@@ -1219,7 +1229,7 @@ class SamplerData(Data):
             sample_holder=sample_holder,
             weights_holder=weights_holder,
             sample_and_weights_func=sample_and_weights_func,
-            fixed_params=fixed_params,
+            params=params,
             n=n,
             obs=obs,
             name=name,
@@ -1272,28 +1282,40 @@ class SamplerData(Data):
         self._initial_resampled = True
         self._update_hash()
 
-    def resample(self, param_values: Mapping | None = None, n: int | tf.Tensor = None):
+    @deprecated_args(None, "Use `params` instead.", "param_values")
+    def resample(
+        self,
+        params: ztyping.ParamValuesMap = None,
+        *,
+        n: TensorLike = None,
+        param_values: ztyping.ParamValuesMap = None,
+    ):
         """Update the sample by newly sampling. This affects any object that used this data already internally.
 
-        All params that are not in the attribute ``fixed_params`` will use their current value for
+        All params that are not in the attribute ``params`` will use their current value for
         the creation of the new sample. The value can also be overwritten for one sampling by providing
         a mapping with ``param_values`` from ``Parameter`` to the temporary ``value``.
 
         Args:
-            param_values: a mapping from :py:class:`~zfit.Parameter` to a `value`. For the current sampling,
-                `Parameter` will use the `value`.
+            params: a mapping from :py:class:`~zfit.Parameter` or string to a `value` so that the sampler will use
+                this value for the sampling. If not given, the `params` will be used.
             n: the number of samples to produce. If the `Sampler` was created with
                 anything else then a numerical or tf.Tensor, this can't be used.
         """
         if n is None:
             n = self.n
 
-        temp_param_values = self.fixed_params.copy()
         if param_values is not None:
-            temp_param_values.update(param_values)
+            if params is not None:
+                msg = "Cannot specify both `fixed_params` and `params`."
+                raise ValueError(msg)
+            params = param_values
+        temp_param_values = self.params.copy()
+        if params is not None:
+            params = convert_param_values(params)
+            temp_param_values.update(params)
 
-        with set_values(list(temp_param_values.keys()), list(temp_param_values.values())):
-            new_sample, new_weight = self._sample_and_weights_func(n)
+        new_sample, new_weight = self._sample_and_weights_func(n, params=temp_param_values)
         new_sample.set_shape((n, self.space.n_obs))
         if new_weight is not None:
             new_weight.set_shape((n,))

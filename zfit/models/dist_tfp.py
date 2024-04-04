@@ -222,7 +222,7 @@ class Gauss(WrapDistribution, SerializableMixin):
                or label of
                the PDF for better identification. |@docend:model.init.name|
         """
-        mu, sigma = self._check_input_params(mu, sigma)
+        mu, sigma = self._check_input_params_tfp(mu, sigma)
         params = {"mu": mu, "sigma": sigma}
 
         def dist_params():
@@ -257,7 +257,7 @@ class ExponentialTFP(WrapDistribution):
         obs: ztyping.ObsTypeInput,
         name: str = "Exponential",
     ):
-        (tau,) = self._check_input_params(tau)
+        (tau,) = self._check_input_params_tfp(tau)
         params = {"tau", tau}
         dist_params = {"rate": tau}
         distribution = tfp.distributions.Exponential
@@ -298,7 +298,7 @@ class Uniform(WrapDistribution):
                By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
             name: |@doc:model.init.pdf||@docend:model.init.pdf|
         """
-        low, high = self._check_input_params(low, high)
+        low, high = self._check_input_params_tfp(low, high)
         params = {"low": low, "high": high}
 
         def dist_params():
@@ -350,7 +350,7 @@ class TruncatedGauss(WrapDistribution):
                or label of
                the PDF for better identification. |@docend:model.init.name|
         """
-        mu, sigma, low, high = self._check_input_params(mu, sigma, low, high)
+        mu, sigma, low, high = self._check_input_params_tfp(mu, sigma, low, high)
         params = {"mu": mu, "sigma": sigma, "low": low, "high": high}
         distribution = tfp.distributions.TruncatedNormal
 
@@ -411,7 +411,7 @@ class Cauchy(WrapDistribution, SerializableMixin):
                or label of
                the PDF for better identification. |@docend:model.init.name|
         """
-        m, gamma = self._check_input_params(m, gamma)
+        m, gamma = self._check_input_params_tfp(m, gamma)
         params = {"m": m, "gamma": gamma}
         distribution = tfp.distributions.Cauchy
 
@@ -473,7 +473,7 @@ class Poisson(WrapDistribution, SerializableMixin):
         if lamb is not None:
             lam = lamb
         del lamb
-        (lam,) = self._check_input_params(lam)
+        (lam,) = self._check_input_params_tfp(lam)
         params = {"lam": lam}
 
         def dist_params():
@@ -536,7 +536,7 @@ class LogNormal(WrapDistribution, SerializableMixin):
                or label of
                the PDF for better identification. |@docend:model.init.name|
         """
-        mu, sigma = self._check_input_params(mu, sigma)
+        mu, sigma = self._check_input_params_tfp(mu, sigma)
 
         params = {"mu": mu, "sigma": sigma}
 
@@ -605,7 +605,7 @@ class ChiSquared(WrapDistribution, SerializableMixin):
                or label of
                the PDF for better identification. |@docend:model.init.name|
         """
-        (ndof,) = self._check_input_params(ndof)
+        (ndof,) = self._check_input_params_tfp(ndof)
         params = {"ndof": ndof}
 
         def dist_params():
@@ -683,7 +683,7 @@ class StudentT(WrapDistribution, SerializableMixin):
                or label of
                the PDF for better identification. |@docend:model.init.name|
         """
-        ndof, mu, sigma = self._check_input_params(ndof, mu, sigma)
+        ndof, mu, sigma = self._check_input_params_tfp(ndof, mu, sigma)
         params = {"ndof": ndof, "mu": mu, "sigma": sigma}
 
         def dist_params():
@@ -781,7 +781,7 @@ class QGauss(WrapDistribution, SerializableMixin):
         """
         from zfit import run
 
-        q, mu, sigma = self._check_input_params(q, mu, sigma)
+        q, mu, sigma = self._check_input_params_tfp(q, mu, sigma)
         if run.executing_eagerly():
             if q < 1 or q > 3:
                 msg = "q < 1 or q > 3 are not supported"
@@ -887,7 +887,7 @@ class BifurGauss(WrapDistribution, SerializableMixin):
                or label of
                the PDF for better identification. |@docend:model.init.name|
         """
-        mu, sigmal, sigmar = self._check_input_params(mu, sigmal, sigmar)
+        mu, sigmal, sigmar = self._check_input_params_tfp(mu, sigmal, sigmar)
         params = {"mu": mu, "sigmal": sigmal, "sigmar": sigmar}
 
         # sigmal = scale / skewness

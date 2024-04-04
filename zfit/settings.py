@@ -10,13 +10,17 @@ from .util.execution import RunManager
 run = RunManager()
 
 
-def set_seed(seed=None, numpy=None, backend=None):
+def set_seed(seed=None, numpy=None, backend=None, zfit=None):
     """Set random seed for zfit, numpy and the backend. If seed is given, this is used to generate deterministic seeds
-    for numpy and the backend.
+    for numpy, zfit and the backend.
+
+    Notably, no python random seed is set.
 
     .. warning::
+
         To use this function to guarantee randomness, do *not* specify a seed.
-        Use a seed _only_ for reproducibility: there have been weird cases of correlation between the seed and the result.
+        Use a seed _only_ for reproducibility: there have been unique cases of correlation between the seed and the result.
+        As the seeds are returned, you can save them and rerun _if needed_.
 
     Uses `os.urandom` to generate a seed if `None` is given, which guarantees cryptographically secure randomness.
 
@@ -24,14 +28,21 @@ def set_seed(seed=None, numpy=None, backend=None):
         seed (int, optional): Seed to set for the random number generator of the seeds for within zfit. If `None` (default), the seed is set to a random value.
         numpy (int, bool, optional): Seed to set for numpy. If `True` (default), a random seed depending on the seed as used for zfit is used. If `False`, the seed is not set.
         backend (int, bool, optional): Seed to set for the backend. If `True` (default), a random seed depending on the seed as used for zfit is used. If `False`, the seed is not set.
+        zfit (int, bool, optional): Seed to set for zfit. If `True` (default), a random seed is used. If `False`, the seed is not set.
+
+    Returns:
+        dict: Seeds that were set, with the keys `zfit`, `numpy`, `backend`.
     """
     if seed is None:
-        seed = True
+        seed = generate_urandom_seed()
 
     if numpy is None:
         numpy = True
     if backend is None:
         backend = True
+    if zfit is None:
+        zfit = True
+    initial_seed = seed
 
     if numpy is True:
         if seed is True:
@@ -55,13 +66,19 @@ def set_seed(seed=None, numpy=None, backend=None):
 
     from .z.random import get_prng
 
-    if seed is True:
-        seed = generate_urandom_seed()
-    else:
-        rng = np.random.default_rng(seed)
-        seed = rng.integers(0, 2**31 - 1)
-
-    get_prng().reset_from_seed(seed)
+    if zfit is True:
+        if seed is True:
+            zfit = generate_urandom_seed()
+        else:
+            rng = np.random.default_rng(seed)
+            seed = rng.integers(0, 2**31 - 1)
+            zfit = seed
+    if zfit is not None and zfit is not False:
+        get_prng().reset_from_seed(zfit)
+    seeds = {"zfit": zfit, "numpy": numpy, "backend": backend}
+    if initial_seed is not True:
+        seeds["seed"] = initial_seed
+    return seeds
 
 
 def generate_urandom_seed():

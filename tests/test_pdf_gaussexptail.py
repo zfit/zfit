@@ -1,4 +1,4 @@
-#  Copyright (c) 2025 zfit
+#  Copyright (c) 2024 zfit
 import numpy as np
 import pytest
 from scipy import integrate

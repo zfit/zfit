@@ -21,7 +21,7 @@ def test_binnedsampler_update_data(variances):
     space2 = zfit.Space('obs2', limits=(-200, 100), binning=bins2)
     space3 = zfit.Space('obs3', limits=(-150, 350), binning=bins3)
     obs = space1 * space2 * space3
-    sampler = zfit.data.BinnedSamplerData.from_sampler(obs=obs, sample_and_variances_func=lambda n: (sample, variances), n=10000)
+    sampler = zfit.data.BinnedSamplerData.from_sampler(obs=obs, sample_and_variances_func=lambda n, params: (sample, variances), n=10000)
     if variances is not None:
         assert np.allclose(sampler.variances(), variances)
     assert np.allclose(sampler.values(), sample)
@@ -43,7 +43,7 @@ def test_binnedsampler_update_data(variances):
     binneddata = sampler.with_obs(obs=space2 * space1 * space3)
     assert binneddata.space == space2 * space1 * space3
 
-    sample_new = np.moveaxis(sample, [0, 1, 2], [1, 0, 2])
+    sample_new = np.moveaxis(sample3, [0, 1, 2], [1, 0, 2])
     np.testing.assert_allclose(binneddata.values(), sample_new)
     if variances is not None:
         variances_new = np.moveaxis(variances, [0, 1, 2], [1, 0, 2])

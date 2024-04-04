@@ -1610,7 +1610,7 @@ def check_convert_param_values_assign(params, values, allow_partial=False):
                 new_params.append(param)
             elif not allow_partial:
                 msg = (
-                    f"Cannot set {param} with {result!r} as it is not contained. To partially set"
+                    f"Cannot set {param} with {result} as it is not contained. To partially set"
                     f" the parameters (only those in the result), use allow_partial"
                 )
                 raise ValueError(msg)
