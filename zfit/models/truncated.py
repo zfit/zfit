@@ -9,6 +9,7 @@ import tensorflow as tf
 
 import zfit.z.numpy as znp
 
+from .. import z
 from ..core.interfaces import ZfitPDF, ZfitSpace
 from ..core.serialmixin import SerializableMixin
 from ..core.space import convert_to_space, supports
@@ -160,6 +161,7 @@ class TruncatedPDF(BaseFunctor, SerializableMixin):
         prob = self.pdfs[0].pdf(data, norm=False)
         return tf.scatter_nd(indices, prob, tf.shape(xarray, out_type=np.int64)[:1])  # only nevents
 
+    # todo: not needed? We just allow truncation to have multiple limits, should be sufficient?
     # @supports(norm=True)
     # def _normalization(self, norm, options):
     #     if (norms := self._norms) is None:
@@ -186,20 +188,22 @@ class TruncatedPDF(BaseFunctor, SerializableMixin):
 
     # TODO: we could make sampling more efficient by only sampling the relevant ranges, however, that would
     # mean we need to check if the limits of the pdf are within the limits given
-    # @supports()
-    # def _sample(self, n, limits):
-    #     pdf = self.pdfs[0]
-    #     if limits != self.limits:  # we could also do it, but would need to check each limit
-    #         raise SpecificFunctionNotImplemented
-    #     limits = convert_to_container(
-    #         self.limits
-    #     )  # if it's the overarching limits, we can just use our own ones, the real ones
-    #     integrals = znp.concatenate([pdf.integrate(limits=limit, norm=False) for limit in limits])
-    #     fracs = integrals / znp.sum(integrals, axis=0)  # norm
-    #     fracs.set_shape([len(limits)])
-    #     counts = tf.unstack(z.random.counts_multinomial(n, probs=fracs), axis=0)
-    #     samples = [self.pdfs[0].sample(count, limits=limit).value() for count, limit in zip(counts, limits)]
-    #     return znp.concatenate(samples, axis=0)
+    @supports()
+    def _sample(self, n, limits):
+        pdf = self.pdfs[0]
+        if limits != self.space:  # we could also do it, but would need to check each limit
+            raise SpecificFunctionNotImplemented
+        limits = self.limits
+        # should be `self.integrate`, but as we do it numerically currently, more efficient to use pdf
+        if len(limits) > 1:
+            integrals = znp.concatenate([pdf.integrate(limits=limit, norm=False) for limit in limits])
+            fracs = integrals / znp.sum(integrals, axis=0)  # norm
+            fracs.set_shape([len(limits)])
+            counts = tf.unstack(z.random.counts_multinomial(n, probs=fracs), axis=0)
+        else:
+            counts = [n]
+        samples = [self.pdfs[0].sample(count, limits=limit).value() for count, limit in zip(counts, limits)]
+        return znp.concatenate(samples, axis=0)
 
 
 class TruncatedPDFRepr(FunctorPDFRepr):

@@ -69,8 +69,13 @@ def test_truncated_pdf_normalization_ext(extpdf, pdf, limits, wrapper):
     norm = truncated_pdf.normalization(limits[0])
     assert np.all(norm >= 0)
 
-def test_pdf_to_truncated(extpdf):
-    truncated_pdf = extpdf.to_truncated()
+@pytest.mark.parametrize("limits", [None, True], ids=["limits_none", "equivalent_limits"])
+def test_pdf_to_truncated(extpdf, limits):
+    if limits:
+        lim = [extpdf.space.v1.lower, -2, 4, 4.5, extpdf.space.v1.upper]
+
+        limits = [zfit.Space("obs1", lower=lim[i], upper=lim[i + 1]) for i in range(0, len(lim) - 1)]
+    truncated_pdf = extpdf.to_truncated(limits=limits)
     space = extpdf.space
     assert truncated_pdf.integrate(space) == extpdf.integrate(space)
     x = np.array([-0.5, 0.5, 2.5])
@@ -80,6 +85,10 @@ def test_pdf_to_truncated(extpdf):
     x = np.array([space.v1.lower -5, space.v1.upper +3])
     prob = truncated_pdf.pdf(x)
     assert np.all(prob == 0)
+    sample = truncated_pdf.sample(n=1000000)
+    sample_true = extpdf.sample(n=1000000)
+    assert pytest.approx(np.mean(sample.value()), abs=0.01) == np.mean(sample_true.value())
+    assert pytest.approx(np.std(sample.value()), abs=0.01) == np.std(sample_true.value())
 
 
 
