@@ -10,9 +10,9 @@ from pydantic import Field
 from tensorflow.python.types.core import TensorLike
 from tensorflow.python.util.deprecation import deprecated, deprecated_args
 
+from .serialmixin import SerializableMixin, ZfitSerializable
 from ..serialization import SpaceRepr
 from ..serialization.serializer import BaseRepr, to_orm_init
-from .serialmixin import SerializableMixin, ZfitSerializable
 
 if TYPE_CHECKING:
     import zfit
@@ -43,7 +43,7 @@ from ..util.temporary import TemporarilySet
 from .baseobject import BaseObject, convert_param_values
 from .coordinates import convert_to_obs_str
 from .dimension import BaseDimensional
-from .interfaces import ZfitSpace, ZfitUnbinnedData
+from .interfaces import ZfitBinnedData, ZfitSpace, ZfitUnbinnedData
 from .space import Space, convert_to_space
 
 
@@ -157,15 +157,43 @@ class Data(
         use_hash: bool | None = None,
         guarantee_limits: bool = False,
     ):
-        """Create a data holder from a ``dataset`` used to feed into ``models``.
+        """Create data, a thin wrapper around an array-like structure that supports weights and limits.
+
+        Instead of creating a `Data` object directly, the `from_*` constructors, such as `from_pandas`, `from_mapping`,
+        `from_tensor`, and `from_numpy`, can be used for a more fine-grained control of some arguments and
+        for more extensive documentation on the allowed arguments.
+
+        The data is unbinned, i.e. it is a collection of events. The data can be weighted and is defined in a
+        space, which is a set of observables, whose limits are enforced.
 
         Args:
-            data: A dataset storing the actual values
-            obs: Observables where the data is defined in
-            name: Name of the ``Data``
-            weights: Weights of the data
-            dtype: |dtype_arg_descr|
-            use_hash: Whether to use a hash for caching
+            data: A dataset storing the actual values. A variety of data-types are possible, as long as they are
+            array-like.
+            obs: |@doc:data.init.obs||@docend:data.init.obs|
+
+                Some data-types, such as `pd.DataFrame`, already have
+                observables defined implicitly. If `obs` is `None`, the observables are inferred from the data.
+                If the ``obs`` is binned, the unbinned data will be binned according to the binning of the ``obs``
+                and a :py:class:`~zfit.data.BinnedData` will be returned.
+        weights: |@doc:data.init.weights|  |@docend:data.init.weights|
+        name: |@doc:data.init.name||@docend:data.init.name|
+        label: |@doc:data.init.label||@docend:data.init.label|
+        guarantee_limits: |@doc:data.init.guarantee_limits||@docend:data.init.guarantee_limits|
+            For example, if the data is a `pd.DataFrame` and the limits
+            of ``obs`` have already been enforced through a ``query`` on the DataFrame, the limits are guaranteed
+            to be correct and the data will not be checked again.
+            Possible speedup, should not have any effect on the result.
+        dtype: |dtype_arg_descr|
+        use_hash: |@doc:data.init.use_hash| If true, store a hash for caching.
+            If a PDF can cache values, this option needs to be enabled for the PDF
+            to be able to cache values. |@docend:data.init.use_hash|
+
+        Returns:
+            |@doc:data.init.returns||@docend:data.init.returns|
+
+        Raises:
+            ShapeIncompatibleError: If the shape of the data is incompatible with the observables.
+            ValueError: If the data is not a recognized type.
         """
         if use_hash is None:
             use_hash = self.USE_HASH
