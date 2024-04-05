@@ -89,3 +89,12 @@ def warn_changing_feature(message, identifier):
     if identifier not in warned_changed:
         warned_changing.add(identifier)
         warnings.warn(message, category=FutureWarning, stacklevel=2)
+
+
+warned_once = set()
+
+
+def warn_once(message, identifier):
+    if identifier not in warned_once:
+        warned_once.add(identifier)
+        warnings.warn(message, category=UserWarning, stacklevel=2)

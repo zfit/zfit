@@ -88,6 +88,9 @@ class Binnings(hist.axestuple.NamedAxesTuple):
     pass
 
 
+HIST_BINNING_TYPES = (hist.axis.Regular, hist.axis.Variable)
+
+
 def histaxis_to_axis(axis):
     return axis
 

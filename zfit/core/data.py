@@ -43,7 +43,7 @@ from ..util.temporary import TemporarilySet
 from .baseobject import BaseObject, convert_param_values
 from .coordinates import convert_to_obs_str
 from .dimension import BaseDimensional
-from .interfaces import ZfitSpace, ZfitUnbinnedData
+from .interfaces import ZfitBinnedData, ZfitSpace, ZfitUnbinnedData
 from .space import Space, convert_to_space
 
 
@@ -51,7 +51,7 @@ def convert_to_data(data, obs=None):
     if isinstance(data, ZfitUnbinnedData):
         return data
     elif isinstance(data, LightDataset):
-        return Data(dataset=data, obs=obs)
+        return Data(data=data, obs=obs)
     elif isinstance(data, pd.DataFrame):
         return Data.from_pandas(df=data, obs=obs)
     elif isinstance(data, Mapping):
@@ -73,6 +73,37 @@ def convert_to_data(data, obs=None):
     raise TypeError(msg)
 
 
+class DataMeta(type):
+    def __call__(cls, data, obs=None, *args, **kwargs):
+        """Construct an instance of a class whose metaclass is Meta."""
+        assert isinstance(cls, DataMeta)
+        if binned := (obs is not None and isinstance(obs, ZfitSpace) and obs.is_binned):
+            binned_obs = obs
+            obs = obs.with_binning(False)
+
+        if isinstance(data, LightDataset):
+            obj = cls.__new__(cls, *args, **kwargs)
+            obj.__init__(data, obs=obs, **kwargs)
+        elif isinstance(data, pd.DataFrame):
+            obj = cls.from_pandas(data, obs=obs, **kwargs)
+        elif isinstance(data, Mapping):
+            obj = cls.from_mapping(data, obs=obs, **kwargs)
+        elif tf.is_tensor(data):
+            obj = cls.from_tensor(tensor=data, obs=obs, **kwargs)
+        elif isinstance(data, np.ndarray):
+            obj = cls.from_numpy(array=data, obs=obs, **kwargs)
+        else:
+            try:
+                obj = cls.from_numpy(array=data, obs=obs, **kwargs)
+            except Exception as error:
+                msg = f"Cannot convert {data} to a Data object. Use an explicit constructor (`from_pandas`, `from_mapping`, `from_tensor`, `from_numpy` etc)."
+                raise TypeError(msg) from error
+        if binned:
+            obj = obj.to_binned(binned_obs)
+
+        return obj
+
+
 class Data(
     ZfitUnbinnedData,
     BaseDimensional,
@@ -80,31 +111,81 @@ class Data(
     GraphCachable,
     SerializableMixin,
     ZfitSerializable,
+    metaclass=DataMeta,
 ):
     USE_HASH = False
-    BATCH_SIZE = 1000000  # 1 mio
+    BATCH_SIZE = 1_000_000
 
     def __init__(
         self,
-        dataset: LightDataset,
+        data: LightDataset | pd.DataFrame | Mapping[str, np.ndarray] | tf.Tensor | np.ndarray | zfit.Data,
+        *,
         obs: ztyping.ObsTypeInput = None,
-        name: str | None = None,
         weights: TensorLike = None,
+        name: str | None = None,
         label: str | None = None,
         dtype: tf.DType = None,
         use_hash: bool | None = None,
         guarantee_limits: bool = False,
     ):
-        """Create a data holder from a ``dataset`` used to feed into ``models``.
+        """Create data, a thin wrapper around an array-like structure that supports weights and limits.
+
+        Instead of creating a `Data` object directly, the `from_*` constructors, such as `from_pandas`, `from_mapping`,
+        `from_tensor`, and `from_numpy`, can be used for a more fine-grained control of some arguments and
+        for more extensive documentation on the allowed arguments.
+
+        The data is unbinned, i.e. it is a collection of events. The data can be weighted and is defined in a
+        space, which is a set of observables, whose limits are enforced.
 
         Args:
-            label:
-            dataset: A dataset storing the actual values
-            obs: Observables where the data is defined in
-            name: Name of the ``Data``
-            weights: Weights of the data
+            data: A dataset storing the actual values. A variety of data-types are possible, as long as they are
+               array-like.
+            obs: |@doc:data.init.obs| Space of the data.
+               The space is used to define the observables and the limits of the data.
+               If the :py:class:`~zfit.Space` has limits, these will be used to cut the
+               data. If the data is already cut, use ``guarantee_limits`` for a possible
+               performance improvement. |@docend:data.init.obs|
+
+                Some data-types, such as `pd.DataFrame`, already have
+                observables defined implicitly. If `obs` is `None`, the observables are inferred from the data.
+                If the ``obs`` is binned, the unbinned data will be binned according to the binning of the ``obs``
+                and a :py:class:`~zfit.data.BinnedData` will be returned.
+
+            weights: |@doc:data.init.weights| Weights of the data.
+               Has to be 1-D and match the shape of the data (nevents).
+               Note that a weighted dataset may not be supported by all methods
+               or need additional approximations to correct for the weights, taking
+               more time. |@docend:data.init.weights|
+            name: |@doc:data.init.name| Name of the data.
+               This can possibly be used for future identification, with possible
+               implications on the serialization and deserialization of the data.
+               The name should therefore be "machine-readable" and not contain
+               special characters.
+               (currently not used for a special purpose)
+               For a human-readable name or description, use the label. |@docend:data.init.name|
+            label: |@doc:data.init.label| Human-readable name
+               or label of the data for a better description, to be used with plots etc.
+               Can contain arbitrary characters.
+               Has no programmatical functional purpose as identification. |@docend:data.init.label|
+            guarantee_limits: |@doc:data.init.guarantee_limits| Guarantee that the data is within the limits.
+               If ``True``, the data will not be checked and _is assumed_ to be within the limits,
+               possibly because it was already cut before. This can lead to a performance
+               improvement as the data does not have to be checked. |@docend:data.init.guarantee_limits| For example, if the data is a `pd.DataFrame` and the limits
+                of ``obs`` have already been enforced through a ``query`` on the DataFrame, the limits are guaranteed
+                to be correct and the data will not be checked again.
+                Possible speedup, should not have any effect on the result.
             dtype: |dtype_arg_descr|
-            use_hash: Whether to use a hash for caching
+            use_hash: |@doc:data.init.use_hash| If true, store a hash for caching.
+               If a PDF can cache values, this option needs to be enabled for the PDF
+               to be able to cache values. |@docend:data.init.use_hash|
+
+        Returns:
+            |@doc:data.init.returns| ``zfit.Data`` or ``zfit.BinnedData``:
+               A ``Data`` object containing the unbinned data or a ``BinnedData`` if the obs is binned. |@docend:data.init.returns|
+
+        Raises:
+            ShapeIncompatibleError: If the shape of the data is incompatible with the observables.
+            ValueError: If the data is not a recognized type.
         """
         if use_hash is None:
             use_hash = self.USE_HASH
@@ -127,17 +208,17 @@ class Data(
         self._data_range = self.space
 
         if not guarantee_limits:
-            tensormap = dataset._tensormap if (ismap := dataset._tensor is None) else dataset.value()
+            tensormap = data._tensormap if (ismap := data._tensor is None) else data.value()
             value, weights = check_cut_data_weights(limits=self.space, data=tensormap, weights=weights)
             if ismap:
-                dataset = LightDataset(tensormap=value, ndims=self.space.n_obs)
+                data = LightDataset(tensormap=value, ndims=self.space.n_obs)
             else:
-                dataset = LightDataset.from_tensor(value, ndims=self.space.n_obs)
+                data = LightDataset.from_tensor(value, ndims=self.space.n_obs)
 
         self._name = name
         self._hashint = None
 
-        self.dataset = dataset
+        self.dataset = data
         self._set_weights(weights=weights)
         # check that dimensions are compatible
 
@@ -194,10 +275,11 @@ class Data(
     def dtype(self):
         return self._dtype
 
-    def _set_space(self, obs: Space):
+    def _set_space(self, obs: Space, autofill=True):
         obs = convert_to_space(obs)
         self._check_n_obs(space=obs)
-        obs = obs.with_autofill_axes(overwrite=True)
+        if autofill:
+            obs = obs.with_autofill_axes(overwrite=True)
         self._space = obs
 
     @property
@@ -232,7 +314,7 @@ class Data(
             "obs": self.space,
             "weights": self.weights,
             "name": name,
-            "dataset": self.dataset,
+            "data": self.dataset,
             "label": self.label,
             "dtype": self.dtype,
             "use_hash": self._use_hash,
@@ -240,7 +322,7 @@ class Data(
         }
         newpar["guarantee_limits"] = (
             "obs" not in overwrite_params
-            and "dataset" not in overwrite_params
+            and "data" not in overwrite_params
             and overwrite_params.get("guarantee_limits") is not False
         )
         if "tensor" in overwrite_params:
@@ -254,7 +336,7 @@ class Data(
         """Get the weights of the data."""
         return self._weights
 
-    def with_weights(self, weights: ztyping.WeightsInputType):
+    def with_weights(self, weights: ztyping.WeightsInputType) -> Data:
         """Create a new ``Data`` with a different set of weights.
 
         Args:
@@ -316,33 +398,60 @@ class Data(
         cls,
         df: pd.DataFrame,
         obs: ztyping.ObsTypeInput = None,
+        *,
         weights: ztyping.WeightsInputType | str = None,
         name: str | None = None,
         label: str | None = None,
         dtype: tf.DType = None,
         use_hash: bool | None = None,
         guarantee_limits: bool = False,
-    ):
+    ) -> Data | ZfitBinnedData:
         """Create a ``Data`` from a pandas DataFrame. If ``obs`` is ``None``, columns are used as obs.
 
         Args:
             df: pandas DataFrame that contains the data. If ``obs`` is ``None``, columns are used as obs. Can be
                 a superset of obs.
-            obs: obs to use for the data. obs have to be the columns in the data frame.
+            obs: |@doc:data.init.obs| Space of the data.
+               The space is used to define the observables and the limits of the data.
+               If the :py:class:`~zfit.Space` has limits, these will be used to cut the
+               data. If the data is already cut, use ``guarantee_limits`` for a possible
+               performance improvement. |@docend:data.init.obs|
                 If ``None``, columns are used as obs.
-            weights: Weights of the data. Has to be 1-D and match the shape
-                of the data (nevents) or a string that is a column in the dataframe. By default, looks for a column ``""``, i.e.
-                 an empty string.
+
+            weights: |@doc:data.init.weights| Weights of the data.
+               Has to be 1-D and match the shape of the data (nevents).
+               Note that a weighted dataset may not be supported by all methods
+               or need additional approximations to correct for the weights, taking
+               more time. |@docend:data.init.weights|
             name: |@doc:data.init.name| Name of the data.
-               Maybe has implications on the serialization and deserialization of the data.
+               This can possibly be used for future identification, with possible
+               implications on the serialization and deserialization of the data.
+               The name should therefore be "machine-readable" and not contain
+               special characters.
+               (currently not used for a special purpose)
                For a human-readable name or description, use the label. |@docend:data.init.name|
             label: |@doc:data.init.label| Human-readable name
                or label of the data for a better description, to be used with plots etc.
+               Can contain arbitrary characters.
                Has no programmatical functional purpose as identification. |@docend:data.init.label|
-            dtype: dtype of the data
-            use_hash: If ``True``, a hash of the data is created and is used to identify it in caching.
             guarantee_limits: |@doc:data.init.guarantee_limits| Guarantee that the data is within the limits.
-               If ``True``, the data will not be checked and _is assumed_ to be within the limits. |@docend:data.init.guarantee_limits|
+               If ``True``, the data will not be checked and _is assumed_ to be within the limits,
+               possibly because it was already cut before. This can lead to a performance
+               improvement as the data does not have to be checked. |@docend:data.init.guarantee_limits| For example, if the data is a `pd.DataFrame` and the limits
+                of ``obs`` have already been enforced through a ``query`` on the DataFrame, the limits are guaranteed
+                to be correct and the data will not be checked again.
+                Possible speedup, should not have any effect on the result.
+            dtype: |dtype_arg_descr|
+            use_hash: |@doc:data.init.use_hash| If true, store a hash for caching.
+               If a PDF can cache values, this option needs to be enabled for the PDF
+               to be able to cache values. |@docend:data.init.use_hash|
+
+        Returns:
+            |@doc:data.init.returns| ``zfit.Data`` or ``zfit.BinnedData``:
+               A ``Data`` object containing the unbinned data or a ``BinnedData`` if the obs is binned. |@docend:data.init.returns|
+
+        Raises:
+            ValueError: If the observables are not in the dataframe.
         """
         weights_requested = weights is not None
         if dtype is None:
@@ -389,7 +498,7 @@ class Data(
     @classmethod
     def from_mapping(
         cls,
-        mapping: Mapping[str, np.ndarray],
+        mapping: Mapping[str, ztyping.ArrayLike],
         obs: ztyping.ObsTypeInput = None,
         *,
         weights: TensorLike | None = None,
@@ -397,27 +506,52 @@ class Data(
         name: str | None = None,
         dtype: tf.DType = None,
         use_hash: bool | None = None,
-        guarantee_limits: bool = False,
-    ) -> Data:
+        guarantee_limits: bool | None = False,
+    ) -> Data | ZfitBinnedData:
         """Create a ``Data`` from a mapping of observables to arrays.
 
         Args:
-            mapping: A mapping from the observables to the data.
-            obs: Observables of the data. They will be matched to the data in the same order.
-            weights: Weights of the data. Has to be 1-D and match the shape of the data (nevents).
+            mapping: A mapping from the observables to the data, with the observables as keys and the data as values.
+            obs: |@doc:data.init.obs| Space of the data.
+               The space is used to define the observables and the limits of the data.
+               If the :py:class:`~zfit.Space` has limits, these will be used to cut the
+               data. If the data is already cut, use ``guarantee_limits`` for a possible
+               performance improvement. |@docend:data.init.obs|
+                They will be matched to the data in the same order. Can be omitted, in which case the keys of the
+                mapping are used as observables.
+            weights: |@doc:data.init.weights| Weights of the data.
+               Has to be 1-D and match the shape of the data (nevents).
+               Note that a weighted dataset may not be supported by all methods
+               or need additional approximations to correct for the weights, taking
+               more time. |@docend:data.init.weights|
+                Can also be a string that is a column in the dataframe. By default, look for a column ``""``, i.e.,
+                an empty string.
             name: |@doc:data.init.name| Name of the data.
-               Maybe has implications on the serialization and deserialization of the data.
+               This can possibly be used for future identification, with possible
+               implications on the serialization and deserialization of the data.
+               The name should therefore be "machine-readable" and not contain
+               special characters.
+               (currently not used for a special purpose)
                For a human-readable name or description, use the label. |@docend:data.init.name|
             label: |@doc:data.init.label| Human-readable name
                or label of the data for a better description, to be used with plots etc.
+               Can contain arbitrary characters.
                Has no programmatical functional purpose as identification. |@docend:data.init.label|
-            dtype: dtype of the data.
-            use_hash: If ``True``, a hash of the data is created and is used to identify it in caching.
+            dtype: dtype of the data
+            use_hash: |@doc:data.init.use_hash| If true, store a hash for caching.
+               If a PDF can cache values, this option needs to be enabled for the PDF
+               to be able to cache values. |@docend:data.init.use_hash|
             guarantee_limits: |@doc:data.init.guarantee_limits| Guarantee that the data is within the limits.
-               If ``True``, the data will not be checked and _is assumed_ to be within the limits. |@docend:data.init.guarantee_limits|
+               If ``True``, the data will not be checked and _is assumed_ to be within the limits,
+               possibly because it was already cut before. This can lead to a performance
+               improvement as the data does not have to be checked. |@docend:data.init.guarantee_limits|
 
         Returns:
-            ``zfit.Data``: A ``Data`` object containing the unbinned data.
+            |@doc:data.init.returns| ``zfit.Data`` or ``zfit.BinnedData``:
+               A ``Data`` object containing the unbinned data or a ``BinnedData`` if the obs is binned. |@docend:data.init.returns|
+
+        Raises:
+            ValueError: If the observables are not in the mapping.
         """
         if obs is None:
             obs = tuple(mapping.keys())
@@ -429,7 +563,7 @@ class Data(
         weights = znp.asarray(weights, dtype=dtype) if weights is not None else None
         dataset = LightDataset(tensormap=tensormap, ndims=obs.n_obs)
         return Data(  # *not* class, if subclass, keep constructor
-            dataset=dataset,
+            data=dataset,
             obs=obs,
             weights=weights,
             name=name,
@@ -471,10 +605,15 @@ class Data(
             obs_alias: A mapping from the ``obs`` (as keys) to the actual ``branches`` (as values) in the root file.
                 This allows to have different ``observable`` names, independent of the branch name in the file.
             name: |@doc:data.init.name| Name of the data.
-               Maybe has implications on the serialization and deserialization of the data.
+               This can possibly be used for future identification, with possible
+               implications on the serialization and deserialization of the data.
+               The name should therefore be "machine-readable" and not contain
+               special characters.
+               (currently not used for a special purpose)
                For a human-readable name or description, use the label. |@docend:data.init.name|
             label: |@doc:data.init.label| Human-readable name
                or label of the data for a better description, to be used with plots etc.
+               Can contain arbitrary characters.
                Has no programmatical functional purpose as identification. |@docend:data.init.label|
             dtype: dtype of the data.
             root_dir_options: Options passed to uproot.
@@ -521,39 +660,69 @@ class Data(
             weights_np = weights
         dataset = LightDataset.from_tensor(data, ndims=obs.n_obs)
 
-        return Data(
-            dataset=dataset, obs=obs, name=name, weights=weights_np, dtype=dtype, use_hash=use_hash, label=label
-        )
+        return Data(data=dataset, obs=obs, name=name, weights=weights_np, dtype=dtype, use_hash=use_hash, label=label)
 
     @classmethod
     def from_numpy(
         cls,
         obs: ztyping.ObsTypeInput,
         array: np.ndarray,
+        *,
         weights: ztyping.WeightsInputType = None,
         name: str | None = None,
+        label: str | None = None,
         dtype: tf.DType = None,
         use_hash=None,
         guarantee_limits: bool = False,
-    ):
+    ) -> Data | ZfitBinnedData:
         """Create ``Data`` from a ``np.array``.
 
         Args:
-            obs: Observables of the data. They will be matched to the data in the same order.
-            array: Numpy array containing the data.
-            weights: Weights of the data. Has to be 1-D and match the shape of the data (nevents).
+            obs: |@doc:data.init.obs| Space of the data.
+               The space is used to define the observables and the limits of the data.
+               If the :py:class:`~zfit.Space` has limits, these will be used to cut the
+               data. If the data is already cut, use ``guarantee_limits`` for a possible
+               performance improvement. |@docend:data.init.obs|
+            array: Numpy array containing the data. Has to be of shape (nevents, nobs) or,
+                if only one observable, (nevents) is also possible.
+            weights: |@doc:data.init.weights| Weights of the data.
+               Has to be 1-D and match the shape of the data (nevents).
+               Note that a weighted dataset may not be supported by all methods
+               or need additional approximations to correct for the weights, taking
+               more time. |@docend:data.init.weights|
             name: |@doc:data.init.name| Name of the data.
-               Maybe has implications on the serialization and deserialization of the data.
+               This can possibly be used for future identification, with possible
+               implications on the serialization and deserialization of the data.
+               The name should therefore be "machine-readable" and not contain
+               special characters.
+               (currently not used for a special purpose)
                For a human-readable name or description, use the label. |@docend:data.init.name|
+            label: |@doc:data.init.label| Human-readable name
+               or label of the data for a better description, to be used with plots etc.
+               Can contain arbitrary characters.
+               Has no programmatical functional purpose as identification. |@docend:data.init.label|
             dtype: dtype of the data.
-            use_hash: If ``True``, a hash of the data is created and is used to identify it in caching.
+            use_hash: |@doc:data.init.use_hash| If true, store a hash for caching.
+               If a PDF can cache values, this option needs to be enabled for the PDF
+               to be able to cache values. |@docend:data.init.use_hash|
             guarantee_limits: |@doc:data.init.guarantee_limits| Guarantee that the data is within the limits.
-               If ``True``, the data will not be checked and _is assumed_ to be within the limits. |@docend:data.init.guarantee_limits|
+               If ``True``, the data will not be checked and _is assumed_ to be within the limits,
+               possibly because it was already cut before. This can lead to a performance
+               improvement as the data does not have to be checked. |@docend:data.init.guarantee_limits|
 
         Returns:
-            ``zfit.Data``: A ``Data`` object containing the unbinned data.
-        """
+            |@doc:data.init.returns| ``zfit.Data`` or ``zfit.BinnedData``:
+               A ``Data`` object containing the unbinned data or a ``BinnedData`` if the obs is binned. |@docend:data.init.returns|
 
+        Raises:
+            TypeError: If the array is not a numpy array.
+        """
+        # todo: should we switch orders
+        # # legacy, switch input arguments
+        # if isinstance(obs, np.ndarray) or isinstance(array, (str, ZfitSpace)) or (isinstance(array, (list, tuple)) and isinstance(array[0], str)):
+        #     warn_once("The order of the arguments `obs` and `array` has been swapped, array goes first (as any other `from_` constructor.", identifier="data_from_numpy")
+        #     obs, array = array, obs
+        # # legacy end
         if not isinstance(array, (np.ndarray)) and not (tf.is_tensor(array) and hasattr(array, "numpy")):
             msg = f"`array` has to be a `np.ndarray`. Is currently {type(array)}"
             raise TypeError(msg)
@@ -565,6 +734,7 @@ class Data(
             tensor=tensor,
             weights=weights,
             name=name,
+            label=label,
             dtype=dtype,
             use_hash=use_hash,
             guarantee_limits=guarantee_limits,
@@ -575,34 +745,62 @@ class Data(
         cls,
         obs: ztyping.ObsTypeInput,
         tensor: tf.Tensor,
+        *,
         weights: ztyping.WeightsInputType = None,
         name: str | None = None,
         label: str | None = None,
         dtype: tf.DType = None,
         use_hash=None,
-        *,
         guarantee_limits: bool = False,
-    ) -> Data:
-        """Create a ``Data`` from a ``tf.Tensor``. ``Value`` simply returns the tensor (in the right order).
+    ) -> Data | ZfitBinnedData:
+        """Create a ``Data`` from a ``tf.Tensor``
 
         Args:
-            obs: Observables of the data. They will be matched to the data in the same order.
-            tensor: Tensor containing the data.
-            weights: Weights of the data. Has to be 1-D and match the shape of the data (nevents).
+            obs: |@doc:data.init.obs| Space of the data.
+               The space is used to define the observables and the limits of the data.
+               If the :py:class:`~zfit.Space` has limits, these will be used to cut the
+               data. If the data is already cut, use ``guarantee_limits`` for a possible
+               performance improvement. |@docend:data.init.obs|
+            tensor: Tensor containing the data. Has to be of shape (nevents, nobs) or, if only one observable,
+                (nevents) is also possible.
+            weights: |@doc:data.init.weights| Weights of the data.
+               Has to be 1-D and match the shape of the data (nevents).
+               Note that a weighted dataset may not be supported by all methods
+               or need additional approximations to correct for the weights, taking
+               more time. |@docend:data.init.weights|
             name: |@doc:data.init.name| Name of the data.
-               Maybe has implications on the serialization and deserialization of the data.
+               This can possibly be used for future identification, with possible
+               implications on the serialization and deserialization of the data.
+               The name should therefore be "machine-readable" and not contain
+               special characters.
+               (currently not used for a special purpose)
                For a human-readable name or description, use the label. |@docend:data.init.name|
             label: |@doc:data.init.label| Human-readable name
                or label of the data for a better description, to be used with plots etc.
+               Can contain arbitrary characters.
                Has no programmatical functional purpose as identification. |@docend:data.init.label|
             dtype: dtype of the data.
-            use_hash: If ``True``, a hash of the data is created and is used to identify it in caching.
+            use_hash: |@doc:data.init.use_hash| If true, store a hash for caching.
+               If a PDF can cache values, this option needs to be enabled for the PDF
+               to be able to cache values. |@docend:data.init.use_hash|
             guarantee_limits: |@doc:data.init.guarantee_limits| Guarantee that the data is within the limits.
-               If ``True``, the data will not be checked and _is assumed_ to be within the limits. |@docend:data.init.guarantee_limits|
+               If ``True``, the data will not be checked and _is assumed_ to be within the limits,
+               possibly because it was already cut before. This can lead to a performance
+               improvement as the data does not have to be checked. |@docend:data.init.guarantee_limits|
 
         Returns:
-            ``zfit.Data``: A ``Data`` object containing the unbinned data.
+            |@doc:data.init.returns| ``zfit.Data`` or ``zfit.BinnedData``:
+               A ``Data`` object containing the unbinned data or a ``BinnedData`` if the obs is binned. |@docend:data.init.returns|
+
+        Raises:
+            TypeError: If the tensor is not a tensorflow tensor.
         """
+        # todo: should we switch orders
+        # # legacy start
+        # if isinstance(obs, (np.ndarray, tf.Tensor)) or tf.is_tensor(obs) or isinstance(tensor, (str, ZfitSpace)) or (isinstance(tensor, (list, tuple)) and isinstance(tensor[0], str)):
+        #     warn_once("The order of the arguments `obs` and `array` has been swapped, array goes first (as any other `from_` constructor.", identifier="data_from_numpy")
+        #     obs, tensor = tensor, obs
+        # # legacy end
         if dtype is None:
             dtype = ztypes.float
         tensor = znp.asarray(tensor, dtype=dtype)
@@ -613,7 +811,7 @@ class Data(
         dataset = LightDataset.from_tensor(tensor, ndims=space.n_obs)
 
         return Data(
-            dataset=dataset,
+            data=dataset,
             obs=obs,
             name=name,
             label=label,
@@ -636,14 +834,15 @@ class Data(
             else:  # if the dataset is not yet initialized; this is allowed
                 self._hashint = None
 
-    def with_obs(self, obs, *, guarantee_limits: bool = False):
+    def with_obs(self, obs: ztyping.ObsTypeInput, *, guarantee_limits: bool = False) -> Data:
         """Create a new ``Data`` with a subset of the data using the *obs*.
 
         Args:
             obs: Observables to return. Has to be a subset of the original observables.
-            guarantee_limits: If ``True``, the limits are guaranteed to be correct and will not be checked.
-
-
+            guarantee_limits: |@doc:data.init.guarantee_limits| Guarantee that the data is within the limits.
+               If ``True``, the data will not be checked and _is assumed_ to be within the limits,
+               possibly because it was already cut before. This can lead to a performance
+               improvement as the data does not have to be checked. |@docend:data.init.guarantee_limits|
         Returns:
             ``zfit.Data``: A new ``Data`` object containing the subset of the data.
         """
@@ -657,12 +856,15 @@ class Data(
             guarantee_limits = True
         elif obs == self.space.with_obs(obs):
             guarantee_limits = True
+        if obs.is_binned:
+            msg = "obs is binned, no implicit conversion to binned data allowed. Use `to_binned` instead."
+            raise ValueError(msg)
         indices = self._get_permutation_indices(obs=obs)
         dataset = self.dataset.with_indices(indices)
         weights = self.weights
-        return self.copy(obs=obs, dataset=dataset, weights=weights, guarantee_limits=guarantee_limits)
+        return self.copy(obs=obs, data=dataset, weights=weights, guarantee_limits=guarantee_limits)
 
-    def to_pandas(self, obs: ztyping.ObsTypeInput = None, weightsname: str | None = None):
+    def to_pandas(self, obs: ztyping.ObsTypeInput = None, weightsname: str | None = None) -> pd.DataFrame:
         """Create a ``pd.DataFrame`` from ``obs`` as columns and return it.
 
         Args:
@@ -711,7 +913,7 @@ class Data(
             return values[0]
         return values
 
-    def value(self, obs: ztyping.ObsTypeInput = None, axis: int | None = None):
+    def value(self, obs: ztyping.ObsTypeInput = None, axis: int | None = None) -> tf.Tensor:
         """Return the data as a numpy-like object in ``obs`` order.
 
         Args:
@@ -740,10 +942,10 @@ class Data(
             out = znp.squeeze(out, axis=-1)
         return out
 
-    def numpy(self):
+    def numpy(self) -> np.ndarray:
         return self.to_numpy()
 
-    def to_numpy(self):
+    def to_numpy(self) -> np.ndarray:
         """Return the data as a numpy array.
 
         Pandas DataFrame equivalent method
@@ -848,10 +1050,45 @@ class Data(
     def _get_nevents(self):
         return self.dataset.nevents
 
-    def to_binned(self, space):
+    def to_binned(
+        self,
+        space: ztyping.SpaceType,
+        *,
+        name: str | None = None,
+        label: str | None = None,
+        use_hash: bool | None = None,
+    ) -> ZfitBinnedData:
+        """Bins the data using ``space`` and returns a ``BinnedData`` object.
+
+        Args:
+            space: The space to bin the data in.
+            name: |@doc:data.init.name| Name of the data.
+               This can possibly be used for future identification, with possible
+               implications on the serialization and deserialization of the data.
+               The name should therefore be "machine-readable" and not contain
+               special characters.
+               (currently not used for a special purpose)
+               For a human-readable name or description, use the label. |@docend:data.init.name|
+            label: |@doc:data.init.label| Human-readable name
+               or label of the data for a better description, to be used with plots etc.
+               Can contain arbitrary characters.
+               Has no programmatical functional purpose as identification. |@docend:data.init.label|
+            use_hash: |@doc:data.init.use_hash| If true, store a hash for caching.
+               If a PDF can cache values, this option needs to be enabled for the PDF
+               to be able to cache values. |@docend:data.init.use_hash|
+
+        Returns:
+            ``zfit.BinnedData``: A new ``BinnedData`` object containing the binned data.
+        """
         from zfit._data.binneddatav1 import BinnedData
 
-        return BinnedData.from_unbinned(space=space, data=self)
+        return BinnedData.from_unbinned(
+            space=space,
+            data=self,
+            name=name or self.name,
+            label=label or self.label,
+            use_hash=use_hash or self._use_hash,
+        )
 
     def __getitem__(self, item):
         if isinstance(item, int):
@@ -915,7 +1152,7 @@ class DataRepr(BaseRepr):
     @to_orm_init
     def _to_orm(self, init):
         dataset = LightDataset(znp.asarray(init.pop("data")))
-        init["dataset"] = dataset
+        init["data"] = dataset
         init["obs"] = init.pop("space")
 
         spaces = init["obs"]
@@ -1000,7 +1237,7 @@ class SamplerData(Data):
 
     def __init__(
         self,
-        dataset: LightDataset,
+        data: LightDataset,
         *,
         sample_and_weights_func: Callable,
         sample_holder: tf.Variable,
@@ -1015,12 +1252,16 @@ class SamplerData(Data):
         use_hash: bool | None = None,
         guarantee_limits: bool = False,
     ):
+        """Create a `SamplerData` object.
+
+        Use constructor `from_sampler` instead.
+        """
         if use_hash is not None and not use_hash:
             msg = "use_hash is required for SamplerData."
             raise ValueError(msg)
         use_hash = True
         super().__init__(
-            dataset=dataset,
+            data=data,
             obs=obs,
             name=name,
             label=label,
@@ -1044,7 +1285,7 @@ class SamplerData(Data):
         self.n = n
         self._n_holder = n
         self._hashint_holder = tf.Variable(0, dtype=tf.int64, trainable=False)
-        self.update_data(dataset.value(), weights=weights)  # to be used for precompilations etc
+        self.update_data(data.value(), weights=weights)  # to be used for precompilations etc
         self._sampler_guarantee_limits = guarantee_limits
 
     # legacy
@@ -1157,16 +1398,28 @@ class SamplerData(Data):
                 The sample has to have the same number of observables as the `obs` of the `SamplerData`. If `None`, `sample_func` has to be given.
 
             n: The number of samples to produce initially. This is used to have a first sample that can be used for compilation.
-            obs: The observables of the data.
+            obs: Observables of the data. If the space has limits, the data will be cut to the limits.
             params: A mapping from `Parameter` or a string to a numerical value. This is used as the default values for the
                 parameters in the `sample_func` or `sample_and_weights_func` and needs to fully specify the parameters.
+            name: |@doc:data.init.name| Name of the data.
+               This can possibly be used for future identification, with possible
+               implications on the serialization and deserialization of the data.
+               The name should therefore be "machine-readable" and not contain
+               special characters.
+               (currently not used for a special purpose)
+               For a human-readable name or description, use the label. |@docend:data.init.name|
             label: |@doc:data.init.label| Human-readable name
                or label of the data for a better description, to be used with plots etc.
+               Can contain arbitrary characters.
                Has no programmatical functional purpose as identification. |@docend:data.init.label|
             dtype: The dtype of the data.
-            use_hash: If `True`, a hash of the data is created and is used to identify it in caching.
+            use_hash: |@doc:data.init.use_hash| If true, store a hash for caching.
+               If a PDF can cache values, this option needs to be enabled for the PDF
+               to be able to cache values. |@docend:data.init.use_hash|
             guarantee_limits: |@doc:data.init.guarantee_limits| Guarantee that the data is within the limits.
-               If ``True``, the data will not be checked and _is assumed_ to be within the limits. |@docend:data.init.guarantee_limits|
+               If ``True``, the data will not be checked and _is assumed_ to be within the limits,
+               possibly because it was already cut before. This can lead to a performance
+               improvement as the data does not have to be checked. |@docend:data.init.guarantee_limits|
         """
         # legacy start
         if fixed_params is not None:
@@ -1225,7 +1478,7 @@ class SamplerData(Data):
             )
 
         return cls(
-            dataset=dataset,
+            data=dataset,
             sample_holder=sample_holder,
             weights_holder=weights_holder,
             sample_and_weights_func=sample_and_weights_func,
@@ -1250,7 +1503,9 @@ class SamplerData(Data):
                 initialized with weights, this has to be given. If the `SamplerData` was initialized without weights,
                 this cannot be given.
             guarantee_limits: |@doc:data.init.guarantee_limits| Guarantee that the data is within the limits.
-               If ``True``, the data will not be checked and _is assumed_ to be within the limits. |@docend:data.init.guarantee_limits|
+               If ``True``, the data will not be checked and _is assumed_ to be within the limits,
+               possibly because it was already cut before. This can lead to a performance
+               improvement as the data does not have to be checked. |@docend:data.init.guarantee_limits|
         """
         sample = znp.asarray(sample, dtype=self.dtype)
 
@@ -1342,12 +1597,24 @@ def concat(
 
     Args:
         datasets: The `Data` objects to concatenate.
-        obs: The observables to use. If `None`, the observables of the first `Data` object are used.
+        obs: The observables to use. If ``None``, the observables of the first ``Data`` object are used. They have the same
+            function as on a single ``Data`` object.
         axis: The axis along which to concatenate the data. If `None`, the data is concatenated along the first axis.
             Possible options are `0/index` or `1/obs`. If `obs`, the data is concatenated along the observable axis.
-        name: The name of the new `Data` object.
-        label: The label of the new `Data` object.
-        use_hash: If `True`, a hash of the data is created and is used to identify it in caching.
+        name: The name of the new `Data` object. |@doc:data.init.name| Name of the data.
+               This can possibly be used for future identification, with possible
+               implications on the serialization and deserialization of the data.
+               The name should therefore be "machine-readable" and not contain
+               special characters.
+               (currently not used for a special purpose)
+               For a human-readable name or description, use the label. |@docend:data.init.name|
+        label: The label of the new `Data` object. |@doc:data.init.label| Human-readable name
+               or label of the data for a better description, to be used with plots etc.
+               Can contain arbitrary characters.
+               Has no programmatical functional purpose as identification. |@docend:data.init.label|
+        use_hash: |@doc:data.init.use_hash| If true, store a hash for caching.
+               If a PDF can cache values, this option needs to be enabled for the PDF
+               to be able to cache values. |@docend:data.init.use_hash|
 
 
     Returns:

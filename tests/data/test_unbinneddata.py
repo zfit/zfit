@@ -111,6 +111,11 @@ def test_unbinneddata_getitem_index():
     np.testing.assert_array_equal(data10["obs2"], arr[:, 1])
     np.testing.assert_array_equal(data10["obs1"], arr[:, 0])
 
+    np.testing.assert_array_equal(data10[0], arr[:, 1])
+    np.testing.assert_array_equal(data10[1], arr[:, 0])
+
+
+
 
 def test_unbinned_data_concat_index():
     n = 1000
@@ -131,6 +136,12 @@ def test_unbinned_data_concat_index():
     weights2 = znp.random.uniform(size=(n2,))
     data2w = zfit.Data.from_numpy(obs=space, array=arr2, weights=weights2)
     data2now = zfit.Data.from_numpy(obs=space, array=arr2)
+    # todo: if we want to switch argument orders, legacy element
+    # with pytest.warns(UserWarning):
+    #     data2now_order = zfit.Data.from_numpy(space, arr2)  # wrong order, legacy check
+    # np.testing.assert_array_equal(data2now_order.value(), data2w.value())
+    # assert data2now_order.space == data2w.space
+
 
     arr3 = znp.random.uniform(size=(n3, nobs))
     weights3 = znp.random.uniform(size=(n3,))

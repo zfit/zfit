@@ -15,7 +15,7 @@ import tensorflow as tf
 
 import zfit
 from zfit.core.data import Data
-from zfit.core.interfaces import ZfitPDF
+from zfit.core.interfaces import ZfitPDF, ZfitBinnedPDF
 from zfit.core.parameter import Parameter
 from zfit.core.space import Space
 from zfit.models.dist_tfp import Gauss
@@ -32,10 +32,21 @@ sigma3_true = 1.8
 
 fracs = [0.3, 0.15]
 
-obs1 = zfit.Space("obs1", (-3, 6))
-obs2 = zfit.Space("obs2", (-2, 5))
-obs3 = zfit.Space("obs3", (-3.5, 4))
-obs4 = zfit.Space("obs4", (-2.6, 4.1))
+
+def makeobs1():
+    return zfit.Space("obs1", (-3, 6))
+
+
+def makeobs2():
+    return zfit.Space("obs2", (-2, 5))
+
+
+def makeobs3():
+    return zfit.Space("obs3", (-3.5, 4))
+
+
+def makeobs4():
+    return zfit.Space("obs4", (-2.6, 4.1))
 
 
 def true_gaussian_sum(x):
@@ -43,19 +54,19 @@ def true_gaussian_sum(x):
         return np.sqrt(2 * np.pi) * sigma
 
     sum_gauss = (
-        fracs[0]
-        * np.exp(-((x - mu1_true) ** 2) / (2 * sigma1_true**2))
-        / norm(sigma1_true)
+            fracs[0]
+            * np.exp(-((x - mu1_true) ** 2) / (2 * sigma1_true ** 2))
+            / norm(sigma1_true)
     )
     sum_gauss += (
-        fracs[1]
-        * np.exp(-((x - mu2_true) ** 2) / (2 * sigma2_true**2))
-        / norm(sigma2_true)
+            fracs[1]
+            * np.exp(-((x - mu2_true) ** 2) / (2 * sigma2_true ** 2))
+            / norm(sigma2_true)
     )
     sum_gauss += (
-        (1.0 - sum(fracs))
-        * np.exp(-((x - mu3_true) ** 2) / (2 * sigma3_true**2))
-        / norm(sigma3_true)
+            (1.0 - sum(fracs))
+            * np.exp(-((x - mu3_true) ** 2) / (2 * sigma3_true ** 2))
+            / norm(sigma3_true)
     )
     return sum_gauss
 
@@ -72,6 +83,7 @@ def create_params(name_add=""):
 
 def create_gaussians() -> list[ZfitPDF]:
     # Gauss for sum, same axes
+    obs1 = makeobs1()
     mu1, mu2, mu3, sigma1, sigma2, sigma3 = create_params()
     gauss1 = Gauss(mu=mu1, sigma=sigma1, obs=obs1, name="gauss1asum")
     gauss2 = Gauss(mu=mu2, sigma=sigma2, obs=obs1, name="gauss2asum")
@@ -80,32 +92,43 @@ def create_gaussians() -> list[ZfitPDF]:
 
 
 def sum_gaussians():
+    obs1 = makeobs1()
     gauss_dists = create_gaussians()
     sum_gauss = SumPDF(pdfs=gauss_dists, fracs=fracs, obs=obs1)
     return sum_gauss
 
 
 def product_gaussians():
+    obs1 = makeobs1()
     gauss_dists = create_gaussians()
     prod_gauss = ProductPDF(pdfs=gauss_dists, obs=obs1)
     return prod_gauss
 
 
-def product_gauss_3d(name=""):
+def product_gauss_3d(name="", binned=None):
     # Gauss for product, independent
     mu1, mu2, mu3, sigma1, sigma2, sigma3 = create_params("3d" + name)
-
+    obs1 = makeobs1()
+    obs2 = makeobs2()
+    obs3 = makeobs3()
     gauss13 = Gauss(mu=mu1, sigma=sigma1, obs=obs1, name="gauss1a")
     gauss23 = Gauss(mu=mu2, sigma=sigma2, obs=obs2, name="gauss2a")
     gauss33 = Gauss(mu=mu3, sigma=sigma3, obs=obs3, name="gauss3a")
     gauss_dists3 = [gauss13, gauss23, gauss33]
-    prod_gauss_3d = ProductPDF(pdfs=gauss_dists3)
+    space = None
+    if binned:
+        space = obs1 * obs2 * obs3
+        space = space.with_binning([70, 113, 89])
+    prod_gauss_3d = ProductPDF(pdfs=gauss_dists3, obs=space)
+    if binned:
+        assert isinstance(prod_gauss_3d, ZfitBinnedPDF)
     return prod_gauss_3d
 
     # prod_gauss_3d.update_integration_options(draws_per_dim=33)
 
 
 def test_product_separation():
+    obs1, obs2, obs3, obs4 = makeobs1(), makeobs2(), makeobs3(), makeobs4()
     mu1, mu2, mu3, sigma1, sigma2, sigma3 = create_params()
     gauss1 = Gauss(mu=mu1, sigma=sigma1, obs=obs1, name="gauss1asum")
     gauss2 = Gauss(mu=mu2, sigma=sigma2, obs=obs2, name="gauss2asum")
@@ -129,25 +152,25 @@ def test_product_separation():
     trueint3 = gauss4.pdf(data3, norm=False) * gauss3.integrate(obs1, norm=False)
     np.testing.assert_allclose(integral13, trueint3)
     assert (
-        prod12.partial_integrate(
-            x=data2,
-            limits=obs1,
-        ).shape[0]
-        == npoints
+            prod12.partial_integrate(
+                x=data2,
+                limits=obs1,
+            ).shape[0]
+            == npoints
     )
     assert (
-        prod123.partial_integrate(
-            x=data3,
-            limits=obs1 * obs2,
-        ).shape[0]
-        == npoints
+            prod123.partial_integrate(
+                x=data3,
+                limits=obs1 * obs2,
+            ).shape[0]
+            == npoints
     )
     assert (
-        prod123.partial_integrate(
-            x=data2,
-            limits=obs1 * obs3,
-        ).shape[0]
-        == npoints
+            prod123.partial_integrate(
+                x=data2,
+                limits=obs1 * obs3,
+            ).shape[0]
+            == npoints
     )
 
     prod1234 = ProductPDF(pdfs=[gauss1, gauss2, gauss4, gauss5])
@@ -162,7 +185,7 @@ def test_product_separation():
 
 def product_gauss_4d():
     mu1, mu2, mu3, sigma1, sigma2, sigma3 = create_params("4d")
-
+    obs1, obs3 = makeobs1(), makeobs3()
     obs4 = zfit.Space("obs4", (-4.5, 4.7))
     gauss12 = Gauss(mu=mu1, sigma=sigma1, obs=obs4, name="gauss12a")
     gauss22 = Gauss(mu=mu2, sigma=sigma2, obs=obs1, name="gauss22a")
@@ -175,12 +198,15 @@ def product_gauss_4d():
     return prod_gauss_4d
 
 
-def test_prod_gauss_nd():
+@pytest.mark.parametrize("binned", [False, True], ids=["unbinned", "binned"])
+def test_prod_gauss_nd(binned):
+    obs1, obs2, obs3 = makeobs1(), makeobs2(), makeobs3()
     test_values = np.random.random(size=(10, 3))
     test_values_data = Data.from_tensor(obs=obs1 * obs2 * obs3, tensor=test_values)
-    product_pdf = product_gauss_3d()
-    assert len(product_pdf._prod_disjoint_obs_pdfs) == 3
-    assert product_pdf._prod_is_same_obs_pdf is False
+    product_pdf = product_gauss_3d(binned=binned)
+    if not binned:
+        assert len(product_pdf._prod_disjoint_obs_pdfs) == 3
+        assert product_pdf._prod_is_same_obs_pdf is False
     assert product_pdf.n_obs == 3
     probs = product_pdf.pdf(x=test_values_data)
     gaussians = create_gaussians()
@@ -192,11 +218,16 @@ def test_prod_gauss_nd():
         [gauss.pdf(test_values[:, i]) for i, gauss in enumerate(gaussians)], axis=0
     )
     probs_np = probs.numpy()
-    np.testing.assert_allclose(true_probs, probs_np, rtol=1e-2)
+
+    rtol = 1e-5
+    if binned:
+        rtol = 0.1  # we bin it, so we don't expect a high precision
+    np.testing.assert_allclose(true_probs, probs_np, rtol=rtol)
 
 
 @pytest.mark.flaky(reruns=3)
 def test_prod_gauss_nd_mixed():
+    obs1, obs2, obs3 = makeobs1(), makeobs2(), makeobs3()
     norm = (-5, 4)
     low, high = norm
     test_values = np.random.uniform(low=low, high=high, size=(1000, 4))
@@ -231,7 +262,7 @@ def test_prod_gauss_nd_mixed():
     true_unnormalized_probs = probs_4d(values=test_values)
 
     normalization_probs = limits_4d.volume * probs_4d(
-        z.random.uniform(minval=low, maxval=high, shape=(40**4, 4))
+        z.random.uniform(minval=low, maxval=high, shape=(40 ** 4, 4))
     )
     true_probs = true_unnormalized_probs / tf.reduce_mean(
         input_tensor=normalization_probs
@@ -245,6 +276,7 @@ def test_prod_gauss_nd_mixed():
 
 
 def test_func_sum():
+    obs1 = makeobs1()
     sum_gauss = sum_gaussians()
     test_values = np.random.uniform(low=-3, high=4, size=10)
     sum_gauss_as_func = sum_gauss.as_func(norm=(-10, 10))
@@ -298,7 +330,7 @@ def normalization_testing(pdf, limits=None):
     import zfit.z.numpy as znp
 
     limits = (low, high) if limits is None else limits
-    space = Space(obs=obs1, limits=limits)
+    space = Space(obs=makeobs1(), limits=limits)
     with pdf.set_norm_range(space):
         samples = znp.random.uniform(
             low=space.v1.lower, high=space.v1.upper, size=(100_000, pdf.n_obs)
@@ -312,6 +344,7 @@ def normalization_testing(pdf, limits=None):
 
 
 def test_extended_gauss():
+    obs1 = makeobs1()
     mu1 = Parameter("mu11", 1.0)
     mu2 = Parameter("mu21", 12.0)
     mu3 = Parameter("mu31", 3.0)
@@ -333,10 +366,10 @@ def test_extended_gauss():
 
     sum_gauss = SumPDF(pdfs=gauss_dists)
     integral_true = (
-        sum_gauss.integrate(
-            (-1, 5),
-        )
-        * sum_gauss.get_yield()
+            sum_gauss.integrate(
+                (-1, 5),
+            )
+            * sum_gauss.get_yield()
     )
 
     assert zfit.run(integral_true) == pytest.approx(
@@ -347,7 +380,3 @@ def test_extended_gauss():
         )
     )
     normalization_testing(pdf=sum_gauss, limits=obs1)
-
-
-if __name__ == "__main__":
-    test_prod_gauss_nd()

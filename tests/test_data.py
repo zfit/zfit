@@ -12,7 +12,10 @@ import zfit
 
 obs1 = ("obs1", "obs2", "obs3")
 
-example_data1 = np.random.random(size=(7, len(obs1)))
+
+@pytest.fixture
+def example_data1():
+    return np.random.random(size=(7, len(obs1)))
 
 
 @pytest.fixture
@@ -105,8 +108,6 @@ def test_from_root_limits(obs_alias):
     ],
 )
 def test_from_root(weights_factory):
-
-
     from skhep_testdata import data_path
 
     path_root = data_path("uproot-Zmumu.root")
@@ -145,11 +146,15 @@ def test_from_root(weights_factory):
         lambda: np.random.normal(size=1000),
     ],
 )
-def test_from_numpy(weights_factory, obs3d):
+@pytest.mark.parametrize("init", [True, False], ids=["init", "from_numpy"])
+def test_from_numpy(weights_factory, obs3d, init):
     weights = weights_factory()
 
     example_data = np.random.random(size=(1000, len(obs1)))
-    data = zfit.Data.from_numpy(obs=obs3d, array=example_data, weights=weights)
+    if not init:
+        data = zfit.Data.from_numpy(obs=obs3d, array=example_data, weights=weights)
+    else:
+        data = zfit.Data(example_data, obs=obs3d, weights=weights)
     x = data.value()
     weights_from_data = data.weights
     if weights_from_data is not None:
@@ -164,12 +169,16 @@ def test_from_numpy(weights_factory, obs3d):
         assert weights_from_data is None
 
 
-def test_from_to_pandas(obs3d):
+@pytest.mark.parametrize('init', [True, False], ids=['init', 'from_pandas'])
+def test_from_to_pandas(obs3d, init):
     dtype = np.float32
     example_data_np = np.random.random(size=(1000, len(obs3d)))
     example_weights = np.random.random(size=(1000,))
     example_data = pd.DataFrame(data=example_data_np, columns=obs3d)
-    data = zfit.Data.from_pandas(obs=obs3d, df=example_data, dtype=dtype)
+    if init:
+        data = zfit.Data(example_data, obs=obs3d, dtype=dtype)
+    else:
+        data = zfit.Data.from_pandas(obs=obs3d, df=example_data, dtype=dtype)
     x = data.value()
     assert x.dtype == dtype
     x_np = x.numpy()
@@ -178,7 +187,10 @@ def test_from_to_pandas(obs3d):
 
     # test auto obs retreavel
     example_data2 = pd.DataFrame(data=example_data_np, columns=obs3d)
-    data2 = zfit.Data.from_pandas(df=example_data2)
+    if init:
+        data2 = zfit.Data(example_data2)
+    else:
+        data2 = zfit.Data.from_pandas(df=example_data2)
     assert data2.obs == obs3d
     x2 = data2.value()
     x_np2 = x2.numpy()
@@ -188,7 +200,10 @@ def test_from_to_pandas(obs3d):
 
     data2w = zfit.Data.from_pandas(df=example_data2, weights=example_weights)
     df2w = data2w.to_pandas()
-    data2w2 = zfit.Data.from_pandas(df=df2w)
+    if init:
+        data2w2 = zfit.Data(df2w)
+    else:
+        data2w2 = zfit.Data.from_pandas(df=df2w)
     assert data2w2.obs == obs3d
     np.testing.assert_allclose(data2w2.weights.numpy(), example_weights)
     np.testing.assert_allclose(data2w2.value().numpy(), example_data_np)
@@ -196,8 +211,9 @@ def test_from_to_pandas(obs3d):
     assert all(df == example_data)
 
 
-@pytest.mark.parametrize("weights_as_branch", [True, False])
-def test_from_pandas_limits(weights_as_branch, obs3d):
+@pytest.mark.parametrize("weights_as_branch", [True, False], ids=["weights_as_branch", "weights_as_array"])
+@pytest.mark.parametrize("init", [True, False], ids=["init", "from_tensor"])
+def test_from_pandas_limits(weights_as_branch, obs3d, init):
     from skhep_testdata import data_path
 
     path_root = data_path("uproot-Zmumu.root")
@@ -223,9 +239,13 @@ def test_from_pandas_limits(weights_as_branch, obs3d):
     weights_for_pandas = (
         true_data_uncut[weight_branch] if weights_as_branch else weight_branch
     )
-    data = zfit.Data.from_pandas(
-        df=true_data_uncut, obs=obs, weights=weights_for_pandas
-    )
+
+    if init:
+        data = zfit.Data(true_data_uncut, obs=obs, weights=weights_for_pandas)
+    else:
+        data = zfit.Data.from_pandas(
+            obs=obs, df=true_data_uncut, weights=weights_for_pandas
+        )
     x = data.value()
     x_np = x.numpy()
     np.testing.assert_allclose(x_np, true_data[branches].values)
@@ -242,10 +262,15 @@ def test_from_pandas_limits(weights_as_branch, obs3d):
         lambda: np.random.normal(size=1000),
     ],
 )
-def test_from_tensors(weights_factory):
+@pytest.mark.parametrize("init", [True, False], ids=["init", "from_tensor"])
+def test_from_tensors(weights_factory, init):
     weights = weights_factory()
     true_tensor = 42.0 * tf.ones(shape=(1000, 1), dtype=tf.float64)
-    data = zfit.Data.from_tensor(obs="obs1", tensor=true_tensor, weights=weights)
+
+    if init:
+        data = zfit.Data.from_tensor(obs="obs1", tensor=true_tensor, weights=weights)
+    else:
+        data = zfit.Data(true_tensor, obs="obs1", weights=weights)
 
     weights_data = data.weights
     x = data.value()
@@ -287,7 +312,7 @@ def test_sort_by_obs(data1, obs3d):
     new_array2 = copy.deepcopy(new_array)[:, np.array((1, 2, 0))]
     # new_array2 = np.array([new_array2[:, 1], new_array2[:, 2], new_array2[:, 0]])
     new_obs2 = (new_obs[1], new_obs[2], new_obs[0])
-    data1new2 =  data1new.with_obs(new_obs2)
+    data1new2 = data1new.with_obs(new_obs2)
     assert data1new2.obs == new_obs2
     np.testing.assert_array_equal(new_array2, data1new2.value().numpy())
 
@@ -430,7 +455,7 @@ def test_data_hashing(space2d):
     assert data1.hashint == testhashpdf.lasthash
 
     with zfit.run.set_graph_mode(
-        True
+            True
     ):  # meaning integration is now done in graph and has "None"
         oldhashint = data1.hashint
         data2 = data1.with_weights(np.random.uniform(size=data1.nevents))

@@ -111,6 +111,39 @@ def test_from_and_to_hist():
     np.testing.assert_allclose(h1.variances(), bh3.variances())
     np.testing.assert_allclose(h1.values(), bh3.values())
 
+def test_binned_data_from_unbinned():
+    import zfit
+
+    axis1 = hist.axis.Regular(25, -3.5, 3, name="x", flow=False)
+    axis2 = hist.axis.Regular(21, -4, 5, name="y", flow=False)
+    h3 = hist.NamedHist(
+        axis1,
+        axis2,
+        storage=hist.storage.Weight(),
+    )
+
+    x2 = np.random.randn(1_000)
+    y2 = 0.5 * np.random.randn(1_000)
+
+    h3.fill(x=x2, y=y2)
+
+    from zfit._data.binneddatav1 import BinnedData
+
+    xobs = zfit.Space("x", binning=axis1)
+    yobs = zfit.Space("y", binning=axis2)
+    obsbinned = xobs * yobs
+    obs_unbinned = xobs.with_binning(False) * yobs.with_binning(False)
+    array = np.stack([x2, y2], axis=1)
+    data = zfit.Data.from_numpy(obs=obs_unbinned, array=array)
+    binned_data_init = zfit.Data.from_numpy(obs=obsbinned, array=array)
+    binned_data = BinnedData.from_unbinned(data=data, space=obsbinned)
+    np.testing.assert_allclose(binned_data.values(), h3.values())
+    np.testing.assert_allclose(binned_data.variances(), h3.variances())
+    np.testing.assert_allclose(binned_data_init.values(), h3.values())
+    np.testing.assert_allclose(binned_data_init.variances(), h3.variances())
+
+
+
 
 def test_with_obs():
     from zfit._data.binneddatav1 import BinnedData

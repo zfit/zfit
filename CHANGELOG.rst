@@ -36,14 +36,17 @@ Major Features and Improvements
   Notably, Parameters have a label that can be arbitrary. ``Space`` has one label for each observable if the space is a product of spaces. ``Space.label`` is a string and only possible for one-dimensional spaces, while ``Space.labels`` is a list of strings and can be used for any, one- or multi-dimensional spaces.
 - add ``zfit.data.concat(...)`` to concatenate multiple data objects into one along the index or along the observables. Similar to ``pd.concat``.
 - PDFs now have a ``to_truncated`` method that allows to create a truncated version of the PDF, possibly with different and multiple limits. This allows to easily create a PDF with disjoint limits.
-
-
-
+- ``Data`` and ``PDF`` that take ``obs`` in the initialization can now also take binned observables, i.e. a ``zfit.Space`` with ``binning=...`` and will return a binned version of the object (``zfit.data.BinnedData`` or ``zfit.pdf.BinnedFromUnbinned``, where the latter is a generic wrapper). This is equivalent of calling ``to_binned`` on the objects)
+- ``zfit.Data`` can be instantiated directly with most data types, such as numpy arrays, pandas DataFrames etc insead of using the dedicated constructors ``from_numpy``, ``from_pandas`` etc.
+  The constructors may still provide additional functionality, but overall, the switch should be seamless.
 
 Breaking changes
 ------------------
 This release contains multiple "breaking changes", however, the vast majority if not all apply only for edge cases and undocummented functions.
 
+- a few arguments are now keyword-only arguments. This *can* break existing code if the arguments were given as positional arguments. Just use the appropriate keyword arguments instead.
+  (Example: instead of using ``zfit.Space(obs, limits)`` use ``zfit.Space(obs, limits=limits)``).
+  This was introduced to make the API more robust and to avoid errors due to the order of arguments, with a few new ways of creating objects.
 - ``Data.from_root``: deprecated arguments ``branches`` and ``branch_aliases`` have been removed. Use ``obs`` and ``obs_aliases`` instead.
 - ``NameAlreadyTakenError`` was removed, see above for the new behavior. This should not have an effect on any existing code *except if you relied on the error being thrown*.
 - Data objects had an intrinsic, TensorFlow V1 legacy behavior: they were actually cut when the data was *retrieved*. This is now changed and the data is cut when it is created. This should not have any impact on existing code and just improve runtime and memory usage.
@@ -67,6 +70,7 @@ Deprecations
 Bug fixes and small changes
 ---------------------------
 - complete overhaul of partial integration that used some broadcasting tricks that could potentially fail. It uses now a dynamic while loop that _could_ be slower but works for arbitrary PDFs and no problems should be encountered anymore.
+
 - ``result.fmin`` now returns the full likelihood, while ``result.fminopt`` returns the optimized likelihood with potential constant subtraction. The latter is mostly used by the minimizer and other libraries. This behavior is consistent with the behavior of other methods in the loss that return by default the full, unoptimized value.
 - serialization only allowed for one specific limit (space) of each obs. Multiple, independent
   limits can now be serialized.
