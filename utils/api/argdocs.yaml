@@ -83,18 +83,46 @@ binneddata.param.variances: |1+
 data.param.obs: |1+
     Space of the data.
                 The space is used to define the observables and the limits of the data.
+data.init.obs: |1+
+    Space of the data.
+                The space is used to define the observables and the limits of the data.
+                If the :py:class:`~zfit.Space` has limits, these will be used to cut the
+                data. If the data is already cut, use ``guarantee_limits`` for a possible
+                performance improvement.
+data.init.weights: |1+
+    Weights of the data.
+                Has to be 1-D and match the shape of the data (nevents).
+                Note that a weighted dataset may not be supported by all methods
+                or need additional approximations to correct for the weights, taking
+                more time.
 data.init.name: |1+
     Name of the data.
-                Maybe has implications on the serialization and deserialization of the data.
+                This can possibly be used for future identification, with possible
+                implications on the serialization and deserialization of the data.
+                The name should therefore be "machine-readable" and not contain
+                special characters.
+                (currently not used for a special purpose)
                 For a human-readable name or description, use the label.
 data.init.label: |1+
     Human-readable name
                 or label of the data for a better description, to be used with plots etc.
+                Can contain arbitrary characters.
                 Has no programmatical functional purpose as identification.
 
 data.init.guarantee_limits: |1+
     Guarantee that the data is within the limits.
-                If ``True``, the data will not be checked and _is assumed_ to be within the limits.
+                If ``True``, the data will not be checked and _is assumed_ to be within the limits,
+                possibly because it was already cut before. This can lead to a performance
+                improvement as the data does not have to be checked.
+data.init.use_hash: |1+
+    If true, store a hash for caching.
+                If a PDF can cache values, this option needs to be enabled for the PDF
+                to be able to cache values.
+
+data.init.returns: |1+
+    ``zfit.Data`` or ``zfit.BinnedData``:
+                A ``Data`` object containing the unbinned data or a ``BinnedData`` if the obs is binned.
+
 
 binnedpdf.pdf.x: |1+
     Values to evaluate the PDF at.
