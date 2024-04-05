@@ -921,3 +921,90 @@ class BifurGaussPDFRepr(BasePDFRepr):
     mu: Serializer.types.ParamTypeDiscriminated
     sigmal: Serializer.types.ParamTypeDiscriminated
     sigmar: Serializer.types.ParamTypeDiscriminated
+
+
+class Gamma(WrapDistribution, SerializableMixin):
+    _N_OBS = 1
+
+    def __init__(
+        self,
+        gamma: ztyping.ParamTypeInput,
+        beta: ztyping.ParamTypeInput,
+        mu: ztyping.ParamTypeInput,
+        obs: ztyping.ObsTypeInput,
+        *,
+        extended: ExtendedInputType = None,
+        norm: NormInputType = None,
+        name: str = "Gamma",
+    ):
+        """Gamma distribution with shape `gamma` and scale `beta`.
+
+        The gamma shape is defined as
+
+        .. math::
+
+            f(x \\mid \\gamma, \\beta, \\mu) = \\frac{1}{\\Gamma(\\gamma) \\beta^{\\gamma}} (x - \\mu)^{\\gamma - 1} \\exp{\\left(-\\frac{x - \\mu}{\\beta}\\right)} / Z
+
+        with the normalization over [0, inf] of
+
+        .. math::
+
+            Z = \\frac{1}{\\Gamma(\\gamma) \\beta^{\\gamma}}
+
+        The normalization changes for different normalization ranges
+
+        Args:
+            gamma: Shape parameter of the gamma distribution
+            beta: Scale parameter of the gamma distribution
+            mu: Shift of the distribution
+            obs: |@doc:model.init.obs| Observables of the
+               model. This will be used as the default space of the PDF and,
+               if not given explicitly, as the normalization range.
+
+               The default space is used for example in the sample method: if no
+               sampling limits are given, the default space is used.
+
+               The observables are not equal to the domain as it does not restrict or
+               truncate the model outside this range. |@docend:model.init.obs|
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+            norm: |@doc:pdf.init.norm| Normalization of the PDF.
+               By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
+            name: |@doc:model.init.name| Human-readable name
+               or label of
+               the PDF for better identification. |@docend:model.init.name|
+        """
+        gamma, beta, mu = self._check_input_params_tfp(gamma, beta, mu)
+        params = {"gamma": gamma, "beta": beta, "mu": mu}
+
+        def dist_params():
+            return {"concentration": gamma.value(), "rate": 1 / beta.value(), "loc": mu.value()}
+
+        distribution = tfp.distributions.Gamma
+        super().__init__(
+            distribution=distribution,
+            dist_params=dist_params,
+            obs=obs,
+            params=params,
+            name=name,
+            extended=extended,
+            norm=norm,
+        )
+
+    @property
+    def distribution(self):
+        params = self.dist_params
+        if callable(params):
+            params = params()
+        kwargs = self.dist_kwargs
+        if callable(kwargs):
+            kwargs = kwargs()
+
+        loc = params.pop("loc")
+
+        return tfd.TransformedDistribution(
+            distribution=tfd.Gamma(**params, **kwargs), bijector=tfp.bijectors.Shift(loc), name=self.name + "_tfp"
+        )

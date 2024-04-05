@@ -291,6 +291,15 @@ def studentt(extended=None, **kwarfs):
     return zfit.pdf.StudentT(ndof=ndof, mu=mu, sigma=sigma, obs=obs, extended=extended)
 
 
+def gamma(extended=None, **kwargs):
+    import zfit
+
+    gamma = zfit.Parameter("gamma_gamma", 4, 1, 10)
+    beta = zfit.Parameter("beta_gamma", 0.1, 0, 1)
+    mu = zfit.Parameter("mu_gamma", 0.1, -1, 1)
+    obs = zfit.Space("obs", positive_limits)
+    return zfit.pdf.Gamma(gamma=gamma, beta=beta, mu=mu, obs=obs, extended=extended)
+
 def kde1dimexact(pdfs=None, extended=None, **kwargs):
     data = np.array(
         [
@@ -428,6 +437,7 @@ basic_pdfs = [
     voigt,
     exponential,
     studentt,
+    gamma,
     crystalball,
     doublecb,
     generalizedcb,
