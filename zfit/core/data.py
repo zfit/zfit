@@ -51,7 +51,7 @@ def convert_to_data(data, obs=None):
     if isinstance(data, ZfitUnbinnedData):
         return data
     elif isinstance(data, LightDataset):
-        return Data(dataset=data, obs=obs)
+        return Data(data=data, obs=obs)
     elif isinstance(data, pd.DataFrame):
         return Data.from_pandas(df=data, obs=obs)
     elif isinstance(data, Mapping):
@@ -73,6 +73,37 @@ def convert_to_data(data, obs=None):
     raise TypeError(msg)
 
 
+class DataMeta(type):
+    def __call__(cls, data, obs=None, *args, **kwargs):
+        """Construct an instance of a class whose metaclass is Meta."""
+        assert isinstance(cls, DataMeta)
+        if binned := (obs is not None and isinstance(obs, ZfitSpace) and obs.is_binned):
+            binned_obs = obs
+            obs = obs.with_binning(False)
+
+        if isinstance(data, LightDataset):
+            obj = cls.__new__(cls, *args, **kwargs)
+            obj.__init__(data, obs=obs, **kwargs)
+        elif isinstance(data, pd.DataFrame):
+            obj = cls.from_pandas(data, obs=obs, **kwargs)
+        elif isinstance(data, Mapping):
+            obj = cls.from_mapping(data, obs=obs, **kwargs)
+        elif tf.is_tensor(data):
+            obj = cls.from_tensor(tensor=data, obs=obs, **kwargs)
+        elif isinstance(data, np.ndarray):
+            obj = cls.from_numpy(array=data, obs=obs, **kwargs)
+        else:
+            try:
+                obj = cls.from_numpy(array=data, obs=obs, **kwargs)
+            except Exception as error:
+                msg = f"Cannot convert {data} to a Data object. Use an explicit constructor (`from_pandas`, `from_mapping`, `from_tensor`, `from_numpy` etc)."
+                raise TypeError(msg) from error
+        if binned:
+            obj = obj.to_binned(binned_obs)
+
+        return obj
+
+
 class Data(
     ZfitUnbinnedData,
     BaseDimensional,
@@ -80,16 +111,47 @@ class Data(
     GraphCachable,
     SerializableMixin,
     ZfitSerializable,
+    metaclass=DataMeta,
 ):
     USE_HASH = False
-    BATCH_SIZE = 1000000  # 1 mio
+    BATCH_SIZE = 1_000_000
+
+    # def __new__(cls, data, obs=None, **kwargs):
+    #     if cls is not Data:
+    #         return super().__new__(cls)
+    #     if binned := (obs is not None and isinstance(obs, ZfitSpace) and obs.is_binned):
+    #         binned_obs = obs
+    #         obs = obs.with_binning(False)
+    #
+    #     if isinstance(data, LightDataset):
+    #         obj = super().__new__(cls)
+    #         obj.__init__(data, obs=obs, **kwargs)
+    #     elif isinstance(data, pd.DataFrame):
+    #         obj = cls.from_pandas(data, obs=obs, **kwargs)
+    #     elif isinstance(data, Mapping):
+    #         obj = cls.from_mapping(data, obs=obs, **kwargs)
+    #     elif tf.is_tensor(data):
+    #         obj = cls.from_tensor(tensor=data, obs=obs, **kwargs)
+    #     elif isinstance(data, np.ndarray):
+    #         obj = cls.from_numpy(array=data, obs=obs, **kwargs)
+    #     else:
+    #         try:
+    #             obj = cls.from_numpy(array=data, obs=obs, **kwargs)
+    #         except Exception as error:
+    #             msg = f"Cannot convert {data} to a Data object. Use an explicit constructor (`from_pandas`, `from_mapping`, `from_tensor`, `from_numpy` etc)."
+    #             raise TypeError(msg) from error
+    #     if binned:
+    #         obj = obj.to_binned(binned_obs)
+    #     obj.__init__ = lambda *_, **__: None  # prevent double-init
+    #     return obj
 
     def __init__(
         self,
-        dataset: LightDataset,
+        data: LightDataset | pd.DataFrame | Mapping[str, np.ndarray] | tf.Tensor | np.ndarray | zfit.Data,
+        *,
         obs: ztyping.ObsTypeInput = None,
-        name: str | None = None,
         weights: TensorLike = None,
+        name: str | None = None,
         label: str | None = None,
         dtype: tf.DType = None,
         use_hash: bool | None = None,
@@ -98,8 +160,7 @@ class Data(
         """Create a data holder from a ``dataset`` used to feed into ``models``.
 
         Args:
-            label:
-            dataset: A dataset storing the actual values
+            data: A dataset storing the actual values
             obs: Observables where the data is defined in
             name: Name of the ``Data``
             weights: Weights of the data
@@ -127,17 +188,17 @@ class Data(
         self._data_range = self.space
 
         if not guarantee_limits:
-            tensormap = dataset._tensormap if (ismap := dataset._tensor is None) else dataset.value()
+            tensormap = data._tensormap if (ismap := data._tensor is None) else data.value()
             value, weights = check_cut_data_weights(limits=self.space, data=tensormap, weights=weights)
             if ismap:
-                dataset = LightDataset(tensormap=value, ndims=self.space.n_obs)
+                data = LightDataset(tensormap=value, ndims=self.space.n_obs)
             else:
-                dataset = LightDataset.from_tensor(value, ndims=self.space.n_obs)
+                data = LightDataset.from_tensor(value, ndims=self.space.n_obs)
 
         self._name = name
         self._hashint = None
 
-        self.dataset = dataset
+        self.dataset = data
         self._set_weights(weights=weights)
         # check that dimensions are compatible
 
@@ -194,10 +255,11 @@ class Data(
     def dtype(self):
         return self._dtype
 
-    def _set_space(self, obs: Space):
+    def _set_space(self, obs: Space, autofill=True):
         obs = convert_to_space(obs)
         self._check_n_obs(space=obs)
-        obs = obs.with_autofill_axes(overwrite=True)
+        if autofill:
+            obs = obs.with_autofill_axes(overwrite=True)
         self._space = obs
 
     @property
@@ -232,7 +294,7 @@ class Data(
             "obs": self.space,
             "weights": self.weights,
             "name": name,
-            "dataset": self.dataset,
+            "data": self.dataset,
             "label": self.label,
             "dtype": self.dtype,
             "use_hash": self._use_hash,
@@ -240,7 +302,7 @@ class Data(
         }
         newpar["guarantee_limits"] = (
             "obs" not in overwrite_params
-            and "dataset" not in overwrite_params
+            and "data" not in overwrite_params
             and overwrite_params.get("guarantee_limits") is not False
         )
         if "tensor" in overwrite_params:
@@ -316,6 +378,7 @@ class Data(
         cls,
         df: pd.DataFrame,
         obs: ztyping.ObsTypeInput = None,
+        *,
         weights: ztyping.WeightsInputType | str = None,
         name: str | None = None,
         label: str | None = None,
@@ -429,7 +492,7 @@ class Data(
         weights = znp.asarray(weights, dtype=dtype) if weights is not None else None
         dataset = LightDataset(tensormap=tensormap, ndims=obs.n_obs)
         return Data(  # *not* class, if subclass, keep constructor
-            dataset=dataset,
+            data=dataset,
             obs=obs,
             weights=weights,
             name=name,
@@ -521,15 +584,14 @@ class Data(
             weights_np = weights
         dataset = LightDataset.from_tensor(data, ndims=obs.n_obs)
 
-        return Data(
-            dataset=dataset, obs=obs, name=name, weights=weights_np, dtype=dtype, use_hash=use_hash, label=label
-        )
+        return Data(data=dataset, obs=obs, name=name, weights=weights_np, dtype=dtype, use_hash=use_hash, label=label)
 
     @classmethod
     def from_numpy(
         cls,
         obs: ztyping.ObsTypeInput,
         array: np.ndarray,
+        *,
         weights: ztyping.WeightsInputType = None,
         name: str | None = None,
         dtype: tf.DType = None,
@@ -553,7 +615,12 @@ class Data(
         Returns:
             ``zfit.Data``: A ``Data`` object containing the unbinned data.
         """
-
+        # todo: should we switch orders
+        # # legacy, switch input arguments
+        # if isinstance(obs, np.ndarray) or isinstance(array, (str, ZfitSpace)) or (isinstance(array, (list, tuple)) and isinstance(array[0], str)):
+        #     warn_once("The order of the arguments `obs` and `array` has been swapped, array goes first (as any other `from_` constructor.", identifier="data_from_numpy")
+        #     obs, array = array, obs
+        # # legacy end
         if not isinstance(array, (np.ndarray)) and not (tf.is_tensor(array) and hasattr(array, "numpy")):
             msg = f"`array` has to be a `np.ndarray`. Is currently {type(array)}"
             raise TypeError(msg)
@@ -575,12 +642,12 @@ class Data(
         cls,
         obs: ztyping.ObsTypeInput,
         tensor: tf.Tensor,
+        *,
         weights: ztyping.WeightsInputType = None,
         name: str | None = None,
         label: str | None = None,
         dtype: tf.DType = None,
         use_hash=None,
-        *,
         guarantee_limits: bool = False,
     ) -> Data:
         """Create a ``Data`` from a ``tf.Tensor``. ``Value`` simply returns the tensor (in the right order).
@@ -603,6 +670,12 @@ class Data(
         Returns:
             ``zfit.Data``: A ``Data`` object containing the unbinned data.
         """
+        # todo: should we switch orders
+        # # legacy start
+        # if isinstance(obs, (np.ndarray, tf.Tensor)) or tf.is_tensor(obs) or isinstance(tensor, (str, ZfitSpace)) or (isinstance(tensor, (list, tuple)) and isinstance(tensor[0], str)):
+        #     warn_once("The order of the arguments `obs` and `array` has been swapped, array goes first (as any other `from_` constructor.", identifier="data_from_numpy")
+        #     obs, tensor = tensor, obs
+        # # legacy end
         if dtype is None:
             dtype = ztypes.float
         tensor = znp.asarray(tensor, dtype=dtype)
@@ -613,7 +686,7 @@ class Data(
         dataset = LightDataset.from_tensor(tensor, ndims=space.n_obs)
 
         return Data(
-            dataset=dataset,
+            data=dataset,
             obs=obs,
             name=name,
             label=label,
@@ -660,7 +733,7 @@ class Data(
         indices = self._get_permutation_indices(obs=obs)
         dataset = self.dataset.with_indices(indices)
         weights = self.weights
-        return self.copy(obs=obs, dataset=dataset, weights=weights, guarantee_limits=guarantee_limits)
+        return self.copy(obs=obs, data=dataset, weights=weights, guarantee_limits=guarantee_limits)
 
     def to_pandas(self, obs: ztyping.ObsTypeInput = None, weightsname: str | None = None):
         """Create a ``pd.DataFrame`` from ``obs`` as columns and return it.
@@ -848,10 +921,16 @@ class Data(
     def _get_nevents(self):
         return self.dataset.nevents
 
-    def to_binned(self, space):
+    def to_binned(self, space, *, name: str | None = None, label: str | None = None, use_hash: bool | None = None):
         from zfit._data.binneddatav1 import BinnedData
 
-        return BinnedData.from_unbinned(space=space, data=self)
+        return BinnedData.from_unbinned(
+            space=space,
+            data=self,
+            name=name or self.name,
+            label=label or self.label,
+            use_hash=use_hash or self._use_hash,
+        )
 
     def __getitem__(self, item):
         if isinstance(item, int):
@@ -915,7 +994,7 @@ class DataRepr(BaseRepr):
     @to_orm_init
     def _to_orm(self, init):
         dataset = LightDataset(znp.asarray(init.pop("data")))
-        init["dataset"] = dataset
+        init["data"] = dataset
         init["obs"] = init.pop("space")
 
         spaces = init["obs"]
@@ -1000,7 +1079,7 @@ class SamplerData(Data):
 
     def __init__(
         self,
-        dataset: LightDataset,
+        data: LightDataset,
         *,
         sample_and_weights_func: Callable,
         sample_holder: tf.Variable,
@@ -1020,7 +1099,7 @@ class SamplerData(Data):
             raise ValueError(msg)
         use_hash = True
         super().__init__(
-            dataset=dataset,
+            data=data,
             obs=obs,
             name=name,
             label=label,
@@ -1044,7 +1123,7 @@ class SamplerData(Data):
         self.n = n
         self._n_holder = n
         self._hashint_holder = tf.Variable(0, dtype=tf.int64, trainable=False)
-        self.update_data(dataset.value(), weights=weights)  # to be used for precompilations etc
+        self.update_data(data.value(), weights=weights)  # to be used for precompilations etc
         self._sampler_guarantee_limits = guarantee_limits
 
     # legacy
@@ -1225,7 +1304,7 @@ class SamplerData(Data):
             )
 
         return cls(
-            dataset=dataset,
+            data=dataset,
             sample_holder=sample_holder,
             weights_holder=weights_holder,
             sample_and_weights_func=sample_and_weights_func,

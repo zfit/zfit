@@ -158,7 +158,15 @@ class BinnedData(
         return self._use_hash and run.hashing_data()
 
     @classmethod  # TODO: add overflow bins if needed
-    def from_tensor(cls, space: ZfitSpace, values: znp.array, variances: znp.array | None = None) -> BinnedData:
+    def from_tensor(
+        cls,
+        space: ZfitSpace,
+        values: znp.array,
+        variances: znp.array | None = None,
+        name: str | None = None,
+        label: str | None = None,
+        use_hash: bool | None = None,
+    ) -> BinnedData:
         """Create a binned dataset defined in *space* where values are considered to be the counts.
 
         Args:
@@ -177,10 +185,23 @@ class BinnedData(
             variances = znp.sqrt(values)
         elif variances is not None:
             variances = znp.asarray(variances)
-        return cls(holder=BinnedHolder(space=space, values=values, variances=variances))
+        return cls(
+            holder=BinnedHolder(space=space, values=values, variances=variances),
+            name=name,
+            label=label,
+            use_hash=use_hash,
+        )
 
     @classmethod
-    def from_unbinned(cls, space: ZfitSpace, data: ZfitData):
+    def from_unbinned(
+        cls,
+        space: ZfitSpace,
+        data: ZfitData,
+        *,
+        use_hash: bool | None = None,
+        name: str | None = None,
+        label: str | None = None,
+    ) -> BinnedData:
         """Convert an unbinned dataset to a binned dataset.
 
         Args:
@@ -193,7 +214,16 @@ class BinnedData(
         """
         from zfit.core.binning import unbinned_to_binned
 
-        return unbinned_to_binned(data, space)
+        return unbinned_to_binned(
+            data,
+            space,
+            binned_class=cls,
+            initkwargs={
+                "name": name or data.name,
+                "label": label or data.label,
+                "use_hash": use_hash if use_hash is not None else data._use_hash,
+            },
+        )
 
     @classmethod
     def from_hist(cls, h: hist.NamedHist) -> BinnedData:

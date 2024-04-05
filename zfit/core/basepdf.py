@@ -123,13 +123,15 @@ def _BasePDF_register_check_support(has_support: bool):
     return register
 
 
-class BasePDF(ZfitPDF, BaseModel):
-    def __new__(cls, *args, obs=None, **kwargs):
+class PDFMeta(type):
+    def __call__(cls, *args, obs=None, **kwargs):
         if binned := (obs is not None and isinstance(obs, Space) and obs.binning is not None):
             binned_obs = obs
             obs = binned_obs.with_binning(None)
-        pdf = super().__new__(cls)
-        pdf.__init__(*args, obs=obs, **kwargs)
+        if obs is not None:
+            kwargs["obs"] = obs
+        pdf = cls.__new__(cls)
+        pdf.__init__(*args, **kwargs)
         if binned:
             pdf = pdf.to_binned(
                 binned_obs,
@@ -138,7 +140,29 @@ class BasePDF(ZfitPDF, BaseModel):
                 name=kwargs.get("name", None),
                 label=kwargs.get("label", None),
             )
+
         return pdf
+
+
+class BasePDF(ZfitPDF, BaseModel):
+    # def __new__(cls, *args, obs=None, **kwargs):
+    #     if binned := (obs is not None and isinstance(obs, Space) and obs.binning is not None):
+    #         binned_obs = obs
+    #         obs = binned_obs.with_binning(None)
+    #     if obs is not None:
+    #         kwargs["obs"] = obs
+    #     pdf = super().__new__(cls)
+    #     pdf.__init__(*args, **kwargs)
+    #     if binned:
+    #         pdf = pdf.to_binned(
+    #             binned_obs,
+    #             extended=kwargs.get("extended", None),
+    #             norm=kwargs.get("norm", None),
+    #             name=kwargs.get("name", None),
+    #             label=kwargs.get("label", None),
+    #         )
+    #     pdf.__init__ = lambda *_, **__: None  # prevent double init
+    #     return pdf
 
     def __init__(
         self,
