@@ -1,9 +1,10 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 import pathlib
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pytest
+from tqdm import tqdm
 
 
 @pytest.mark.parametrize("exact_nsample", [True, False], ids=["exact", "binomial sum"])
@@ -45,16 +46,16 @@ def test_yield_bias(exact_nsample, ntoys=300):
         return znp.concatenate([gauss_val, exp_val])
 
     data = model.create_sampler()
-    data.sample_holder.assign(sample_func())
+    data.update_data(sample_func())
     nll = zfit.loss.ExtendedUnbinnedNLL(model=model, data=data)
     nsigs = []
     nbkgs = []
     minimizer = zfit.minimize.Minuit(gradient=False, tol=1e-05, mode=2)
     failures = 0
-    for _ in range(ntoys):
+    for _ in tqdm(range(ntoys)):
         zfit.param.set_values(params, true_vals)
         if exact_nsample:
-            data.sample_holder.assign(sample_func())
+            data.update_data(sample_func(), guarantee_limits=True)
         else:
             data.resample(n=sum(true_vals[-2:]))
         for _ in range(10):

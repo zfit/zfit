@@ -1,4 +1,6 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2024 zfit
+from __future__ import annotations
+
 import functools
 import warnings
 
@@ -49,8 +51,7 @@ def warn_advanced_feature(message, identifier):
         warnings.warn(
             f"Either you're using an advanced feature OR causing unwanted behavior. "
             f"To turn this warning off, use `zfit.settings.advanced_warnings['{identifier}'] = False` "
-            f" or 'all' (use with care) with `zfit.settings.advanced_warnings['all'] = False\n"
-            + message,
+            f" or 'all' (use with care) with `zfit.settings.advanced_warnings['all'] = False\n" + message,
             category=AdvancedFeatureWarning,
             stacklevel=2,
         )
@@ -88,3 +89,12 @@ def warn_changing_feature(message, identifier):
     if identifier not in warned_changed:
         warned_changing.add(identifier)
         warnings.warn(message, category=FutureWarning, stacklevel=2)
+
+
+warned_once = set()
+
+
+def warn_once(message, identifier):
+    if identifier not in warned_once:
+        warned_once.add(identifier)
+        warnings.warn(message, category=UserWarning, stacklevel=2)

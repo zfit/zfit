@@ -1,9 +1,8 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 from __future__ import annotations
 
-from typing import Union, Optional
+from typing import Literal, Optional, Union
 
-from typing import Literal
 import pydantic
 from pydantic import Field, root_validator
 
@@ -29,5 +28,4 @@ class BasePDFRepr(BaseRepr):
     def _to_orm(self, init):
         if "x" in init:  # in case it was already popped downstreams
             init["obs"] = init.pop("x")
-        out = super()._to_orm(init)
-        return out
+        return super()._to_orm(init)

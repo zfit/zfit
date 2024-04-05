@@ -1,13 +1,10 @@
 """Top-level package for zfit."""
 
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 import sys
 import warnings
 
-if sys.version_info < (3, 8):
-    from importlib_metadata import version
-else:
-    from importlib.metadata import version
+from importlib.metadata import version
 
 __version__ = version(__name__)
 

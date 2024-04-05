@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Copyright (c) 2022 zfit
+# Copyright (c) 2024 zfit
 #
 
 #    test build docs

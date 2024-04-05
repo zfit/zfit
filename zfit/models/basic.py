@@ -13,14 +13,15 @@ from typing import Literal
 
 import numpy as np
 import tensorflow as tf
-import zfit.z.numpy as znp
 from pydantic import Field
 
+import zfit.z.numpy as znp
 from zfit import z
+
 from ..core.basepdf import BasePDF
 from ..core.serialmixin import SerializableMixin
 from ..core.space import ANY_LOWER, ANY_UPPER, Space
-from ..serialization import SpaceRepr, Serializer
+from ..serialization import Serializer, SpaceRepr
 from ..serialization.pdfrepr import BasePDFRepr
 from ..util import ztyping
 from ..util.exception import BreakingAPIChangeError
@@ -64,18 +65,16 @@ class Exponential(BasePDF, SerializableMixin):
                ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
             norm: |@doc:pdf.init.norm| Normalization of the PDF.
                By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
-            name: |@doc:pdf.init.name| Human-readable name
-               or label of
-               the PDF for better identification.
-               Has no programmatical functional purpose as identification. |@docend:pdf.init.name|
+            name: |@doc:pdf.init.name| Name of the PDF.
+               Maybe has implications on the serialization and deserialization of the PDF.
+               For a human-readable name, use the label. |@docend:pdf.init.name|
         """
         if lambda_ is not None:
             if lam is None:
                 lam = lambda_
             else:
-                raise BreakingAPIChangeError(
-                    "The 'lambda' parameter has been renamed from 'lambda_' to 'lam'."
-                )
+                msg = "The 'lambda' parameter has been renamed from 'lambda_' to 'lam'."
+                raise BreakingAPIChangeError(msg)
         params = {"lambda": lam, "lam": lam}
         super().__init__(obs, name=name, params=params, extended=extended, norm=norm)
 
@@ -141,7 +140,7 @@ class Exponential(BasePDF, SerializableMixin):
     # uses the predictions by the `unnormalized_prob` -> that is shifted correctly
     def _single_hook_integrate(self, limits, norm, x, options):
         with self._set_numerics_data_shift(norm):
-            return super()._single_hook_integrate(limits, norm, x=x, options=None)
+            return super()._single_hook_integrate(limits, norm, x=x, options=options)
 
     def _single_hook_analytic_integrate(self, limits, norm):
         with self._set_numerics_data_shift(limits=norm):
@@ -153,9 +152,7 @@ class Exponential(BasePDF, SerializableMixin):
 
     def _single_hook_partial_integrate(self, x, limits, norm, *, options):
         with self._set_numerics_data_shift(limits=norm):
-            return super()._single_hook_partial_integrate(
-                x, limits, norm, options=options
-            )
+            return super()._single_hook_partial_integrate(x, limits, norm, options=options)
 
     def _single_hook_partial_analytic_integrate(self, x, limits, norm):
         with self._set_numerics_data_shift(limits=norm):
@@ -196,28 +193,23 @@ class Exponential(BasePDF, SerializableMixin):
 
 def _exp_integral_from_any_to_any(limits, params, model):
     lambda_ = params["lambda"]
-    lower, upper = limits.rect_limits
+    lower, upper = limits.rect_limits  # TODO: change to v1 limits?
     # if any(np.isinf([lower, upper])):
     #     raise AnalyticIntegralNotImplemented
 
-    integral = _exp_integral_func_shifting(
-        lambd=lambda_, lower=lower, upper=upper, model=model
-    )
+    integral = _exp_integral_func_shifting(lambd=lambda_, lower=lower, upper=upper, model=model)
     return integral[0]
 
 
 def _exp_integral_func_shifting(lambd, lower, upper, model):
     def raw_integral(x):
-        return (
-            z.exp(lambd * (model._shift_x(x))) / lambd
-        )  # needed due to overflow in exp otherwise
+        return z.exp(lambd * (model._shift_x(x))) / lambd  # needed due to overflow in exp otherwise
 
     lower = z.convert_to_tensor(lower)
     lower_int = raw_integral(x=lower)
     upper = z.convert_to_tensor(upper)
     upper_int = raw_integral(x=upper)
-    integral = upper_int - lower_int
-    return integral
+    return upper_int - lower_int
 
 
 def exp_icdf(x, params, model):
@@ -231,9 +223,7 @@ def exp_icdf(x, params, model):
 # TODO: cleanup, make cdf registrable _and_ inverse integral, but real
 
 limits = Space(axes=0, limits=(ANY_LOWER, ANY_UPPER))
-Exponential.register_analytic_integral(
-    func=_exp_integral_from_any_to_any, limits=limits
-)
+Exponential.register_analytic_integral(func=_exp_integral_from_any_to_any, limits=limits)
 
 
 class ExponentialPDFRepr(BasePDFRepr):
@@ -300,10 +290,9 @@ class Voigt(BasePDF, SerializableMixin):
                ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
             norm: |@doc:pdf.init.norm| Normalization of the PDF.
                By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
-            name: |@doc:pdf.init.name| Human-readable name
-               or label of
-               the PDF for better identification.
-               Has no programmatical functional purpose as identification. |@docend:pdf.init.name|
+            name: |@doc:pdf.init.name| Name of the PDF.
+               Maybe has implications on the serialization and deserialization of the PDF.
+               For a human-readable name, use the label. |@docend:pdf.init.name|
         """
         params = {"m": m, "sigma": sigma, "gamma": gamma}
         super().__init__(obs, name=name, params=params, extended=extended, norm=norm)
@@ -321,16 +310,20 @@ class Voigt(BasePDF, SerializableMixin):
 
 
 def _voigt_integral_from_inf_to_inf(limits, params, model):
-    m = params["m"]
+    del model, limits  # unused, fixed limits
+    params["m"]
     sigma = params["sigma"]
-    gamma = params["gamma"]
+    params["gamma"]
     return sigma * np.sqrt(2 * np.pi)
 
 
 limits = Space(axes=0, limits=(-znp.inf, znp.inf))
-Voigt.register_analytic_integral(func=_voigt_integral_from_inf_to_inf, limits=limits)
 
 
+# todo: this only works if executing eagerly, which fails for at least the binned PDFs
+# possible solution comes with the `space.static` concept (?) and a StaticLimitsNotAvailable error,
+# falling back to whatever is available
+#  Voigt.register_analytic_integral(func=_voigt_integral_from_inf_to_inf, limits=limits)
 class VoigtPDFRepr(BasePDFRepr):
     _implementation = Voigt
     hs3_type: Literal["Voigt"] = Field("Voigt", alias="type")

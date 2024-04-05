@@ -1,15 +1,15 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
+from __future__ import annotations
 
+import matplotlib.pyplot as plt
 import mplhep
 import numpy as np
 
 import zfit
 
 mplhep.style.use("LHCb2")
-import matplotlib.pyplot as plt
-
 # create space
-obs = zfit.Space("x", limits=(-10, 10))
+obs = zfit.Space("x", -10, 10)
 
 # parameters
 mu = zfit.Parameter("mu", 1.0, -4, 6)
@@ -25,40 +25,41 @@ model = zfit.pdf.SumPDF([gauss, exponential], fracs=frac)
 # data
 n_sample = 5000
 
-exp_data = exponential.sample(n=n_sample * (1 - frac)).numpy()
+exp_data = exponential.sample(n=n_sample * (1 - frac))
 
-gauss_data = gauss.sample(n=n_sample * frac).numpy()
+gauss_data = gauss.sample(n=n_sample * frac)
 
 data = model.create_sampler(n_sample, limits=obs)
 data.resample()
 
-mu.set_value(0.5)
-sigma.set_value(1.2)
-lambd.set_value(-0.05)
-frac.set_value(0.07)
+# set the values of the parameters
+zfit.param.set_values([mu, sigma, lambd, frac], [0.5, 1.2, -0.05, 0.07])
+
+# alternatively, we can set the values individually
+# mu.set_value(0.5)
+# sigma.set_value(1.2)
+# lambd.set_value(-0.05)
+# frac.set_value(0.07)
 
 # plot the data
-data_np = data["x"].numpy()
 n_bins = 50
 
-plot_scaling = n_sample / n_bins * obs.area()
+plot_scaling = n_sample / n_bins * obs.volume
 
-x = np.linspace(-10, 10, 1000)
-lower, upper = obs.limit1d
-edges = np.linspace(lower, upper, n_bins + 1)
+x = np.linspace(obs.v1.lower, obs.v1.upper, 1000)
 
 
 def plot_pdf(title):
     plt.figure()
     plt.title(title)
-    y = model.pdf(x).numpy()
-    y_gauss = (gauss.pdf(x) * frac).numpy()
-    y_exp = (exponential.pdf(x) * (1 - frac)).numpy()
+    y = model.pdf(x)
+    y_gauss = gauss.pdf(x) * frac
+    y_exp = exponential.pdf(x) * (1 - frac)
     plt.plot(x, y * plot_scaling, label="Sum - Model")
     plt.plot(x, y_gauss * plot_scaling, label="Gauss - Signal")
     plt.plot(x, y_exp * plot_scaling, label="Exp - Background")
     mplhep.histplot(
-        np.histogram(data_np, bins=edges),
+        data.to_binned(n_bins),
         yerr=True,
         color="black",
         histtype="errorbar",

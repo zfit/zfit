@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2024 zfit
 
 import numpy as np
 import pytest
@@ -29,11 +29,11 @@ def test_conditional_pdf_simple():
     # gauss = zfit.pdf.Gauss(xmuobs=muobs, mu=mu, sigma=sigma)
 
     data2d = zfit.Data.from_numpy(
-        array=np.stack([uniform_sample, normal_sample1], axis=-1), obs=xmuobs
+        array=np.concatenate([uniform_sample, normal_sample1], axis=-1), obs=xmuobs
     )
     data1d = zfit.Data.from_numpy(array=uniform_sample, obs=xobs)
     data3d = zfit.Data.from_numpy(
-        array=np.stack([uniform_sample, normal_sample1, normal_sample2], axis=-1),
+        array=np.concatenate([uniform_sample, normal_sample1, normal_sample2], axis=-1),
         obs=obs,
     )
     data1dmu = zfit.Data.from_numpy(array=uniform_sample, obs=muobs)

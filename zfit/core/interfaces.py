@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ from collections.abc import Callable
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    import zfit
+    pass
 
 import abc
 from abc import ABCMeta, abstractmethod
@@ -19,7 +19,7 @@ from ..util import ztyping
 from ..util.deprecation import deprecated
 
 
-class ZfitObject(abc.ABC):
+class ZfitObject:
     # TODO: make abstractmethod?
     def __eq__(self, other: object) -> bool:
         raise NotImplementedError
@@ -46,12 +46,6 @@ class ZfitDimensional(ZfitObject):
         Corresponds to the last dimension.
         """
         raise NotImplementedError
-
-    # TODO: activate?
-    # @property
-    # @abstractmethod
-    # def space(self):
-    #     raise NotImplementedError
 
 
 class ZfitOrderableDimensional(ZfitDimensional, metaclass=ABCMeta):
@@ -208,9 +202,7 @@ class ZfitOrderableDimensional(ZfitDimensional, metaclass=ABCMeta):
         raise NotImplementedError
 
     @abstractmethod
-    def get_reorder_indices(
-        self, obs: ztyping.ObsTypeInput = None, axes: ztyping.AxesTypeInput = None
-    ) -> tuple[int]:
+    def get_reorder_indices(self, obs: ztyping.ObsTypeInput = None, axes: ztyping.AxesTypeInput = None) -> tuple[int]:
         """Indices that would order the instances obs as ``obs`` respectively the instances axes as ``axes``.
 
         Args:
@@ -230,15 +222,7 @@ class ZfitOrderableDimensional(ZfitDimensional, metaclass=ABCMeta):
 
 class ZfitData(ZfitDimensional):
     @abstractmethod
-    def value(self, obs: list[str] = None) -> ztyping.XType:
-        raise NotImplementedError
-
-    @abstractmethod
-    def sort_by_obs(self, obs, allow_superset: bool = True):
-        raise NotImplementedError
-
-    @abstractmethod
-    def sort_by_axes(self, axes, allow_superset: bool = True):
+    def value(self, obs: list[str] | None = None) -> ztyping.XType:
         raise NotImplementedError
 
     @property
@@ -248,7 +232,15 @@ class ZfitData(ZfitDimensional):
 
 
 class ZfitUnbinnedData(ZfitData):
-    pass
+    @property
+    @abstractmethod
+    def nevents(self) -> int:
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def has_weights(self):
+        raise NotImplementedError
 
 
 class ZfitLimit(abc.ABC, metaclass=ABCMeta):
@@ -327,9 +319,7 @@ class ZfitLimit(abc.ABC, metaclass=ABCMeta):
         raise NotImplementedError
 
     @abstractmethod
-    def inside(
-        self, x: ztyping.XTypeInput, guarantee_limits: bool = False
-    ) -> ztyping.XTypeReturn:
+    def inside(self, x: ztyping.XTypeInput, guarantee_limits: bool = False) -> ztyping.XTypeReturn:
         """Test if ``x`` is inside the limits.
 
         This function should be used to test if values are inside the limits. If the given x is already inside
@@ -411,7 +401,8 @@ class ZfitLimit(abc.ABC, metaclass=ABCMeta):
     def get_subspace(self, *_, **__):
         from zfit.util.exception import InvalidLimitSubspaceError
 
-        raise InvalidLimitSubspaceError("ZfitLimits does not suppoert subspaces")
+        msg = "ZfitLimits does not suppoert subspaces"
+        raise InvalidLimitSubspaceError(msg)
 
     @property
     @abstractmethod
@@ -501,6 +492,9 @@ class ZfitLimit(abc.ABC, metaclass=ABCMeta):
 
 
 class ZfitSpace(ZfitLimit, ZfitOrderableDimensional, ZfitObject, metaclass=ABCMeta):
+    V1: ZfitSpace
+    V0: ZfitSpace
+
     @property
     def is_binned(self):
         raise NotImplementedError
@@ -538,7 +532,7 @@ class ZfitSpace(ZfitLimit, ZfitOrderableDimensional, ZfitObject, metaclass=ABCMe
 
     # TODO: legacy?
     @abstractmethod
-    def area(self) -> float:
+    def _legacy_area(self) -> float:
         """Return the total area of all the limits and axes.
 
         Useful, for example, for MC integration.
@@ -787,7 +781,7 @@ class ZfitLoss(ZfitObject, metaclass=ABCMeta):
         raise NotImplementedError
 
     @abstractmethod
-    def value(self, *, full: bool = None) -> ztyping.NumericalTypeReturn:
+    def value(self, *, full: bool | None = None) -> ztyping.NumericalTypeReturn:
         raise NotImplementedError
 
     @property
@@ -832,15 +826,11 @@ class ZfitLoss(ZfitObject, metaclass=ABCMeta):
 
 class ZfitModel(ZfitNumericParametrized, ZfitDimensional):
     @abstractmethod
-    def update_integration_options(
-        self, *args, **kwargs
-    ):  # TODO: handling integration properly
+    def update_integration_options(self, *args, **kwargs):  # TODO: handling integration properly
         raise NotImplementedError
 
     @abstractmethod
-    def integrate(
-        self, limits: ztyping.LimitsType, norm: ztyping.LimitsType = None, *, options
-    ) -> ztyping.XType:
+    def integrate(self, limits: ztyping.LimitsType, norm: ztyping.LimitsType = None, *, options=None) -> ztyping.XType:
         """Integrate the function over `limits` (normalized over `norm_range` if not False).
 
         Args:
@@ -945,9 +935,7 @@ class ZfitFunc(ZfitModel):
 
 class ZfitPDF(ZfitModel):
     @abstractmethod
-    def pdf(
-        self, x: ztyping.XType, norm: ztyping.LimitsType = None, norm_range=None
-    ) -> ztyping.XType:
+    def pdf(self, x: ztyping.XType, norm: ztyping.LimitsType = None, norm_range=None) -> ztyping.XType:
         raise NotImplementedError
 
     @property
@@ -960,9 +948,7 @@ class ZfitPDF(ZfitModel):
         raise NotImplementedError
 
     @abstractmethod
-    def create_extended(
-        self, yield_: ztyping.ParamTypeInput, name: str = None
-    ) -> ZfitPDF:
+    def create_extended(self, yield_: ztyping.ParamTypeInput, name: str | None = None) -> ZfitPDF:
         raise NotImplementedError
 
     @abstractmethod
@@ -970,9 +956,7 @@ class ZfitPDF(ZfitModel):
         raise NotImplementedError
 
     @abstractmethod
-    def normalization(
-        self, limits: ztyping.LimitsType, *, options
-    ) -> ztyping.NumericalTypeReturn:
+    def normalization(self, norm: ztyping.LimitsType, *, options) -> ztyping.NumericalTypeReturn:
         raise NotImplementedError
 
     @abstractmethod
@@ -1035,7 +1019,6 @@ class ZfitBinnedData(ZfitDimensional, ZfitMinimalHist, metaclass=ABCMeta):
         `hist library <https://hist.readthedocs.io/>`_
         offers, such as plots.
         """
-        pass
 
 
 class ZfitBinnedPDF(ZfitPDF, metaclass=ABCMeta):

@@ -1,10 +1,12 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2024 zfit
 
 # Functors are PDfs and Functions that depend on other PDFs or Functions. They can be used to define
 # in a custom way combinations of PDFs or wrapping a single PDF.
 # An example would be to create the sum of two PDFs. Of course this is already implemented in zfit
 # as the functor SumPDF([pdf1, pdf2], fracs=...). For advanced uses, you
 # can define your own functor as demonstrated below.
+# ruff: noqa: F821
+from __future__ import annotations
 
 import numpy as np
 
@@ -27,12 +29,7 @@ class CombinePolynomials(zfit.pdf.BaseFunctor):
         cosangle1_data, cosangle2_data, angle3_data = x.unstack_x()
         cosangle1, cosangle2, angle3 = self.pdfs
 
-        pdf = (
-            cosangle1.pdf(cosangle1_data)
-            + cosangle2.pdf(cosangle2_data)
-            + angle3.pdf(angle3_data)
-        )
-        return pdf
+        return cosangle1.pdf(cosangle1_data) + cosangle2.pdf(cosangle2_data) + angle3.pdf(angle3_data)
 
 
 def create_angular():
@@ -50,6 +47,4 @@ def create_angular():
     cosangle2_pdf = zfit.pdf.Chebyshev(obs=cosangle2_space, coeffs=[c10, c11, c12])
     angle3_pdf = zfit.pdf.Chebyshev(obs=angle3_space, coeffs=[c20, c21, c22])
 
-    return CombinePolynomials(
-        angle1=cosangle1_pdf, angle2=cosangle2_pdf, angle3=angle3_pdf
-    )
+    return CombinePolynomials(angle1=cosangle1_pdf, angle2=cosangle2_pdf, angle3=angle3_pdf)

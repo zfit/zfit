@@ -1,9 +1,10 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
+from __future__ import annotations
 
 import zfit
 
 # create space
-obs = zfit.Space("x", limits=(-10, 10))
+obs = zfit.Space("x", -10, 10)
 
 # parameters
 mu = zfit.Parameter("mu", 1.0, -4, 6)

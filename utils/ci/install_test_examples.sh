@@ -9,7 +9,7 @@ python -m venv "${BASEDIR}/.test_examples_env"
 source "${BASEDIR}/.test_examples_env/bin/activate"
 pip install -U pip
 pip install "${BASEDIR}/../../[all]"
-pip install -r "${BASEDIR}/../../examples/example_requirements.txt"
+pip install -r ${BASEDIR}/../../examples/example_requirements.txt
 #set -e
 #export ZFIT_GRAPH_MODE=0
 fail=0

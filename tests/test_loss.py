@@ -286,14 +286,10 @@ def test_gradients(chunksize):
     param2 = zfit.Parameter("param2", initial2)
 
     gauss1 = Gauss(param1, 4, obs=obs1)
-    gauss1.set_norm_range((-5, 5))
     gauss2 = Gauss(param2, 5, obs=obs1)
-    gauss2.set_norm_range((-5, 5))
 
     data1 = zfit.Data.from_tensor(obs=obs1, tensor=z.constant(1.0, shape=(100,)))
-    data1.set_data_range((-5, 5))
     data2 = zfit.Data.from_tensor(obs=obs1, tensor=z.constant(1.0, shape=(100,)))
-    data2.set_data_range((-5, 5))
 
     nll = UnbinnedNLL(model=[gauss1, gauss2], data=[data1, data2])
 

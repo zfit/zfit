@@ -1,14 +1,15 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 from __future__ import annotations
 
 import zfit.z.numpy as znp
-from .functor import BaseFunctor
+
 from ..core.interfaces import ZfitBinnedPDF
 from ..core.space import supports
 from ..util import ztyping
 from ..util.exception import SpecificFunctionNotImplemented
 from ..util.ztyping import ExtendedInputType, NormInputType
 from ..z.interpolate_spline import interpolate_spline
+from .functor import BaseFunctor
 
 
 class SplinePDF(BaseFunctor):
@@ -74,9 +75,7 @@ class SplinePDF(BaseFunctor):
     @supports(norm=True)
     def _pdf(self, x, norm):
         pdf = self.pdfs[0]
-        density = pdf.pdf(
-            x.space, norm=norm
-        )  # TODO: order? Give obs, pdf makes order and binning herself?
+        density = pdf.pdf(x.space, norm=norm)  # TODO: order? Give obs, pdf makes order and binning herself?
         centers = pdf.space.binning.centers[0][None, :, None]  # TODO: only 1 dim now
         probs = interpolate_spline(
             train_points=centers,

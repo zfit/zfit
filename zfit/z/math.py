@@ -1,14 +1,13 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     import zfit
 
-from collections.abc import Iterable
-from collections.abc import Callable
+from collections.abc import Callable, Iterable
 
 import numdifftools
 import tensorflow as tf
@@ -34,16 +33,11 @@ def poly_complex(*args, real_x=False):
 
     args = list(args)
     x = args.pop()
-    if real_x is not None:
-        pow_func = znp.power
-    else:
-        pow_func = z.nth_pow
-    return tf.add_n(
-        [coef * z.to_complex(pow_func(x, p)) for p, coef in enumerate(args)]
-    )
+    pow_func = znp.power if real_x is not None else z.nth_pow
+    return tf.add_n([coef * z.to_complex(pow_func(x, p)) for p, coef in enumerate(args)])
 
 
-def numerical_gradient(func: Callable, params: Iterable["zfit.Parameter"]) -> tf.Tensor:
+def numerical_gradient(func: Callable, params: Iterable[zfit.Parameter]) -> tf.Tensor:
     """Calculate numerically the gradient of func() with respect to ``params``.
 
     Args:
@@ -80,9 +74,7 @@ def numerical_gradient(func: Callable, params: Iterable["zfit.Parameter"]) -> tf
     return gradient
 
 
-def numerical_value_gradient(
-    func: Callable, params: Iterable[zfit.Parameter]
-) -> [tf.Tensor, tf.Tensor]:
+def numerical_value_gradient(func: Callable, params: Iterable[zfit.Parameter]) -> [tf.Tensor, tf.Tensor]:
     """Calculate numerically the gradients of ``func()`` with respect to ``params``, also returns the value of
     ``func()``.
 
@@ -104,9 +96,7 @@ def numerical_value_gradients(*args, **kwargs):
     return numerical_value_gradients(*args, **kwargs)
 
 
-def numerical_hessian(
-    func: Callable | None, params: Iterable[zfit.Parameter], hessian=None
-) -> tf.Tensor:
+def numerical_hessian(func: Callable | None, params: Iterable[zfit.Parameter], hessian=None) -> tf.Tensor:
     """Calculate numerically the hessian matrix of func with respect to ``params``.
 
     Args:
@@ -147,9 +137,7 @@ def numerical_hessian(
     if tf.executing_eagerly():
         computed_hessian = convert_to_tensor(hesse_func(param_vals))
     else:
-        computed_hessian = tf.numpy_function(
-            hesse_func, inp=[param_vals], Tout=tf.float64
-        )
+        computed_hessian = tf.numpy_function(hesse_func, inp=[param_vals], Tout=tf.float64)
     n_params = param_vals.shape[0]
     if hessian == "diag":
         computed_hessian.set_shape((n_params,))
@@ -177,9 +165,11 @@ def numerical_value_gradient_hessian(
         Value, gradient and hessian matrix
     """
     if params is None:
-        raise ValueError("params cannot be None")
+        msg = "params cannot be None"
+        raise ValueError(msg)
     if func is None and gradient is None:
-        raise ValueError("Either func or grad has to be given")
+        msg = "Either func or grad has to be given"
+        raise ValueError(msg)
     value, gradients = numerical_value_gradient(func, params)
     hessian = numerical_hessian(func, params, hessian=hessian)
 
@@ -211,7 +201,7 @@ def autodiff_gradient(func: Callable, params: Iterable[zfit.Parameter]) -> tf.Te
 
 def _extract_tfparams(
     params: Iterable[zfit.Parameter] | zfit.Parameter,
-) -> List[tf.Variable]:
+) -> list[tf.Variable]:
     """Extract the tf.Variable from the parameters.
 
     Args:
@@ -240,9 +230,7 @@ def _extract_tfparams(
     # return tf_params
 
 
-def autodiff_value_gradient(
-    func: Callable, params: Iterable[zfit.Parameter]
-) -> [tf.Tensor, tf.Tensor]:
+def autodiff_value_gradient(func: Callable, params: Iterable[zfit.Parameter]) -> [tf.Tensor, tf.Tensor]:
     """Calculate using autodiff the gradients of ``func()`` wrt ``params``; also return ``func()``.
 
     Automatic differentiation (autodiff) is a way of retreiving the derivative of x wrt y. It works by consecutively
@@ -275,9 +263,7 @@ def autodiff_value_gradients(*args, **kwargs):
     return autodiff_value_gradient(*args, **kwargs)
 
 
-def autodiff_hessian(
-    func: Callable, params: Iterable[zfit.Parameter], hessian=None
-) -> tf.Tensor:
+def autodiff_hessian(func: Callable, params: Iterable[zfit.Parameter], hessian=None) -> tf.Tensor:
     """Calculate using autodiff the hessian matrix of ``func()`` wrt ``params``.
 
     Automatic differentiation (autodiff) is a way of retrieving the derivative of x wrt y. It works by consecutively
@@ -297,8 +283,8 @@ def autodiff_hessian(
 
 
 def automatic_value_gradient_hessian(
-    func: Callable = None,
-    params: Iterable[zfit.Parameter] = None,
+    func: Callable | None = None,
+    params: Iterable[zfit.Parameter] | None = None,
     value_grad_func=None,
     hessian=None,
 ) -> [tf.Tensor, tf.Tensor, tf.Tensor]:
@@ -317,15 +303,14 @@ def automatic_value_gradient_hessian(
             Value, gradient and hessian matrix
     """
     if params is None:
-        raise ValueError("Parameters have to be specified, are currently None.")
+        msg = "Parameters have to be specified, are currently None."
+        raise ValueError(msg)
     if func is None and value_grad_func is None:
         ValueError("Either `func` or `value_grad_func` has to be specified.")
 
     from .. import z
 
-    persistant = (
-        hessian == "diag" or tf.executing_eagerly()
-    )  # currently needed, TODO: can we better parallelize that?
+    persistant = hessian == "diag" or tf.executing_eagerly()  # currently needed, TODO: can we better parallelize that?
     # TODO(WrappedVariable): this is needed if we want to use wrapped Variables
     # params = _extract_tfparams(params)
     with tf.GradientTape(persistent=persistant, watch_accessed_variables=False) as tape:
@@ -338,12 +323,7 @@ def automatic_value_gradient_hessian(
             gradients = tf.unstack(gradients)
             # gradients_tf = znp.stack(gradients)
     if hessian == "diag":
-        computed_hessian = znp.stack(
-            [
-                tape.gradient(grad, sources=param)
-                for param, grad in zip(params, gradients)
-            ]
-        )
+        computed_hessian = znp.stack([tape.gradient(grad, sources=param) for param, grad in zip(params, gradients)])
         # gradfunc = lambda par_grad: tape.gradient(par_grad[0], sources=par_grad[1])
         # computed_hessian = tf.vectorized_map(gradfunc, zip(params, gradients))
     else:
@@ -366,9 +346,7 @@ def automatic_value_gradients_hessian(*args, **kwargs):
 # @z.function  # TODO: circular import, improve?
 def reduce_geometric_mean(input_tensor, axis=None, weights=None, keepdims=False):
     if weights is not None:
-        log_mean = tf.nn.weighted_moments(
-            log(input_tensor), axes=axis, frequency_weights=weights
-        )[0]
+        log_mean = tf.nn.weighted_moments(log(input_tensor), axes=axis, frequency_weights=weights)[0]
     else:
         log_mean = znp.mean(znp.log(input_tensor), axis=axis, keepdims=keepdims)
     return znp.exp(log_mean)
@@ -403,12 +381,8 @@ def weighted_quantile(x, quantiles, weights=None, side="middle"):
 
     weighted_quantiles /= znp.sum(weights)
     if side == "middle":
-        quantile_index_left = tf.searchsorted(
-            weighted_quantiles, quantiles, side="left"
-        )
-        quantile_index_right = tf.searchsorted(
-            weighted_quantiles, quantiles, side="right"
-        )
+        quantile_index_left = tf.searchsorted(weighted_quantiles, quantiles, side="left")
+        quantile_index_right = tf.searchsorted(weighted_quantiles, quantiles, side="right")
 
         calculated_left = tf.gather(x, quantile_index_left)
         calculated_right = tf.gather(x, quantile_index_right)

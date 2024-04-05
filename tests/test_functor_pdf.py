@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2024 zfit
 import pytest
 
 import zfit
@@ -35,6 +35,7 @@ def test_norm_range():
     with sum2.set_norm_range(space3):
         assert sum2.norm == space3
     assert sum2.norm == space2
+
 
 
 def test_combine_range():

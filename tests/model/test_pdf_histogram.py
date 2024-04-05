@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2024 zfit
 import hist
 import numpy as np
 import pytest
@@ -15,7 +15,7 @@ def test_sum_histogram_pdf():
     counts = znp.random.uniform(high=1, size=(bins1, bins2))  # generate counts
     counts2 = np.random.normal(loc=5, size=(bins1, bins2))
     counts3 = (
-        znp.linspace(0, 10, num=bins1)[:, None] * znp.linspace(0, 5, num=bins2)[None, :]
+            znp.linspace(0, 10, num=bins1)[:, None] * znp.linspace(0, 5, num=bins2)[None, :]
     )
     binnings = [
         zfit.binned.RegularBinning(bins1, 0, 10, name="obs1"),
@@ -98,3 +98,30 @@ def test_pdf_formhist():
     assert pytest.approx(ntot) == ext_pdf.ext_integrate(limits)
     assert pytest.approx(1.0) == float(ext_pdf.integrate(limits))
     assert pytest.approx(1.0) == float(pdf.integrate(limits))
+
+
+def test_binnedsum_from_hists_only():
+    axis1 = hist.axis.Regular(3, -3, 3, name="x", flow=False)
+    axis2 = hist.axis.Regular(2, -5, 5, name="y", flow=False)
+    h = hist.Hist(
+        axis1,
+        axis2,
+        storage=hist.storage.Weight(),
+    )
+    h2 = hist.Hist(
+        axis1,
+        axis2,
+        storage=hist.storage.Weight(),
+    )
+    x2 = np.random.randn(1_000)
+    y2 = 0.5 * np.random.randn(1_000)
+
+    h.fill(x=x2, y=y2)
+    h2.fill(x=x2 ** 2, y=y2 ** 2)
+
+    pdf = zfit.pdf.HistogramPDF(data=h, extended=True)
+    sumpdf = zfit.pdf.BinnedSumPDF(pdfs=[pdf, h2, h])
+
+    assert sumpdf.is_extended
+    assert sumpdf.ext_pdf(h).shape == h.values().shape
+    np.testing.assert_allclose(sumpdf.counts(), znp.sum([h2.counts(), 2 * h.counts()], axis=0))

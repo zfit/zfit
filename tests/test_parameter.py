@@ -517,3 +517,33 @@ def test_to_numpy():
         "aoeu2", lambda params: 2 * params["p1"], {"p1": p1}
     )
     assert zfit.run(p2) == 30
+
+def test_parameter_label():
+
+    param1 = zfit.Parameter("param1", 1.0)
+    assert param1.label == "param1"
+
+    param2 = zfit.Parameter("param2", 1.0, label="param2_label")
+    assert param2.label == "param2_label"
+
+    param3 = zfit.ComposedParameter("param3", lambda x: x, params=param1)
+    assert param3.label == "param3"
+
+    param4 = zfit.ComposedParameter("param4", lambda x: x, params=param1, label="param4_label")
+    assert param4.label == "param4_label"
+
+    # complex params
+    real_part = 1.3
+    imag_part = 0.3
+    paramc1 = zfit.ComplexParameter.from_polar("paramc1", 4.0, 2.0, label="paramc1_label")
+    assert paramc1.label == "paramc1_label"
+
+    paramc2 = zfit.ComplexParameter.from_cartesian("paramc2", zfit.Parameter("real_part_param", real_part), zfit.Parameter("imag_part_param", imag_part), label="paramc2_label")
+    assert paramc2.label == "paramc2_label"
+
+    # constant params
+    param_const = zfit.param.ConstantParameter("param_const", 5.0)
+    assert param_const.label == "param_const"
+
+    param_const2 = zfit.param.ConstantParameter("param_const2", 5.0, label="param_const2_label")
+    assert param_const2.label == "param_const2_label"

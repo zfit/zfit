@@ -1,4 +1,5 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2024 zfit
+from __future__ import annotations
 
 from .models.functions import BaseFuncV1, ProdFunc, SimpleFuncV1, SumFunc, ZFuncV1
 

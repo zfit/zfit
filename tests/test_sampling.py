@@ -5,6 +5,7 @@ import tensorflow as tf
 
 import zfit
 from zfit import Space, z
+import zfit.z.numpy as znp
 from zfit.core.space import Limit
 from zfit.util.exception import AnalyticSamplingNotImplemented
 
@@ -18,7 +19,7 @@ def setup_teardown_vectors():
 
 mu_true = 1.5
 sigma_true = 1.2
-low, high = -3.8, 2.9
+low, high = -3.8, 5.9
 
 obs1 = zfit.Space("obs1", (low, high))
 
@@ -43,6 +44,10 @@ def create_gauss1():
         mu=mu, sigma=sigma, obs=obs1, name="gauss_params1_sampling1"
     )
     return gauss_params1, mu, sigma
+
+def create_gauss_binned1():
+    gauss, mu, sigma = create_gauss1()
+    return gauss.to_binned(253), mu, sigma
 
 
 class TmpGaussian(zfit.pdf.BasePDF):
@@ -81,6 +86,9 @@ def create_test_gauss1():
     test_gauss1 = TmpGaussian(name="test_gauss1", mu=mu2, sigma=sigma2, obs=obs1)
     return test_gauss1, mu2, sigma2
 
+def create_test_gauss_binned1():
+    gauss, mu, sigma = create_test_gauss1()
+    return gauss.to_binned(273), mu, sigma
 
 def create_test_pdf_overriden_gauss1():
     mu2 = zfit.Parameter("mu2_sampling1", mu_true, mu_true - 2.0, mu_true + 7.0)
@@ -95,6 +103,7 @@ def create_test_pdf_overriden_gauss1():
 
 
 gaussian_dists = [create_gauss1, create_test_gauss1]
+gaussian_binneddists = [create_gauss_binned1, create_test_gauss_binned1]
 
 
 @pytest.mark.parametrize("n", [1, 2, 3, 5, 13, 5123, 20000])
@@ -146,10 +155,7 @@ def test_sampling_fixed(gauss_factory):
     gauss, mu, sigma = gauss_factory()
 
     n_draws = 1000
-    n_draws_param = tf.Variable(
-        initial_value=n_draws, trainable=False, dtype=tf.int64, name="n_draws"
-    )  # variable to have something changeable, predictable
-    sample_tensor = gauss.create_sampler(n=n_draws_param, limits=(low, high))
+    sample_tensor = gauss.create_sampler(n=n_draws, limits=(low, high))
     sample_tensor.resample()
     sampled_from_gauss1 = sample_tensor.numpy()
     assert max(sampled_from_gauss1[:, 0]) <= high
@@ -157,12 +163,10 @@ def test_sampling_fixed(gauss_factory):
     assert n_draws == len(sampled_from_gauss1[:, 0])
 
     new_n_draws = 867
-    n_draws_param.assign(new_n_draws)
-    sample_tensor.resample()
+    sample_tensor.resample(n=new_n_draws)
     sampled_from_gauss1_small = sample_tensor.numpy()
     assert new_n_draws == len(sampled_from_gauss1_small[:, 0])
     assert not np.allclose(sampled_from_gauss1[:new_n_draws], sampled_from_gauss1_small)
-    n_draws_param.assign(n_draws)
 
     gauss_full_sample = gauss.create_sampler(
         n=10000, limits=(mu_true - abs(sigma_true) * 3, mu_true + abs(sigma_true) * 3)
@@ -189,14 +193,14 @@ def test_sampling_fixed(gauss_factory):
 
     gauss_full_sample2 = gauss.create_sampler(n=10000, limits=(-10, 10))
 
-    gauss_full_sample2.resample(param_values={mu: mu_true - 1.0})
-    sampled_gauss2_full = gauss_full_sample2.numpy()
+    gauss_full_sample2.resample(params={mu: mu_true - 1.0})
+    sampled_gauss2_full = gauss_full_sample2.value()
     mu_sampled = np.mean(sampled_gauss2_full)
     sigma_sampled = np.std(sampled_gauss2_full)
     assert mu_sampled == pytest.approx(mu_true - 1.0, rel=0.08)
     assert sigma_sampled == pytest.approx(sigma_true, rel=0.08)
 
-    gauss_full_sample2.resample(param_values={sigma: sigma_true + 1.0})
+    gauss_full_sample2.resample(params={sigma: sigma_true + 1.0})
     sampled_gauss2_full = gauss_full_sample2.numpy()
     mu_sampled = np.mean(sampled_gauss2_full)
     sigma_sampled = np.std(sampled_gauss2_full)
@@ -209,7 +213,7 @@ def test_sampling_floating(gauss_factory):
     gauss, mu, sigma = gauss_factory()
 
     n_draws = 1000
-    sampler = gauss.create_sampler(n=n_draws, limits=(low, high), fixed_params=False)
+    sampler = gauss.create_sampler(n=n_draws, limits=(low, high))
     sampler.resample()
     sampled_from_gauss1 = sampler
     assert max(sampled_from_gauss1.value()[:, 0]) <= high
@@ -220,17 +224,15 @@ def test_sampling_floating(gauss_factory):
     gauss_full_sample = gauss.create_sampler(
         n=nsample,
         limits=(mu_true - abs(sigma_true) * 3, mu_true + abs(sigma_true) * 3),
-        fixed_params=False,
     )
 
     gauss_full_sample_fixed = gauss.create_sampler(
         n=nsample,
         limits=(mu_true - abs(sigma_true) * 3, mu_true + abs(sigma_true) * 3),
-        fixed_params=True,
     )
     gauss_full_sample.resample()
     gauss_full_sample_fixed.resample()
-    assert set(gauss_full_sample_fixed.fixed_params) == {mu, sigma}
+    assert gauss_full_sample_fixed.params == {mu.name: mu_true, sigma.name: sigma_true}
     sampled_gauss1_full = gauss_full_sample.numpy()
     mu_sampled = np.mean(sampled_gauss1_full)
     sigma_sampled = np.std(sampled_gauss1_full)
@@ -244,8 +246,9 @@ def test_sampling_floating(gauss_factory):
     assert sigma_sampled_fixed == pytest.approx(sigma_true, rel=0.07)
 
     mu_diff = 0.7
-    with mu.set_value(mu_true - mu_diff):
-        assert mu.numpy() == mu_true - mu_diff
+    new_muval = mu_true - mu_diff
+    with mu.set_value(new_muval):
+        assert mu.numpy() == new_muval
         sampler.resample()
         sampled_from_gauss1 = sampler.numpy()
         assert max(sampled_from_gauss1[:, 0]) <= high
@@ -258,12 +261,68 @@ def test_sampling_floating(gauss_factory):
         assert mu_sampled_fixed == pytest.approx(mu_true, rel=0.07)
         assert sigma_sampled_fixed == pytest.approx(sigma_true, rel=0.07)
 
-        gauss_full_sample.resample()
+        gauss_full_sample.resample({mu: new_muval})
         sampled_gauss1_full = gauss_full_sample.numpy()
         mu_sampled = np.mean(sampled_gauss1_full)
         sigma_sampled = np.std(sampled_gauss1_full)
-        assert mu_sampled == pytest.approx(mu_true - mu_diff, rel=0.07)
+        assert mu_sampled == pytest.approx(new_muval, rel=0.07)
         assert sigma_sampled == pytest.approx(sigma_true, rel=0.07)
+
+@pytest.mark.parametrize("gauss_binnedfactory", gaussian_binneddists)
+def test_binned_sampling_floating(gauss_binnedfactory):
+    def std(x, weights):
+        return np.sqrt(np.cov(x, aweights=weights))
+    gauss, mu, sigma = gauss_binnedfactory()
+
+    n_draws = 10000
+    sampler = gauss.create_sampler(n=n_draws, limits=(low, high))
+    sampler.resample()
+    sampled_from_gauss1 = sampler
+    assert n_draws == np.sum(sampled_from_gauss1.counts())
+
+    nsample = 100000
+    gauss_full_sample = gauss.create_sampler(
+        n=nsample,
+    )
+
+    gauss_full_sample_fixed = gauss.create_sampler(
+        n=nsample,
+    )
+    gauss_full_sample.resample()
+    gauss_full_sample_fixed.resample()
+    assert gauss_full_sample_fixed.params == {mu.name: mu_true, sigma.name: sigma_true}
+    sampled_gauss1_full = gauss_full_sample.counts()
+    centers = gauss.space.binning.centers[0]
+    mu_sampled = np.average(centers, weights=sampled_gauss1_full)
+    sigma_sampled = np.sqrt(np.cov(centers, aweights=sampled_gauss1_full))
+
+    assert mu_sampled == pytest.approx(mu_true, rel=0.07)
+    assert sigma_sampled == pytest.approx(sigma_true, rel=0.07)
+
+
+    mu_sampled_fixed = np.average(centers, weights=gauss_full_sample_fixed.counts())
+    sigma_sampled_fixed = np.sqrt(np.cov(centers, aweights=gauss_full_sample_fixed.counts()))
+    assert mu_sampled_fixed == pytest.approx(mu_true, rel=0.07)
+    assert sigma_sampled_fixed == pytest.approx(sigma_true, rel=0.07)
+
+    mu_diff = 0.7
+    new_muval = mu_true - mu_diff
+    with mu.set_value(new_muval):
+        assert mu.numpy() == new_muval
+        sampler.resample()
+        assert n_draws == np.sum(sampler.counts())
+
+
+        mu_sampled_fixed = np.average(centers, weights=sampler.counts())
+        sigma_sampled_fixed = std(centers, weights=sampler.counts())
+        assert mu_sampled_fixed == pytest.approx(mu_true, rel=0.07)
+        assert sigma_sampled_fixed == pytest.approx(sigma_true, rel=0.07)
+
+        gauss_full_sample.resample({mu: new_muval})
+        mu_sampled_fixed = np.average(centers, weights=gauss_full_sample.counts())
+        sigma_sampled_fixed = std(centers, weights=gauss_full_sample.counts())
+        assert mu_sampled_fixed == pytest.approx(new_muval, rel=0.07)
+        assert sigma_sampled_fixed == pytest.approx(sigma_true, rel=0.07)
 
 
 @pytest.mark.flaky(3)  # statistical
@@ -293,7 +352,7 @@ def test_importance_sampling(n):
         @z.function
         def __call__(self, n_to_produce, limits, dtype):
             importance_sampling_called[0] = True
-            n_to_produce = tf.cast(n_to_produce, dtype=tf.int32)
+            n_to_produce = znp.asarray(n_to_produce, dtype=tf.int32)
             gaussian_sample = gauss_sampler.sample(
                 n=n_to_produce, limits=limits
             ).value()
@@ -337,7 +396,7 @@ def test_importance_sampling_uniform():
 
             import tensorflow_probability.python.distributions as tfd
 
-            n_to_produce = tf.cast(n_to_produce, dtype=tf.int32)
+            n_to_produce = znp.asarray(n_to_produce, dtype=tf.int32)
             gaussian = tfd.TruncatedNormal(
                 loc=z.constant(-1.0), scale=z.constant(2.0), low=low, high=high
             )
