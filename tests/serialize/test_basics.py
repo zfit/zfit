@@ -518,6 +518,7 @@ def complicatedpdf(pdfs=None, extended=None, **kwargs):
             zfit.Parameter(f"frac_sum3_{i}", 0.1, -1, 1) for i in range(len(pdfs4) - 1)
         ],
         name="complicatedpdf",
+
     )
     return sum3
 

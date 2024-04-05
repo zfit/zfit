@@ -2167,7 +2167,7 @@ class Space(
             msg = f"Not usable keys in `overwrite_kwargs`: {set(overwrite_kwargs) - set(kwargs)}"
             raise KeyError(msg)
         kwargs.get("binning")
-        return type(self)(**kwargs)
+        return self.__class__(**kwargs)
 
     def _inside(self, x, guarantee_limits):
         del guarantee_limits  # not used

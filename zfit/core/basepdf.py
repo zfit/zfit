@@ -144,7 +144,7 @@ class PDFMeta(type):
         return pdf
 
 
-class BasePDF(ZfitPDF, BaseModel):
+class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
     # def __new__(cls, *args, obs=None, **kwargs):
     #     if binned := (obs is not None and isinstance(obs, Space) and obs.binning is not None):
     #         binned_obs = obs
