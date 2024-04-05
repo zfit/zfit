@@ -296,7 +296,7 @@ def gamma(extended=None, **kwargs):
 
     gamma = zfit.Parameter("gamma_gamma", 4, 1, 10)
     beta = zfit.Parameter("beta_gamma", 0.1, 0, 1)
-    mu = zfit.Parameter("mu_gamma", -1.5, -2, -1)
+    mu = zfit.Parameter("mu_gamma", -1, -3, -0.1)
     obs = zfit.Space("obs", positive_limits)
     return zfit.pdf.Gamma(gamma=gamma, beta=beta, mu=mu, obs=obs, extended=extended)
 
@@ -437,7 +437,6 @@ basic_pdfs = [
     voigt,
     exponential,
     studentt,
-    gamma,
     crystalball,
     doublecb,
     generalizedcb,
@@ -455,7 +454,7 @@ basic_pdfs = [
     kde1disj,
 ]
 basic_pdfs.reverse()
-positive_pdfs = [poisson, lognormal, chisquared]
+positive_pdfs = [poisson, lognormal, chisquared, gamma]
 
 
 def sumpdf(pdfs=None, fracs=True, extended=None, **kwargs):
