@@ -34,11 +34,11 @@ repos:
         always_run: true
         additional_dependencies: [ pyyaml ]
 
-#  - repo: https://github.com/PyCQA/docformatter
-#    rev: v1.7.5
-#    hooks:
-#      - id: docformatter
-#        args: [ -r, --in-place, --wrap-descriptions, '120', --wrap-summaries, '120', --pre-summary-space, --black, -- ]
+  - repo: https://github.com/PyCQA/docformatter
+    rev: v1.7.5
+    hooks:
+      - id: docformatter
+        args: [ -r, --in-place, --wrap-descriptions, '120', --wrap-summaries, '120', -- ]
 
 
   - repo: https://github.com/pre-commit/pygrep-hooks

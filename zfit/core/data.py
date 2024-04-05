@@ -452,7 +452,6 @@ class Data(
 
         Raises:
             ValueError: If the observables are not in the dataframe.
-
         """
         weights_requested = weights is not None
         if dtype is None:
@@ -622,9 +621,6 @@ class Data(
 
         Returns:
             ``zfit.Data``: A ``Data`` object containing the unbinned data.
-
-
-
         """
         # begin deprecated legacy arguments
         if branches:
@@ -687,8 +683,8 @@ class Data(
                If the :py:class:`~zfit.Space` has limits, these will be used to cut the
                data. If the data is already cut, use ``guarantee_limits`` for a possible
                performance improvement. |@docend:data.init.obs|
-            array: Numpy array containing the data. Has to be of shape (nevents, nobs) or, if only one observable,
-                (nevents) is also possible.
+            array: Numpy array containing the data. Has to be of shape (nevents, nobs) or,
+                if only one observable, (nevents) is also possible.
             weights: |@doc:data.init.weights| Weights of the data.
                Has to be 1-D and match the shape of the data (nevents).
                Note that a weighted dataset may not be supported by all methods
@@ -720,7 +716,6 @@ class Data(
 
         Raises:
             TypeError: If the array is not a numpy array.
-
         """
         # todo: should we switch orders
         # # legacy, switch input arguments
