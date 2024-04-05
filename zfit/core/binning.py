@@ -91,7 +91,7 @@ def unbinned_to_hist_eager(values, edges, weights=None):
     return znp.array(h.values(flow=False), znp.float64), znp.array(h.variances(flow=False), znp.float64)
 
 
-def unbinned_to_binned(data, space, binned_class=None):
+def unbinned_to_binned(data, space, binned_class=None, initkwargs=None):
     """Convert an unbinned dataset to a binned dataset.
 
     Args:
@@ -127,7 +127,7 @@ def unbinned_to_binned(data, space, binned_class=None):
         inp=[values, *edges, weights],
         Tout=[tf.float64, tf.float64],
     )
-    return binned_class.from_tensor(space=space, values=values, variances=variances)
+    return binned_class.from_tensor(space=space, values=values, variances=variances, **(initkwargs or {}))
 
 
 def unbinned_to_binindex(data, space, flow=False):

@@ -281,7 +281,7 @@ def test_nbins(request):
     sig_data = model_unbinned.sample(275)
     bkg_data = model_unbinned.sample(25)
     data = zfit.Data.from_tensor(
-        obs, tensor=znp.concatenate([sig_data.value(), bkg_data.value()], axis=0)
+        obs=obs, tensor=znp.concatenate([sig_data.value(), bkg_data.value()], axis=0)
     )
     # make binned
     plot_folder = "nbins_accuracy"

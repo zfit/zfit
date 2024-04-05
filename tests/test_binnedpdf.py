@@ -303,8 +303,8 @@ def test_binned_with_unbinned_data():
 
     np.testing.assert_allclose(y_relcounts, y_counts / n)
 
-
-def test_binned_from_unbinned_2D():
+@pytest.mark.parametrize("instantiation", ["wrapper", "to_binned", "init"])
+def test_binned_from_unbinned_2D(instantiation):
     n = 100000
 
     mu = zfit.Parameter("mu", 1, 0, 19)
@@ -331,9 +331,13 @@ def test_binned_from_unbinned_2D():
     obs_binnedy = zfit.Space("y", binning=axisy)
     obs_binned = obs_binnedx * obs_binnedy
 
-    gauss_binned = BinnedFromUnbinnedPDF(pdf=gauss2D, space=obs_binned, extended=n)
+    if instantiation == "wrapper":
+        gauss_binned = BinnedFromUnbinnedPDF(pdf=gauss2D, space=obs_binned, extended=n)
+    elif instantiation == "to_binned":
+        gauss_binned = gauss2D.to_binned(obs_binned, extended=n)
+    elif instantiation == "init":
+        gauss_binned =  zfit.pdf.ProductPDF([gaussx, gaussy], obs=obs_binned, extended=n)
     values = gauss_binned.rel_counts(obs_binned)  # TODO: good test?
-    start = time.time()
     ntrial = 10
     for _ in range(ntrial):
         values = gauss_binned.rel_counts(obs_binned)

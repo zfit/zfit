@@ -139,7 +139,7 @@ LimitsDictObs = Dict[Tuple[str], "zfit.core.interfaces.ZfitLimit"]  #:
 LimitsDictNoCoords = Union[LimitsDictAxes, LimitsDictObs]  #:
 LimitsDictWithCoords = Dict[str, LimitsDictNoCoords]  #:
 
-BinningInput = Union[Iterable["ZfitBinning"], "ZfitBinning", int]  #:
+BinningTypeInput = Union[Iterable["ZfitBinning"], "ZfitBinning", int]  #:
 OptionsInputType = Optional[Mapping[str, object]]  #:
 ConstraintsInputType = Optional[
     Union[

@@ -118,7 +118,16 @@ class FFTConvPDFV1(BaseFunctor, SerializableMixin):
                   However, it provides better solution, a curve that is smooth even with less points
                   than for a linear interpolation.
 
-            obs: Observables of the class. If not specified, automatically taken from `func`
+            obs: |@doc:pdf.init.obs| Observables of the
+               model. This will be used as the default space of the PDF and,
+               if not given explicitly, as the normalization range.
+
+               The default space is used for example in the sample method: if no
+               sampling limits are given, the default space is used.
+
+               The observables are not equal to the domain as it does not restrict or
+               truncate the model outside this range. |@docend:pdf.init.obs|
+               If not specified, automatically taken from `func`
             extended: |@doc:pdf.init.extended| The overall yield of the PDF.
                If this is parameter-like, it will be used as the yield,
                the expected number of events, and the PDF will be extended.

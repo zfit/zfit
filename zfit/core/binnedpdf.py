@@ -93,9 +93,17 @@ class BaseBinnedPDFV1(
     OverloadableMixinValues,
     ZfitBinnedPDF,
 ):
-    def __init__(self, obs, extended=None, norm=None, name=None, **kwargs):
+    def __init__(
+        self,
+        obs: ztyping.ObsTypeInput,
+        extended: ztyping.ExtendedInputType = None,
+        norm: ztyping.NormInputType = None,
+        name: str | None = None,
+        label: str | None = None,
+        **kwargs,
+    ):
+        self._label = label
         super().__init__(dtype=znp.float64, name=name, **kwargs)
-        # self._name = name  # TODO: why is this needed?
 
         self._space = self._check_convert_obs_init(obs)
         self._yield = None
@@ -104,6 +112,10 @@ class BaseBinnedPDFV1(
             extended = False
         if extended is not False:
             self._set_yield(extended)
+
+    @property
+    def label(self):
+        return self._label
 
     def _check_convert_obs_init(self, obs):
         if not isinstance(obs, ZfitSpace) or not obs.is_binned:

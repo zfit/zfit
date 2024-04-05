@@ -55,7 +55,7 @@ also the advanced models in `zfit models <https://github.com/zfit/zfit-tutorials
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Iterable
+from typing import TYPE_CHECKING, Iterable, Optional
 
 from tensorflow.python.util.deprecation import deprecated_args
 
@@ -123,13 +123,34 @@ def _BasePDF_register_check_support(has_support: bool):
     return register
 
 
-class BasePDF(ZfitPDF, BaseModel):
+class PDFMeta(type):
+    def __call__(cls, *args, obs=None, **kwargs):
+        if binned := (obs is not None and isinstance(obs, Space) and obs.binning is not None):
+            binned_obs = obs
+            obs = binned_obs.with_binning(None)
+        if obs is not None:
+            kwargs["obs"] = obs
+        pdf = cls.__new__(cls)
+        pdf.__init__(*args, **kwargs)
+        if binned:
+            pdf = pdf.to_binned(
+                binned_obs,
+                extended=kwargs.get("extended", None),
+                norm=kwargs.get("norm", None),
+                name=kwargs.get("name", None),
+                label=kwargs.get("label", None),
+            )
+
+        return pdf
+
+
+class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
     def __init__(
         self,
         obs: ztyping.ObsTypeInput,
         params: dict[str, ZfitParameter] | None = None,
-        dtype: type = ztypes.float,
         *,
+        dtype=ztypes.float,
         label=None,
         extended: ExtendedInputType = None,
         norm: NormInputType = None,
@@ -930,11 +951,18 @@ class BasePDF(ZfitPDF, BaseModel):
         """Convert to unbinned pdf, returns self if already unbinned."""
         return self
 
-    def to_binned(self, space, *, extended=None, norm=None):
+    def to_binned(
+        self,
+        space: ztyping.SpaceType,
+        extended: ExtendedInputType = None,
+        norm: NormInputType = None,
+        name: Optional[str] = None,
+        label: Optional[str] = None,
+    ):
         """Convert to binned pdf, returns self if already binned."""
         from ..models.tobinned import BinnedFromUnbinnedPDF
 
-        return BinnedFromUnbinnedPDF(pdf=self, space=space, extended=extended, norm=norm)
+        return BinnedFromUnbinnedPDF(pdf=self, space=space, extended=extended, norm=norm, name=name, label=label)
 
     def to_truncated(
         self,

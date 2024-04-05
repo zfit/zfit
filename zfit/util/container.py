@@ -54,6 +54,8 @@ def convert_to_container(
     if value is None and not convert_none:
         return value
     if type(value) != container and non_containers is not False:
+        import hist
+
         non_containers.extend(
             [
                 str,
@@ -69,6 +71,8 @@ def convert_to_container(
                 PlottableHistogram,
                 pd.DataFrame,
                 pd.Series,
+                hist.axis.Regular,
+                hist.axis.Variable,
             ]
         )
         non_containers = tuple(non_containers)

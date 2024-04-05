@@ -1254,7 +1254,7 @@ class Space(
         obs: ztyping.ObsTypeInput | None = None,
         *args,
         limits: ztyping.LimitsTypeInput | None = None,
-        binning: ztyping.BinningInput = None,
+        binning: ztyping.BinningTypeInput = None,
         axes=None,
         rect_limits=None,
         name: str | None = None,
@@ -1303,21 +1303,24 @@ class Space(
 
         limits, binning = _legacy_get_arguments_space(obs, args, limits, binning, axes, rect_limits, lower, upper)
         # limits = [lower, upper]  # temporary
+        if binning is None:
+            binning = False
         if name is None:
             name = "Space"
-        integer_autobinning = isinstance(binning, int) or (
-            isinstance(binning, (list, tuple)) and all(isinstance(b, int) for b in binning)
-        )
-        if not integer_autobinning:
-            if not isinstance(binning, Binnings):
-                binning = convert_to_container(binning)
-                if binning is not None:
-                    binning = Binnings(binning)
-            if binning is not None and not all(binning.name):
-                msg = f"Axes must have a name. Missing: {[axis for axis in binning if not hasattr(axis, 'name')]}"
-                raise TypeError(msg)
-            if binning is not None and obs is None and axes is None:
-                obs = [axis.name for axis in binning]
+        if binning is not False:
+            integer_autobinning = isinstance(binning, int) or (
+                isinstance(binning, (list, tuple)) and all(isinstance(b, int) for b in binning)
+            )
+            if not integer_autobinning:
+                if not isinstance(binning, Binnings):
+                    binning = convert_to_container(binning)
+                    if binning is not None:
+                        binning = Binnings(binning)
+                if not all(binning.name):
+                    msg = f"Axes must have a name. Missing: {[axis for axis in binning if not hasattr(axis, 'name')]}"
+                    raise TypeError(msg)
+                if obs is None and axes is None:
+                    obs = [axis.name for axis in binning]
         super().__init__(obs=obs, axes=axes, name=name)
 
         label = convert_to_container(label, container=tuple)
@@ -1334,7 +1337,7 @@ class Space(
             label = dict(zip(self.obs, label))
         self._labels = label
 
-        if binning is not None and not isinstance(binning, int) and limits is None and rect_limits is None:
+        if binning is not False and not isinstance(binning, int) and limits is None and rect_limits is None:
             limits = [[], []]
             for axis in binning:
                 limits[0].append(axis.edges[0])
@@ -1349,9 +1352,9 @@ class Space(
         )
         self._limits_dict = limits_dict
 
-        if isinstance(binning, int):
+        if binning is not False and isinstance(binning, int):
             binning = [binning]
-        if integer_autobinning:
+        if binning is not False and integer_autobinning:
             if len(binning) != self.n_obs:
                 msg = (
                     f"Wrong number ({len(binning)}) of integers given for regular binning"
@@ -1370,7 +1373,7 @@ class Space(
                 regular_binnings.append(RegularBinning(bins=nbins, start=lower, stop=upper, name=self.obs[i]))
 
             binning = Binnings(regular_binnings)
-        if binning is not None:
+        if binning is not False:
             bining_names = set(binning.name)
             obs = set(self.obs)
             wrong_names = bining_names - obs
@@ -1382,7 +1385,7 @@ class Space(
                 msg = f"Binning names ({missing_obs}) do not match observables ({obs}), missing {missing_obs}."
                 raise ObsIncompatibleError(msg)
             binning = Binnings([binning[ob] for ob in self.obs])
-        self._binning = binning
+        self._binning = None if binning is False else binning
 
     @property
     def labels(self):
@@ -2164,7 +2167,7 @@ class Space(
             msg = f"Not usable keys in `overwrite_kwargs`: {set(overwrite_kwargs) - set(kwargs)}"
             raise KeyError(msg)
         kwargs.get("binning")
-        return type(self)(**kwargs)
+        return self.__class__(**kwargs)
 
     def _inside(self, x, guarantee_limits):
         del guarantee_limits  # not used
@@ -2639,7 +2642,7 @@ class MultiSpace(BaseSpace):
         cls,
         spaces: Iterable[ZfitSpace],
         obs: ztyping.ObsTypeInput = None,
-        binning: ztyping.BinningInput = None,
+        binning: ztyping.BinningTypeInput = None,
         axes: ztyping.AxesTypeInput = None,
         name: str | None = None,  # noqa: ARG003
     ) -> Space | MultiSpace:

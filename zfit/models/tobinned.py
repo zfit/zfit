@@ -23,8 +23,11 @@ class BinnedFromUnbinnedPDF(BaseBinnedFunctorPDF):
         self,
         pdf: ZfitPDF,
         space: ZfitSpace,
+        *,
         extended: ztyping.ExtendedInputType = None,
         norm: ztyping.NormInputType = None,
+        name: str | None = None,
+        label: str | None = None,
     ) -> None:
         """Create a binned pdf from an unbinned pdf binning in *space*.
 
@@ -61,13 +64,16 @@ class BinnedFromUnbinnedPDF(BaseBinnedFunctorPDF):
             except Exception as error:
                 msg = f"Could not create space {space} from pdf {pdf} with binning {space}"
                 raise ValueError(msg) from error
+        if name is None:
+            name = f"Binned_{pdf.name}"
         super().__init__(
             obs=space,
             extended=extended,
             norm=norm,
             models=pdf,
             params={},
-            name="BinnedFromUnbinnedPDF",
+            name=name,
+            label=label,
         )
         self.pdfs = self.models
 
@@ -170,3 +176,6 @@ class BinnedFromUnbinnedPDF(BaseBinnedFunctorPDF):
         if norm:
             values /= pdf.normalization(norm)
         return values
+
+    def __str__(self):
+        return f"<BinnedFromUnbinnedPDF model={self.pdfs[0]} binning={self.space.binning}>"
