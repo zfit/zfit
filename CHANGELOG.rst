@@ -35,6 +35,7 @@ Major Features and Improvements
 - add ``label`` to different objects (PDF, Data, etc.) that allows to give a human-readable name to the object. This is used in the plotting and can be used to identify objects.
   Notably, Parameters have a label that can be arbitrary. ``Space`` has one label for each observable if the space is a product of spaces. ``Space.label`` is a string and only possible for one-dimensional spaces, while ``Space.labels`` is a list of strings and can be used for any, one- or multi-dimensional spaces.
 - add ``zfit.data.concat(...)`` to concatenate multiple data objects into one along the index or along the observables. Similar to ``pd.concat``.
+- PDFs now have a ``to_truncated`` method that allows to create a truncated version of the PDF, possibly with different and multiple limits. This allows to easily create a PDF with disjoint limits.
 
 
 
