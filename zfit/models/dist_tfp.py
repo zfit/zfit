@@ -972,6 +972,10 @@ class Gamma(WrapDistribution, SerializableMixin):
             obs: |@doc:model.init.obs| Observables of the
                model. This will be used as the default space of the PDF and,
                if not given explicitly, as the normalization range.
+               If the observables are binned and the model is unbinned, the
+               model will be a binned model, by wrapping the model in a
+               :py:class:`~zfit.pdf.BinnedFromUnbinnedPDF`, equivalent to
+               calling :py:meth:`~zfit.pdf.BasePDF.to_binned`.
 
                The default space is used for example in the sample method: if no
                sampling limits are given, the default space is used.
@@ -1020,3 +1024,12 @@ class Gamma(WrapDistribution, SerializableMixin):
         return tfd.TransformedDistribution(
             distribution=tfd.Gamma(**params, **kwargs), bijector=tfp.bijectors.Shift(loc), name=self.name + "_tfp"
         )
+
+
+class GammaPDFRepr(BasePDFRepr):
+    _implementation = Gamma
+    hs3_type: Literal["Gamma"] = Field("Gamma", alias="type")
+    x: SpaceRepr
+    gamma: Serializer.types.ParamTypeDiscriminated
+    beta: Serializer.types.ParamTypeDiscriminated
+    mu: Serializer.types.ParamTypeDiscriminated
