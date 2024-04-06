@@ -639,33 +639,38 @@ def test_unbinnedspace_composite():
     assert isinstance(space2, UnbinnedSpace)
     space3 = zfit.Space("obs1", (-14, 102))
     assert isinstance(space3, UnbinnedSpace)
+    space4 = zfit.Space("obs1", (-1.2, 7))
+    assert isinstance(space4, UnbinnedSpace)
 
-    calls1 = 0
+    calls1 = tf.Variable(0, dtype=tf.int32)
 
-    @tf.function(autograph=True, reduce_retracing=True)
+    @tf.function(autograph=False, reduce_retracing=True)
     def func1(space):
-        nonlocal calls1
-        calls1 += 1
-        return space.lower[0]
+        calls1.assign_add(1)
+        return None
 
     low1 = func1(space1)
     assert low1 == -1
-    calls_comp1 = calls1
+
     low2 = func1(space2)
     assert low2 == -1.3
-    assert calls1 == calls_comp1
+
+    calls_comp1 = calls1
     low3 = func1(space3)
     assert low3 == -14
-    assert calls1 == calls_comp1 + 1
+    assert calls1 == calls_comp1
     low1b = func1(space1)
     assert low1b == -1
-    assert calls1 == calls_comp1 + 1
+    assert calls1 == calls_comp1
+    low4 = func1(space4)
+    assert low4 == -1.2
+    assert calls1 == calls_comp1
 
     spacebinned1 = zfit.Space("obs1", (-145, 1030), binning=5)
     assert not isinstance(spacebinned1, UnbinnedSpace)
     spacebinned2 = zfit.Space("obs1", (-1.33, 35), binning=7)
     lowb = func1(spacebinned1)
-    assert lowb == -1
+    assert lowb == -145
     assert calls1 > calls_comp1  # recompilation triggered
     callscombb = calls1
     lowb2 = func1(spacebinned2)

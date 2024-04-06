@@ -478,8 +478,8 @@ class Limit(ZfitLimit, tfp.experimental.AutoCompositeTensor):
         rect_limits = self._rect_limits
         if rect_limits in (None, False):
             return rect_limits
-        lower = z.convert_to_tensor(rect_limits[0])
-        upper = z.convert_to_tensor(rect_limits[1])
+        lower = rect_limits[0]
+        upper = rect_limits[1]
         return z.convert_to_tensor((lower, upper))
 
     @property
@@ -1354,6 +1354,10 @@ class Space(
             for axis in binning:
                 limits[0].append(axis.edges[0])
                 limits[1].append(axis.edges[-1])
+
+        # if not callable(limits) and isinstance(limits, (tuple, list)) and len(limits) == 2:
+        #     with suppress(TypeError):  # ANY or similar
+        #         limits = (znp.asarray(limits[0]), znp.asarray(limits[1]))
 
         limits_dict = self._check_convert_input_limits(
             limit=limits,
