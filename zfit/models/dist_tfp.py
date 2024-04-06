@@ -949,19 +949,21 @@ class Gamma(WrapDistribution, SerializableMixin):
         norm: NormInputType = None,
         name: str = "Gamma",
     ):
-        """Gamma distribution with shape `gamma` and scale `beta`.
+        """Gamma distribution.
 
+        The gamma shape is parametrized here with `gamma`, `beta` and `mu`.
+        We follow the same parametrization `as RooFit <https://root.cern.ch/doc/master/classRooGamma.html>`_.
         The gamma shape is defined as
 
         .. math::
 
-            f(x \\mid \\gamma, \\beta, \\mu) = \\frac{1}{\\Gamma(\\gamma) \\beta^{\\gamma}} (x - \\mu)^{\\gamma - 1} \\exp{\\left(-\\frac{x - \\mu}{\\beta}\\right)} / Z
+            f(x \\mid \\gamma, \\beta, \\mu) = (x - \\mu)^{\\gamma - 1} \\exp{\\left(-\\frac{x - \\mu}{\\beta}\\right)} / Z
 
         with the normalization over [0, inf] of
 
         .. math::
 
-            Z = \\frac{1}{\\Gamma(\\gamma) \\beta^{\\gamma}}
+            Z = \\Gamma(\\gamma) \\beta^{\\gamma}
 
         The normalization changes for different normalization ranges
 
