@@ -951,8 +951,8 @@ class Gamma(WrapDistribution, SerializableMixin):
     ):
         """Gamma distribution.
 
-        The gamma shape is parametrized here with `gamma`, `beta` and `mu`.
-        We follow the same parametrization `as RooFit <https://root.cern.ch/doc/master/classRooGamma.html>`_.
+        The gamma shape is parametrized here with `gamma`, `beta` and `mu`, following
+        the same parametrization `as RooFit <https://root.cern.ch/doc/master/classRooGamma.html>`_.
         The gamma shape is defined as
 
         .. math::
