@@ -1001,7 +1001,13 @@ class Gamma(WrapDistribution, SerializableMixin):
         def dist_params():
             return {"concentration": gamma.value(), "rate": 1 / beta.value(), "loc": mu.value()}
 
-        distribution = tfp.distributions.Gamma
+        def distribution(concentration, rate, loc, name):
+            return tfd.TransformedDistribution(
+                distribution=tfp.distributions.Gamma(concentration, rate),
+                bijector=tfp.bijectors.Shift(loc),
+                name=name,
+            )
+
         super().__init__(
             distribution=distribution,
             dist_params=dist_params,
@@ -1010,21 +1016,6 @@ class Gamma(WrapDistribution, SerializableMixin):
             name=name,
             extended=extended,
             norm=norm,
-        )
-
-    @property
-    def distribution(self):
-        params = self.dist_params
-        if callable(params):
-            params = params()
-        kwargs = self.dist_kwargs
-        if callable(kwargs):
-            kwargs = kwargs()
-
-        loc = params.pop("loc")
-
-        return tfd.TransformedDistribution(
-            distribution=tfd.Gamma(**params, **kwargs), bijector=tfp.bijectors.Shift(loc), name=self.name + "_tfp"
         )
 
 
