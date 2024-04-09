@@ -933,3 +933,96 @@ class BifurGaussPDFRepr(BasePDFRepr):
     mu: Serializer.types.ParamTypeDiscriminated
     sigmal: Serializer.types.ParamTypeDiscriminated
     sigmar: Serializer.types.ParamTypeDiscriminated
+
+
+class Gamma(WrapDistribution, SerializableMixin):
+    _N_OBS = 1
+
+    def __init__(
+        self,
+        gamma: ztyping.ParamTypeInput,
+        beta: ztyping.ParamTypeInput,
+        mu: ztyping.ParamTypeInput,
+        obs: ztyping.ObsTypeInput,
+        *,
+        extended: ExtendedInputType = None,
+        norm: NormInputType = None,
+        name: str = "Gamma",
+    ):
+        """Gamma distribution.
+
+        The gamma shape is parametrized here with `gamma`, `beta` and `mu`, following
+        the same parametrization `as RooFit <https://root.cern.ch/doc/master/classRooGamma.html>`_.
+        The gamma shape is defined as
+
+        .. math::
+
+            f(x \\mid \\gamma, \\beta, \\mu) = (x - \\mu)^{\\gamma - 1} \\exp{\\left(-\\frac{x - \\mu}{\\beta}\\right)} / Z
+
+        with the normalization over [0, inf] of
+
+        .. math::
+
+            Z = \\Gamma(\\gamma) \\beta^{\\gamma}
+
+        The normalization changes for different normalization ranges and `Z=1` for the unnormalized shape.
+
+        Args:
+            gamma: Shape parameter of the gamma distribution
+            beta: Scale parameter of the gamma distribution
+            mu: Shift of the distribution
+            obs: |@doc:model.init.obs| Observables of the
+               model. This will be used as the default space of the PDF and,
+               if not given explicitly, as the normalization range.
+               If the observables are binned and the model is unbinned, the
+               model will be a binned model, by wrapping the model in a
+               :py:class:`~zfit.pdf.BinnedFromUnbinnedPDF`, equivalent to
+               calling :py:meth:`~zfit.pdf.BasePDF.to_binned`.
+
+               The default space is used for example in the sample method: if no
+               sampling limits are given, the default space is used.
+
+               The observables are not equal to the domain as it does not restrict or
+               truncate the model outside this range. |@docend:model.init.obs|
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+            norm: |@doc:pdf.init.norm| Normalization of the PDF.
+               By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
+            name: |@doc:model.init.name| Human-readable name
+               or label of
+               the PDF for better identification. |@docend:model.init.name|
+        """
+        gamma, beta, mu = self._check_input_params_tfp(gamma, beta, mu)
+        params = {"gamma": gamma, "beta": beta, "mu": mu}
+
+        def dist_params():
+            return {"concentration": gamma.value(), "rate": 1 / beta.value(), "loc": mu.value()}
+
+        def distribution(concentration, rate, loc, name):
+            return tfd.TransformedDistribution(
+                distribution=tfp.distributions.Gamma(concentration, rate),
+                bijector=tfp.bijectors.Shift(loc),
+                name=name,
+            )
+
+        super().__init__(
+            distribution=distribution,
+            dist_params=dist_params,
+            obs=obs,
+            params=params,
+            name=name,
+            extended=extended,
+            norm=norm,
+        )
+
+
+class GammaPDFRepr(BasePDFRepr):
+    _implementation = Gamma
+    hs3_type: Literal["Gamma"] = Field("Gamma", alias="type")
+    x: SpaceRepr
+    gamma: Serializer.types.ParamTypeDiscriminated
+    beta: Serializer.types.ParamTypeDiscriminated
+    mu: Serializer.types.ParamTypeDiscriminated
