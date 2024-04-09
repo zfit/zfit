@@ -1354,7 +1354,11 @@ class Space(
             for axis in binning:
                 limits[0].append(axis.edges[0])
                 limits[1].append(axis.edges[-1])
-
+        msg = (
+            "WIP: this complains that the tensor is modified. Maybe introduce static? And just set the tensors in the beginning, make limits"
+            " a tuple of tensors instead, not to change anything? Or just make a simpler version, also for V2?"
+        )
+        raise RuntimeError(msg)
         # if not callable(limits) and isinstance(limits, (tuple, list)) and len(limits) == 2:
         #     with suppress(TypeError):  # ANY or similar
         #         limits = (znp.asarray(limits[0]), znp.asarray(limits[1]))
