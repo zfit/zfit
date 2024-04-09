@@ -965,7 +965,7 @@ class Gamma(WrapDistribution, SerializableMixin):
 
             Z = \\Gamma(\\gamma) \\beta^{\\gamma}
 
-        The normalization changes for different normalization ranges and `Z=1` for the unnormalized shape. 
+        The normalization changes for different normalization ranges and `Z=1` for the unnormalized shape.
 
         Args:
             gamma: Shape parameter of the gamma distribution
