@@ -397,7 +397,7 @@ def test_dependent_param_extraction():
     obs = zfit.Space("x", limits=(-2, 3))
     mu = zfit.Parameter("mu", 1.2, -4, 6)
     sigma = zfit.Parameter("sigma", 1.3, 0.1, 10)
-    sigma1 = zfit.ComposedParameter("sigma1", lambda sigma, mu: sigma + mu, [sigma, mu])
+    sigma1 = zfit.ComposedParameter("sigma1", lambda sigma, mu: sigma + mu, params=[sigma, mu])
     gauss = zfit.pdf.Gauss(mu=mu, sigma=sigma1, obs=obs)
     normal_np = np.random.normal(loc=2.0, scale=3.0, size=10)
     data = zfit.Data.from_numpy(obs=obs, array=normal_np)

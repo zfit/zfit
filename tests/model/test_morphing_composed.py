@@ -61,7 +61,7 @@ def test_moprhing_sum():
         observation=np.ones(len(modifiers)),
         uncertainty=uncertainties,
     )
-    alpha_constraint = zfit.constraint.GaussianConstraint(alpha, 0, 1)
+    alpha_constraint = zfit.constraint.GaussianConstraint(alpha, 0, sigma=1)
     loss_binned = zfit.loss.ExtendedBinnedNLL(
         model, data, constraints=[modifier_constraints, alpha_constraint]
     )

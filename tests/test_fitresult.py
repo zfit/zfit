@@ -73,7 +73,7 @@ def create_loss(n=15000, weights=None, extended=None, constraints=None):
         sampled_data = sampled_data.with_weights(weights)
 
     constraint = (
-        zfit.constraint.GaussianConstraint(a_param, true_a, 0.1)
+        zfit.constraint.GaussianConstraint(a_param, true_a, sigma=0.1)
         if constraints
         else None
     )

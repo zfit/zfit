@@ -514,7 +514,7 @@ def test_to_numpy():
     assert zfit.run(p1) == 15
 
     p2 = zfit.param.ComposedParameter(
-        "aoeu2", lambda params: 2 * params["p1"], {"p1": p1}
+        "aoeu2", lambda params: 2 * params["p1"], params={"p1": p1}
     )
     assert zfit.run(p2) == 30
 
