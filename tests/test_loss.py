@@ -420,7 +420,7 @@ def test_create_new_extnll():
     nll = zfit.loss.ExtendedUnbinnedNLL(
         model=gaussian1,
         data=test_values,
-        constraints=zfit.constraint.GaussianConstraint(mu1, 1.0, 0.1),
+        constraints=zfit.constraint.GaussianConstraint(mu1, 1.0, sigma=0.1),
     )
 
     nll2 = nll.create_new(model=gaussian1)
