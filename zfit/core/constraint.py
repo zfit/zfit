@@ -5,7 +5,7 @@ from __future__ import annotations
 import abc
 import collections
 from collections.abc import Callable
-from typing import Iterable, Literal, Mapping
+from typing import Iterable, Literal, Mapping, Optional
 
 import numpy as np
 import pydantic
@@ -393,7 +393,9 @@ class GaussianConstraintRepr(BaseConstraintRepr):
 
     params: list[Serializer.types.ParamInputTypeDiscriminated]
     observation: list[Serializer.types.ParamInputTypeDiscriminated]
-    uncertainty: list[Serializer.types.ParamInputTypeDiscriminated]
+    uncertainty: Optional[list[Serializer.types.ParamInputTypeDiscriminated]]
+    sigma: Optional[list[Serializer.types.ParamInputTypeDiscriminated]]
+    cov: Optional[list[Serializer.types.ParamInputTypeDiscriminated]]
 
     @pydantic.root_validator(pre=True)
     def get_init_args(cls, values):
@@ -401,7 +403,7 @@ class GaussianConstraintRepr(BaseConstraintRepr):
             values = values["hs3"].original_init
         return values
 
-    @pydantic.validator("params", "observation", "uncertainty")
+    @pydantic.validator("params", "observation", "uncertainty", "sigma", "cov")
     def validate_params(cls, v):
         return v.tolist() if isinstance(v, np.ndarray) else convert_to_container(v, list)
 

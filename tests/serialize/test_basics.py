@@ -835,7 +835,7 @@ def test_dumpload_pdf(pdfcreator, reuse_params):
 
 param_factories = [
     lambda: zfit.param.ComposedParameter(
-        "test", lambda x: x, [zfit.Parameter("x", 1.0, 0.5, 1.4)]
+        "test", func=lambda x: x, params=[zfit.Parameter("x", 1.0, 0.5, 1.4)]
     ),
     lambda: zfit.Parameter("test1", 5.0, 3.0, 10.0),
     lambda: zfit.Parameter("test1", 5.0, 3.0, 10.0, step_size=1.1),

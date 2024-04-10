@@ -133,7 +133,7 @@ class TruncatedPDF(BaseFunctor, SerializableMixin):
 
             extended = zfit.param.ComposedParameter(
                 name=f"AUTO_yield{zfit.core.parameter.get_auto_number()!s}_{name}",
-                value_fn=lambda params, scale=relative_scale: params["wrapped_yield"] * scale,
+                func=lambda params, scale=relative_scale: params["wrapped_yield"] * scale,
                 params={"wrapped_yield": pdf.get_yield()},
             )
         super().__init__(obs=obs, name=name, extended=extended, norm=norm, pdfs=pdf, label=label)

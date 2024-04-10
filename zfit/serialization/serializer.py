@@ -412,7 +412,7 @@ class Serializer:
                         paramdict["type"] = "ConstantParameter"
                     else:
                         paramdict["type"] = "Parameter"
-                elif "value_fn" in paramdict:
+                elif "func" in paramdict:
                     paramdict["type"] = "ComposedParameter"
                 else:
                     variables_holder.pop(param)  # spaces can have different limits, don't replace.
@@ -454,7 +454,7 @@ class Serializer:
             out[what] = replace_matching(out[what], replace_forward_const_param)
 
             # replace composed parameters with their name
-            composed_params = frozendict({"name": None, "type": "ComposedParameter", "value_fn": None})
+            composed_params = frozendict({"name": None, "type": "ComposedParameter", "func": None})
             replace_forward_composed_param = {composed_params: lambda x: x["name"]}
             out[what] = replace_matching(out[what], replace_forward_composed_param)
 
