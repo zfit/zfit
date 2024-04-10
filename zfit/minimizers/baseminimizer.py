@@ -17,7 +17,7 @@ import numpy as np
 from ordered_set import OrderedSet
 
 from ..core.interfaces import ZfitLoss, ZfitParameter
-from ..core.parameter import assign_values, convert_to_parameters
+from ..core.parameter import assign_values, convert_to_parameters, set_values
 from ..settings import run
 from ..util import ztyping
 from ..util.container import convert_to_container
@@ -562,7 +562,16 @@ class BaseMinimizer(ZfitMinimizer):
         """
         state = {"loss": loss, "params": params, "init": init}
         self._state = state
+        from zfit import settings
+
+        if no_update := not settings.options.auto_update_params:
+            import zfit.z.numpy as znp
+
+            old_params = list(loss.get_params())
+            old_values = znp.asarray(old_params)
         yield
+        if no_update:
+            set_values(old_params, old_values)
         self._state = None
 
     def copy(self):

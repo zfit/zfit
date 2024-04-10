@@ -305,6 +305,14 @@ class FitResult(ZfitResult):
 
             {parameter: {error_name1: {'low': value, 'high': value or similar}}
 
+        The ``FitResult can be used to temporarily update the parameter values to the values found by the minimization
+
+        .. code-block::
+
+            with result:
+                # do something with the new values
+                ...
+
         Args:
             loss: |@doc:result.init.loss| The loss function that was minimized.
                Usually, but not necessary, contains
@@ -410,6 +418,7 @@ class FitResult(ZfitResult):
         self._minimizer = minimizer
         self._valid = valid
         self._covariance_dict = {}
+        self._tmp_old_param_values = []
         try:
             fminfull = loss.value(full=True)
         except Exception as error:
@@ -1526,6 +1535,30 @@ class FitResult(ZfitResult):
             p.text(self.__repr__())
             return
         p.text(self.__str__())
+
+    def __enter__(self):
+        self._tmp_old_param_values.append(znp.asarray(tuple(self.params.keys())))
+        self.update_params()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        old_vals = self._tmp_old_param_values.pop()
+        set_values(tuple(self.params.keys()), old_vals)
+
+    def update_params(self) -> typing.Self:
+        """Update the parameters of the result to the current values.
+
+        Usually to be used chained with a ``minimize`` call to update the parameters to the current values.
+
+        (currently, the parameters are updated to the values of the result, this might change in the future. To enable
+        this expected behavior, use ``zfit.run.experimental_disable_param_update()``.
+
+        .. code-block:: python
+
+            result = minimizer.minimize(loss).update_params()  # update the parameters to the current values
+        """
+        set_values(self)
+        return self
 
 
 def covariance_to_correlation(covariance):

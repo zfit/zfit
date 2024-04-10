@@ -127,6 +127,7 @@ options = DotMap(
         "numerical_grad": None,
         "advanced_warning": True,
         "changed_warning": True,
+        "auto_update_params": True,
     }
 )
 
