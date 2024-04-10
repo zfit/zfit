@@ -84,7 +84,7 @@ def test_simple_examples_1D():
         zmodel,
         zdata,
         constraints=zfit.constraint.GaussianConstraint(
-            list(shapesys.values()), [1, 1], unc
+            list(shapesys.values()), [1, 1], sigma=unc
         ),
     )
     # print(nll.value())

@@ -307,6 +307,7 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
 
     def _call_unnormalized_pdf(self, x):
         # try:
+
         return self._unnormalized_pdf(x)
 
     @z.function(wraps="model")

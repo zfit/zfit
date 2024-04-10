@@ -1804,7 +1804,9 @@ class LightDataset:
 
     @classmethod
     def from_tensor(cls, tensor, ndims=None):
-        del ndims  # not used
+        if tensor.shape[1] != ndims:
+            msg = f"Second dimension of {tensor} has to be {ndims} but is {tensor.shape[1]}"
+            raise ShapeIncompatibleError(msg)
         return cls(tensor=tensor, ndims=None)
 
     def with_indices(self, indices: int | tuple[int] | list[int]):
