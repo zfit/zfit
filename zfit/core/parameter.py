@@ -1106,13 +1106,7 @@ class ComposedParameter(SerializableMixin, BaseComposedParameter):
         # end legacy
         if not isinstance(params, Mapping):
             params = convert_to_container(params)
-        original_init = {
-            "name": name,
-            "internal_params": params,
-        }
-
-        original_init["func"] = func
-        original_init["unpack_params"] = unpack_params
+        original_init = {"name": name, "internal_params": params, "func": func, "unpack_params": unpack_params}
 
         # legacy
         if dependents is not NotSpecified:
