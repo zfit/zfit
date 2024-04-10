@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2024 zfit
 import numpy as np
 import pytest
 
@@ -75,5 +75,5 @@ def test_truncated_gauss():
     outside_probs_truncated = probs_truncated_np[np.logical_not(bool_index_inside)]
     inside_probs_gauss = probs_gauss_np[bool_index_inside]
 
-    assert inside_probs_gauss == pytest.approx(inside_probs_truncated, rel=1e-3)
+    assert pytest.approx(inside_probs_truncated, rel=1e-3) == inside_probs_gauss
     assert all(outside_probs_truncated == 0)

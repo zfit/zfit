@@ -51,8 +51,6 @@ class BFGS(BaseMinimizer):
 
     @minimize_supports()
     def _minimize(self, loss, params):
-        from .. import run
-
         minimizer_fn = tfp.optimizer.bfgs_minimize
         params = tuple(params)
 
@@ -90,16 +88,16 @@ class BFGS(BaseMinimizer):
                 if do_print:
                     print_gradient(
                         params,
-                        run(values),
-                        [float(run(g)) for g in gradient],
-                        loss=run(value),
+                        (values),
+                        [float(g) for g in gradient],
+                        loss=float(value),
                     )
-            loss_evaluated = run(value)
+            loss_evaluated = value
             is_nan = is_nan or np.isnan(loss_evaluated)
             if is_nan:
                 nan_counter += 1
                 info_values = {}
-                info_values["loss"] = run(value)
+                info_values["loss"] = value
                 info_values["old_loss"] = current_loss
                 info_values["nan_counter"] = nan_counter
                 value = self.strategy.minimize_nan(loss=loss, params=params, minimizer=self, values=info_values)
@@ -124,19 +122,19 @@ class BFGS(BaseMinimizer):
         result = minimizer_fn(to_minimize_func, **minimizer_kwargs)
 
         # save result
-        params_result = run(result.position)
+        params_result = np.asarray(result.position)
         assign_values(params, values=params_result)
 
         info = {
-            "n_eval": run(result.num_objective_evaluations),
-            "n_iter": run(result.num_iterations),
-            "grad": run(result.objective_gradient),
+            "n_eval": np.asarray(result.num_objective_evaluations),
+            "n_iter": np.asarray(result.num_iterations),
+            "grad": np.asarray(result.objective_gradient),
             "original": result,
         }
         edm = None
-        fmin = run(result.objective_value)
+        fmin = float(result.objective_value)
         status = None
-        converged = run(result.converged)
+        converged = bool(result.converged)
         params = dict(zip(params, params_result))
         return FitResult(
             params=params,

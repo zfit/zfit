@@ -273,13 +273,13 @@ def test_mc_integration(chunksize, limits):
     assert integral.shape == (1,)
     assert integral2.shape == (1,)
     assert integral3.shape == (1,)
-    assert func1_5deps_fully_integrated(limits_simple_5deps) == pytest.approx(
+    assert pytest.approx(
         integral, rel=0.1
-    )
-    assert func2_1deps_fully_integrated(limits2) == pytest.approx(integral2, rel=0.03)
-    assert func3_2deps_fully_integrated(
+    ) == func1_5deps_fully_integrated(limits_simple_5deps)
+    assert pytest.approx(integral2, rel=0.03) == func2_1deps_fully_integrated(limits2)
+    assert pytest.approx(integral3, rel=0.03) == func3_2deps_fully_integrated(
         Space(limits=limits3, axes=(0, 1))
-    ).numpy() == pytest.approx(integral3, rel=0.03)
+    )
 
 
 @pytest.mark.flaky(2)
@@ -359,13 +359,13 @@ def test_analytic_integral():
         limits=Space(limits=limits3, axes=(0, 1)),
         norm=False,
     ).numpy()
-    assert func3_integrated == pytest.approx(
-        func3_2deps_fully_integrated(limits=Space(limits=limits3, axes=(0, 1))).numpy()
-    )
-    assert gauss_integral_infs.numpy() == pytest.approx(
+    assert pytest.approx(
+        func3_2deps_fully_integrated(limits=Space(limits=limits3, axes=(0, 1)))
+    ) == func3_integrated
+    assert pytest.approx(
         np.sqrt(np.pi * 2.0) * sigma_true, rel=0.0001
-    )
-    assert normal_integral_infs.numpy() == pytest.approx(1, rel=0.0001)
+    ) == gauss_integral_infs
+    assert pytest.approx(1, rel=0.0001) == normal_integral_infs
 
 
 def test_analytic_integral_selection():

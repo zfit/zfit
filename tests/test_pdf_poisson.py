@@ -41,4 +41,4 @@ def test_poisson(composed_rate):
     assert np.all(probs1 >= 0)
     samples = poisson.sample(10000).numpy()
 
-    assert np.std(samples) == pytest.approx(50**0.5, rel=0.05)
+    assert pytest.approx(50 ** 0.5, rel=0.05) == np.std(samples)

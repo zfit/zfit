@@ -142,10 +142,10 @@ def test_multiple_limits_sampling(gauss_factory):
     sample2 = gauss.sample(n=n, limits=obs_split)
 
     rel_tol = 1e-2
-    assert float(np.mean(sample1.value())) == pytest.approx(mu_true, rel_tol)
-    assert float(np.std(sample1.value())) == pytest.approx(sigma_true, rel_tol)
-    assert float(np.mean(sample2.value())) == pytest.approx(mu_true, rel_tol)
-    assert float(np.std(sample2.value())) == pytest.approx(sigma_true, rel_tol)
+    assert pytest.approx(mu_true, rel_tol) == (np.mean(sample1.value()))
+    assert pytest.approx(sigma_true, rel_tol) == (np.std(sample1.value()))
+    assert pytest.approx(mu_true, rel_tol) == (np.mean(sample2.value()))
+    assert pytest.approx(sigma_true, rel_tol) == (np.std(sample2.value()))
 
 
 @pytest.mark.parametrize(
@@ -175,8 +175,8 @@ def test_sampling_fixed(gauss_factory):
     sampled_gauss1_full = gauss_full_sample.numpy()
     mu_sampled = np.mean(sampled_gauss1_full)
     sigma_sampled = np.std(sampled_gauss1_full)
-    assert mu_sampled == pytest.approx(mu_true, rel=0.07)
-    assert sigma_sampled == pytest.approx(sigma_true, rel=0.07)
+    assert pytest.approx(mu_true, rel=0.07) == mu_sampled
+    assert pytest.approx(sigma_true, rel=0.07) == sigma_sampled
 
     with mu.set_value(mu_true - 1):
         sample_tensor.resample()
@@ -188,8 +188,8 @@ def test_sampling_fixed(gauss_factory):
         sampled_gauss1_full = gauss_full_sample.numpy()
         mu_sampled = np.mean(sampled_gauss1_full)
         sigma_sampled = np.std(sampled_gauss1_full)
-        assert mu_sampled == pytest.approx(mu_true, rel=0.07)
-        assert sigma_sampled == pytest.approx(sigma_true, rel=0.07)
+        assert pytest.approx(mu_true, rel=0.07) == mu_sampled
+        assert pytest.approx(sigma_true, rel=0.07) == sigma_sampled
 
     gauss_full_sample2 = gauss.create_sampler(n=10000, limits=(-10, 10))
 
@@ -197,15 +197,15 @@ def test_sampling_fixed(gauss_factory):
     sampled_gauss2_full = gauss_full_sample2.value()
     mu_sampled = np.mean(sampled_gauss2_full)
     sigma_sampled = np.std(sampled_gauss2_full)
-    assert mu_sampled == pytest.approx(mu_true - 1.0, rel=0.08)
-    assert sigma_sampled == pytest.approx(sigma_true, rel=0.08)
+    assert pytest.approx(mu_true - 1.0, rel=0.08) == mu_sampled
+    assert pytest.approx(sigma_true, rel=0.08) == sigma_sampled
 
     gauss_full_sample2.resample(params={sigma: sigma_true + 1.0})
     sampled_gauss2_full = gauss_full_sample2.numpy()
     mu_sampled = np.mean(sampled_gauss2_full)
     sigma_sampled = np.std(sampled_gauss2_full)
-    assert mu_sampled == pytest.approx(mu_true, rel=0.07)
-    assert sigma_sampled == pytest.approx(sigma_true + 1.0, rel=0.07)
+    assert pytest.approx(mu_true, rel=0.07) == mu_sampled
+    assert pytest.approx(sigma_true + 1.0, rel=0.07) == sigma_sampled
 
 
 @pytest.mark.parametrize("gauss_factory", gaussian_dists)
@@ -236,14 +236,14 @@ def test_sampling_floating(gauss_factory):
     sampled_gauss1_full = gauss_full_sample.numpy()
     mu_sampled = np.mean(sampled_gauss1_full)
     sigma_sampled = np.std(sampled_gauss1_full)
-    assert mu_sampled == pytest.approx(mu_true, rel=0.07)
-    assert sigma_sampled == pytest.approx(sigma_true, rel=0.07)
+    assert pytest.approx(mu_true, rel=0.07) == mu_sampled
+    assert pytest.approx(sigma_true, rel=0.07) == sigma_sampled
 
     sampled_gauss1_full_fixed = gauss_full_sample_fixed.numpy()
     mu_sampled_fixed = np.mean(sampled_gauss1_full_fixed)
     sigma_sampled_fixed = np.std(sampled_gauss1_full_fixed)
-    assert mu_sampled_fixed == pytest.approx(mu_true, rel=0.07)
-    assert sigma_sampled_fixed == pytest.approx(sigma_true, rel=0.07)
+    assert pytest.approx(mu_true, rel=0.07) == mu_sampled_fixed
+    assert pytest.approx(sigma_true, rel=0.07) == sigma_sampled_fixed
 
     mu_diff = 0.7
     new_muval = mu_true - mu_diff
@@ -258,15 +258,16 @@ def test_sampling_floating(gauss_factory):
         sampled_gauss1_full_fixed = gauss_full_sample_fixed.numpy()
         mu_sampled_fixed = np.mean(sampled_gauss1_full_fixed)
         sigma_sampled_fixed = np.std(sampled_gauss1_full_fixed)
-        assert mu_sampled_fixed == pytest.approx(mu_true, rel=0.07)
-        assert sigma_sampled_fixed == pytest.approx(sigma_true, rel=0.07)
+        assert pytest.approx(mu_true, rel=0.07) == mu_sampled_fixed
+        assert pytest.approx(sigma_true, rel=0.07) == sigma_sampled_fixed
 
         gauss_full_sample.resample({mu: new_muval})
         sampled_gauss1_full = gauss_full_sample.numpy()
         mu_sampled = np.mean(sampled_gauss1_full)
         sigma_sampled = np.std(sampled_gauss1_full)
-        assert mu_sampled == pytest.approx(new_muval, rel=0.07)
-        assert sigma_sampled == pytest.approx(sigma_true, rel=0.07)
+        assert pytest.approx(new_muval, rel=0.07) == mu_sampled
+        assert pytest.approx(sigma_true, rel=0.07) == sigma_sampled
+
 
 @pytest.mark.parametrize("gauss_binnedfactory", gaussian_binneddists)
 def test_binned_sampling_floating(gauss_binnedfactory):
@@ -296,14 +297,13 @@ def test_binned_sampling_floating(gauss_binnedfactory):
     mu_sampled = np.average(centers, weights=sampled_gauss1_full)
     sigma_sampled = np.sqrt(np.cov(centers, aweights=sampled_gauss1_full))
 
-    assert mu_sampled == pytest.approx(mu_true, rel=0.07)
-    assert sigma_sampled == pytest.approx(sigma_true, rel=0.07)
-
+    assert pytest.approx(mu_true, rel=0.07) == mu_sampled
+    assert pytest.approx(sigma_true, rel=0.07) == sigma_sampled
 
     mu_sampled_fixed = np.average(centers, weights=gauss_full_sample_fixed.counts())
     sigma_sampled_fixed = np.sqrt(np.cov(centers, aweights=gauss_full_sample_fixed.counts()))
-    assert mu_sampled_fixed == pytest.approx(mu_true, rel=0.07)
-    assert sigma_sampled_fixed == pytest.approx(sigma_true, rel=0.07)
+    assert pytest.approx(mu_true, rel=0.07) == mu_sampled_fixed
+    assert pytest.approx(sigma_true, rel=0.07) == sigma_sampled_fixed
 
     mu_diff = 0.7
     new_muval = mu_true - mu_diff
@@ -315,14 +315,14 @@ def test_binned_sampling_floating(gauss_binnedfactory):
 
         mu_sampled_fixed = np.average(centers, weights=sampler.counts())
         sigma_sampled_fixed = std(centers, weights=sampler.counts())
-        assert mu_sampled_fixed == pytest.approx(mu_true, rel=0.07)
-        assert sigma_sampled_fixed == pytest.approx(sigma_true, rel=0.07)
+        assert pytest.approx(mu_true, rel=0.07) == mu_sampled_fixed
+        assert pytest.approx(sigma_true, rel=0.07) == sigma_sampled_fixed
 
         gauss_full_sample.resample({mu: new_muval})
         mu_sampled_fixed = np.average(centers, weights=gauss_full_sample.counts())
         sigma_sampled_fixed = std(centers, weights=gauss_full_sample.counts())
-        assert mu_sampled_fixed == pytest.approx(new_muval, rel=0.07)
-        assert sigma_sampled_fixed == pytest.approx(sigma_true, rel=0.07)
+        assert pytest.approx(new_muval, rel=0.07) == mu_sampled_fixed
+        assert pytest.approx(sigma_true, rel=0.07) == sigma_sampled_fixed
 
 
 # @pytest.mark.skipif(not zfit.EXPERIMENTAL_FUNCTIONS_RUN_EAGERLY, reason="deadlock in tf.function, issue #35540")  # currently, importance sampling is not working, odd deadlock in TF
@@ -377,10 +377,10 @@ def test_importance_sampling(n):
         mean2 = np.mean(sample_np2)
         std = np.std(sample_np)
         std2 = np.std(sample_np2)
-        assert mean == pytest.approx(mu_pdf, rel=0.02)
-        assert mean2 == pytest.approx(mu_pdf, rel=0.02)
-        assert std == pytest.approx(sigma_pdf, rel=0.02)
-        assert std2 == pytest.approx(sigma_pdf, rel=0.02)
+        assert pytest.approx(mu_pdf, rel=0.02) == mean
+        assert pytest.approx(mu_pdf, rel=0.02) == mean2
+        assert pytest.approx(sigma_pdf, rel=0.02) == std
+        assert pytest.approx(sigma_pdf, rel=0.02) == std2
 
 
 @pytest.mark.flaky(3)  # statistical

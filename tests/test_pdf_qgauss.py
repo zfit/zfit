@@ -22,12 +22,12 @@ def create_qgauss(q, mu, sigma, limits):
 @pytest.mark.parametrize("q", [1.00001, 1.5, 2.0, 2.5, 2.9, 2.99])
 def test_qgauss_pdf(q):
     qgauss, _ = create_qgauss(q=q, mu=mu_true, sigma=sigma_true, limits=(-5, 5))
-    assert qgauss.pdf(0.5, norm=False).numpy().item() == pytest.approx(
+    assert pytest.approx(
         qgaussian_numba.pdf(0.5, q=q, mu=mu_true, sigma=sigma_true), rel=1e-5
-    )
+    ) == qgauss.pdf(0.5, norm=False)
     test_values = tf.range(-5, 5, 10_000)
     np.testing.assert_allclose(
-        qgauss.pdf(test_values, norm=False).numpy(),
+        qgauss.pdf(test_values, norm=False),
         qgaussian_numba.pdf(test_values, q=q, mu=mu_true, sigma=sigma_true),
         rtol=1e-5,
     )
@@ -48,15 +48,15 @@ def test_qgauss_integral(q):
     numba_stats_full_integral = qgaussian_numba.cdf(5, q=q, mu=mu_true, sigma=sigma_true) - qgaussian_numba.cdf(
         -5, q=q, mu=mu_true, sigma=sigma_true
     )
-    assert full_interval_analytic == pytest.approx(true_integral, 1e-4)
-    assert full_interval_numeric == pytest.approx(true_integral, 1e-4)
-    assert full_interval_analytic == pytest.approx(numba_stats_full_integral, 1e-6)
-    assert full_interval_numeric == pytest.approx(numba_stats_full_integral, 1e-6)
+    assert pytest.approx(true_integral, 1e-4) == full_interval_analytic
+    assert pytest.approx(true_integral, 1e-4) == full_interval_numeric
+    assert pytest.approx(numba_stats_full_integral, 1e-6) == full_interval_analytic
+    assert pytest.approx(numba_stats_full_integral, 1e-6) == full_interval_numeric
 
     analytic_integral = qgauss.analytic_integrate(limits=(-1, 1), norm=False).numpy()
     numeric_integral = qgauss.numeric_integrate(limits=(-1, 1), norm=False).numpy()
     numba_stats_integral = qgaussian_numba.cdf(1, q=q, mu=mu_true, sigma=sigma_true) - qgaussian_numba.cdf(
         -1, q=q, mu=mu_true, sigma=sigma_true
     )
-    assert analytic_integral == pytest.approx(numeric_integral, 1e-5)
-    assert analytic_integral == pytest.approx(numba_stats_integral, 1e-5)
+    assert pytest.approx(numeric_integral, 1e-5) == analytic_integral
+    assert pytest.approx(numba_stats_integral, 1e-5) == analytic_integral

@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2024 zfit
 
 import numpy as np
 import pytest
@@ -21,9 +21,9 @@ def test_counts_multinomial():
 
     assert (3,) == counts_np[0].shape
     assert all(total_count == np.sum(counts_np, axis=1))
-    probs_scaled = np.array(probs) * total_count
-    assert probs_scaled == pytest.approx(mean, rel=0.05)
-    assert [9, 14, 16] == pytest.approx(std, rel=0.5)  # flaky
+    probs_scaled = probs * total_count
+    assert pytest.approx(mean, rel=0.05) == probs_scaled
+    assert pytest.approx(std, rel=0.5) == [9, 14, 16]  # flaky
 
     total_count2 = 5000
     counts_np2 = [

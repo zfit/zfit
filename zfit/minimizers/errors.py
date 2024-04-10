@@ -325,7 +325,7 @@ def covariance_with_weights(method, result, params):
     if loss.constraints:
         constraints = loss.constraints
 
-    old_vals = run(params)
+    old_vals = np.asarray(params)
 
     Hinv_dict = method(result=result, params=params)  # inverse of the hessian matrix
     if not Hinv_dict:

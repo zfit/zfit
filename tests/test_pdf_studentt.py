@@ -22,5 +22,5 @@ def test_studentt():
 
     assert np.all(np.isfinite(probs))
     assert np.all(probs>=0)
-    assert float(znp.mean(samples)) == pytest.approx(2, rel=1e-2)
-    assert float(znp.std(samples)) == pytest.approx(np.sqrt(N_true / (N_true - 2)), rel=1e-2)
+    assert pytest.approx(2, rel=1e-2) == znp.mean(samples)
+    assert pytest.approx(np.sqrt(N_true / (N_true - 2)), rel=1e-2) == znp.std(samples)

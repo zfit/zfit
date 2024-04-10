@@ -9,7 +9,6 @@ from collections.abc import Mapping
 import numpy as np
 
 from ..core.interfaces import ZfitLoss, ZfitParameter
-from ..settings import run
 from ..util import ztyping
 from .fitresult import FitResult
 
@@ -72,7 +71,7 @@ class ToyStrategyFail(BaseStrategy):
 
     def minimize_nan(self, loss: ZfitLoss, params: ztyping.ParamTypeInput, values: Mapping | None = None) -> float:
         del values  # unused
-        param_vals = run(params)
+        param_vals = np.asarray(params)
         param_vals = dict(zip(params, param_vals))
         self.fit_result = FitResult(
             params=param_vals,

@@ -4,6 +4,7 @@ import pytest
 from scipy.stats import crystalball
 
 import zfit
+import zfit.z.numpy as znp
 from zfit.core.testing import tester
 from zfit.models.physics import CrystalBall, DoubleCB, GeneralizedCB
 
@@ -45,7 +46,7 @@ def eval_testing(pdf, x):
     probs = pdf.pdf(x)
     assert probs.shape.rank == 1
     assert probs.shape[0] == x.shape[0]
-    probs = zfit.run(probs)
+    probs = znp.asarray(probs)
     assert not np.any(np.isnan(probs))
     return probs
 
@@ -63,8 +64,6 @@ def test_cb_integral():
     integral_numeric = cbl.numeric_integrate(limits=int_limits, norm=False)
 
     integral = cbl.analytic_integrate(limits=int_limits, norm=False)
-    integral_numeric = zfit.run(integral_numeric)
-    integral = zfit.run(integral)
 
     assert pytest.approx(integral_numeric, 1e-5) == integral
 
@@ -75,8 +74,8 @@ def test_cb_integral():
     ]
 
     integral = np.sum(integrals)
-    integral_full = zfit.run(cbl.integrate(bounds, norm=False))
-    assert pytest.approx(float(integral_full)) == float(integral)
+    integral_full = (cbl.integrate(bounds, norm=False))
+    assert pytest.approx(integral_full) == (integral)
 
 
 @pytest.mark.parametrize("doublecb", ["DoubleCB", "GeneralizedCB"])
@@ -179,5 +178,5 @@ def test_cb_dcb(doublecb):
         integrals.append(dcb.integrate((low, up), norm=False))
 
     integral = np.sum(integrals)
-    integral_full = zfit.run(dcb.integrate((bounds[0], up), norm=False))
+    integral_full = znp.asarray(dcb.integrate((bounds[0], up), norm=False))
     assert pytest.approx(float(integral_full)) == float(integral)

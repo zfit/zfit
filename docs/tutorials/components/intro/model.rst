@@ -67,9 +67,7 @@ to set a temporary normalisation range can be given as
 
     # Get the probabilities of some random generated events
     probs = model_cb.pdf(x=np.random.random(10))
-    # And now execute the tensorflow graph
-    result = zfit.run(probs)
-    print(result)
+    print(probs)
 
 .. jupyter-execute::
 

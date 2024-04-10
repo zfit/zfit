@@ -152,12 +152,12 @@ def test_bernstein(coeffs, obs):
     bernstein = zfit.pdf.Bernstein(obs=obs, coeffs=coeffs)
     lower, upper = obs.limit1d
 
-    assert bernstein.pdf(0.8, norm=False).numpy().item() == pytest.approx(
+    assert pytest.approx(
         bernstein_numba.density(0.8, beta=coeffs, xmin=lower, xmax=upper), rel=1e-5
-    )
+    ) == bernstein.pdf(0.8, norm=False)
     test_values = tf.range(lower, upper, 10_000)
     np.testing.assert_allclose(
-        bernstein.pdf(test_values, norm=False).numpy(),
+        bernstein.pdf(test_values, norm=False),
         bernstein_numba.density(test_values, beta=coeffs, xmin=lower, xmax=upper),
         rtol=1e-5,
     )
@@ -173,15 +173,15 @@ def test_bernstein(coeffs, obs):
     numba_stats_full_integral = bernstein_numba.integral(x=upper, beta=coeffs, xmin=lower, xmax=upper) - bernstein_numba.integral(
         x=lower, beta=coeffs, xmin=lower, xmax=upper
     )
-    assert full_interval_analytic == pytest.approx(full_interval_numeric, 1e-4)
-    assert full_interval_analytic == pytest.approx(numba_stats_full_integral, 1e-6)
-    assert full_interval_numeric == pytest.approx(numba_stats_full_integral, 1e-6)
+    assert pytest.approx(full_interval_numeric, 1e-4) == full_interval_analytic
+    assert pytest.approx(numba_stats_full_integral, 1e-6) == full_interval_analytic
+    assert pytest.approx(numba_stats_full_integral, 1e-6) == full_interval_numeric
 
     analytic_integral = bernstein.analytic_integrate(limits=(0.6, 0.9), norm=False).numpy()
     numeric_integral = bernstein.numeric_integrate(limits=(0.6, 0.9), norm=False).numpy()
     numba_stats_integral = bernstein_numba.integral(x=0.9, beta=coeffs, xmin=lower, xmax=upper) - bernstein_numba.integral(
         x=0.6, beta=coeffs, xmin=lower, xmax=upper
     )
-    assert analytic_integral == pytest.approx(numeric_integral, 1e-5)
-    assert analytic_integral == pytest.approx(numba_stats_integral, 1e-5)
-    assert numeric_integral == pytest.approx(numba_stats_integral, 1e-5)
+    assert pytest.approx(numeric_integral, 1e-5) == analytic_integral
+    assert pytest.approx(numba_stats_integral, 1e-5) == analytic_integral
+    assert pytest.approx(numba_stats_integral, 1e-5) == numeric_integral

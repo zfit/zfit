@@ -7,6 +7,7 @@ import numpy as np
 import pytest
 
 import zfit
+import zfit.z.numpy as znp
 from zfit.minimizers.errors import compute_errors
 from zfit.minimizers.fitresult import FitResult
 
@@ -151,9 +152,9 @@ def test_set_values_fitresult(do_pickle, weights, extended):
     lower1 = 0.0
     param1 = zfit.Parameter("param1", 2.0, lower1, upper1)
     param1.set_value(lower1)
-    assert pytest.approx(zfit.run(param1.value())) == lower1
+    assert pytest.approx(znp.asarray(param1.value())) == lower1
     param1.set_value(upper1)
-    assert pytest.approx(zfit.run(param1.value())) == upper1
+    assert pytest.approx(znp.asarray(param1.value())) == upper1
     with pytest.raises(ValueError):
         param1.set_value(lower1 - 0.001)
     with pytest.raises(ValueError):
@@ -175,8 +176,8 @@ def test_set_values_fitresult(do_pickle, weights, extended):
         result.freeze()
         result = pickle.loads(pickle.dumps(result))
     with zfit.param.set_values([param_c, param_b], values=result):
-        assert zfit.run(param_b.value()) == val_b
-        assert zfit.run(param_c.value()) == val_c
+        assert znp.asarray(param_b.value()) == val_b
+        assert znp.asarray(param_c.value()) == val_c
 
     # test partial
     param_new = zfit.Parameter("param_new", 42.0, 12.0, 48.0)
@@ -188,7 +189,7 @@ def test_set_values_fitresult(do_pickle, weights, extended):
     zfit.param.set_values(
         [param_c, param_new], values=result, allow_partial=True
     )  # allow_partial by default false
-    assert zfit.run(param_c.value()) == val_c
+    assert znp.asarray(param_c.value()) == val_c
 
     # test partial in case we have nothing to set
     param_d = zfit.Parameter("param_d", 12)
