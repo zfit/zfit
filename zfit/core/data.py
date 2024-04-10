@@ -1464,7 +1464,7 @@ class SamplerData(Data):
             shape=(None, obs.n_obs),
             name=f"sample_data_holder_{cls.get_cache_counting()}",
         )
-        dataset = LightDataset.from_tensor(sample_holder)
+        dataset = LightDataset.from_tensor(sample_holder, ndims=obs.n_obs)
 
         weights = init_weights
         weights_holder = None
@@ -1803,10 +1803,13 @@ class LightDataset:
         yield self.value()
 
     @classmethod
-    def from_tensor(cls, tensor, ndims=None):
-        if tensor.shape[1] != ndims:
-            msg = f"Second dimension of {tensor} has to be {ndims} but is {tensor.shape[1]}"
-            raise ShapeIncompatibleError(msg)
+    def from_tensor(cls, tensor, ndims):
+        if run.executing_eagerly():
+            if tensor.shape[1] != ndims:
+                msg = f"Second dimension of {tensor} has to be {ndims} but is {tensor.shape[1]}"
+                raise ShapeIncompatibleError(msg)
+        elif run.numeric_checks:
+            tf.debugging.assert_equal(tf.shape(tensor)[1], ndims)
         return cls(tensor=tensor, ndims=None)
 
     def with_indices(self, indices: int | tuple[int] | list[int]):
