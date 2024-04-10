@@ -21,20 +21,23 @@ def create_gamma(gamma, beta, mu, limits):
 def test_gamma_pdf():
     gamma, _ = create_gamma(gamma=gamma_true, beta=beta_true, mu=mu_true, limits=(1, 10))
     assert pytest.approx(
-        gamma_scipy.pdf(4.5, a=gamma_true, scale=beta_true, loc=mu_true), rel=1e-5
-    ) == gamma.pdf(4.5, norm=False)
+        gamma_scipy.pdf(4, a=gamma_true, scale=beta_true, loc=mu_true), rel=1e-5
+    ) == gamma.pdf(4, norm=False)
     test_values = znp.linspace(1, 10, 10_000)
+    test_values_ones = np.ones_like(test_values)
     np.testing.assert_allclose(
         gamma.pdf(test_values, norm=False),
         gamma_scipy.pdf(test_values, a=gamma_true, scale=beta_true, loc=mu_true),
         rtol=1e-5,
     )
-    assert np.all(gamma.pdf(test_values, norm=False) <= gamma.pdf(4.5, norm=False))
+    np.testing.assert_array_less(gamma.pdf(test_values, norm=False), test_values_ones * gamma.pdf(4.2, norm=False))
 
     sample = gamma.sample(10_00)
     assert np.all(np.isfinite(sample.value())), "Some samples from the gamma PDF are NaN or infinite"
     assert sample.n_events == 1000
-    assert np.all(tf.logical_and(1 <= sample.value(), sample.value() <= 10))
+    ones_like = np.ones_like(sample.value())
+    np.testing.assert_array_less(1 * ones_like, sample.value())
+    np.testing.assert_array_less(sample.value(), ones_like * 10)
 
 
 def test_gamma_integral():
