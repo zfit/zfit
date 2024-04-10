@@ -67,15 +67,17 @@ Deprecations
 - ``Space`` has many deprecated methods, such as ``rect_limits`` and quite a few more. The full discussion can be found `here <https://github.com/zfit/zfit/discussions/533>`_.
 - ``fixed_params`` in ``create_sampler`` is deprecated and will be removed in the future. Use ``params`` instead.
 - ``fixed_params`` attribute of the ``Sampler`` is deprecated and will be removed in the future. Use ``params`` instead.
+- ``uncertainties`` in ``GaussianConstraint`` is deprecated and will be removed in the future. Use either explicitly ``sigma`` or ``cov``.
+- the ``ComposedParameter`` and ``ComplexParameter`` argument ``value_fn`` is deprecated in favor of the new argument ``func``. Identical behavior.
 
 Bug fixes and small changes
 ---------------------------
 - complete overhaul of partial integration that used some broadcasting tricks that could potentially fail. It uses now a dynamic while loop that _could_ be slower but works for arbitrary PDFs and no problems should be encountered anymore.
-
 - ``result.fmin`` now returns the full likelihood, while ``result.fminopt`` returns the optimized likelihood with potential constant subtraction. The latter is mostly used by the minimizer and other libraries. This behavior is consistent with the behavior of other methods in the loss that return by default the full, unoptimized value.
 - serialization only allowed for one specific limit (space) of each obs. Multiple, independent
   limits can now be serialized.
 - Increased numerical stability: this was compromised due to some involuntary float32 conversions in TF. This has been fixed.
+- arguments ``sigma`` and ``cov`` are now used in ``GaussianConstraint``, both mutually exclusive, to ensure the intent is clear.
 - improved hashing and precompilation in loss, works now safely also with samplers.
 - seed setting is by default completely randomized. This is a change from the previous behavior where the seed was set to a more deterministic value. Use seeds only for reproducibility and not for real randomness, as some strange correlations between seeds have been observed. To guarantee full randomness, just call ``zfit.run.set_seed()`` without arguments.
 - ``zfit.run.set_seed`` now returns the seed that was set. This is useful for reproducibility.
