@@ -38,8 +38,7 @@ tester.register_pdf(pdf_class=CrystalBall, params_factories=_cb_params_factory)
 
 def sample_testing(pdf):
     sample = pdf.sample(n=1000, limits=(-0.5, 1.5))
-    sample_np = sample.numpy()
-    assert not any(np.isnan(sample_np))
+    assert not any(np.isnan(sample.value()))
 
 
 def eval_testing(pdf, x):
@@ -145,17 +144,17 @@ def test_cb_dcb(doublecb):
 
     kwargs = dict(limits=(-5.0, mu), norm_range=lbounds)
     intl = cbl.integrate(**kwargs) - dcb.integrate(**kwargs)
-    assert pytest.approx(intl.numpy(), abs=1e-3) == 0.0
+    assert pytest.approx(intl, abs=1e-3) == 0.0
     intl = cbr.integrate(**kwargs) - dcb.integrate(**kwargs)
-    assert pytest.approx(intl.numpy(), abs=1e-3) != 0
+    assert pytest.approx(intl, abs=1e-3) != 0
 
     # TODO: update test to fixed DCB integral
     kwargs = dict(limits=(mu, 2.0), norm_range=rbounds)
     dcb_integr1 = dcb.integrate(**kwargs)
     intr = cbr.integrate(**kwargs) - dcb_integr1
-    assert pytest.approx(intr.numpy(), abs=1e-3) == 0.0
+    assert pytest.approx(intr, abs=1e-3) == 0.0
     intr = cbl.integrate(**kwargs) - dcb.integrate(**kwargs)
-    assert pytest.approx(intr.numpy(), abs=1e-3) != 0.0
+    assert pytest.approx(intr, abs=1e-3) != 0.0
 
     xl = x[x <= mu]
     xr = x[x > mu]

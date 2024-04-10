@@ -242,13 +242,13 @@ def test_sampling_simple(gauss_factory):
     gauss = gauss_factory()
     n_draws = 1000
     sample_tensor = gauss.sample(n=n_draws, limits=(low, high))
-    sampled_from_gauss1 = sample_tensor.numpy()
+    sampled_from_gauss1 = sample_tensor.value()
     assert max(sampled_from_gauss1[:, 0]) <= high
     assert min(sampled_from_gauss1[:, 0]) >= low
     assert n_draws == len(sampled_from_gauss1[:, 0])
     if gauss.params:
-        mu_true1 = gauss.params["mu"].numpy()
-        sigma_true1 = gauss.params["sigma"].numpy()
+        mu_true1 = gauss.params["mu"]
+        sigma_true1 = gauss.params["sigma"]
     else:
         mu_true1 = mu_true
         sigma_true1 = sigma_true
@@ -256,7 +256,7 @@ def test_sampling_simple(gauss_factory):
         n=10000,
         limits=(mu_true1 - abs(sigma_true1) * 3, mu_true1 + abs(sigma_true1) * 3),
     )
-    sampled_gauss1_full = sampled_gauss1_full.numpy()
+    sampled_gauss1_full = sampled_gauss1_full.value()
     mu_sampled = np.mean(sampled_gauss1_full)
     sigma_sampled = np.std(sampled_gauss1_full)
     assert pytest.approx(mu_true1, rel=0.07) == mu_sampled
@@ -277,7 +277,7 @@ def test_sampling_multiple_limits(obs1):
     sample_tensor = gauss_params1.sample(
         n=n_draws, limits=lower_interval + upper_interval
     )
-    sampled_from_gauss1 = sample_tensor.numpy()
+    sampled_from_gauss1 = sample_tensor.value()
     between_samples = np.logical_and(
         sampled_from_gauss1 < up1, sampled_from_gauss1 > low2
     )
@@ -286,8 +286,8 @@ def test_sampling_multiple_limits(obs1):
     assert min(sampled_from_gauss1[:, 0]) >= low1
     assert n_draws == len(sampled_from_gauss1[:, 0])
 
-    mu_true = gauss_params1.params["mu"].numpy()
-    sigma_true = gauss_params1.params["sigma"].numpy()
+    mu_true = gauss_params1.params["mu"]
+    sigma_true = gauss_params1.params["sigma"]
     low1, up1 = mu_true - abs(sigma_true) * 4, mu_true
     lower_interval = zfit.Space(obs=obs1, limits=(low1, up1))
     low2, up2 = mu_true, mu_true + abs(sigma_true) * 4
@@ -297,7 +297,7 @@ def test_sampling_multiple_limits(obs1):
     sample_tensor5 = gauss_params1.sample(
         n=10000, limits=lower_interval + upper_interval
     )
-    sampled_gauss1_full = sample_tensor5.numpy()
+    sampled_gauss1_full = sample_tensor5.value()
     mu_sampled = np.mean(sampled_gauss1_full)
     sigma_sampled = np.std(sampled_gauss1_full)
     assert pytest.approx(mu_true, rel=0.07) == mu_sampled
@@ -357,10 +357,10 @@ def test_multiple_limits(obs1):
         limits=multiple_limits_range, norm=False
     )
 
-    integral_simp, integral_mult = [integral_simp.numpy(), integral_mult.numpy()]
+    integral_simp, integral_mult = [integral_simp, integral_mult]
     integral_simp_num, integral_mult_num = [
-        integral_simp_num.numpy(),
-        integral_mult_num.numpy(),
+        integral_simp_num,
+        integral_mult_num,
     ]
     assert pytest.approx(
         integral_mult, rel=1e-2
@@ -463,5 +463,4 @@ def test_projection_pdf(test_values):
         norm=False,
     )
     probs = proj_pdf.pdf(x=test_values)
-    probs = probs.numpy()
     np.testing.assert_allclose(probs, true_probs, rtol=1e-3)  # MC normalization

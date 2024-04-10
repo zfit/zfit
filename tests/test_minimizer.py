@@ -42,7 +42,7 @@ def create_loss(obs1):
                 loss = zfit.loss.UnbinnedNLL(
                     model=sum_pdf1, data=sampled_data, options={"subtr_const": True}
                 )
-                minimum = loss.value(full=False).numpy()
+                minimum = loss.value(full=False)
 
     return loss, minimum, (mu_param, sigma_param, lambda_param)
 
@@ -96,7 +96,7 @@ def test_scipy_derivative_options(minimizer_gradient_hessian):
     result = minimizer.minimize(loss=loss)
     assert result.valid
 
-    found_min = loss.value(full=False).numpy()
+    found_min = loss.value(full=False)
     assert true_min + max_distance_to_min >= found_min
 
     aval, bval, cval = znp.asarray((mu_param, sigma_param, lambda_param))
@@ -492,7 +492,7 @@ def test_minimizers(minimizer_class_and_kwargs, chunksize, numgrad, spaces, requ
         assert result.valid
         assert result_hightol.valid
         assert result_lowtol.valid
-        found_min = loss.value(full=False).numpy()
+        found_min = loss.value(full=False)
         assert true_min + max_distance_to_min >= found_min
 
         assert pytest.approx(result.fminopt, abs=2.0) == result_lowtol.fminopt

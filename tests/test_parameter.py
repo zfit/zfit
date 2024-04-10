@@ -35,7 +35,7 @@ def test_complex_param():
         "param2_compl", real_part_param, imag_part_param
     )
     part1, part2 = param2.get_params()
-    part1_val, part2_val = [part1.value().numpy(), part2.value().numpy()]
+    part1_val, part2_val = [part1.value(), part2.value()]
     if pytest.approx(real_part) == part1_val:
         assert pytest.approx(imag_part) == part2_val
     elif pytest.approx(real_part) == part2_val:
@@ -50,7 +50,7 @@ def test_complex_param():
     arg_part_param = Parameter("arg_part_param", arg_val)
     param3 = ComplexParameter.from_polar("param3_compl", mod_part_param, arg_part_param)
     part1, part2 = param3.get_cache_deps()
-    part1_val, part2_val = [part1.value().numpy(), part2.value().numpy()]
+    part1_val, part2_val = [part1.value(), part2.value()]
     if pytest.approx(mod_val) == part1_val:
         assert pytest.approx(arg_val) == part2_val
     elif pytest.approx(arg_val) == part1_val:
@@ -128,12 +128,11 @@ def test_composed_param():
     assert isinstance(param_a.get_cache_deps(only_floating=True), OrderedSet)
     assert param_a.get_cache_deps(only_floating=True) == {param1, param2}
     assert param_a.get_cache_deps(only_floating=False) == {param1, param2, param3}
-    a_unchanged = value_fn(param1, param2, param3).numpy()
-    assert a_unchanged == param_a.numpy()
+    a_unchanged = value_fn(param1, param2, param3)
+    assert a_unchanged == param_a.value()
     param2.assign(3.5)
-    assert param2.numpy()
-    a_changed = value_fn(param1, param2, param3).numpy()
-    assert a_changed == param_a.numpy()
+    a_changed = value_fn(param1, param2, param3)
+    assert a_changed == param_a
     assert a_changed != a_unchanged
 
     # Test param representation
@@ -147,7 +146,6 @@ def test_composed_param():
 
     print_param(param_a)
 
-    # TODO(params): reactivate to check?
     with pytest.raises(LogicalUndefinedOperationError):
         param_a.set_value(value=5.0)
     with pytest.raises(LogicalUndefinedOperationError):
@@ -196,19 +194,19 @@ def test_param_limits():
     with pytest.raises(ValueError):
         param1.set_value(upper + 0.5)
     param1.assign(upper + 0.5)
-    assert upper == param1.value().numpy()
+    assert upper == param1.value()
     assert param1.at_limit
     with pytest.raises(ValueError):
         param1.set_value(lower - 1.1)
     param1.assign(lower - 1.1)
-    assert lower == param1.value().numpy()
+    assert lower == param1.value()
     assert param1.at_limit
     param1.set_value(upper - 0.1)
     assert not param1.at_limit
 
     param2.lower = lower
     param2.assign(lower - 1.1)
-    assert lower == param2.value().numpy()
+    assert lower == param2.value()
 
 
 def test_overloaded_operators():
@@ -221,8 +219,7 @@ def test_overloaded_operators():
     param_d = ComposedParameter(
         "param_d", lambda pa, pb: pa + pa * pb**2, params=[param_a, param_b]
     )
-    param_d_val = param_d.numpy()
-    assert param_d_val == (param_a + param_a * param_b**2).numpy()
+    assert param_d.value() == (param_a + param_a * param_b**2)
 
 
 def test_equal_naming():
@@ -238,15 +235,15 @@ def test_set_value():
     value3 = 3.0
     value4 = 4.0
     param1 = zfit.Parameter(name="param1", value=value1)
-    assert param1.numpy() == value1
+    assert param1.value() == value1
     with param1.set_value(value2):
-        assert param1.numpy() == value2
+        assert param1.value() == value2
         param1.set_value(value3)
-        assert param1.numpy() == value3
+        assert param1.value() == value3
         with param1.set_value(value4):
-            assert param1.numpy() == value4
-        assert param1.numpy() == value3
-    assert param1.numpy() == value1
+            assert param1.value() == value4
+        assert param1.value() == value3
+    assert param1.value() == value1
 
 
 def test_fixed_param():
@@ -431,18 +428,18 @@ def test_set_values():
 
     with zfit.param.set_values(params, second_values):
         for param, val in zip(params, second_values):
-            assert param.value().numpy() == val
+            assert param.value() == val
 
     for param, val in zip(params, init_values):
-        assert param.value().numpy() == val
+        assert param.value() == val
 
     zfit.param.set_values(params, second_values)
     for param, val in zip(params, second_values):
-        assert param.value().numpy() == val
+        assert param.value() == val
 
     zfit.param.set_values(params, init_values)
     for param, val in zip(params, init_values):
-        assert param.value().numpy() == val
+        assert param.value() == val
 
 
 @pytest.mark.parametrize("addmore", [True, False])
@@ -466,18 +463,18 @@ def test_set_values_dict(addmore):
 
     zfit.param.set_values(params, setvalueparam)
     for param, val in zip(params, second_values):
-        assert pytest.approx(param.value().numpy()) == val
+        assert pytest.approx(param.value()) == val
 
     zfit.param.set_values(params, init_values)
 
     zfit.param.set_values(params, setvalue_paramname)
     for param, val in zip(params, second_values):
-        assert pytest.approx(param.value().numpy()) == val
+        assert pytest.approx(param.value()) == val
 
     zfit.param.set_values(params, init_values)
     zfit.param.set_values(params, setvaluemixed)
     for param, val in zip(params, second_values):
-        assert pytest.approx(param.value().numpy()) == val
+        assert pytest.approx(param.value()) == val
 
     zfit.param.set_values(params, init_values)
 
@@ -489,9 +486,9 @@ def test_set_values_dict(addmore):
     zfit.param.set_values(params, init_values)
     # try with allow_partial
     zfit.param.set_values(params, too_small_values, allow_partial=True)
-    assert params[0].value().numpy() == init_values[0]
-    assert params[1].value().numpy() == second_values[1]
-    assert params[2].value().numpy() == second_values[2]
+    assert params[0].value() == init_values[0]
+    assert params[1].value() == second_values[1]
+    assert params[2].value() == second_values[2]
 
     zfit.param.set_values(params, init_values)
 

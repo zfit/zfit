@@ -95,7 +95,7 @@ def create_fitresult(
         n=n, weights=weights, extended=extended, constraints=constraints
     )
 
-    true_minimum = loss.value(full=False).numpy()
+    true_minimum = loss.value(full=False)
 
     if extended:
         a_param, b_param, c_param, yieldgauss, yieldexp = all_params
@@ -109,7 +109,7 @@ def create_fitresult(
         param.assign(param.init_val)  # reset the value
     for ntry in range(3):
         result = minimizer.minimize(loss=loss)
-        cur_val = loss.value(full=False).numpy()
+        cur_val = loss.value(full=False)
         if result.valid:
             break
         else:  # vary param.init_val slightly
@@ -448,7 +448,7 @@ def test_new_minimum(minimizer_class_and_kwargs):
         b_param.floating = True
         c_param.floating = True
 
-        params_dict = {p: p.numpy() for p in params}
+        params_dict = {p: float(p) for p in params}
         hacked_result = FitResult(
             params=params_dict,
             edm=result.edm,

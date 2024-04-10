@@ -26,8 +26,7 @@ def test_polynomial():
     polynom_tf = zfit.z.math.poly_complex(*coeffs, x)
     polynom_np = np.polyval(coeffs[::-1], 5.0)
 
-    result = polynom_tf.numpy()
-    assert pytest.approx(polynom_np, rel=prec) == result
+    assert pytest.approx(polynom_np, rel=prec) == polynom_tf
 
 
 def test_auto_upcast():

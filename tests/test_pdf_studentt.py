@@ -18,7 +18,7 @@ def test_studentt():
     t = zfit.pdf.StudentT(ndof=N, mu=mu, sigma=sigma, obs=obs)
     test_values = np.random.uniform(low=-10.0, high=10.0, size=1000)
     samples = t.sample(100_000)["obs"]
-    probs = t.pdf(x=test_values).numpy()
+    probs = t.pdf(x=test_values)
 
     assert np.all(np.isfinite(probs))
     assert np.all(probs>=0)

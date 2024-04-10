@@ -48,7 +48,7 @@ def test_frac_behavior(yields):
 
         frac2_val = 1 - frac1.value()
         assert (
-            pytest.approx(frac2_val.numpy()) == sumpdf1.params["frac_1"].value().numpy()
+            pytest.approx(frac2_val) == sumpdf1.params["frac_1"].value()
         )
         if isinstance(fracs, list) and len(fracs) == 2:
             assert sumpdf1.params["frac_1"] == frac2
@@ -64,8 +64,8 @@ def test_frac_behavior(yields):
         assert sumpdf2.params["frac_0"] == frac1
         assert sumpdf2.params["frac_1"] == frac2
         assert (
-            pytest.approx(frac3.value().numpy())
-            == sumpdf2.params["frac_2"].value().numpy()
+            pytest.approx(frac3.value())
+            == sumpdf2.params["frac_2"].value()
         )
         assert not sumpdf1.is_extended
 
@@ -93,8 +93,8 @@ def test_sampling():
     sumpdf = zfit.pdf.SumPDF([gauss1, gauss2], frac)
     sumpdf_true = SimpleSampleSumPDF([gauss1, gauss2], frac)
 
-    sample = sumpdf.sample(sample_size).value().numpy()[:, 0]
-    sample_true = sumpdf_true.sample(sample_size).value().numpy()[:, 0]
+    sample = sumpdf.sample(sample_size).value()[:, 0]
+    sample_true = sumpdf_true.sample(sample_size).value()[:, 0]
 
     assert pytest.approx(
         np.mean(sample_true), abs=tol

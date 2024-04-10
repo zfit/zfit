@@ -110,15 +110,15 @@ def test_gaussian_constraint():
     params = [zfit.Parameter(f"Param{i}", val) for i, val in enumerate(param_vals)]
 
     constr = GaussianConstraint(params=params, observation=observed, uncertainty=sigma)
-    constr_np = constr.value().numpy()
+    constr_np = constr.value()
     assert pytest.approx(true_val) == constr_np
     assert constr.get_cache_deps() == set(params)
 
     param_vals[0] = 2
     params[0].set_value(param_vals[0])
 
-    constr2_np = constr.value().numpy()
-    constr2_newtensor_np = constr.value().numpy()
+    constr2_np = constr.value()
+    constr2_newtensor_np = constr.value()
     assert pytest.approx(constr2_np) == constr2_newtensor_np
 
     true_val2 = true_gauss_constr_value(x=param_vals, mu=observed, sigma=sigma)
@@ -126,11 +126,11 @@ def test_gaussian_constraint():
 
     constr.observation[0].set_value(5)
     observed[0] = 5
-    # print("x: ", param_vals, [p.numpy() for p in params])
-    # print("mu: ", observed, [p.numpy() for p in constr.observation])
+    # print("x: ", param_vals, [p for p in params])
+    # print("mu: ", observed, [p for p in constr.observation])
     # print("sigma: ", sigma, np.sqrt([p for p in np.diag(constr.covariance)]))
     true_val3 = true_gauss_constr_value(x=param_vals, mu=observed, sigma=sigma)
-    constr3_np = constr.value().numpy()
+    constr3_np = constr.value()
     assert pytest.approx(true_val3) == constr3_np
 
 
@@ -143,9 +143,7 @@ def test_gaussian_constraint_orderbug():  # as raised in #162
 
     constr1 = GaussianConstraint(params=params, observation=observed, uncertainty=sigma)
 
-    value_tensor = constr1.value()
-    constr_np = value_tensor.numpy()
-    assert pytest.approx(true_val) == constr_np
+    assert pytest.approx(true_val) == constr1.value()
     assert true_val < 10000
 
 
@@ -165,15 +163,13 @@ def test_gaussian_constraint_orderbug2():  # as raised in #162, failed before fi
 
     constr1 = GaussianConstraint(**constraint)
     # param_vals = [1500, 1.0, 1.0, 1.0, 0.5]
-    constraint["x"] = [m.numpy() for m in constraint["params"]]
+    constraint["x"] = constraint["params"]
 
     true_val = true_gauss_constr_value(
         x=constraint["x"], mu=constraint["observation"], sigma=constraint["uncertainty"]
     )
 
-    value_tensor = constr1.value()
-    constr_np = value_tensor.numpy()
-    assert pytest.approx(true_val) == constr_np
+    assert pytest.approx(true_val) == constr1.value()
     assert true_val < 1000
     assert pytest.approx(
         -8.592, abs=0.1

@@ -9,11 +9,11 @@ from zfit import z
 
 @pytest.mark.flaky(2)
 def test_counts_multinomial():
-    probs = [0.1, 0.3, 0.6]
+    probs = np.array([0.1, 0.3, 0.6])
     total_count = 1000.0
     total_count_var = tf.Variable(total_count, trainable=False)
     counts_np = [
-        z.random.counts_multinomial(total_count=total_count_var, probs=probs).numpy()
+        z.random.counts_multinomial(total_count=total_count_var, probs=probs)
         for _ in range(20)
     ]
     mean = np.mean(counts_np, axis=0)
@@ -27,7 +27,7 @@ def test_counts_multinomial():
 
     total_count2 = 5000
     counts_np2 = [
-        z.random.counts_multinomial(total_count=total_count2, probs=probs).numpy()
+        z.random.counts_multinomial(total_count=total_count2, probs=probs)
         for _ in range(3)
     ]
     mean2 = np.mean(counts_np2, axis=0)
@@ -42,7 +42,7 @@ def test_counts_multinomial():
         z.random.counts_multinomial(
             total_count=total_count3,  # sigmoid: inverse of logits (softmax)
             logits=probs * 30,
-        ).numpy()
+        )
         for _ in range(5)
     ]
 

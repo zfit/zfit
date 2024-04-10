@@ -36,9 +36,8 @@ def test_poisson(composed_rate):
         poisson = create_poisson()
 
     probs1 = poisson.pdf(x=test_values)
-    probs1 = probs1.numpy()
     assert np.all(np.isfinite(probs1))
     assert np.all(probs1 >= 0)
-    samples = poisson.sample(10000).numpy()
+    samples = poisson.sample(10000)
 
-    assert pytest.approx(50 ** 0.5, rel=0.05) == np.std(samples)
+    assert pytest.approx(50 ** 0.5, rel=0.05) == np.std(samples.value())

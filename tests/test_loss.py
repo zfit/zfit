@@ -268,7 +268,7 @@ def test_add():
     assert simult_nll.fit_range == ranges
 
     def eval_constraint(constraints):
-        return z.reduce_sum([c.value() for c in constraints]).numpy()
+        return z.reduce_sum([c.value() for c in constraints])
 
     assert eval_constraint(simult_nll.constraints) == eval_constraint(merged_contraints)
     assert set(simult_nll.get_params()) == {param1, param2, param3}
@@ -297,7 +297,7 @@ def test_gradients(chunksize):
     def loss_func(values):
         for val, param in zip(values, nll.get_cache_deps(only_floating=True)):
             param.set_value(val)
-        return nll.value().numpy()
+        return nll.value()
 
     # theoretical, numerical = tf.test.compute_gradient(loss_func, list(params))
     gradient1 = nll.gradient(params=param1)
@@ -361,7 +361,7 @@ def test_simple_loss():
     assert set(loss_deps.get_params()) == set(param_list)
 
     loss_tensor = loss_func(param_list)
-    loss_value_np = loss_tensor.numpy()
+    loss_value_np = loss_tensor
 
     assert pytest.approx(loss_value_np) == loss.value()
     assert pytest.approx(loss_value_np) == loss_deps.value()

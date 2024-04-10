@@ -32,27 +32,27 @@ def create_bifurgauss(mu, sigmal, sigmar, limits):
 def test_bifurgauss_pdf():
     bifurgauss, obs = create_bifurgauss(mu=mu_true, sigmal=sigmal_true, sigmar=sigma_true, limits=(-5, 5))
     assert pytest.approx(
-        numpy_bifurgauss_pdf(0.5, mu=mu_true, sigmal=sigmal_true, sigmar=sigma_true), rel=1e-5
+        np.atleast_1d(numpy_bifurgauss_pdf(0.5, mu=mu_true, sigmal=sigmal_true, sigmar=sigma_true)), rel=1e-5
     ) == bifurgauss.pdf(0.5, norm=False)
-    test_values = tf.range(-5, 5, 10_000)
+    test_values = znp.linspace(-5, 5, 10_000)
     np.testing.assert_allclose(
         bifurgauss.pdf(test_values, norm=False),
         numpy_bifurgauss_pdf(test_values, mu=mu_true, sigmal=sigmal_true, sigmar=sigma_true),
         rtol=1e-5,
     )
-    assert bifurgauss.pdf(test_values, norm=False) <= bifurgauss.pdf(0.5, norm=False)
+    assert np.all(bifurgauss.pdf(test_values, norm=False) <= bifurgauss.pdf(0.5, norm=False))
 
     sample = bifurgauss.sample(1000)
-    assert all(np.isfinite(sample.value())), "Some samples from the bifurgauss PDF are NaN or infinite"
+    assert np.all(np.isfinite(sample.value())), "Some samples from the bifurgauss PDF are NaN or infinite"
     assert sample.n_events == 1000
-    assert all(tf.logical_and(-5 <= sample.value(), sample.value() <= 5))
+    assert np.all(tf.logical_and(-5 <= sample.value(), sample.value() <= 5))
 
 
 
 def test_bifurgauss_integral():
     bifurgauss, obs = create_bifurgauss(mu=mu_true, sigmal=sigmal_true, sigmar=sigma_true, limits=(-5, 5))
-    full_interval_analytic = bifurgauss.analytic_integrate(obs, norm=False).numpy()
-    full_interval_numeric = bifurgauss.numeric_integrate(obs, norm=False).numpy()
+    full_interval_analytic = bifurgauss.analytic_integrate(obs, norm=False)
+    full_interval_numeric = bifurgauss.numeric_integrate(obs, norm=False)
     true_integral = 0.998442
     numpy_full_integral = integrate.quad(
             numpy_bifurgauss_pdf, -5, 5, args=(mu_true, sigmal_true, sigma_true)
@@ -62,8 +62,8 @@ def test_bifurgauss_integral():
     assert pytest.approx(numpy_full_integral, 1e-6) == full_interval_analytic
     assert pytest.approx(numpy_full_integral, 1e-6) == full_interval_numeric
 
-    analytic_integral = bifurgauss.analytic_integrate(limits=(-1, 1), norm=False).numpy()
-    numeric_integral = bifurgauss.numeric_integrate(limits=(-1, 1), norm=False).numpy()
+    analytic_integral = bifurgauss.analytic_integrate(limits=(-1, 1), norm=False)
+    numeric_integral = bifurgauss.numeric_integrate(limits=(-1, 1), norm=False)
     numpy_integral = integrate.quad(
         numpy_bifurgauss_pdf, -1, 1, args=(mu_true, sigmal_true, sigma_true)
     )[0]
@@ -76,7 +76,7 @@ def test_equivalency_with_generalizedcb():
     generalized_cb = zfit.pdf.GeneralizedCB(mu=mu_true, sigmal=sigmal_true, alphal=100, nl=1, sigmar=sigma_true, alphar=100, nr=1, obs=obs)
 
     assert pytest.approx(generalized_cb.pdf(0.5), rel=1e-5) == bifurgauss.pdf(0.5)
-    test_values = tf.range(-5, 5, 10_000)
+    test_values = znp.linspace(-5, 5, 10_000)
     np.testing.assert_allclose(
         bifurgauss.pdf(test_values),
         generalized_cb.pdf(test_values),
