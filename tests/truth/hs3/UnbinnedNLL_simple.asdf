@@ -4,13 +4,13 @@
 %TAG ! tag:stsci.edu:asdf/
 --- !core/asdf-1.1.0
 asdf_library: !core/software-1.0.0 {author: The ASDF Developers, homepage: 'http://github.com/asdf-format/asdf',
-  name: asdf, version: 3.1.0}
+  name: asdf, version: 3.2.0}
 history:
   extensions:
   - !core/extension_metadata-1.0.0
     extension_class: asdf.extension._manifest.ManifestExtension
     extension_uri: asdf://asdf-format.org/core/extensions/core-1.5.0
-    software: !core/software-1.0.0 {name: asdf, version: 3.1.0}
+    software: !core/software-1.0.0 {name: asdf, version: 3.2.0}
 constraints:
   GaussianConstraint:
     observation: [1.2]
@@ -23,11 +23,11 @@ data:
       source: 3
       datatype: float64
       byteorder: little
-      shape: [17, 1]
+      shape: [9, 1]
     space:
     - {max: 5.0, min: -4.0, name: obs1, type: Space}
     type: Data
-  None_<range_iterator object at 0x7f7584e63de0>:
+  None_<range_iterator object at 0x7c90e066fba0>:
     data: !core/ndarray-1.0.0
       source: 4
       datatype: float64
@@ -44,26 +44,6 @@ distributions:
     type: Gauss
     x: {max: 5.0, min: -4.0, name: obs1, type: Space}
   SumPDF:
-    fracs: [frac1, frac2, Composed_autoparam_0]
-    name: SumPDF
-    pdfs:
-    - mu: mu
-      name: Gauss
-      sigma: sigma1
-      type: Gauss
-      x: {max: 5.0, min: -4.0, name: obs1, type: Space}
-    - mu: mu
-      name: Gauss
-      sigma: sigma2
-      type: Gauss
-      x: {max: 5.0, min: -4.0, name: obs1, type: Space}
-    - mu: mu3
-      name: Gauss
-      sigma: sigma3
-      type: Gauss
-      x: {max: 5.0, min: -4.0, name: obs1, type: Space}
-    type: SumPDF
-  SumPDF_<range_iterator object at 0x7f7584e63de0>:
     fracs: [frac3, Composed_autoparam_1]
     name: SumPDF
     pdfs:
@@ -89,6 +69,26 @@ distributions:
     - mu: mu4
       name: Gauss
       sigma: sigma4
+      type: Gauss
+      x: {max: 5.0, min: -4.0, name: obs1, type: Space}
+    type: SumPDF
+  SumPDF_<range_iterator object at 0x7c90e066fba0>:
+    fracs: [frac1, frac2, Composed_autoparam_0]
+    name: SumPDF
+    pdfs:
+    - mu: mu
+      name: Gauss
+      sigma: sigma1
+      type: Gauss
+      x: {max: 5.0, min: -4.0, name: obs1, type: Space}
+    - mu: mu
+      name: Gauss
+      sigma: sigma2
+      type: Gauss
+      x: {max: 5.0, min: -4.0, name: obs1, type: Space}
+    - mu: mu3
+      name: Gauss
+      sigma: sigma3
       type: Gauss
       x: {max: 5.0, min: -4.0, name: obs1, type: Space}
     type: SumPDF
@@ -225,15 +225,14 @@ variables:
   sigma3: {floating: true, max: 1.0, min: 0.0, name: sigma3, step_size: 0.001, value: 0.6}
   sigma4: {floating: true, max: 1.0, min: 0.0, name: sigma4, step_size: 0.001, value: 0.5}
 ...
-ÓBLK 0               ˆ       ˆ       ˆk™'caõNMúÓ7VÜÏˆÕƒz'ï?)4¡Lõ?Ã±ÆAÖñ?PiÏÌÜx·?¢÷2Sñ¿íE¦ñÿ?¦GÖ~¼ò?‡áZË¥?ø?†èT^ä÷?FM® «ô?®ÇÉí?¾˜âšİ@CÀÆTFzæ?:ôºò—˜ö?Ú¢ı¯¥ @ê Ğıô? @;i¸ @ÓBLK 0               H       H       Hò5ÏÏu)æ™‚5ŠŠo ¿ÖXÏğ?
-—(
-Bóì?CÈı§à@ÚÑâ[D@W*-ø©  ÀQ÷¸šú?bHìÔó?A¸cò_Eâ?´
-Îm#ÖÛ?ÓBLK 0               p       p       pùì‘UWÈ[)–<Qwz´ãşÜÁ2@Ò&…^ê?Œ¹^^Hû?·3‚®÷@mhˆ5^Ñó?ÕtùÀ¿¹ÚÕ†§ğ?’ÁÌïğõ@:Õ	%;@ ƒïÃ4¿?•ò	@ø·BÄßÄÜ¿¤ğ|ÿ‡¬ä¿hÉ%',@ÓBLK 0               ˆ       ˆ       ˆk™'caõNMúÓ7VÜÏˆÕƒz'ï?)4¡Lõ?Ã±ÆAÖñ?PiÏÌÜx·?¢÷2Sñ¿íE¦ñÿ?¦GÖ~¼ò?‡áZË¥?ø?†èT^ä÷?FM® «ô?®ÇÉí?¾˜âšİ@CÀÆTFzæ?:ôºò—˜ö?Ú¢ı¯¥ @ê Ğıô? @;i¸ @ÓBLK 0               p       p       pùì‘UWÈ[)–<Qwz´ãşÜÁ2@Ò&…^ê?Œ¹^^Hû?·3‚®÷@mhˆ5^Ñó?ÕtùÀ¿¹ÚÕ†§ğ?’ÁÌïğõ@:Õ	%;@ ƒïÃ4¿?•ò	@ø·BÄßÄÜ¿¤ğ|ÿ‡¬ä¿hÉ%',@#ASDF BLOCK INDEX
+ÓBLK 0               ˆ       ˆ       ˆÿH²nz~ŒíİM- ¿QÍéiéÏÅ¿ã,?ŸÙ—à?6ñ¿,6â?,^ì_ÿŸİ¿ÿNEÀö?6wø×?„C›	8ò?NÚw®Û@ ,Ë pC@ƒh
+A,}@ ÍæNş?)öÃº @zs™RØe@6“éä
+¤×?+GnX*@Ç”Àíó?[6ö‹Öÿ?ÓBLK 0               H       H       HòÒÍ%wVÍ¹Ó).ÀüN¡?wet˜^w@ HŠ){ƒW¿}Ã¿Ñ½è?jÙÂ7¯İ?tÍG o[÷?-ƒ=zîÕ÷?= .Âß¡@2UrX’!í?ò‚°îìğ?ÓBLK 0               p       p       p4‚ér-øvøL‘}”ü…=ÜŠ‰ı?Ö\®{¨@F»bä<à@|z®lÇ@|v©dœì?’ç‚÷X@ù‰èÂß?­¯ı~wƒÀlÈD‰İ-Ù?Ü‰ÈQs„ê¿j™óE ı	@¾¦İ+Œ@½°é~pÕ?:HŞê?ÓBLK 0               H       H       HòÒÍ%wVÍ¹Ó).ÀüN¡?wet˜^w@ HŠ){ƒW¿}Ã¿Ñ½è?jÙÂ7¯İ?tÍG o[÷?-ƒ=zîÕ÷?= .Âß¡@2UrX’!í?ò‚°îìğ?ÓBLK 0               p       p       p4‚ér-øvøL‘}”ü…=ÜŠ‰ı?Ö\®{¨@F»bä<à@|z®lÇ@|v©dœì?’ç‚÷X@ù‰èÂß?­¯ı~wƒÀlÈD‰İ-Ù?Ü‰ÈQs„ê¿j™óE ı	@¾¦İ+Œ@½°é~pÕ?:HŞê?#ASDF BLOCK INDEX
 %YAML 1.1
 ---
-- 10294
-- 10484
-- 10610
-- 10776
-- 10966
+- 10293
+- 10483
+- 10609
+- 10775
+- 10901
 ...
