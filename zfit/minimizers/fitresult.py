@@ -5,6 +5,8 @@ from __future__ import annotations
 import typing
 from typing import TYPE_CHECKING
 
+from ..util.exception import BreakingAPIChangeError
+
 if TYPE_CHECKING:
     import zfit
 
@@ -40,7 +42,7 @@ from ..core.interfaces import (
 from ..core.parameter import set_values
 from ..util.container import convert_to_container
 from ..util.deprecation import deprecated, deprecated_args
-from ..util.warnings import ExperimentalFeatureWarning, warn_changed_feature
+from ..util.warnings import ExperimentalFeatureWarning
 from ..util.ztyping import ParamsTypeOpt
 from ..z import numpy as znp
 from .errors import (
@@ -1122,8 +1124,8 @@ class FitResult(ZfitResult):
     ) -> dict[ZfitIndependentParameter, dict]:
         r"""Calculate for `params` the symmetric error using the Hessian/covariance matrix.
 
-        This method estimates the covariance matric using the inverse of the Hessian matrix. The assumption is
-        that the loss profile - usually a likelihood or a :math:\chi^2 - is hyperbolic. This is usually the case for
+        This method estimates the covariance matrix using the inverse of the Hessian matrix. The assumption is
+        that the loss profile - usually a likelihood or a :math:`\chi^2` - is hyperbolic. This is usually the case for
         fits with many observations, i.e. it is exact in the asymptotic limit. If the loss profile is not hyperbolic,
         another method, "zfit_error" or "minuit_minos" should be used.
 
@@ -1179,17 +1181,6 @@ class FitResult(ZfitResult):
             if not isinstance(method, str):
                 msg = "Need to specify `name` or use a string as `method`"
                 raise ValueError(msg)
-            message = (
-                "Default name of hesse (which is currently the method name such as `minuit_hesse`"
-                "or `hesse_np`) has changed to `hesse` (it still adds the old one as well. This will"
-                " be removed in the future). "
-                "INSTRUCTIONS: to stay compatible, "
-                " change wherever you access the error to 'hesse' (if you don't explicitly specify the name"
-                " in hesse(...)."
-            )
-
-            warn_changed_feature(message, "hesse_name")
-            name_warning_triggered = True
             name = "hesse"
 
         with self._input_check_reset_params(params) as params:
@@ -1231,10 +1222,10 @@ class FitResult(ZfitResult):
 
     def error(
         self,
-        params: ParamsTypeOpt = None,
-        method: str | Callable | None = None,
-        error_name: str | None = None,
-        sigma: float = 1.0,
+        params: ParamsTypeOpt = None,  # noqa: ARG002
+        method: str | Callable | None = None,  # noqa: ARG002
+        error_name: str | None = None,  # noqa: ARG002
+        sigma: float = 1.0,  # noqa: ARG002
     ) -> dict:
         r""".. deprecated:: unknown Use :func:`errors` instead.
 
@@ -1257,16 +1248,8 @@ class FitResult(ZfitResult):
                 holding the calculated errors.
                 Example: result['par1']['upper'] -> the asymmetric upper error of 'par1'
         """
-        warnings.warn(
-            "`error` is deprecated, use `errors` instead. This will return not only the errors but also "
-            "(a possible) new FitResult if a minimum was found. So change"
-            "errors = result.error()"
-            "to"
-            "errors, new_res = result.errors()",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return self.errors(params=params, method=method, name=error_name, sigma=sigma)[0]
+        msg = "Use `errors` instead of `error`."
+        raise BreakingAPIChangeError(msg)
 
     @deprecated_args(None, "Use name instead.", "error_name")
     def errors(
@@ -1275,6 +1258,7 @@ class FitResult(ZfitResult):
         method: str | Callable | None = None,
         name: str | None = None,
         cl: float | None = None,
+        *,
         sigma=None,
         error_name: str | None = None,
     ) -> tuple[dict, None | FitResult]:
@@ -1314,41 +1298,16 @@ class FitResult(ZfitResult):
             cl = 0.68268949  # scipy.stats.chi2(1).cdf(1)
 
         if method is None:
-            # TODO: legacy, remove 0.6
-            from zfit.minimize import Minuit
-
-            if isinstance(self.minimizer, Minuit):
-                method = "minuit_minos"
-                warnings.warn(
-                    "'minuit_minos' will be changed as the default errors method to a custom implementation"
-                    "with the same functionality. If you want to make sure that 'minuit_minos' will be used "
-                    "in the future, add it explicitly as in `errors(method='minuit_minos')`",
-                    FutureWarning,
-                    stacklevel=2,
-                )
-            else:
-                method = self._default_error
-        name_warning_triggered = False
+            method = self._default_error
         if name is None:
             if not isinstance(method, str):
                 msg = "Need to specify `name` or use a string as `method`"
                 raise ValueError(msg)
-            message = (
-                "Default name of errors (which is currently the method name such as `minuit_minos`"
-                "or `zfit_errors`) has changed to `errors`. Old names are still added as well for compatibility"
-                " but will be removed in the future. "
-                "INSTRUCTIONS: to stay compatible,"
-                " change wherever you access the error to 'errors' or specify the name explicitly in"
-                " errors(...)."
-            )
-
-            warn_changed_feature(message, "errors_name")
-            name_warning_triggered = True
             name = "errors"
 
         if method == "zfit_error":
             warnings.warn(
-                "'zfit_error' is still rather new. If it fails, please report it here:"
+                "'zfit_error' is still somewhat new. If it fails, please report it here:"
                 " https://github.com/zfit/zfit/issues/new?assignees=&labels=bug&template"
                 "=bug_report.md&title=zfit%20error%20fails.",
                 ExperimentalFeatureWarning,
@@ -1375,8 +1334,6 @@ class FitResult(ZfitResult):
                     self._message = msg
                     new_result._cache_errors(name=name, errors=error_dict)
         all_errors = {p: self.params[p][name] for p in params}
-        if name_warning_triggered:
-            self._cache_errors(name=method, errors=error_dict)
 
         return all_errors, new_result
 
@@ -1409,13 +1366,7 @@ class FitResult(ZfitResult):
             `dict`(param1, param2) -> covariance if `as_dict == True`.
         """
         if method is None:
-            # LEGACY START
             method = self._default_hesse
-            from zfit.minimizers.minimizer_minuit import Minuit
-
-            if isinstance(self.minimizer, Minuit):
-                method = "minuit_hesse"
-            # LEGACY END
 
         if method not in self._covariance_dict:
             with self._input_check_reset_params(params) as params:
