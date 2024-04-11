@@ -1610,7 +1610,7 @@ def check_convert_param_values_assign(params, values, allow_partial=False):
     """
     if isinstance(params, ZfitResult) and values is None:
         params, values = None, params
-    else:
+    elif not isinstance(values, ZfitResult):
         params = convert_to_container(params)
         if params is None:
             msg = "No parameters given to set values to (values={values})."

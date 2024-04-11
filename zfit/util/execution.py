@@ -380,11 +380,8 @@ class RunManager:
 
     def set_mode_default(self):
         """Reset the mode to the default of `graph` = 'auto' and `autograd` = True."""
-        return TemporarilySet(
-            value=self.DEFAULT_MODE,
-            setter=lambda v: self.set_mode(**v),
-            getter=lambda: self._mode,
-        )
+        self.set_autograd_mode(True)
+        self.set_graph_mode("auto")
 
     def clear_graph_cache(self):
         """Clear all generated graphs and effectively reset. Should not affect execution, only performance.
