@@ -6,7 +6,6 @@ from __future__ import annotations
 
 import abc
 import collections
-import contextlib
 import copy
 import functools
 import typing
@@ -1563,8 +1562,7 @@ def assign_values(
     """
     if allow_partial is None:
         allow_partial = False
-    params, values, is_empty = check_convert_param_values_assign(params, values, allow_partial=allow_partial)
-    # params = tuple(params)
+    params, values, _ = check_convert_param_values_assign(params, values, allow_partial=allow_partial)
     assign_values_jit(params=params, values=values, use_locking=use_locking)
 
 
@@ -1597,14 +1595,7 @@ def set_values(
     """
     if allow_partial is None:
         allow_partial = False
-    params, values, is_empty = check_convert_param_values_assign(params, values, allow_partial)
-    if is_empty:
-
-        @contextlib.contextmanager
-        def empty_context():
-            yield params
-
-        return empty_context()
+    params, values, _ = check_convert_param_values_assign(params, values, allow_partial)
 
     def setter(values):
         for i, param in enumerate(params):

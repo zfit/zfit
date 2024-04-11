@@ -440,8 +440,6 @@ def test_kde_border(kdetype, npoints, upper):
     plt.hist(data_np, bins=40, density=True, alpha=0.3, label="Kernel points")
     plt.legend()
 
-    integral = znp.asarray(integral)
-    expected_integral = znp.asarray(expected_integral)
     abs_tol = 0.05
     assert pytest.approx(expected_integral, abs=abs_tol) == (integral)
     assert tuple(sample.shape) == (1, 1)
