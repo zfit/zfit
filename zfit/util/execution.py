@@ -12,7 +12,7 @@ import tensorflow as tf
 from dotmap import DotMap
 
 from .deprecation import deprecated
-from .exception import IllegalInGraphModeError
+from .exception import BreakingAPIChangeError, IllegalInGraphModeError
 from .temporary import TemporarilySet
 
 
@@ -134,25 +134,39 @@ class RunManager:
         evaluated_args = [eval_object(arg) for arg in flattened_args]
         values = tf.nest.pack_sequence_as(args, flat_sequence=evaluated_args)
 
-        # was_container = is_container(args[0]) and not isinstance(args[0], np.ndarray, )
-        # if not was_container and values:
-        #     values = values[0]
         if len(args) == 1:
             values = values[0]
         return values
 
     @staticmethod
     @deprecated(date=None, instructions="Use `set_graph_mode(False)`")
-    def experimental_enable_eager(eager: bool = False):
+    def experimental_enable_eager(eager: bool = False):  # noqa: ARG004
         """DEPRECEATED! Enable eager makes tensorflow run like numpy. Useful for debugging.
 
         Do NOT directly mix it with Numpy (and if, also enable the numberical gradient).
 
         This can BREAK in the future.
         """
-        from .graph import jit
+        msg = "This function is deprecated. Use `set_graph_mode(False)` instead."
+        raise BreakingAPIChangeError(msg)
 
-        jit._set_all(not eager)
+    def experimental_disable_param_update(self, value: bool = True):
+        """Disable the automatic update of parameters in the minimization temporarily or permanently.
+
+        Can be used with a context manager (recommended!).
+
+        This can have unintended side effects if other code (i.e. hepstats) is used, as they expect the parameters to be
+        updated usually.
+
+        Instead, `result.update_params()` has to be called manually to update the parameters if needed.
+        """
+
+        from zfit import settings
+
+        def setter(v):
+            settings.options.auto_update_params = not v
+
+        return TemporarilySet(value=value, setter=setter, getter=lambda: not settings.options.auto_update_params)
 
     def set_graph_mode(self, graph: bool | str | dict | None = None):
         """Set the policy for graph building and the usage of automatic vs numerical gradients.
@@ -298,17 +312,15 @@ class RunManager:
     @deprecated(None, "Use `set_graph_mode` or `set_autograd_mode`.")
     def set_mode(
         self,
-        graph: bool | str | dict | None = None,
-        autograd: bool | None = None,
+        graph: bool | str | dict | None = None,  # noqa: ARG002
+        autograd: bool | None = None,  # noqa: ARG002
     ):
         """DEPRECATED!
 
         Use `set_graph_mode` or `set_autograd_mode`.
         """
-        if autograd is not None:
-            self._set_autograd_mode(autograd)
-        if graph is not None:
-            self._set_graph_mode(graph)
+        msg = "Use `set_graph_mode` or `set_autograd_mode`."
+        raise BreakingAPIChangeError(msg)
 
     def _set_autograd_mode(self, autograd):
         if autograd is not None:
@@ -355,7 +367,8 @@ class RunManager:
 
         Use `get_graph_mode` instead.
         """
-        return self.get_graph_mode()
+        msg = "Use `get_graph_mode` instead."
+        raise BreakingAPIChangeError(msg)
 
     def get_autograd_mode(self) -> bool:
         """The current policy for using the automatic gradient or falling back to the numerical.
@@ -370,15 +383,13 @@ class RunManager:
 
         Use `get_autograd_mode` instead.
         """
-        return self.get_autograd_mode()
+        msg = "Use `get_autograd_mode` instead."
+        raise BreakingAPIChangeError(msg)
 
     def set_mode_default(self):
         """Reset the mode to the default of `graph` = 'auto' and `autograd` = True."""
-        return TemporarilySet(
-            value=self.DEFAULT_MODE,
-            setter=lambda v: self.set_mode(**v),
-            getter=lambda: self._mode,
-        )
+        self.set_autograd_mode(True)
+        self.set_graph_mode("auto")
 
     def clear_graph_cache(self):
         """Clear all generated graphs and effectively reset. Should not affect execution, only performance.
@@ -428,25 +439,29 @@ class RunManager:
             raise RuntimeError(msg)
 
     @property
-    @deprecated(None, "Use `current_policy_graph() is False`")
+    @deprecated(None, "Use `executing_eagerly` instead.")
     def experimental_is_eager(self):
-        return tf.executing_eagerly()
+        msg = "Use `executing_eagerly` instead."
+        raise BreakingAPIChangeError(msg)
 
     def executing_eagerly(self):
-        """Whether eager execution is enabled.
+        """Whether eager execution is enabled or not.
+
+        If inside a `z.function` decorated function and it is being compiled, this will return `False`.
 
         Returns:
             True if eager execution is enabled, False if not.
         """
         return tf.executing_eagerly()
 
-    @deprecated(date=None, instructions="Use clear_graph_caches instead.")
+    @deprecated(date=None, instructions="Use `clear_graph_cache` instead.")
     def experimental_clear_caches(self):
         """DEPRECATED!
 
         Use `clear_graph_caches` instead.
         """
-        self.clear_graph_cache()
+        msg = "Use `clear_graph_cache` instead."
+        raise BreakingAPIChangeError(msg)
 
     def hashing_data(self):
         """If hashing of data (required for caching) is enabled."""
@@ -461,6 +476,7 @@ class RunManager:
         self._hashing_enabled = enabled
 
 
+@deprecated(None, "Use np.array(obj) instead.")
 def eval_object(obj: object) -> object:
     from zfit.core.parameter import BaseComposedParameter
 
