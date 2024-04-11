@@ -1615,8 +1615,9 @@ def check_convert_param_values_assign(params, values, allow_partial=False):
         if params is None:
             msg = "No parameters given to set values to (values={values})."
             raise ValueError(msg)
-        if len(params) == 0 or len(values) == 0:
-            return params, values, True
+        with suppress(Exception):  # shortcut, but not all params/values have a length, that's fine.
+            if len(params) == 0 or len(values) == 0:
+                return params, values, True
     if isinstance(values, ZfitResult):
         result = values
         new_params = []
