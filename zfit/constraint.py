@@ -10,6 +10,7 @@ from .core.constraint import (
     SimpleConstraint,
 )
 from .util import ztyping
+from .util.deprecation import deprecated
 
 __all__ = [
     "nll_gaussian",
@@ -20,6 +21,7 @@ __all__ = [
 ]
 
 
+@deprecated(None, "Use `GaussianConstraint` directly.")
 def nll_gaussian(
     params: ztyping.ParamTypeInput,
     observation: ztyping.NumericalScalarType,
