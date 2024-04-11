@@ -84,9 +84,9 @@ def test_sig_bkg_fit(n, floatall, use_sampler, nbins, use_wrapper, request):
     def plot_pdf(title):
         plt.figure()
         plt.title(title)
-        y = model.pdf(x).numpy()
-        y_gauss = (gauss.pdf(x) * model_unbinned.params["frac_0"]).numpy()
-        y_exp = (exponential.pdf(x) * model_unbinned.params["frac_1"]).numpy()
+        y = model.pdf(x)
+        y_gauss = (gauss.pdf(x) * model_unbinned.params["frac_0"])
+        y_exp = (exponential.pdf(x) * model_unbinned.params["frac_1"])
         plt.plot(x, y * plot_scaling, label="Sum - Model")
         plt.plot(x, y_gauss * plot_scaling, label="Gauss - Signal")
         plt.plot(x, y_exp * plot_scaling, label="Exp - Background")

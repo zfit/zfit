@@ -74,7 +74,7 @@ def auto_integrate(
     else:
         msg = f"Method {method} not a legal choice for integration method."
         raise ValueError(msg)
-    return integral
+    return znp.atleast_1d(integral)
 
 
 # TODO implement numerical integration method
@@ -129,9 +129,9 @@ def simpson(func, lower, upper, num_points=1001, dtype=None):
       `Tensor` of shape `func_batch_shape + limits_batch_shape`, containing
         value of the definite integral.
     """
-    lower = tf.convert_to_tensor(lower, dtype=dtype, name="lower")
+    lower = tf.convert_to_tensor(lower, dtype=dtype)
     dtype = lower.dtype
-    upper = tf.convert_to_tensor(upper, dtype=dtype, name="upper")
+    upper = tf.convert_to_tensor(upper, dtype=dtype)
     num_points = tf.convert_to_tensor(num_points, dtype=tf.int32, name="num_points")
 
     assertions = [
@@ -149,7 +149,7 @@ def simpson(func, lower, upper, num_points=1001, dtype=None):
         weights_last = tf.constant([4.0, 1.0], dtype=dtype)
         weights = tf.concat([weights_first, weights_mid, weights_last], axis=0)
 
-    return tf.reduce_sum(func(grid) * weights, axis=-1) * dx / 3.0
+    return znp.sum(func(grid) * weights, axis=-1) * dx / 3.0
 
 
 def simpson_integrate(func, limits, num_points):  # currently not vectorized
@@ -397,7 +397,8 @@ def mc_integrate(
                 tf.cond(error > tol, print_none_return, lambda: None)
         integral = avg * znp.asarray(z.convert_to_tensor(space.area()), dtype=avg.dtype)
         integrals.append(integral)
-    return z.reduce_sum(integrals, axis=0)
+    integral = z.reduce_sum(integrals, axis=0)
+    return znp.atleast_1d(integral)
 
 
 # TODO(Mayou36): Make more flexible for sampling

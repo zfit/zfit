@@ -69,6 +69,8 @@ Deprecations
 - ``fixed_params`` attribute of the ``Sampler`` is deprecated and will be removed in the future. Use ``params`` instead.
 - ``uncertainties`` in ``GaussianConstraint`` is deprecated and will be removed in the future. Use either explicitly ``sigma`` or ``cov``.
 - the ``ComposedParameter`` and ``ComplexParameter`` argument ``value_fn`` is deprecated in favor of the new argument ``func``. Identical behavior.
+- ``zfit.run(...)`` is deprecated and will be removed in the future. Simply remove it should work in most cases.
+  (if an explicity numpy, not just array-like, cast is needed, use ``np.asarray(...)``. But usually this is not needed). This function is an old relic from the past TensorFlow 1.x, ``tf.Session`` times and is not needed anymore. We all remember well these days :)
 
 Bug fixes and small changes
 ---------------------------

@@ -583,7 +583,6 @@ all_constraints = [
 ]
 
 
-# TODO(serialization): add to serializer
 @pytest.mark.parametrize(
     "ext_Loss",
     [(False, zfit.loss.UnbinnedNLL), (True, zfit.loss.ExtendedUnbinnedNLL)],

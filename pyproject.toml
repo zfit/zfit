@@ -13,6 +13,7 @@ minversion = "6.0"
 addopts = "-Wd -ra -q"
 testpaths = [
     "tests",
+    "tests/*",
 ]
 markers = [
     "plots: create and safe plots",
@@ -26,7 +27,7 @@ relative_files = true
 omit = [
     # omit anything in a .local directory anywhere
     ".tox/*",
-    "*/test*",
+    "*/tests/*",
     "*minimizers/interface.py",
     "*/core/testing.py",
 ]

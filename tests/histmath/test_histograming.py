@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 import hist
 import numpy as np
 
@@ -19,8 +19,7 @@ obs = obs1 * obs2 * obs3
 
 def test_histogramdd():
     histdd_kwargs = {"sample": data1}
-    hist = histogramdd(**histdd_kwargs)
-    bincount_np, edges_np = zfit.run(hist)
+    bincount_np, edges_np = histogramdd(**histdd_kwargs)
     bincount_true, edges_true = np.histogramdd(**histdd_kwargs)
     np.testing.assert_allclose(bincount_true, bincount_np)
     np.testing.assert_allclose(edges_true, edges_np)
@@ -35,8 +34,8 @@ def test_midpoints():
     bincounts_nonzero, midpoints_nonzero, bincounts_nonzero_index = midpoints_from_hist(
         bincounts=bincounts, edges=edges
     )
-    np.testing.assert_allclose(np.array([1, 5, 7, 3]), zfit.run(bincounts_nonzero))
-    np.testing.assert_allclose(midpoints_true, zfit.run(midpoints_nonzero))
+    np.testing.assert_allclose(np.array([1, 5, 7, 3]), znp.asarray(bincounts_nonzero))
+    np.testing.assert_allclose(midpoints_true, znp.asarray(midpoints_nonzero))
 
 
 def test_unbinned_to_bins():

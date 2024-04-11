@@ -460,7 +460,7 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
             value = self._single_hook_pdf(x=x, norm=norm)
         if run.numeric_checks:
             z.check_numerics(value, message="Check if pdf output contains any NaNs of Infs")
-        return znp.asarray(z.to_real(value))
+        return znp.atleast_1d(znp.asarray(z.to_real(value)))
 
     def _single_hook_pdf(self, x, norm):
         return self._hook_pdf(x=x, norm=norm)

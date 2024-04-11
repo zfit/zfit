@@ -6,6 +6,8 @@ import scipy.stats
 import zfit
 from zfit import z
 from zfit.core.constraint import BaseConstraint, GaussianConstraint, SimpleConstraint, _preprocess_gaussian_constr_sigma_var
+import zfit.z.numpy as znp
+from zfit.core.constraint import BaseConstraint, GaussianConstraint, SimpleConstraint
 from zfit.util.container import convert_to_container
 from zfit.util.exception import ShapeIncompatibleError
 
@@ -89,12 +91,12 @@ def test_gaussian_constraint_matrix_legacy():
     sigma = np.array([[1, 0.3], [0.3, 0.5]])
 
     trueval = true_multinormal_constr_value(
-        x=zfit.run(params), mean=observed, cov=sigma
+        x=znp.asarray(params), mean=observed, cov=sigma
     )
 
     constr = GaussianConstraint(params=params, observation=observed, uncertainty=sigma)
-    constr_np = zfit.run(constr.value())
-    assert constr_np == pytest.approx(trueval)
+    constr_np = znp.asarray(constr.value())
+    assert pytest.approx(trueval) == constr_np
     # assert constr_np == pytest.approx(3.989638)
 
     assert constr.get_cache_deps() == set(params)
@@ -175,28 +177,28 @@ def test_gaussian_constraint_legacy():
     params = [zfit.Parameter(f"Param{i}", val) for i, val in enumerate(param_vals)]
 
     constr = GaussianConstraint(params=params, observation=observed, uncertainty=sigma)
-    constr_np = constr.value().numpy()
-    assert constr_np == pytest.approx(true_val)
+    constr_np = constr.value()
+    assert pytest.approx(true_val) == constr_np
     assert constr.get_cache_deps() == set(params)
 
     param_vals[0] = 2
     params[0].set_value(param_vals[0])
 
-    constr2_np = constr.value().numpy()
-    constr2_newtensor_np = constr.value().numpy()
-    assert constr2_newtensor_np == pytest.approx(constr2_np)
+    constr2_np = constr.value()
+    constr2_newtensor_np = constr.value()
+    assert pytest.approx(constr2_np) == constr2_newtensor_np
 
     true_val2 = true_gauss_constr_value(x=param_vals, mu=observed, sigma=sigma)
-    assert constr2_np == pytest.approx(true_val2)
+    assert pytest.approx(true_val2) == constr2_np
 
     constr.observation[0].set_value(5)
     observed[0] = 5
-    # print("x: ", param_vals, [p.numpy() for p in params])
-    # print("mu: ", observed, [p.numpy() for p in constr.observation])
+    # print("x: ", param_vals, [p for p in params])
+    # print("mu: ", observed, [p for p in constr.observation])
     # print("sigma: ", sigma, np.sqrt([p for p in np.diag(constr.covariance)]))
     true_val3 = true_gauss_constr_value(x=param_vals, mu=observed, sigma=sigma)
-    constr3_np = constr.value().numpy()
-    assert constr3_np == pytest.approx(true_val3)
+    constr3_np = constr.value()
+    assert pytest.approx(true_val3) == constr3_np
 
 @pytest.mark.parametrize("kwargs", [{'sigma': [1, 0.3, 0.7]}, {'cov': np.array([1, 0.3, 0.7]) ** 2},
                                     {'cov': np.array([[1, 0, 0], [0, 0.3, 0], [0, 0, 0.7]]) ** 2}],
@@ -260,9 +262,7 @@ def test_gaussian_constraint_orderbug_legacy():  # as raised in #162
 
     constr1 = GaussianConstraint(params=params, observation=observed, uncertainty=sigma)
 
-    value_tensor = constr1.value()
-    constr_np = value_tensor.numpy()
-    assert constr_np == pytest.approx(true_val)
+    assert pytest.approx(true_val) == constr1.value()
     assert true_val < 10000
 
 
@@ -282,19 +282,17 @@ def test_gaussian_constraint_orderbug2_legacy():  # as raised in #162, failed be
 
     constr1 = GaussianConstraint(**constraint)
     # param_vals = [1500, 1.0, 1.0, 1.0, 0.5]
-    constraint["x"] = [m.numpy() for m in constraint["params"]]
+    constraint["x"] = constraint["params"]
 
     true_val = true_gauss_constr_value(
         x=constraint["x"], mu=constraint["observation"], sigma=constraint["uncertainty"]
     )
 
-    value_tensor = constr1.value()
-    constr_np = value_tensor.numpy()
-    assert constr_np == pytest.approx(true_val)
+    assert pytest.approx(true_val) == constr1.value()
     assert true_val < 1000
-    assert true_val == pytest.approx(
+    assert pytest.approx(
         -8.592, abs=0.1
-    )  # if failing, change value. Hardcoded for additional layer
+    ) == true_val  # if failing, change value. Hardcoded for additional layer
 
 
 @pytest.mark.parametrize("kwargs", [{'sigma': sigma_true_orderbug},
@@ -358,8 +356,8 @@ def test_gaussian_constraint_sampling_legacy():
 
     sample = constr.sample(15000)
 
-    assert np.mean(sample[param1]) == pytest.approx(observed[0], rel=0.01)
-    assert np.std(sample[param1]) == pytest.approx(sigma[0], rel=0.01)
+    assert pytest.approx(observed[0], rel=0.01) == np.mean(sample[param1])
+    assert pytest.approx(sigma[0], rel=0.01) == np.std(sample[param1])
 
 
 def test_simple_constraint_legacy():
@@ -375,8 +373,8 @@ def test_simple_constraint_legacy():
 
     constr = SimpleConstraint(func=func, params=params)
 
-    constr_np = constr.value().numpy()
-    assert constr_np == pytest.approx(2.02)
+    constr_np = constr.value()
+    assert pytest.approx(2.02) == constr_np
 
     assert constr.get_cache_deps() == set(params)
 
@@ -408,8 +406,7 @@ def test_simple_constraint_paramfunc():
 
     constr = SimpleConstraint(func=func, params=params)
 
-    constr_np = constr.value().numpy()
-    assert constr_np == pytest.approx(2.02)
+    assert pytest.approx(2.02) == constr.value()
 
     assert constr.get_cache_deps() == set(params.values())
 

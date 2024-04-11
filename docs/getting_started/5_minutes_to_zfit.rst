@@ -33,7 +33,7 @@ an *observable space*. This can be created using the :py:class:`~zfit.Space` cla
 
 .. jupyter-execute::
 
-    obs = zfit.Space('x', limits=(-10, 10))
+    obs = zfit.Space('x', -10, 10)
 
 The best interpretation of the observable at this stage is that it defines the name and range of the observable axis.
 
@@ -171,22 +171,19 @@ to do the job:
     import matplotlib.pyplot as plt
     import numpy as np
 
-    lower, upper = obs.limits
-    data_np = zfit.run(data.value()[:, 0])
+    lower, upper = obs.v1.limits
 
     # plot the data as a histogramm
     bins = 80
-    counts, bin_edges = np.histogram(data_np, bins, range=(lower[-1][0], upper[0][0]))
+    counts, bin_edges = np.histogram(data['x'], bins, range=(lower, upper))
     mplhep.histplot((counts, bin_edges), yerr=True, color='black', histtype='errorbar')
 
     # evaluate the func at multiple x and plot
-    x_plot = np.linspace(lower[-1][0], upper[0][0], num=1000)
-    y_plot = zfit.run(gauss.pdf(x_plot, norm_range=obs))
-    plt.plot(x_plot, y_plot * data_np.shape[0] / bins * obs.area(), color='xkcd:blue')
+    x_plot = np.linspace(lower, upper, num=1000)
+    y_plot = gauss.pdf(x_plot, norm_range=obs)
+    plt.plot(x_plot, y_plot * data_np.shape[0] / bins * obs.volume(), color='xkcd:blue')
     plt.show()
 
 
-The specific call to :func:`zfit.run` simply converts the Eager Tensor (that is already array-like) to a Numpy array.
-Often, this conversion is however not necessary and a Tensor can directly be used.
 
 The full script :jupyter-download:script:`can be downloaded here <5 minutes to zfit>`.

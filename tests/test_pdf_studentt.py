@@ -18,9 +18,9 @@ def test_studentt():
     t = zfit.pdf.StudentT(ndof=N, mu=mu, sigma=sigma, obs=obs)
     test_values = np.random.uniform(low=-10.0, high=10.0, size=1000)
     samples = t.sample(100_000)["obs"]
-    probs = t.pdf(x=test_values).numpy()
+    probs = t.pdf(x=test_values)
 
     assert np.all(np.isfinite(probs))
     assert np.all(probs>=0)
-    assert float(znp.mean(samples)) == pytest.approx(2, rel=1e-2)
-    assert float(znp.std(samples)) == pytest.approx(np.sqrt(N_true / (N_true - 2)), rel=1e-2)
+    assert pytest.approx(2, rel=1e-2) == znp.mean(samples)
+    assert pytest.approx(np.sqrt(N_true / (N_true - 2)), rel=1e-2) == znp.std(samples)
