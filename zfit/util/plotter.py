@@ -8,6 +8,7 @@ from ..core.space import convert_to_space
 from . import ztyping
 from .checks import RuntimeDependency
 from .exception import WorkInProgressError
+from .warnings import warn_experimental_feature
 
 try:
     import matplotlib.pyplot as plt
@@ -149,6 +150,7 @@ def assert_initialized(func):
 
 
 class ZfitPDFPlotter:
+    @warn_experimental_feature
     @assert_initialized
     def plotpdf(
         self,

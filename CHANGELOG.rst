@@ -40,7 +40,7 @@ Major Features and Improvements
 - ``Data`` and ``PDF`` that take ``obs`` in the initialization can now also take binned observables, i.e. a ``zfit.Space`` with ``binning=...`` and will return a binned version of the object (``zfit.data.BinnedData`` or ``zfit.pdf.BinnedFromUnbinned``, where the latter is a generic wrapper). This is equivalent of calling ``to_binned`` on the objects)
 - ``zfit.Data`` can be instantiated directly with most data types, such as numpy arrays, pandas DataFrames etc insead of using the dedicated constructors ``from_numpy``, ``from_pandas`` etc.
   The constructors may still provide additional functionality, but overall, the switch should be seamless.
-- a simple ``plot`` mechanism has been added with ``pdf.plot.plotpdf`` to plot PDFs. This is simple and fully interacts with matplotlib, allowing to plot quickly in a more interactive way.
+
 
 Breaking changes
 ------------------
@@ -54,11 +54,14 @@ This release contains multiple "breaking changes", however, the vast majority if
 - Data objects had an intrinsic, TensorFlow V1 legacy behavior: they were actually cut when the data was *retrieved*. This is now changed and the data is cut when it is created. This should not have any impact on existing code and just improve runtime and memory usage.
 - Partial integration used to use some broadcasting tricks that could potentially fail. It uses now a dynamic while loop that _could_ be slower but works for arbitrary PDFs. This should not have any impact on existing code and just improve stability (but technically, the data given to the PDF _if doing partial integration_ is now "different", in the sense that it's now not different anymore from any other call)
 - if a ``tf.Variable`` was used to store the number of sampled values in a sampler, it was possible to change the value of that variable to change the number of samples drawn. This is now not possible anymore and the number of samples should be given as an argument ``n`` to the ``resample`` method, as was possible since a long time.
-- ``create_sampler`` has a breaking change for ``fixed_params``: when the argument was set to False, any change in the
-  parameters would be reflected when resampling. This highly statebased behavior was confusing and is now removed. The
-    argument is now called ``params`` and behaves as expected: the sampler will remember the parameters at the time of
-    creation, possibly updated with ``params`` and will not change anymore.
-    To sample from a different set of parameters, the params have to be passed to the ``resample`` method _explicitly_.
+- ``create_sampler`` has a breaking change for ``fixed_params``: when the argument was set to False, any change in the parameters would be reflected when resampling.
+  This highly statebased behavior was confusing and is now removed. The argument is now called ``params``
+  and behaves as expected: the sampler will remember the parameters at the time of creation,
+  possibly updated with ``params`` and will not change anymore. To sample from a different set of parameters,
+  the params have to be passed to the ``resample`` method _explicitly_.
+- the default names for ``hesse`` and ``errors`` have now been changed to ``hesse`` and ``errors``, respectively.
+  This was deprecated since a while and both names were available for backwards compatibility. The old names are now removed. If you get an error, ``minuit_hessse`` or ``minuit_minos`` not found, just replace it with ``hesse`` and ``errors``.
+
 
 
 Deprecations
@@ -84,6 +87,8 @@ Bug fixes and small changes
 
 Experimental
 ------------
+
+- a simple ``plot`` mechanism has been added with ``pdf.plot.plotpdf`` to plot PDFs. This is simple and fully interacts with matplotlib, allowing to plot quickly in a more interactive way.
 
 Requirement changes
 -------------------
