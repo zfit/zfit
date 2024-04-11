@@ -67,6 +67,8 @@ Deprecations
 - ``Space`` has many deprecated methods, such as ``rect_limits`` and quite a few more. The full discussion can be found `here <https://github.com/zfit/zfit/discussions/533>`_.
 - ``fixed_params`` in ``create_sampler`` is deprecated and will be removed in the future. Use ``params`` instead.
 - ``fixed_params`` attribute of the ``Sampler`` is deprecated and will be removed in the future. Use ``params`` instead.
+- ``zfit.run(...)`` is deprecated and will be removed in the future. Simply remove it should work in most cases.
+  (if an explicity numpy, not just array-like, cast is needed, use ``np.asarray(...)``. But usually this is not needed). This function is an old relic from the past TensorFlow 1.x, ``tf.Session`` times and is not needed anymore. We all remember well these days :)
 
 Bug fixes and small changes
 ---------------------------

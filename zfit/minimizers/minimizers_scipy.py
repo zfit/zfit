@@ -12,7 +12,6 @@ import scipy.optimize
 from scipy.optimize import BFGS, HessianUpdateStrategy
 
 from ..core.parameter import assign_values
-from ..settings import run
 from ..util.container import convert_to_container
 from ..util.exception import MaximumIterationReached
 from ..util.warnings import warn_experimental_feature
@@ -213,8 +212,8 @@ class ScipyBaseMinimizerV1(BaseMinimizer):
 
         evaluator = self.create_evaluator(loss=loss, params=params, numpy_converter=np.array)
 
-        limits = [(run(p.lower), run(p.upper)) for p in params]
-        init_values = np.array(run(params))
+        limits = [(float(p.lower), float(p.upper)) for p in params]
+        init_values = np.array(params)
 
         minimizer_options = self.minimizer_options.copy()
 

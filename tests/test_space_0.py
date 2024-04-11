@@ -7,6 +7,7 @@ import numpy as np
 import pytest
 
 import zfit
+import zfit.z.numpy as znp
 from zfit.core.space import Space, convert_to_space
 from zfit.util.exception import (
     CoordinatesUnderdefinedError,
@@ -80,9 +81,9 @@ def test_equality(space1, space2):
     assert space1.axes == space2.axes
     assert space1.obs == space2.obs
     np.testing.assert_allclose(space1.v1.limits, space2.v1.limits)
-    assert zfit.run(space1._legacy_area()) == pytest.approx(
-        zfit.run(space2._legacy_area()), rel=1e-8
-    )
+    assert pytest.approx(
+        (space2._legacy_area()), rel=1e-8
+    ) == (space1._legacy_area())
 
 
 # @pytest.mark.skip  # eq missing

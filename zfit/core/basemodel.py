@@ -548,7 +548,8 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         norm = self._check_input_norm(norm)
         limits = self._check_input_limits(limits=limits)
         with self._check_set_input_params(params=params):
-            return self._single_hook_analytic_integrate(limits=limits, norm=norm)
+            integral = self._single_hook_analytic_integrate(limits=limits, norm=norm)
+        return znp.atleast_1d(integral)
 
     def _single_hook_analytic_integrate(self, limits, norm):
         return self._hook_analytic_integrate(limits=limits, norm=norm)

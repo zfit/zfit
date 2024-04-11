@@ -19,6 +19,7 @@ from ordered_set import OrderedSet
 from ..core.interfaces import ZfitLoss, ZfitParameter
 from ..core.parameter import assign_values, convert_to_parameters, set_values
 from ..settings import run
+from ..core.parameter import assign_values, convert_to_parameters
 from ..util import ztyping
 from ..util.container import convert_to_container
 from ..util.exception import (
@@ -724,7 +725,7 @@ class BaseStepMinimizer(BaseMinimizer):
         maxiter = self.get_maxiter(len(params))
         criterion_val = None
         while True:
-            cur_val = run(self._step(loss=loss, params=params, init=prelim_result))
+            cur_val = self._step(loss=loss, params=params, init=prelim_result)
             niter += 1
 
             changes.popleft()
@@ -732,8 +733,8 @@ class BaseStepMinimizer(BaseMinimizer):
             sum_changes = np.sum(changes)
             maxiter_reached = niter > maxiter
             if (sum_changes < self.tol and niter % 3) or maxiter_reached:  # test the last time surely
-                xvalues = np.array(run(params))
-                hesse = run(loss.hessian(params))
+                xvalues = np.asarray(params)
+                hesse = loss.hessian(params)
                 inv_hesse = np.linalg.inv(hesse)
                 status = 10
                 params_result = dict(zip(params, xvalues))
