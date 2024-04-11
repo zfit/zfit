@@ -42,9 +42,9 @@ from .basefunctor import FunctorPDFRepr, _preprocess_init_sum
 
 # TODO: order of spaces if the obs is different from the wrapped pdf
 class BaseFunctor(FunctorMixin, BasePDF):
-    def __init__(self, pdfs, name="BaseFunctor", **kwargs):
+    def __init__(self, pdfs, name="BaseFunctor", label=None, **kwargs):
         self.pdfs = convert_to_container(pdfs)
-        super().__init__(models=self.pdfs, name=name, **kwargs)
+        super().__init__(models=self.pdfs, name=name, label=label, **kwargs)
         self._set_norm_from_daugthers()
 
     def _set_norm_from_daugthers(self):
