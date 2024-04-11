@@ -14,6 +14,7 @@ import pytest
 import tensorflow as tf
 
 import zfit
+import zfit.z.numpy as znp
 from zfit.core.data import Data
 from zfit.core.interfaces import ZfitPDF, ZfitBinnedPDF
 from zfit.core.parameter import Parameter
@@ -178,8 +179,8 @@ def test_product_separation():
     assert integ.shape[0] == npoints
 
     obs13 = obs1 * obs3
-    analytic_int = zfit.run(prod13.analytic_integrate(limits=obs13, norm=False))
-    numeric_int = zfit.run(prod13.numeric_integrate(limits=obs13, norm=False))
+    analytic_int = znp.asarray(prod13.analytic_integrate(limits=obs13, norm=False))
+    numeric_int = znp.asarray(prod13.numeric_integrate(limits=obs13, norm=False))
     assert pytest.approx(analytic_int, rel=1e-3) == numeric_int
 
 
@@ -217,12 +218,11 @@ def test_prod_gauss_nd(binned):
     true_probs = np.prod(
         [gauss.pdf(test_values[:, i]) for i, gauss in enumerate(gaussians)], axis=0
     )
-    probs_np = probs.numpy()
 
     rtol = 1e-5
     if binned:
         rtol = 0.1  # we bin it, so we don't expect a high precision
-    np.testing.assert_allclose(true_probs, probs_np, rtol=rtol)
+    np.testing.assert_allclose(true_probs, probs, rtol=rtol)
 
 
 @pytest.mark.flaky(reruns=3)
@@ -267,12 +267,10 @@ def test_prod_gauss_nd_mixed():
     true_probs = true_unnormalized_probs / tf.reduce_mean(
         input_tensor=normalization_probs
     )
-    probs_np = probs.numpy()
-    true_probs_np = true_probs.numpy()
-    assert np.average(probs_np * limits_4d._legacy_area()) == pytest.approx(
+    assert pytest.approx(
         1.0, rel=0.33
-    )  # low n mc
-    np.testing.assert_allclose(true_probs_np, probs_np, rtol=2e-2)
+    ) == np.average(probs * limits_4d._legacy_area())  # low n mc
+    np.testing.assert_allclose(true_probs, probs, rtol=2e-2)
 
 
 def test_func_sum():
@@ -281,7 +279,7 @@ def test_func_sum():
     test_values = np.random.uniform(low=-3, high=4, size=10)
     sum_gauss_as_func = sum_gauss.as_func(norm=(-10, 10))
     vals = sum_gauss_as_func.func(x=test_values)
-    vals = zfit.run(vals)
+    vals = znp.asarray(vals)
     # test_sum = sum([g.func(test_values) for g in gauss_dists])
     np.testing.assert_allclose(
         vals, true_gaussian_sum(test_values), rtol=3e-2
@@ -306,24 +304,22 @@ def test_exp():
     lambda_true = 0.031
     lambda_ = zfit.Parameter("lambda1", lambda_true)
     exp1 = zfit.pdf.Exponential(lam=lambda_, obs=zfit.Space("obs1", (-11, 11)))
-    sample = exp1.sample(n=1000, limits=(-10, 10))
-    sample_np = sample.numpy()
-    assert not any(np.isnan(sample_np))
+    sample = exp1.sample(n=1000, limits=(-10, 10)).value()
+    assert not any(np.isnan(sample))
 
     exp2 = zfit.pdf.Exponential(lam=lambda_, obs=zfit.Space("obs1", (5250, 5750)))
     probs2 = exp2.pdf(x=np.linspace(5300, 5700, num=1100))
-    probs2_np = probs2.numpy()
-    assert not any(np.isnan(probs2_np))
+    assert not any(np.isnan(probs2))
     normalization_testing(exp2, limits=(5400, 5800))
 
     intlim = [5400, 5500]
-    integral2 = zfit.run(
+    integral2 = znp.asarray(
         exp2.integrate(
             intlim,
         )
     )
-    numintegral2 = zfit.run(exp2.numeric_integrate(intlim))
-    assert integral2 == pytest.approx(numintegral2, rel=0.03)
+    numintegral2 = exp2.numeric_integrate(intlim)
+    assert pytest.approx(numintegral2, rel=0.03) == integral2
 
 
 def normalization_testing(pdf, limits=None):
@@ -338,8 +334,7 @@ def normalization_testing(pdf, limits=None):
 
         samples = zfit.Data.from_tensor(obs=space, tensor=samples)
         probs = pdf.pdf(samples)
-        result = probs.numpy()
-        result = zfit.run(np.average(result) * space._legacy_area())
+        result = znp.asarray(np.average(probs) * space._legacy_area())
         assert pytest.approx(result, rel=0.03) == 1
 
 
@@ -372,11 +367,8 @@ def test_extended_gauss():
             * sum_gauss.get_yield()
     )
 
-    assert zfit.run(integral_true) == pytest.approx(
-        zfit.run(
-            sum_gauss.ext_integrate(
-                (-1, 5),
-            )
-        )
-    )
+    assert pytest.approx(
+        sum_gauss.ext_integrate(
+            (-1, 5),
+        )) == integral_true
     normalization_testing(pdf=sum_gauss, limits=obs1)

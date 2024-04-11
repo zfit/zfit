@@ -3,6 +3,7 @@
 import copy
 
 import numpy as np
+import pandas
 import pandas as pd
 import pytest
 import tensorflow as tf
@@ -91,11 +92,9 @@ def test_from_root_limits(obs_alias):
         weights=weight_branch,
         obs_alias=obs_alias,
     )
-    x_np = data.value().numpy()
+    x_np = data.value()
     np.testing.assert_allclose(x_np, true_data[branches].values)
-
-    weights_np = data.weights.numpy()
-    np.testing.assert_allclose(weights_np, true_weights)
+    np.testing.assert_allclose(data.weights, true_weights)
 
 
 @pytest.mark.parametrize(
@@ -121,18 +120,15 @@ def test_from_root(weights_factory):
         path=path_root, treepath="events", obs=branches, weights=weights
     )
     x = data.value()
-    x_np = x.numpy()
     if weights is not None:
-        weights_np = data.weights.numpy()
+        weights_np = data.weights
     else:
         weights_np = weights
-    np.testing.assert_allclose(x_np, true_data[branches].values)
+    np.testing.assert_allclose(x, true_data[branches].values)
     if weights is not None:
         true_weights = (
             weights if not isinstance(weights, str) else true_data[weights].values
         )
-        if isinstance(true_weights, tf.Tensor):
-            true_weights = true_weights.numpy()
         np.testing.assert_allclose(weights_np, true_weights)
     else:
         assert weights_np is None
@@ -157,12 +153,8 @@ def test_from_numpy(weights_factory, obs3d, init):
         data = zfit.Data(example_data, obs=obs3d, weights=weights)
     x = data.value()
     weights_from_data = data.weights
-    if weights_from_data is not None:
-        weights_from_data = weights_from_data.numpy()
     x_np = x
     np.testing.assert_array_equal(example_data, x_np)
-    if isinstance(weights, tf.Tensor):
-        weights = weights.numpy()
     if weights is not None:
         np.testing.assert_allclose(weights_from_data, weights)
     else:
@@ -181,9 +173,8 @@ def test_from_to_pandas(obs3d, init):
         data = zfit.Data.from_pandas(obs=obs3d, df=example_data, dtype=dtype)
     x = data.value()
     assert x.dtype == dtype
-    x_np = x.numpy()
-    assert x_np.dtype == dtype
-    np.testing.assert_array_equal(example_data_np.astype(dtype=dtype), x_np)
+    assert x.dtype == dtype
+    np.testing.assert_array_equal(example_data_np.astype(dtype=dtype), x)
 
     # test auto obs retreavel
     example_data2 = pd.DataFrame(data=example_data_np, columns=obs3d)
@@ -193,8 +184,7 @@ def test_from_to_pandas(obs3d, init):
         data2 = zfit.Data.from_pandas(df=example_data2)
     assert data2.obs == obs3d
     x2 = data2.value()
-    x_np2 = x2.numpy()
-    np.testing.assert_array_equal(example_data_np, x_np2)
+    np.testing.assert_array_equal(example_data_np, x2)
     assert len(data2.obs) == len(obs3d)
     assert len(data2.obs) == len(data2.to_pandas().columns)
 
@@ -205,10 +195,10 @@ def test_from_to_pandas(obs3d, init):
     else:
         data2w2 = zfit.Data.from_pandas(df=df2w)
     assert data2w2.obs == obs3d
-    np.testing.assert_allclose(data2w2.weights.numpy(), example_weights)
-    np.testing.assert_allclose(data2w2.value().numpy(), example_data_np)
+    np.testing.assert_allclose(data2w2.weights, example_weights)
+    np.testing.assert_allclose(data2w2.value(), example_data_np)
     df = data2.to_pandas()
-    assert all(df == example_data)
+    pandas.testing.assert_frame_equal(df, example_data)
 
 
 @pytest.mark.parametrize("weights_as_branch", [True, False], ids=["weights_as_branch", "weights_as_array"])
@@ -247,11 +237,8 @@ def test_from_pandas_limits(weights_as_branch, obs3d, init):
             obs=obs, df=true_data_uncut, weights=weights_for_pandas
         )
     x = data.value()
-    x_np = x.numpy()
-    np.testing.assert_allclose(x_np, true_data[branches].values)
-
-    weights_np = data.weights.numpy()
-    np.testing.assert_allclose(weights_np, true_weights)
+    np.testing.assert_allclose(x, true_data[branches].values)
+    np.testing.assert_allclose(data.weights, true_weights)
 
 
 @pytest.mark.parametrize(
@@ -274,13 +261,10 @@ def test_from_tensors(weights_factory, init):
 
     weights_data = data.weights
     x = data.value()
-    x_np = x.numpy()
-    if isinstance(weights, tf.Tensor):
-        weights = weights.numpy()
 
-    np.testing.assert_allclose(x_np, true_tensor.numpy())
+    np.testing.assert_allclose(x, true_tensor)
     if weights is not None:
-        weights_data = weights_data.numpy()
+        weights_data = weights_data
         np.testing.assert_allclose(weights_data, weights)
     else:
         assert weights is None
@@ -288,9 +272,9 @@ def test_from_tensors(weights_factory, init):
     df = data.to_pandas()
     data_new = zfit.Data.from_pandas(df=df)
     assert data_new.obs == data.obs
-    np.testing.assert_allclose(data_new.value().numpy(), data.value().numpy())
+    np.testing.assert_allclose(data_new.value(), data.value())
     if weights is not None:
-        np.testing.assert_allclose(data_new.weights.numpy(), data.weights.numpy())
+        np.testing.assert_allclose(data_new.weights, data.weights)
     else:
         assert data_new.weights is None
 
@@ -302,24 +286,24 @@ def test_overloaded_operators(data1):
 
 def test_sort_by_obs(data1, obs3d):
     new_obs = (obs3d[1], obs3d[2], obs3d[0])
-    example_data1 = data1.value().numpy()
+    example_data1 = np.array(data1.value())
     new_array = copy.deepcopy(example_data1)[:, np.array((1, 2, 0))]
     # new_array = np.array([new_array[:, 1], new_array[:, 2], new_array[:, 0]])
     assert data1.obs == obs3d, "If this is not True, then the test will be flawed."
     data1new = data1.with_obs(new_obs)
     assert data1new.obs == new_obs
-    np.testing.assert_array_equal(new_array, data1new.value().numpy())
+    np.testing.assert_array_equal(new_array, data1new.value())
     new_array2 = copy.deepcopy(new_array)[:, np.array((1, 2, 0))]
     # new_array2 = np.array([new_array2[:, 1], new_array2[:, 2], new_array2[:, 0]])
     new_obs2 = (new_obs[1], new_obs[2], new_obs[0])
     data1new2 = data1new.with_obs(new_obs2)
     assert data1new2.obs == new_obs2
-    np.testing.assert_array_equal(new_array2, data1new2.value().numpy())
+    np.testing.assert_array_equal(new_array2, data1new2.value())
 
     assert data1new.obs == new_obs
 
     assert data1.obs == obs3d
-    np.testing.assert_array_equal(example_data1, data1.value().numpy())
+    np.testing.assert_array_equal(example_data1, data1.value())
 
 
 def test_data_axis_access(obs3d, data1):
@@ -327,7 +311,7 @@ def test_data_axis_access(obs3d, data1):
 
     true_mapping = {
         obs: znp.reshape(arr, (-1, 1))
-        for obs, arr in zip(obs3d, data1.value().numpy().T)
+        for obs, arr in zip(obs3d, znp.transpose(data1.value()))
     }
     for obs in obs3d:
         np.testing.assert_allclose(data1.value(obs), true_mapping[obs][:, 0])
@@ -342,24 +326,24 @@ def test_data_axis_access(obs3d, data1):
 
 def test_subdata(obs3d, data1):
     new_obs = (obs3d[0], obs3d[1])
-    new_array = copy.deepcopy(data1.value().numpy())[:, np.array((0, 1))]
+    new_array = np.array(data1.value())[:, np.array((0, 1))]
     # new_array = np.array([new_array[:, 0], new_array])
     data1new = data1.with_obs(obs=new_obs)
     assert data1new.obs == new_obs
-    np.testing.assert_array_equal(new_array, data1new.numpy())
-    new_array2 = copy.deepcopy(new_array)[:, 1]
+    np.testing.assert_array_equal(new_array, data1new.value())
+    new_array2 = np.array(new_array)[:, 1]
     # new_array2 = np.array([new_array2[:, 1]])
     new_obs2 = (new_obs[1],)
     data1new2 = data1new.with_obs(new_obs2)
     assert data1new2.obs == new_obs2
-    np.testing.assert_array_equal(new_array2, data1new2.value().numpy()[:, 0])
+    np.testing.assert_array_equal(new_array2, data1new2.value()[:, 0])
 
     # with pytest.raises(ValueError):
     #     with data1.sort_by_obs(obs=new_obs):
-    #         data1.value().numpy()
+    #         data1.value()
 
     assert data1.obs == obs3d
-    np.testing.assert_array_equal(data1.value().numpy(), data1.value())
+    np.testing.assert_array_equal(data1.value(), data1.value())
 
 
 @pytest.mark.parametrize(
@@ -387,19 +371,19 @@ def test_data_range(weights_factory):
 
     dataset = zfit.Data.from_tensor(obs=obs, tensor=data1, weights=weights)
     value_uncut = dataset.value()
-    np.testing.assert_equal(data1, value_uncut.numpy())
+    np.testing.assert_equal(data1, value_uncut)
     dataset_cut = dataset.with_obs(data_range)
     # with dataset.set_data_range(data_range):
     value_cut = dataset_cut.value()
-    np.testing.assert_equal(cut_data1, value_cut.numpy())
+    np.testing.assert_equal(cut_data1, value_cut)
     if dataset_cut.has_weights:
-        np.testing.assert_equal(cut_weights, dataset_cut.weights.numpy())
+        np.testing.assert_equal(cut_weights, dataset_cut.weights)
     np.testing.assert_equal(
-        data1, value_uncut.numpy()
+        data1, value_uncut
     )  # check  that the original did NOT change
 
-    np.testing.assert_equal(cut_data1, value_cut.numpy())
-    np.testing.assert_equal(data1, dataset.value().numpy())
+    np.testing.assert_equal(cut_data1, value_cut)
+    np.testing.assert_equal(data1, dataset.value())
 
 
 def test_multidim_data_range():
@@ -423,18 +407,18 @@ def test_multidim_data_range():
     assert len(yxdata) == 2
     assert tf.is_tensor(yxdata[0])
     assert xdata.shape == (neventstrue1,)
-    assert dataset.nevents.numpy() == 6
+    assert dataset.nevents == 6
     datasetnew1 = dataset.with_obs(obs=obs1)
-    assert datasetnew1.nevents.numpy() == 6
-    assert dataset.nevents.numpy() == 6
+    assert datasetnew1.nevents == 6
+    assert dataset.nevents == 6
     datasetnew2 = dataset.with_obs(obs=obs2)
-    assert datasetnew2.nevents.numpy() == 6
-    np.testing.assert_allclose(data_true, datasetnew2.unstack_x().numpy())
+    assert datasetnew2.nevents == 6
+    np.testing.assert_allclose(data_true, datasetnew2.value()[:, 0])
 
     data2 = np.linspace((0, 5), (10, 15), num=11)[:, 1]
     data_range = zfit.Space([obs1], limits=(5, 15))
     dataset = zfit.Data.from_numpy(array=data2, obs=data_range)
-    assert dataset.nevents.numpy() == 11
+    assert dataset.nevents == 11
 
 
 def test_data_hashing(space2d):

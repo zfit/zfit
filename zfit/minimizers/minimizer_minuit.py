@@ -11,7 +11,6 @@ import numpy as np
 from .. import z
 from ..core.interfaces import ZfitLoss
 from ..core.parameter import Parameter, assign_values
-from ..settings import run
 from ..util.cache import GraphCachable
 from ..util.deprecation import deprecated_args
 from ..util.exception import MaximumIterationReached
@@ -276,7 +275,7 @@ class Minuit(BaseMinimizer, GraphCachable):
         if minimizer_options:
             msg = f"The following options are not (yet) supported: {minimizer_options}"
             raise ValueError(msg)
-        init_values = np.array(run(params))
+        init_values = np.array(params)
 
         # create Minuit compatible names
         params_name = [param.name for param in params]

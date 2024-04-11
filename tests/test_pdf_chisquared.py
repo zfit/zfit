@@ -15,5 +15,5 @@ def test_chisquared():
 
     samples = chi2.sample(10000)["obs"]
 
-    assert float(znp.mean(samples)) == pytest.approx(N_true, rel=0.05)
-    assert float(znp.std(samples)) == pytest.approx((2 * N_true) ** 0.5, rel=0.05)
+    assert pytest.approx(N_true, rel=0.05) == znp.mean(samples)
+    assert pytest.approx((2 * N_true) ** 0.5, rel=0.05) == znp.std(samples)

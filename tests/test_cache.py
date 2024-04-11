@@ -115,37 +115,37 @@ def test_graph_cache(graph_holder):
     new_value = 8
     result = 47 + CONST
     assert FunctionWrapperRegistry.do_jit_types["tensor"]  # should be true by default
-    assert graph1.calc(add).numpy() == result
-    assert graph1.calc_variable(add).numpy() == result
+    assert graph1.calc(add) == result
+    assert graph1.calc_variable(add) == result
     assert graph1.retrace_runs > 0  # simple
     graph1.retrace_runs = 0  # reset
-    assert graph1.calc(add).numpy() == result
-    assert graph1.calc_variable(add).numpy() == result
+    assert graph1.calc(add) == result
+    assert graph1.calc_variable(add) == result
     assert graph1.retrace_runs == 0  # no retracing must have occurred
 
     graph1.change_value_no_invalidation(10)
-    assert graph1.calc(add).numpy() == result
-    assert graph1.calc_variable(add).numpy() == result
+    assert graph1.calc(add) == result
+    assert graph1.calc_variable(add) == result
     assert graph1.retrace_runs == 0  # no retracing must have occurred
     FunctionWrapperRegistry.do_jit_types["tensor"] = False
     assert graph1.calc_variable(add) == 10 + add + CONST
     FunctionWrapperRegistry.do_jit_types["tensor"] = True
     graph1.change_value(new_value)
-    assert graph1.calc(add).numpy() == new_value + add + CONST
-    assert graph1.calc_variable(add).numpy() == new_value + add + CONST
+    assert graph1.calc(add) == new_value + add + CONST
+    assert graph1.calc_variable(add) == new_value + add + CONST
     assert graph1.retrace_runs > 0
     CONST = 50
-    assert graph1.calc(add).numpy() == new_value + add + 40  # old const
-    assert graph1.calc_variable(add).numpy() == new_value + add + 40  # old const
+    assert graph1.calc(add) == new_value + add + 40  # old const
+    assert graph1.calc_variable(add) == new_value + add + 40  # old const
     clear_graph_cache()
     FunctionWrapperRegistry.do_jit_types["something"] = False
     assert graph1.calc_no_cache(add) == new_value + add + CONST
     assert graph1.calc_variable(add) == new_value + add + CONST
-    assert graph1.calc(add).numpy() == new_value + add + CONST
+    assert graph1.calc(add) == new_value + add + CONST
     graph1.retrace_runs = 0  # reset
 
     graph1.change_value_no_invalidation(10)
-    assert graph1.calc(add).numpy() == new_value + add + CONST
+    assert graph1.calc(add) == new_value + add + CONST
     assert graph1.retrace_runs == 0  # no retracing must have occurred
     CONST = 40
     FunctionWrapperRegistry.do_jit_types["something"] = (

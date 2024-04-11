@@ -78,7 +78,7 @@ def test_yield_bias(exact_nsample, ntoys=300):
         nsigs.append(nsig_res)
         nbkg_res = float(result.params[n_bkg]["value"])
         nbkgs.append(nbkg_res)
-        assert nsig_res + nbkg_res == pytest.approx(true_nsig + true_nbkg, abs=0.6)
+        assert pytest.approx(true_nsig + true_nbkg, abs=0.6) == nsig_res + nbkg_res
     nsigs_mean = np.mean(nsigs)
     std_nsigs_mean = np.std(nsigs) / ntoys**0.5 * 5
     nbkg_mean = np.mean(nbkgs)
@@ -118,6 +118,6 @@ def test_yield_bias(exact_nsample, ntoys=300):
     plt.legend()
     pytest.zfit_savefig(folder=plot_folder)
     rel_err_sig = 0.001
-    assert nsigs_mean == pytest.approx(true_nsig, rel=rel_err_sig, abs=std_nsigs_mean)
+    assert pytest.approx(true_nsig, rel=rel_err_sig, abs=std_nsigs_mean) == nsigs_mean
     rel_err_bkg = 0.001
-    assert nbkg_mean == pytest.approx(true_nbkg, rel=rel_err_bkg, abs=std_nbkg_mean)
+    assert pytest.approx(true_nbkg, rel=rel_err_bkg, abs=std_nbkg_mean) == nbkg_mean

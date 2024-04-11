@@ -1,10 +1,11 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 import scipy.stats
 
 import zfit
+import zfit.z.numpy as znp
 from zfit.util.exception import SpecificFunctionNotImplemented
 
 
@@ -47,7 +48,7 @@ def test_frac_behavior(yields):
 
         frac2_val = 1 - frac1.value()
         assert (
-            pytest.approx(frac2_val.numpy()) == sumpdf1.params["frac_1"].value().numpy()
+            pytest.approx(frac2_val) == sumpdf1.params["frac_1"].value()
         )
         if isinstance(fracs, list) and len(fracs) == 2:
             assert sumpdf1.params["frac_1"] == frac2
@@ -63,8 +64,8 @@ def test_frac_behavior(yields):
         assert sumpdf2.params["frac_0"] == frac1
         assert sumpdf2.params["frac_1"] == frac2
         assert (
-            pytest.approx(frac3.value().numpy())
-            == sumpdf2.params["frac_2"].value().numpy()
+            pytest.approx(frac3.value())
+            == sumpdf2.params["frac_2"].value()
         )
         assert not sumpdf1.is_extended
 
@@ -92,14 +93,14 @@ def test_sampling():
     sumpdf = zfit.pdf.SumPDF([gauss1, gauss2], frac)
     sumpdf_true = SimpleSampleSumPDF([gauss1, gauss2], frac)
 
-    sample = sumpdf.sample(sample_size).value().numpy()[:, 0]
-    sample_true = sumpdf_true.sample(sample_size).value().numpy()[:, 0]
+    sample = sumpdf.sample(sample_size).value()[:, 0]
+    sample_true = sumpdf_true.sample(sample_size).value()[:, 0]
 
-    assert true_mu == pytest.approx(
+    assert pytest.approx(
         np.mean(sample_true), abs=tol
-    )  # if this is not True, it's a problem, the test is flawed
-    assert true_mu == pytest.approx(np.mean(sample), abs=tol)
-    assert np.std(sample_true) == pytest.approx(np.std(sample), abs=tol)
+    ) == true_mu  # if this is not True, it's a problem, the test is flawed
+    assert pytest.approx(np.mean(sample), abs=tol) == true_mu
+    assert pytest.approx(np.std(sample), abs=tol) == np.std(sample_true)
 
     plt.figure()
     plt.title("Sampling of SumPDF")
@@ -137,33 +138,33 @@ def test_integrate():
 
     sumpdf = zfit.pdf.SumPDF([gauss1, gauss2], frac)
     sumpdf_true = SimpleSampleSumPDF([gauss1, gauss2], frac)
-    assert zfit.run(
+    assert pytest.approx(1, abs=0.01) == (
         gauss1.integrate(
             limits,
             norm=limits,
         )
-    ) == pytest.approx(1, abs=0.01)
+    )
     integral = sumpdf.integrate(
         limits=limits,
         norm=False,
-    ).numpy()
+    )
     integral_true = sumpdf_true.integrate(
         limits=limits,
         norm=False,
-    ).numpy()
+    )
     integral_manual_true = gauss1.integrate(
         limits,
     ) * frac + gauss2.integrate(
         limits,
     ) * (1 - frac)
 
-    assert integral_true == pytest.approx(integral_manual_true.numpy(), rel=0.03)
-    assert integral_true == pytest.approx(integral, rel=0.03)
+    assert pytest.approx(integral_manual_true, rel=0.03) == integral_true
+    assert pytest.approx(integral, rel=0.03) == integral_true
     assert integral_true < 0.85
 
-    analytic_integral = sumpdf.analytic_integrate(limits=limits, norm=False).numpy()
+    analytic_integral = sumpdf.analytic_integrate(limits=limits, norm=False)
 
-    assert integral_true == pytest.approx(analytic_integral, rel=0.03)
+    assert pytest.approx(analytic_integral, rel=0.03) == integral_true
 
     rnd_limits = [lower] + sorted(np.random.uniform(lower, upper, 16)) + [upper]
     integrals = [
@@ -172,5 +173,5 @@ def test_integrate():
     ]
 
     integral = np.sum(integrals)
-    integral_full = zfit.run(sumpdf.integrate((lower, upper), norm=False))
-    assert pytest.approx(float(integral_full)) == float(integral)
+    integral_full = sumpdf.integrate((lower, upper), norm=False)
+    assert pytest.approx(integral_full) == integral

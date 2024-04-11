@@ -19,7 +19,6 @@ except ImportError as error:
 import numpy as np
 
 from ..core.parameter import assign_values
-from ..settings import run
 from ..util.exception import MaximumIterationReached
 from .baseminimizer import (
     NOT_SUPPORTED,
@@ -188,7 +187,7 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
         minimizer = nlopt.opt(nlopt.LD_LBFGS, len(params))
 
         # initial values as array
-        xvalues = initial_xvalues = np.asarray(run(params))
+        xvalues = initial_xvalues = np.asarray(params)
 
         # get and set the limits
         lower = np.array([p.lower for p in params])

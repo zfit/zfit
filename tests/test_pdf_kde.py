@@ -8,6 +8,7 @@ from matplotlib import pyplot as plt
 
 import zfit
 from zfit import z
+import zfit.z.numpy as znp
 from zfit.core.interfaces import ZfitParameter
 
 
@@ -274,7 +275,7 @@ def test_all_kde(kdetype, npoints, jit, request):
             data,
         ) = _run(kdetype, full=full)
 
-    expected_integral = zfit.run(expected_integral)
+    expected_integral = znp.asarray(expected_integral)
 
     if not jit:
         import matplotlib.pyplot as plt
@@ -315,7 +316,7 @@ def test_all_kde(kdetype, npoints, jit, request):
         )
         plt.plot(x, prob, label="KDE")
         plt.plot(x, prob_true, label="true PDF")
-        data_np = zfit.run(data)
+        data_np = znp.asarray(data)
         plt.hist(data_np, bins=40, density=True, alpha=0.3, label="Kernel points")
         plt.legend()
 
@@ -323,16 +324,16 @@ def test_all_kde(kdetype, npoints, jit, request):
     tolfac = 6 if not cfg["type"] == tfp.distributions.Normal else 1
     if cfg.get("binning_method") == "simple":
         tolfac *= 6
-    assert zfit.run(integral) == pytest.approx(expected_integral, abs=abs_tol * tolfac)
+    assert pytest.approx(expected_integral, abs=abs_tol * tolfac) == znp.asarray(integral)
     assert tuple(sample.shape) == (1, 1)
     assert tuple(sample2.shape) == (1500, 1)
     assert prob.shape.rank == 1
     assert prob.shape[0] == x.shape[0]
     assert np.mean(prob - prob_true) < 0.07 * tolfac
     # make sure that on average, most values are close
-    assert np.mean(
+    assert pytest.approx(1, abs=0.1 * tolfac) == np.mean(
         (prob / prob_true)[prob_true > np.mean(prob_true)] ** 2
-    ) == pytest.approx(1, abs=0.1 * tolfac)
+    )
     rtol = 0.05
     np.testing.assert_allclose(prob, prob_true, rtol=rtol, atol=0.01 * tolfac)
 
@@ -435,21 +436,21 @@ def test_kde_border(kdetype, npoints, upper):
     )
     plt.plot(x, prob, label="KDE")
     plt.plot(x, prob_true, label="true PDF")
-    data_np = zfit.run(data)
+    data_np = znp.asarray(data)
     plt.hist(data_np, bins=40, density=True, alpha=0.3, label="Kernel points")
     plt.legend()
 
-    integral = zfit.run(integral)
-    expected_integral = zfit.run(expected_integral)
+    integral = znp.asarray(integral)
+    expected_integral = znp.asarray(expected_integral)
     abs_tol = 0.05
-    assert zfit.run(integral) == pytest.approx(expected_integral, abs=abs_tol)
+    assert pytest.approx(expected_integral, abs=abs_tol) == (integral)
     assert tuple(sample.shape) == (1, 1)
     assert tuple(sample2.shape) == (1500, 1)
     assert prob.shape.rank == 1
     assert np.mean(prob - prob_true) < 0.07
     # make sure that on average, most values are close
-    assert np.mean(
+    assert pytest.approx(1, abs=0.15) == np.mean(
         (prob / prob_true)[prob_true > np.mean(prob_true)] ** 2
-    ) == pytest.approx(1, abs=0.15)
+    )
     rtol = 0.05
     np.testing.assert_allclose(prob, prob_true, rtol=rtol, atol=0.07)
