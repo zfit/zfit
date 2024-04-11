@@ -193,6 +193,7 @@ class Data(
 
         if dtype is None:
             dtype = ztypes.float
+
         super().__init__(name=name)
 
         self._permutation_indices_data = None
@@ -200,7 +201,7 @@ class Data(
         self._dtype = dtype
         self._nevents = None
         self._weights = None
-        self._label = label if label is not None else name
+        self._label = label if label is not None else (name if name is not None else "Data")
 
         self._data_range = None
         self._set_space(obs)
@@ -879,7 +880,7 @@ class Data(
         obs_str = list(convert_to_obs_str(obs))
         data = {ob: self.value(obs=ob) for ob in obs_str}
         if self.has_weights:
-            weights = self.weights.numpy()
+            weights = self.weights
             if weightsname is None:
                 weightsname = ""
             data.update({weightsname: weights})
@@ -944,6 +945,10 @@ class Data(
 
     def numpy(self) -> np.ndarray:
         return self.to_numpy()
+
+    @property
+    def shape(self):
+        return self.dataset.nevents
 
     def to_numpy(self) -> np.ndarray:
         """Return the data as a numpy array.
@@ -1090,6 +1095,9 @@ class Data(
             use_hash=use_hash or self._use_hash,
         )
 
+    def __len__(self):
+        return self.nevents
+
     def __getitem__(self, item):
         if isinstance(item, int):
             return self.value(axis=item)
@@ -1110,7 +1118,7 @@ class Data(
     def __repr__(self) -> str:
         nevents = self.nevents
         try:
-            nevents = round(float(nevents), ndigits=2)
+            nevents = int(round(float(nevents), ndigits=2))
         except Exception:
             nevents = None
         return f"<zfit.Data: {self.label} obs={self.obs} shape={(nevents, self.n_obs)}>"

@@ -8,7 +8,6 @@ import math
 import numpy as np
 
 from ..core.parameter import assign_values
-from ..settings import run
 from ..util.exception import MaximumIterationReached
 from .baseminimizer import BaseMinimizer, minimize_supports, print_minimization_status
 from .fitresult import FitResult
@@ -240,7 +239,7 @@ class IpyoptV1(BaseMinimizer):
         criterion = self.create_criterion()
 
         # initial values as array
-        xvalues = np.array(run(params))
+        xvalues = np.array(params)
 
         # get and set the limits
         lower = np.array([p.lower for p in params])

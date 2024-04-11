@@ -178,7 +178,7 @@ def test_morphing_templates2D(alphas):
     for i, a in enumerate(alphas):
         alpha.set_value(a)
         np.testing.assert_allclose(morph.counts(), counts[i])
-        assert pytest.approx(np.sum(counts[i])) == zfit.run(morph.get_yield())
+        assert pytest.approx(np.sum(counts[i])) == znp.asarray(morph.get_yield())
         if len(alphas) > i + 1:
             alpha.set_value((a + alphas[i + 1]) / 2)
             max_dist = (counts[i] - counts[i + 1]) ** 2 + 5  # tolerance

@@ -54,11 +54,10 @@ def test_partial_integral():
     data_np = np.linspace((1, 1), (4, 4), 4000)
     data = zfit.Data.from_numpy(obs=obs, array=data_np)
     probs = cosxy2.pdf(data, norm=False)
-    probs_np = probs.numpy()
     x = data_np[:, 0]
     y = data_np[:, 1]
     probs_func = func_cosxy2_np(x=x, y=y)
-    ratios = probs_np / probs_func
+    ratios = probs / probs_func
     assert pytest.approx(0.0, rel=0.0001) == np.std(ratios)  # ratio should be constant
     ratio = np.average(ratios)
 
@@ -66,13 +65,11 @@ def test_partial_integral():
     datax = data.with_obs(xspace)
     integral_x_tf = cosxy2.partial_integrate(x=datay, limits=xspace, norm=False)
     integral_y_tf = cosxy2.partial_integrate(x=datax, limits=yspace, norm=False)
-    integral_x_np = integral_x_tf.numpy()
-    integral_y_np = integral_y_tf.numpy()
 
     lowerx, upperx = xspace.v1.limits
     lowery, uppery = yspace.v1.limits
     integral_x_true = integral_x(y=y, lowerx=lowerx, upperx=upperx) * ratio
     integral_y_true = integral_y(x=x, lowery=lowery, uppery=uppery) * ratio
 
-    np.testing.assert_allclose(integral_x_true, integral_x_np, atol=1e-2)
-    np.testing.assert_allclose(integral_y_true, integral_y_np, atol=1e-2)
+    np.testing.assert_allclose(integral_x_true, integral_x_tf, atol=1e-2)
+    np.testing.assert_allclose(integral_y_true, integral_y_tf, atol=1e-2)

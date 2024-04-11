@@ -418,12 +418,12 @@ def test_binned_sampler(ndim):
 
     assert sample.values().shape == dims
     assert sampler.values().shape == dims
-    assert np.sum(sample.values()) == pytest.approx(nsampled)
-    assert np.sum(sampler.values()) == pytest.approx(nsampled)
+    assert pytest.approx(nsampled) == np.sum(sample.values())
+    assert pytest.approx(nsampled) == np.sum(sampler.values())
 
     sampler.resample(n=nsampled * 2)
     assert sampler.values().shape == dims
-    assert np.sum(sampler.values()) == pytest.approx(nsampled * 2)
+    assert pytest.approx(nsampled * 2) == np.sum(sampler.values())
 
     if ndim == 2:
         sampler_swapped = sampler.with_obs(
@@ -431,4 +431,4 @@ def test_binned_sampler(ndim):
         )
         values_swapped = sampler_swapped.values()
         assert values_swapped.shape == (dims[1], dims[0])
-        assert np.sum(values_swapped) == pytest.approx(nsampled * 2)
+        assert pytest.approx(nsampled * 2) == np.sum(values_swapped)

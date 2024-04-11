@@ -55,15 +55,14 @@ def test_conv_simple(interpolation):
     )
 
     integral = conv.integrate(limits=obs)
-    probs_np = probs.numpy()
     np.testing.assert_allclose(probs, true_conv, rtol=0.01, atol=0.01)
 
-    assert pytest.approx(1, rel=1e-3) == integral.numpy()
-    assert len(probs_np) == n_points
+    assert pytest.approx(1, rel=1e-3) == integral
+    assert len(probs) == n_points
 
     plt.figure()
     plt.title(f"Conv FFT 1Dim, interpolation={interpolation}")
-    plt.plot(x, probs_np, label="zfit")
+    plt.plot(x, probs, label="zfit")
     plt.plot(x, true_conv, label="numpy")
     plt.legend()
     pytest.zfit_savefig(folder=plot_folder)
@@ -147,14 +146,13 @@ def test_conv_1d_shifted(interpolation):
     integral = conv.integrate(
         limits=obs,
     )
-    probs_np = probs.numpy()
-    np.testing.assert_allclose(probs_np, true_conv, rtol=0.01, atol=0.01)
+    np.testing.assert_allclose(probs, true_conv, rtol=0.01, atol=0.01)
 
-    assert pytest.approx(1, rel=1e-3) == integral.numpy()
+    assert pytest.approx(1, rel=1e-3) == integral
 
     plt.figure()
     plt.title("Conv FFT 1Dim shift testing")
-    plt.plot(x, probs_np, label="zfit")
+    plt.plot(x, probs, label="zfit")
     plt.plot(x, true_conv, label="numpy")
     plt.legend()
     pytest.zfit_savefig(folder=plot_folder)
@@ -297,9 +295,8 @@ def test_conv_2D_simple():
     integral = conv.integrate(
         limits=obs_func,
     )
-    assert pytest.approx(1, rel=1e-3) == integral.numpy()
-    probs_np = probs_rnd.numpy()
-    assert len(probs_np) == n_points
+    assert pytest.approx(1, rel=1e-3) == integral
+    assert len(probs) == n_points
     # probs_plot = np.reshape(probs_np, (-1, n_points))
     # x_plot = linspace[0:, ]
     # probs_plot_projx = np.sum(probs_plot, axis=0)
@@ -339,14 +336,14 @@ def test_conv_2D_simple():
 
     plt.figure()
     plt.title("FFT conv x projection")
-    plt.hist(x.numpy(), bins=50, label="custom", alpha=0.5)
-    plt.hist(xns.numpy(), bins=50, label="fallback", alpha=0.5)
+    plt.hist(x, bins=50, label="custom", alpha=0.5)
+    plt.hist(xns, bins=50, label="fallback", alpha=0.5)
     plt.legend()
     pytest.zfit_savefig(folder=plot_folder)
 
     plt.figure()
     plt.title("FFT conv y projection")
-    plt.hist(y.numpy(), bins=50, label="custom", alpha=0.5)
-    plt.hist(yns.numpy(), bins=50, label="fallback", alpha=0.5)
+    plt.hist(y, bins=50, label="custom", alpha=0.5)
+    plt.hist(yns, bins=50, label="fallback", alpha=0.5)
     plt.legend()
     pytest.zfit_savefig(folder=plot_folder)

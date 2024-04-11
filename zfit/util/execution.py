@@ -115,6 +115,14 @@ class RunManager:
             yield cpu
             self._cpu.extend(cpu)
 
+    @deprecated(
+        None,
+        "The `run(...)` method originates from the old `tf.Session` API in TF1 and is not needed anymore. In most cases, it can simply be removed. "
+        "It's current functionality converts the input to numpy, which most of the time is not needed anyways."
+        "Alternatively, use `znp.asarray(...)` to convert to zfit-friendly array (that acts nearly like numpy) or `np.asarray(...) if a numpy"
+        " array is *really needed*.",
+        "Remove the `run(...)` method.",
+    )
     def __call__(self, *args, **kwargs):
         # TODO: catch maybe sets, as they change the number of elements if we have identical ones
         # and convert them. Before it's fine, e.g. Parameters are unique, but after it's a value.
@@ -161,7 +169,7 @@ class RunManager:
          - **numpy-like/eager**: in this mode, the syntax slightly differs from pure numpy but is similar. For example,
             `tf.sqrt`, `tf.math.log` etc. The return values are `EagerTensors` that represent "wrapped Numpy arrays" and
             can directly be used with any Numpy function. They can explicitly be converted to a Numpy array with
-            `zfit.run(EagerTensor)`, which takes also care of nested structures and already existing `np.ndarrays`,
+            `znp.asarray(EagerTensor)`, which takes also care of nested structures and already existing `np.ndarrays`,
             or just a `.numpy()` method.
             The difference to Numpy is that TensorFlow tries to optimize the calculation slightly beforehand and may
             also executes on the GPU. This will result in a slight performance penalty for *very small* computations

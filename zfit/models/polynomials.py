@@ -24,7 +24,7 @@ import zfit.z.numpy as znp
 from zfit import z
 
 from ..core.basepdf import BasePDF
-from ..core.space import Space
+from ..core.space import Space, supports
 from ..settings import ztypes
 from ..util import ztyping
 from ..util.container import convert_to_container
@@ -853,9 +853,14 @@ def de_casteljau(x, coeffs):
     """De Casteljau's algorithm."""
     beta = list(coeffs)  # values in this list are overridden
     n = len(beta)
+    if n < 1:
+        msg = "Need at least one coefficient in de_casteljau of Bernstein."
+        raise ValueError(msg)
     for j in range(1, n):
         for k in range(n - j):
             beta[k] = beta[k] * (1 - x) + beta[k + 1] * x
+    if n == 1:
+        beta[0] = beta[0] * znp.ones_like(x)  # needed for no coefficients, cannot just return scalar beta[0]
     return beta[0]
 
 
@@ -924,13 +929,14 @@ class Bernstein(BasePDF, SerializableMixin):
         """Int: degree of the polynomial, starting from 0."""
         return self._degree
 
-    def _unnormalized_pdf(self, x):
-        x = x.unstack_x()
+    @supports()
+    def _unnormalized_pdf(self, x, params):
+        x = x[0]
         x = self._polynomials_rescale(x)
-        return self._poly_func(x=x)
+        return self._poly_func(x=x, params=params)
 
-    def _poly_func(self, x):
-        coeffs = convert_coeffs_dict_to_list(self.params)
+    def _poly_func(self, x, params):
+        coeffs = convert_coeffs_dict_to_list(params)
         return bernstein_shape(x=x, coeffs=coeffs)
 
 

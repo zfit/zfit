@@ -157,7 +157,7 @@ def test_binned_partial_scaled_asym_axis0():
         1 * binw11 * binw21 + 2 * binw12 * binw21,
         3 * binw11 * binw22 + 4 * binw12 * binw22,
     )
-    assert pytest.approx(true_integral) == zfit.run(integral)
+    np.testing.assert_allclose(true_integral, integral)
 
 
 def test_binned_partial_scaled_asym_axis1():
@@ -176,7 +176,7 @@ def test_binned_partial_scaled_asym_axis1():
         1 * binw11 * binw21 + 3 * binw11 * binw22,
         2 * binw12 * binw21 + 4 * binw12 * binw22,
     )
-    assert pytest.approx(true_integral) == zfit.run(integral)
+    np.testing.assert_allclose(true_integral, integral)
 
 
 def test_binned_scaled_asym_one():

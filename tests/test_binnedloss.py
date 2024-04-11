@@ -126,7 +126,7 @@ def test_binned_extended_simple(Loss):
     nll.value(), nll.gradient()  # TODO: add some check?
 
     nllsum = nll + nll2  # check that sum works
-    assert float(nllsum.value()) == pytest.approx(nll.value() + nll2.value(), rel=1e-3)
+    assert pytest.approx(nll.value() + nll2.value(), rel=1e-3) == float(nllsum.value())
 
 
 @pytest.mark.plots
@@ -240,17 +240,17 @@ def test_binned_loss(weights, Loss, simultaneous):
     abs_tol_val = 0.15 if weights is None else 0.08  # more fluctuating with weights
     abs_tol_val *= 2 if isinstance(loss, zfit.loss.BinnedChi2) else 1
 
-    assert params[mu1]["value"] == pytest.approx(
+    assert pytest.approx(
         np.mean(test_values_np_shifted), abs=abs_tol_val
-    )
-    assert params[sigma1]["value"] == pytest.approx(
+    ) == params[mu1]["value"]
+    assert pytest.approx(
         np.std(test_values_np_shifted), abs=abs_tol_val
-    )
+    ) == params[sigma1]["value"]
     if loss.is_extended:
         nexpected = test_values_np_shifted.shape[0]
-        assert params[scale]["value"] == pytest.approx(
+        assert pytest.approx(
             nexpected, abs=3 * nexpected**0.5
-        )
+        ) == params[scale]["value"]
     constraints = zfit.constraint.GaussianConstraint(
         params=[mu2, sigma2],
         observation=[mu_constr[0], sigma_constr[0]],
@@ -340,9 +340,9 @@ def test_binned_loss_hist(weights, Loss):
 
     nllsum = loss + loss2  # check that sum works
     nllsum += loss2  # check that sum works
-    assert float(nllsum.value(full=True)) == pytest.approx(
+    assert pytest.approx(
         float(
             loss.value(full=True) + 2 * loss2.value(full=True)  # we add loss2 two times
         ),
         rel=1e-3,
-    )
+    ) == float(nllsum.value(full=True))

@@ -21,7 +21,6 @@ def test_pdf_simple_subclass():
     gauss1 = SimpleGauss(obs="obs1", mu=3, sigma=5)
 
     prob = gauss1.pdf(np.random.random(size=(10, 1)), norm=False)
-    prob.numpy()
 
     with pytest.raises(TypeError):
         gauss2 = SimpleGauss("obs1", 1.0, sigma=5.0)

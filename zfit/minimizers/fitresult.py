@@ -38,7 +38,6 @@ from ..core.interfaces import (
     ZfitParameter,
 )
 from ..core.parameter import set_values
-from ..settings import run
 from ..util.container import convert_to_container
 from ..util.deprecation import deprecated, deprecated_args
 from ..util.warnings import ExperimentalFeatureWarning, warn_changed_feature
@@ -1086,7 +1085,7 @@ class FitResult(ZfitResult):
     @contextlib.contextmanager
     def _input_check_reset_params(self, params):
         params = self._input_check_params(params=params)
-        old_values = run(params)
+        old_values = np.asarray(params)
         try:
             yield params
         except Exception:
@@ -1618,7 +1617,7 @@ class ParamHolder(NameToParamGetitem, collections.UserDict):
             if isinstance(param, ZfitParameter):
                 row.append(
                     color_on_bool(
-                        run(param.at_limit),
+                        bool(param.at_limit),
                         on_true=colored.bg("light_red"),
                         on_false=False,
                     )
