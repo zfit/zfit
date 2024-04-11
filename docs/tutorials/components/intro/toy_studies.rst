@@ -20,12 +20,8 @@ Playing with toys: Multiple samplings
 
 The method :py:meth:`~zfit.core.basemodel.BaseModel.create_sampler` returns a sampler that can be used
 like a :py:class:`~zift.Data` object (e.g. for building a :py:class:`~zfit.core.interfaces.ZfitLoss`).
-The sampling itself is *not yet done* but only when :py:meth:`~zfit.core.data.Sampler.resample` is
-invoked. The sample generated depends on the original pdf at this point, e.g. parameters have the
-value they have when the :py:meth:`~zfit.core.data.Sampler.resample` is invoked. To have certain
-parameters fixed, they have to be specified *either* on :py:meth:`~zfit.core.basemodel.BaseModel.create_sampler`
-via ``fixed_params``, on :py:meth:`~zfit.core.data.Sampler.resample` by specifying which parameter
-will take which value via ``param_values`` or by changing the attribute of :py:class:`~zfit.core.data.Sampler`.
+The sample generated depends on the original pdf at this point, e.g. parameters have the
+value they have when :py:meth:`~zfit.core.basemodel.BaseModel.create_sampler` is called, respectively the values that are given explicitly as ``params`` to it.
 
 Reusing the model, obs and parameters from :ref:`basic-model`,
 this is typically how toys look like:
@@ -84,6 +80,8 @@ this is typically how toys look like:
 
 If some parameters are constrained to values observed from external measurements, usually Gaussian constraints,
 then sampling of the observed values might be needed to obtain an unbiased sample from the model. Example:
+
+TODO: the sample below is not correct and needs updating...
 
 .. jupyter-execute::
 
