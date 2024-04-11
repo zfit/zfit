@@ -287,6 +287,7 @@ class ScipyBaseMinimizerV1(BaseMinimizer):
                 minimizer_options["options"][tol] = val
 
             # perform minimization
+            optim_result = None
             try:
                 optim_result = self._minimize_func(fun=evaluator.value, x0=init_values, **minimizer_options)
             except MaximumIterationReached as error:

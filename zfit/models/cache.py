@@ -14,6 +14,7 @@ from ..core.serialmixin import SerializableMixin
 from ..core.space import supports
 from ..serialization import Serializer  # noqa: F401
 from ..settings import ztypes
+from ..util import ztyping
 from .basefunctor import FunctorPDFRepr
 from .functor import BaseFunctor
 
@@ -43,7 +44,16 @@ def get_value(cache: tf.Variable, flag: tf.Variable, func: Callable):
 
 
 class CachedPDF(BaseFunctor, SerializableMixin):
-    def __init__(self, pdf, *, extended=None, norm=None, cache_tol=None, name=None):
+    def __init__(
+        self,
+        pdf: ztyping.PDFInputType,
+        *,
+        extended: ztyping.ExtendedInputType = None,
+        norm: ztyping.NormInputType = None,
+        cache_tol=None,
+        name: str | None = None,
+        label: str | None = None,
+    ):
         """Creates a PDF where ``pdf`` and ``integrate`` methods are cacheable.
 
         .. note::
@@ -67,9 +77,13 @@ class CachedPDF(BaseFunctor, SerializableMixin):
                An extended PDF has additional functionality, such as the
                ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
             norm: |@doc:model.init.norm| The normalization of the PDF. |@docend:model.init.norm|
-            name: |@doc:model.init.name| Human-readable name
+            name: |@doc:pdf.init.name| Name of the PDF.
+               Maybe has implications on the serialization and deserialization of the PDF.
+               For a human-readable name, use the label. |@docend:pdf.init.name|
+            label: |@doc:pdf.init.label| Human-readable name
                or label of
-               the PDF for better identification. |@docend:model.init.name|
+               the PDF for a better description, to be used with plots etc.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
         """
         obs = pdf.space
         hs3_init = {
@@ -80,7 +94,7 @@ class CachedPDF(BaseFunctor, SerializableMixin):
             "name": name,
         }
         name = name or pdf.name
-        super().__init__(pdfs=pdf, obs=obs, name=name, extended=extended, norm=norm)
+        super().__init__(pdfs=pdf, obs=obs, name=name, extended=extended, norm=norm, label=label)
         params = list(pdf.get_params(floating=None))
 
         param_cache = tf.Variable(

@@ -241,6 +241,7 @@ class CrystalBall(BasePDF, SerializableMixin):
         extended: ExtendedInputType = None,
         norm: NormInputType = None,
         name: str = "CrystalBall",
+        label: str | None = None,
     ):
         """Crystal Ball shaped PDF. A combination of a Gaussian with a powerlaw tail.
 
@@ -284,11 +285,15 @@ class CrystalBall(BasePDF, SerializableMixin):
             name: |@doc:pdf.init.name| Name of the PDF.
                Maybe has implications on the serialization and deserialization of the PDF.
                For a human-readable name, use the label. |@docend:pdf.init.name|
+            label: |@doc:pdf.init.label| Human-readable name
+               or label of
+               the PDF for a better description, to be used with plots etc.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
 
         .. _CBShape: https://en.wikipedia.org/wiki/Crystal_Ball_function
         """
         params = {"mu": mu, "sigma": sigma, "alpha": alpha, "n": n}
-        super().__init__(obs=obs, name=name, params=params, extended=extended, norm=norm)
+        super().__init__(obs=obs, name=name, params=params, extended=extended, norm=norm, label=label)
 
     @supports(norm=False)
     def _pdf(self, x, norm, params):
@@ -332,6 +337,7 @@ class DoubleCB(BasePDF, SerializableMixin):
         extended: ExtendedInputType = None,
         norm: NormInputType = None,
         name: str = "DoubleCB",
+        label: str | None = None,
     ):
         """Double-sided Crystal Ball shaped PDF. A combination of two CB using the **mu** (not a frac) on each side.
 
@@ -383,6 +389,10 @@ class DoubleCB(BasePDF, SerializableMixin):
             name: |@doc:pdf.init.name| Name of the PDF.
                Maybe has implications on the serialization and deserialization of the PDF.
                For a human-readable name, use the label. |@docend:pdf.init.name|
+            label: |@doc:pdf.init.label| Human-readable name
+               or label of
+               the PDF for a better description, to be used with plots etc.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
         """
         params = {
             "mu": mu,
@@ -392,7 +402,7 @@ class DoubleCB(BasePDF, SerializableMixin):
             "alphar": alphar,
             "nr": nr,
         }
-        super().__init__(obs=obs, name=name, params=params, extended=extended, norm=norm)
+        super().__init__(obs=obs, name=name, params=params, extended=extended, norm=norm, label=label)
 
     def _unnormalized_pdf(self, x):
         mu = self.params["mu"].value()
@@ -445,6 +455,7 @@ class GeneralizedCB(BasePDF, SerializableMixin):
         extended: ExtendedInputType = None,
         norm: NormInputType = None,
         name: str = "GeneralizedCB",
+        label: str | None = None,
     ):
         """Generalized asymmetric double-sided Crystal Ball shaped PDF. A combination of two CB using the **mu** (not a
         frac) and a different **sigma** on each side.
@@ -500,6 +511,10 @@ class GeneralizedCB(BasePDF, SerializableMixin):
             name: |@doc:pdf.init.name| Name of the PDF.
                Maybe has implications on the serialization and deserialization of the PDF.
                For a human-readable name, use the label. |@docend:pdf.init.name|
+            label: |@doc:pdf.init.label| Human-readable name
+               or label of
+               the PDF for a better description, to be used with plots etc.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
         """
         params = {
             "mu": mu,
@@ -510,7 +525,7 @@ class GeneralizedCB(BasePDF, SerializableMixin):
             "alphar": alphar,
             "nr": nr,
         }
-        super().__init__(obs=obs, name=name, params=params, extended=extended, norm=norm)
+        super().__init__(obs=obs, name=name, params=params, extended=extended, norm=norm, label=label)
 
     def _unnormalized_pdf(self, x):
         mu = self.params["mu"].value()
@@ -679,6 +694,7 @@ class GaussExpTail(BasePDF, SerializableMixin):
         extended: ExtendedInputType = None,
         norm: NormInputType = None,
         name: str = "GaussExpTail",
+        label: str | None = None,
     ):
         """GaussExpTail shaped PDF. A combination of a Gaussian with an exponential tail on one side.
 
@@ -713,9 +729,13 @@ class GaussExpTail(BasePDF, SerializableMixin):
             name: |@doc:pdf.init.name| Name of the PDF.
                Maybe has implications on the serialization and deserialization of the PDF.
                For a human-readable name, use the label. |@docend:pdf.init.name|
+            label: |@doc:pdf.init.label| Human-readable name
+               or label of
+               the PDF for a better description, to be used with plots etc.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
         """
         params = {"mu": mu, "sigma": sigma, "alpha": alpha}
-        super().__init__(obs=obs, name=name, params=params, extended=extended, norm=norm)
+        super().__init__(obs=obs, name=name, params=params, extended=extended, norm=norm, label=label)
 
     def _unnormalized_pdf(self, x):
         mu = self.params["mu"].value()
@@ -754,6 +774,7 @@ class GeneralizedGaussExpTail(BasePDF, SerializableMixin):
         extended: ExtendedInputType = None,
         norm: NormInputType = None,
         name: str = "GeneralizedGaussExpTail",
+        label: str | None = None,
     ):
         """GeneralizedGaussedExpTail shaped PDF which is Generalized assymetric double-sided GaussExpTail shaped PDF. A
         combination of two GaussExpTail using the **mu** (not a frac) and a different **sigma** on each side.
@@ -797,6 +818,10 @@ class GeneralizedGaussExpTail(BasePDF, SerializableMixin):
             name: |@doc:pdf.init.name| Name of the PDF.
                Maybe has implications on the serialization and deserialization of the PDF.
                For a human-readable name, use the label. |@docend:pdf.init.name|
+            label: |@doc:pdf.init.label| Human-readable name
+               or label of
+               the PDF for a better description, to be used with plots etc.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
         """
         params = {
             "mu": mu,
@@ -805,7 +830,7 @@ class GeneralizedGaussExpTail(BasePDF, SerializableMixin):
             "sigmar": sigmar,
             "alphar": alphar,
         }
-        super().__init__(obs=obs, name=name, params=params, extended=extended, norm=norm)
+        super().__init__(obs=obs, name=name, params=params, extended=extended, norm=norm, label=label)
 
     def _unnormalized_pdf(self, x):
         mu = self.params["mu"].value()

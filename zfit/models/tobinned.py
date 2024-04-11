@@ -49,6 +49,13 @@ class BinnedFromUnbinnedPDF(BaseBinnedFunctorPDF):
                ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
             norm: |@doc:pdf.init.norm| Normalization of the PDF.
                By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
+            name: |@doc:pdf.init.name| Name of the PDF.
+               Maybe has implications on the serialization and deserialization of the PDF.
+               For a human-readable name, use the label. |@docend:pdf.init.name|
+            label: |@doc:pdf.init.label| Human-readable name
+               or label of
+               the PDF for a better description, to be used with plots etc.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
         """
         if pdf.is_extended:
             if extended is not None:
@@ -64,8 +71,8 @@ class BinnedFromUnbinnedPDF(BaseBinnedFunctorPDF):
             except Exception as error:
                 msg = f"Could not create space {space} from pdf {pdf} with binning {space}"
                 raise ValueError(msg) from error
-        if name is None:
-            name = f"Binned_{pdf.name}"
+        if label is None:
+            label = f"Binned_{pdf.name}"
         super().__init__(
             obs=space,
             extended=extended,

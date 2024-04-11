@@ -33,6 +33,7 @@ sphinx-autodoc-typehints
 sphinx-copybutton
 sphinx-panels
 sphinx_togglebutton
+sphinxcontrib-applehelp<1.0.8  # needs sphinx>=0.5, why are we still stuck at <0.5?
 sphinxcontrib-bibtex
 sphinxcontrib-images
 sphinxcontrib-youtube>=1.0.0,<1.2.0

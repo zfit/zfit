@@ -6,7 +6,7 @@ Minimize
 This module contains everything related to minimization in zfit.
 
 Minimizers
-##########
+###########
 
 
 zfit supplies wrappers for different minimizers from multiple libraries. Most of the are local

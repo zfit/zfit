@@ -597,6 +597,7 @@ class GaussianKDE1DimV1(KDEHelper, WrapDistribution):
         extended: ExtendedInputType = None,
         norm: NormInputType = None,
         name: str = "GaussianKDE1DimV1",
+        label: str | None = None,
     ):
         r"""EXPERIMENTAL, `FEEDBACK WELCOME.
 
@@ -700,14 +701,18 @@ class GaussianKDE1DimV1(KDEHelper, WrapDistribution):
                ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
             norm: |@doc:pdf.init.norm| Normalization of the PDF.
                By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
-            name: |@doc:pdf.init.name| Name of the PDF.
-               Maybe has implications on the serialization and deserialization of the PDF.
-               For a human-readable name, use the label. |@docend:pdf.init.name|
             extended: |@doc:pdf.init.extended| The overall yield of the PDF.
                If this is parameter-like, it will be used as the yield,
                the expected number of events, and the PDF will be extended.
                An extended PDF has additional functionality, such as the
                ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+            name: |@doc:pdf.init.name| Name of the PDF.
+               Maybe has implications on the serialization and deserialization of the PDF.
+               For a human-readable name, use the label. |@docend:pdf.init.name|
+            label: |@doc:pdf.init.label| Human-readable name
+               or label of
+               the PDF for a better description, to be used with plots etc.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
         """
         original_data = data
         data, size, weights, _ = self._convert_init_data_weights_size(
@@ -774,6 +779,7 @@ class GaussianKDE1DimV1(KDEHelper, WrapDistribution):
             extended=extended,
             norm=norm,
             name=name,
+            label=label,
         )
 
         self._data_weights = weights
@@ -806,6 +812,7 @@ class KDE1DimExact(KDEHelper, WrapDistribution, SerializableMixin):
         extended: ExtendedInputType = None,
         norm: NormInputType = None,
         name: str | None = "ExactKDE1DimV1",
+        label: str | None = None,
     ):
         r"""Kernel Density Estimation is a non-parametric method to approximate the density of given points.
 
@@ -927,14 +934,18 @@ class KDE1DimExact(KDEHelper, WrapDistribution, SerializableMixin):
                ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
             norm: |@doc:pdf.init.norm| Normalization of the PDF.
                By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
-            name: |@doc:model.init.name| Human-readable name
-               or label of
-               the PDF for better identification. |@docend:model.init.name|
             extended: |@doc:pdf.init.extended| The overall yield of the PDF.
                If this is parameter-like, it will be used as the yield,
                the expected number of events, and the PDF will be extended.
                An extended PDF has additional functionality, such as the
                ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+            name: |@doc:pdf.init.name| Name of the PDF.
+               Maybe has implications on the serialization and deserialization of the PDF.
+               For a human-readable name, use the label. |@docend:pdf.init.name|
+            label: |@doc:pdf.init.label| Human-readable name
+               or label of
+               the PDF for a better description, to be used with plots etc.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
         """
         original_init = {
             "data": data,
@@ -969,6 +980,7 @@ class KDE1DimExact(KDEHelper, WrapDistribution, SerializableMixin):
             weights=weights,
             padding=False,
             kernel=kernel,
+            label=label,
         )
 
         self._original_data = data  # for copying
@@ -1064,6 +1076,7 @@ class KDE1DimGrid(KDEHelper, WrapDistribution, SerializableMixin):
         extended: ExtendedInputType = None,
         norm: NormInputType = None,
         name: str = "GridKDE1DimV1",
+        label: str | None = None,
     ):
         r"""Kernel Density Estimation is a non-parametric method to approximate the density of given points.
 
@@ -1185,13 +1198,17 @@ class KDE1DimGrid(KDEHelper, WrapDistribution, SerializableMixin):
                ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
             norm: |@doc:pdf.init.norm| Normalization of the PDF.
                By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
-            name: |@doc:model.init.name| Human-readable name
-               or label of
-               the PDF for better identification. |@docend:model.init.name|
             extended: |@doc:model.init.extended| Whether the PDF is extended
                 or not. If True, the PDF can be integrated over the full space
                 and the integral will be 1. If False, the integral will be the
                 number of events in the dataset. |@docend:model.init.extended|
+            name: |@doc:pdf.init.name| Name of the PDF.
+               Maybe has implications on the serialization and deserialization of the PDF.
+               For a human-readable name, use the label. |@docend:pdf.init.name|
+            label: |@doc:pdf.init.label| Human-readable name
+               or label of
+               the PDF for a better description, to be used with plots etc.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
         """
         original_init = {
             "data": data,
@@ -1291,6 +1308,7 @@ class KDE1DimGrid(KDEHelper, WrapDistribution, SerializableMixin):
             extended=extended,
             norm=norm,
             name=name,
+            label=label,
         )
         self.hs3.original_init.update(original_init)
 
@@ -1355,6 +1373,7 @@ class KDE1DimFFT(KDEHelper, BasePDF, SerializableMixin):
         extended: ExtendedInputType = None,
         norm: NormInputType = None,
         name: str = "KDE1DimFFT",
+        label: str | None = None,
     ):
         r"""Kernel Density Estimation is a non-parametric method to approximate the density of given points.
 
@@ -1478,10 +1497,18 @@ class KDE1DimFFT(KDEHelper, BasePDF, SerializableMixin):
                ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
             norm: |@doc:pdf.init.norm| Normalization of the PDF.
                By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
-            name: |@doc:model.init.name| Human-readable name
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+            name: |@doc:pdf.init.name| Name of the PDF.
+               Maybe has implications on the serialization and deserialization of the PDF.
+               For a human-readable name, use the label. |@docend:pdf.init.name|
+            label: |@doc:pdf.init.label| Human-readable name
                or label of
-               the PDF for better identification. |@docend:model.init.name|
-            extended: |@doc:model.init.extended||@docend:model.init.extended|
+               the PDF for a better description, to be used with plots etc.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
         """
         original_init = {
             "data": data,
@@ -1541,7 +1568,7 @@ class KDE1DimFFT(KDEHelper, BasePDF, SerializableMixin):
         self._bandwidth = bandwidth
 
         params = {"bandwidth": self._bandwidth}
-        super().__init__(obs=obs, name=name, params=params, extended=extended, norm=norm)
+        super().__init__(obs=obs, name=name, params=params, extended=extended, norm=norm, label=label)
         self._kernel = kernel
         self._weights = weights
         if support is None:
@@ -1623,6 +1650,7 @@ class KDE1DimISJ(KDEHelper, BasePDF, SerializableMixin):
         extended: ExtendedInputType = None,
         norm: NormInputType = None,
         name: str = "KDE1DimISJ",
+        label: str | None = None,
     ):
         r"""Kernel Density Estimation is a non-parametric method to approximate the density of given points.
 
@@ -1714,21 +1742,20 @@ class KDE1DimISJ(KDEHelper, BasePDF, SerializableMixin):
 
              If no weights are given, each kernel will be scaled by the same
              constant :math:`\frac{1}{n_{data}}`. |@docend:pdf.kde.init.weights|
-            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
-               If this is parameter-like, it will be used as the yield,
-               the expected number of events, and the PDF will be extended.
-               An extended PDF has additional functionality, such as the
-               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
             norm: |@doc:pdf.init.norm| Normalization of the PDF.
                By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
-            name: |@doc:model.init.name| Human-readable name
-               or label of
-               the PDF for better identification. |@docend:model.init.name|
             extended: |@doc:pdf.init.extended| The overall yield of the PDF.
                If this is parameter-like, it will be used as the yield,
                the expected number of events, and the PDF will be extended.
                An extended PDF has additional functionality, such as the
                ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+            name: |@doc:pdf.init.name| Name of the PDF.
+               Maybe has implications on the serialization and deserialization of the PDF.
+               For a human-readable name, use the label. |@docend:pdf.init.name|
+            label: |@doc:pdf.init.label| Human-readable name
+               or label of
+               the PDF for a better description, to be used with plots etc.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
         """
         original_init = {
             "data": data,
@@ -1774,7 +1801,7 @@ class KDE1DimISJ(KDEHelper, BasePDF, SerializableMixin):
         )
 
         params = {}
-        super().__init__(obs=obs, name=name, params=params, extended=extended, norm=norm)
+        super().__init__(obs=obs, name=name, params=params, extended=extended, norm=norm, label=label)
         self.hs3.original_init.update(original_init)
 
     def _unnormalized_pdf(self, x):

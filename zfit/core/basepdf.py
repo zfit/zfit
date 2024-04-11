@@ -59,6 +59,7 @@ from typing import TYPE_CHECKING, Iterable, Optional
 
 from tensorflow.python.util.deprecation import deprecated_args
 
+from ..util.plotter import PDFPlotter
 from ..util.ztyping import ExtendedInputType, NormInputType
 
 if TYPE_CHECKING:
@@ -90,7 +91,7 @@ from .baseobject import extract_filter_params
 from .interfaces import ZfitParameter, ZfitPDF, ZfitSpace
 from .parameter import Parameter, convert_to_parameter
 from .sample import extended_sampling
-from .space import Space
+from .space import Space, convert_to_space
 
 _BasePDF_USER_IMPL_METHODS_TO_CHECK = {}
 
@@ -158,6 +159,7 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
         **kwargs,
     ):
         self._yield = None
+        self.plot = None
 
         super().__init__(obs=obs, dtype=dtype, name=name, params=params, **kwargs)
         self._label = label or self.name
@@ -166,6 +168,8 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
             self._set_yield(extended)
 
         self._assert_params_unique()
+        if self.plot is None:
+            self.plot = PDFPlotter(self)
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
@@ -817,14 +821,24 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
         return params
 
     def create_projection_pdf(
-        self, limits: ztyping.LimitsTypeInput, *, options=None, limits_to_integrate=None
+        self,
+        *,
+        limits: ztyping.LimitsTypeInput = None,
+        obs: ztyping.LimitsTypeInput = None,
+        options=None,
+        name: str | None = None,
+        label: str | None = None,
+        extended: ExtendedInputType = None,
+        norm: NormInputType = None,
     ) -> ZfitPDF:
         """Create a PDF projection by integrating out some dimensions.
 
         The new projection pdf is still fully dependent on the pdf it was created with.
 
         Args:
-            limits: |@doc:pdf.partial_integrate.limits||@docend:pdf.partial_integrate.limit|
+            limits: Limits of the integration to project out. If not given, all observables that are not in `obs` are
+                projected on using the default limits of the observables.
+            obs: Observables to project on. If not given, all observables that are not in `limits` are projected on.
             options: |@doc:pdf.integrate.options| Options for the integration.
                Additional options for the integration. Currently supported options are:
                - type: one of (``bins``)
@@ -834,13 +848,36 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
         Returns:
             A pdf without the dimensions from ``limits``.
         """
-        if limits_to_integrate is not None:
-            msg = "Use `limits` instead of `limits_to_integrate`."
-            raise BreakingAPIChangeError(msg)
         from ..models.special import SimpleFunctorPDF
 
-        if limits_to_integrate is not None:
-            limits = limits_to_integrate
+        if limits is None:
+            if obs is None:
+                msg = "Either `limits` or `obs` have to be given."
+                raise ValueError(msg)
+            obs = convert_to_space(obs)
+            limit_obs = [ob for ob in self.obs if ob not in obs.obs]
+            if not limit_obs:
+                msg = f"No observables to integrate out: `obs` contains all observables {obs}."
+                raise ValueError(msg)
+            limits = self.space.with_obs(limit_obs)
+            if not obs.has_limits:
+                obs = self.space.with_obs(obs.obs)
+        else:
+            limits = convert_to_space(limits)
+            if not limits.has_limits:
+                limits = self.space.with_obs(limits.obs)
+            if obs is None:
+                obs = self.space.with_obs([ob for ob in self.obs if ob not in limits.obs])
+            else:
+                obs = convert_to_space(obs)
+                if not obs.has_limits:
+                    obs = self.space.with_obs(obs.obs)
+                if not set(obs.obs).isdisjoint(limits.obs):
+                    msg = (
+                        f"The `obs` to project on ({obs}) and the `limits` to integrate over ({limits}) "
+                        "have to be disjoint."
+                    )
+                    raise ValueError(msg)
 
         def partial_integrate_wrapped(self_simple, x):
             del self_simple
@@ -848,10 +885,20 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
                 x, limits=limits, options=options, norm=False
             )  # todo: it should be fine not to normalize, right?
 
+        if label is None:
+            label = f"{self.label}_projon_{obs.obs[0]}"
+        if extended is None:
+            extended = self.is_extended
+        if extended is True:
+            extended = self.get_yield()
         return SimpleFunctorPDF(
-            obs=self.space.get_subspace(obs=[obs for obs in self.obs if obs not in limits.obs]),
+            obs=obs,
             pdfs=(self,),
             func=partial_integrate_wrapped,
+            name=name,
+            label=label,
+            extended=extended,
+            norm=norm,
         )
 
     def copy(self, **override_parameters) -> BasePDF:

@@ -15,6 +15,7 @@ from zfit.models.tobinned import BinnedFromUnbinnedPDF
 
 @pytest.mark.plots
 def test_spline_from_binned_from_unbinned():
+    plot_folder = "spline_from_unbinned"
     n = 1004
     gauss, gauss_binned, obs, obs_binned = create_gauss_binned(n)
 
@@ -34,7 +35,7 @@ def test_spline_from_binned_from_unbinned():
         label="counts binned",
     )
     plt.legend()
-    pytest.zfit_savefig()
+    pytest.zfit_savefig(folder=plot_folder)
 
     spline_gauss = SplinePDF(gauss_binned, obs=obs)
     y = spline_gauss.ext_pdf(x)
@@ -50,7 +51,7 @@ def test_spline_from_binned_from_unbinned():
     plt.plot(x, y_true, label="original")
     plt.plot(x, y, ".", label="interpolated")
     plt.legend()
-    pytest.zfit_savefig()
+    pytest.zfit_savefig(folder=plot_folder)
 
     np.testing.assert_allclose(y, y_true, atol=50)
 
@@ -71,6 +72,7 @@ def test_spline2D_from_binned_from_unbinned():
 
 @pytest.mark.plots
 def test_unbinned_from_binned_from_unbinned():
+    plot_folder = "unbinned_binned_and_back"
     n = 1004
     gauss, gauss_binned, obs, obs_binned = create_gauss_binned(n)
 
@@ -90,7 +92,7 @@ def test_unbinned_from_binned_from_unbinned():
         label="counts binned",
     )
     plt.legend()
-    pytest.zfit_savefig()
+    pytest.zfit_savefig(folder=plot_folder)
 
     unbinned = zfit.pdf.UnbinnedFromBinnedPDF(gauss_binned, obs=obs)
     unbinned2 = gauss_binned.to_unbinned()
@@ -111,7 +113,7 @@ def test_unbinned_from_binned_from_unbinned():
     plt.plot(x, y_true, label="original")
     plt.plot(x, y, ".", label="unbinned")
     plt.legend()
-    pytest.zfit_savefig()
+    pytest.zfit_savefig(folder=plot_folder)
     np.testing.assert_allclose(y, y_true, atol=50)
 
     nsample = 500000
@@ -126,7 +128,7 @@ def test_unbinned_from_binned_from_unbinned():
     mplhep.histplot(sample_binned_hist, label="unbinned from binned")
     mplhep.histplot(sample_gauss_hist, label="original")
     plt.legend()
-    pytest.zfit_savefig()
+    pytest.zfit_savefig(folder=plot_folder)
 
     diff = (sample_binned_hist.values() - sample_gauss_hist.values()) / (
             sample_gauss_hist.variances() + 1
@@ -162,6 +164,7 @@ def test_2D_unbinned_from_binned_from_unbinned():
 
 @pytest.mark.plots
 def test_unbinned_data():
+    plot_folder = "binnedpdf_unbinneddata"
     n = 751
     gauss, gauss_binned, obs, obs_binned = create_gauss_binned(n, 70)
     x = znp.linspace(-5, 10, 200)
@@ -186,7 +189,7 @@ def test_unbinned_data():
     plt.plot(centers, ycenter_true, label="unbinned pdf")
     plt.plot(centers, ycenter_binned, "--", label="binned pdf")
     plt.legend()
-    pytest.zfit_savefig()
+    pytest.zfit_savefig(folder=plot_folder)
     # plt.show()
 
     plt.figure()
@@ -194,7 +197,7 @@ def test_unbinned_data():
     plt.plot(x, y_true, label="unbinned pdf")
     plt.plot(x, y_binned, "--", label="binned pdf")
     plt.legend()
-    pytest.zfit_savefig()
+    pytest.zfit_savefig(folder=plot_folder)
 
 
 def test_unbinned_data2D():
@@ -306,6 +309,7 @@ def test_binned_with_unbinned_data():
 @pytest.mark.parametrize("instantiation", ["wrapper", "to_binned", "init"])
 def test_binned_from_unbinned_2D(instantiation):
     n = 100000
+    plot_folder = "binned_2D_from_unbinned"
 
     mu = zfit.Parameter("mu", 1, 0, 19)
     sigma = zfit.Parameter("sigma", 6, 0, 120)
@@ -366,11 +370,11 @@ def test_binned_from_unbinned_2D(instantiation):
     plt.figure()
     plt.title("Gauss 2D binned sampled.")
     mplhep.hist2dplot(hist_sampled)
-    pytest.zfit_savefig()
+    pytest.zfit_savefig(folder=plot_folder)
     plt.figure()
     plt.title("Gauss 2D binned plot, irregular (x<4.5 larger bins than x>4.5) binning.")
     mplhep.hist2dplot(hist_pdf)
-    pytest.zfit_savefig()
+    pytest.zfit_savefig(folder=plot_folder)
 
 
 @pytest.mark.parametrize(

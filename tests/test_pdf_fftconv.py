@@ -29,6 +29,7 @@ interpolation_methods = ("linear", "spline", "spline:5", "spline:3")
 
 @pytest.mark.parametrize("interpolation", interpolation_methods)
 def test_conv_simple(interpolation):
+    plot_folder = "unbinned_fftconv"
     n_points = 2432
     obs = zfit.Space("obs1", limits=(-5, 5))
     param1 = zfit.Parameter("param1", -3)
@@ -64,7 +65,7 @@ def test_conv_simple(interpolation):
     plt.plot(x, probs, label="zfit")
     plt.plot(x, true_conv, label="numpy")
     plt.legend()
-    pytest.zfit_savefig()
+    pytest.zfit_savefig(folder=plot_folder)
 
 
 @pytest.mark.parametrize("interpolation", interpolation_methods)
@@ -119,6 +120,7 @@ def test_asymmetric_limits(interpolation):
 
 @pytest.mark.parametrize("interpolation", interpolation_methods)
 def test_conv_1d_shifted(interpolation):
+    plot_folder = "unbinned_conv"
     kerlim = (-3, 3)  # symmetric to make the np conv comparison simple
     obs_kernel = zfit.Space("obs1", limits=kerlim)
     obs = zfit.Space("obs1", limits=(5, 15))
@@ -153,7 +155,7 @@ def test_conv_1d_shifted(interpolation):
     plt.plot(x, probs, label="zfit")
     plt.plot(x, true_conv, label="numpy")
     plt.legend()
-    pytest.zfit_savefig()
+    pytest.zfit_savefig(folder=plot_folder)
 
 
 @pytest.mark.parametrize("interpolation", interpolation_methods)
@@ -229,6 +231,7 @@ def test_max_1dim():
 
 @pytest.mark.skip  # not yet implemented WIP
 def test_conv_2D_simple():
+    plot_folder = "2D_fftconv"
     # zfit.run.set_graph_mode(False)  # TODO: remove, just for debugging
     # raise WorkInProgressError("2D convolution not yet implemented, re-activate if so")
     n_points = 1000
@@ -324,23 +327,23 @@ def test_conv_2D_simple():
     plt.figure()
     plt.title("FFT conv, custom sampling, addition")
     plt.hist2d(x, y, bins=30)
-    pytest.zfit_savefig()
+    pytest.zfit_savefig(folder=plot_folder)
 
     plt.figure()
     plt.title("FFT conv, fallback sampling, accept-reject")
     plt.hist2d(xns, yns, bins=30)
-    pytest.zfit_savefig()
+    pytest.zfit_savefig(folder=plot_folder)
 
     plt.figure()
     plt.title("FFT conv x projection")
     plt.hist(x, bins=50, label="custom", alpha=0.5)
     plt.hist(xns, bins=50, label="fallback", alpha=0.5)
     plt.legend()
-    pytest.zfit_savefig()
+    pytest.zfit_savefig(folder=plot_folder)
 
     plt.figure()
     plt.title("FFT conv y projection")
     plt.hist(y, bins=50, label="custom", alpha=0.5)
     plt.hist(yns, bins=50, label="fallback", alpha=0.5)
     plt.legend()
-    pytest.zfit_savefig()
+    pytest.zfit_savefig(folder=plot_folder)
