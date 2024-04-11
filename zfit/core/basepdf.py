@@ -59,6 +59,7 @@ from typing import TYPE_CHECKING, Iterable, Optional
 
 from tensorflow.python.util.deprecation import deprecated_args
 
+from ..util.plotter import PDFPlotter
 from ..util.ztyping import ExtendedInputType, NormInputType
 
 if TYPE_CHECKING:
@@ -158,6 +159,7 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
         **kwargs,
     ):
         self._yield = None
+        self.plot = None
 
         super().__init__(obs=obs, dtype=dtype, name=name, params=params, **kwargs)
         self._label = label or self.name
@@ -166,6 +168,8 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
             self._set_yield(extended)
 
         self._assert_params_unique()
+        if self.plot is None:
+            self.plot = PDFPlotter(self)
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)

@@ -35,6 +35,7 @@ from ..util.exception import (
     NormRangeUnderdefinedError,
     SpecificFunctionNotImplemented,
 )
+from ..util.plotter import PDFPlotter, SumCompPlotter
 from ..util.ztyping import ExtendedInputType, NormInputType
 from ..z.random import counts_multinomial
 from .basefunctor import FunctorPDFRepr, _preprocess_init_sum
@@ -154,6 +155,7 @@ class SumPDF(BaseFunctor, SerializableMixin):  # TODO: add extended argument
             extended = sum_yields
         super().__init__(pdfs=pdfs, obs=obs, params=params, name=name, extended=extended, norm=norm, label=label)
         self.hs3.original_init.update(original_init)
+        self.plot = PDFPlotter(self, componentplotter=SumCompPlotter(self))
 
     @property
     def fracs(self):

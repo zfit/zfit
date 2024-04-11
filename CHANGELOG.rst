@@ -40,6 +40,7 @@ Major Features and Improvements
 - ``Data`` and ``PDF`` that take ``obs`` in the initialization can now also take binned observables, i.e. a ``zfit.Space`` with ``binning=...`` and will return a binned version of the object (``zfit.data.BinnedData`` or ``zfit.pdf.BinnedFromUnbinned``, where the latter is a generic wrapper). This is equivalent of calling ``to_binned`` on the objects)
 - ``zfit.Data`` can be instantiated directly with most data types, such as numpy arrays, pandas DataFrames etc insead of using the dedicated constructors ``from_numpy``, ``from_pandas`` etc.
   The constructors may still provide additional functionality, but overall, the switch should be seamless.
+- a simple ``plot`` mechanism has been added with ``pdf.plot.plotpdf`` to plot PDFs. This is simple and fully interacts with matplotlib, allowing to plot quickly in a more interactive way.
 
 Breaking changes
 ------------------
