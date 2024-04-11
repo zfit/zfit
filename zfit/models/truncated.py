@@ -117,6 +117,10 @@ class TruncatedPDF(BaseFunctor, SerializableMixin):
             name: |@doc:pdf.init.name| Name of the PDF.
                Maybe has implications on the serialization and deserialization of the PDF.
                For a human-readable name, use the label. |@docend:pdf.init.name|
+            label: |@doc:pdf.init.label| Human-readable name
+               or label of
+               the PDF for a better description, to be used with plots etc.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
         """
         original_init = {"extended": extended, "obs": obs}
         if name is None:

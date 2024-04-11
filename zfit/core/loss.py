@@ -180,7 +180,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
             warnings.warn(
                 "The fit_range argument is depreceated and will maybe removed in future releases. "
                 "It is preferred to define the range in the space"
-                " when creating the data and the model.",
+                " when creating the data and the model or directly cut the data correctly.",
                 stacklevel=2,
             )
 

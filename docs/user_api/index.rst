@@ -28,3 +28,4 @@ insufficient!
     zfit.hs3
     zfit.exception
     zfit.run
+    zfit.plot

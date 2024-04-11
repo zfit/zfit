@@ -21,6 +21,8 @@ class UnbinnedFromBinnedPDF(BaseFunctor):
         *,
         extended: ExtendedInputType = None,
         norm: NormInputType = None,
+        name: str | None = "UnbinnedFromBinnedPDF",
+        label: str | None = None,
     ):
         """Create a unbinned pdf from a binned pdf.
 
@@ -42,13 +44,22 @@ class UnbinnedFromBinnedPDF(BaseFunctor):
                ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
             norm: |@doc:pdf.init.norm| Normalization of the PDF.
                By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
+            name: |@doc:pdf.init.name| Name of the PDF.
+               Maybe has implications on the serialization and deserialization of the PDF.
+               For a human-readable name, use the label. |@docend:pdf.init.name|
+            label: |@doc:pdf.init.label| Human-readable name
+               or label of
+               the PDF for a better description, to be used with plots etc.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
         """
         if extended is None and extended is not False and pdf.is_extended:
             extended = pdf.get_yield()
         if obs is None:
             obs = pdf.space
             obs = obs.with_binning(None)
-        super().__init__(pdfs=pdf, obs=obs, extended=extended, norm=norm)
+        super().__init__(pdfs=pdf, obs=obs, extended=extended, norm=norm, name=name, label=label)
+        if label is None:
+            label = f"unbinned_{pdf.label}"
         self._binned_space = self.pdfs[0].space.with_obs(self.space)
         self._binned_norm = self.pdfs[0].norm.with_obs(self.space)
 

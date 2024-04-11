@@ -22,7 +22,7 @@ def test_pdf_simple_subclass():
 
     prob = gauss1.pdf(np.random.random(size=(10, 1)), norm=False)
 
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         gauss2 = SimpleGauss("obs1", 1.0, sigma=5.0)
     with pytest.raises(SubclassingError):
 

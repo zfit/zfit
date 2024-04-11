@@ -1,7 +1,8 @@
 #  Copyright (c) 2024 zfit
-"""..
+"""Exceptions that are raised by zfit.
 
-todo:: Add module docstring.
+Some are to provide a more specific error message, others are to steer the execution by raising an error that will be
+caught in the right place.
 """
 
 from __future__ import annotations

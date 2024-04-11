@@ -19,8 +19,8 @@ from .functor import BaseFunctor
 
 
 class SimplePDF(BasePDF):
-    def __init__(self, obs, func, name="SimplePDF", **params):
-        super().__init__(name=name, params=params, obs=obs)
+    def __init__(self, obs, func, name="SimplePDF", label=None, norm=None, extended=None, **params):
+        super().__init__(name=name, params=params, obs=obs, norm=norm, extended=extended, label=label)
         self._unnormalized_prob_func = self._check_input_x_function(func)
 
     def _unnormalized_pdf(self, x):
@@ -35,8 +35,8 @@ class SimplePDF(BasePDF):
 
 
 class SimpleFunctorPDF(BaseFunctor, SimplePDF):
-    def __init__(self, obs, pdfs, func, name="SimpleFunctorPDF", **params):
-        super().__init__(obs=obs, pdfs=pdfs, func=func, name=name, **params)
+    def __init__(self, obs, pdfs, func, name="SimpleFunctorPDF", label=None, norm=None, extended=None, **params):
+        super().__init__(obs=obs, pdfs=pdfs, func=func, name=name, label=label, norm=norm, extended=extended, **params)
 
 
 def raise_error_if_norm_range(func):
@@ -54,8 +54,17 @@ def raise_error_if_norm_range(func):
 
 
 class ZPDF(SimpleModelSubclassMixin, BasePDF):
-    def __init__(self, obs: ztyping.ObsTypeInput, name: str = "ZPDF", **params):
-        super().__init__(obs=obs, name=name, **params)
+    def __init__(
+        self,
+        obs: ztyping.ObsTypeInput,
+        *,
+        name: str = "ZPDF",
+        label: str | None = None,
+        norm=None,
+        extended=None,
+        **params,
+    ):
+        super().__init__(obs=obs, name=name, norm=norm, extended=extended, label=label, **params)
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)

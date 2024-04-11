@@ -285,6 +285,28 @@ def test_params_at_limit():
     assert param_a.at_limit
     assert not result.valid
 
+def test_result_update_params():
+    loss, (param_a, param_b, param_c) = create_loss(n=5000)
+    params = [param_a, param_b, param_c]
+    initial = np.array(params)
+    with zfit.run.experimental_disable_param_update(True):
+        minimizer = zfit.minimize.Minuit(gradient=True, tol=10.0)
+        result = minimizer.minimize(loss)
+        assert np.allclose(initial, np.array(params))
+
+    result2 = result.update_params()
+    assert result2 is result
+    assert not np.allclose(initial, np.array(params))
+    np.testing.assert_allclose(result.values, np.array(params))
+    zfit.param.set_values(params, initial)
+    with result:
+        np.testing.assert_allclose(result.values, params)
+    np.testing.assert_allclose(initial, params)
+
+
+
+
+
 
 @pytest.mark.flaky(reruns=3)
 @pytest.mark.parametrize("minimizer_class_and_kwargs", minimizers, ids=minimizer_ids)

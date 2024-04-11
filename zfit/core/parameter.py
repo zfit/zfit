@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import abc
 import collections
+import contextlib
 import copy
 import functools
 import typing
@@ -1562,7 +1563,7 @@ def assign_values(
     """
     if allow_partial is None:
         allow_partial = False
-    params, values = check_convert_param_values_assign(params, values, allow_partial=allow_partial)
+    params, values, is_empty = check_convert_param_values_assign(params, values, allow_partial=allow_partial)
     # params = tuple(params)
     assign_values_jit(params=params, values=values, use_locking=use_locking)
 
@@ -1573,8 +1574,9 @@ def set_values(
         ztyping.NumericalScalarType
         | Iterable[ztyping.NumericalScalarType]
         | ZfitResult
-        | Mapping[str | ZfitParameter, ztyping.NumericalScalarType],
-    ),
+        | Mapping[str | ZfitParameter, ztyping.NumericalScalarType]
+        | None,
+    ) = None,
     allow_partial: bool | None = None,
 ):
     """Set the values (using a context manager or not) of multiple parameters.
@@ -1595,7 +1597,14 @@ def set_values(
     """
     if allow_partial is None:
         allow_partial = False
-    params, values = check_convert_param_values_assign(params, values, allow_partial)
+    params, values, is_empty = check_convert_param_values_assign(params, values, allow_partial)
+    if is_empty:
+
+        @contextlib.contextmanager
+        def empty_context():
+            yield params
+
+        return empty_context()
 
     def setter(values):
         for i, param in enumerate(params):
@@ -1618,11 +1627,22 @@ def check_convert_param_values_assign(params, values, allow_partial=False):
     Returns:
         A tuple of (params, values)
     """
-    params = convert_to_container(params)
+    if isinstance(params, ZfitResult) and values is None:
+        params, values = None, params
+    elif not isinstance(values, ZfitResult):
+        params = convert_to_container(params)
+        if params is None:
+            msg = "No parameters given to set values to (values={values})."
+            raise ValueError(msg)
+        noparams = len(params) == 0
+        if noparams:
+            return params, values, True
     if isinstance(values, ZfitResult):
         result = values
         new_params = []
         values = []
+        if params is None:
+            params = result.params.keys()
         for param in params:
             if param in result.params:
                 values.append(result.params[param]["value"])
@@ -1673,4 +1693,4 @@ def check_convert_param_values_assign(params, values, allow_partial=False):
         msg = f"trying to set value of parameters that are not independent " f"{non_independent_params}"
         raise ParameterNotIndependentError(msg)
     values = znp.asarray(values, dtype=znp.float64)
-    return params, values
+    return params, values, False  # if it's empty

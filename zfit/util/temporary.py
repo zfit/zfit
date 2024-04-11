@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2024 zfit
 
 from __future__ import annotations
 
@@ -52,7 +52,7 @@ class TemporarilySet:
         self.value = value
 
         self.old_value = self.getter()
-        self.setter(self.value)
+        self.setter(self.value)  # todo: move to __enter__?
 
     def __enter__(self):
         return self.value

@@ -35,6 +35,7 @@ from ..util.exception import (
     NormRangeUnderdefinedError,
     SpecificFunctionNotImplemented,
 )
+from ..util.plotter import PDFPlotter, SumCompPlotter
 from ..util.ztyping import ExtendedInputType, NormInputType
 from ..z.random import counts_multinomial
 from .basefunctor import FunctorPDFRepr, _preprocess_init_sum
@@ -42,9 +43,9 @@ from .basefunctor import FunctorPDFRepr, _preprocess_init_sum
 
 # TODO: order of spaces if the obs is different from the wrapped pdf
 class BaseFunctor(FunctorMixin, BasePDF):
-    def __init__(self, pdfs, name="BaseFunctor", **kwargs):
+    def __init__(self, pdfs, name="BaseFunctor", label=None, **kwargs):
         self.pdfs = convert_to_container(pdfs)
-        super().__init__(models=self.pdfs, name=name, **kwargs)
+        super().__init__(models=self.pdfs, name=name, label=label, **kwargs)
         self._set_norm_from_daugthers()
 
     def _set_norm_from_daugthers(self):
@@ -70,6 +71,7 @@ class SumPDF(BaseFunctor, SerializableMixin):  # TODO: add extended argument
         extended: ExtendedInputType = None,
         norm: NormInputType = None,
         name: str = "SumPDF",
+        label: str | None = None,
     ):
         """Create the sum of the `pdfs` with `fracs` as coefficients or the yields, if extended pdfs are given.
 
@@ -95,9 +97,30 @@ class SumPDF(BaseFunctor, SerializableMixin):  # TODO: add extended argument
                 - len(frac) == len(basic) - 1 results in the interpretation of a non-extended pdf.
                   The last coefficient will equal to 1 - sum(frac)
                 - len(frac) == len(pdf): the fracs will be used as is and no normalization attempt is taken.
+            obs: |@doc:pdf.init.obs| Observables of the
+               model. This will be used as the default space of the PDF and,
+               if not given explicitly, as the normalization range.
+
+               The default space is used for example in the sample method: if no
+               sampling limits are given, the default space is used.
+
+               The observables are not equal to the domain as it does not restrict or
+               truncate the model outside this range. |@docend:pdf.init.obs|
+               If not given, the observables of the pdfs are used if they agree.
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+            norm: |@doc:pdf.init.norm| Normalization of the PDF.
+               By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
             name: |@doc:pdf.init.name| Name of the PDF.
                Maybe has implications on the serialization and deserialization of the PDF.
                For a human-readable name, use the label. |@docend:pdf.init.name|
+            label: |@doc:pdf.init.label| Human-readable name
+               or label of
+               the PDF for a better description, to be used with plots etc.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
 
         Raises
             ModelIncompatibleError: If model is incompatible.
@@ -125,11 +148,14 @@ class SumPDF(BaseFunctor, SerializableMixin):  # TODO: add extended argument
         self._original_fracs = fracs_cleaned
         self._automatically_extended = False
 
-        if extended in (None, True) and all_extended and not fracs_cleaned:
+        if extended is None:
+            extended = all_extended and not fracs_cleaned
+        if extended is True and all_extended and not fracs_cleaned:
             self._automatically_extended = True
             extended = sum_yields
-        super().__init__(pdfs=pdfs, obs=obs, params=params, name=name, extended=extended, norm=norm)
+        super().__init__(pdfs=pdfs, obs=obs, params=params, name=name, extended=extended, norm=norm, label=label)
         self.hs3.original_init.update(original_init)
+        self.plot = PDFPlotter(self, componentplotter=SumCompPlotter(self))
 
     @property
     def fracs(self):

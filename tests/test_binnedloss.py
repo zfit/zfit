@@ -149,6 +149,7 @@ def test_binned_extended_simple(Loss):
     "simultaneous", [True, False], ids=["simultaneous", "sequential"]
 )
 def test_binned_loss(weights, Loss, simultaneous):
+    plot_folder = "binned_loss"
     obs = zfit.Space("obs1", limits=(-15, 25))
     gaussian1, mu1, sigma1 = create_gauss1(obs=obs)
     gaussian2, mu2, sigma2 = create_gauss2(obs=obs)
@@ -209,7 +210,7 @@ def test_binned_loss(weights, Loss, simultaneous):
     params = result.params
     mplhep.histplot(binned_gauss.to_hist(), label="PDF after fit")
     plt.legend()
-    pytest.zfit_savefig()
+    pytest.zfit_savefig(folder=plot_folder)
 
     result.hesse(name="hesse")
     result.errors(name="asymerr")

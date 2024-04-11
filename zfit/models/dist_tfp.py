@@ -192,6 +192,7 @@ class Gauss(WrapDistribution, SerializableMixin):
         extended: ExtendedInputType = None,
         norm: NormInputType = None,
         name: str = "Gauss",
+        label=None,
     ):
         """Gaussian or Normal distribution with a mean (mu) and a standartdeviation (sigma).
 
@@ -221,6 +222,7 @@ class Gauss(WrapDistribution, SerializableMixin):
             name: |@doc:model.init.name| Human-readable name
                or label of
                the PDF for better identification. |@docend:model.init.name|
+               label: |@doc:model.init.label| Label of the PDF, if None is given, it will be the name. |@docend:model.init.label|
         """
         mu, sigma = self._check_input_params_tfp(mu, sigma)
         params = {"mu": mu, "sigma": sigma}
@@ -237,6 +239,7 @@ class Gauss(WrapDistribution, SerializableMixin):
             name=name,
             extended=extended,
             norm=norm,
+            label=label,
         )
 
 
@@ -282,6 +285,7 @@ class Uniform(WrapDistribution):
         extended: ExtendedInputType = None,
         norm: NormInputType = None,
         name: str = "Uniform",
+        label: str | None = None,
     ):
         """Uniform distribution which is constant between `low`, `high` and zero outside.
 
@@ -296,7 +300,13 @@ class Uniform(WrapDistribution):
                ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
             norm: |@doc:pdf.init.norm| Normalization of the PDF.
                By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
-            name: |@doc:model.init.pdf||@docend:model.init.pdf|
+            name: |@doc:pdf.init.name| Name of the PDF.
+               Maybe has implications on the serialization and deserialization of the PDF.
+               For a human-readable name, use the label. |@docend:pdf.init.name|
+            label: |@doc:pdf.init.label| Human-readable name
+               or label of
+               the PDF for a better description, to be used with plots etc.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
         """
         low, high = self._check_input_params_tfp(low, high)
         params = {"low": low, "high": high}
@@ -313,6 +323,7 @@ class Uniform(WrapDistribution):
             name=name,
             extended=extended,
             norm=norm,
+            label=label,
         )
 
 
@@ -330,6 +341,7 @@ class TruncatedGauss(WrapDistribution):
         extended: ExtendedInputType = None,
         norm: NormInputType = None,
         name: str = "TruncatedGauss",
+        label: str | None = None,
     ):
         """Gaussian distribution that is 0 outside of `low`, `high`. Equivalent to the product of Gauss and Uniform.
 
@@ -346,9 +358,13 @@ class TruncatedGauss(WrapDistribution):
                ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
             norm: |@doc:pdf.init.norm| Normalization of the PDF.
                By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
-            name: |@doc:model.init.name| Human-readable name
+            name: |@doc:pdf.init.name| Name of the PDF.
+               Maybe has implications on the serialization and deserialization of the PDF.
+               For a human-readable name, use the label. |@docend:pdf.init.name|
+            label: |@doc:pdf.init.label| Human-readable name
                or label of
-               the PDF for better identification. |@docend:model.init.name|
+               the PDF for a better description, to be used with plots etc.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
         """
         mu, sigma, low, high = self._check_input_params_tfp(mu, sigma, low, high)
         params = {"mu": mu, "sigma": sigma, "low": low, "high": high}
@@ -370,6 +386,7 @@ class TruncatedGauss(WrapDistribution):
             name=name,
             extended=extended,
             norm=norm,
+            label=label,
         )
 
 
@@ -385,6 +402,7 @@ class Cauchy(WrapDistribution, SerializableMixin):
         extended: ExtendedInputType = None,
         norm: NormInputType = None,
         name: str = "Cauchy",
+        label: str | None = None,
     ):
         r"""Non-relativistic Breit-Wigner (Cauchy) PDF representing the energy distribution of a decaying particle.
 
@@ -407,9 +425,13 @@ class Cauchy(WrapDistribution, SerializableMixin):
                ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
             norm: |@doc:pdf.init.norm| Normalization of the PDF.
                By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
-            name: |@doc:model.init.name| Human-readable name
+            name: |@doc:pdf.init.name| Name of the PDF.
+               Maybe has implications on the serialization and deserialization of the PDF.
+               For a human-readable name, use the label. |@docend:pdf.init.name|
+            label: |@doc:pdf.init.label| Human-readable name
                or label of
-               the PDF for better identification. |@docend:model.init.name|
+               the PDF for a better description, to be used with plots etc.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
         """
         m, gamma = self._check_input_params_tfp(m, gamma)
         params = {"m": m, "gamma": gamma}
@@ -426,6 +448,7 @@ class Cauchy(WrapDistribution, SerializableMixin):
             name=name,
             extended=extended,
             norm=norm,
+            label=label,
         )
 
 
@@ -450,6 +473,7 @@ class Poisson(WrapDistribution, SerializableMixin):
         norm: NormInputType = None,
         name: str = "Poisson",
         lamb=None,
+        label: str | None = None,
     ):
         """Poisson distribution, parametrized with an event rate parameter (lamb).
 
@@ -468,7 +492,13 @@ class Poisson(WrapDistribution, SerializableMixin):
                ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
             norm: |@doc:pdf.init.norm| Normalization of the PDF.
                By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
-            name: Name of the PDF
+            name: |@doc:pdf.init.name| Name of the PDF.
+               Maybe has implications on the serialization and deserialization of the PDF.
+               For a human-readable name, use the label. |@docend:pdf.init.name|
+            label: |@doc:pdf.init.label| Human-readable name
+               or label of
+               the PDF for a better description, to be used with plots etc.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
         """
         if lamb is not None:
             lam = lamb
@@ -488,6 +518,7 @@ class Poisson(WrapDistribution, SerializableMixin):
             name=name,
             extended=extended,
             norm=norm,
+            label=label,
         )
 
 
@@ -510,6 +541,7 @@ class LogNormal(WrapDistribution, SerializableMixin):
         extended: ExtendedInputType = None,
         norm: NormInputType = None,
         name: str = "LogNormal",
+        label: str | None = None,
     ):
         r"""Log-normal distribution, the exponential of a normal distribution.
 
@@ -532,9 +564,13 @@ class LogNormal(WrapDistribution, SerializableMixin):
                ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
             norm: |@doc:pdf.init.norm| Normalization of the PDF.
                By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
-            name: |@doc:model.init.name| Human-readable name
+            name: |@doc:pdf.init.name| Name of the PDF.
+               Maybe has implications on the serialization and deserialization of the PDF.
+               For a human-readable name, use the label. |@docend:pdf.init.name|
+            label: |@doc:pdf.init.label| Human-readable name
                or label of
-               the PDF for better identification. |@docend:model.init.name|
+               the PDF for a better description, to be used with plots etc.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
         """
         mu, sigma = self._check_input_params_tfp(mu, sigma)
 
@@ -552,6 +588,7 @@ class LogNormal(WrapDistribution, SerializableMixin):
             name=name,
             extended=extended,
             norm=norm,
+            label=label,
         )
 
 
@@ -574,6 +611,7 @@ class ChiSquared(WrapDistribution, SerializableMixin):
         extended: ExtendedInputType = None,
         norm: NormInputType = None,
         name: str = "ChiSquared",
+        label: str | None = None,
     ):
         """ChiSquared distribution for ndof degrees of freedom.
 
@@ -601,9 +639,13 @@ class ChiSquared(WrapDistribution, SerializableMixin):
                ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
             norm: |@doc:pdf.init.norm| Normalization of the PDF.
                By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
-            name: |@doc:model.init.name| Human-readable name
+            name: |@doc:pdf.init.name| Name of the PDF.
+               Maybe has implications on the serialization and deserialization of the PDF.
+               For a human-readable name, use the label. |@docend:pdf.init.name|
+            label: |@doc:pdf.init.label| Human-readable name
                or label of
-               the PDF for better identification. |@docend:model.init.name|
+               the PDF for a better description, to be used with plots etc.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
         """
         (ndof,) = self._check_input_params_tfp(ndof)
         params = {"ndof": ndof}
@@ -620,6 +662,7 @@ class ChiSquared(WrapDistribution, SerializableMixin):
             name=name,
             extended=extended,
             norm=norm,
+            label=label,
         )
 
 
@@ -642,6 +685,7 @@ class StudentT(WrapDistribution, SerializableMixin):
         extended: ExtendedInputType = None,
         norm: NormInputType = None,
         name: str = "StudentT",
+        label: str | None = None,
     ):
         """StudentT distribution for ndof degrees of freedom.
 
@@ -683,9 +727,13 @@ class StudentT(WrapDistribution, SerializableMixin):
                ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
             norm: |@doc:pdf.init.norm| Normalization of the PDF.
                By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
-            name: |@doc:model.init.name| Human-readable name
+            name: |@doc:pdf.init.name| Name of the PDF.
+               Maybe has implications on the serialization and deserialization of the PDF.
+               For a human-readable name, use the label. |@docend:pdf.init.name|
+            label: |@doc:pdf.init.label| Human-readable name
                or label of
-               the PDF for better identification. |@docend:model.init.name|
+               the PDF for a better description, to be used with plots etc.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
         """
         ndof, mu, sigma = self._check_input_params_tfp(ndof, mu, sigma)
         params = {"ndof": ndof, "mu": mu, "sigma": sigma}
@@ -702,6 +750,7 @@ class StudentT(WrapDistribution, SerializableMixin):
             name=name,
             extended=extended,
             norm=norm,
+            label=label,
         )
 
 
@@ -727,6 +776,7 @@ class QGauss(WrapDistribution, SerializableMixin):
         extended: ExtendedInputType = None,
         norm: NormInputType = None,
         name: str = "QGauss",
+        label: str | None = None,
     ):
         """Q-Gaussian distribution with parameter `q`.
 
@@ -783,9 +833,13 @@ class QGauss(WrapDistribution, SerializableMixin):
                ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
             norm: |@doc:pdf.init.norm| Normalization of the PDF.
                By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
-            name: |@doc:model.init.name| Human-readable name
+            name: |@doc:pdf.init.name| Name of the PDF.
+               Maybe has implications on the serialization and deserialization of the PDF.
+               For a human-readable name, use the label. |@docend:pdf.init.name|
+            label: |@doc:pdf.init.label| Human-readable name
                or label of
-               the PDF for better identification. |@docend:model.init.name|
+               the PDF for a better description, to be used with plots etc.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
         """
         from zfit import run
 
@@ -826,6 +880,7 @@ class QGauss(WrapDistribution, SerializableMixin):
             name=name,
             extended=extended,
             norm=norm,
+            label=label,
         )
 
 
@@ -851,6 +906,7 @@ class BifurGauss(WrapDistribution, SerializableMixin):
         extended: ExtendedInputType = None,
         norm: NormInputType = None,
         name: str = "BifurGauss",
+        label: str | None = None,
     ):
         """Bifurcated Gaussian distribution different standard deviations for the left and right side of the mean.
 
@@ -895,9 +951,13 @@ class BifurGauss(WrapDistribution, SerializableMixin):
                ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
             norm: |@doc:pdf.init.norm| Normalization of the PDF.
                By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
-            name: |@doc:model.init.name| Human-readable name
+            name: |@doc:pdf.init.name| Name of the PDF.
+               Maybe has implications on the serialization and deserialization of the PDF.
+               For a human-readable name, use the label. |@docend:pdf.init.name|
+            label: |@doc:pdf.init.label| Human-readable name
                or label of
-               the PDF for better identification. |@docend:model.init.name|
+               the PDF for a better description, to be used with plots etc.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
         """
         mu, sigmal, sigmar = self._check_input_params_tfp(mu, sigmal, sigmar)
         params = {"mu": mu, "sigmal": sigmal, "sigmar": sigmar}
@@ -923,6 +983,7 @@ class BifurGauss(WrapDistribution, SerializableMixin):
             name=name,
             extended=extended,
             norm=norm,
+            label=label,
         )
 
 
@@ -948,6 +1009,7 @@ class Gamma(WrapDistribution, SerializableMixin):
         extended: ExtendedInputType = None,
         norm: NormInputType = None,
         name: str = "Gamma",
+        label: str | None = None,
     ):
         """Gamma distribution.
 
@@ -991,9 +1053,13 @@ class Gamma(WrapDistribution, SerializableMixin):
                ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
             norm: |@doc:pdf.init.norm| Normalization of the PDF.
                By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
-            name: |@doc:model.init.name| Human-readable name
+            name: |@doc:pdf.init.name| Name of the PDF.
+               Maybe has implications on the serialization and deserialization of the PDF.
+               For a human-readable name, use the label. |@docend:pdf.init.name|
+            label: |@doc:pdf.init.label| Human-readable name
                or label of
-               the PDF for better identification. |@docend:model.init.name|
+               the PDF for a better description, to be used with plots etc.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
         """
         gamma, beta, mu = self._check_input_params_tfp(gamma, beta, mu)
         params = {"gamma": gamma, "beta": beta, "mu": mu}
@@ -1016,6 +1082,7 @@ class Gamma(WrapDistribution, SerializableMixin):
             name=name,
             extended=extended,
             norm=norm,
+            label=label,
         )
 
 

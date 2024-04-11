@@ -44,6 +44,7 @@ class ConditionalPDFV1(BaseFunctor):
         norm: NormInputType = None,
         use_vectorized_map: bool = False,
         sample_with_replacement: bool = True,
+        label: str | None = None,
     ) -> None:
         """EXPERIMENTAL! Implementation of a Conditional PDF, rather slow and for research purpose.
 
@@ -58,17 +59,22 @@ class ConditionalPDFV1(BaseFunctor):
                 parameter, meaning that the parameter *param* in the ``cond`` mapping will now be
                 determined by the data in the ``Space``, the value of the ``cond``.
             cond: Mapping of parameter to input data.
-            name: |@doc:model.init.name| Human-readable name
-               or label of
-               the PDF for better identification. |@docend:model.init.name|
             extended: |@doc:pdf.init.extended| The overall yield of the PDF.
                If this is parameter-like, it will be used as the yield,
                the expected number of events, and the PDF will be extended.
                An extended PDF has additional functionality, such as the
                ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
-            norm: |@doc:model.init.norm| The normalization of the PDF. |@docend:model.init.norm|
-            use_vectorized_map ():
-            sample_with_replacement ():
+            norm: |@doc:pdf.init.norm| Normalization of the PDF.
+               By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
+            name: |@doc:pdf.init.name| Name of the PDF.
+               Maybe has implications on the serialization and deserialization of the PDF.
+               For a human-readable name, use the label. |@docend:pdf.init.name|
+            label: |@doc:pdf.init.label| Human-readable name
+               or label of
+               the PDF for a better description, to be used with plots etc.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
+            use_vectorized_map:
+            sample_with_replacement:
         """
         # TODO: add to serializer, see below repr for problem
         # original_init = {'pdf': pdf, 'cond': cond, 'name': name, 'extended': extended, 'norm': norm,
@@ -77,7 +83,7 @@ class ConditionalPDFV1(BaseFunctor):
         self._use_vectorized_map = use_vectorized_map
         self._cond, cond_obs = self._check_input_cond(cond)
         obs = pdf.space * cond_obs
-        super().__init__(pdfs=pdf, obs=obs, name=name, extended=extended, norm=norm)
+        super().__init__(pdfs=pdf, obs=obs, name=name, extended=extended, norm=norm, label=label)
         # self.hs3.original_init.update(original_init)  # TODO: add to serializer
 
     @property

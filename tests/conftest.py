@@ -43,6 +43,7 @@ def setup_teardown():  # noqa: PT004
 
     ZfitParameterMixin._existing_params.clear()
     _reset_auto_number()
+    zfit.settings.options.auto_update_params = True
 
     from zfit.util.cache import clear_graph_cache
 
