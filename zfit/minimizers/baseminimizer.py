@@ -18,8 +18,6 @@ from ordered_set import OrderedSet
 
 from ..core.interfaces import ZfitLoss, ZfitParameter
 from ..core.parameter import assign_values, convert_to_parameters, set_values
-from ..settings import run
-from ..core.parameter import assign_values, convert_to_parameters
 from ..util import ztyping
 from ..util.container import convert_to_container
 from ..util.exception import (
