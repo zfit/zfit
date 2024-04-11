@@ -1,7 +1,11 @@
 #  Copyright (c) 2024 zfit
 from __future__ import annotations
 
+from typing import Callable, Mapping, Optional
+
 from .. import convert_to_space
+from ..core.interfaces import ZfitPDF
+from . import ztyping
 from .checks import RuntimeDependency
 
 try:
@@ -10,15 +14,86 @@ except ImportError as error:
     plt = RuntimeDependency("plt", error_msg=str(error))
 
 
-def plot_comp_model_pdf(model, *, extended=None, obs=None, scale=1, ax=None, num=300, full=True):
+def plot_sumpdf_components_pdf(
+    model,
+    *,
+    plotfunc: Optional[Callable] = None,
+    scale=1,
+    ax=None,
+    linestyle=None,
+    plotkwargs: Mapping[str, object] | None = None,
+):
+    """Plot the components of a sum pdf.
+
+    Args:
+        model: A zfit SumPDF.
+        plotfunc: A plotting function that takes the `ax` to plot on x, y, and additional arguments.
+        scale: An overall scale factor to apply to the components.
+        ax: A matplotlib Axes object to plot on.
+        linestyle: A linestyle to use for the components. Default is "--".
+        plotkwargs: Additional keyword arguments to pass to the plotting function.
+    """
+    import zfit
+
+    if not isinstance(model, zfit.pdf.SumPDF):
+        msg = f"model must be a ZfitPDF, not a {type(model)}. Model is {model}."
+        raise ValueError(msg)
+    if linestyle is None:
+        linestyle = "--"
+    if plotkwargs is None:
+        plotkwargs = {}
+    plotfunc = plot_model_pdf if plotfunc is None else plotfunc
     for mod, frac in zip(model.pdfs, model.params.values()):
-        plot_model_pdf(mod, scale=frac * scale, ax=ax, num=num, full=full, extended=extended, obs=obs)
-    plot_model_pdf(model, scale=scale, ax=ax, num=num, full=full, extended=extended, obs=obs)
+        plotfunc(mod, scale=frac * scale, ax=ax, linestyle=linestyle, plotkwargs=plotkwargs)
     return ax
 
 
-def plot_model_pdf(model, *, extended=None, obs=None, scale=1, ax=None, num=300, full=True):
+def plot_model_pdf(
+    model: ZfitPDF,
+    *,
+    plotfunc: Callable | None = None,
+    extended: bool | None = None,
+    obs: ztyping.ObsTypeInput = None,
+    scale: float | int | None = None,
+    ax: plt.Axes | None = None,
+    num: int | None = None,
+    full: bool | None = None,
+    linestyle=None,
+    plotkwargs=None,
+):
+    """Plot the 1 dimensional density of a model, possibly scaled by the yield if extended.
+
+    Args:
+        model: An unbinned ZfitPDF.
+        plotfunc: A plotting function that takes the ``ax`` to plot on, and  x, y, and additional arguments. Default is ``ax.plot``.
+        extended: If True, plot the extended pdf. If False, plot the pdf.
+        obs: The observable to plot the pdf for. If None, the model's space is used.
+        scale: An overall scale factor to apply to the pdf.
+        ax: A matplotlib Axes object to plot on.
+        num: The number of points to evaluate the pdf at. Default is 300.
+        full: If True, set the x and y labels and the legend. Default is True.
+        linestyle: A linestyle to use for the pdf.
+        plotkwargs: Additional keyword arguments to pass to the plotting function.
+
+    Returns:
+    """
     import zfit.z.numpy as znp
+
+    if not isinstance(model, ZfitPDF):
+        msg = f"model must be a ZfitPDF, not a {type(model)}. Model is {model}."
+        raise TypeError(msg)
+
+    if extended is None:
+        extended = model.is_extended
+
+    if scale is None:
+        scale = 1
+    if num is None:
+        num = 300
+    if full is None:
+        full = True
+    if plotkwargs is None:
+        plotkwargs = {}
 
     if obs is None:
         obs = model.space
@@ -50,7 +125,8 @@ def plot_model_pdf(model, *, extended=None, obs=None, scale=1, ax=None, num=300,
     elif not isinstance(ax, plt.Axes):
         msg = "ax must be a matplotlib Axes object"
         raise ValueError(msg)
-    ax.plot(x, y, label=model.label)
+    plotfunc = ax.plot if plotfunc is None else plotfunc
+    plotfunc(x, y, label=model.label, linestyle=linestyle, **plotkwargs)
     if full:
         ax.set_xlabel(obs.label)
         ylabel = "Probability density" if not extended else "Probability"

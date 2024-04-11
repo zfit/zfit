@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 
 import mplhep
 import numpy as np
@@ -67,6 +67,7 @@ def test_binned_template_pdf():
 @pytest.mark.plots
 @pytest.mark.parametrize("alphas", [None, [-0.7, -0.1, 0.5, 1.4]])
 def test_morphing_templates(alphas):
+    plot_folder = "morphing"
     bins1 = 15
     irregular_str = "irregular templates" if alphas is not None else ""
 
@@ -139,7 +140,7 @@ def test_morphing_templates(alphas):
         if do_3d:
             ax.set_zlabel("ext_pdf")
         plt.legend()
-        pytest.zfit_savefig()
+        pytest.zfit_savefig(folder=plot_folder)
 
 
 @pytest.mark.parametrize("alphas", [None, [-0.7, -0.1, 0.5, 1.4]])

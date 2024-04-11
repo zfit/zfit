@@ -28,6 +28,7 @@ class BinwiseScaleModifier(BaseBinnedFunctorPDF):
         extended: ztyping.ExtendedInputType = None,
         norm: ztyping.NormInputType = None,
         name: str | None = "BinnedTemplatePDF",
+        label: str | None = None,
     ) -> None:
         """Modifier that scales each bin separately of the *pdf*.
 
@@ -43,9 +44,14 @@ class BinwiseScaleModifier(BaseBinnedFunctorPDF):
                ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
             norm: |@doc:pdf.init.norm| Normalization of the PDF.
                By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
-            name: |@doc:model.init.name| Human-readable name
+            name: |@doc:pdf.init.label| Human-readable name
                or label of
-               the PDF for better identification. |@docend:model.init.name|
+               the PDF for a better description, to be used with plots etc.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
+            label: |@doc:pdf.init.label| Human-readable name
+               or label of
+               the PDF for a better description, to be used with plots etc.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
         """
         obs = pdf.space
         if not isinstance(pdf, ZfitBinnedPDF):
@@ -100,7 +106,7 @@ class BinwiseScaleModifier(BaseBinnedFunctorPDF):
                 extended = pdf.get_yield()
         elif extended is not False:
             self._automatically_extended = False
-        super().__init__(obs=obs, name=name, params=params, models=pdf, extended=extended, norm=norm)
+        super().__init__(obs=obs, name=name, params=params, models=pdf, extended=extended, norm=norm, label=label)
 
     @supports(norm=True)
     def _counts(self, x, norm=None):

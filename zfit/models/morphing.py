@@ -43,8 +43,11 @@ class SplineMorphingPDF(BaseBinnedPDFV1):
         self,
         alpha: ztyping.ParamTypeInput,
         hists: (Mapping[float | int, Iterable[ZfitBinnedPDF]] | list[ZfitBinnedPDF] | tuple[ZfitBinnedPDF]),
+        *,
         extended: ztyping.ExtendedInputType = None,
         norm: ztyping.NormInputType = None,
+        name: str | None = "SplineMorphingPDF",
+        label: str | None = None,
     ):
         """Morphing a set of histograms with a spline interpolation.
 
@@ -60,6 +63,13 @@ class SplineMorphingPDF(BaseBinnedPDFV1):
                ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
             norm: |@doc:pdf.init.norm| Normalization of the PDF.
                By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
+            name: |@doc:pdf.init.name| Name of the PDF.
+               Maybe has implications on the serialization and deserialization of the PDF.
+               For a human-readable name, use the label. |@docend:pdf.init.name|
+            label: |@doc:pdf.init.label| Human-readable name
+               or label of
+               the PDF for a better description, to be used with plots etc.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
         """
         if isinstance(hists, (list, tuple)):
             if len(hists) != 3:
@@ -113,13 +123,7 @@ class SplineMorphingPDF(BaseBinnedPDFV1):
             extended = new_yield
         elif extended is not False:
             self._automatically_extended = False
-        super().__init__(
-            obs=obs,
-            extended=extended,
-            norm=norm,
-            params={"alpha": alpha},
-            name="LinearMorphing",
-        )
+        super().__init__(obs=obs, extended=extended, norm=norm, params={"alpha": alpha}, name=name, label=label)
 
     def _counts(self, x, norm):
         if not self._automatically_extended:

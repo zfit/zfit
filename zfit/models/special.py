@@ -54,8 +54,17 @@ def raise_error_if_norm_range(func):
 
 
 class ZPDF(SimpleModelSubclassMixin, BasePDF):
-    def __init__(self, obs: ztyping.ObsTypeInput, name: str = "ZPDF", **params):
-        super().__init__(obs=obs, name=name, **params)
+    def __init__(
+        self,
+        obs: ztyping.ObsTypeInput,
+        *,
+        name: str = "ZPDF",
+        label: str | None = None,
+        norm=None,
+        extended=None,
+        **params,
+    ):
+        super().__init__(obs=obs, name=name, norm=norm, extended=extended, label=label, **params)
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)

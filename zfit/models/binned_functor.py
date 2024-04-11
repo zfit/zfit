@@ -42,8 +42,44 @@ class BinnedSumPDF(BaseBinnedFunctorPDF):
         pdfs: ztyping.BinnedHistPDFInputType,
         fracs: ztyping.ParamTypeInput | None = None,
         obs: ztyping.ObsTypeInput = None,
+        *,
+        extended: ztyping.ExtendedInputType = None,
         name: str = "BinnedSumPDF",
+        label: str | None = None,
     ):
+        """Sum of binned PDFs.
+
+        Args:
+            pdfs: Binned PDFs to sum.
+            fracs: Fractions of the PDFs. If not given, they are created as parameters.
+            obs: |@doc:pdf.init.obs| Observables of the
+               model. This will be used as the default space of the PDF and,
+               if not given explicitly, as the normalization range.
+
+               The default space is used for example in the sample method: if no
+               sampling limits are given, the default space is used.
+
+               The observables are not equal to the domain as it does not restrict or
+               truncate the model outside this range. |@docend:pdf.init.obs|
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+            name: |@doc:pdf.init.obs| Observables of the
+               model. This will be used as the default space of the PDF and,
+               if not given explicitly, as the normalization range.
+
+               The default space is used for example in the sample method: if no
+               sampling limits are given, the default space is used.
+
+               The observables are not equal to the domain as it does not restrict or
+               truncate the model outside this range. |@docend:pdf.init.obs|
+            label: |@doc:pdf.init.label| Human-readable name
+               or label of
+               the PDF for a better description, to be used with plots etc.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
+        """
         self._fracs = None
 
         pdfs = preprocess_pdf_or_hist(pdfs)
@@ -62,8 +98,12 @@ class BinnedSumPDF(BaseBinnedFunctorPDF):
         self._fracs = param_fracs
         self._original_fracs = fracs_cleaned
 
-        extended = sum_yields if all_extended else None
-        super().__init__(models=pdfs, obs=obs, params=params, name=name, extended=extended)
+        if extended is None:
+            extended = all_extended
+        if extended is True:
+            extended = sum_yields if all_extended else None
+
+        super().__init__(models=pdfs, obs=obs, params=params, name=name, extended=extended, label=label)
 
     @supports(norm=True)
     def _pdf(self, x, norm):

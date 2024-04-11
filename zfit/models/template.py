@@ -11,7 +11,9 @@ from ..z import numpy as znp
 
 
 class BinnedTemplatePDFV1(BaseBinnedPDFV1):
-    def __init__(self, data, sysshape=None, extended=None, norm=None, name="BinnedTemplatePDF"):
+    def __init__(
+        self, data, sysshape=None, extended=None, norm=None, name="BinnedTemplatePDF", label: str | None = None
+    ):
         # TODO: use scalemodifier instead
         obs = data.space
         if extended is None:
@@ -49,7 +51,7 @@ class BinnedTemplatePDFV1(BaseBinnedPDFV1):
                 extended = znp.sum(data.values())
         elif extended is not False:
             self._automatically_extended = False
-        super().__init__(obs=obs, name=name, params=params, extended=extended, norm=norm)
+        super().__init__(obs=obs, name=name, params=params, extended=extended, norm=norm, label=label)
 
         self._data = data
 

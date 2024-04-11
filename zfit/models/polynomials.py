@@ -58,6 +58,7 @@ class RecursivePolynomial(BasePDF):
         extended: ExtendedInputType = None,
         norm: NormInputType = None,
         name: str = "Polynomial",
+        label: str | None = None,
     ):
         """Base class to create 1 dimensional recursive polynomials that can be rescaled. Overwrite _poly_func.
 
@@ -88,6 +89,13 @@ class RecursivePolynomial(BasePDF):
                ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
             norm: |@doc:pdf.init.norm| Normalization of the PDF.
                By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
+            name: |@doc:pdf.init.name| Name of the PDF.
+               Maybe has implications on the serialization and deserialization of the PDF.
+               For a human-readable name, use the label. |@docend:pdf.init.name|
+            label: |@doc:pdf.init.label| Human-readable name
+               or label of
+               the PDF for a better description, to be used with plots etc.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
         """
         # 0th coefficient set to 1 by default
         coeff0 = z.constant(1.0) if coeff0 is None else znp.asarray(coeff0, dtype=ztypes.float)
@@ -99,7 +107,7 @@ class RecursivePolynomial(BasePDF):
         if apply_scaling and not (isinstance(obs, Space) and obs._depr_n_limits == 1):
             msg = "obs need to be a Space with exactly one limit if rescaling is requested."
             raise ValueError(msg)
-        super().__init__(obs=obs, name=name, params=params, extended=extended, norm=norm)
+        super().__init__(obs=obs, name=name, params=params, extended=extended, norm=norm, label=label)
 
     def _polynomials_rescale(self, x):
         if self._apply_scale:
@@ -228,6 +236,7 @@ class Legendre(RecursivePolynomial, SerializableMixin):
         extended: ExtendedInputType = None,
         norm: NormInputType = None,
         name: str = "Legendre",
+        label: str | None = None,
     ):
         """Linear combination of Legendre polynomials of order len(coeffs), the coeffs are overall scaling factors.
 
@@ -271,6 +280,10 @@ class Legendre(RecursivePolynomial, SerializableMixin):
             name: |@doc:pdf.init.name| Name of the PDF.
                Maybe has implications on the serialization and deserialization of the PDF.
                For a human-readable name, use the label. |@docend:pdf.init.name|
+            label: |@doc:pdf.init.label| Human-readable name
+               or label of
+               the PDF for a better description, to be used with plots etc.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
         """
         super().__init__(
             obs=obs,
@@ -280,6 +293,7 @@ class Legendre(RecursivePolynomial, SerializableMixin):
             coeff0=coeff0,
             extended=extended,
             norm=norm,
+            label=label,
         )
 
     def _poly_func(self, x):
@@ -322,6 +336,7 @@ class Chebyshev(RecursivePolynomial, SerializableMixin):
         extended: ExtendedInputType = None,
         norm: NormInputType = None,
         name: str = "Chebyshev",
+        label: str | None = None,
     ):
         """Linear combination of Chebyshev (first kind) polynomials of order len(coeffs), coeffs are scaling factors.
 
@@ -366,6 +381,10 @@ class Chebyshev(RecursivePolynomial, SerializableMixin):
             name: |@doc:pdf.init.name| Name of the PDF.
                Maybe has implications on the serialization and deserialization of the PDF.
                For a human-readable name, use the label. |@docend:pdf.init.name|
+            label: |@doc:pdf.init.label| Human-readable name
+               or label of
+               the PDF for a better description, to be used with plots etc.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
         """
         super().__init__(
             obs=obs,
@@ -375,6 +394,7 @@ class Chebyshev(RecursivePolynomial, SerializableMixin):
             apply_scaling=apply_scaling,
             extended=extended,
             norm=norm,
+            label=label,
         )
 
     def _poly_func(self, x):
@@ -446,6 +466,7 @@ class Chebyshev2(RecursivePolynomial, SerializableMixin):
         extended: ExtendedInputType = None,
         norm: NormInputType = None,
         name: str = "Chebyshev2",
+        label: str | None = None,
     ):
         """Linear combination of Chebyshev (second kind) polynomials of order len(coeffs), coeffs are scaling factors.
 
@@ -481,7 +502,13 @@ class Chebyshev2(RecursivePolynomial, SerializableMixin):
                ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
             norm: |@doc:pdf.init.norm| Normalization of the PDF.
                By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
-            name: Name of the polynomial
+            name: |@doc:pdf.init.name| Name of the PDF.
+               Maybe has implications on the serialization and deserialization of the PDF.
+               For a human-readable name, use the label. |@docend:pdf.init.name|
+            label: |@doc:pdf.init.label| Human-readable name
+               or label of
+               the PDF for a better description, to be used with plots etc.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
         """
         super().__init__(
             obs=obs,
@@ -491,6 +518,7 @@ class Chebyshev2(RecursivePolynomial, SerializableMixin):
             apply_scaling=apply_scaling,
             extended=extended,
             norm=norm,
+            label=label,
         )
 
     def _poly_func(self, x):
@@ -582,6 +610,7 @@ class Laguerre(RecursivePolynomial, SerializableMixin):
         extended: ExtendedInputType = None,
         norm: NormInputType = None,
         name: str = "Laguerre",
+        label: str | None = None,
     ):
         """Linear combination of Laguerre polynomials of order len(coeffs), the coeffs are overall scaling factors.
 
@@ -615,7 +644,13 @@ class Laguerre(RecursivePolynomial, SerializableMixin):
                ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
             norm: |@doc:pdf.init.norm| Normalization of the PDF.
                By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
-            name: Name of the polynomial
+            name: |@doc:pdf.init.name| Name of the PDF.
+               Maybe has implications on the serialization and deserialization of the PDF.
+               For a human-readable name, use the label. |@docend:pdf.init.name|
+            label: |@doc:pdf.init.label| Human-readable name
+               or label of
+               the PDF for a better description, to be used with plots etc.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
         """
         super().__init__(
             obs=obs,
@@ -625,6 +660,7 @@ class Laguerre(RecursivePolynomial, SerializableMixin):
             apply_scaling=apply_scaling,
             extended=extended,
             norm=norm,
+            label=label,
         )
 
     def _poly_func(self, x):
@@ -704,6 +740,7 @@ class Hermite(RecursivePolynomial, SerializableMixin):
         extended: ExtendedInputType = None,
         norm: NormInputType = None,
         name: str = "Hermite",
+        label: str | None = None,
     ):
         """Linear combination of Hermite polynomials (for physics) of order len(coeffs), with coeffs as scaling factors.
 
@@ -736,7 +773,13 @@ class Hermite(RecursivePolynomial, SerializableMixin):
                ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
             norm: |@doc:pdf.init.norm| Normalization of the PDF.
                By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
-            name: Name of the polynomial
+            name: |@doc:pdf.init.name| Name of the PDF.
+               Maybe has implications on the serialization and deserialization of the PDF.
+               For a human-readable name, use the label. |@docend:pdf.init.name|
+            label: |@doc:pdf.init.label| Human-readable name
+               or label of
+               the PDF for a better description, to be used with plots etc.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
         """
         super().__init__(
             obs=obs,
@@ -746,6 +789,7 @@ class Hermite(RecursivePolynomial, SerializableMixin):
             apply_scaling=apply_scaling,
             extended=extended,
             norm=norm,
+            label=label,
         )
 
     def _poly_func(self, x):
@@ -829,6 +873,7 @@ class Bernstein(BasePDF, SerializableMixin):
         extended: ExtendedInputType = None,
         norm: NormInputType = None,
         name: str = "Bernstein",
+        label: str | None = None,
     ):
         """Linear combination of Bernstein polynomials of order len(coeffs) - 1, the coeffs are overall scaling factors.
 
@@ -848,7 +893,13 @@ class Bernstein(BasePDF, SerializableMixin):
                ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
             norm: |@doc:pdf.init.norm| Normalization of the PDF.
                By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
-            name: Name of the polynomial
+            name: |@doc:pdf.init.name| Name of the PDF.
+               Maybe has implications on the serialization and deserialization of the PDF.
+               For a human-readable name, use the label. |@docend:pdf.init.name|
+            label: |@doc:pdf.init.label| Human-readable name
+               or label of
+               the PDF for a better description, to be used with plots etc.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
         """
         coeffs = convert_to_container(coeffs)
         params = {f"c_{i}": coeff for i, coeff in enumerate(coeffs)}
@@ -857,7 +908,7 @@ class Bernstein(BasePDF, SerializableMixin):
         if apply_scaling and not (isinstance(obs, Space) and obs._depr_n_limits == 1):
             msg = "obs need to be a Space with exactly one limit if rescaling is requested."
             raise ValueError(msg)
-        super().__init__(obs=obs, name=name, params=params, extended=extended, norm=norm)
+        super().__init__(obs=obs, name=name, params=params, extended=extended, norm=norm, label=label)
 
     def _polynomials_rescale(self, x):
         if self._apply_scale:

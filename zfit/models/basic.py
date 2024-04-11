@@ -41,6 +41,7 @@ class Exponential(BasePDF, SerializableMixin):
         norm: NormInputType = None,
         name: str = "Exponential",
         lambda_=None,
+        label: str | None = None,
     ):
         """Exponential function exp(lambda * x).
 
@@ -68,6 +69,10 @@ class Exponential(BasePDF, SerializableMixin):
             name: |@doc:pdf.init.name| Name of the PDF.
                Maybe has implications on the serialization and deserialization of the PDF.
                For a human-readable name, use the label. |@docend:pdf.init.name|
+            label: |@doc:pdf.init.label| Human-readable name
+               or label of
+               the PDF for a better description, to be used with plots etc.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
         """
         if lambda_ is not None:
             if lam is None:
@@ -76,7 +81,7 @@ class Exponential(BasePDF, SerializableMixin):
                 msg = "The 'lambda' parameter has been renamed from 'lambda_' to 'lam'."
                 raise BreakingAPIChangeError(msg)
         params = {"lambda": lam, "lam": lam}
-        super().__init__(obs, name=name, params=params, extended=extended, norm=norm)
+        super().__init__(obs, name=name, params=params, extended=extended, norm=norm, label=label)
 
         self._calc_numerics_data_shift = lambda: z.constant(0.0)
 
@@ -246,6 +251,7 @@ class Voigt(BasePDF, SerializableMixin):
         extended: ExtendedInputType = None,
         norm: NormInputType = None,
         name: str = "Voigt",
+        label: str | None = None,
     ):
         """Voigt profile.
 
@@ -293,9 +299,13 @@ class Voigt(BasePDF, SerializableMixin):
             name: |@doc:pdf.init.name| Name of the PDF.
                Maybe has implications on the serialization and deserialization of the PDF.
                For a human-readable name, use the label. |@docend:pdf.init.name|
+            label: |@doc:pdf.init.label| Human-readable name
+               or label of
+               the PDF for a better description, to be used with plots etc.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
         """
         params = {"m": m, "sigma": sigma, "gamma": gamma}
-        super().__init__(obs, name=name, params=params, extended=extended, norm=norm)
+        super().__init__(obs, name=name, params=params, extended=extended, norm=norm, label=label)
 
     def _unnormalized_pdf(self, x):
         m = self.params["m"]
