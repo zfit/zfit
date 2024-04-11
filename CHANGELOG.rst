@@ -77,6 +77,7 @@ Deprecations
 Bug fixes and small changes
 ---------------------------
 - complete overhaul of partial integration that used some broadcasting tricks that could potentially fail. It uses now a dynamic while loop that _could_ be slower but works for arbitrary PDFs and no problems should be encountered anymore.
+- ``FitResult`` can now be used as a context manager, which will automatically set the values of the parameters to the best fit values and reset them to the original values after the context is left. A new method ``update_params`` allows to update the parameters with the best fit values explicitly.
 - ``result.fmin`` now returns the full likelihood, while ``result.fminopt`` returns the optimized likelihood with potential constant subtraction. The latter is mostly used by the minimizer and other libraries. This behavior is consistent with the behavior of other methods in the loss that return by default the full, unoptimized value.
 - serialization only allowed for one specific limit (space) of each obs. Multiple, independent
   limits can now be serialized.
@@ -89,6 +90,7 @@ Experimental
 ------------
 
 - a simple ``plot`` mechanism has been added with ``pdf.plot.plotpdf`` to plot PDFs. This is simple and fully interacts with matplotlib, allowing to plot quickly in a more interactive way.
+- ``zfit.run.experimental_disable_param_update``: this is an experimental feature that allows to disable the parameter update in a fit as is currently done whenever ``minimize`` is called. In conjunction with the new method ``update_params()``, this can be used as ``result = minimizer.minimize(...).update_params()`` to keep the same behavior as currently. Also, the context manager of ``FitResult`` can be used to achieve the same behavior in a context manager (with minimizer.minimize(...) as result: ...) also works.
 
 Requirement changes
 -------------------
