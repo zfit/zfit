@@ -6,7 +6,6 @@ from __future__ import annotations
 
 import abc
 import collections
-import contextlib
 import copy
 import functools
 import typing
@@ -875,17 +874,17 @@ class ParameterRepr(BaseRepr):  # add label?
 
 
 class BaseComposedParameter(ZfitParameterMixin, OverloadableMixin, BaseParameter):
-    def __init__(self, params, value_fn, dtype=None, name="BaseComposedParameter", **kwargs):
+    def __init__(self, params, func, dtype=None, name="BaseComposedParameter", **kwargs):
         # 0.4 breaking
         if "value" in kwargs:
-            msg = "'value' cannot be provided any longer, `value_fn` is needed."
+            msg = "'value' cannot be provided any longer, `func` is needed."
             raise BreakingAPIChangeError(msg)
         super().__init__(name=name, params=params, **kwargs)
-        if not callable(value_fn):
-            msg = "`value_fn` is not callable."
+        if not callable(func):
+            msg = "`func` is not callable."
             raise TypeError(msg)
 
-        self._value_fn = value_fn
+        self._func = func
         self._dtype = dtype if dtype is not None else ztypes.float
 
     def _get_dependencies(self):
@@ -907,7 +906,7 @@ class BaseComposedParameter(ZfitParameterMixin, OverloadableMixin, BaseParameter
 
     def value(self):
         params = self.params
-        return znp.asarray(self._value_fn(params), dtype=self.dtype)
+        return znp.asarray(self._func(params), dtype=self.dtype)
 
         # return tf.convert_to_tensor(value, dtype=self.dtype)
 
@@ -1042,13 +1041,15 @@ class ConstantParamRepr(BaseRepr):
 
 class ComposedParameter(SerializableMixin, BaseComposedParameter):
     @deprecated_args(None, "Use `params` instead.", "dependents")
+    @deprecated_args(None, "Use `func` instead.", "value_fn")
     def __init__(
         self,
         name: str,
-        value_fn: Callable,
+        value_fn: Optional[Callable] = None,
+        *,
+        func: Optional[Callable] = None,
         params: (dict[str, ZfitParameter] | Iterable[ZfitParameter] | ZfitParameter) = NotSpecified,
         dtype: tf.dtypes.DType = ztypes.float,
-        *,
         label: str | None = None,
         unpack_params: bool | None = None,
         dependents: (dict[str, ZfitParameter] | Iterable[ZfitParameter] | ZfitParameter) = NotSpecified,
@@ -1082,28 +1083,30 @@ class ComposedParameter(SerializableMixin, BaseComposedParameter):
 
         Args:
             name: Unique name of the Parameter.
-            value_fn: Function that returns the value of the composed parameter and takes as arguments `params` as
+            func: Function that returns the value of the composed parameter and takes as arguments `params` as
                 arguments. The function must be able to be called with the same arguments as `params`.
             params: If it is a `dict`, this will directly be used as the `params` attribute, otherwise the
-                parameters will be automatically named with f"param_{i}". The values act as arguments to `value_fn`.
-            dtype: Output of `value_fn` dtype
+                parameters will be automatically named with f"param_{i}". The values act as arguments to `func`.
+            dtype: Output of `func` dtype
             label: |@doc:param.init.label||@docend:param.init.label|
-            unpack_params: If True, the parameters will be unpacked and passed as arguments to `value_fn`. If False, the
+            unpack_params: If True, the parameters will be unpacked and passed as arguments to `func`. If False, the
                 parameters will be passed as a dict/tuple. If None, it will be automatically determined and raise an error
                 if it cannot be determined.
             dependents:
                 .. deprecated:: unknown
                     use `params` instead.
         """
+        # legacy
+        if value_fn is not None:
+            if func is not None:
+                msg = "Cannot specify both `value_fn` and `func`."
+                raise ValueError(msg)
+            func = value_fn
+            del value_fn
+        # end legacy
         if not isinstance(params, Mapping):
             params = convert_to_container(params)
-        original_init = {
-            "name": name,
-            "internal_params": params,
-        }
-
-        original_init["value_fn"] = value_fn
-        original_init["unpack_params"] = unpack_params
+        original_init = {"name": name, "internal_params": params, "func": func, "unpack_params": unpack_params}
 
         # legacy
         if dependents is not NotSpecified:
@@ -1117,7 +1120,7 @@ class ComposedParameter(SerializableMixin, BaseComposedParameter):
             raise BreakingAPIChangeError(msg)
         takes_no_params = False
         if unpack_params is None:
-            parameters = signature(value_fn).parameters
+            parameters = signature(func).parameters
             if isinstance(params, ZfitParameter):
                 params = [params]
                 unpack_params = True
@@ -1142,15 +1145,15 @@ class ComposedParameter(SerializableMixin, BaseComposedParameter):
 
                 def stratified_fn(params):
                     del params
-                    return value_fn()
+                    return func()
 
             elif unpack_params:
 
                 def stratified_fn(params):
-                    return value_fn(**params)
+                    return func(**params)
 
             else:
-                stratified_fn = value_fn
+                stratified_fn = func
         else:
             params = convert_to_container(params)
 
@@ -1159,7 +1162,7 @@ class ComposedParameter(SerializableMixin, BaseComposedParameter):
 
                 def stratified_fn(params):
                     del params
-                    return value_fn()
+                    return func()
 
             else:
                 params_dict = {f"param_{i}": p for i, p in enumerate(params)}
@@ -1167,16 +1170,16 @@ class ComposedParameter(SerializableMixin, BaseComposedParameter):
                 if unpack_params:
 
                     def stratified_fn(params):
-                        return value_fn(*tuple(params.values()))
+                        return func(*tuple(params.values()))
 
                 else:
 
                     def stratified_fn(params):
-                        return value_fn(tuple(params.values()))
+                        return func(tuple(params.values()))
 
         original_init["params"] = params_dict  # needs to be here, we need the params to be a dict for the serialization
 
-        super().__init__(params=params_dict, value_fn=stratified_fn, name=name, dtype=dtype, label=label)
+        super().__init__(params=params_dict, func=stratified_fn, name=name, dtype=dtype, label=label)
         self.hs3.original_init.update(original_init)
 
     def __repr__(self):
@@ -1192,7 +1195,7 @@ class ComposedParameterRepr(BaseRepr):
     _constructor = pydantic.PrivateAttr(make_param_constructor(ComposedParameter))
     hs3_type: Literal["ComposedParameter"] = pydantic.Field("ComposedParameter", alias="type")
     name: str
-    value_fn: str
+    func: str
     params: dict[str, Serializer.types.ParamTypeDiscriminated]
     unpack_params: Optional[bool]
     internal_params: Optional[
@@ -1203,7 +1206,7 @@ class ComposedParameterRepr(BaseRepr):
         ]
     ]
 
-    @validator("value_fn", pre=True)
+    @validator("func", pre=True)
     def _validate_value_pre(cls, value):
         if cls.orm_mode(value):
             value = dill.dumps(value).hex()
@@ -1217,16 +1220,26 @@ class ComposedParameterRepr(BaseRepr):
 
     def _to_orm(self, init):
         init = copy.copy(init)
-        value_fn = init.pop("value_fn")
+        func = init.pop("func")
         params = init.pop("internal_params")
 
         init["params"] = params
-        init["value_fn"] = dill.loads(bytes.fromhex(value_fn))
+        init["func"] = dill.loads(bytes.fromhex(func))
         return super()._to_orm(init)
 
 
 class ComplexParameter(ComposedParameter):  # TODO: change to real, imag as input?
-    def __init__(self, name, value_fn, params, dtype=ztypes.complex, *, label: str | None = None):
+    @deprecated_args(None, "Use `func` instead.", "value_fn")
+    def __init__(
+        self,
+        name: str,
+        value_fn: Callable | None = None,
+        *,
+        func: Callable | None = None,
+        params,
+        dtype=ztypes.complex,
+        label: str | None = None,
+    ):
         """Create a complex parameter.
 
         .. note::
@@ -1237,13 +1250,20 @@ class ComplexParameter(ComposedParameter):  # TODO: change to real, imag as inpu
 
         Args:
             name: Name of the parameter.
-            value_fn: Function that returns the value of the complex parameter and takes as arguments the real and
+            func: Function that returns the value of the complex parameter and takes as arguments the real and
                 imaginary part.
             params: List of the real and imaginary part of the complex parameter.
             dtype: Data type of the complex parameter.
             label: |@doc:param.init.label||@docend:param.init.label|
         """
-        super().__init__(name, value_fn=value_fn, params=params, dtype=dtype, label=label)
+        # legacy
+        if value_fn is not None:
+            if func is not None:
+                msg = "Cannot specify both `value_fn` and `func`."
+                raise ValueError(msg)
+            func = value_fn
+            del value_fn
+        super().__init__(name, func=func, params=params, dtype=dtype, label=label)
         self._conj = None
         self._mod = None
         self._arg = None
@@ -1275,7 +1295,7 @@ class ComplexParameter(ComposedParameter):  # TODO: change to real, imag as inpu
         imag = convert_to_parameter(imag, name=name + "_imag", prefer_constant=not floating)
         param = cls(
             name=name,
-            value_fn=lambda _real, _imag: znp.asarray(tf.complex(_real, _imag), dtype=dtype),
+            func=lambda _real, _imag: znp.asarray(tf.complex(_real, _imag), dtype=dtype),
             params=[real, imag],
             label=label,
         )
@@ -1309,9 +1329,7 @@ class ComplexParameter(ComposedParameter):  # TODO: change to real, imag as inpu
         arg = convert_to_parameter(arg, name=name + "_arg", prefer_constant=not floating)
         param = cls(
             name=name,
-            value_fn=lambda _mod, _arg: znp.asarray(
-                tf.complex(_mod * znp.cos(_arg), _mod * znp.sin(_arg)), dtype=dtype
-            ),
+            func=lambda _mod, _arg: znp.asarray(tf.complex(_mod * znp.cos(_arg), _mod * znp.sin(_arg)), dtype=dtype),
             params=[mod, arg],
             label=label,
         )
@@ -1329,7 +1347,7 @@ class ComplexParameter(ComposedParameter):  # TODO: change to real, imag as inpu
                 label = f"Conjugate of {self.label}"
             self._conj = ComplexParameter(
                 name=name,
-                value_fn=lambda: znp.conj(self),
+                func=lambda: znp.conj(self),
                 params=self.get_cache_deps(),
                 dtype=self.dtype,
                 label=label,
@@ -1453,7 +1471,7 @@ def convert_to_parameter(
         if params is None:
             msg = "If the value is a callable, the params have to be specified as an empty list/tuple"
             raise ValueError(msg)
-        return ComposedParameter(f"Composed_autoparam_{get_auto_number()}", value_fn=value, params=params, label=label)
+        return ComposedParameter(f"Composed_autoparam_{get_auto_number()}", func=value, params=params, label=label)
 
     if isinstance(value, ZfitParameter):  # TODO(Mayou36): autoconvert variable. TF 2.0?
         return value
@@ -1544,8 +1562,7 @@ def assign_values(
     """
     if allow_partial is None:
         allow_partial = False
-    params, values, is_empty = check_convert_param_values_assign(params, values, allow_partial=allow_partial)
-    # params = tuple(params)
+    params, values, _ = check_convert_param_values_assign(params, values, allow_partial=allow_partial)
     assign_values_jit(params=params, values=values, use_locking=use_locking)
 
 
@@ -1578,14 +1595,7 @@ def set_values(
     """
     if allow_partial is None:
         allow_partial = False
-    params, values, is_empty = check_convert_param_values_assign(params, values, allow_partial)
-    if is_empty:
-
-        @contextlib.contextmanager
-        def empty_context():
-            yield params
-
-        return empty_context()
+    params, values, _ = check_convert_param_values_assign(params, values, allow_partial)
 
     def setter(values):
         for i, param in enumerate(params):

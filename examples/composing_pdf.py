@@ -19,4 +19,4 @@ exponential = zfit.pdf.Exponential(lambd, obs=obs)
 sum_pdf = zfit.pdf.SumPDF([gauss, exponential], fracs=frac)
 
 free_param = zfit.Parameter("free", 5, 0, 15)
-param_shift = zfit.ComposedParameter("comp", lambda x: x + 5, free_param)
+param_shift = zfit.ComposedParameter("comp", lambda x: x + 5, params=free_param)

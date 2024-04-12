@@ -11,6 +11,7 @@ from __future__ import annotations
 import numpy as np
 
 import zfit
+import zfit.z
 
 
 class CombinePolynomials(zfit.pdf.BaseFunctor):
@@ -26,7 +27,7 @@ class CombinePolynomials(zfit.pdf.BaseFunctor):
     _N_OBS = 3
 
     def _unnormalized_pdf(self, x):
-        cosangle1_data, cosangle2_data, angle3_data = x.unstack_x()
+        cosangle1_data, cosangle2_data, angle3_data = z.unstack_x(x)
         cosangle1, cosangle2, angle3 = self.pdfs
 
         return cosangle1.pdf(cosangle1_data) + cosangle2.pdf(cosangle2_data) + angle3.pdf(angle3_data)

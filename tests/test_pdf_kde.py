@@ -1,6 +1,8 @@
 #  Copyright (c) 2024 zfit
 import itertools
 
+import hist
+import mplhep
 import numpy as np
 import pytest
 import tensorflow_probability as tfp
@@ -316,9 +318,10 @@ def test_all_kde(kdetype, npoints, jit, request):
         )
         plt.plot(x, prob, label="KDE")
         plt.plot(x, prob_true, label="true PDF")
-        data_np = znp.asarray(data)
-        plt.hist(data_np, bins=40, density=True, alpha=0.3, label="Kernel points")
+        data_hist = hist.Hist.new.Reg(40, np.min(data), np.max(data)).Double().fill(data)
+        mplhep.histplot(data_hist, density=True, alpha=0.3, label="Kernel points")
         plt.legend()
+        pytest.zfit_savefig(folder="kde")
 
     abs_tol = 0.005 if kdetype[1] > 3000 else 0.03
     tolfac = 6 if not cfg["type"] == tfp.distributions.Normal else 1
@@ -436,12 +439,12 @@ def test_kde_border(kdetype, npoints, upper):
     )
     plt.plot(x, prob, label="KDE")
     plt.plot(x, prob_true, label="true PDF")
-    data_np = znp.asarray(data)
-    plt.hist(data_np, bins=40, density=True, alpha=0.3, label="Kernel points")
+    data_binned = hist.Hist.new.Reg(40, np.min(data), np.max(data)).Double().fill(data)
+    mplhep.histplot(data_binned, density=True, alpha=0.3, label="Kernel points")
     plt.legend()
+    pytest.zfit_savefig(folder="kde_border")
+    plt.show()
 
-    integral = znp.asarray(integral)
-    expected_integral = znp.asarray(expected_integral)
     abs_tol = 0.05
     assert pytest.approx(expected_integral, abs=abs_tol) == (integral)
     assert tuple(sample.shape) == (1, 1)

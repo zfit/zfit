@@ -99,6 +99,7 @@ def pytest_configure():
         foldersave.mkdir(exist_ok=True, parents=True)
         savepath = foldersave.joinpath(title_sanitized)
         plt.savefig(str(savepath))
+        plt.close()
 
     pytest.zfit_savefig = savefig
 
@@ -128,7 +129,7 @@ def cleanup_recursive(dict1, dict2):
             dict1[key] = val1.tolist()
         elif isinstance(val2, np.ndarray):
             dict2[key] = val2.tolist()
-        elif key == "value_fn":  # We have a composed parameter
+        elif key == "func":  # We have a composed parameter
             if isinstance(val1, str):
                 dict1[key] = "FUNC_IGNORED_NOT_STABLE"
             if isinstance(val2, str):

@@ -226,8 +226,11 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         self._space = obs.with_autofill_axes(overwrite=True)
 
     @contextlib.contextmanager
-    def _convert_sort_x(self, x: ztyping.XTypeInput, partial: bool = False, allow_none: bool = False) -> Data:
+    def _convert_sort_x(
+        self, x: ztyping.XTypeInput, partial: bool = False, allow_none: bool = False, fallback_obs=None
+    ) -> Data:
         del partial  # TODO: implement partial
+        fallback_obs = self.obs if fallback_obs is None else fallback_obs
         if x is None:
             if not allow_none:
                 msg = f"x {x} given to {self} must be non-empty (not None)."
@@ -235,7 +238,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             else:
                 yield None
         else:
-            x = convert_to_data(x, obs=self.obs)
+            x = convert_to_data(x, obs=fallback_obs)
             if x.obs is not None:
                 x = x.with_obs(self.obs)
                 # with x.sort_by_obs(obs=self.obs, allow_superset=True):
@@ -729,7 +732,10 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             options = {}
         norm = self._check_input_norm(norm=norm)
         limits = self._check_input_limits(limits=limits)
-        with self._convert_sort_x(x, partial=True) as x, self._check_set_input_params(params=params):
+        fallback_obs = [obs for obs in self.obs if obs not in limits.obs]  # keep order
+        with self._convert_sort_x(x, partial=True, fallback_obs=fallback_obs) as x, self._check_set_input_params(
+            params=params
+        ):
             return self._single_hook_partial_integrate(x=x, limits=limits, norm=norm, options=options)
 
     def _single_hook_partial_integrate(self, x, limits, norm, *, options):
@@ -831,7 +837,10 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         """
         norm = self._check_input_norm(norm=norm)
         limits = self._check_input_limits(limits=limits)
-        with self._convert_sort_x(x, partial=True) as x, self._check_set_input_params(params=params):
+        fallback_obs = [obs for obs in self.obs if obs not in limits.obs]  # keep order
+        with self._convert_sort_x(x, partial=True, fallback_obs=fallback_obs) as x, self._check_set_input_params(
+            params=params
+        ):
             return self._single_hook_partial_analytic_integrate(x=x, limits=limits, norm=norm)
 
     def _single_hook_partial_analytic_integrate(self, x, limits, norm):
@@ -927,7 +936,10 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         """
         norm = self._check_input_norm(norm)
         limits = self._check_input_limits(limits=limits)
-        with self._convert_sort_x(x, partial=True) as x, self._check_set_input_params(params=params):
+        fallback_obs = [obs for obs in self.obs if obs not in limits.obs]  # keep order
+        with self._convert_sort_x(x, partial=True, fallback_obs=fallback_obs) as x, self._check_set_input_params(
+            params=params
+        ):
             return self._single_hook_partial_numeric_integrate(x=x, limits=limits, norm=norm)
 
     def _single_hook_partial_numeric_integrate(self, x, limits, norm):

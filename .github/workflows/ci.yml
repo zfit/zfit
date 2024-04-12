@@ -86,7 +86,9 @@ jobs:
           pip install .[${{ matrix.extras }}]
       - name: Test with pytest
         run: |
-          pytest --cov=. --cov-config=pyproject.toml -n${{ steps.cpu-cores.outputs.count }} --cov-report=xml --cov-report=term-missing
+          pytest --cov=. --cov-config=pyproject.toml -n2 --cov-report=xml --cov-report=term-missing
+
+#          pytest --cov=. --cov-config=pyproject.toml -n${{ steps.cpu-cores.outputs.count }} --cov-report=xml --cov-report=term-missing
   #               TODO: fails on windows? add again above pytest?
   #          if [ "$GITHUB_REF" == 'refs/heads/develop' ]; then
   #            echo "PYTEST_ADDOPTS=--longtests-kde --longtests" >> "$GITHUB_ENV"

@@ -61,7 +61,7 @@ it using numpy and the :func:`Data.from_numpy <zfit.Data.from_numpy>` method:
 .. jupyter-execute::
 
     data_np = np.random.normal(0, 1, size=10000)
-    data = zfit.Data.from_numpy(obs=obs, array=data_np)
+    data = zfit.Data(data_np, obs=obs)
 
 Now we have all the ingredients in order to perform a maximum likelihood fit.
 Conceptually this corresponds to three basic steps:
@@ -171,19 +171,16 @@ to do the job:
     import matplotlib.pyplot as plt
     import numpy as np
 
-    lower, upper = obs.v1.limits
-
     # plot the data as a histogramm
     bins = 80
-    counts, bin_edges = np.histogram(data['x'], bins, range=(lower, upper))
-    mplhep.histplot((counts, bin_edges), yerr=True, color='black', histtype='errorbar')
+    mplhep.histplot(data.to_binned(bins), yerr=True, density=True, color='black', histtype='errorbar')
 
     # evaluate the func at multiple x and plot
-    x_plot = np.linspace(lower, upper, num=1000)
-    y_plot = gauss.pdf(x_plot, norm_range=obs)
-    plt.plot(x_plot, y_plot * data_np.shape[0] / bins * obs.volume(), color='xkcd:blue')
+    x_plot = np.linspace(obs.v1.lower, obs.v1.upper, num=1000)
+    y_plot = gauss.pdf(x_plot)
+    plt.plot(x_plot, y_plot, color='xkcd:blue')
     plt.show()
 
 
 
-The full script :jupyter-download:script:`can be downloaded here <5 minutes to zfit>`.
+The full script :jupyter-download-script:`can be downloaded here <5 minutes to zfit>`.

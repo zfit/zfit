@@ -311,6 +311,7 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
 
     def _call_unnormalized_pdf(self, x):
         # try:
+
         return self._unnormalized_pdf(x)
 
     @z.function(wraps="model")
@@ -1062,11 +1063,13 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
         from ..models.truncated import TruncatedPDF
 
         if limits is None:
-            limits = self.space
+            limits = obs if obs is not None else self.space
         if obs is None:
             obs = self.space
         if name is None:
             name = self.name + "_truncated"
         if label is None:
             label = self.label + " truncated"
+        if norm is None:
+            norm = self.norm
         return TruncatedPDF(pdf=self, obs=obs, limits=limits, extended=extended, norm=norm, name=name, label=label)

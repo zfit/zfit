@@ -113,25 +113,25 @@ def test_composed_param():
         "param4", 4.0
     )  # noqa Needed to make sure it does not only take all params as deps
 
-    def value_fn(p1, p2, p3):
+    def func(p1, p2, p3):
         return z.math.log(3.0 * p1) * tf.square(p2) - p3
 
     param_a = ComposedParameter(
-        "param_as", value_fn=value_fn, params=(param1, param2, param3)
+        "param_as", func=func, params=(param1, param2, param3)
     )
     param_a2 = ComposedParameter(
         "param_as2",
-        value_fn=value_fn,
+        func=func,
         params={f"p{i}": p for i, p in enumerate((param1, param2, param3))},
     )
     assert param_a2.params["p1"] == param2
     assert isinstance(param_a.get_cache_deps(only_floating=True), OrderedSet)
     assert param_a.get_cache_deps(only_floating=True) == {param1, param2}
     assert param_a.get_cache_deps(only_floating=False) == {param1, param2, param3}
-    a_unchanged = value_fn(param1, param2, param3)
+    a_unchanged = func(param1, param2, param3)
     assert a_unchanged == param_a.value()
     param2.assign(3.5)
-    a_changed = value_fn(param1, param2, param3)
+    a_changed = func(param1, param2, param3)
     assert a_changed == param_a
     assert a_changed != a_unchanged
 
@@ -166,7 +166,7 @@ def test_shape_composed_parameter():
     def compose():
         return tf.square(a) - b
 
-    c = ComposedParameter(name="c", value_fn=compose, params=[a, b])
+    c = ComposedParameter(name="c", func=compose, params=[a, b])
     assert c.shape.rank == 0
 
 
@@ -512,7 +512,7 @@ def test_to_numpy():
     assert znp.asarray(p1) == 15
 
     p2 = zfit.param.ComposedParameter(
-        "aoeu2", lambda params: 2 * params["p1"], {"p1": p1}
+        "aoeu2", lambda params: 2 * params["p1"], params={"p1": p1}
     )
     assert znp.asarray(p2) == 30
 

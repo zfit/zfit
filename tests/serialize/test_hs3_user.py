@@ -15,7 +15,7 @@ def test_dumpload_hs3_pdf(request):
     sigma3 = zfit.Parameter("sigma3", 0.1, 0.0, 1.0)
     sigma2 = zfit.Parameter("sigma2", 42, 0.0, 100.0)
     sigma1_free = zfit.Parameter("sigma1_free", 422, 0.0, 1002.0)
-    sigma1 = zfit.ComposedParameter("sigma1", lambda x: x + 1, params=sigma1_free)
+    sigma1 = zfit.ComposedParameter("sigma1", lambda x: x + 1, params={'x': sigma1_free}, unpack_params=True)
     mu3 = zfit.Parameter("mu3", 2, -2, 3, step_size=0.1)
     frac1 = zfit.param.ConstantParameter("frac1", 0.2)
     frac2 = zfit.Parameter("frac2", 0.3, 0.0, 1.0)

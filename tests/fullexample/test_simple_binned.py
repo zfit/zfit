@@ -84,7 +84,7 @@ def test_simple_examples_1D():
         zmodel,
         zdata,
         constraints=zfit.constraint.GaussianConstraint(
-            list(shapesys.values()), [1, 1], unc
+            list(shapesys.values()), [1, 1], sigma=unc
         ),
     )
     # print(nll.value())
@@ -275,7 +275,7 @@ def test_hypotest(benchmark, n_bins, hypotest, eager):
             zmodel = BinnedSumPDF([sigmodel, bkgmodel])
             unc = np.array(uncnp) / np.array(bkgnp)
             constraint = zfit.constraint.GaussianConstraint(
-                list(shapesys.values()), np.ones_like(unc).tolist(), unc
+                list(shapesys.values()), np.ones_like(unc).tolist(), sigma=unc
             )
             nll = zfit.loss.ExtendedBinnedNLL(
                 zmodel,

@@ -1,5 +1,7 @@
 #  Copyright (c) 2024 zfit
+import hist.axis
 import matplotlib.pyplot as plt
+import mplhep
 import numpy as np
 import pytest
 import scipy.stats
@@ -104,8 +106,11 @@ def test_sampling():
 
     plt.figure()
     plt.title("Sampling of SumPDF")
-    plt.hist(sample, bins=100, density=True, label="sampled")
-    plt.hist(sample_true, bins=100, density=True, label="sampled true")
+    axis = hist.axis.Regular(100, *obs.v1.limits)
+    sample_hist = hist.Hist(axis).fill(sample)
+    sample_true_hist = hist.Hist(axis).fill(sample_true)
+    mplhep.histplot(sample_hist, density=True, label="sampled")
+    mplhep.histplot(sample_true_hist, density=True, label="sampled true")
     plt.legend()
     pytest.zfit_savefig(folder="sampling")
     assert scipy.stats.mannwhitneyu(sample, sample_true).pvalue > 0.05

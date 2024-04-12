@@ -265,8 +265,8 @@ explained in :ref:`playing_with_toys`.
 
 
 
-Download this tutorial :jupyter-download:notebook:`notebook <zfit_model_introduction.ipynb>`,
-:jupyter-download:script:`script <zfit_model_introduction.ipynb>`
+Download this tutorial :jupyter-download-notebook:`notebook <zfit_model_introduction.ipynb>`,
+:jupyter-download-script:`script <zfit_model_introduction.ipynb>`
 
 Cached PDF
 --------------
