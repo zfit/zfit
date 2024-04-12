@@ -1,5 +1,3 @@
-
-
 These base classes are used internally to build PDFs and can also be
 used to implement custom PDFs.
 

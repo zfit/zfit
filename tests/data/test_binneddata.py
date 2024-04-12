@@ -5,6 +5,8 @@ import numpy as np
 import pytest
 import tensorflow as tf
 
+import zfit
+
 
 @pytest.fixture
 def hist1():
@@ -109,6 +111,39 @@ def test_from_and_to_hist():
     np.testing.assert_allclose(h1.variances(), bh3.variances())
     np.testing.assert_allclose(h1.values(), bh3.values())
 
+def test_binned_data_from_unbinned():
+    import zfit
+
+    axis1 = hist.axis.Regular(25, -3.5, 3, name="x", flow=False)
+    axis2 = hist.axis.Regular(21, -4, 5, name="y", flow=False)
+    h3 = hist.NamedHist(
+        axis1,
+        axis2,
+        storage=hist.storage.Weight(),
+    )
+
+    x2 = np.random.randn(1_000)
+    y2 = 0.5 * np.random.randn(1_000)
+
+    h3.fill(x=x2, y=y2)
+
+    from zfit._data.binneddatav1 import BinnedData
+
+    xobs = zfit.Space("x", binning=axis1)
+    yobs = zfit.Space("y", binning=axis2)
+    obsbinned = xobs * yobs
+    obs_unbinned = xobs.with_binning(False) * yobs.with_binning(False)
+    array = np.stack([x2, y2], axis=1)
+    data = zfit.Data.from_numpy(obs=obs_unbinned, array=array)
+    binned_data_init = zfit.Data.from_numpy(obs=obsbinned, array=array)
+    binned_data = BinnedData.from_unbinned(data=data, space=obsbinned)
+    np.testing.assert_allclose(binned_data.values(), h3.values())
+    np.testing.assert_allclose(binned_data.variances(), h3.variances())
+    np.testing.assert_allclose(binned_data_init.values(), h3.values())
+    np.testing.assert_allclose(binned_data_init.variances(), h3.variances())
+
+
+
 
 def test_with_obs():
     from zfit._data.binneddatav1 import BinnedData
@@ -186,3 +221,31 @@ def test_variance():
     data = zfit.data.BinnedData.from_tensor(obs, values=values, variances=True)
     data2 = zfit.data.BinnedData.from_tensor(obs, values=values, variances=values**0.5)
     np.testing.assert_allclose(data.variances(), data2.variances())
+
+
+def test_binneddata_with_variance_method():
+    bins1 = 51
+    bins2 = 55
+    bins3 = 64
+    size = (bins1, bins2, bins3)
+    sample = np.random.uniform(100, 10000, size=size)
+    variance = np.random.uniform(100, 10000, size=size)
+    variance2 = np.random.uniform(100, 10000, size=size)
+
+    space1 = zfit.Space('obs1', limits=(-100, 100), binning=bins1)
+    space2 = zfit.Space('obs2', limits=(-200, 100), binning=bins2)
+    space3 = zfit.Space('obs3', limits=(-150, 350), binning=bins3)
+    obs = space1 * space2 * space3
+
+    data = zfit.data.BinnedData.from_tensor(space=obs, values=sample, variances=variance)
+    assert data.variances() is not None
+    np.testing.assert_allclose(data.variances(), variance)
+    data2 = data.with_variances(variance2)
+    np.testing.assert_allclose(data2.variances(), variance2)
+    data3 = data2.with_variances(None)
+    assert data3.variances() is None
+    data4 = data3.with_variances(variance)
+    np.testing.assert_allclose(data4.variances(), variance)
+    data4obs = data4.with_obs(obs=space2 * space1 * space3)
+    assert data4obs.space == space2 * space1 * space3
+    np.testing.assert_allclose(data4obs.values(), np.moveaxis(sample, [0, 1, 2], [1, 0, 2]))

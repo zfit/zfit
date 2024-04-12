@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,13 +15,16 @@
 # The repository is deprecated and will be removed in the future.
 """Data class objects that works with tf.function."""
 
-from typing import Type, Any
+from __future__ import annotations
+
+from typing import Any
+
 import attr
 
 __all__ = ["dataclass"]
 
 
-def dataclass(cls: Type[Any]) -> Type[Any]:
+def dataclass(cls: type[Any]) -> type[Any]:
     """Creates a data class object compatible with `tf.function`.
 
     Modifies dunder methods of an input class with typed attributes to work as an

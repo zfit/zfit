@@ -1,9 +1,10 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 import pathlib
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pytest
+from tqdm import tqdm
 
 
 @pytest.mark.parametrize("exact_nsample", [True, False], ids=["exact", "binomial sum"])
@@ -45,16 +46,16 @@ def test_yield_bias(exact_nsample, ntoys=300):
         return znp.concatenate([gauss_val, exp_val])
 
     data = model.create_sampler()
-    data.sample_holder.assign(sample_func())
+    data.update_data(sample_func())
     nll = zfit.loss.ExtendedUnbinnedNLL(model=model, data=data)
     nsigs = []
     nbkgs = []
     minimizer = zfit.minimize.Minuit(gradient=False, tol=1e-05, mode=2)
     failures = 0
-    for _ in range(ntoys):
+    for _ in tqdm(range(ntoys)):
         zfit.param.set_values(params, true_vals)
         if exact_nsample:
-            data.sample_holder.assign(sample_func())
+            data.update_data(sample_func(), guarantee_limits=True)
         else:
             data.resample(n=sum(true_vals[-2:]))
         for _ in range(10):
@@ -77,7 +78,7 @@ def test_yield_bias(exact_nsample, ntoys=300):
         nsigs.append(nsig_res)
         nbkg_res = float(result.params[n_bkg]["value"])
         nbkgs.append(nbkg_res)
-        assert nsig_res + nbkg_res == pytest.approx(true_nsig + true_nbkg, abs=0.6)
+        assert pytest.approx(true_nsig + true_nbkg, abs=0.6) == nsig_res + nbkg_res
     nsigs_mean = np.mean(nsigs)
     std_nsigs_mean = np.std(nsigs) / ntoys**0.5 * 5
     nbkg_mean = np.mean(nbkgs)
@@ -117,6 +118,6 @@ def test_yield_bias(exact_nsample, ntoys=300):
     plt.legend()
     pytest.zfit_savefig(folder=plot_folder)
     rel_err_sig = 0.001
-    assert nsigs_mean == pytest.approx(true_nsig, rel=rel_err_sig, abs=std_nsigs_mean)
+    assert pytest.approx(true_nsig, rel=rel_err_sig, abs=std_nsigs_mean) == nsigs_mean
     rel_err_bkg = 0.001
-    assert nbkg_mean == pytest.approx(true_nbkg, rel=rel_err_bkg, abs=std_nbkg_mean)
+    assert pytest.approx(true_nbkg, rel=rel_err_bkg, abs=std_nbkg_mean) == nbkg_mean

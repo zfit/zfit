@@ -1,10 +1,11 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 from __future__ import annotations
 
 import numpy as np
 from uhi.typing.plottable import PlottableHistogram
 
 import zfit.z.numpy as znp
+
 from ..core.binnedpdf import BaseBinnedPDFV1
 from ..core.interfaces import ZfitBinnedData
 from ..core.space import supports
@@ -19,6 +20,7 @@ class HistogramPDF(BaseBinnedPDFV1):
         extended: ztyping.ExtendedInputType | None = None,
         norm: ztyping.NormInputType | None = None,
         name: str = "HistogramPDF",
+        label: str | None = None,
     ) -> None:
         """Binned PDF resembling a histogram.
 
@@ -38,10 +40,13 @@ class HistogramPDF(BaseBinnedPDFV1):
                This is the default. |@docend:pdf.init.extended.auto|
             norm: |@doc:pdf.init.norm| Normalization of the PDF.
                By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
-            name: |@doc:model.init.name| Human-readable name
+            name: |@doc:pdf.init.name| Name of the PDF.
+               Maybe has implications on the serialization and deserialization of the PDF.
+               For a human-readable name, use the label. |@docend:pdf.init.name|
+            label: |@doc:pdf.init.label| Human-readable name
                or label of
-               the PDF for better identification.
-               Has no programmatical functional purpose as identification. |@docend:model.init.name|
+               the PDF for a better description, to be used with plots etc.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
         """
         if extended is None:
             extended = True
@@ -51,9 +56,8 @@ class HistogramPDF(BaseBinnedPDFV1):
 
                 data = BinnedData.from_hist(data)
             else:
-                raise TypeError(
-                    "data must be of type PlottableHistogram (UHI) or ZfitBinnedData"
-                )
+                msg = "data must be of type PlottableHistogram (UHI) or ZfitBinnedData"
+                raise TypeError(msg)
 
         params = {}
         if extended is True:
@@ -61,9 +65,7 @@ class HistogramPDF(BaseBinnedPDFV1):
             extended = znp.sum(data.values())
         else:
             self._automatically_extended = False
-        super().__init__(
-            obs=data.space, extended=extended, norm=norm, params=params, name=name
-        )
+        super().__init__(obs=data.space, extended=extended, norm=norm, params=params, name=name, label=label)
         self._data = data
 
     @supports(norm="space")
@@ -72,24 +74,21 @@ class HistogramPDF(BaseBinnedPDFV1):
             raise SpecificFunctionNotImplemented
         counts = self._counts(x, norm)
         areas = np.prod(self._data.axes.widths, axis=0)
-        density = counts / areas
-        return density
+        return counts / areas
 
     @supports(norm="space")
     def _pdf(self, x, norm):
         counts = self._rel_counts(x, norm)
         areas = np.prod(self._data.axes.widths, axis=0)
-        density = counts / areas
-        return density
+        return counts / areas
 
     @supports(norm="space")
-    def _counts(self, x, norm=None):
+    def _counts(self, x, norm=None):  # noqa: ARG002
         if not self._automatically_extended:
             raise SpecificFunctionNotImplemented
-        values = self._data.values()
-        return values
+        return self._data.values()
 
     @supports(norm="space")
-    def _rel_counts(self, x, norm=None):
+    def _rel_counts(self, x, norm=None):  # noqa: ARG002
         values = self._data.values()
         return values / znp.sum(values)

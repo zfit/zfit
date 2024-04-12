@@ -1,12 +1,13 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2024 zfit
 
 from __future__ import annotations
 
-from collections.abc import Iterable, Callable
+from collections.abc import Callable, Iterable
 
 import tensorflow as tf
 
 import zfit.z.numpy as znp
+
 from ..core.basefunc import BaseFuncV1
 from ..core.basemodel import SimpleModelSubclassMixin
 from ..core.dependents import _extract_dependencies
@@ -74,15 +75,12 @@ class SumFunc(BaseFunctorFuncV1):
     def _func(self, x):
         # sum_funcs = tf.add_n([func.value(x) for func in self.funcs])
         funcs = [func.func(x) for func in self.funcs]
-        sum_funcs = tf.math.accumulate_n(funcs)
-        return sum_funcs
+        return tf.math.accumulate_n(funcs)
 
     @supports()
     def _analytic_integrate(self, limits, norm):
         # below may raises AnalyticIntegralNotImplementedError, that's fine. We don't wanna catch that.
-        integrals = [
-            func.analytic_integrate(limits=limits, norm=norm) for func in self.funcs
-        ]
+        integrals = [func.analytic_integrate(limits=limits, norm=norm) for func in self.funcs]
         return tf.math.accumulate_n(integrals)
 
 
@@ -98,8 +96,7 @@ class ProdFunc(BaseFunctorFuncV1):
 
     def _func(self, x):
         funcs = [func.func(x) for func in self.funcs]
-        product = znp.prod(funcs, axis=0)
-        return product
+        return znp.prod(funcs, axis=0)
 
 
 class ZFuncV1(SimpleModelSubclassMixin, BaseFuncV1):

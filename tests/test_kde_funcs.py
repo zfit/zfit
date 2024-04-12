@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 
 import numpy as np
 import pytest
@@ -163,7 +163,7 @@ def test_padreflect_data_weights_1dim(weights, bandwidth):
 
     testobs = Space("testSpace", limits=(-2, 7.5))
     data, w, bw = padreflect_data_weights_1dim(
-        testarray, mode=0.1, limits=testobs.limits, weights=weights, bandwidth=bandwidth
+        testarray, mode=0.1, limits=testobs.v1.limits, weights=weights, bandwidth=bandwidth
     )
     true_data = np.sort(
         np.array([-2.8, -2, 0.1, 0.5, -2, 5, 6.7, -1.2, 1.2, 7, 8.0, 8.3])
@@ -180,7 +180,7 @@ def test_padreflect_data_weights_1dim(weights, bandwidth):
             assert bw == orig_bw
 
     data, w, bw = padreflect_data_weights_1dim(
-        testarray, mode=0.3, limits=testobs.limits, weights=weights, bandwidth=bandwidth
+        testarray, mode=0.3, limits=testobs.v1.limits, weights=weights, bandwidth=bandwidth
     )
     true_data = np.sort(
         np.array(
@@ -202,7 +202,7 @@ def test_padreflect_data_weights_1dim(weights, bandwidth):
     data, w, bw = padreflect_data_weights_1dim(
         testarray,
         mode={"lowermirror": 0.3},
-        limits=testobs.limits,
+        limits=testobs.v1.limits,
         weights=weights,
         bandwidth=bandwidth,
     )
@@ -223,7 +223,7 @@ def test_padreflect_data_weights_1dim(weights, bandwidth):
     data, w, bw = padreflect_data_weights_1dim(
         testarray,
         mode={"uppermirror": 0.3},
-        limits=testobs.limits,
+        limits=testobs.v1.limits,
         weights=weights,
         bandwidth=bandwidth,
     )

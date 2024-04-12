@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2024 zfit
 
 from __future__ import annotations
 
@@ -15,9 +15,7 @@ def all_parents(op, current_obs=None):
     return ops.union(*(all_parents(op, current_obs=current_obs) for op in ops))
 
 
-def get_dependents_auto(
-    tensor: tf.Tensor, candidates: list[tf.Tensor]
-) -> list[tf.Tensor]:
+def get_dependents_auto(tensor: tf.Tensor, candidates: list[tf.Tensor]) -> list[tf.Tensor]:
     """Return the nodes in `candidates` that `tensor` depends on.
 
     Args:
@@ -27,14 +25,14 @@ def get_dependents_auto(
     try:
         dependent_ops = all_parents(tensor.op)
     except RuntimeError as error:
-        raise ValueError(
+        msg = (
             "Tensor too deeply nested, recursion limit exceeded. In the future,"
             "implementation will be different and any dependents can be found."
             "Currently, specify dependents explicitly if needed."
-            "Orignal Error: {}".format(error)
+            f"Orignal Error: {error}"
         )
-    dependent_candidates = [cand for cand in candidates if cand.op in dependent_ops]
-    return dependent_candidates
+        raise ValueError(msg) from error
+    return [cand for cand in candidates if cand.op in dependent_ops]
 
 
 class JIT:
@@ -56,9 +54,7 @@ class JIT:
 
         for key in self._get_allowed():
             if key not in new_values:
-                new_values[key] = new_values[
-                    key
-                ]  # default dict will explicitly set the default value
+                new_values[key] = new_values[key]  # default dict will explicitly set the default value
 
         def getter():
             return self._get_allowed().copy()

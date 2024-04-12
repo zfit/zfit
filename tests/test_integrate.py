@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 from contextlib import suppress
 
 import numpy as np
@@ -10,6 +10,7 @@ import zfit.core.integration as zintegrate
 import zfit.z.numpy as znp
 from zfit import z
 from zfit.core.basepdf import BasePDF
+from zfit.core.interfaces import ZfitData
 from zfit.core.parameter import Parameter
 from zfit.core.space import Space
 from zfit.models.dist_tfp import Gauss
@@ -173,9 +174,7 @@ def func3_2deps(x):
 
 
 def func3_2deps_fully_integrated(limits, params=None, model=None):
-    lower, upper = limits.rect_limits
-    with suppress(TypeError):
-        lower, upper = lower[0], upper[0]
+    lower, upper = limits.v1.limits
 
     lower_a, lower_b = lower
     upper_a, upper_b = upper
@@ -193,10 +192,13 @@ func4_2values = np.array([[-12.0, -4.5, 1.9, 4.1], [-11.0, 3.2, 7.4, -0.3]])
 
 
 def func4_3deps(x):
-    if isinstance(x, np.ndarray):
+    if isinstance(x, ZfitData):
+        a = x["obs1"]
+        b = x["obs2"]
+        c = x["obs3"]
+
+    else:  # numpy array
         a, b, c = x
-    else:
-        a, b, c = z.unstack_x(x)
 
     return a**2 + b**3 + 0.5 * c
 
@@ -264,20 +266,20 @@ def test_mc_integration(chunksize, limits):
         func=func3_2deps, limits=Space(limits=limits3, axes=(0, 1)), n_axes=2
     )
 
-    integral = num_integral.numpy()
-    integral2 = num_integral2.numpy()
-    integral3 = num_integral3.numpy()
+    integral = num_integral
+    integral2 = num_integral2
+    integral3 = num_integral3
 
     assert integral.shape == (1,)
     assert integral2.shape == (1,)
     assert integral3.shape == (1,)
-    assert func1_5deps_fully_integrated(limits_simple_5deps) == pytest.approx(
+    assert pytest.approx(
         integral, rel=0.1
-    )
-    assert func2_1deps_fully_integrated(limits2) == pytest.approx(integral2, rel=0.03)
-    assert func3_2deps_fully_integrated(
+    ) == func1_5deps_fully_integrated(limits_simple_5deps)
+    assert pytest.approx(integral2, rel=0.03) == np.atleast_1d(func2_1deps_fully_integrated(limits2))
+    assert pytest.approx(integral3, rel=0.03) == np.atleast_1d(func3_2deps_fully_integrated(
         Space(limits=limits3, axes=(0, 1))
-    ).numpy() == pytest.approx(integral3, rel=0.03)
+    ))
 
 
 @pytest.mark.flaky(2)
@@ -297,17 +299,15 @@ def test_mc_partial_integration():
         func=func4_3deps, limits=limits2, x=data2, draws_per_dim=1000
     )
 
-    integral = num_integral.numpy()
-    integral2 = num_integral2.numpy()
+    integral = num_integral
+    integral2 = num_integral2
     assert len(integral) == len(func4_values)
     assert len(integral2) == len(func4_2values[0])
-    assert func4_3deps_0and2_integrated(
-        x=func4_values, limits=limits4_2dim
-    ) == pytest.approx(integral, rel=0.05)
+    integrated = func4_3deps_0and2_integrated(x=func4_values, limits=limits4_2dim)
+    np.testing.assert_allclose(integrated, integral, rtol=0.05)
 
-    assert func4_3deps_1_integrated(
-        x=func4_2values, limits=limits4_1dim
-    ) == pytest.approx(integral2, rel=0.05)
+    integrated2 = func4_3deps_1_integrated(x=func4_2values, limits=limits4_1dim)
+    np.testing.assert_allclose(integrated2, integral2, rtol=0.05)
 
 
 def test_analytic_integral():
@@ -358,14 +358,14 @@ def test_analytic_integral():
     func3_integrated = dist_func3.integrate(
         limits=Space(limits=limits3, axes=(0, 1)),
         norm=False,
-    ).numpy()
-    assert func3_integrated == pytest.approx(
-        func3_2deps_fully_integrated(limits=Space(limits=limits3, axes=(0, 1))).numpy()
     )
-    assert gauss_integral_infs.numpy() == pytest.approx(
+    assert pytest.approx(
+        np.atleast_1d(func3_2deps_fully_integrated(limits=Space(limits=limits3, axes=(0, 1))))
+    ) == func3_integrated
+    assert pytest.approx(
         np.sqrt(np.pi * 2.0) * sigma_true, rel=0.0001
-    )
-    assert normal_integral_infs.numpy() == pytest.approx(1, rel=0.0001)
+    ) == gauss_integral_infs
+    assert pytest.approx(1, rel=0.0001) == normal_integral_infs
 
 
 def test_analytic_integral_selection():

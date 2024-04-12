@@ -18,7 +18,11 @@ To install the newest stable version of zfit, use pip and run this command in yo
 
     $ pip install zfit
 
-This is the preferred method to install zfit, as it will always install the most recent stable release.
+For conda/mamba, use
+
+.. code-block:: bash
+
+   conda install -c conda-forge zfit
 
 
 

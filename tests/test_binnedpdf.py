@@ -15,6 +15,7 @@ from zfit.models.tobinned import BinnedFromUnbinnedPDF
 
 @pytest.mark.plots
 def test_spline_from_binned_from_unbinned():
+    plot_folder = "spline_from_unbinned"
     n = 1004
     gauss, gauss_binned, obs, obs_binned = create_gauss_binned(n)
 
@@ -34,7 +35,7 @@ def test_spline_from_binned_from_unbinned():
         label="counts binned",
     )
     plt.legend()
-    pytest.zfit_savefig()
+    pytest.zfit_savefig(folder=plot_folder)
 
     spline_gauss = SplinePDF(gauss_binned, obs=obs)
     y = spline_gauss.ext_pdf(x)
@@ -50,7 +51,7 @@ def test_spline_from_binned_from_unbinned():
     plt.plot(x, y_true, label="original")
     plt.plot(x, y, ".", label="interpolated")
     plt.legend()
-    pytest.zfit_savefig()
+    pytest.zfit_savefig(folder=plot_folder)
 
     np.testing.assert_allclose(y, y_true, atol=50)
 
@@ -71,6 +72,7 @@ def test_spline2D_from_binned_from_unbinned():
 
 @pytest.mark.plots
 def test_unbinned_from_binned_from_unbinned():
+    plot_folder = "unbinned_binned_and_back"
     n = 1004
     gauss, gauss_binned, obs, obs_binned = create_gauss_binned(n)
 
@@ -90,15 +92,15 @@ def test_unbinned_from_binned_from_unbinned():
         label="counts binned",
     )
     plt.legend()
-    pytest.zfit_savefig()
+    pytest.zfit_savefig(folder=plot_folder)
 
     unbinned = zfit.pdf.UnbinnedFromBinnedPDF(gauss_binned, obs=obs)
     unbinned2 = gauss_binned.to_unbinned()
     y = unbinned.ext_pdf(x)
     y2 = unbinned2.ext_pdf(x)
-    assert np.allclose(y, y2)
+    np.testing.assert_allclose(y, y2)
     y3 = unbinned.to_unbinned().ext_pdf(x)
-    assert np.allclose(y, y3)
+    np.testing.assert_allclose(y, y3)
     y_true = gauss.ext_pdf(x)
     plt.figure()
     plt.title("Comparison of unbinned gauss to binned to unbinned again")
@@ -111,7 +113,7 @@ def test_unbinned_from_binned_from_unbinned():
     plt.plot(x, y_true, label="original")
     plt.plot(x, y, ".", label="unbinned")
     plt.legend()
-    pytest.zfit_savefig()
+    pytest.zfit_savefig(folder=plot_folder)
     np.testing.assert_allclose(y, y_true, atol=50)
 
     nsample = 500000
@@ -126,10 +128,10 @@ def test_unbinned_from_binned_from_unbinned():
     mplhep.histplot(sample_binned_hist, label="unbinned from binned")
     mplhep.histplot(sample_gauss_hist, label="original")
     plt.legend()
-    pytest.zfit_savefig()
+    pytest.zfit_savefig(folder=plot_folder)
 
     diff = (sample_binned_hist.values() - sample_gauss_hist.values()) / (
-        sample_gauss_hist.variances() + 1
+            sample_gauss_hist.variances() + 1
     ) ** 0.5
     np.testing.assert_allclose(diff, 0, atol=7)  # 7 sigma away
 
@@ -155,13 +157,14 @@ def test_2D_unbinned_from_binned_from_unbinned():
     sample_gauss_hist = sample_gauss.to_hist()
 
     diff = (sample_binned_hist.values() - sample_gauss_hist.values()) / (
-        sample_gauss_hist.variances() + 1
+            sample_gauss_hist.variances() + 1
     ) ** 0.5
     np.testing.assert_allclose(diff, 0, atol=7)  # 7 sigma away
 
 
 @pytest.mark.plots
 def test_unbinned_data():
+    plot_folder = "binnedpdf_unbinneddata"
     n = 751
     gauss, gauss_binned, obs, obs_binned = create_gauss_binned(n, 70)
     x = znp.linspace(-5, 10, 200)
@@ -186,7 +189,7 @@ def test_unbinned_data():
     plt.plot(centers, ycenter_true, label="unbinned pdf")
     plt.plot(centers, ycenter_binned, "--", label="binned pdf")
     plt.legend()
-    pytest.zfit_savefig()
+    pytest.zfit_savefig(folder=plot_folder)
     # plt.show()
 
     plt.figure()
@@ -194,7 +197,7 @@ def test_unbinned_data():
     plt.plot(x, y_true, label="unbinned pdf")
     plt.plot(x, y_binned, "--", label="binned pdf")
     plt.legend()
-    pytest.zfit_savefig()
+    pytest.zfit_savefig(folder=plot_folder)
 
 
 def test_unbinned_data2D():
@@ -273,27 +276,40 @@ def create_gauss2d_binned(n, nbins=130):
     return prod, gauss_binned, obs2d, obs_binned
 
 
-# TODO(Jonas): add test for binned pdf with unbinned data
-# def test_binned_with_unbinned_data():
-#     n = 100000
-#
-#     mu = zfit.Parameter("mu", 1, 0, 19)
-#     sigma = zfit.Parameter("sigma", 1, 0, 19)
-#     obs = zfit.Space("x", (-5, 10))
-#     gauss = zfit.pdf.Gauss(mu=mu, sigma=sigma, obs=obs)
-#     gauss.set_yield(n)
-#     axis = zfit.binned.RegularBinning(130, -5, 10, name="x")
-#     obs_binned = zfit.Space("x", binning=[axis])
-#     gauss_binned = BinnedFromUnbinnedPDF(pdf=gauss, space=obs_binned, extended=n)
-#
-#     data = znp.random.uniform(-5, 10, size=(1000,))
-#     y_binned = gauss_binned.pdf(data)
-#     # check shape
-#     assert y_binned.shape[0] == data.shape[0]
-
-
-def test_binned_from_unbinned_2D():
+def test_binned_with_unbinned_data():
     n = 100000
+
+    mu = zfit.Parameter("mu", 1, 0, 19)
+    sigma = zfit.Parameter("sigma", 1, 0, 19)
+    obs = zfit.Space("x", (-5, 10))
+    gauss = zfit.pdf.Gauss(mu=mu, sigma=sigma, obs=obs)
+    gauss.set_yield(n)
+    axis = zfit.binned.RegularBinning(230, -5, 10, name="x")
+    obs_binned = zfit.Space("x", binning=[axis])
+    gauss_binned = BinnedFromUnbinnedPDF(pdf=gauss, space=obs_binned, extended=n)
+
+    data = znp.linspace(-5, 10, num=1000)
+    y_binned = gauss_binned.pdf(data)
+    # check shape
+    assert y_binned.shape[0] == data.shape[0]
+    meandiff = y_binned - gauss.pdf(data)
+    assert np.mean(meandiff) < 0.01 * np.max(meandiff)
+
+    y_extbinned = gauss_binned.ext_pdf(data)
+    np.testing.assert_allclose(y_binned, y_extbinned / n)
+
+    y_counts = gauss_binned.counts(data)
+    assert y_counts.shape[0] == data.shape[0]
+
+    y_relcounts = gauss_binned.rel_counts(data)
+    assert y_relcounts.shape[0] == data.shape[0]
+
+    np.testing.assert_allclose(y_relcounts, y_counts / n)
+
+@pytest.mark.parametrize("instantiation", ["wrapper", "to_binned", "init"])
+def test_binned_from_unbinned_2D(instantiation):
+    n = 100000
+    plot_folder = "binned_2D_from_unbinned"
 
     mu = zfit.Parameter("mu", 1, 0, 19)
     sigma = zfit.Parameter("sigma", 6, 0, 120)
@@ -319,9 +335,13 @@ def test_binned_from_unbinned_2D():
     obs_binnedy = zfit.Space("y", binning=axisy)
     obs_binned = obs_binnedx * obs_binnedy
 
-    gauss_binned = BinnedFromUnbinnedPDF(pdf=gauss2D, space=obs_binned, extended=n)
+    if instantiation == "wrapper":
+        gauss_binned = BinnedFromUnbinnedPDF(pdf=gauss2D, space=obs_binned, extended=n)
+    elif instantiation == "to_binned":
+        gauss_binned = gauss2D.to_binned(obs_binned, extended=n)
+    elif instantiation == "init":
+        gauss_binned =  zfit.pdf.ProductPDF([gaussx, gaussy], obs=obs_binned, extended=n)
     values = gauss_binned.rel_counts(obs_binned)  # TODO: good test?
-    start = time.time()
     ntrial = 10
     for _ in range(ntrial):
         values = gauss_binned.rel_counts(obs_binned)
@@ -343,18 +363,18 @@ def test_binned_from_unbinned_2D():
     sample = gauss_binned.sample(n, limits=obs_binned)
     hist_sampled = sample.to_hist()
     hist_pdf = gauss_binned.to_hist()
-    max_error = hist_sampled.values() * 6**2  # 6 sigma away
+    max_error = hist_sampled.values() * 6 ** 2  # 6 sigma away
     np.testing.assert_array_less(
         (hist_sampled.values() - hist_pdf.values()) ** 2, max_error
     )
     plt.figure()
     plt.title("Gauss 2D binned sampled.")
     mplhep.hist2dplot(hist_sampled)
-    pytest.zfit_savefig()
+    pytest.zfit_savefig(folder=plot_folder)
     plt.figure()
     plt.title("Gauss 2D binned plot, irregular (x<4.5 larger bins than x>4.5) binning.")
     mplhep.hist2dplot(hist_pdf)
-    pytest.zfit_savefig()
+    pytest.zfit_savefig(folder=plot_folder)
 
 
 @pytest.mark.parametrize(
@@ -380,9 +400,9 @@ def test_binned_sampler(ndim):
     elif ndim == 3:
         dims = (nbins, 5, 3)
         obs = (
-            zfit.Space("x", (-5, 10))
-            * zfit.Space("y", (1, 5))
-            * zfit.Space("z", (3, 6))
+                zfit.Space("x", (-5, 10))
+                * zfit.Space("y", (1, 5))
+                * zfit.Space("z", (3, 6))
         )
         gauss = np.random.normal(
             loc=[0.5, 1.5, 3.6], scale=[1.2, 2.1, 0.4], size=(100000, ndim)
@@ -398,12 +418,12 @@ def test_binned_sampler(ndim):
 
     assert sample.values().shape == dims
     assert sampler.values().shape == dims
-    assert np.sum(sample.values()) == pytest.approx(nsampled)
-    assert np.sum(sampler.values()) == pytest.approx(nsampled)
+    assert pytest.approx(nsampled) == np.sum(sample.values())
+    assert pytest.approx(nsampled) == np.sum(sampler.values())
 
     sampler.resample(n=nsampled * 2)
     assert sampler.values().shape == dims
-    assert np.sum(sampler.values()) == pytest.approx(nsampled * 2)
+    assert pytest.approx(nsampled * 2) == np.sum(sampler.values())
 
     if ndim == 2:
         sampler_swapped = sampler.with_obs(
@@ -411,13 +431,4 @@ def test_binned_sampler(ndim):
         )
         values_swapped = sampler_swapped.values()
         assert values_swapped.shape == (dims[1], dims[0])
-        assert np.sum(values_swapped) == pytest.approx(nsampled)
-        sampler_swapped.resample(n=nsampled)
-        assert np.sum(sampler_swapped.values()) == pytest.approx(nsampled)
-        sampler_swapped.resample(n=nsampled * 3)
-        assert np.sum(sampler_swapped.values()) == pytest.approx(nsampled * 3)
-
-    sampler.resample(n=nsampled)
-    # start = time.time()
-    #     sampler.resample(n=nsampled)
-    # print(f"Time taken {(time.time() - start)}")
+        assert pytest.approx(nsampled * 2) == np.sum(values_swapped)

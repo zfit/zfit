@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 import pytest
 
 
@@ -72,7 +72,7 @@ def test_sig_bkg_fit(n, floatall, use_sampler, nbins, use_wrapper, request):
         data = model.sample(n=n_sample)
         data_unbinned = model_unbinned.sample(n=n_sample)
 
-    plot_scaling = n_sample / nbins * obs.area()
+    plot_scaling = n_sample / nbins * obs.volume
 
     x = np.linspace(-10, 10, 1000)
 
@@ -84,9 +84,9 @@ def test_sig_bkg_fit(n, floatall, use_sampler, nbins, use_wrapper, request):
     def plot_pdf(title):
         plt.figure()
         plt.title(title)
-        y = model.pdf(x).numpy()
-        y_gauss = (gauss.pdf(x) * model_unbinned.params["frac_0"]).numpy()
-        y_exp = (exponential.pdf(x) * model_unbinned.params["frac_1"]).numpy()
+        y = model.pdf(x)
+        y_gauss = (gauss.pdf(x) * model_unbinned.params["frac_0"])
+        y_exp = (exponential.pdf(x) * model_unbinned.params["frac_1"])
         plt.plot(x, y * plot_scaling, label="Sum - Model")
         plt.plot(x, y_gauss * plot_scaling, label="Gauss - Signal")
         plt.plot(x, y_exp * plot_scaling, label="Exp - Background")
@@ -281,7 +281,7 @@ def test_nbins(request):
     sig_data = model_unbinned.sample(275)
     bkg_data = model_unbinned.sample(25)
     data = zfit.Data.from_tensor(
-        obs, tensor=znp.concatenate([sig_data.value(), bkg_data.value()], axis=0)
+        obs=obs, tensor=znp.concatenate([sig_data.value(), bkg_data.value()], axis=0)
     )
     # make binned
     plot_folder = "nbins_accuracy"

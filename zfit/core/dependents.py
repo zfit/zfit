@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2024 zfit
 
 from __future__ import annotations
 
@@ -42,5 +42,4 @@ def _extract_dependencies(zfit_objects: Iterable[ZfitObject]) -> ztyping.Depende
     """
     zfit_objects = convert_to_container(zfit_objects)
     dependents = (obj.get_cache_deps(only_floating=False) for obj in zfit_objects)
-    dependents_set = OrderedSet(itertools.chain.from_iterable(dependents))  # flatten
-    return dependents_set
+    return OrderedSet(itertools.chain.from_iterable(dependents))  # flatten

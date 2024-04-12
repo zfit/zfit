@@ -453,5 +453,5 @@ clear.
 
 
 
-Download this tutorial :jupyter-download:notebook:`notebook <zfit_kde_introduction.ipynb>`,
-:jupyter-download:script:`script <zfit_kde_introduction.ipynb>`
+Download this tutorial :jupyter-download-notebook:`notebook <zfit_kde_introduction.ipynb>`,
+:jupyter-download-script:`script <zfit_kde_introduction.ipynb>`

@@ -2,20 +2,20 @@
 import itertools
 import platform
 import sys
-from collections import OrderedDict
 
 import numpy as np
 import pytest
 import scipy.optimize
 from ordered_set import OrderedSet
 
+import zfit.z.numpy as znp
 import zfit.minimizers.optimizers_tf
 from zfit.minimizers.base_tf import WrapOptimizer
 from zfit.util.exception import OperationNotAllowedError
 
 true_mu = 4.5
 true_sigma = 2
-true_lambda = -0.03
+true_lambda: float = -0.03
 
 parameter_tol = 0.1
 max_distance_to_min = 0.5
@@ -42,7 +42,7 @@ def create_loss(obs1):
                 loss = zfit.loss.UnbinnedNLL(
                     model=sum_pdf1, data=sampled_data, options={"subtr_const": True}
                 )
-                minimum = loss.value(full=False).numpy()
+                minimum = loss.value(full=False)
 
     return loss, minimum, (mu_param, sigma_param, lambda_param)
 
@@ -96,14 +96,14 @@ def test_scipy_derivative_options(minimizer_gradient_hessian):
     result = minimizer.minimize(loss=loss)
     assert result.valid
 
-    found_min = loss.value(full=False).numpy()
+    found_min = loss.value(full=False)
     assert true_min + max_distance_to_min >= found_min
 
-    aval, bval, cval = zfit.run((mu_param, sigma_param, lambda_param))
+    aval, bval, cval = znp.asarray((mu_param, sigma_param, lambda_param))
 
-    assert true_mu == pytest.approx(aval, abs=parameter_tol)
-    assert true_sigma == pytest.approx(bval, abs=parameter_tol)
-    assert true_lambda == pytest.approx(cval, abs=parameter_tol)
+    assert pytest.approx(aval, abs=parameter_tol) == true_mu
+    assert pytest.approx(bval, abs=parameter_tol) == true_sigma
+    assert pytest.approx(cval, abs=parameter_tol) == true_lambda
     assert result.converged
 
 
@@ -119,11 +119,11 @@ minimizers = [
     # TensorFlow minimizers
     # (zfit.minimizers.optimizers_tf.WrapOptimizer, dict(optimizer=tf.keras.optimizers.Adam(learning_rate=0.05)),
     #  False),
-    (
-        zfit.minimize.Adam,
-        dict(learning_rate=0.05, verbosity=verbosity, tol=0.00001),
-        False,
-    ),  # works
+    # (
+    #     zfit.minimize.Adam,
+    #     dict(learning_rate=0.05, verbosity=verbosity, tol=0.00001),
+    #     False,
+    # ),  # Not supported anymore, needs Keras 3 interface update
     # Minuit minimizer
     (
         zfit.minimize.Minuit,
@@ -267,10 +267,9 @@ nlopt_minimizers = [
         {"error": do_errors_most},
     ),
 ]
-if (
-    sys.version_info[1] < 11
-):  # TODO: remove all of this conditions once NLopt is available for Python 3.11
-    # see also https://github.com/DanielBok/nlopt-python/issues/19
+if sys.version_info[1] < 12 and platform.system() not in ("Darwin",):
+    # TODO: remove all of this conditions once NLopt is available for Python 3.12
+    # see also https://github.com/DanielBok/nlopt-python/issues/24
     minimizers.extend(nlopt_minimizers)
 
 # To run individual minimizers
@@ -307,14 +306,17 @@ minimizers_small = [
     (zfit.minimize.ScipyTrustConstrV1, {}, True),
     (zfit.minimize.Minuit, {}, True),
 ]
-if sys.version_info[1] < 11:
+if sys.version_info[1] < 12 and platform.system() not in ("Darwin",):
     minimizers_small.append((zfit.minimize.NLoptLBFGSV1, {}, True))
-if platform.system() not in (
-    "Darwin",
-    "Windows",
+if (
+    platform.system()
+    not in (
+        "Darwin",
+        "Windows",
+    )
+    and sys.version_info[1] < 12
 ):  # TODO: Ipyopt installation on macosx not working
     # TODO: ipyopt fails? Why
-    pass
     minimizers_small.append((zfit.minimize.IpyoptV1, {}, False))
     minimizers.append(
         (
@@ -396,7 +398,7 @@ def test_dependent_param_extraction():
     obs = zfit.Space("x", limits=(-2, 3))
     mu = zfit.Parameter("mu", 1.2, -4, 6)
     sigma = zfit.Parameter("sigma", 1.3, 0.1, 10)
-    sigma1 = zfit.ComposedParameter("sigma1", lambda sigma, mu: sigma + mu, [sigma, mu])
+    sigma1 = zfit.ComposedParameter("sigma1", lambda sigma, mu: sigma + mu, params=[sigma, mu])
     gauss = zfit.pdf.Gauss(mu=mu, sigma=sigma1, obs=obs)
     normal_np = np.random.normal(loc=2.0, scale=3.0, size=10)
     data = zfit.Data.from_numpy(obs=obs, array=normal_np)
@@ -479,7 +481,7 @@ def test_minimizers(minimizer_class_and_kwargs, chunksize, numgrad, spaces, requ
         minimizer = minimizer_class(**minimizer_kwargs)
 
         # run 3 times: once fully (as normal, once with a high tol first, then with a low restarting from the previous one)
-        init_vals = zfit.run(params)
+        init_vals = znp.asarray(params)
 
         result = minimizer.minimize(loss=loss)
         zfit.param.set_values(params, init_vals)
@@ -490,21 +492,21 @@ def test_minimizers(minimizer_class_and_kwargs, chunksize, numgrad, spaces, requ
         assert result.valid
         assert result_hightol.valid
         assert result_lowtol.valid
-        found_min = loss.value(full=False).numpy()
+        found_min = loss.value(full=False)
         assert true_min + max_distance_to_min >= found_min
 
-        assert result_lowtol.fmin == pytest.approx(result.fmin, abs=2.0)
+        assert pytest.approx(result.fminopt, abs=2.0) == result_lowtol.fminopt
         if not isinstance(minimizer, zfit.minimize.IpyoptV1):
             assert (
                 result_lowtol.info["n_eval"]
                 < 1.2 * result.info["n_eval"] + 10  # +10 if it's very small, it's hard
             )  # should not be more, surely not a lot
 
-        aval, bval, cval = (zfit.run(v) for v in (mu_param, sigma_param, lambda_param))
+        aval, bval, cval = (znp.asarray(v) for v in (mu_param, sigma_param, lambda_param))
 
-        assert true_mu == pytest.approx(aval, abs=parameter_tol)
-        assert true_sigma == pytest.approx(bval, abs=parameter_tol)
-        assert true_lambda == pytest.approx(cval, abs=parameter_tol)
+        assert pytest.approx(aval, abs=parameter_tol) == true_mu
+        assert pytest.approx(bval, abs=parameter_tol) == true_sigma
+        assert pytest.approx(cval, abs=parameter_tol) == true_lambda
         assert result.converged
 
         # Test Hesse
@@ -541,17 +543,17 @@ def test_minimizers(minimizer_class_and_kwargs, chunksize, numgrad, spaces, requ
                     # skip if it can be None and it is None
                     sigma_error_true = 0.015 * errscale
                     if not (can_be_none and errors[sigma_param].get("error") is None):
-                        assert abs(errors[sigma_param]["error"]) == pytest.approx(
+                        assert pytest.approx(
                             sigma_error_true, abs=rel_error_tol
-                        )
+                        ) == abs(errors[sigma_param]["error"])
                     if not (can_be_none and errors[lambda_param].get("error") is None):
-                        assert abs(errors[lambda_param]["error"]) == pytest.approx(
+                        assert pytest.approx(
                             0.01 * errscale, abs=0.01
-                        )
+                        ) == abs(errors[lambda_param]["error"])
                     if not (can_be_none and sigma_hesse.get("error") is None):
-                        assert abs(sigma_hesse["error"]) == pytest.approx(
+                        assert pytest.approx(
                             sigma_error_true, abs=rel_error_tol
-                        )
+                        ) == abs(sigma_hesse["error"])
 
                 for profile_method in profile_methods:
                     # Test Error
@@ -563,26 +565,26 @@ def test_minimizers(minimizer_class_and_kwargs, chunksize, numgrad, spaces, requ
                     assert tuple(a_errors.keys()) == (mu_param,)
                     errors, _ = result.errors(method=profile_method, name=pname, cl=cl)
                     a_error = a_errors[mu_param]
-                    assert a_error["lower"] == pytest.approx(-a_error["upper"], rel=0.1)
-                    assert a_error["lower"] == pytest.approx(
+                    assert pytest.approx(-a_error["upper"], rel=0.1) == a_error["lower"]
+                    assert pytest.approx(
                         -0.021 * errscale, rel=rel_error_tol
-                    )
-                    assert errors[sigma_param]["lower"] == pytest.approx(
+                    ) == a_error["lower"]
+                    assert pytest.approx(
                         -sigma_error_true, rel=rel_error_tol
-                    )
-                    assert errors[lambda_param]["lower"] == pytest.approx(
+                    ) == errors[sigma_param]["lower"]
+                    assert pytest.approx(
                         -0.007 * errscale, rel=rel_error_tol
-                    )
-                    assert errors[lambda_param]["upper"] == pytest.approx(
+                    ) == errors[lambda_param]["lower"]
+                    assert pytest.approx(
                         0.007 * errscale, rel=rel_error_tol
-                    )
+                    ) == errors[lambda_param]["upper"]
 
-                    assert errors[mu_param]["lower"] == pytest.approx(
+                    assert pytest.approx(
                         a_error["lower"], rel=rel_error_tol
-                    )
-                    assert errors[mu_param]["upper"] == pytest.approx(
+                    ) == errors[mu_param]["lower"]
+                    assert pytest.approx(
                         a_error["upper"], rel=rel_error_tol
-                    )
+                    ) == errors[mu_param]["upper"]
 
                     # Test Error method name
                     a_errors, _ = result.errors(
@@ -592,24 +594,24 @@ def test_minimizers(minimizer_class_and_kwargs, chunksize, numgrad, spaces, requ
                     errors, _ = result.errors(name="error42", method=profile_method)
                     a_error = a_errors[mu_param]
 
-                    assert a_error["lower"] == pytest.approx(
+                    assert pytest.approx(
                         result.params[mu_param]["error42"]["lower"], rel=rel_error_tol
-                    )
-                    assert a_error["lower"] == pytest.approx(
+                    ) == a_error["lower"]
+                    assert pytest.approx(
                         result.params[mu_param]["error1"]["lower"], rel=rel_error_tol
-                    )
+                    ) == a_error["lower"]
                     for param, errors2 in result.params.items():
-                        assert errors[param]["lower"] == pytest.approx(
+                        assert pytest.approx(
                             errors2["error42"]["lower"], rel=rel_error_tol
-                        )
-                        assert errors[param]["upper"] == pytest.approx(
+                        ) == errors[param]["lower"]
+                        assert pytest.approx(
                             errors2["error42"]["upper"], rel=rel_error_tol
-                        )
+                        ) == errors[param]["upper"]
 
                     # test custom error
                     def custom_error_func(result, params, cl):
                         return (
-                            OrderedDict((param, {"myval": 42}) for param in params),
+                            dict((param, {"myval": 42}) for param in params),
                             None,
                         )
 

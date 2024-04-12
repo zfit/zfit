@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2024 zfit
 from __future__ import annotations
 
 import abc
@@ -36,7 +36,7 @@ class ZfitResult:
                 {'minuit_minos'} or a Callable.
 
         Returns:
-            A ``OrderedDict`` containing as keys the parameter names and as value a ``dict`` which
+            A ``dict`` containing as keys the parameter names and as value a ``dict`` which
                 contains (next to probably more things) two keys 'lower' and 'upper',
                 holding the calculated errors.
                 Example: result['par1']['upper'] -> the asymmetric upper error of 'par1'
@@ -55,7 +55,7 @@ class ZfitResult:
 
     @property
     @abc.abstractmethod
-    def fmin(self):
+    def fminopt(self):
         raise NotImplementedError
 
     @property

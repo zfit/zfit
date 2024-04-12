@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 
 import mplhep
 import numpy as np
@@ -126,8 +126,7 @@ def test_binned_extended_simple(Loss):
     nll.value(), nll.gradient()  # TODO: add some check?
 
     nllsum = nll + nll2  # check that sum works
-    # TODO: should this actually work I think?
-    assert float(nllsum.value()) == pytest.approx(nll.value() + nll2.value(), rel=1e-3)
+    assert pytest.approx(nll.value() + nll2.value(), rel=1e-3) == float(nllsum.value())
 
 
 @pytest.mark.plots
@@ -150,6 +149,7 @@ def test_binned_extended_simple(Loss):
     "simultaneous", [True, False], ids=["simultaneous", "sequential"]
 )
 def test_binned_loss(weights, Loss, simultaneous):
+    plot_folder = "binned_loss"
     obs = zfit.Space("obs1", limits=(-15, 25))
     gaussian1, mu1, sigma1 = create_gauss1(obs=obs)
     gaussian2, mu2, sigma2 = create_gauss2(obs=obs)
@@ -159,16 +159,16 @@ def test_binned_loss(weights, Loss, simultaneous):
     test_values = zfit.Data.from_tensor(obs=obs, tensor=test_values, weights=weights)
     init_yield = test_values_np.shape[0] * 1.2
     scale = zfit.Parameter("yield", init_yield, 0, init_yield * 4, step_size=1)
-    binning = zfit.binned.RegularBinning(92, obs.lower[0], obs.upper[0], name="obs1")
+    binning = zfit.binned.RegularBinning(92, obs.v1.lower, obs.v1.upper, name="obs1")
     obs_binned = obs.with_binning(binning)
     test_values_binned = test_values.to_binned(obs_binned)
     binned_gauss = zfit.pdf.BinnedFromUnbinnedPDF(gaussian1, obs_binned, extended=scale)
     binned_gauss_alt = gaussian2.to_binned(obs_binned, extended=scale)
     counts = binned_gauss.counts()
     counts_alt = binned_gauss_alt.counts()
-    assert np.allclose(counts, counts_alt)
+    np.testing.assert_allclose(counts, counts_alt)
     binned_gauss_closure = binned_gauss.to_binned(obs_binned)
-    assert np.allclose(counts, binned_gauss_closure.counts())
+    np.testing.assert_allclose(counts, binned_gauss_closure.counts())
     if simultaneous:
         obs_binned2 = obs.with_binning(14)
         test_values_binned2 = test_values.to_binned(obs_binned2)
@@ -210,7 +210,7 @@ def test_binned_loss(weights, Loss, simultaneous):
     params = result.params
     mplhep.histplot(binned_gauss.to_hist(), label="PDF after fit")
     plt.legend()
-    pytest.zfit_savefig()
+    pytest.zfit_savefig(folder=plot_folder)
 
     result.hesse(name="hesse")
     result.errors(name="asymerr")
@@ -240,17 +240,17 @@ def test_binned_loss(weights, Loss, simultaneous):
     abs_tol_val = 0.15 if weights is None else 0.08  # more fluctuating with weights
     abs_tol_val *= 2 if isinstance(loss, zfit.loss.BinnedChi2) else 1
 
-    assert params[mu1]["value"] == pytest.approx(
+    assert pytest.approx(
         np.mean(test_values_np_shifted), abs=abs_tol_val
-    )
-    assert params[sigma1]["value"] == pytest.approx(
+    ) == params[mu1]["value"]
+    assert pytest.approx(
         np.std(test_values_np_shifted), abs=abs_tol_val
-    )
+    ) == params[sigma1]["value"]
     if loss.is_extended:
         nexpected = test_values_np_shifted.shape[0]
-        assert params[scale]["value"] == pytest.approx(
+        assert pytest.approx(
             nexpected, abs=3 * nexpected**0.5
-        )
+        ) == params[scale]["value"]
     constraints = zfit.constraint.GaussianConstraint(
         params=[mu2, sigma2],
         observation=[mu_constr[0], sigma_constr[0]],
@@ -287,7 +287,7 @@ def test_binned_chi2_loss(Loss, empty, errors):  # TODO: add test with zeros in 
     test_values = zfit.Data.from_tensor(obs=obs, tensor=test_values)
     init_yield = test_values_np.shape[0] * 1.2
     scale = zfit.Parameter("yield", init_yield, 0, init_yield * 4, step_size=1)
-    binning = zfit.binned.RegularBinning(32, obs.lower[0], obs.upper[0], name="obs1")
+    binning = zfit.binned.RegularBinning(32, obs.v1.lower, obs.v1.upper, name="obs1")
     obs_binned = obs.with_binning(binning)
     test_values_binned = test_values.to_binned(obs_binned)
     binned_gauss = zfit.models.tobinned.BinnedFromUnbinnedPDF(
@@ -325,7 +325,7 @@ def test_binned_loss_hist(weights, Loss):
     test_values = zfit.Data.from_tensor(obs=obs, tensor=test_values, weights=weights)
     init_yield = test_values_np.shape[0] * 1.2
     scale = zfit.Parameter("yield", init_yield, 0, init_yield * 4, step_size=1)
-    binning = zfit.binned.RegularBinning(32, obs.lower[0], obs.upper[0], name="obs1")
+    binning = zfit.binned.RegularBinning(32, obs.v1.lower, obs.v1.upper, name="obs1")
     obs_binned = obs.with_binning(binning)
     test_values_binned = test_values.to_binned(obs_binned)
     h = test_values_binned.to_hist()
@@ -340,9 +340,9 @@ def test_binned_loss_hist(weights, Loss):
 
     nllsum = loss + loss2  # check that sum works
     nllsum += loss2  # check that sum works
-    assert float(nllsum.value(full=True)) == pytest.approx(
+    assert pytest.approx(
         float(
             loss.value(full=True) + 2 * loss2.value(full=True)  # we add loss2 two times
         ),
         rel=1e-3,
-    )
+    ) == float(nllsum.value(full=True))

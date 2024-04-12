@@ -1,14 +1,18 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 import numpy as np
 import pytest
 from scipy.stats import crystalball
 
 import zfit
+import zfit.z.numpy as znp
 from zfit.core.testing import tester
-from zfit.models.physics import CrystalBall, DoubleCB
+from zfit.models.physics import CrystalBall, DoubleCB, GeneralizedCB
 
 mu = -0.3
 sigma = 1.1
+
+sigmal = 1.1
+sigmar = 1.1
 
 alphal = 0.8
 nl = 2.0
@@ -34,15 +38,14 @@ tester.register_pdf(pdf_class=CrystalBall, params_factories=_cb_params_factory)
 
 def sample_testing(pdf):
     sample = pdf.sample(n=1000, limits=(-0.5, 1.5))
-    sample_np = sample.numpy()
-    assert not any(np.isnan(sample_np))
+    assert not any(np.isnan(sample.value()))
 
 
 def eval_testing(pdf, x):
     probs = pdf.pdf(x)
     assert probs.shape.rank == 1
     assert probs.shape[0] == x.shape[0]
-    probs = zfit.run(probs)
+    probs = znp.asarray(probs)
     assert not np.any(np.isnan(probs))
     return probs
 
@@ -60,8 +63,6 @@ def test_cb_integral():
     integral_numeric = cbl.numeric_integrate(limits=int_limits, norm=False)
 
     integral = cbl.analytic_integrate(limits=int_limits, norm=False)
-    integral_numeric = zfit.run(integral_numeric)
-    integral = zfit.run(integral)
 
     assert pytest.approx(integral_numeric, 1e-5) == integral
 
@@ -72,31 +73,52 @@ def test_cb_integral():
     ]
 
     integral = np.sum(integrals)
-    integral_full = zfit.run(cbl.integrate(bounds, norm=False))
-    assert pytest.approx(float(integral_full)) == float(integral)
+    integral_full = (cbl.integrate(bounds, norm=False))
+    assert pytest.approx(integral_full) == (integral)
 
 
-def test_cb_dcb():
+@pytest.mark.parametrize("doublecb", ["DoubleCB", "GeneralizedCB"])
+def test_cb_dcb(doublecb):
     obs = zfit.Space("x", limits=bounds)
 
     mu_ = zfit.Parameter("mu", mu)
     sigma_ = zfit.Parameter("sigma", sigma)
+    sigmal_ = zfit.Parameter("sigmal", sigmal)
     alphal_ = zfit.Parameter("alphal", alphal)
     nl_ = zfit.Parameter("nl", nl)
+    sigmar_ = zfit.Parameter("sigmar", sigmar)
     alphar_ = zfit.Parameter("alphar", alphar)
     nr_ = zfit.Parameter("nr", nr)
 
-    cbl = CrystalBall(obs=obs, mu=mu_, sigma=sigma_, alpha=alphal_, n=nl_)
-    cbr = CrystalBall(obs=obs, mu=mu_, sigma=sigma_, alpha=-alphar_, n=nr_)
-    dcb = DoubleCB(
-        obs=obs, mu=mu_, sigma=sigma_, alphal=alphal_, nl=nl_, alphar=alphar_, nr=nr_
-    )
+    cbl = CrystalBall(obs=obs, mu=mu_, sigma=sigmal_, alpha=alphal_, n=nl_)
+    cbr = CrystalBall(obs=obs, mu=mu_, sigma=sigmar_, alpha=-alphar_, n=nr_)
+    if doublecb == "DoubleCB":
+        dcb = DoubleCB(
+            obs=obs,
+            mu=mu_,
+            sigma=sigma_,
+            alphal=alphal_,
+            nl=nl_,
+            alphar=alphar_,
+            nr=nr_,
+        )
+    else:
+        dcb = GeneralizedCB(
+            obs=obs,
+            mu=mu_,
+            sigmal=sigmal_,
+            alphal=alphal_,
+            nl=nl_,
+            sigmar=sigmar_,
+            alphar=alphar_,
+            nr=nr_,
+        )
 
     sample_testing(cbl)
     sample_testing(cbr)
     sample_testing(dcb)
 
-    x = np.random.normal(mu, sigma, size=10000)
+    x = np.random.normal(mu, sigma, size=10_000)
 
     probsl = eval_testing(cbl, x)
     probsr = eval_testing(cbr, x)
@@ -111,22 +133,28 @@ def test_cb_dcb():
     ratio_l = probsl_scipy / probsl
     ratio_r = probsr_scipy / probsr
 
-    assert np.allclose(ratio_l, ratio_l[0])
-    assert np.allclose(ratio_r, ratio_r[0])
+    ones = np.ones_like(ratio_l)
+    np.testing.assert_allclose(
+        ratio_l,
+        ones * ratio_l[0],
+        rtol=5e-7,
+        atol=5e-7,
+    )  # shape should be same
+    np.testing.assert_allclose(ratio_r, ones * ratio_r[0], rtol=5e-7, atol=5e-7)
 
     kwargs = dict(limits=(-5.0, mu), norm_range=lbounds)
     intl = cbl.integrate(**kwargs) - dcb.integrate(**kwargs)
-    assert pytest.approx(intl.numpy(), abs=1e-3) == 0.0
+    assert pytest.approx(intl, abs=1e-3) == 0.0
     intl = cbr.integrate(**kwargs) - dcb.integrate(**kwargs)
-    assert pytest.approx(intl.numpy(), abs=1e-3) != 0
+    assert pytest.approx(intl, abs=1e-3) != 0
 
     # TODO: update test to fixed DCB integral
     kwargs = dict(limits=(mu, 2.0), norm_range=rbounds)
     dcb_integr1 = dcb.integrate(**kwargs)
     intr = cbr.integrate(**kwargs) - dcb_integr1
-    assert pytest.approx(intr.numpy(), abs=1e-3) == 0.0
+    assert pytest.approx(intr, abs=1e-3) == 0.0
     intr = cbl.integrate(**kwargs) - dcb.integrate(**kwargs)
-    assert pytest.approx(intr.numpy(), abs=1e-3) != 0.0
+    assert pytest.approx(intr, abs=1e-3) != 0.0
 
     xl = x[x <= mu]
     xr = x[x > mu]
@@ -140,8 +168,8 @@ def test_cb_dcb():
     ratio_l = probsl_scipy / probs_dcb_l
     ratio_r = probsr_scipy / probs_dcb_r
 
-    assert np.allclose(ratio_l, ratio_l[0])
-    assert np.allclose(ratio_r, ratio_r[0])
+    np.testing.assert_allclose(ratio_l, ratio_l[0], rtol=3e-7)
+    np.testing.assert_allclose(ratio_r, ratio_r[0], rtol=3e-7)
 
     rnd_limits = sorted(list(np.random.uniform(*bounds, 130)) + list(bounds))
     integrals = []
@@ -149,5 +177,5 @@ def test_cb_dcb():
         integrals.append(dcb.integrate((low, up), norm=False))
 
     integral = np.sum(integrals)
-    integral_full = zfit.run(dcb.integrate((bounds[0], up), norm=False))
+    integral_full = znp.asarray(dcb.integrate((bounds[0], up), norm=False))
     assert pytest.approx(float(integral_full)) == float(integral)

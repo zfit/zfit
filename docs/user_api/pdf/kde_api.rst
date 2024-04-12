@@ -1,5 +1,3 @@
-
-
 KDEs provide a means of non-parametric density estimation.
 
 An extensive introduction and explanation can be found in

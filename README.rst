@@ -7,21 +7,28 @@ zfit: scalable pythonic fitting
 .. image:: https://scikit-hep.org/assets/images/Scikit--HEP-Affiliated-blue.svg
    :target: https://scikit-hep.org
 
+.. image:: https://img.shields.io/badge/DOI-10.1016%2Fj.softx.2020.100508-yellow
+   :target: https://www.sciencedirect.com/science/article/pii/S2352711019303851  
+   :alt: DOI 10.1016/j.softx.2020.100508  
+
+.. image:: https://img.shields.io/pypi/pyversions/zfit
+   :target: https://pypi.org/project/zfit/
+   :alt: PyPI - Python Version
+
 .. image:: https://img.shields.io/pypi/v/zfit.svg
    :target: https://pypi.python.org/pypi/zfit
 
 .. image:: https://img.shields.io/conda/vn/conda-forge/zfit
-   :alt: conda-forge
    :target: https://anaconda.org/conda-forge/zfit
+   :alt: conda-forge
 
-.. image:: https://github.com/zfit/zfit/workflows/CI/badge.svg
-   :target: https://github.com/zfit/zfit/actions
+.. image:: https://img.shields.io/spack/v/py-zfit
+   :target: https://github.com/spack/spack/blob/develop/var/spack/repos/builtin/packages/py-zfit/package.py
 
 .. image:: https://github.com/zfit/zfit/workflows/build/badge.svg
    :target: https://github.com/zfit/zfit/actions
 
-.. image:: https://coveralls.io/repos/github/zfit/zfit/badge.svg?branch=meta_changes
-   :target: https://coveralls.io/github/zfit/zfit?branch=meta_changes
+
 
 
 
@@ -47,7 +54,6 @@ and well integrated into `Scikit-HEP <https://scikit-hep.org/>`_, the HEP Python
 - **Statistical inference**: `hepstats <https://github.com/scikit-hep/hepstats>`_ for limits, CI, sWeights and more
 
 
-
 If you use zfit in **research**, please
 consider `citing <https://www.sciencedirect.com/science/article/pii/S2352711019303851>`_.
 
@@ -55,7 +61,7 @@ consider `citing <https://www.sciencedirect.com/science/article/pii/S23527110193
 some may still be missing and bugs may be encountered.
 It is, however, mostly ready for production, and is being used in analyses projects.
 If you want to use it for your project and you are not sure if all the needed functionality is there,
-feel free to `contact`_.
+feel free to `contact`_ us.
 
 Installation
 =============
@@ -79,28 +85,6 @@ For conda/mamba, use
 
    conda install -c conda-forge zfit
 
-
-
-
-
-Why?
-====
-
-The basic idea behind zfit is to offer a Python oriented alternative to the very successful RooFit library
-from the `ROOT <https://root.cern.ch/>`_ data analysis package that can integrate with the other packages
-that are part if the scientific Python ecosystem.
-Contrary to the monolithic approach of ROOT/RooFit, the aim of zfit is to be light and flexible enough t
-o integrate with any state-of-art tools and to allow scalability going to larger datasets.
-
-These core ideas are supported by two basic pillars:
-
-- The skeleton and extension of the code is minimalist, simple and finite:
-  the zfit library is exclusively designed for the purpose of model fitting and sampling with no attempt to extend its
-  functionalities to features such as statistical methods or plotting.
-
-- zfit is designed for optimal parallelisation and scalability by making use of TensorFlow as its backend.
-  The use of TensorFlow provides crucial features in the context of model fitting like taking care of the
-  parallelisation and analytic derivatives.
 
 
 
@@ -215,24 +199,37 @@ Once we've performed the fit and obtained the corresponding uncertainties, we ca
 And that's it!
 For more details and information of what you can do with zfit, checkout the `latest documentation`_.
 
+Why?
+====
+
+The basic idea behind zfit is to offer a Python oriented alternative to the very successful RooFit library
+from the `ROOT <https://root.cern.ch/>`_ data analysis package that can integrate with the other packages
+that are part if the scientific Python ecosystem.
+Contrary to the monolithic approach of ROOT/RooFit, the aim of zfit is to be light and flexible enough t
+o integrate with any state-of-art tools and to allow scalability going to larger datasets.
+
+These core ideas are supported by two basic pillars:
+
+- The skeleton and extension of the code is minimalist, simple and finite:
+  the zfit library is exclusively designed for the purpose of model fitting and sampling with no attempt to extend its
+  functionalities to features such as statistical methods or plotting.
+
+- zfit is designed for optimal parallelisation and scalability by making use of TensorFlow as its backend.
+  The use of TensorFlow provides crucial features in the context of model fitting like taking care of the
+  parallelisation and analytic derivatives.
+
 Prerequisites
 =============
 
-``zfit`` works with Python versions 3.7, 3.8 and 3.9.
-The following packages (amongst others) are required:
+``zfit`` works with Python versions 3.9 and above.
+The main dependency is `tensorflow <https://www.tensorflow.org/>`_: zfit follows a close version compatibility with TensorFlow.
 
-- `tensorflow <https://www.tensorflow.org/>`_ >= 2.6
-- `tensorflow_probability <https://www.tensorflow.org/probability>`_
-- `scipy <https://www.scipy.org/>`_ >=1.2
-- `uproot <https://github.com/scikit-hep/uproot>`_
-- `iminuit <https://github.com/scikit-hep/iminuit>`_
-
-... and some other packages. For a full list, check the `requirements <requirements.txt>`_.
+For a full list of all dependencies, check the `requirements <requirements.txt>`_.
 
 Installing
 ==========
 
-zfit is currently *only available on pip*. The **conda version is highly outdated and should not be used**.
+zfit is currently available on `PyPI <https://pypi.org/project/zfit/>`_ and `conda-forge <https://anaconda.org/conda-forge/zfit>`_.
 
 If possible, use a conda or virtual environment and do:
 

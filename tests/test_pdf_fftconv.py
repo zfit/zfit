@@ -29,6 +29,7 @@ interpolation_methods = ("linear", "spline", "spline:5", "spline:3")
 
 @pytest.mark.parametrize("interpolation", interpolation_methods)
 def test_conv_simple(interpolation):
+    plot_folder = "unbinned_fftconv"
     n_points = 2432
     obs = zfit.Space("obs1", limits=(-5, 5))
     param1 = zfit.Parameter("param1", -3)
@@ -54,22 +55,21 @@ def test_conv_simple(interpolation):
     )
 
     integral = conv.integrate(limits=obs)
-    probs_np = probs.numpy()
     np.testing.assert_allclose(probs, true_conv, rtol=0.01, atol=0.01)
 
-    assert pytest.approx(1, rel=1e-3) == integral.numpy()
-    assert len(probs_np) == n_points
+    assert pytest.approx(1, rel=1e-3) == integral
+    assert len(probs) == n_points
 
     plt.figure()
     plt.title(f"Conv FFT 1Dim, interpolation={interpolation}")
-    plt.plot(x, probs_np, label="zfit")
+    plt.plot(x, probs, label="zfit")
     plt.plot(x, true_conv, label="numpy")
     plt.legend()
-    # pytest.zfit_savefig()
+    pytest.zfit_savefig(folder=plot_folder)
 
 
 @pytest.mark.parametrize("interpolation", interpolation_methods)
-def test_asymetric_limits(interpolation):
+def test_asymmetric_limits(interpolation):
     from numpy import linspace
 
     import zfit
@@ -120,6 +120,7 @@ def test_asymetric_limits(interpolation):
 
 @pytest.mark.parametrize("interpolation", interpolation_methods)
 def test_conv_1d_shifted(interpolation):
+    plot_folder = "unbinned_conv"
     kerlim = (-3, 3)  # symmetric to make the np conv comparison simple
     obs_kernel = zfit.Space("obs1", limits=kerlim)
     obs = zfit.Space("obs1", limits=(5, 15))
@@ -134,7 +135,7 @@ def test_conv_1d_shifted(interpolation):
 
     conv = zfit.pdf.FFTConvPDFV1(func=func, kernel=funck, n=200)
 
-    xnp = znp.linspace(obs_kernel.rect_lower, obs.rect_upper, 4023)
+    xnp = znp.linspace(obs_kernel.v1.lower, obs.v1.upper, 4023)
 
     # true convolution
     kernel_points = obs_kernel.filter(xnp)
@@ -145,17 +146,16 @@ def test_conv_1d_shifted(interpolation):
     integral = conv.integrate(
         limits=obs,
     )
-    probs_np = probs.numpy()
-    np.testing.assert_allclose(probs_np, true_conv, rtol=0.01, atol=0.01)
+    np.testing.assert_allclose(probs, true_conv, rtol=0.01, atol=0.01)
 
-    assert pytest.approx(1, rel=1e-3) == integral.numpy()
+    assert pytest.approx(1, rel=1e-3) == integral
 
     plt.figure()
     plt.title("Conv FFT 1Dim shift testing")
-    plt.plot(x, probs_np, label="zfit")
+    plt.plot(x, probs, label="zfit")
     plt.plot(x, true_conv, label="numpy")
     plt.legend()
-    pytest.zfit_savefig()
+    pytest.zfit_savefig(folder=plot_folder)
 
 
 @pytest.mark.parametrize("interpolation", interpolation_methods)
@@ -192,7 +192,7 @@ def true_conv_np(func, gauss1, obs, x, xkernel):
     y_kernel = gauss1.pdf(xkernel)
     y_func = func.pdf(x)
     true_conv = scipy.signal.fftconvolve(y_func, y_kernel, mode="same")
-    true_conv /= np.mean(true_conv) * obs.rect_area()
+    true_conv /= np.mean(true_conv) * obs.volume
     return true_conv
 
 
@@ -200,12 +200,12 @@ def true_conv_2d_np(func, gauss1, obsfunc, xfunc, xkernel):
     y_func = func.pdf(xfunc)
     y_kernel = gauss1.pdf(xkernel)
     nfunc = int(np.sqrt(xfunc.shape[0]))
-    y_func = tf.reshape(y_func, (nfunc, nfunc))
+    y_func = znp.reshape(y_func, (nfunc, nfunc))
     nkernel = int(np.sqrt(xkernel.shape[0]))
-    y_kernel = tf.reshape(y_kernel, (nkernel, nkernel))
+    y_kernel = znp.reshape(y_kernel, (nkernel, nkernel))
     true_conv = scipy.signal.convolve(y_func, y_kernel, mode="same")
-    true_conv /= np.mean(true_conv) * obsfunc.rect_area()
-    return tf.reshape(true_conv, xfunc.shape[0])
+    true_conv /= np.mean(true_conv) * obsfunc.volume
+    return znp.reshape(true_conv, xfunc.shape[0])
 
 
 def test_max_1dim():
@@ -231,6 +231,7 @@ def test_max_1dim():
 
 @pytest.mark.skip  # not yet implemented WIP
 def test_conv_2D_simple():
+    plot_folder = "2D_fftconv"
     # zfit.run.set_graph_mode(False)  # TODO: remove, just for debugging
     # raise WorkInProgressError("2D convolution not yet implemented, re-activate if so")
     n_points = 1000
@@ -259,23 +260,23 @@ def test_conv_2D_simple():
     gauss = gauss1 * gauss22
     conv = zfit.pdf.FFTConvPDFV1(func=func, kernel=gauss)
 
-    start = obs_func.rect_lower
-    stop = obs_func.rect_upper
+    start = obs_func.v1.lower
+    stop = obs_func.v1.upper
     x_tensor = z.random.uniform((n_points, 2), start, stop)
-    x_tensor = tf.reshape(x_tensor, (-1, 2))
+    x_tensor = znp.reshape(x_tensor, (-1, 2))
     linspace = tf.linspace(start, stop, num=n_points)
     linspace = tf.transpose(tf.meshgrid(*tf.unstack(linspace, axis=-1)))
-    linspace_func = tf.reshape(linspace, (-1, 2))
+    linspace_func = znp.reshape(linspace, (-1, 2))
 
     # linspace_full = tf.linspace((-8, -8), (12, 12), num=n_points)
     # linspace_full = tf.transpose(tf.meshgrid(*tf.unstack(linspace_full, axis=-1)))
-    # linspace_full = tf.reshape(linspace_full, (-1, 2))
+    # linspace_full = znp.reshape(linspace_full, (-1, 2))
 
     linspace_kernel = tf.linspace(
-        obskernel.rect_lower, obskernel.rect_upper, num=n_points
+        obskernel.v1.lower, obskernel.v1.upper, num=n_points
     )
     linspace_kernel = tf.transpose(tf.meshgrid(*tf.unstack(linspace_kernel, axis=-1)))
-    linspace_kernel = tf.reshape(linspace_kernel, (-1, 2))
+    linspace_kernel = znp.reshape(linspace_kernel, (-1, 2))
     # linspace_kernel = obskernel.filter(linspace_full)
     # linspace_func = obs_func.filter(linspace_full)
 
@@ -294,9 +295,8 @@ def test_conv_2D_simple():
     integral = conv.integrate(
         limits=obs_func,
     )
-    assert pytest.approx(1, rel=1e-3) == integral.numpy()
-    probs_np = probs_rnd.numpy()
-    assert len(probs_np) == n_points
+    assert pytest.approx(1, rel=1e-3) == integral
+    assert len(probs) == n_points
     # probs_plot = np.reshape(probs_np, (-1, n_points))
     # x_plot = linspace[0:, ]
     # probs_plot_projx = np.sum(probs_plot, axis=0)
@@ -305,8 +305,8 @@ def test_conv_2D_simple():
     # plt.imshow(probs_plot)
     # plt.show()
 
-    true_probsr = tf.reshape(true_probs, (n_points, n_points))
-    probsr = tf.reshape(probs, (n_points, n_points))
+    true_probsr = znp.reshape(true_probs, (n_points, n_points))
+    probsr = znp.reshape(probs, (n_points, n_points))
     plt.figure()
     plt.imshow(true_probsr, label="true probs")
     plt.title("true probs")
@@ -327,23 +327,23 @@ def test_conv_2D_simple():
     plt.figure()
     plt.title("FFT conv, custom sampling, addition")
     plt.hist2d(x, y, bins=30)
-    # pytest.zfit_savefig()
+    pytest.zfit_savefig(folder=plot_folder)
 
     plt.figure()
     plt.title("FFT conv, fallback sampling, accept-reject")
     plt.hist2d(xns, yns, bins=30)
-    # pytest.zfit_savefig()
+    pytest.zfit_savefig(folder=plot_folder)
 
     plt.figure()
     plt.title("FFT conv x projection")
-    plt.hist(x.numpy(), bins=50, label="custom", alpha=0.5)
-    plt.hist(xns.numpy(), bins=50, label="fallback", alpha=0.5)
+    plt.hist(x, bins=50, label="custom", alpha=0.5)
+    plt.hist(xns, bins=50, label="fallback", alpha=0.5)
     plt.legend()
-    # pytest.zfit_savefig()
+    pytest.zfit_savefig(folder=plot_folder)
 
     plt.figure()
     plt.title("FFT conv y projection")
-    plt.hist(y.numpy(), bins=50, label="custom", alpha=0.5)
-    plt.hist(yns.numpy(), bins=50, label="fallback", alpha=0.5)
+    plt.hist(y, bins=50, label="custom", alpha=0.5)
+    plt.hist(yns, bins=50, label="fallback", alpha=0.5)
     plt.legend()
-    # pytest.zfit_savefig()
+    pytest.zfit_savefig(folder=plot_folder)

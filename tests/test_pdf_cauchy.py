@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 
 import zfit
 from zfit import z
@@ -20,10 +20,8 @@ def test_breitwigner1():
     bw1 = zfit.pdf.Cauchy(m=mean, gamma=width, obs=obs1)
 
     probs1 = bw1.pdf(x=test_values)
-    # TODO: add scipy dist?
-    probs1 = probs1.numpy()
     assert all(probs1) > 0
     # np.testing.assert_allclose(probs1, probs1_tfp, rtol=1e-2)
 
     sample1 = bw1.sample(100)
-    assert len(sample1.numpy()) == 100
+    assert len(sample1) == 100

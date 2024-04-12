@@ -1,10 +1,11 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
+from __future__ import annotations
 
 from ._loss.binnedloss import (
-    ExtendedBinnedNLL,
+    BinnedChi2,
     BinnedNLL,
     ExtendedBinnedChi2,
-    BinnedChi2,
+    ExtendedBinnedNLL,
 )
 from .core.loss import BaseLoss, ExtendedUnbinnedNLL, SimpleLoss, UnbinnedNLL
 

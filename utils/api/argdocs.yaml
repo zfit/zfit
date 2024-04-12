@@ -1,6 +1,13 @@
 space.init.obs: |1+
     Observable of the space.
 
+
+
+space.init.lowerupper: |1+
+    Lower and upper limits of the space, respectively.
+                Each of them should be a scalar-like object.
+
+
 space.init.limits: |1+
     A tuple-like object of the limits of the space.
                 These are the lower and upper limits.
@@ -14,29 +21,51 @@ space.init.binning: |1+
                 start and end points.
 
 space.init.name: |1+
-    Human-readable name of the space.
+    Name of the space.
+                Maybe has implications on the serialization and deserialization of the space.
+                For a human-readable name, use the label.
+
+space.init.label: |1+
+    Human-readable name
+                or label for a better description of the space, to be used with plots etc.
+                Has no programmatical functional purpose as identification.
 
 model.init.name: |1+
     Human-readable name
                 or label of
                 the PDF for better identification.
-                Has no programmatical functional purpose as identification.
 
 pdf.init.name: |1+
+    Name of the PDF.
+                Maybe has implications on the serialization and deserialization of the PDF.
+                For a human-readable name, use the label.
+
+pdf.init.label: |1+
     Human-readable name
                 or label of
-                the PDF for better identification.
+                the PDF for a better description, to be used with plots etc.
                 Has no programmatical functional purpose as identification.
 model.init.obs: |1+
     Observables of the
                 model. This will be used as the default space of the PDF and,
                 if not given explicitly, as the normalization range.
+                If the observables are binned and the model is unbinned, the
+                model will be a binned model, by wrapping the model in a
+                :py:class:`~zfit.pdf.BinnedFromUnbinnedPDF`, equivalent to
+                calling :py:meth:`~zfit.pdf.BasePDF.to_binned`.
 
                 The default space is used for example in the sample method: if no
                 sampling limits are given, the default space is used.
 
                 The observables are not equal to the domain as it does not restrict or
                 truncate the model outside this range.
+
+model.args.params: |1+
+    Mapping of the parameter names to the actual
+                values. The parameter names refer to the names of the parameters,
+                typically :py:class:`~zfit.Parameter`, that
+                the model was _initialized_ with, not the name of the models
+                parametrization.
 binneddata.param.space: |1+
     Binned space of the data.
                 The space is used to define the binning and the limits of the data.
@@ -51,6 +80,54 @@ binneddata.param.variances: |1+
                 have been drawn from a Poisson distribution. Follows the definition of the
                 `Unified Histogram Interface (UHI) <https://uhi.readthedocs.io/en/latest/plotting.html#plotting>`_.
 
+data.param.obs: |1+
+    Space of the data.
+                The space is used to define the observables and the limits of the data.
+
+data.init.obs: |1+
+    Space of the data.
+                The space is used to define the observables and the limits of the data.
+                If the :py:class:`~zfit.Space` has limits, these will be used to cut the
+                data. If the data is already cut, use ``guarantee_limits`` for a possible
+                performance improvement.
+
+data.init.weights: |1+
+    Weights of the data.
+                Has to be 1-D and match the shape of the data (nevents).
+                Note that a weighted dataset may not be supported by all methods
+                or need additional approximations to correct for the weights, taking
+                more time.
+
+data.init.name: |1+
+    Name of the data.
+                This can possibly be used for future identification, with possible
+                implications on the serialization and deserialization of the data.
+                The name should therefore be "machine-readable" and not contain
+                special characters.
+                (currently not used for a special purpose)
+                For a human-readable name or description, use the label.
+
+data.init.label: |1+
+    Human-readable name
+                or label of the data for a better description, to be used with plots etc.
+                Can contain arbitrary characters.
+                Has no programmatical functional purpose as identification.
+
+data.init.guarantee_limits: |1+
+    Guarantee that the data is within the limits.
+                If ``True``, the data will not be checked and _is assumed_ to be within the limits,
+                possibly because it was already cut before. This can lead to a performance
+                improvement as the data does not have to be checked.
+
+data.init.use_hash: |1+
+    If true, store a hash for caching.
+                If a PDF can cache values, this option needs to be enabled for the PDF
+                to be able to cache values.
+
+data.init.returns: |1+
+    ``zfit.Data`` or ``zfit.BinnedData``:
+                A ``Data`` object containing the unbinned data or a ``BinnedData`` if the obs is binned.
+
 binnedpdf.pdf.x: |1+
     Values to evaluate the PDF at.
                 If this is a ``ZfitBinnedData``-like object, a histogram of *densities*
@@ -61,8 +138,6 @@ binnedpdf.out.problike: |1+
   If the input was unbinned, it returns an array
                 of shape (nevents,). If the input was binned, the dimensions and ordering of
                 the axes corresponds to the input axes.
-
-
 
 pdf.init.obs: |1+
   Observables of the
@@ -615,6 +690,12 @@ loss.init.options: |1+
                 a new loss as the former will automatically overtake any relevant constants
                 and behavior.
 
+loss.args.params: |1+
+    Mapping of the parameter names to the actual
+                values. The parameter names refer to the names of the parameters,
+                typically :py:class:`~zfit.Parameter`, that is returned by
+                `get_params()`. If no params are given, the current default
+                values of the parameters are used.
 
 loss.value.full: |1+
     If True, return the full loss value, otherwise
@@ -713,6 +794,12 @@ result.init.values: |1+
     Values of the parameters at the
                     found minimum.
 
+hs3.ini.reuse_params: |1+
+    If parameters, the parameters
+                    will be reused if they are given.
+                    If a parameter is given, it will be used as the parameter
+                    with the same name. If a parameter is not given, a new
+                    parameter will be created.
 
 hs3.explain: |1+
     HS3 is the `HEP Statistics Serialization Standard <https://github.com/hep-statistics-serialization-standard/hep-statistics-serialization-standard>`_.

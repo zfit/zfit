@@ -1,31 +1,38 @@
-#  Copyright (c) 2023 zfit
-"""..
+#  Copyright (c) 2024 zfit
+"""Exceptions that are raised by zfit.
 
-todo:: Add module docstring.
+Some are to provide a more specific error message, others are to steer the execution by raising an error that will be
+caught in the right place.
 """
+
+from __future__ import annotations
+
 from .core.serialmixin import NumpyArrayNotSerializableError
 from .util.checks import NONE
 from .util.deprecation import deprecated
 from .util.exception import (
+    AnalyticGradientNotAvailable,
     AnalyticIntegralNotImplemented,
     AnalyticNotImplemented,
     AnalyticSamplingNotImplemented,
+    BreakingAPIChangeError,
     FunctionNotImplemented,
     IllegalInGraphModeError,
     InitNotImplemented,
+    LogicalUndefinedOperationError,
     MaximumIterationReached,
     MinimizerSubclassingError,
     MultipleLimitsNotImplemented,
-    NameAlreadyTakenError,
     NormRangeNotImplemented,
+    ParamNameNotUniqueError,
+    ShapeIncompatibleError,
     SpecificFunctionNotImplemented,
     VectorizedLimitsNotImplemented,
-    ShapeIncompatibleError,
-    LogicalUndefinedOperationError,
 )
 
 __all__ = [
     "NameAlreadyTakenError",
+    "ParamNameNotUniqueError",
     "IllegalInGraphModeError",
     "NormRangeNotImplemented",
     "MultipleLimitsNotImplemented",
@@ -41,6 +48,7 @@ __all__ = [
     "InitNotImplemented",
     "LogicalUndefinedOperationError",
     "NumpyArrayNotSerializableError",
+    "AnalyticGradientNotAvailable",
     "NONE",
 ]
 
@@ -91,3 +99,11 @@ class AnalyticNotImplementedError(AnalyticNotImplemented):
     @deprecated(None, "Use AnalyticNotImplemented instead.")
     def __init__(self, *args: object) -> None:
         super().__init__(*args)
+
+
+class NameAlreadyTakenError(Exception):
+    def __init__(self, *_: object) -> None:
+        raise BreakingAPIChangeError(
+            msg="NameAlreadyTakenError has been removed and the behavior has substantially changed:"
+            "parameters are now allowed to exist with the same as long as they are not within the same PDF/loss/func."
+        )

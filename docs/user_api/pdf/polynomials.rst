@@ -1,11 +1,10 @@
-
-
 While polynomials are also basic PDFs, they convey mathematically
 a more special class of functions.
 
 .. autosummary::
     :toctree: _generated/polynomials
 
+    zfit.pdf.Bernstein
     zfit.pdf.Chebyshev
     zfit.pdf.Legendre
     zfit.pdf.Chebyshev2

@@ -1,17 +1,28 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2024 zfit
+from __future__ import annotations
 
 __all__ = [
     "BasePDF",
     "BaseFunctor",
     "Exponential",
+    "Voigt",
     "CrystalBall",
     "DoubleCB",
+    "GeneralizedCB",
+    "GaussExpTail",
+    "GeneralizedGaussExpTail",
     "Gauss",
+    "BifurGauss",
     "Uniform",
     "TruncatedGauss",
     "WrapDistribution",
     "Cauchy",
     "Poisson",
+    "QGauss",
+    "ChiSquared",
+    "StudentT",
+    "Gamma",
+    "Bernstein",
     "Chebyshev",
     "Legendre",
     "Chebyshev2",
@@ -37,17 +48,27 @@ __all__ = [
     "BinwiseScaleModifier",
     "BinnedSumPDF",
     "SplinePDF",
+    "TruncatedPDF",
+    "LogNormal",
+    "CachedPDF",
 ]
 
 from .core.basepdf import BasePDF
-from .models.basic import Exponential
+from .models.basic import Exponential, Voigt
 from .models.binned_functor import BinnedSumPDF
+from .models.cache import CachedPDF
 from .models.conditional import ConditionalPDFV1
 from .models.convolution import FFTConvPDFV1
 from .models.dist_tfp import (
+    BifurGauss,
     Cauchy,
+    ChiSquared,
+    Gamma,
     Gauss,
+    LogNormal,
     Poisson,
+    QGauss,
+    StudentT,
     TruncatedGauss,
     Uniform,
     WrapDistribution,
@@ -64,8 +85,15 @@ from .models.kde import (
     KDE1DimISJ,
 )
 from .models.morphing import SplineMorphingPDF
-from .models.physics import CrystalBall, DoubleCB
+from .models.physics import (
+    CrystalBall,
+    DoubleCB,
+    GaussExpTail,
+    GeneralizedCB,
+    GeneralizedGaussExpTail,
+)
 from .models.polynomials import (
+    Bernstein,
     Chebyshev,
     Chebyshev2,
     Hermite,
@@ -75,4 +103,5 @@ from .models.polynomials import (
 )
 from .models.special import ZPDF, SimpleFunctorPDF, SimplePDF
 from .models.tobinned import BinnedFromUnbinnedPDF
+from .models.truncated import TruncatedPDF
 from .models.unbinnedpdf import UnbinnedFromBinnedPDF

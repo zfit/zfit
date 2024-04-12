@@ -1,15 +1,16 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+import numpy as np
+import pandas as pd
+
 if TYPE_CHECKING:
     pass
 
-from collections.abc import Callable
-from collections.abc import Iterable
-
+from collections.abc import Callable, Iterable
 from typing import Any
 
 import tensorflow as tf
@@ -17,7 +18,7 @@ from uhi.typing.plottable import PlottableHistogram
 
 
 def convert_to_container(
-    value: Any, container: Callable = list, non_containers=None, convert_none=False
+    value: Any, container: Callable = list, non_containers=None, ignore=None, convert_none=False
 ) -> None | Iterable:
     """Convert `value` into a `container` storing `value` if `value` is not yet a python container.
 
@@ -31,30 +32,35 @@ def convert_to_container(
 
             By default, the following types are added to `non_containers`:
             [str, tf.Tensor, ZfitData, ZfitLoss, ZfitModel, ZfitSpace, ZfitParameter, ZfitBinnedData,
-            ZfitBinning, PlottableHistogram]
+            ZfitBinning, PlottableHistogram, pd.DataFrame, pd.Series, np.ndarray]
 
     Returns:
     """
-    from ..core.interfaces import ZfitData, ZfitBinnedData  # here due to dependency
-    from ..core.interfaces import (
+    from ..core.interfaces import (  # here due to dependency
+        ZfitBinnedData,
+        ZfitBinning,
+        ZfitData,
         ZfitLoss,
         ZfitModel,
         ZfitParameter,
         ZfitSpace,
-        ZfitBinning,
     )
 
     if non_containers is None:
         non_containers = []
     if not isinstance(non_containers, list):
-        raise TypeError("`non_containers` have to be a list or a tuple")
+        msg = "`non_containers` have to be a list or a tuple"
+        raise TypeError(msg)
     if value is None and not convert_none:
         return value
-    if not type(value) == container:
+    if type(value) != container and non_containers is not False:
+        import hist
+
         non_containers.extend(
             [
                 str,
                 tf.Tensor,
+                np.ndarray,
                 ZfitData,
                 ZfitLoss,
                 ZfitModel,
@@ -63,9 +69,15 @@ def convert_to_container(
                 ZfitBinnedData,
                 ZfitBinning,
                 PlottableHistogram,
+                pd.DataFrame,
+                pd.Series,
+                hist.axis.Regular,
+                hist.axis.Variable,
             ]
         )
         non_containers = tuple(non_containers)
+        if ignore is not None and isinstance(value, ignore):
+            return value
         try:
             if isinstance(value, non_containers):
                 raise TypeError  # we can't convert, it's a non-container

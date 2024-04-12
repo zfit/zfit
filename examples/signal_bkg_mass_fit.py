@@ -1,9 +1,10 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2024 zfit
+from __future__ import annotations
 
 import zfit
 
 # create space
-obs = zfit.Space("x", limits=(-10, 10))
+obs = zfit.Space("x", -10, 10)
 
 # parameters
 mu = zfit.Parameter("mu", 1.0, -4, 6)
@@ -19,24 +20,20 @@ model = zfit.pdf.SumPDF([gauss, exponential], fracs=frac)
 # data
 n_sample = 10000
 
-data = model.create_sampler(n_sample, limits=obs)
-data.resample()
+# if we sample once, otherwise use create_sampler
+data = model.sample(n_sample, limits=obs)  # limits can be omitted, then the default limits are used
 
 # set the values to a start value for the fit
-mu.set_value(0.5)
-sigma.set_value(1.2)
-lambd.set_value(-0.05)
-frac.set_value(0.07)
+zfit.param.set_values([mu, sigma, lambd, frac], [0.5, 1.2, -0.05, 0.07])
 
 # create NLL
 nll = zfit.loss.UnbinnedNLL(model=model, data=data)
 
 # create a minimizer
 minimizer = zfit.minimize.Minuit()
-result = minimizer.minimize(nll)
-print(result)
+zfit.run.experimental_disable_param_update()
+result = minimizer.minimize(nll).update_params()
 
 # do the error calculations, here with minos
 param_hesse = result.hesse()
 param_errors, new_result = result.errors()
-print(result.params)

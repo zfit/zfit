@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 import numpy as np
 import pytest
 import tensorflow as tf
@@ -7,6 +7,7 @@ import zfit.core.basepdf
 import zfit.models.dist_tfp
 import zfit.settings
 from zfit import z
+import zfit.z.numpy as znp
 from zfit.core.loss import UnbinnedNLL
 from zfit.core.space import Space
 from zfit.minimize import Minuit
@@ -145,13 +146,13 @@ def test_extended_unbinned_nll(size):
     minimizer = Minuit(tol=1e-4)
     status = minimizer.minimize(loss=nll)
     params = status.params
-    assert params[mu3]["value"] == pytest.approx(
-        zfit.run(tf.math.reduce_mean(test_values.value())), rel=0.05
-    )
-    assert params[sigma3]["value"] == pytest.approx(
-        zfit.run(tf.math.reduce_std(test_values.value())), rel=0.05
-    )
-    assert params[yield3]["value"] == pytest.approx(size, rel=0.005)
+    assert pytest.approx(
+        np.mean(test_values.value()), rel=0.05
+    ) == params[mu3]["value"]
+    assert pytest.approx(
+        np.std(test_values.value()), rel=0.05
+    ) == params[sigma3]["value"]
+    assert pytest.approx(size, rel=0.005) == params[yield3]["value"]
 
 
 def test_unbinned_simultaneous_nll():
@@ -161,10 +162,10 @@ def test_unbinned_simultaneous_nll():
     params = status.params
     assert set(nll.get_params()) == {mu1, mu2, sigma1, sigma2}
 
-    assert params[mu1]["value"] == pytest.approx(np.mean(test_values_np), rel=0.007)
-    assert params[mu2]["value"] == pytest.approx(np.mean(test_values_np2), rel=0.007)
-    assert params[sigma1]["value"] == pytest.approx(np.std(test_values_np), rel=0.007)
-    assert params[sigma2]["value"] == pytest.approx(np.std(test_values_np2), rel=0.007)
+    assert pytest.approx(np.mean(test_values_np), rel=0.007) == params[mu1]["value"]
+    assert pytest.approx(np.mean(test_values_np2), rel=0.007) == params[mu2]["value"]
+    assert pytest.approx(np.std(test_values_np), rel=0.007) == params[sigma1]["value"]
+    assert pytest.approx(np.std(test_values_np2), rel=0.007) == params[sigma2]["value"]
 
 
 @pytest.mark.flaky(3)
@@ -188,10 +189,10 @@ def test_unbinned_nll(weights, sigma, options):
     params = status.params
     rel_error = 0.12 if weights is None else 0.1  # more fluctuating with weights
 
-    assert params[mu1]["value"] == pytest.approx(np.mean(test_values_np), rel=rel_error)
-    assert params[sigma1]["value"] == pytest.approx(
+    assert pytest.approx(np.mean(test_values_np), rel=rel_error) == params[mu1]["value"]
+    assert pytest.approx(
         np.std(test_values_np), rel=rel_error
-    )
+    ) == params[sigma1]["value"]
 
     constraints = zfit.constraint.nll_gaussian(
         params=[mu2, sigma2],
@@ -267,7 +268,7 @@ def test_add():
     assert simult_nll.fit_range == ranges
 
     def eval_constraint(constraints):
-        return z.reduce_sum([c.value() for c in constraints]).numpy()
+        return z.reduce_sum([c.value() for c in constraints])
 
     assert eval_constraint(simult_nll.constraints) == eval_constraint(merged_contraints)
     assert set(simult_nll.get_params()) == {param1, param2, param3}
@@ -286,27 +287,23 @@ def test_gradients(chunksize):
     param2 = zfit.Parameter("param2", initial2)
 
     gauss1 = Gauss(param1, 4, obs=obs1)
-    gauss1.set_norm_range((-5, 5))
     gauss2 = Gauss(param2, 5, obs=obs1)
-    gauss2.set_norm_range((-5, 5))
 
     data1 = zfit.Data.from_tensor(obs=obs1, tensor=z.constant(1.0, shape=(100,)))
-    data1.set_data_range((-5, 5))
     data2 = zfit.Data.from_tensor(obs=obs1, tensor=z.constant(1.0, shape=(100,)))
-    data2.set_data_range((-5, 5))
 
     nll = UnbinnedNLL(model=[gauss1, gauss2], data=[data1, data2])
 
     def loss_func(values):
         for val, param in zip(values, nll.get_cache_deps(only_floating=True)):
             param.set_value(val)
-        return nll.value().numpy()
+        return nll.value()
 
     # theoretical, numerical = tf.test.compute_gradient(loss_func, list(params))
     gradient1 = nll.gradient(params=param1)
     gradient_func = Gradient(loss_func)
     # gradient_func = lambda *args, **kwargs: list(gradient_func_numpy(*args, **kwargs))
-    assert gradient1[0].numpy() == pytest.approx(gradient_func([param1.numpy()]))
+    assert pytest.approx(gradient_func([param1])) == gradient1[0]
     param1.set_value(initial1)
     param2.set_value(initial2)
     params = [param2, param1]
@@ -314,7 +311,7 @@ def test_gradients(chunksize):
     both_gradients_true = list(
         reversed(list(gradient_func([initial1, initial2])))
     )  # because param2, then param1
-    assert [g.numpy() for g in gradient2] == pytest.approx(both_gradients_true)
+    np.testing.assert_allclose(gradient2, both_gradients_true)
 
     param1.set_value(initial1)
     param2.set_value(initial2)
@@ -325,7 +322,7 @@ def test_gradients(chunksize):
             if param_o is param:
                 gradients_true3.append(float(grad))
                 break
-    assert [g.numpy() for g in gradient3] == pytest.approx(gradients_true3)
+    np.testing.assert_allclose(gradient3, gradients_true3)
 
 
 def test_simple_loss():
@@ -364,14 +361,14 @@ def test_simple_loss():
     assert set(loss_deps.get_params()) == set(param_list)
 
     loss_tensor = loss_func(param_list)
-    loss_value_np = loss_tensor.numpy()
+    loss_value_np = loss_tensor
 
-    assert loss.value().numpy() == pytest.approx(loss_value_np)
-    assert loss_deps.value().numpy() == pytest.approx(loss_value_np)
+    assert pytest.approx(loss_value_np) == loss.value()
+    assert pytest.approx(loss_value_np) == loss_deps.value()
 
-    assert loss.value(full=True).numpy() == pytest.approx(
-        loss_deps.value(full=True).numpy()
-    )
+    assert pytest.approx(
+        loss_deps.value(full=True)
+    ) == loss.value(full=True)
 
     with pytest.raises(IntentionAmbiguousError):
         _ = loss + loss_deps
@@ -379,17 +376,17 @@ def test_simple_loss():
     minimizer = zfit.minimize.Minuit()
     result = minimizer.minimize(loss=loss)
     assert result.valid
-    assert true_a == pytest.approx(result.params[a_param]["value"], rel=0.03)
-    assert true_b == pytest.approx(result.params[b_param]["value"], rel=0.06)
-    assert true_c == pytest.approx(result.params[c_param]["value"], rel=0.5)
+    assert pytest.approx(result.params[a_param]["value"], rel=0.03) == true_a
+    assert pytest.approx(result.params[b_param]["value"], rel=0.06) == true_b
+    assert pytest.approx(result.params[c_param]["value"], rel=0.5) == true_c
 
-    zfit.param.set_values(param_list, np.array(zfit.run(param_list)) + 0.6)
+    zfit.param.set_values(param_list, znp.asarray(param_list) + 0.6)
     result2 = minimizer.minimize(loss=loss2)
     assert result2.valid
     params = list(result2.params)
-    assert true_a == pytest.approx(result2.params[params[0]]["value"], rel=0.03)
-    assert true_b == pytest.approx(result2.params[params[1]]["value"], rel=0.06)
-    assert true_c == pytest.approx(result2.params[params[2]]["value"], rel=0.5)
+    assert pytest.approx(result2.params[params[0]]["value"], rel=0.03) == true_a
+    assert pytest.approx(result2.params[params[1]]["value"], rel=0.06) == true_b
+    assert pytest.approx(result2.params[params[2]]["value"], rel=0.5) == true_c
 
 
 def test_create_new_nll():
@@ -424,7 +421,7 @@ def test_create_new_extnll():
     nll = zfit.loss.ExtendedUnbinnedNLL(
         model=gaussian1,
         data=test_values,
-        constraints=zfit.constraint.GaussianConstraint(mu1, 1.0, 0.1),
+        constraints=zfit.constraint.GaussianConstraint(mu1, 1.0, sigma=0.1),
     )
 
     nll2 = nll.create_new(model=gaussian1)
@@ -460,14 +457,14 @@ def test_callable_loss(create_loss):
     loss = create_loss()
 
     params = list(loss.get_params())
-    x = np.array(zfit.run(params)) + 0.1
+    x = np.array(znp.asarray(params)) + 0.1
     value_loss = loss(x)
     with zfit.param.set_values(params, x):
         true_val = zfit.run(loss.value(full=True))
         _ = zfit.run(loss.value(full=True))
-        assert true_val == pytest.approx(zfit.run(value_loss))
+        assert pytest.approx(value_loss) == true_val
         with pytest.raises(BehaviorUnderDiscussion):
-            assert true_val == pytest.approx(zfit.run(loss()))
+            assert pytest.approx((loss())) == true_val
 
     with pytest.raises(ValueError):
         loss(x[:-1])
@@ -482,7 +479,7 @@ def test_iminuit_compatibility(create_loss):
     loss = create_loss()
 
     params = list(loss.get_params())
-    x = np.array(zfit.run(params)) + 0.1
+    x = znp.asarray(params) + 0.1
     zfit.param.set_values(params, x)
 
     with pytest.raises(ValueError):
@@ -500,9 +497,7 @@ def test_iminuit_compatibility(create_loss):
     zfit.param.set_values(params, x)
     minimizer_zfit = zfit.minimize.Minuit()
     result_zfit = minimizer_zfit.minimize(loss)
-    assert float(result_zfit.fminfull) == pytest.approx(
-        float(result.fmin.fval), abs=0.03
-    )
+    assert pytest.approx(result.fmin.fval, abs=0.03) == result_zfit.fmin
 
 
 @pytest.mark.flaky(3)
@@ -527,10 +522,10 @@ def test_binned_nll(weights):
     params = status.params
     rel_error = 0.035 if weights is None else 0.15  # more fluctuating with weights
 
-    assert params[mu1]["value"] == pytest.approx(np.mean(test_values_np), rel=rel_error)
-    assert params[sigma1]["value"] == pytest.approx(
+    assert pytest.approx(np.mean(test_values_np), rel=rel_error) == params[mu1]["value"]
+    assert pytest.approx(
         np.std(test_values_np), rel=rel_error
-    )
+    ) == params[sigma1]["value"]
 
     constraints = zfit.constraint.GaussianConstraint(
         params=[mu2, sigma2],

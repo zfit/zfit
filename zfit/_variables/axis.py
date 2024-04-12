@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 
 from __future__ import annotations
 
@@ -6,7 +6,6 @@ from collections.abc import Iterable
 
 import hist
 import zfit_interface as zinterface
-from hist.axestuple import NamedAxesTuple
 
 # @tfp.experimental.auto_composite_tensor()
 # class Regular(hist.axis.Regular, tfp.experimental.AutoCompositeTensor, family='zfit'):
@@ -32,8 +31,8 @@ class SpaceV2:
         for axis in self.axes:
             if axis.name == key:
                 return axis
-        else:
-            raise KeyError(f"{key} not in {self}.")
+        msg = f"{key} not in {self}."
+        raise KeyError(msg)
 
     def __iter__(self):
         yield from self.axes
@@ -48,6 +47,7 @@ def to_var_str(value):
         return value
     if isinstance(value, zinterface.variables.ZfitVar):
         return value.name
+    return None
 
 
 class Axis(Variable):
@@ -67,9 +67,8 @@ class HashableAxisMixin:
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         if self.name == "":
-            raise ValueError(
-                "Currently, a binning has to have a name coinciding with the obs."
-            )
+            msg = "Currently, a binning has to have a name coinciding with the obs."
+            raise ValueError(msg)
 
     def __hash__(self):
         return hash(tuple(self.edges))
@@ -80,15 +79,16 @@ class RegularBinning(HashableAxisMixin, hist.axis.Regular, ZfitBinning, family="
         super().__init__(bins, start, stop, name=name, flow=False)
 
 
-class VariableBinning(
-    HashableAxisMixin, hist.axis.Variable, ZfitBinning, family="zfit"
-):
+class VariableBinning(HashableAxisMixin, hist.axis.Variable, ZfitBinning, family="zfit"):
     def __init__(self, edges: Iterable[float], *, name: str) -> None:
         super().__init__(edges=edges, name=name, flow=False)
 
 
 class Binnings(hist.axestuple.NamedAxesTuple):
     pass
+
+
+HIST_BINNING_TYPES = (hist.axis.Regular, hist.axis.Variable)
 
 
 def histaxis_to_axis(axis):
@@ -105,7 +105,8 @@ def new_from_axis(axis):
         return RegularBinning(axis.size, lower, upper, name=axis.name)
     if isinstance(axis, hist.axis.Variable):
         return VariableBinning(axis.edges, name=axis.name)
-    raise ValueError(f"{axis} is not a valid axis.")
+    msg = f"{axis} is not a valid axis."
+    raise ValueError(msg)
 
 
 def histaxes_to_binning(binnings):

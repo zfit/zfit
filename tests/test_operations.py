@@ -1,4 +1,4 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2024 zfit
 import numpy as np
 import pytest
 import tensorflow as tf
@@ -59,8 +59,8 @@ def test_param_func():
 
     new_func_equivalent = func * param4
 
-    result1 = new_func.func(x=rnd_test_values).numpy()
-    result1_equivalent = new_func_equivalent.func(x=rnd_test_values).numpy()
+    result1 = new_func.func(x=rnd_test_values)
+    result1_equivalent = new_func_equivalent.func(x=rnd_test_values)
     result2 = func.func(x=rnd_test_values) * param4
     np.testing.assert_array_equal(result1, result2)
     np.testing.assert_array_equal(result1_equivalent, result2)
@@ -94,9 +94,9 @@ def test_func_func():
         None, rnd_test_values
     )
 
-    added_values = added_values.numpy()
-    true_added_values = true_added_values.numpy()
-    prod_values = prod_values.numpy()
-    true_prod_values = true_prod_values.numpy()
+    added_values = added_values
+    true_added_values = true_added_values
+    prod_values = prod_values
+    true_prod_values = true_prod_values
     np.testing.assert_allclose(true_added_values, added_values)
     np.testing.assert_allclose(true_prod_values, prod_values)

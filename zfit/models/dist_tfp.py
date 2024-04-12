@@ -9,31 +9,28 @@ Therefore, a convenient wrapper as well as a lot of implementations are provided
 #  Copyright (c) 2024 zfit
 from __future__ import annotations
 
-from collections import OrderedDict
+from typing import Literal
 
 import tensorflow as tf
 import tensorflow_probability as tfp
 import tensorflow_probability.python.distributions as tfd
 from pydantic import Field
 
-from typing import Literal
-
+import zfit.z.numpy as znp
 from zfit import z
-from zfit.util.exception import (
-    AnalyticSamplingNotImplemented,
-)
+from zfit.util.exception import AnalyticSamplingNotImplemented
+
 from ..core.basepdf import BasePDF
 from ..core.interfaces import ZfitData
 from ..core.parameter import convert_to_parameter
 from ..core.serialmixin import SerializableMixin
 from ..core.space import Space, supports
-from ..serialization import SpaceRepr, Serializer
+from ..serialization import Serializer, SpaceRepr
 from ..serialization.pdfrepr import BasePDFRepr
 from ..settings import ztypes
 from ..util import ztyping
 from ..util.deprecation import deprecated_args
 from ..util.ztyping import ExtendedInputType, NormInputType
-
 
 # TODO: improve? while loop over `.sample`? Maybe as a fallback if not implemented?
 
@@ -49,19 +46,17 @@ def tfd_analytic_sample(n: int, dist: tfd.Distribution, limits: ztyping.ObsTypeI
     Returns:
         The sampled data with the number of samples and the number of observables.
     """
-    lower_bound, upper_bound = limits.rect_limits
+    lower_bound, upper_bound = limits.v0.limits  # not working with MultiSpace
     lower_prob_lim = dist.cdf(lower_bound)
     upper_prob_lim = dist.cdf(upper_bound)
 
     shape = (n, 1)
-    prob_sample = z.random.uniform(
-        shape=shape, minval=lower_prob_lim, maxval=upper_prob_lim
-    )
+    prob_sample = z.random.uniform(shape=shape, minval=lower_prob_lim, maxval=upper_prob_lim)
     prob_sample.set_shape((None, 1))
     try:
         sample = dist.quantile(prob_sample)
     except NotImplementedError:
-        raise AnalyticSamplingNotImplemented
+        raise AnalyticSamplingNotImplemented from None
     sample.set_shape((None, limits.n_obs))
     return sample
 
@@ -87,12 +82,7 @@ class WrapDistribution(BasePDF):  # TODO: extend functionality of wrapper, like 
         if dist_params is None:
             dist_params = {}
         name = name or distribution.name
-        if params is None:
-            params = OrderedDict((k, p) for k, p in dist_params.items())
-        else:
-            params = OrderedDict(
-                (k, convert_to_parameter(p)) for k, p in params.items()
-            )
+        params = dist_params.copy() if params is None else {k: convert_to_parameter(p) for k, p in params.items()}
 
         super().__init__(obs=obs, dtype=dtype, name=name, params=params, **kwargs)
 
@@ -118,12 +108,11 @@ class WrapDistribution(BasePDF):  # TODO: extend functionality of wrapper, like 
     # TODO: register integral?
     @supports()
     def _analytic_integrate(self, limits, norm):
+        del norm  # not supported
         lower, upper = limits._rect_limits_tf
         lower = z.unstack_x(lower)
         upper = z.unstack_x(upper)
-        tf.debugging.assert_all_finite(
-            (lower, upper), "Are infinite limits needed? Causes troubles with NaNs"
-        )
+        tf.debugging.assert_all_finite((lower, upper), "Are infinite limits needed? Causes troubles with NaNs")
         return self.distribution.cdf(upper) - self.distribution.cdf(lower)
 
     def _analytic_sample(self, n, limits: Space):
@@ -199,9 +188,11 @@ class Gauss(WrapDistribution, SerializableMixin):
         mu: ztyping.ParamTypeInput,
         sigma: ztyping.ParamTypeInput,
         obs: ztyping.ObsTypeInput,
+        *,
         extended: ExtendedInputType = None,
         norm: NormInputType = None,
         name: str = "Gauss",
+        label=None,
     ):
         """Gaussian or Normal distribution with a mean (mu) and a standartdeviation (sigma).
 
@@ -230,12 +221,15 @@ class Gauss(WrapDistribution, SerializableMixin):
                By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
             name: |@doc:model.init.name| Human-readable name
                or label of
-               the PDF for better identification.
-               Has no programmatical functional purpose as identification. |@docend:model.init.name|
+               the PDF for better identification. |@docend:model.init.name|
+               label: |@doc:model.init.label| Label of the PDF, if None is given, it will be the name. |@docend:model.init.label|
         """
-        mu, sigma = self._check_input_params(mu, sigma)
-        params = OrderedDict((("mu", mu), ("sigma", sigma)))
-        dist_params = lambda: dict(loc=mu.value(), scale=sigma.value())
+        mu, sigma = self._check_input_params_tfp(mu, sigma)
+        params = {"mu": mu, "sigma": sigma}
+
+        def dist_params():
+            return {"loc": mu.value(), "scale": sigma.value()}
+
         distribution = tfp.distributions.Normal
         super().__init__(
             distribution=distribution,
@@ -245,6 +239,7 @@ class Gauss(WrapDistribution, SerializableMixin):
             name=name,
             extended=extended,
             norm=norm,
+            label=label,
         )
 
 
@@ -265,9 +260,9 @@ class ExponentialTFP(WrapDistribution):
         obs: ztyping.ObsTypeInput,
         name: str = "Exponential",
     ):
-        (tau,) = self._check_input_params(tau)
-        params = OrderedDict((("tau", tau),))
-        dist_params = dict(rate=tau)
+        (tau,) = self._check_input_params_tfp(tau)
+        params = {"tau", tau}
+        dist_params = {"rate": tau}
         distribution = tfp.distributions.Exponential
         super().__init__(
             distribution=distribution,
@@ -290,6 +285,7 @@ class Uniform(WrapDistribution):
         extended: ExtendedInputType = None,
         norm: NormInputType = None,
         name: str = "Uniform",
+        label: str | None = None,
     ):
         """Uniform distribution which is constant between `low`, `high` and zero outside.
 
@@ -304,11 +300,20 @@ class Uniform(WrapDistribution):
                ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
             norm: |@doc:pdf.init.norm| Normalization of the PDF.
                By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
-            name: |@doc:model.init.pdf||@docend:model.init.pdf|
+            name: |@doc:pdf.init.name| Name of the PDF.
+               Maybe has implications on the serialization and deserialization of the PDF.
+               For a human-readable name, use the label. |@docend:pdf.init.name|
+            label: |@doc:pdf.init.label| Human-readable name
+               or label of
+               the PDF for a better description, to be used with plots etc.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
         """
-        low, high = self._check_input_params(low, high)
-        params = OrderedDict((("low", low), ("high", high)))
-        dist_params = lambda: dict(low=low.value(), high=high.value())
+        low, high = self._check_input_params_tfp(low, high)
+        params = {"low": low, "high": high}
+
+        def dist_params():
+            return {"low": low.value(), "high": high.value()}
+
         distribution = tfp.distributions.Uniform
         super().__init__(
             distribution=distribution,
@@ -318,6 +323,7 @@ class Uniform(WrapDistribution):
             name=name,
             extended=extended,
             norm=norm,
+            label=label,
         )
 
 
@@ -335,6 +341,7 @@ class TruncatedGauss(WrapDistribution):
         extended: ExtendedInputType = None,
         norm: NormInputType = None,
         name: str = "TruncatedGauss",
+        label: str | None = None,
     ):
         """Gaussian distribution that is 0 outside of `low`, `high`. Equivalent to the product of Gauss and Uniform.
 
@@ -351,19 +358,26 @@ class TruncatedGauss(WrapDistribution):
                ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
             norm: |@doc:pdf.init.norm| Normalization of the PDF.
                By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
-            name: |@doc:model.init.name| Human-readable name
+            name: |@doc:pdf.init.name| Name of the PDF.
+               Maybe has implications on the serialization and deserialization of the PDF.
+               For a human-readable name, use the label. |@docend:pdf.init.name|
+            label: |@doc:pdf.init.label| Human-readable name
                or label of
-               the PDF for better identification.
-               Has no programmatical functional purpose as identification. |@docend:model.init.name|
+               the PDF for a better description, to be used with plots etc.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
         """
-        mu, sigma, low, high = self._check_input_params(mu, sigma, low, high)
-        params = OrderedDict(
-            (("mu", mu), ("sigma", sigma), ("low", low), ("high", high))
-        )
+        mu, sigma, low, high = self._check_input_params_tfp(mu, sigma, low, high)
+        params = {"mu": mu, "sigma": sigma, "low": low, "high": high}
         distribution = tfp.distributions.TruncatedNormal
-        dist_params = lambda: dict(
-            loc=mu.value(), scale=sigma.value(), low=low.value(), high=high.value()
-        )
+
+        def dist_params():
+            return {
+                "loc": mu.value(),
+                "scale": sigma.value(),
+                "low": low.value(),
+                "high": high.value(),
+            }
+
         super().__init__(
             distribution=distribution,
             dist_params=dist_params,
@@ -372,6 +386,7 @@ class TruncatedGauss(WrapDistribution):
             name=name,
             extended=extended,
             norm=norm,
+            label=label,
         )
 
 
@@ -387,6 +402,7 @@ class Cauchy(WrapDistribution, SerializableMixin):
         extended: ExtendedInputType = None,
         norm: NormInputType = None,
         name: str = "Cauchy",
+        label: str | None = None,
     ):
         r"""Non-relativistic Breit-Wigner (Cauchy) PDF representing the energy distribution of a decaying particle.
 
@@ -409,15 +425,21 @@ class Cauchy(WrapDistribution, SerializableMixin):
                ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
             norm: |@doc:pdf.init.norm| Normalization of the PDF.
                By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
-            name: |@doc:model.init.name| Human-readable name
+            name: |@doc:pdf.init.name| Name of the PDF.
+               Maybe has implications on the serialization and deserialization of the PDF.
+               For a human-readable name, use the label. |@docend:pdf.init.name|
+            label: |@doc:pdf.init.label| Human-readable name
                or label of
-               the PDF for better identification.
-               Has no programmatical functional purpose as identification. |@docend:model.init.name|
+               the PDF for a better description, to be used with plots etc.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
         """
-        m, gamma = self._check_input_params(m, gamma)
-        params = OrderedDict((("m", m), ("gamma", gamma)))
+        m, gamma = self._check_input_params_tfp(m, gamma)
+        params = {"m": m, "gamma": gamma}
         distribution = tfp.distributions.Cauchy
-        dist_params = lambda: dict(loc=m.value(), scale=gamma.value())
+
+        def dist_params():
+            return {"loc": m.value(), "scale": gamma.value()}
+
         super().__init__(
             distribution=distribution,
             dist_params=dist_params,
@@ -426,6 +448,7 @@ class Cauchy(WrapDistribution, SerializableMixin):
             name=name,
             extended=extended,
             norm=norm,
+            label=label,
         )
 
 
@@ -450,6 +473,7 @@ class Poisson(WrapDistribution, SerializableMixin):
         norm: NormInputType = None,
         name: str = "Poisson",
         lamb=None,
+        label: str | None = None,
     ):
         """Poisson distribution, parametrized with an event rate parameter (lamb).
 
@@ -468,14 +492,23 @@ class Poisson(WrapDistribution, SerializableMixin):
                ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
             norm: |@doc:pdf.init.norm| Normalization of the PDF.
                By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
-            name: Name of the PDF
+            name: |@doc:pdf.init.name| Name of the PDF.
+               Maybe has implications on the serialization and deserialization of the PDF.
+               For a human-readable name, use the label. |@docend:pdf.init.name|
+            label: |@doc:pdf.init.label| Human-readable name
+               or label of
+               the PDF for a better description, to be used with plots etc.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
         """
         if lamb is not None:
             lam = lamb
         del lamb
-        (lam,) = self._check_input_params(lam)
+        (lam,) = self._check_input_params_tfp(lam)
         params = {"lam": lam}
-        dist_params = lambda: dict(rate=lam.value())
+
+        def dist_params():
+            return {"rate": lam.value()}
+
         distribution = tfp.distributions.Poisson
         super().__init__(
             distribution=distribution,
@@ -485,6 +518,7 @@ class Poisson(WrapDistribution, SerializableMixin):
             name=name,
             extended=extended,
             norm=norm,
+            label=label,
         )
 
 
@@ -493,3 +527,569 @@ class PoissonPDFRepr(BasePDFRepr):
     hs3_type: Literal["Poisson"] = Field("Poisson", alias="type")
     x: SpaceRepr
     lam: Serializer.types.ParamTypeDiscriminated
+
+
+class LogNormal(WrapDistribution, SerializableMixin):
+    _N_OBS = 1
+
+    def __init__(
+        self,
+        mu: ztyping.ParamTypeInput,
+        sigma: ztyping.ParamTypeInput,
+        obs: ztyping.ObsTypeInput,
+        *,
+        extended: ExtendedInputType = None,
+        norm: NormInputType = None,
+        name: str = "LogNormal",
+        label: str | None = None,
+    ):
+        r"""Log-normal distribution, the exponential of a normal distribution.
+
+        The probability density function of the log-normal distribution is only defined for positive values and
+        is given by
+
+        .. math::
+            f(x \\mid \mu, \sigma) = \frac{1}{x \sigma \sqrt{2\pi}} e^{-\frac{(\ln(x) - \mu)^2}{2\sigma^2}}
+
+        with :math:`\mu` the mean and :math:`\sigma` the standard deviation of the underlying normal distribution.
+
+        Args:
+            mu: Mean of the underlying normal distribution.
+            sigma: Standard deviation of the underlying normal distribution.
+            obs: Observables and normalization range the pdf is defined in
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+            norm: |@doc:pdf.init.norm| Normalization of the PDF.
+               By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
+            name: |@doc:pdf.init.name| Name of the PDF.
+               Maybe has implications on the serialization and deserialization of the PDF.
+               For a human-readable name, use the label. |@docend:pdf.init.name|
+            label: |@doc:pdf.init.label| Human-readable name
+               or label of
+               the PDF for a better description, to be used with plots etc.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
+        """
+        mu, sigma = self._check_input_params_tfp(mu, sigma)
+
+        params = {"mu": mu, "sigma": sigma}
+
+        def dist_params():
+            return {"loc": mu.value(), "scale": sigma.value()}
+
+        distribution = tfp.distributions.LogNormal
+        super().__init__(
+            distribution=distribution,
+            dist_params=dist_params,
+            obs=obs,
+            params=params,
+            name=name,
+            extended=extended,
+            norm=norm,
+            label=label,
+        )
+
+
+class LogNormalPDFRepr(BasePDFRepr):
+    _implementation = LogNormal
+    hs3_type: Literal["LogNormal"] = Field("LogNormal", alias="type")
+    x: SpaceRepr
+    mu: Serializer.types.ParamTypeDiscriminated
+    sigma: Serializer.types.ParamTypeDiscriminated
+
+
+class ChiSquared(WrapDistribution, SerializableMixin):
+    _N_OBS = 1
+
+    def __init__(
+        self,
+        ndof: ztyping.ParamTypeInput,
+        obs: ztyping.ObsTypeInput,
+        *,
+        extended: ExtendedInputType = None,
+        norm: NormInputType = None,
+        name: str = "ChiSquared",
+        label: str | None = None,
+    ):
+        """ChiSquared distribution for ndof degrees of freedom.
+
+        The chisquared shape for `d` degrees of freedom is defined as
+
+        .. math::
+
+            f(x \\mid d) = x^(d/2 - 1) \\exp(-x/2) / Z
+
+        with the normalization over [0, inf] of
+
+        .. math::
+
+            Z = \\frac{1}{2^{d/2} \\Gamma(d/2)}
+
+        The normalization changes for different normalization ranges
+
+        Args:
+            ndof: Number of degrees of freedom
+            obs: Observables and normalization range the pdf is defined in
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+            norm: |@doc:pdf.init.norm| Normalization of the PDF.
+               By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
+            name: |@doc:pdf.init.name| Name of the PDF.
+               Maybe has implications on the serialization and deserialization of the PDF.
+               For a human-readable name, use the label. |@docend:pdf.init.name|
+            label: |@doc:pdf.init.label| Human-readable name
+               or label of
+               the PDF for a better description, to be used with plots etc.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
+        """
+        (ndof,) = self._check_input_params_tfp(ndof)
+        params = {"ndof": ndof}
+
+        def dist_params():
+            return {"df": ndof.value()}
+
+        distribution = tfp.distributions.Chi2
+        super().__init__(
+            distribution=distribution,
+            dist_params=dist_params,
+            obs=obs,
+            params=params,
+            name=name,
+            extended=extended,
+            norm=norm,
+            label=label,
+        )
+
+
+class ChiSquaredPDFRepr(BasePDFRepr):
+    _implementation = ChiSquared
+    hs3_type: Literal["ChiSquared"] = Field("ChiSquared", alias="type")
+    x: SpaceRepr
+    ndof: Serializer.types.ParamTypeDiscriminated
+
+
+class StudentT(WrapDistribution, SerializableMixin):
+    _N_OBS = 1
+
+    def __init__(
+        self,
+        ndof: ztyping.ParamTypeInput,
+        mu: ztyping.ParamTypeInput,
+        sigma: ztyping.ParamTypeInput,
+        obs: ztyping.ObsTypeInput,
+        extended: ExtendedInputType = None,
+        norm: NormInputType = None,
+        name: str = "StudentT",
+        label: str | None = None,
+    ):
+        """StudentT distribution for ndof degrees of freedom.
+
+        The StudentT shape for `d` degrees of freedom is defined as
+
+        .. math::
+
+            f(x \\mid d, \\mu, \\sigma) = \\left(1 + \\frac{1}{d} \\left(\\frac{x - \\mu}{\\sigma}\\right)^2\\right)^{-\\frac{d+1}{2}} / Z
+
+        with the normalization over [-inf, inf] of
+
+        .. math::
+
+            Z = \\frac{\\sqrt{d \\pi} \\Gamma(\\frac{d}{2})}{\\Gamma(\\frac{d+1}{2})}
+
+        The normalization changes for different normalization ranges
+
+        Args:
+            ndof: Number of degrees of freedom
+            mu: Mean of the distribution
+            sigma: Scale of the distribution
+            obs: |@doc:model.init.obs| Observables of the
+               model. This will be used as the default space of the PDF and,
+               if not given explicitly, as the normalization range.
+               If the observables are binned and the model is unbinned, the
+               model will be a binned model, by wrapping the model in a
+               :py:class:`~zfit.pdf.BinnedFromUnbinnedPDF`, equivalent to
+               calling :py:meth:`~zfit.pdf.BasePDF.to_binned`.
+
+               The default space is used for example in the sample method: if no
+               sampling limits are given, the default space is used.
+
+               The observables are not equal to the domain as it does not restrict or
+               truncate the model outside this range. |@docend:model.init.obs|
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+            norm: |@doc:pdf.init.norm| Normalization of the PDF.
+               By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
+            name: |@doc:pdf.init.name| Name of the PDF.
+               Maybe has implications on the serialization and deserialization of the PDF.
+               For a human-readable name, use the label. |@docend:pdf.init.name|
+            label: |@doc:pdf.init.label| Human-readable name
+               or label of
+               the PDF for a better description, to be used with plots etc.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
+        """
+        ndof, mu, sigma = self._check_input_params_tfp(ndof, mu, sigma)
+        params = {"ndof": ndof, "mu": mu, "sigma": sigma}
+
+        def dist_params():
+            return {"df": ndof.value(), "loc": mu.value(), "scale": sigma.value()}
+
+        distribution = tfp.distributions.StudentT
+        super().__init__(
+            distribution=distribution,
+            dist_params=dist_params,
+            obs=obs,
+            params=params,
+            name=name,
+            extended=extended,
+            norm=norm,
+            label=label,
+        )
+
+
+class StudentTPDFRepr(BasePDFRepr):
+    _implementation = StudentT
+    hs3_type: Literal["StudentT"] = Field("StudentT", alias="type")
+    x: SpaceRepr
+    ndof: Serializer.types.ParamTypeDiscriminated
+    mu: Serializer.types.ParamTypeDiscriminated
+    sigma: Serializer.types.ParamTypeDiscriminated
+
+
+class QGauss(WrapDistribution, SerializableMixin):
+    _N_OBS = 1
+
+    def __init__(
+        self,
+        q: ztyping.ParamTypeInput,
+        mu: ztyping.ParamTypeInput,
+        sigma: ztyping.ParamTypeInput,
+        obs: ztyping.ObsTypeInput,
+        *,
+        extended: ExtendedInputType = None,
+        norm: NormInputType = None,
+        name: str = "QGauss",
+        label: str | None = None,
+    ):
+        """Q-Gaussian distribution with parameter `q`.
+
+        The q-Gaussian is a probability distribution arising from the maximization of the Tsallis entropy under appropriate constraints.
+        It is defined for q < 3 and the Gaussian distribution is recovered as q -> 1.
+        For q < 1, is it the PDF of a bounded random variable.
+        We only support 1 < q < 3 in this implementation.
+        If you want to use exactly q = 1, use the `zfit.pdf.Gauss` class.
+        During fitting, if you want to start from a Gaussian shape, you can initialize the `q` parameter to be really close to 1.
+        It is related to the Student's t-distribution according to the `corresponding Wikipedia entry <https://en.wikipedia.org/wiki/Q-Gaussian_distribution#Student's_t-distribution>`_
+        and that is how it is implemented here.
+
+        The q-Gaussian shape for 1 < q < 3 is defined as
+
+        .. math::
+
+            f(x \\mid q, \\mu, \\sigma) = \\frac{1}{C_{q} \\sigma} e_{q}\\left(-\\left(\\frac{x - \\mu}{\\sigma}\\right)^{2}\\right)
+
+        with
+
+        .. math::
+
+            e_q(x) = \\left[1 + (1 - q) x\\right]_{+}^{\\frac{1}{1 - q}}
+
+        and the normalization over [-inf, inf] of
+
+        .. math::
+
+            C_{q} = \\frac{\\sqrt{\\pi} \\Gamma \\left(\\frac{3 - q}{2 (q - 1)}\\right)}{\\sqrt{q - 1}\\Gamma \\left(\\frac{1}{q - 1}\\right)}
+
+        The normalization changes for different normalization ranges
+
+        Args:
+            q: Shape parameter of the q-Gaussian. Must be 1 < q < 3.
+            mu: Mean of the distribution
+            sigma: Scale of the distribution
+            obs: |@doc:model.init.obs| Observables of the
+               model. This will be used as the default space of the PDF and,
+               if not given explicitly, as the normalization range.
+               If the observables are binned and the model is unbinned, the
+               model will be a binned model, by wrapping the model in a
+               :py:class:`~zfit.pdf.BinnedFromUnbinnedPDF`, equivalent to
+               calling :py:meth:`~zfit.pdf.BasePDF.to_binned`.
+
+               The default space is used for example in the sample method: if no
+               sampling limits are given, the default space is used.
+
+               The observables are not equal to the domain as it does not restrict or
+               truncate the model outside this range. |@docend:model.init.obs|
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+            norm: |@doc:pdf.init.norm| Normalization of the PDF.
+               By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
+            name: |@doc:pdf.init.name| Name of the PDF.
+               Maybe has implications on the serialization and deserialization of the PDF.
+               For a human-readable name, use the label. |@docend:pdf.init.name|
+            label: |@doc:pdf.init.label| Human-readable name
+               or label of
+               the PDF for a better description, to be used with plots etc.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
+        """
+        from zfit import run
+
+        q, mu, sigma = self._check_input_params_tfp(q, mu, sigma)
+        if run.executing_eagerly():
+            if q < 1 or q > 3:
+                msg = "q < 1 or q > 3 are not supported"
+                raise ValueError(msg)
+            if q == 1:
+                msg = "q = 1 is a Gaussian, use Gauss instead."
+                raise ValueError(msg)
+        elif run.numeric_checks:
+            tf.debugging.assert_greater(q, znp.asarray(1.0), "q must be > 1")
+            tf.debugging.assert_less(q, znp.asarray(3.0), "q must be < 3")
+        params = {"q": q, "mu": mu, "sigma": sigma}
+
+        # https://en.wikipedia.org/wiki/Q-Gaussian_distribution
+        # relation to Student's t-distribution
+
+        # 1/(2 sigma^2) = 1 / (3 - q)
+        # 2 sigma^2 = 3 - q
+        # sigma = sqrt((3 - q)/2)
+
+        def dist_params(q=q, mu=mu, sigma=sigma):
+            if run.numeric_checks:
+                tf.debugging.assert_greater(q, znp.asarray(1.0), "q must be > 1")
+                tf.debugging.assert_less(q, znp.asarray(3.0), "q must be < 3")
+            df = (3 - q.value()) / (q.value() - 1)
+            scale = sigma.value() / tf.sqrt(0.5 * (3 - q.value()))
+            return {"df": df, "loc": mu.value(), "scale": scale}
+
+        distribution = tfp.distributions.StudentT
+        super().__init__(
+            distribution=distribution,
+            dist_params=dist_params,
+            obs=obs,
+            params=params,
+            name=name,
+            extended=extended,
+            norm=norm,
+            label=label,
+        )
+
+
+class QGaussPDFRepr(BasePDFRepr):
+    _implementation = QGauss
+    hs3_type: Literal["QGauss"] = Field("QGauss", alias="type")
+    x: SpaceRepr
+    q: Serializer.types.ParamTypeDiscriminated
+    mu: Serializer.types.ParamTypeDiscriminated
+    sigma: Serializer.types.ParamTypeDiscriminated
+
+
+class BifurGauss(WrapDistribution, SerializableMixin):
+    _N_OBS = 1
+
+    def __init__(
+        self,
+        mu: ztyping.ParamTypeInput,
+        sigmal: ztyping.ParamTypeInput,
+        sigmar: ztyping.ParamTypeInput,
+        obs: ztyping.ObsTypeInput,
+        *,
+        extended: ExtendedInputType = None,
+        norm: NormInputType = None,
+        name: str = "BifurGauss",
+        label: str | None = None,
+    ):
+        """Bifurcated Gaussian distribution different standard deviations for the left and right side of the mean.
+
+        The bifurcated Gaussian shape is defined as
+
+        .. math::
+
+            f(x \\mid \\mu, \\sigma_{L}, \\sigma_{R}) = \\begin{cases}
+            A \\exp{\\left(-\\frac{(x - \\mu)^2}{2 \\sigma_{L}^2}\\right)}, & \\mbox{for } x < \\mu \\newline
+            A \\exp{\\left(-\\frac{(x - \\mu)^2}{2 \\sigma_{R}^2}\\right)}, & \\mbox{for } x \\geq \\mu
+            \\end{cases}
+
+        with the normalization over [-inf, inf] of
+
+        .. math::
+
+            A = \\sqrt{\\frac{2}{\\pi}} \\frac{1}{\\sigma_{L} + \\sigma_{R}}
+
+        The normalization changes for different normalization ranges
+
+        Args:
+            mu: Mean of the distribution
+            sigmal: Standard deviation on the left side of the mean
+            sigmar: Standard deviation for the right side of the mean
+            obs: |@doc:model.init.obs| Observables of the
+               model. This will be used as the default space of the PDF and,
+               if not given explicitly, as the normalization range.
+               If the observables are binned and the model is unbinned, the
+               model will be a binned model, by wrapping the model in a
+               :py:class:`~zfit.pdf.BinnedFromUnbinnedPDF`, equivalent to
+               calling :py:meth:`~zfit.pdf.BasePDF.to_binned`.
+
+               The default space is used for example in the sample method: if no
+               sampling limits are given, the default space is used.
+
+               The observables are not equal to the domain as it does not restrict or
+               truncate the model outside this range. |@docend:model.init.obs|
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+            norm: |@doc:pdf.init.norm| Normalization of the PDF.
+               By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
+            name: |@doc:pdf.init.name| Name of the PDF.
+               Maybe has implications on the serialization and deserialization of the PDF.
+               For a human-readable name, use the label. |@docend:pdf.init.name|
+            label: |@doc:pdf.init.label| Human-readable name
+               or label of
+               the PDF for a better description, to be used with plots etc.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
+        """
+        mu, sigmal, sigmar = self._check_input_params_tfp(mu, sigmal, sigmar)
+        params = {"mu": mu, "sigmal": sigmal, "sigmar": sigmar}
+
+        # sigmal = scale / skewness
+        # sigmar = scale * skewness
+        # scale = sigmal * skewness
+        # sigmar = sigmal * skewness^2
+        # skewness = sqrt(sigmar / sigmal)
+        # scale = sigmal * sqrt(sigmar / sigmal)
+
+        def dist_params():
+            scale = sigmal.value() * znp.sqrt(sigmar.value() / sigmal.value())
+            skewness = znp.sqrt(sigmar.value() / sigmal.value())
+            return {"loc": mu.value(), "scale": scale, "skewness": skewness}
+
+        distribution = tfp.distributions.TwoPieceNormal
+        super().__init__(
+            distribution=distribution,
+            dist_params=dist_params,
+            obs=obs,
+            params=params,
+            name=name,
+            extended=extended,
+            norm=norm,
+            label=label,
+        )
+
+
+class BifurGaussPDFRepr(BasePDFRepr):
+    _implementation = BifurGauss
+    hs3_type: Literal["BifurGauss"] = Field("BifurGauss", alias="type")
+    x: SpaceRepr
+    mu: Serializer.types.ParamTypeDiscriminated
+    sigmal: Serializer.types.ParamTypeDiscriminated
+    sigmar: Serializer.types.ParamTypeDiscriminated
+
+
+class Gamma(WrapDistribution, SerializableMixin):
+    _N_OBS = 1
+
+    def __init__(
+        self,
+        gamma: ztyping.ParamTypeInput,
+        beta: ztyping.ParamTypeInput,
+        mu: ztyping.ParamTypeInput,
+        obs: ztyping.ObsTypeInput,
+        *,
+        extended: ExtendedInputType = None,
+        norm: NormInputType = None,
+        name: str = "Gamma",
+        label: str | None = None,
+    ):
+        """Gamma distribution.
+
+        The gamma shape is parametrized here with `gamma`, `beta` and `mu`, following
+        the same parametrization `as RooFit <https://root.cern.ch/doc/master/classRooGamma.html>`_.
+        The gamma shape is defined as
+
+        .. math::
+
+            f(x \\mid \\gamma, \\beta, \\mu) = (x - \\mu)^{\\gamma - 1} \\exp{\\left(-\\frac{x - \\mu}{\\beta}\\right)} / Z
+
+        with the normalization over [0, inf] of
+
+        .. math::
+
+            Z = \\Gamma(\\gamma) \\beta^{\\gamma}
+
+        The normalization changes for different normalization ranges and `Z=1` for the unnormalized shape.
+
+        Args:
+            gamma: Shape parameter of the gamma distribution
+            beta: Scale parameter of the gamma distribution
+            mu: Shift of the distribution
+            obs: |@doc:model.init.obs| Observables of the
+               model. This will be used as the default space of the PDF and,
+               if not given explicitly, as the normalization range.
+               If the observables are binned and the model is unbinned, the
+               model will be a binned model, by wrapping the model in a
+               :py:class:`~zfit.pdf.BinnedFromUnbinnedPDF`, equivalent to
+               calling :py:meth:`~zfit.pdf.BasePDF.to_binned`.
+
+               The default space is used for example in the sample method: if no
+               sampling limits are given, the default space is used.
+
+               The observables are not equal to the domain as it does not restrict or
+               truncate the model outside this range. |@docend:model.init.obs|
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+            norm: |@doc:pdf.init.norm| Normalization of the PDF.
+               By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
+            name: |@doc:pdf.init.name| Name of the PDF.
+               Maybe has implications on the serialization and deserialization of the PDF.
+               For a human-readable name, use the label. |@docend:pdf.init.name|
+            label: |@doc:pdf.init.label| Human-readable name
+               or label of
+               the PDF for a better description, to be used with plots etc.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
+        """
+        gamma, beta, mu = self._check_input_params_tfp(gamma, beta, mu)
+        params = {"gamma": gamma, "beta": beta, "mu": mu}
+
+        def dist_params():
+            return {"concentration": gamma.value(), "rate": 1 / beta.value(), "loc": mu.value()}
+
+        def distribution(concentration, rate, loc, name):
+            return tfd.TransformedDistribution(
+                distribution=tfp.distributions.Gamma(concentration, rate),
+                bijector=tfp.bijectors.Shift(loc),
+                name=name,
+            )
+
+        super().__init__(
+            distribution=distribution,
+            dist_params=dist_params,
+            obs=obs,
+            params=params,
+            name=name,
+            extended=extended,
+            norm=norm,
+            label=label,
+        )
+
+
+class GammaPDFRepr(BasePDFRepr):
+    _implementation = Gamma
+    hs3_type: Literal["Gamma"] = Field("Gamma", alias="type")
+    x: SpaceRepr
+    gamma: Serializer.types.ParamTypeDiscriminated
+    beta: Serializer.types.ParamTypeDiscriminated
+    mu: Serializer.types.ParamTypeDiscriminated

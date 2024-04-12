@@ -33,7 +33,7 @@ an *observable space*. This can be created using the :py:class:`~zfit.Space` cla
 
 .. jupyter-execute::
 
-    obs = zfit.Space('x', limits=(-10, 10))
+    obs = zfit.Space('x', -10, 10)
 
 The best interpretation of the observable at this stage is that it defines the name and range of the observable axis.
 
@@ -61,7 +61,7 @@ it using numpy and the :func:`Data.from_numpy <zfit.Data.from_numpy>` method:
 .. jupyter-execute::
 
     data_np = np.random.normal(0, 1, size=10000)
-    data = zfit.Data.from_numpy(obs=obs, array=data_np)
+    data = zfit.Data(data_np, obs=obs)
 
 Now we have all the ingredients in order to perform a maximum likelihood fit.
 Conceptually this corresponds to three basic steps:
@@ -117,7 +117,7 @@ which will return a dictionary of the fit parameters as keys with ``error`` valu
 The errors will also be added to the result object and show up when printing the result.
 
 While the hessian approximation has many advantages, it may not hold well for certain loss functions, especially for
-asymetric uncertainties. It is also possible to use a more CPU-intensive error calculating with the ``errors`` method.
+asymmetric uncertainties. It is also possible to use a more CPU-intensive error calculating with the ``errors`` method.
 This has the advantage of taking into account all the correlations and can describe well a
 a loss minimum that is not well approximated by a quadratic function *(it is however not valid in the case of weights and takes
 considerably longer).* It estimates the lower and upper uncertainty independently.
@@ -171,22 +171,16 @@ to do the job:
     import matplotlib.pyplot as plt
     import numpy as np
 
-    lower, upper = obs.limits
-    data_np = zfit.run(data.value()[:, 0])
-
     # plot the data as a histogramm
     bins = 80
-    counts, bin_edges = np.histogram(data_np, bins, range=(lower[-1][0], upper[0][0]))
-    mplhep.histplot((counts, bin_edges), yerr=True, color='black', histtype='errorbar')
+    mplhep.histplot(data.to_binned(bins), yerr=True, density=True, color='black', histtype='errorbar')
 
     # evaluate the func at multiple x and plot
-    x_plot = np.linspace(lower[-1][0], upper[0][0], num=1000)
-    y_plot = zfit.run(gauss.pdf(x_plot, norm_range=obs))
-    plt.plot(x_plot, y_plot * data_np.shape[0] / bins * obs.area(), color='xkcd:blue')
+    x_plot = np.linspace(obs.v1.lower, obs.v1.upper, num=1000)
+    y_plot = gauss.pdf(x_plot)
+    plt.plot(x_plot, y_plot, color='xkcd:blue')
     plt.show()
 
 
-The specific call to :func:`zfit.run` simply converts the Eager Tensor (that is already array-like) to a Numpy array.
-Often, this conversion is however not necessary and a Tensor can directly be used.
 
-The full script :jupyter-download:script:`can be downloaded here <5 minutes to zfit>`.
+The full script :jupyter-download-script:`can be downloaded here <5 minutes to zfit>`.

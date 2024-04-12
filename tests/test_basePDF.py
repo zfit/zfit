@@ -9,6 +9,7 @@ if TYPE_CHECKING:
 
 import pytest
 
+import zfit.z.numpy as znp
 
 @pytest.fixture
 def test_values():
@@ -56,16 +57,14 @@ def TmpGaussian():
 
     class TmpGaussian(zfit.pdf.BasePDF):
         def __init__(
-            self,
-            obs,
-            mu,
-            sigma,
-            dtype: type = zfit.ztypes.float,
-            name: str = "BasePDF",
-            **kwargs,
+                self,
+                obs,
+                mu,
+                sigma,
+                **kwargs,
         ):
             params = {"mu": mu, "sigma": sigma}
-            super().__init__(obs, params, dtype, name, **kwargs)
+            super().__init__(obs, params=params, **kwargs)
 
         def _unnormalized_pdf(self, x):
             x = x.unstack_x()
@@ -74,7 +73,7 @@ def TmpGaussian():
 
             from zfit import z
 
-            return z.exp((-((x - mu) ** 2)) / (2 * sigma**2))  # non-normalized gaussian
+            return z.exp((-((x - mu) ** 2)) / (2 * sigma ** 2))  # non-normalized gaussian
 
     return TmpGaussian
 
@@ -82,26 +81,26 @@ def TmpGaussian():
 def true_gaussian_unnorm_func(x):
     import numpy as np
 
-    return np.exp(-((x - mu_true) ** 2) / (2 * sigma_true**2))
+    return np.exp(-((x - mu_true) ** 2) / (2 * sigma_true ** 2))
 
 
 def true_gaussian_grad(x):
     import numpy as np
 
     grad_mu = (
-        -0.199471140200716
-        * (2 * mu_true - 2 * x)
-        * np.exp(-((-mu_true + x) ** 2) / (2 * sigma_true**2))
-        / sigma_true**3
+            -0.199471140200716
+            * (2 * mu_true - 2 * x)
+            * np.exp(-((-mu_true + x) ** 2) / (2 * sigma_true ** 2))
+            / sigma_true ** 3
     )
     grad_sigma = (
-        -0.398942280401433
-        * np.exp(-((-mu_true + x) ** 2) / (2 * sigma_true**2))
-        / sigma_true**2
-        + 0.398942280401433
-        * (-mu_true + x) ** 2
-        * np.exp(-((-mu_true + x) ** 2) / (2 * sigma_true**2))
-        / sigma_true**4
+            -0.398942280401433
+            * np.exp(-((-mu_true + x) ** 2) / (2 * sigma_true ** 2))
+            / sigma_true ** 2
+            + 0.398942280401433
+            * (-mu_true + x) ** 2
+            * np.exp(-((-mu_true + x) ** 2) / (2 * sigma_true ** 2))
+            / sigma_true ** 4
     )
     return np.array((grad_mu, grad_sigma)).transpose()
 
@@ -193,7 +192,7 @@ def test_func(obs1, test_values):
     gauss_func = gauss_params1.as_func(norm=limits)
     vals = gauss_func.func(test_values)
     vals_pdf = gauss_params1.pdf(x=test_values, norm=limits)
-    vals, vals_pdf = zfit.run([vals, vals_pdf])
+    vals, vals_pdf = znp.asarray([vals, vals_pdf])
     np.testing.assert_allclose(vals_pdf, vals, rtol=1e-3)  # better assertion?
 
 
@@ -212,31 +211,28 @@ def test_normalization(obs1, pdf_factory):
 
     import zfit
     from zfit import z
+    import zfit.z.numpy as znp
 
     test_yield = 1524.3
     dist = pdf_factory()
-    samples = tf.cast(
-        np.random.uniform(low=low, high=high, size=100000), dtype=tf.float64
-    )
-    small_samples = tf.cast(
-        np.random.uniform(low=low, high=high, size=10), dtype=tf.float64
-    )
+    samples = znp.random.uniform(low=low, high=high, size=(100000,))
+
+    small_samples = znp.random.uniform(low=low, high=high, size=(10,))
+
     with dist.set_norm_range(zfit.Space(obs1, limits=(low, high))):
         probs = dist.pdf(samples)
         probs_small = dist.pdf(small_samples)
         log_probs = dist.log_pdf(small_samples)
-        probs, log_probs = zfit.run(probs, log_probs)
         probs = np.average(probs) * (high - low)
-        assert probs == pytest.approx(1.0, rel=0.05)
-        assert log_probs == pytest.approx(tf.math.log(probs_small).numpy(), rel=0.05)
+        assert pytest.approx(1.0, rel=0.05) == probs
+        assert pytest.approx(znp.log(probs_small), rel=0.05) == log_probs
         dist = dist.create_extended(z.constant(test_yield))
         probs = dist.pdf(samples)
         probs_extended = dist.ext_pdf(samples)
-        result = probs.numpy()
-        result = np.average(result) * (high - low)
+        result = np.average(probs) * (high - low)
         result_ext = np.average(probs_extended) * (high - low)
-        assert result == pytest.approx(1, rel=0.05)
-        assert result_ext == pytest.approx(test_yield, rel=0.05)
+        assert pytest.approx(1, rel=0.05)  == result
+        assert pytest.approx(test_yield, rel=0.05)  == result_ext
 
 
 @pytest.mark.parametrize("gauss_factory", [create_gauss1, create_test_gauss1])
@@ -246,13 +242,13 @@ def test_sampling_simple(gauss_factory):
     gauss = gauss_factory()
     n_draws = 1000
     sample_tensor = gauss.sample(n=n_draws, limits=(low, high))
-    sampled_from_gauss1 = sample_tensor.numpy()
+    sampled_from_gauss1 = sample_tensor.value()
     assert max(sampled_from_gauss1[:, 0]) <= high
     assert min(sampled_from_gauss1[:, 0]) >= low
     assert n_draws == len(sampled_from_gauss1[:, 0])
     if gauss.params:
-        mu_true1 = gauss.params["mu"].numpy()
-        sigma_true1 = gauss.params["sigma"].numpy()
+        mu_true1 = gauss.params["mu"]
+        sigma_true1 = gauss.params["sigma"]
     else:
         mu_true1 = mu_true
         sigma_true1 = sigma_true
@@ -260,11 +256,11 @@ def test_sampling_simple(gauss_factory):
         n=10000,
         limits=(mu_true1 - abs(sigma_true1) * 3, mu_true1 + abs(sigma_true1) * 3),
     )
-    sampled_gauss1_full = sampled_gauss1_full.numpy()
+    sampled_gauss1_full = sampled_gauss1_full.value()
     mu_sampled = np.mean(sampled_gauss1_full)
     sigma_sampled = np.std(sampled_gauss1_full)
-    assert mu_sampled == pytest.approx(mu_true1, rel=0.07)
-    assert sigma_sampled == pytest.approx(sigma_true1, rel=0.07)
+    assert pytest.approx(mu_true1, rel=0.07) == mu_sampled
+    assert pytest.approx(sigma_true1, rel=0.07) == sigma_sampled
 
 
 def test_sampling_multiple_limits(obs1):
@@ -281,7 +277,7 @@ def test_sampling_multiple_limits(obs1):
     sample_tensor = gauss_params1.sample(
         n=n_draws, limits=lower_interval + upper_interval
     )
-    sampled_from_gauss1 = sample_tensor.numpy()
+    sampled_from_gauss1 = sample_tensor.value()
     between_samples = np.logical_and(
         sampled_from_gauss1 < up1, sampled_from_gauss1 > low2
     )
@@ -290,8 +286,8 @@ def test_sampling_multiple_limits(obs1):
     assert min(sampled_from_gauss1[:, 0]) >= low1
     assert n_draws == len(sampled_from_gauss1[:, 0])
 
-    mu_true = gauss_params1.params["mu"].numpy()
-    sigma_true = gauss_params1.params["sigma"].numpy()
+    mu_true = gauss_params1.params["mu"]
+    sigma_true = gauss_params1.params["sigma"]
     low1, up1 = mu_true - abs(sigma_true) * 4, mu_true
     lower_interval = zfit.Space(obs=obs1, limits=(low1, up1))
     low2, up2 = mu_true, mu_true + abs(sigma_true) * 4
@@ -301,11 +297,11 @@ def test_sampling_multiple_limits(obs1):
     sample_tensor5 = gauss_params1.sample(
         n=10000, limits=lower_interval + upper_interval
     )
-    sampled_gauss1_full = sample_tensor5.numpy()
+    sampled_gauss1_full = sample_tensor5.value()
     mu_sampled = np.mean(sampled_gauss1_full)
     sigma_sampled = np.std(sampled_gauss1_full)
-    assert mu_sampled == pytest.approx(mu_true, rel=0.07)
-    assert sigma_sampled == pytest.approx(sigma_true, rel=0.07)
+    assert pytest.approx(mu_true, rel=0.07) == mu_sampled
+    assert pytest.approx(sigma_true, rel=0.07) == sigma_sampled
 
 
 def test_analytic_sampling(obs1):
@@ -316,20 +312,18 @@ def test_analytic_sampling(obs1):
     from zfit.core.space import ANY_UPPER
 
     SampleGauss.register_analytic_integral(
-        func=lambda limits, params, model: 2 * limits.upper[0][0],
+        func=lambda limits, params, model: 2 * limits.v1.upper[0],
         limits=zfit.Space(limits=(-float("inf"), ANY_UPPER), axes=(0,)),
     )  # DUMMY!
-    SampleGauss.register_inverse_analytic_integral(func=lambda x, params: x + 1000.0)
+    SampleGauss.register_inverse_analytic_integral(func=lambda x, params: x)
 
     mu, sigma = create_mu_sigma_true_params()
     gauss1 = SampleGauss(obs=obs1, mu=mu, sigma=sigma)
     sample = gauss1.sample(n=10000, limits=(2.0, 5.0))
-    sample.set_data_range((1002, 1005))
 
-    sample = sample.numpy()
 
-    assert 1004.0 <= min(sample[0])
-    assert 10010.0 >= max(sample[0])
+    assert 4.0 <= min(sample['obs1'])
+    assert 10.0 >= max(sample['obs1'])
 
 
 def test_multiple_limits(obs1):
@@ -363,20 +357,20 @@ def test_multiple_limits(obs1):
         limits=multiple_limits_range, norm=False
     )
 
-    integral_simp, integral_mult = [integral_simp.numpy(), integral_mult.numpy()]
+    integral_simp, integral_mult = [integral_simp, integral_mult]
     integral_simp_num, integral_mult_num = [
-        integral_simp_num.numpy(),
-        integral_mult_num.numpy(),
+        integral_simp_num,
+        integral_mult_num,
     ]
-    assert integral_simp == pytest.approx(
+    assert pytest.approx(
         integral_mult, rel=1e-2
-    )  # big tol as mc is used
-    assert integral_simp == pytest.approx(
+    ) == integral_simp  # big tol as mc is used
+    assert pytest.approx(
         integral_simp_num, rel=1e-2
-    )  # big tol as mc is used
-    assert integral_simp_num == pytest.approx(
+    ) == integral_simp  # big tol as mc is used
+    assert pytest.approx(
         integral_mult_num, rel=1e-2
-    )  # big tol as mc is used
+    ) == integral_simp_num  # big tol as mc is used
 
 
 def test_copy(obs1):
@@ -407,37 +401,38 @@ def test_projection_pdf(test_values):
     import numpy as np
 
     import zfit
+    # zfit.run.set_graph_mode(False)
     import zfit.z.numpy as znp
 
-    x = zfit.Space("x", limits=(-1, 1))
-    y = zfit.Space("y", limits=(-1, 1))
+    x = zfit.Space("x", -1, 1)
+    y = zfit.Space("y", -1, 1)
 
     def correlated_func(self, x):
         x, y = x.unstack_x()
-        value = ((x - y**3) ** 2) + 0.1
+        value = ((x - y ** 3) ** 2) + 0.1
         return value
 
     def correlated_func_integrate_x(y, limits):
-        lower, upper = limits.rect_limits
+        lower, upper = limits.v1.limits
 
         def integ(x, y):
-            return 0.333333333333333 * x**3 - 1.0 * x**2 * y**3 + x * (1.0 * y**6 + 0.1)
+            return 0.333333333333333 * x ** 3 - 1.0 * x ** 2 * y ** 3 + x * (1.0 * y ** 6 + 0.1)
 
         return integ(y, upper) - integ(y, lower)
 
     def correlated_func_integrate_y(x, limits):
-        lower, upper = limits.rect_limits
+        lower, upper = limits.v1.limits
 
         def integ(x, y):
-            return -0.5 * x * y**4 + 0.142857142857143 * y**7 + y * (1.0 * x**2 + 0.1)
+            return -0.5 * x * y ** 4 + 0.142857142857143 * y ** 7 + y * (1.0 * x ** 2 + 0.1)
 
-        return (integ(x, upper) - integ(x, lower))[0]
+        return (integ(x, upper) - integ(x, lower))
 
     obs = x * y
     from zfit.models.special import SimplePDF
 
     gauss_xy = SimplePDF(func=correlated_func, obs=obs)
-    assert gauss_xy.create_projection_pdf(limits=y).norm_range == x
+    assert gauss_xy.create_projection_pdf(limits=y).norm == x
     proj_pdf = gauss_xy.create_projection_pdf(limits=y)
     test_values = znp.array(
         [
@@ -468,5 +463,4 @@ def test_projection_pdf(test_values):
         norm=False,
     )
     probs = proj_pdf.pdf(x=test_values)
-    probs = probs.numpy()
     np.testing.assert_allclose(probs, true_probs, rtol=1e-3)  # MC normalization

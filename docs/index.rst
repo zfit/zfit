@@ -1,4 +1,3 @@
-
 .. |zfit_logo| image:: images/zfit-logo_400x168.png
    :target: https://github.com/zfit/zfit/
    :alt: zfit logo

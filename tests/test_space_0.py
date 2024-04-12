@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 
 import copy
 import random
@@ -7,6 +7,7 @@ import numpy as np
 import pytest
 
 import zfit
+import zfit.z.numpy as znp
 from zfit.core.space import Space, convert_to_space
 from zfit.util.exception import (
     CoordinatesUnderdefinedError,
@@ -79,10 +80,10 @@ def test_equality(space1, space2):
     """
     assert space1.axes == space2.axes
     assert space1.obs == space2.obs
-    np.testing.assert_allclose(space1.rect_limits, space2.rect_limits)
-    assert zfit.run(space1.rect_area()) == pytest.approx(
-        zfit.run(space2.rect_area()), rel=1e-8
-    )
+    np.testing.assert_allclose(space1.v1.limits, space2.v1.limits)
+    assert pytest.approx(
+        (space2._legacy_area()), rel=1e-8
+    ) == (space1._legacy_area())
 
 
 # @pytest.mark.skip  # eq missing
@@ -115,7 +116,7 @@ def test_space(space, lower, upper, limit, axes, areas, n_limits):
         areas:
         n_limits:
     """
-    assert space.rect_area() == pytest.approx(sum(areas), rel=1e-8)
+    assert space.volume == pytest.approx(sum(areas), rel=1e-8)
     # assert space.iter_areas() == pytest.approx(areas, rel=1e-8)
     # assert sum(space.iter_areas(rel=True)) == pytest.approx(1, rel=1e-7)
 
@@ -129,9 +130,9 @@ def test_space(space, lower, upper, limit, axes, areas, n_limits):
     # assert iter2_limits1 == (lower[1], upper[1])
     # assert iter1_limits1 == (iter1_limits1_space.lower[0], iter1_limits1_space.upper[0])
     # assert iter2_limits1 == (iter2_limits1_space.lower[0], iter2_limits1_space.upper[0])
-    # assert space.n_limits == n_limits
-    # assert iter1_limits1_space.n_limits == 1
-    # assert iter2_limits1_space.n_limits == 1
+    # assert space._depr_n_limits == n_limits
+    # assert iter1_limits1_space._depr_n_limits == 1
+    # assert iter2_limits1_space._depr_n_limits == 1
 
 
 @pytest.mark.parametrize(
@@ -147,7 +148,7 @@ def test_setting_axes(space, obs):
         space:
         obs:
     """
-    lower, upper = space.rect_limits
+    lower, upper = space.v0.limits
     axes = space.axes
     new_obs = list(copy.deepcopy(obs))
     while len(obs) > 1 and new_obs == list(obs):
@@ -161,7 +162,7 @@ def test_setting_axes(space, obs):
     )
     new_axes = tuple(range(len(new_obs)))
     coords = Space(obs=new_obs, axes=new_axes)
-    # obs_axes = OrderedDict((o, ax) for o, ax in zip(new_obs, new_axes))
+    # obs_axes = dict((o, ax) for o, ax in zip(new_obs, new_axes))
 
     if len(obs) > 1:
         # make sure it was shuffled
@@ -216,7 +217,7 @@ def test_dimensions():
         obs=["obs1", "obs2"], limits=(((lower1, lower2),), ((upper1, upper2),))
     )
     assert space.n_obs == 2
-    assert space.n_limits == 1
+    assert space._depr_n_limits == 1
     lower, upper = space.limits
     low1 = lower[0][0]
     low2 = lower[0][1]
@@ -240,13 +241,13 @@ def test_dimensions():
 
     space = Space(obs="obs1", limits=(((1,),), ((2,),)))
     assert space.n_obs == 1
-    assert space.n_limits == 1
+    assert space._depr_n_limits == 1
 
     lower1 = 1
     upper1 = 2
     space = Space(axes=(1,), limits=(((lower1,),), ((upper1,),)))
     assert space.n_obs == 1
-    assert space.n_limits == 1
+    assert space._depr_n_limits == 1
     lower, upper = space.limit1d
     assert lower == lower1
     assert upper == upper1

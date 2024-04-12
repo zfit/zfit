@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 import numpy as np
 import pytest
 
@@ -20,7 +20,7 @@ def test_binned_rect_integration(edges_bins1):
     edges, true_scaled_edges, limits, limits_true, value_scaling, values = edges_bins1
 
     integral = binned_rect_integration(density=values, edges=edges, limits=limits)
-    true_integral = limits_true.area() * value_scaling
+    true_integral = limits_true.volume * value_scaling
     assert pytest.approx(float(true_integral)) == float(integral)
 
     # integral = binned_rect_integration(counts=values, edges=edges, limits=limits)
@@ -157,7 +157,7 @@ def test_binned_partial_scaled_asym_axis0():
         1 * binw11 * binw21 + 2 * binw12 * binw21,
         3 * binw11 * binw22 + 4 * binw12 * binw22,
     )
-    assert pytest.approx(true_integral) == zfit.run(integral)
+    np.testing.assert_allclose(true_integral, integral)
 
 
 def test_binned_partial_scaled_asym_axis1():
@@ -176,7 +176,7 @@ def test_binned_partial_scaled_asym_axis1():
         1 * binw11 * binw21 + 3 * binw11 * binw22,
         2 * binw12 * binw21 + 4 * binw12 * binw22,
     )
-    assert pytest.approx(true_integral) == zfit.run(integral)
+    np.testing.assert_allclose(true_integral, integral)
 
 
 def test_binned_scaled_asym_one():

@@ -1,5 +1,6 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 import math
+import platform
 import sys
 
 import pytest
@@ -16,7 +17,6 @@ def test_fail_on_nan_strategy():
     gauss = zfit.pdf.Gauss(1.0, sigma, obs=obs)
 
     sampler = gauss.create_sampler(3000)
-    sampler.set_data_range(obs)
     nll = zfit.loss.UnbinnedNLL(model=gauss, data=sampler)
     minimizer = zfit.minimize.Minuit(strategy=ToyStrategyFail)
     sampler.resample()
@@ -29,7 +29,7 @@ def test_fail_on_nan_strategy():
     fitresult2 = minimizer.minimize(nll)
     assert not fitresult2.converged
     assert fitresult2.edm is None
-    assert fitresult2.fmin is None
+    assert fitresult2.fminopt is None
 
 
 def minimizers():
@@ -39,7 +39,7 @@ def minimizers():
         zfit.minimize.Minuit,
         zfit.minimize.ScipySLSQPV1,
     ]
-    if sys.version_info[1] < 11:
+    if sys.version_info[1] < 12 and platform.system() == "Linux":
         minimizers.append(zfit.minimize.NLoptMMAV1)
     return minimizers
 

@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 
 
 # deactivating CUDA capable gpus
@@ -26,8 +26,7 @@ def test_polynomial():
     polynom_tf = zfit.z.math.poly_complex(*coeffs, x)
     polynom_np = np.polyval(coeffs[::-1], 5.0)
 
-    result = polynom_tf.numpy()
-    assert result == pytest.approx(polynom_np, rel=prec)
+    assert pytest.approx(polynom_np, rel=prec) == polynom_tf
 
 
 def test_auto_upcast():

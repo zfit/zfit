@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 
 from __future__ import annotations
 
@@ -30,6 +30,11 @@ class WrapOptimizer(BaseStepMinimizer):
     ):
         """Wrap TensorFlow optimizers to have the zfit interface and behavior.
 
+        .. warning:: The optimizers changed the interface in Keras 3, which is not (yet) supported.
+
+          As they tend to perform significantly worse than the optimizers in `scipy` or `iminuit`, it is
+            not a priority to support them, if ever at all. If you need them, please open an issue/PR: https://github.com/zfit/zfit.
+
         .. note:: Different behavior of minimize
 
           While the ``minimize`` method in TensorFlow optimizers executes a single step of the minimization,
@@ -43,9 +48,14 @@ class WrapOptimizer(BaseStepMinimizer):
             in :py:class:`~BaseStepMinimizer`
         """
         if not isinstance(optimizer, tf.keras.optimizers.Optimizer):
-            raise TypeError(
-                f"optimizer {str(optimizer)} has to be from class Optimizer"
+            msg = f"optimizer {optimizer!s} has to be from class Optimizer"
+            raise TypeError(msg)
+        if not hasattr(optimizer, "minimize"):
+            msg = (
+                f"optimizer {optimizer!s} has to have a method minimize and is most probably the new Keras 3 interface that is not yet supported."
+                "Please open an issue/PR if you would need TF/Keras optimizers, as they generally don't perform well anyway."
             )
+            raise AttributeError(msg)
         super().__init__(
             tol=tol,
             criterion=criterion,
@@ -63,12 +73,9 @@ class WrapOptimizer(BaseStepMinimizer):
             return super()._minimize(loss, params, init)
         except ValueError as error:
             if "No gradients provided for any variable" in error.args[0]:
-                raise OperationNotAllowedError(
-                    "Cannot use TF optimizer with"
-                    " a numerical gradient (non-TF function)"
-                ) from None
-            else:
-                raise
+                msg = "Cannot use TF optimizer with" " a numerical gradient (non-TF function)"
+                raise OperationNotAllowedError(msg) from None
+            raise
 
     def _step(
         self,
@@ -76,6 +83,7 @@ class WrapOptimizer(BaseStepMinimizer):
         params: Iterable[ZfitIndependentParameter],
         init: zfit.result.FitResult | None,
     ) -> tf.Tensor:
+        del init  # unused
         # TODO(WrappedVariable): this is needed if we want to use wrapped Variables
         # import zfit
         # params = zfit.z.math._extract_tfparams(params)

@@ -1,4 +1,4 @@
-#  Copyright (c) 2023 zfit
+#  Copyright (c) 2024 zfit
 from __future__ import annotations
 
 import collections
@@ -8,16 +8,16 @@ import functools
 from dataclasses import dataclass
 from enum import Enum
 from typing import (
+    Annotated,
     Any,
-    Union,
-    Mapping,
+    ClassVar,
     Iterable,
-    Dict,
     List,
-    TypeVar,
-    Optional,
-    Tuple,
     Literal,
+    Mapping,
+    Optional,
+    TypeVar,
+    Union,
 )
 
 import numpy as np
@@ -26,22 +26,16 @@ import tensorflow as tf
 from frozendict import frozendict
 from pydantic import Field
 
-from zfit.util.container import convert_to_container
-
-try:
-    from typing import Annotated
-except ImportError:  # TODO(3.9): remove
-    from typing_extensions import Annotated
-
 from zfit.core.interfaces import (
-    ZfitParameter,
-    ZfitPDF,
-    ZfitData,
     ZfitBinnedData,
     ZfitConstraint,
+    ZfitData,
     ZfitLoss,
+    ZfitParameter,
+    ZfitPDF,
 )
 from zfit.core.serialmixin import ZfitSerializable
+from zfit.util.container import convert_to_container
 from zfit.util.warnings import warn_experimental_feature
 
 
@@ -80,11 +74,12 @@ class Types:
             The annotated repr.
         """
         if self.block_forward_refs:
-            raise NameError(
+            msg = (
                 "Internal error, should always be caught! If you see this, most likely the annotation"
                 " evaluation was not postponed. To fix this, add a `from __future__ import annotations`"
                 " and make sure to use Python 3.8+"
             )
+            raise NameError(msg)
         if len(repr) == 0:
             return None
         elif len(repr) == 1:
@@ -123,7 +118,7 @@ class Types:
     def ListParamInputTypeDiscriminated(self):
         return List[self.ParamInputTypeDiscriminated]
 
-    def register_repr(self, repr: Union[ZfitPDF, ZfitParameter]) -> None:
+    def register_repr(self, repr: ZfitPDF | ZfitParameter) -> None:
         """Register a repr to be used in the serialization such as PDF or Parameter.
 
         This is needed to make sure that objects which use any of these types can be recursively
@@ -157,17 +152,18 @@ class SerializationTypeError(TypeError):
 class Serializer:
     """Main serializer, to be used as a class only."""
 
-    def __new__(cls, *args, **kwargs):
-        raise TypeError(
-            "Serializer should be used as a class, no instances are allowed"
-        )
+    def __new__(cls, *_, **__):
+        msg = "Serializer should be used as a class, no instances are allowed"
+        raise TypeError(msg)
 
     types = Types()
     is_initialized = False
 
-    constructor_repr = {}
-    type_repr = {}
+    constructor_repr: ClassVar = {}
+    type_repr: ClassVar = {}
     _deserializing = False
+
+    _existing_params = None
 
     @classmethod
     def register(own_cls, repr: ZfitSerializable) -> None:
@@ -178,15 +174,17 @@ class Serializer:
         """
         cls = repr._implementation
         if not issubclass(cls, ZfitSerializable):
-            raise TypeError(
+            msg = (
                 f"{cls} is not a subclass of ZfitSerializable. Possible solution: inherit from "
                 f"the SerializableMixin"
             )
+            raise TypeError(msg)
 
         if cls not in own_cls.constructor_repr:
             own_cls.constructor_repr[cls] = repr
         else:
-            raise ValueError(f"Class {cls} already registered")
+            msg = f"Class {cls} already registered"
+            raise ValueError(msg)
 
         hs3_type = repr.__fields__["hs3_type"].default
         cls.hs3_type = hs3_type
@@ -194,34 +192,52 @@ class Serializer:
         if hs3_type not in own_cls.type_repr:
             own_cls.type_repr[hs3_type] = repr
         else:
-            raise ValueError(f"Type {hs3_type} already registered")
+            msg = f"Type {hs3_type} already registered"
+            raise ValueError(msg)
 
         own_cls.types.register_repr(repr)
 
     @classmethod
-    def initialize(cls) -> None:
+    @contextlib.contextmanager
+    def initialize(cls, *, reuse_params=None) -> None:
         """Initialize the serializer by evaluating all the forward references.
 
         This is a necessary implementation trick to work properly with pydantics caching as we cannot modify an existing
         Type after it has been created. This is necessary to register new types as possible options (say a new PDF is
         registered and can be a possibility in a SumPDF) on the fly.
+
+        Args:
+            reuse_params: |@doc:hs3.ini.reuse_params| If parameters, the parameters
+                   will be reused if they are given.
+                   If a parameter is given, it will be used as the parameter
+                   with the same name. If a parameter is not given, a new
+                   parameter will be created. |@docend:hs3.ini.reuse_params|
         """
         if not cls.is_initialized:
             cls.types.block_forward_refs = False
             for repr in cls.constructor_repr.values():
-                repr.update_forward_refs(
-                    **{"Union": Union, "List": List, "Literal": Literal}
-                )
+                repr.update_forward_refs(Union=Union, List=List, Literal=Literal)
             cls.is_initialized = True
+
+        # create list of parameters that will be filled during loading
+        if cls._existing_params is None:
+            try:
+                cls._existing_params = {}
+                if reuse_params is not None:
+                    reuse_params = convert_to_container(reuse_params)
+                    for param in reuse_params:
+                        cls._existing_params[param.name] = param
+                yield
+            finally:
+                cls._existing_params = None
+        else:
+            yield
 
     @classmethod
     @warn_experimental_feature
     def to_hs3(
         cls,
-        obj: Union[
-            Union[List[ZfitPDF], Tuple[ZfitPDF], ZfitPDF],
-            Union[List[ZfitLoss], Tuple[ZfitLoss], ZfitLoss],
-        ],
+        obj: list[ZfitPDF] | tuple[ZfitPDF] | ZfitPDF | list[ZfitLoss] | tuple[ZfitLoss] | ZfitLoss,
     ) -> Mapping[str, Any]:
         """Serialize a PDF or a list of PDFs to a JSON string according to the HS3 standard.
 
@@ -250,110 +266,107 @@ class Serializer:
                       zfit version used to create the file |@docend:hs3.layout.explain|
         """
 
-        cls.initialize()
+        with cls.initialize():
+            serial_kwargs = {"exclude_none": True, "by_alias": True}
+            # check if already HS3 format
+            if isinstance(obj, collections.abc.Mapping):
+                if (
+                    "distributions" in obj
+                    and isinstance(obj["distributions"], collections.abc.Mapping)
+                    and "variables" in obj
+                    and "metadata" in obj
+                ):
+                    msg = "Object seems to be already in HS3 format. If it contains PDFs, use `obj['distributions'].values()` instead of `obj` to get a valid conversion"
+                    raise ValueError(msg)
+                msg = "Mappings are currently not supported. Use a PDF or a list of PDFs instead."
+                raise ValueError(msg)
 
-        serial_kwargs = {"exclude_none": True, "by_alias": True}
-        # check if already HS3 format
-        if isinstance(obj, collections.abc.Mapping):
-            if (
-                "distributions" in obj
-                and isinstance(obj["distributions"], collections.abc.Mapping)
-                and "variables" in obj
-                and "metadata" in obj
-            ):
-                raise ValueError(
-                    "Object seems to be already in HS3 format. If it contains PDFs, use `obj['distributions'].values()` instead of `obj` to get a valid conversion"
-                )
-            else:
-                raise ValueError(
-                    "Mappings are currently not supported. Use a PDF or a list of PDFs instead."
-                )
-        else:
             obj = convert_to_container(obj)
-        from zfit.core.interfaces import ZfitPDF
+            from zfit.core.interfaces import ZfitPDF
 
-        all_pdfs = all(isinstance(ob, ZfitPDF) for ob in obj)
-        all_losses = all(isinstance(ob, ZfitLoss) for ob in obj)
-        if not all_pdfs and not all_losses:
-            raise TypeError("Only PDFs or losses can be serialized.")
-        from zfit.core.serialmixin import ZfitSerializable
+            all_pdfs = all(isinstance(ob, ZfitPDF) for ob in obj)
+            all_losses = all(isinstance(ob, ZfitLoss) for ob in obj)
+            if not all_pdfs and not all_losses:
+                msg = "Only PDFs or losses can be serialized."
+                raise TypeError(msg)
+            from zfit.core.serialmixin import ZfitSerializable
 
-        if not all(isinstance(pdf, ZfitSerializable) for pdf in obj):
-            raise SerializationTypeError("All distributions must be ZfitSerializable")
-        import zfit
+            if not all(isinstance(pdf, ZfitSerializable) for pdf in obj):
+                msg = "All distributions must be ZfitSerializable"
+                raise SerializationTypeError(msg)
+            import zfit
 
-        out = {
-            "metadata": {
-                "HS3": {"version": "experimental"},
-                "serializer": {"lib": "zfit", "version": zfit.__version__},
-            },
-            "distributions": {},
-            "variables": {},
-            "loss": {},
-            "data": {},
-            "constraints": {},
-        }
-        loss_number = range(len(obj))
+            out = {
+                "metadata": {
+                    "HS3": {"version": "experimental"},
+                    "serializer": {"lib": "zfit", "version": zfit.__version__},
+                },
+                "distributions": {},
+                "variables": {},
+                "loss": {},
+                "data": {},
+                "constraints": {},
+            }
+            loss_number = range(len(obj))
 
-        all_objs = {"data": [], "distributions": [], "constraints": [], "loss": []}
-        if all_pdfs:
-            all_objs["distributions"] = obj
-        else:
-            for loss in obj:
-                all_objs["distributions"].extend(loss.model)
-                all_objs["constraints"].extend(loss.constraints)
-                all_objs["data"].extend(loss.data)
-                all_objs["loss"].append(loss)
-        all_objs = {key: set(val) for key, val in all_objs.items()}
-        all_objs_cleaned = {key: {} for key in all_objs.keys()}
-        # give all of the objects unique names
-        for key, val in all_objs.items():
-            for ob in val:
-                name = ob.name
-                if name in all_objs_cleaned[key]:
-                    name = f"{name}_{iter(loss_number)}"
-                all_objs_cleaned[key][name] = ob
+            all_objs = {"data": [], "distributions": [], "constraints": [], "loss": []}
+            if all_pdfs:
+                all_objs["distributions"] = obj
+            else:
+                for loss in obj:
+                    all_objs["distributions"].extend(loss.model)
+                    all_objs["constraints"].extend(loss.constraints)
+                    all_objs["data"].extend(loss.data)
+                    all_objs["loss"].append(loss)
+            all_objs = {key: set(val) for key, val in all_objs.items()}
+            all_objs_cleaned = {key: {} for key in all_objs}
+            # give all of the objects unique names
+            for key, val in all_objs.items():
+                for ob in val:
+                    name = ob.name
+                    if name in all_objs_cleaned[key]:
+                        name = f"{name}_{iter(loss_number)}"
+                    all_objs_cleaned[key][name] = ob
 
-        for name, pdf in all_objs_cleaned["distributions"].items():
-            assert name not in out["distributions"], "Name should have been uniqueified"
-            pdf_repr = pdf.get_repr().from_orm(pdf)
-            out["distributions"][name] = pdf_repr.dict(**serial_kwargs)
+            for name, pdf in all_objs_cleaned["distributions"].items():
+                assert name not in out["distributions"], "Name should have been uniqueified"
+                pdf_repr = pdf.get_repr().from_orm(pdf)
+                out["distributions"][name] = pdf_repr.dict(**serial_kwargs)
+                # TODO
+                for param in pdf.get_params(
+                    floating=None, extract_independent=None
+                ):  # TODO: this is not ideal, we should take the serialized params?
+                    if param.name not in out["variables"]:
+                        paramdict = param.get_repr().from_orm(param).dict(**serial_kwargs)
+                        del paramdict["type"]
+                        out["variables"][param.name] = paramdict
 
-            for param in pdf.get_params(
-                floating=None, extract_independent=None
-            ):  # TODO: this is not ideal, we should take the serialized params?
-                if param.name not in out["variables"]:
-                    paramdict = param.get_repr().from_orm(param).dict(**serial_kwargs)
-                    del paramdict["type"]
-                    out["variables"][param.name] = paramdict
+                for ob in pdf.obs:
+                    if ob not in out["variables"]:
+                        space = pdf.space.with_obs(ob)
+                        spacedict = space.get_repr().from_orm(space).dict(**serial_kwargs)
+                        del spacedict["type"]
+                        out["variables"][ob] = spacedict
 
-            for ob in pdf.obs:
-                if ob not in out["variables"]:
-                    space = pdf.space.with_obs(ob)
-                    spacedict = space.get_repr().from_orm(space).dict(**serial_kwargs)
-                    del spacedict["type"]
-                    out["variables"][ob] = spacedict
+            for name, loss in all_objs_cleaned["loss"].items():
+                out["loss"][name] = loss.get_repr().from_orm(loss).dict(**serial_kwargs)
 
-        for name, loss in all_objs_cleaned["loss"].items():
-            out["loss"][name] = loss.get_repr().from_orm(loss).dict(**serial_kwargs)
+            for name, data in all_objs_cleaned["data"].items():
+                out["data"][name] = data.get_repr().from_orm(data).dict(**serial_kwargs)
 
-        for name, data in all_objs_cleaned["data"].items():
-            out["data"][name] = data.get_repr().from_orm(data).dict(**serial_kwargs)
+            for name, constraint in all_objs_cleaned["constraints"].items():
+                out["constraints"][name] = constraint.get_repr().from_orm(constraint).dict(**serial_kwargs)
 
-        for name, constraint in all_objs_cleaned["constraints"].items():
-            out["constraints"][name] = (
-                constraint.get_repr().from_orm(constraint).dict(**serial_kwargs)
-            )
-
-        out = cls.post_serialize(out)
-
-        return out
+            return cls.post_serialize(out)
 
     @classmethod
     @warn_experimental_feature
     def from_hs3(
-        cls, load: Mapping[str, Mapping]
-    ) -> Mapping[str, Union[ZfitPDF, ZfitParameter]]:
+        cls,
+        load: Mapping[str, Mapping],
+        *,
+        reuse_params: ZfitParameter | Iterable[ZfitParameter] | None = None,
+    ) -> Mapping[str, ZfitPDF | ZfitParameter]:
         """Load a PDF or a list of PDFs from a JSON string according to the HS3 standard.
 
         .. warning::
@@ -375,50 +388,53 @@ class Serializer:
                     - 'data': list of data
                     - 'metadata': contains the version of the HS3 format and the
                       zfit version used to create the file |@docend:hs3.layout.explain|
+            reuse_params: |@doc:hs3.ini.reuse_params| If parameters, the parameters
+                   will be reused if they are given.
+                   If a parameter is given, it will be used as the parameter
+                   with the same name. If a parameter is not given, a new
+                   parameter will be created. |@docend:hs3.ini.reuse_params|
 
         Returns:
             mapping: The PDFs and variables as a mapping to the original keys.
         """
-        cls.initialize()
-        # sanity checks, TODO
-        if "variables" not in load:
-            pass
-        if "distributions" not in load:
-            pass
-        if "metadata" not in load:
-            pass
-        for param, paramdict in load["variables"].items():
-            if "value" in paramdict:
-                if paramdict.get("floating", True) is False:
-                    paramdict["type"] = "ConstantParameter"
+        with cls.initialize(reuse_params=reuse_params):
+            # sanity checks, TODO
+            if "variables" not in load:
+                pass
+            if "distributions" not in load:
+                pass
+            if "metadata" not in load:
+                pass
+            variables_holder = load["variables"]
+            for param, paramdict in tuple(variables_holder.items()):
+                if "value" in paramdict:
+                    if paramdict.get("floating", True) is False:
+                        paramdict["type"] = "ConstantParameter"
+                    else:
+                        paramdict["type"] = "Parameter"
+                elif "func" in paramdict:
+                    paramdict["type"] = "ComposedParameter"
                 else:
-                    paramdict["type"] = "Parameter"
-            elif "value_fn" in paramdict:
-                paramdict["type"] = "ComposedParameter"
-            else:
-                paramdict["type"] = "Space"
+                    variables_holder.pop(param)  # spaces can have different limits, don't replace.
 
-        load = cls.pre_deserialize(load)
+            load = cls.pre_deserialize(load)
 
-        out = {
-            "variables": {},  # order matters! variables first
-            "data": {},
-            "constraints": {},
-            "distributions": {},
-            "loss": {},
-        }
-        assert (
-            list(out)[0] == "variables"
-        ), "Order changed, has to deserealize variables first"
-        for kind, kindout in out.items():
-            for name, obj_dict in load[kind].items():
-                repr = Serializer.type_repr[obj_dict["type"]]
-                repr_inst = repr(**obj_dict)
-                kindout[name] = repr_inst.to_orm()
-        out["metadata"] = load["metadata"].copy()
+            out = {
+                "variables": {},  # order matters! variables first
+                "data": {},
+                "constraints": {},
+                "distributions": {},
+                "loss": {},
+            }
+            assert next(iter(out)) == "variables", "Order changed, has to deserealize variables first"
+            for kind, kindout in out.items():
+                for name, obj_dict in load[kind].items():
+                    repr = Serializer.type_repr[obj_dict["type"]]
+                    repr_inst = repr(**obj_dict)
+                    kindout[name] = repr_inst.to_orm()
+            out["metadata"] = load["metadata"].copy()
 
-        out = cls.post_deserialize(out)
-        return out
+            return cls.post_deserialize(out)
 
     @classmethod
     @contextlib.contextmanager
@@ -433,25 +449,28 @@ class Serializer:
         # name is replaced by the dict, that's fine for *once*, but fails if done twice (as the "name" field will be replaced by the dict)
         for what in ["distributions", "loss", "data", "constraints"]:
             # replace constant parameters with their name
-            const_params = frozendict(
-                {"name": None, "type": "ConstantParameter", "floating": False}
-            )
+            const_params = frozendict({"name": None, "type": "ConstantParameter", "floating": False})
             replace_forward_const_param = {const_params: lambda x: x["name"]}
             out[what] = replace_matching(out[what], replace_forward_const_param)
 
             # replace composed parameters with their name
-            composed_params = frozendict(
-                {"name": None, "type": "ComposedParameter", "value_fn": None}
-            )
+            composed_params = frozendict({"name": None, "type": "ComposedParameter", "func": None})
             replace_forward_composed_param = {composed_params: lambda x: x["name"]}
             out[what] = replace_matching(out[what], replace_forward_composed_param)
 
             # replace parameters and spaces with their name
-            parameter = frozendict({"name": None, "min": None, "max": None})
+            parameter = frozendict(
+                {
+                    "name": None,
+                    "min": None,
+                    "max": None,
+                    "step_size": None,
+                }  # do not replace spaces, they can have different limits
+            )
             replace_forward_param = {parameter: lambda x: x["name"]}
             out[what] = replace_matching(out[what], replace_forward_param)
         for parname, param in out["variables"].items():
-            if "value_fn" in param:
+            if "func" in param:
                 out["variables"][parname]["params"] = replace_matching(
                     out["variables"][parname]["params"], replace_forward_const_param
                 )
@@ -463,10 +482,8 @@ class Serializer:
     @classmethod
     def pre_deserialize(cls, out):
         out = copy.deepcopy(out)
-        replace_backward = {
-            k: lambda x=k: out["variables"][x] for k in out["variables"].keys()
-        }
-        for parname, param in out["variables"].items():
+        replace_backward = {k: lambda x=k: out["variables"][x] for k in out["variables"]}
+        for _parname, param in out["variables"].items():
             if param["type"] == "ComposedParameter":
                 param["params"] = replace_matching(param["params"], replace_backward)
         for what in ["distributions", "loss", "data", "constraints"]:
@@ -483,7 +500,7 @@ TYPENAME = "hs3_type"
 
 def elements_match(mapping, replace):
     found = False
-    for match, replacement in replace.items():
+    for match, replacement in replace.items():  # noqa: B007
         if isinstance(mapping, Mapping) and isinstance(match, Mapping):
             for k, v in match.items():
                 if k not in mapping:
@@ -501,10 +518,7 @@ def elements_match(mapping, replace):
         try:
             direct_hit = bool(mapping == match)
         except ValueError as error:
-            if (
-                "The truth value of an array with more than one element is ambiguous"
-                in str(error)
-            ):
+            if "The truth value of an array with more than one element is ambiguous" in str(error):
                 direct_hit = bool((mapping == match).all())
             else:
                 raise
@@ -539,9 +553,8 @@ def replace_matching(mapping, replace):
 def convert_to_orm(init):
     if isinstance(init, Mapping):
         for k, v in init.items():
-            from zfit.core.interfaces import ZfitParameter, ZfitSpace
-
             from zfit.core.data import LightDataset
+            from zfit.core.interfaces import ZfitParameter, ZfitSpace
 
             if (
                 not isinstance(v, (Iterable, Mapping))
@@ -564,7 +577,7 @@ def convert_to_orm(init):
                 or tf.is_tensor(v)
             ):
                 continue
-            elif TYPENAME in v:
+            if TYPENAME in v:
                 type_ = v[TYPENAME]
                 init[k] = Serializer.type_repr[type_](**v).to_orm()
             else:
@@ -598,14 +611,12 @@ class BaseRepr(pydantic.BaseModel):
     _context = pydantic.PrivateAttr(None)
     _constructor = pydantic.PrivateAttr(None)
 
-    dictionary: Optional[Dict] = Field(alias="dict")
-    tags: Optional[List[str]] = None
+    dictionary: Optional[dict] = Field(alias="dict")
+    tags: Optional[list[str]] = None
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
-        if (
-            cls._implementation is not None
-        ):  # TODO: better way to catch if constructor is set vs BaseClass?
+        if cls._implementation is not None:  # TODO: better way to catch if constructor is set vs BaseClass?
             Serializer.register(cls)
 
     class Config:
@@ -616,8 +627,10 @@ class BaseRepr(pydantic.BaseModel):
 
     @classmethod
     def orm_mode(cls, v):
+        del v
         if cls._context is None:
-            raise ValueError("No context set!")
+            msg = "No context set!"
+            raise ValueError(msg)
         return cls._context == MODES.orm
 
     @classmethod
@@ -630,18 +643,20 @@ class BaseRepr(pydantic.BaseModel):
             cls._context = old_mode
         return out
 
-    def to_orm(self):
-        old_mode = type(self)._context
-        try:
-            type(self)._context = MODES.repr
-            if self._implementation is None:
-                raise ValueError("No implementation registered!")
-            init = self.dict(exclude_none=True)
-            type_ = init.pop("hs3_type")
-            # assert type_ == self.hs3_type
-            out = self._to_orm(init)
-        finally:
-            type(self)._context = old_mode
+    def to_orm(self, *, reuse_params=None):
+        with Serializer.initialize(reuse_params=reuse_params):
+            old_mode = type(self)._context
+            try:
+                type(self)._context = MODES.repr
+                if self._implementation is None:
+                    msg = "No implementation registered!"
+                    raise ValueError(msg)
+                init = self.dict(exclude_none=True)
+                type_ = init.pop("hs3_type")
+                assert type_ == self.hs3_type
+                out = self._to_orm(init)
+            finally:
+                type(self)._context = old_mode
         return out
 
     @to_orm_init

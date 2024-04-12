@@ -1,4 +1,5 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2024 zfit
+from __future__ import annotations
 
 import tensorflow as tf
 
@@ -6,10 +7,12 @@ from zfit.settings import upcast_ztypes
 
 
 def _auto_upcast(tensor: tf.Tensor):
+    import zfit.z.numpy as znp
+
     if isinstance(tensor, tf.Tensor):
         new_dtype = upcast_ztypes[tensor.dtype]
         if new_dtype != tensor.dtype:
-            tensor = tf.cast(x=tensor, dtype=new_dtype)
+            tensor = znp.asarray(tensor, dtype=new_dtype)
     return tensor
 
 

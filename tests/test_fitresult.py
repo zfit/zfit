@@ -7,7 +7,7 @@ import numpy as np
 import pytest
 
 import zfit
-from zfit import z
+import zfit.z.numpy as znp
 from zfit.minimizers.errors import compute_errors
 from zfit.minimizers.fitresult import FitResult
 
@@ -71,10 +71,10 @@ def create_loss(n=15000, weights=None, extended=None, constraints=None):
     sampled_data.resample()
 
     if weights is not None:
-        sampled_data.set_weights(weights)
+        sampled_data = sampled_data.with_weights(weights)
 
     constraint = (
-        zfit.constraint.GaussianConstraint(a_param, true_a, 0.1)
+        zfit.constraint.GaussianConstraint(a_param, true_a, sigma=0.1)
         if constraints
         else None
     )
@@ -95,7 +95,7 @@ def create_fitresult(
         n=n, weights=weights, extended=extended, constraints=constraints
     )
 
-    true_minimum = loss.value(full=False).numpy()
+    true_minimum = loss.value(full=False)
 
     if extended:
         a_param, b_param, c_param, yieldgauss, yieldexp = all_params
@@ -109,7 +109,7 @@ def create_fitresult(
         param.assign(param.init_val)  # reset the value
     for ntry in range(3):
         result = minimizer.minimize(loss=loss)
-        cur_val = loss.value(full=False).numpy()
+        cur_val = loss.value(full=False)
         if result.valid:
             break
         else:  # vary param.init_val slightly
@@ -152,9 +152,9 @@ def test_set_values_fitresult(do_pickle, weights, extended):
     lower1 = 0.0
     param1 = zfit.Parameter("param1", 2.0, lower1, upper1)
     param1.set_value(lower1)
-    assert pytest.approx(zfit.run(param1.value())) == lower1
+    assert pytest.approx(znp.asarray(param1.value())) == lower1
     param1.set_value(upper1)
-    assert pytest.approx(zfit.run(param1.value())) == upper1
+    assert pytest.approx(znp.asarray(param1.value())) == upper1
     with pytest.raises(ValueError):
         param1.set_value(lower1 - 0.001)
     with pytest.raises(ValueError):
@@ -176,8 +176,8 @@ def test_set_values_fitresult(do_pickle, weights, extended):
         result.freeze()
         result = pickle.loads(pickle.dumps(result))
     with zfit.param.set_values([param_c, param_b], values=result):
-        assert zfit.run(param_b.value()) == val_b
-        assert zfit.run(param_c.value()) == val_c
+        assert znp.asarray(param_b.value()) == val_b
+        assert znp.asarray(param_c.value()) == val_c
 
     # test partial
     param_new = zfit.Parameter("param_new", 42.0, 12.0, 48.0)
@@ -189,7 +189,7 @@ def test_set_values_fitresult(do_pickle, weights, extended):
     zfit.param.set_values(
         [param_c, param_new], values=result, allow_partial=True
     )  # allow_partial by default false
-    assert zfit.run(param_c.value()) == val_c
+    assert znp.asarray(param_c.value()) == val_c
 
     # test partial in case we have nothing to set
     param_d = zfit.Parameter("param_d", 12)
@@ -201,14 +201,18 @@ def test_set_values_fitresult(do_pickle, weights, extended):
 minimizers = [
     (zfit.minimize.ScipyTrustConstrV1, {}, True),
     (zfit.minimize.Minuit, {}, True),
-    (zfit.minimize.NLoptLBFGSV1, {}, True),
 ]
 
-if not platform.system() in (
-    "Darwin",
-    "Windows",
-):  # TODO: Ipyopt installation on macosx not working
-    minimizers.append((zfit.minimize.IpyoptV1, {}, False))
+
+if sys.version_info[1] < 12 and (platf := platform.system()) not in ("Darwin",):
+    # TODO: remove all of this conditions once NLopt is available for Python 3.12
+    # see also https://github.com/DanielBok/nlopt-python/issues/24
+    # TODO: Ipyopt installation on macosx not working
+    minimizers.append(
+        (zfit.minimize.NLoptLBFGSV1, {}, True),
+    )
+    if platf not in ("Windows",):
+        minimizers.append((zfit.minimize.IpyoptV1, {}, False))
 # sort for xdist: https://github.com/pytest-dev/pytest-xdist/issues/432
 minimizers = sorted(minimizers, key=lambda val: repr(val))
 
@@ -236,7 +240,7 @@ def test_freeze(minimizer_class_and_kwargs, weights, extended):
     loaded = pickle.loads(dumped)
     test = loaded
     true = result
-    assert test.fmin == true.fmin
+    assert test.fminopt == true.fminopt
     assert test.edm == true.edm
 
     for testval, trueval in zip(test.params.values(), true.params.values()):
@@ -253,7 +257,7 @@ def test_freeze(minimizer_class_and_kwargs, weights, extended):
 def test_fmin(minimizer_class_and_kwargs):
     results = create_fitresult(minimizer_class_and_kwargs=minimizer_class_and_kwargs)
     result = results["result"]
-    assert pytest.approx(results["cur_val"]) == result.fmin
+    assert pytest.approx(results["cur_val"]) == result.fminopt
 
 
 @pytest.mark.parametrize("minimizer_class_and_kwargs", minimizers, ids=minimizer_ids)
@@ -280,6 +284,28 @@ def test_params_at_limit():
     param_a.lower = old_lower
     assert param_a.at_limit
     assert not result.valid
+
+def test_result_update_params():
+    loss, (param_a, param_b, param_c) = create_loss(n=5000)
+    params = [param_a, param_b, param_c]
+    initial = np.array(params)
+    with zfit.run.experimental_disable_param_update(True):
+        minimizer = zfit.minimize.Minuit(gradient=True, tol=10.0)
+        result = minimizer.minimize(loss)
+        assert np.allclose(initial, np.array(params))
+
+    result2 = result.update_params()
+    assert result2 is result
+    assert not np.allclose(initial, np.array(params))
+    np.testing.assert_allclose(result.values, np.array(params))
+    zfit.param.set_values(params, initial)
+    with result:
+        np.testing.assert_allclose(result.values, params)
+    np.testing.assert_allclose(initial, params)
+
+
+
+
 
 
 @pytest.mark.flaky(reruns=3)
@@ -444,11 +470,11 @@ def test_new_minimum(minimizer_class_and_kwargs):
         b_param.floating = True
         c_param.floating = True
 
-        params_dict = {p: p.numpy() for p in params}
+        params_dict = {p: float(p) for p in params}
         hacked_result = FitResult(
             params=params_dict,
             edm=result.edm,
-            fmin=result.fmin,
+            fminopt=result.fminopt,
             info=result.info,
             loss=loss,
             status=result.status,

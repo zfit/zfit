@@ -1,14 +1,16 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2024 zfit
+from __future__ import annotations
 
 import tensorflow as tf
 
 from .core.constraint import (
     GaussianConstraint,
+    LogNormalConstraint,
     PoissonConstraint,
     SimpleConstraint,
-    LogNormalConstraint,
 )
 from .util import ztyping
+from .util.deprecation import deprecated
 
 __all__ = [
     "nll_gaussian",
@@ -19,6 +21,7 @@ __all__ = [
 ]
 
 
+@deprecated(None, "Use `GaussianConstraint` directly.")
 def nll_gaussian(
     params: ztyping.ParamTypeInput,
     observation: ztyping.NumericalScalarType,
@@ -37,6 +40,4 @@ def nll_gaussian(
         ShapeIncompatibleError: if params, mu and sigma don't have the same size.
     """
 
-    return GaussianConstraint(
-        params=params, observation=observation, uncertainty=uncertainty
-    )
+    return GaussianConstraint(params=params, observation=observation, uncertainty=uncertainty)

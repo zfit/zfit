@@ -1,13 +1,14 @@
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2024 zfit
+from __future__ import annotations
 
 import numpy as np
 
 import zfit
 
 # create space
-xobs = zfit.Space("xobs", (-4, 4))
-yobs = zfit.Space("yobs", (-3, 5))
-zobs = zfit.Space("z", (-2, 4))
+xobs = zfit.Space("xobs", -4, 4)
+yobs = zfit.Space("yobs", -3, 5)
+zobs = zfit.Space("z", -2, 4)
 obs = xobs * yobs * zobs
 
 # parameters
@@ -28,14 +29,15 @@ product_gauss = zfit.pdf.ProductPDF([gauss_x, gauss_y, gauss_z])
 
 # data
 normal_np = np.random.normal(loc=[2.0, 2.5, 2.5], scale=[3.0, 3, 1.5], size=(10000, 3))
-data_raw = zfit.Data.from_numpy(
-    obs=obs, array=normal_np
-)  # or from anywhere else, e.g. root
+data_raw = zfit.Data.from_numpy(obs=obs, array=normal_np)  # or from anywhere else, e.g. root
 
 df = data_raw.to_pandas()
 # preprocessing here, rename things. Match column names with the observable names "xobs", "yobs", "z" (they have to be
 # contained, more columns in the df is not a problem)
-data = zfit.Data.from_pandas(df, obs=obs)
+
+data = df  # we can directly use the dataframe
+# data = normal_np  # or the numpy array
+# data = zfit.Data.from_pandas(df, obs=obs)  # or create another zfit data object
 
 # create NLL
 nll = zfit.loss.UnbinnedNLL(model=product_gauss, data=data)
@@ -43,8 +45,6 @@ nll = zfit.loss.UnbinnedNLL(model=product_gauss, data=data)
 # create a minimizer
 minimizer = zfit.minimize.Minuit()
 result = minimizer.minimize(nll)
-print(result.params)
 
 # do the error calculations, here with minos
 param_errors, _ = result.errors()
-print(param_errors)

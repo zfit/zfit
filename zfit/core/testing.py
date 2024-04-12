@@ -7,7 +7,6 @@ Contains a singleton instance to register new PDFs and let them be tested.
 
 from __future__ import annotations
 
-from collections import OrderedDict
 from collections.abc import Iterable, Callable
 
 import scipy.stats
@@ -34,11 +33,11 @@ class AutoTester:
         self.pdfs = []
 
     def register_pdf(
-        self,
-        pdf_class: ZfitPDF,
-        params_factories: Callable | Iterable[Callable],
-        scipy_dist: scipy.stats.rv_continuous = None,
-        analytic_int_axes: None | int | list[tuple[int, ...]] = None,
+            self,
+            pdf_class: ZfitPDF,
+            params_factories: Callable | Iterable[Callable],
+            scipy_dist: scipy.stats.rv_continuous = None,
+            analytic_int_axes: None | int | list[tuple[int, ...]] = None,
     ):
         # if not isinstance(pdf_class, ZfitPDF):
         #     raise TypeError(f"PDF {pdf_class} is not a ZfitPDF.")
@@ -53,13 +52,12 @@ class AutoTester:
         )
         if analytic_int_axes is not None:
             isinstance(analytic_int_axes)
-        registration = OrderedDict(
-            (
-                ("pdf_class", pdf_class),
-                ("params", params_factories),
-                ("scipy_dist", scipy_dist),
-            )
-        )
+        registration = {
+            "pdf_class": pdf_class,
+            "params": params_factories,
+            "scipy_dist": scipy_dist,
+
+        }
         self.pdfs.append(registration)
 
     def create_parameterized_pdfs(self):

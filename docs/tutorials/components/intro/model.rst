@@ -67,9 +67,7 @@ to set a temporary normalisation range can be given as
 
     # Get the probabilities of some random generated events
     probs = model_cb.pdf(x=np.random.random(10))
-    # And now execute the tensorflow graph
-    result = zfit.run(probs)
-    print(result)
+    print(probs)
 
 .. jupyter-execute::
 
@@ -267,5 +265,36 @@ explained in :ref:`playing_with_toys`.
 
 
 
-Download this tutorial :jupyter-download:notebook:`notebook <zfit_model_introduction.ipynb>`,
-:jupyter-download:script:`script <zfit_model_introduction.ipynb>`
+Download this tutorial :jupyter-download-notebook:`notebook <zfit_model_introduction.ipynb>`,
+:jupyter-download-script:`script <zfit_model_introduction.ipynb>`
+
+Cached PDF
+--------------
+Your pdf can be cacheable now.
+:py:class:`zfit.models.cache.CachedPDF` class makes methods
+:meth:`~zfit.pdf.BasePDF.pdf` and :meth:`~zfit.pdf.BasePDF.integrate` cacheable.
+CachedPDF will be useful in the case of composite pdfs when you want to fit only one of them,
+you can make another one cacheable so it's methods won't be recalculated when input arguments
+and pdf parameters stay the same.
+
+For example you have sum of Gaussian and exponential pdfs:
+
+.. jupyter-execute::
+
+    # pdf creation
+    obs = zfit.Space("x", limits=(-10, 10))
+    mu = zfit.Parameter("mu", 1.0, -4, 6)
+    sigma = zfit.Parameter("sigma", 1.0, 0.1, 10)
+    lambd = zfit.Parameter("lambda", -1.0, -5.0, 0)
+    frac = zfit.Parameter("fraction", 0.5, 0.0, 1.0)
+
+    gauss = zfit.pdf.Gauss(mu=mu, sigma=sigma, obs=obs)
+    exponential = zfit.pdf.Exponential(lambd, obs=obs)
+
+    # make exponential pdf cacheable
+    cached_exponential = zfit.pdf.CachedPDF(exponential)
+
+    # create SumPDF with cacheable exponential pdf
+    sum_pdf = zfit.pdf.SumPDF([gauss, cached_exponential], fracs=frac)
+
+Done! Your optimized SumPDF is ready for fitting.
