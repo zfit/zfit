@@ -344,19 +344,19 @@ def function(func=None, *, stateless_args=None, cachesize=None, **kwargs):
     do_jit = FunctionWrapperRegistry._DEFAULT_DO_JIT_TYPES[wraps]
 
     if callable(func):
-        if do_jit:
-            return tf.function(autograph=False, reduce_retracing=False)(func)
-        else:
-            return func
-        # wrapper = FunctionWrapperRegistry(cachesize=cachesize, stateless_args=stateless_args, **kwargs)
-        # return wrapper(func)
+        # if do_jit:
+        #     return tf.function(autograph=False, reduce_retracing=False)(func)
+        # else:
+        #     return func
+        wrapper = FunctionWrapperRegistry(cachesize=cachesize, stateless_args=stateless_args, **kwargs)
+        return wrapper(func)
     if func:
         msg = "All argument have to be key-word only. `func` must not be used"
         raise ValueError(msg)
-    if do_jit:
-        return tf.function(autograph=False, reduce_retracing=False)
-    else:
-        return lambda x: x
+    # if do_jit:
+    #     return tf.function(autograph=False, reduce_retracing=False)
+    # else:
+    #     return lambda x: x
     return FunctionWrapperRegistry(**kwargs, cachesize=cachesize, stateless_args=stateless_args)
 
 
