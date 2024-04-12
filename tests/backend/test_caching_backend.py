@@ -12,6 +12,7 @@ def test_parameter_caching():
     x1 = zfit.Parameter("x1", 2.0)
     x2 = zfit.Parameter("x2", 4.0)
 
+
     def one_plus(x):
         return x + 1
 
@@ -28,7 +29,6 @@ def test_parameter_caching():
         return res
 
     def grad(param):
-        param = zfit.z.math._extract_tfparams(param)
 
         with tf.GradientTape(watch_accessed_variables=False) as tape:
             tape.watch(param)
@@ -36,7 +36,6 @@ def test_parameter_caching():
         return tf.stack(tape.gradient(value, param))
 
     def grad2(param):
-        param = zfit.z.math._extract_tfparams(param)
 
         with tf.GradientTape(watch_accessed_variables=False) as tape:
             tape.watch(param)
@@ -45,7 +44,7 @@ def test_parameter_caching():
 
     jitted_grad = z.function(grad)
     jitted_grad2 = z.function(grad2)
-    # jitted_grad = tf.function(grad)
+    jitted_grad = tf.function(grad)
 
     y1 = grad(x1)
     y1_jit = jitted_grad(x1)

@@ -275,7 +275,7 @@ class FunctionCacheHolder(GraphCachable):
         Returns:
         """
         # is initialized before the core
-
+        return True  # HACK!
         # args = tuple(args)
         # kwargs = list(kwargs.keys()) + list(kwargs.values())
         combined = (*args, *kwargs.keys(), *kwargs.values())

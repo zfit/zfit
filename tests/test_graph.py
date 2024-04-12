@@ -19,7 +19,7 @@ def test_modes(cachesize):
             register.cachesize == cachesize
             for register in zfit.z.zextension.FunctionWrapperRegistry.registries
         )
-
+    import tensorflow as tf
     @z.function(wraps="42")
     def func(x):
         nonlocal counts

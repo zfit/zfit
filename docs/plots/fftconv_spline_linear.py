@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import matplotlib.pyplot as plt
+import pytest
 import tensorflow as tf
 
 import zfit
@@ -30,7 +31,7 @@ def plot_conv_comparison():
     plt.plot(x, probs_spline, label="spline")
     plt.legend()
     plt.title(f"FFT Conv with interpolation: {n_points_conv} points")
-    plt.show(block=True)
+    pytest.zfit_savefig(folder="fftconv_spline_linear")
 
 
 if __name__ == "__main__":

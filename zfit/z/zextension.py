@@ -220,7 +220,7 @@ class FunctionWrapperRegistry:
         return self.do_jit_types[self.wraps] and self.allow_jit
 
     def reset(self, **kwargs_user):
-        kwargs = {"autograph": False, "reduce_retracing": True}
+        kwargs = {"autograph": False, "reduce_retracing": False}
         kwargs.update(self._initial_user_kwargs)
         kwargs.update(kwargs_user)
         self.tf_function_kwargs = kwargs
@@ -255,6 +255,12 @@ class FunctionWrapperRegistry:
 
             self.currently_traced.add(func)
             nonlocal wrapped_func
+            # HACK
+            try:
+                value = wrapped_func(*args, **kwargs)
+            finally:
+                self.currently_traced.remove(func)
+            return value
 
             def deleter(proxy):
                 del proxy
@@ -314,6 +320,9 @@ class FunctionWrapperRegistry:
         return concrete_func
 
 
+currently_traced = set()
+
+
 # equivalent to tf.function
 def function(func=None, *, stateless_args=None, cachesize=None, **kwargs):
     """JIT/Graph compilation of functions, `tf.function`-like with additional cache-invalidation functionality.
@@ -330,13 +339,24 @@ def function(func=None, *, stateless_args=None, cachesize=None, **kwargs):
 
     if stateless_args is None:
         stateless_args = False
+
+    wraps = kwargs.get("wraps", None)
+    do_jit = FunctionWrapperRegistry._DEFAULT_DO_JIT_TYPES[wraps]
+
     if callable(func):
-        wrapper = FunctionWrapperRegistry(cachesize=cachesize, stateless_args=stateless_args, **kwargs)
-        return wrapper(func)
+        if do_jit:
+            return tf.function(autograph=False, reduce_retracing=False)(func)
+        else:
+            return func
+        # wrapper = FunctionWrapperRegistry(cachesize=cachesize, stateless_args=stateless_args, **kwargs)
+        # return wrapper(func)
     if func:
         msg = "All argument have to be key-word only. `func` must not be used"
         raise ValueError(msg)
-
+    if do_jit:
+        return tf.function(autograph=False, reduce_retracing=False)
+    else:
+        return lambda x: x
     return FunctionWrapperRegistry(**kwargs, cachesize=cachesize, stateless_args=stateless_args)
 
 
