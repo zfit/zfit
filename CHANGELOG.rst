@@ -4,35 +4,12 @@ Changelog
 
 .. _newest-changelog:
 
-Develop
-========================
-
-
-Major Features and Improvements
--------------------------------
-
-Breaking changes
-------------------
-
-Deprecations
--------------
-
-Bug fixes and small changes
----------------------------
-
-Experimental
-------------
-
-Requirement changes
--------------------
-
-Thanks
-------
 
 0.20.0 (12 Apr 2024)
 ========================
 
-Complete overhaul of zfit with a focus on usability.
+Complete overhaul of zfit with a focus on usability and a variety of new pdfs!
+
 
 Major Features and Improvements
 -------------------------------
