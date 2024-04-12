@@ -9,10 +9,10 @@ Upgrade from zfit 0.3.x to 0.4.0
 zfit moved from TensorFlow 1.x to 2.x. The main difference is that in 1.x, you would mostly built
 a graph all the time and execute it when needed. In TF 2.x, this has gone and happens implicitly
 if a function is decorated with the right decorator. But it is also possible to build no graph at all
-and execute the code _eagerly_, just as Numpy would. So writing just TF 2.x code is "no different", if not wrapped
+and execute the code *eagerly*, just as Numpy would. So writing just TF 2.x code is "no different", if not wrapped
 by a :py:func:`tf.function`, than executing Numpy code.
 
-In short: write TF 2.x as if you would write Numpy. If something is supposed to _change_, it has to be
+In short: write TF 2.x as if you would write Numpy. If something is supposed to *change*, it has to be
 newly generated each time, e.g. be a function that can be called.
 
 zfit offers objects that still keep track of everything.
@@ -27,7 +27,7 @@ Therefore, dependencies have to be given manually (although in the future, certa
 can surely be added).
 
 Affected from this is the :py:class:`~zfit.ComposedParameter`. Instead of giving a Tensor,
-a function returning a value has to be given _and_ the dependents have to be specified
+a function returning a value has to be given *and* the dependents have to be specified
 explicitly.
 
 .. code-block:: python

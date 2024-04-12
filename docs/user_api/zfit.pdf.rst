@@ -85,6 +85,8 @@ Physics PDFs
 Physics PDFs are PDFs that are often used in high energy physics. They are in the
 zfit-physics package, which needs to be installed separately.
 
+NEW BUILD
+
 .. toctree::
     :maxdepth: 2
 
