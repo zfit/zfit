@@ -4,19 +4,20 @@ Changelog
 
 .. _newest-changelog:
 
-Develop
+
+0.20.0 (12 Apr 2024)
 ========================
 
-Complete overhaul of zfit with a focus on performance, stability and usability.
+Complete overhaul of zfit with a focus on usability.
 
 Major Features and Improvements
 -------------------------------
-- ``Space`` and limits have a complete overhaul in front of them, in short, these overcomplicated objects get simplified and the limits become more usable, in terms of dimensions. The full discussion and changes can be `found here <https://github.com/zfit/zfit/discussions/533>`_ .
-- add an unbinned ``Sampler`` to the public namespace under ``zfit.data.Sampler``: this object is returned in the ``create_sampler`` method and allows to resample from a function without recreating the compiled function, i.e. loss. It has an additional method ``update_data`` to update the data without recompiling the loss and can be created from a sample only. Useful to have a custom dataset in toys.
-- allow to use pandas DataFrame as input where zfit Data objects are expected
 - Parameter behavior has changed, multiple parameters with the same name can now coexist!
   The ``NameAlreadyTakenError`` has been successfully removed (yay!). The new behavior only enforces that
   names and matching parameters *within a function/PDF/loss* are unique, as otherwise inconsistent expectations appear (for the full discussion on this, see `here <https://github.com/zfit/zfit/discussions/342>`_).
+- ``Space`` and limits have a complete overhaul in front of them, in short, these overcomplicated objects get simplified and the limits become more usable, in terms of dimensions. The full discussion and changes can be `found here <https://github.com/zfit/zfit/discussions/533>`_ .
+- add an unbinned ``Sampler`` to the public namespace under ``zfit.data.Sampler``: this object is returned in the ``create_sampler`` method and allows to resample from a function without recreating the compiled function, i.e. loss. It has an additional method ``update_data`` to update the data without recompiling the loss and can be created from a sample only. Useful to have a custom dataset in toys.
+- allow to use pandas DataFrame as input where zfit Data objects are expected
 - Methods of PDFs and loss functions that depend on parameters take now the value of a parameter explicitly as arguments, as a mapping of str (parameter name) to value.
 - Python 3.12 support
 - add ``GeneralizedCB`` PDF which is similar to the ``DoubleCB`` PDF but with different standard deviations for the left and right side.
@@ -101,6 +102,8 @@ Requirement changes
 
 Thanks
 ------
+- huge thanks to @iasonkrommydas for the addition of various PDFs and to welcome him on board as a new contributor!
+- @anjabeck for the addition of the ``ChiSquared`` PDF
 
 0.18.2 (13 Mar 2024)
 ========================
