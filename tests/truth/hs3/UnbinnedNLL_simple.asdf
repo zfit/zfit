@@ -23,16 +23,16 @@ data:
       source: 3
       datatype: float64
       byteorder: little
-      shape: [9, 1]
+      shape: [13, 1]
     space:
     - {max: 5.0, min: -4.0, name: obs1, type: Space}
     type: Data
-  None_<range_iterator object at 0x75c4d5402270>:
+  None_<range_iterator object at 0x7be784890420>:
     data: !core/ndarray-1.0.0
       source: 4
       datatype: float64
       byteorder: little
-      shape: [17, 1]
+      shape: [9, 1]
     space:
     - {max: 5.0, min: -4.0, name: obs1, type: Space}
     type: Data
@@ -63,7 +63,7 @@ distributions:
       type: Gauss
       x: {max: 5.0, min: -4.0, name: obs1, type: Space}
     type: SumPDF
-  SumPDF_<range_iterator object at 0x75c4d5402270>:
+  SumPDF_<range_iterator object at 0x7be784890420>:
     fracs: [frac3, Composed_autoparam_1]
     name: SumPDF
     pdfs:
@@ -120,7 +120,7 @@ loss:
         source: 2
         datatype: float64
         byteorder: little
-        shape: [14, 1]
+        shape: [13, 1]
       space:
       - {max: 5.0, min: -4.0, name: obs1, type: Space}
       type: Data
@@ -225,16 +225,14 @@ variables:
   sigma3: {floating: true, max: 1.0, min: 0.0, name: sigma3, step_size: 0.001, value: 0.6}
   sigma4: {floating: true, max: 1.0, min: 0.0, name: sigma4, step_size: 0.001, value: 0.5}
 ...
-ÓBLK 0               ˆ       ˆ       ˆîëÛ'‡2ê	KAãæ	äÂ¨3_Ì~Î¿.z/uä
-÷?¸# ŞZ˜É?Îùqáı?öŒ=aBñ?/`3å³@>¨ôÆR¶û?j­#ºäÓ?aZùøş½ù?È©ö)e7@`B¼Òäo@.Sœ·“âô?%RY’ @ğÿ(Q@znÙH'ñ?Ş•LÕgå¿„—ÄgÚù?ÓBLK 0               H       H       H»ğœ„T³ñöèÃ}†vT‘¡ıG,ß)ã?ßæ5ƒ,Áÿ?•QàHg2@éòÚN‚É
-@;`q)ü÷ğ?ä¶ı§IŞĞ¿”DÙ¥6…÷?Eiá‰ÊÇì?<aÑJØ·@ÓBLK 0               p       p       pã9†ì¼QÏÃúo-bf?‰wíQ«•úö?ÍEÿŞê?¹ÍS<Y@”ã‰Tá÷?ßwcúO@9¥¯k¸¿œñ¦@‚Ô­å©@9¿ÎV÷?Ç˜ºìš@.X!Ö‡	@ôE†F½tØ¿”–Ò«sÔ¿2Æ[%ç†@ÓBLK 0               H       H       H»ğœ„T³ñöèÃ}†vT‘¡ıG,ß)ã?ßæ5ƒ,Áÿ?•QàHg2@éòÚN‚É
-@;`q)ü÷ğ?ä¶ı§IŞĞ¿”DÙ¥6…÷?Eiá‰ÊÇì?<aÑJØ·@ÓBLK 0               ˆ       ˆ       ˆîëÛ'‡2ê	KAãæ	äÂ¨3_Ì~Î¿.z/uä
-÷?¸# ŞZ˜É?Îùqáı?öŒ=aBñ?/`3å³@>¨ôÆR¶û?j­#ºäÓ?aZùøş½ù?È©ö)e7@`B¼Òäo@.Sœ·“âô?%RY’ @ğÿ(Q@znÙH'ñ?Ş•LÕgå¿„—ÄgÚù?#ASDF BLOCK INDEX
+ÓBLK 0               ˆ       ˆ       ˆNã`]{t#­)Çt-Ô1ûsã	ü®¶§ô?è•y=z+ı?öok	‡§@Êôldâ?>¥¨@ã?(™%ø5àí?»Å“‘Iù?G]’z©@[ &\ñ?¼ùïL¤û?J‚^2á`ï?P·æ´Må?~SA¬õÎğ?ìêşBb=Ş?W€p§tö?~ıîïJé?pèØö‚rÂ?ÓBLK 0               H       H       HÆR—LXÑ¬ÉŸ±ü
+© d9“ş@Ï_ˆLü?1šÒ:-ùó?Ê+P¨Dâ?:ÂHv½îã?ğº‚^­ú@hÖR)MÇ¿ˆ‡pğÙe@Âùï‚vØ?ÓBLK 0               h       h       h‰±ûîÑ“#V.Ò}â¬oz¡ˆ{?Y@2rñ	”2@’İcÿT—Û?p÷x¼Ïä¿4¢qâ¸Iû?G_÷õ@´‘_öüò¿Ânä‘0Áè?0P ´¿:ŠeU;@Lù=ƒâ~@¤÷Œdó²ä¿V²UÊ@ÓBLK 0               h       h       h‰±ûîÑ“#V.Ò}â¬oz¡ˆ{?Y@2rñ	”2@’İcÿT—Û?p÷x¼Ïä¿4¢qâ¸Iû?G_÷õ@´‘_öüò¿Ânä‘0Áè?0P ´¿:ŠeU;@Lù=ƒâ~@¤÷Œdó²ä¿V²UÊ@ÓBLK 0               H       H       HÆR—LXÑ¬ÉŸ±ü
+© d9“ş@Ï_ˆLü?1šÒ:-ùó?Ê+P¨Dâ?:ÂHv½îã?ğº‚^­ú@hÖR)MÇ¿ˆ‡pğÙe@Âùï‚vØ?#ASDF BLOCK INDEX
 %YAML 1.1
 ---
 - 9451
 - 9641
 - 9767
-- 9933
-- 10059
+- 9925
+- 10083
 ...

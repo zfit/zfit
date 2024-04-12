@@ -99,6 +99,7 @@ def pytest_configure():
         foldersave.mkdir(exist_ok=True, parents=True)
         savepath = foldersave.joinpath(title_sanitized)
         plt.savefig(str(savepath))
+        plt.close()
 
     pytest.zfit_savefig = savefig
 
