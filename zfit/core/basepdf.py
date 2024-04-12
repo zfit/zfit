@@ -1069,7 +1069,7 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
         if name is None:
             name = self.name + "_truncated"
         if label is None:
-            label = self.label + " truncated"
+            label = self.label + " _truncated"
         if norm is None:
             norm = self.norm
         return TruncatedPDF(pdf=self, obs=obs, limits=limits, extended=extended, norm=norm, name=name, label=label)
