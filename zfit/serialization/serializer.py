@@ -470,7 +470,7 @@ class Serializer:
             replace_forward_param = {parameter: lambda x: x["name"]}
             out[what] = replace_matching(out[what], replace_forward_param)
         for parname, param in out["variables"].items():
-            if "value_fn" in param:
+            if "func" in param:
                 out["variables"][parname]["params"] = replace_matching(
                     out["variables"][parname]["params"], replace_forward_const_param
                 )

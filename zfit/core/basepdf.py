@@ -1063,11 +1063,13 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
         from ..models.truncated import TruncatedPDF
 
         if limits is None:
-            limits = self.space
+            limits = obs if obs is not None else self.space
         if obs is None:
             obs = self.space
         if name is None:
             name = self.name + "_truncated"
         if label is None:
             label = self.label + " truncated"
+        if norm is None:
+            norm = self.norm
         return TruncatedPDF(pdf=self, obs=obs, limits=limits, extended=extended, norm=norm, name=name, label=label)
