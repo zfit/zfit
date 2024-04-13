@@ -112,7 +112,7 @@ class NameAlreadyTakenError(Exception):
 
 class IpyoptPicklingError(TypeError):
     pass
-  
-  
+
+
 class OutsideLimitsError(Exception):
     pass
