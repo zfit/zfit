@@ -126,7 +126,7 @@ Requirement changes
 
 Thanks
 ------
-- huge thanks to @iasonkrommydas for the addition of various PDFs and to welcome him on board as a new contributor!
+- huge thanks to @ikrommyd (Iason Krommydas) for the addition of various PDFs and to welcome him on board as a new contributor!
 - @anjabeck for the addition of the ``ChiSquared`` PDF
 
 0.18.2 (13 Mar 2024)
