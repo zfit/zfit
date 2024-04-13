@@ -267,9 +267,7 @@ nlopt_minimizers = [
         {"error": do_errors_most},
     ),
 ]
-if sys.version_info[1] < 12 and platform.system() not in ("Darwin",):
-    # TODO: remove all of this conditions once NLopt is available for Python 3.12
-    # see also https://github.com/DanielBok/nlopt-python/issues/24
+if platform.system() not in ("Darwin",):
     minimizers.extend(nlopt_minimizers)
 
 # To run individual minimizers

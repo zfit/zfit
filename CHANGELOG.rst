@@ -9,6 +9,7 @@ Develop
 
 Major Features and Improvements
 -------------------------------
+- add ``zfit.dill`` to dump and load objects with dill (a more powerful pickle). This way, any zfit object can be saved and loaded, such as ``FitResult`` that contains all other important objects to recreate the fit.
 
 Breaking changes
 ------------------
