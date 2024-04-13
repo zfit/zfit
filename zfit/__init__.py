@@ -114,7 +114,7 @@ from .util.graph import jit as _jit
 
 
 def _maybe_disable_jit():
-    import os
+    import os, warnings
 
     arg1 = os.environ.get("ZFIT_DO_JIT")
     arg2 = os.environ.get("ZFIT_EXPERIMENTAL_DO_JIT")
