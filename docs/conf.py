@@ -83,9 +83,10 @@ zfit_tutorials_path = project_dir.joinpath("docs", "_tmp", "zfit-tutorials")
 atexit.register(lambda path=zfit_tutorials_path: shutil.rmtree(path))
 pygit2.clone_repository("https://github.com/zfit/zfit-tutorials", zfit_tutorials_path)
 
-zfit_physics_path = project_dir / "docs" / "_tmp" / "zfit-physics"
-atexit.register(lambda path=zfit_physics_path: shutil.rmtree(path))
-pygit2.clone_repository("https://github.com/zfit/zfit-physics", zfit_physics_path)
+# todo: do we need it and connect?
+# zfit_physics_path = project_dir / "docs" / "_tmp" / "zfit-physics"
+# atexit.register(lambda path=zfit_physics_path: shutil.rmtree(path))
+# pygit2.clone_repository("https://github.com/zfit/zfit-physics", zfit_physics_path)
 
 zfit_images_path = project_dir.joinpath("docs", "images")
 docs_images_path = project_dir.joinpath("docs", "_static", "images")
