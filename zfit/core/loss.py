@@ -9,6 +9,7 @@ import pydantic
 from pydantic import Field
 from tensorflow.python.util.deprecation import deprecated
 
+from ..exception import OutsideLimitsError
 from ..serialization.serializer import BaseRepr, Serializer
 from .data import convert_to_data
 from .serialmixin import SerializableMixin
@@ -70,7 +71,10 @@ def _unbinned_nll_tf(
                in the same order to do a simultaneous fit. |@docend:loss.init.model|
         data: |@doc:loss.init.data| Dataset that will be given to the *model*.
                If multiple model and data are given, they will be used
-               in the same order to do a simultaneous fit. |@docend:loss.init.data|
+               in the same order to do a simultaneous fit.
+               If the data is not a ``ZfitData`` object, i.e. it doesn't have ha space
+               it has to be withing the limits of the model, otherwise, an
+               :py:class:`~zfit.exception.IntentionAmbiguousError` will be raised. |@docend:loss.init.data|
         fit_range:
 
     Returns:
@@ -368,8 +372,16 @@ class BaseLoss(ZfitLoss, BaseNumeric):
                 if fit_range is not None:
                     msg = "Fit range should not be used if data is not ZfitData."
                     raise TypeError(msg)
-
-                dat = convert_to_data(data=dat, obs=mod.obs)
+                try:
+                    dat = convert_to_data(data=dat, obs=mod.space, check_limits=True)
+                except OutsideLimitsError as error:
+                    msg = (
+                        f"Data {dat} is not a zfit Data (and therefore has no Space that defines possible limits) "
+                        f"and is not fully within the limits {mod.space} of the model {mod}."
+                        f"If the data should be what it is, please convert to zfit Data (`zfit.Data(data, obs=obs)`) "
+                        f"or remove events outside the space"
+                    )
+                    raise IntentionAmbiguousError(msg) from error
             model_checked.append(mod)
             data_checked.append(dat)
         return model_checked, data_checked
@@ -773,7 +785,10 @@ class BaseUnbinnedNLL(BaseLoss, SerializableMixin):
             data: If not given, the current one will be used.
                 |@doc:loss.init.data| Dataset that will be given to the *model*.
                If multiple model and data are given, they will be used
-               in the same order to do a simultaneous fit. |@docend:loss.init.data|
+               in the same order to do a simultaneous fit.
+               If the data is not a ``ZfitData`` object, i.e. it doesn't have ha space
+               it has to be withing the limits of the model, otherwise, an
+               :py:class:`~zfit.exception.IntentionAmbiguousError` will be raised. |@docend:loss.init.data|
             fit_range:
             constraints: If not given, the current one will be used.
                 |@doc:loss.init.constraints| Auxiliary measurements ("constraints")
@@ -891,7 +906,10 @@ class UnbinnedNLL(BaseUnbinnedNLL):
                in the same order to do a simultaneous fit. |@docend:loss.init.model|
             data: |@doc:loss.init.data| Dataset that will be given to the *model*.
                If multiple model and data are given, they will be used
-               in the same order to do a simultaneous fit. |@docend:loss.init.data|
+               in the same order to do a simultaneous fit.
+               If the data is not a ``ZfitData`` object, i.e. it doesn't have ha space
+               it has to be withing the limits of the model, otherwise, an
+               :py:class:`~zfit.exception.IntentionAmbiguousError` will be raised. |@docend:loss.init.data|
             constraints: |@doc:loss.init.constraints| Auxiliary measurements ("constraints")
                that add a likelihood term to the loss.
 

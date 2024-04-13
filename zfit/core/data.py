@@ -10,6 +10,7 @@ from pydantic import Field
 from tensorflow.python.types.core import TensorLike
 from tensorflow.python.util.deprecation import deprecated, deprecated_args
 
+from ..exception import OutsideLimitsError
 from ..serialization import SpaceRepr
 from ..serialization.serializer import BaseRepr, to_orm_init
 from .serialmixin import SerializableMixin, ZfitSerializable
@@ -47,12 +48,22 @@ from .interfaces import ZfitBinnedData, ZfitSpace, ZfitUnbinnedData
 from .space import Space, convert_to_space
 
 
-def convert_to_data(data, obs=None):
+def convert_to_data(data, obs=None, *, check_limits=False):
     if isinstance(data, ZfitUnbinnedData):
         return data
     elif isinstance(data, LightDataset):
         return Data(data=data, obs=obs)
-    elif isinstance(data, pd.DataFrame):
+
+    if check_limits:
+        if not isinstance(obs, ZfitSpace):
+            msg = "If check_limits is True, obs has to be a ZfitSpace."
+            raise ValueError(msg)
+        data_nocut = convert_to_data(data, obs=obs.obs, check_limits=False)
+        not_inside = ~obs.inside(data_nocut.value())
+        if np.any(not_inside):
+            msg = f"Data {data} is not inside the limits {obs}."
+            raise OutsideLimitsError(msg)
+    if isinstance(data, pd.DataFrame):
         return Data.from_pandas(df=data, obs=obs)
     elif isinstance(data, Mapping):
         return Data.from_mapping(mapping=data, obs=obs)
