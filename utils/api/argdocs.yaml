@@ -587,6 +587,9 @@ loss.init.data: |1+
     Dataset that will be given to the *model*.
                 If multiple model and data are given, they will be used
                 in the same order to do a simultaneous fit.
+                If the data is not a ``ZfitData`` object, i.e. it doesn't have ha space
+                it has to be withing the limits of the model, otherwise, an
+                :py:class:`~zfit.exception.IntentionAmbiguousError` will be raised.
 
 loss.init.constraints: |1+
     Auxiliary measurements ("constraints")

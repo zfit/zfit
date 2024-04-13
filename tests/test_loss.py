@@ -544,3 +544,20 @@ def test_binned_nll(weights):
     if weights is None:
         assert params[mu2]["value"] > np.mean(test_values_np)
         assert params[sigma2]["value"] < np.std(test_values_np)
+
+
+def test_loss_from_data_outside_fails():
+
+    obs = zfit.Space("obs1", limits=(-15, 25))
+    pdf = zfit.pdf.Gauss(1.0, 1.0, obs=obs)
+    data = np.linspace(-20, 20, 1000)
+
+    with pytest.raises(IntentionAmbiguousError):
+        zfit.loss.UnbinnedNLL(model=pdf, data=data)
+
+
+
+    loss = zfit.loss.UnbinnedNLL(model=pdf, data=zfit.Data(data, obs=obs.obs))
+    assert loss.value() ** 2 > -1  # just a sanity check
+    loss2 = zfit.loss.UnbinnedNLL(model=pdf, data=zfit.Data(data, obs=obs))
+    assert loss2.value() ** 2 > -1  # just a sanity check
