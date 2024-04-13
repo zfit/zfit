@@ -8,5 +8,3 @@ Dimension
 
     zfit.dimension.Space
     zfit.dimension.combine_spaces
-    zfit.dimension.add_spaces
-    zfit.dimension.Coordinates

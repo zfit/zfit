@@ -44,7 +44,7 @@ with or without limits.
  * **rectangular**: This type is the usual limit as e.g. ``(-2, 5)`` for a simple, 1 dimensional interval.
 
 A space should usually be created with limits that define the default space of an object.
-This correspond for example to the default normalization range ``norm_range`` or sampling range.
+This correspond for example to the default normalization range ``norm`` or sampling range.
 
 .. code-block::
 

@@ -78,3 +78,15 @@ They offer more or less support and freedom.
     :maxdepth: 2
 
     pdf/custom_base
+
+Physics PDFs
+##############
+
+Physics PDFs are PDFs that are often used in high energy physics. They are in the
+zfit-physics package, which needs to be installed separately.
+
+
+.. toctree::
+    :maxdepth: 2
+
+    pdf/physics
