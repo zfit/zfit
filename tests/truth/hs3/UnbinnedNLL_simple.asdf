@@ -23,16 +23,16 @@ data:
       source: 3
       datatype: float64
       byteorder: little
-      shape: [12, 1]
+      shape: [17, 1]
     space:
     - {max: 5.0, min: -4.0, name: obs1, type: Space}
     type: Data
-  None_<range_iterator object at 0x75f745b50330>:
+  None_<range_iterator object at 0x745fd7496900>:
     data: !core/ndarray-1.0.0
       source: 4
       datatype: float64
       byteorder: little
-      shape: [9, 1]
+      shape: [14, 1]
     space:
     - {max: 5.0, min: -4.0, name: obs1, type: Space}
     type: Data
@@ -63,7 +63,7 @@ distributions:
       type: Gauss
       x: {max: 5.0, min: -4.0, name: obs1, type: Space}
     type: SumPDF
-  SumPDF_<range_iterator object at 0x75f745b50330>:
+  SumPDF_<range_iterator object at 0x745fd7496900>:
     fracs: [frac3, Composed_autoparam_1]
     name: SumPDF
     pdfs:
@@ -120,7 +120,7 @@ loss:
         source: 2
         datatype: float64
         byteorder: little
-        shape: [12, 1]
+        shape: [14, 1]
       space:
       - {max: 5.0, min: -4.0, name: obs1, type: Space}
       type: Data
@@ -187,47 +187,50 @@ variables:
     func: 800495d1010000000000008c0a64696c6c2e5f64696c6c948c105f6372656174655f66756e6374696f6e9493942868008c0c5f6372656174655f636f6465949394284b014b004b004b014b064a53000001432274006a01640174026a0364028d027400a00474057c00a006a1008301a10118005300944e473ff00000000000008c0564747970659485948794288c027466948c08636f6e7374616e74948c067a7479706573948c05666c6f6174948c056164645f6e948c046c697374948c0676616c7565739474948c06706172616d739485948c582f686f6d652f6a6f6e61732f446f63756d656e74732f706879736963732f736f6674776172652f7a6669745f70726f6a6563742f7a6669745f7265706f2f7a6669742f6d6f64656c732f6261736566756e63746f722e7079948c1372656d61696e696e675f667261635f66756e63944bc44302000194292974945294637a6669742e6d6f64656c732e6261736566756e63746f720a5f5f646963745f5f0a68144e4e749452947d947d94288c0f5f5f616e6e6f746174696f6e735f5f947d948c0c5f5f7175616c6e616d655f5f948c315f70726570726f636573735f696e69745f73756d2e3c6c6f63616c733e2e72656d61696e696e675f667261635f66756e6394758694622e
     internal_params:
       frac_0: {floating: false, name: frac1, type: ConstantParameter, value: 0.2}
-      frac_1: {floating: true, max: 1.0, min: 0.0, name: frac2, step_size: 0.001,
-        type: Parameter, value: 0.3}
+      frac_1: {floating: true, max: 1.0, min: 0.0, name: frac2, step_size: 0.01, type: Parameter,
+        value: 0.3}
     name: Composed_autoparam_0
     params: {frac_0: frac1, frac_1: frac2}
   Composed_autoparam_1:
     func: 800495d1010000000000008c0a64696c6c2e5f64696c6c948c105f6372656174655f66756e6374696f6e9493942868008c0c5f6372656174655f636f6465949394284b014b004b004b014b064a53000001432274006a01640174026a0364028d027400a00474057c00a006a1008301a10118005300944e473ff00000000000008c0564747970659485948794288c027466948c08636f6e7374616e74948c067a7479706573948c05666c6f6174948c056164645f6e948c046c697374948c0676616c7565739474948c06706172616d739485948c582f686f6d652f6a6f6e61732f446f63756d656e74732f706879736963732f736f6674776172652f7a6669745f70726f6a6563742f7a6669745f7265706f2f7a6669742f6d6f64656c732f6261736566756e63746f722e7079948c1372656d61696e696e675f667261635f66756e63944bc44302000194292974945294637a6669742e6d6f64656c732e6261736566756e63746f720a5f5f646963745f5f0a68144e4e749452947d947d94288c0f5f5f616e6e6f746174696f6e735f5f947d948c0c5f5f7175616c6e616d655f5f948c315f70726570726f636573735f696e69745f73756d2e3c6c6f63616c733e2e72656d61696e696e675f667261635f66756e6394758694622e
     internal_params:
-      frac_0: {floating: true, max: 1.0, min: 0.0, name: frac3, step_size: 0.001,
-        type: Parameter, value: 0.4}
+      frac_0: {floating: true, max: 1.0, min: 0.0, name: frac3, step_size: 0.01, type: Parameter,
+        value: 0.4}
     name: Composed_autoparam_1
     params: {frac_0: frac3}
   frac1: {floating: false, name: frac1, value: 0.2}
-  frac2: {floating: true, max: 1.0, min: 0.0, name: frac2, step_size: 0.001, value: 0.3}
-  frac3: {floating: true, max: 1.0, min: 0.0, name: frac3, step_size: 0.001, value: 0.4}
-  mu: {floating: true, max: 5.0, min: -4.0, name: mu, step_size: 0.001, value: 1.2}
+  frac2: {floating: true, max: 1.0, min: 0.0, name: frac2, step_size: 0.01, value: 0.3}
+  frac3: {floating: true, max: 1.0, min: 0.0, name: frac3, step_size: 0.01, value: 0.4}
+  mu: {floating: true, max: 5.0, min: -4.0, name: mu, step_size: 0.01, value: 1.2}
   mu3: {floating: true, max: 3.0, min: -2.0, name: mu3, step_size: 0.1, value: 2.0}
   mu4: {floating: true, max: 3.0, min: -2.0, name: mu4, step_size: 0.1, value: 2.0}
   obs1: {max: 5.0, min: -4.0, name: obs1}
   sigma1:
     func: 80049549010000000000008c0a64696c6c2e5f64696c6c948c105f6372656174655f66756e6374696f6e9493942868008c0c5f6372656174655f636f6465949394284b014b004b004b014b024b5343087c00640117005300944e4b018694298c01789485948c5e2f686f6d652f6a6f6e61732f446f63756d656e74732f706879736963732f736f6674776172652f7a6669745f70726f6a6563742f7a6669745f7265706f2f74657374732f73657269616c697a652f746573745f6873335f757365722e7079948c083c6c616d6264613e944b4643009429297494529463746573745f6873335f757365720a5f5f646963745f5f0a680a4e4e749452947d947d94288c0f5f5f616e6e6f746174696f6e735f5f947d948c0c5f5f7175616c6e616d655f5f948c28746573745f64756d706c6f61645f6873335f6c6f73732e3c6c6f63616c733e2e3c6c616d6264613e94758694622e
     internal_params:
-    - {floating: true, max: 1002.0, min: 0.0, name: sigma1_free, step_size: 0.001,
+    - {floating: true, max: 1002.0, min: 0.0, name: sigma1_free, step_size: 0.01,
       type: Parameter, value: 422.0}
     name: sigma1
     params: {param_0: sigma1_free}
-  sigma1_free: {floating: true, max: 1002.0, min: 0.0, name: sigma1_free, step_size: 0.001,
+  sigma1_free: {floating: true, max: 1002.0, min: 0.0, name: sigma1_free, step_size: 0.01,
     value: 422.0}
-  sigma2: {floating: true, max: 100.0, min: 0.0, name: sigma2, step_size: 0.001, value: 0.4}
-  sigma3: {floating: true, max: 1.0, min: 0.0, name: sigma3, step_size: 0.001, value: 0.6}
-  sigma4: {floating: true, max: 1.0, min: 0.0, name: sigma4, step_size: 0.001, value: 0.5}
+  sigma2: {floating: true, max: 100.0, min: 0.0, name: sigma2, step_size: 0.01, value: 0.4}
+  sigma3: {floating: true, max: 1.0, min: 0.0, name: sigma3, step_size: 0.01, value: 0.6}
+  sigma4: {floating: true, max: 1.0, min: 0.0, name: sigma4, step_size: 0.01, value: 0.5}
 ...
-ÓBLK 0               ˆ       ˆ       ˆÜî‘ºy$ ¥©¿ñ¤
-/²2À¬>Qò?á.Jb/ @ga:èBó?à—Ò½
-Gì??‹RÙÌğ?ğj†‚°²¿]ÁJöÅîä?âH2›¡9õ?õ½–9Ñğ?Ò oR@§{çñä?ó‘JÖ‚ò?W„ÍóSÿ?ş(¬ŸÇæû?Ûrıgæ?ö.¬¢¦ø?PÁùã>ü?ÓBLK 0               H       H       H“ÀA_ ŸI{Ğ{uƒœ‡p³xmO@8•Œ2Q@ <™oN…?¸ĞíWú?l8¾Àp
-@İ’CÃûä?ĞÛÁÚO@à—ãú6[©¿€gÑ0Àç«?ÓBLK 0               `       `       `ïNYKŠõÆº=D‡OÁÊÆêÜÏÚú?«n=¸lió?¤¾a@ÃWÙ?hš‰EØ	@hXÀ<ŞÆ?béËbåî?ìú€úR@ğ"q)¢nè¿ ™ùÃénı¿–F49a÷?Ô¬ÛÌ€×ñ¿b’œmiæ?ÓBLK 0               `       `       `ïNYKŠõÆº=D‡OÁÊÆêÜÏÚú?«n=¸lió?¤¾a@ÃWÙ?hš‰EØ	@hXÀ<ŞÆ?béËbåî?ìú€úR@ğ"q)¢nè¿ ™ùÃénı¿–F49a÷?Ô¬ÛÌ€×ñ¿b’œmiæ?ÓBLK 0               H       H       H“ÀA_ ŸI{Ğ{uƒœ‡p³xmO@8•Œ2Q@ <™oN…?¸ĞíWú?l8¾Àp
-@İ’CÃûä?ĞÛÁÚO@à—ãú6[©¿€gÑ0Àç«?#ASDF BLOCK INDEX
+ÓBLK 0               ˆ       ˆ       ˆÄw6ÆŞº½ÅÉ†ŠFpz½ë—Õ?â÷9ì+™ÿ?úJ³‚ç?@EŸt5»?ş×ºêûıĞ?şrî›p<Ğ?†{æØq@záî
+Ìô?XœúÊ¹@†>«#@Ş?¶¯m 8o
+@áÏÎ–÷õ? ¿–;†Öí?Ü˜-ŸÎ—õ?N‚ì_ÚÓ?(~gç@÷s lº3ı?ÓBLK 0               H       H       H;!JMk•M)‘
+}r¹óV3¹@\HV«é@k›ßë_@@Îr{]é?ÿ«(}À	@”z-½£9ö??~±÷‚ø?µç§Ôö?éEŸ)ş?ÓBLK 0               p       p       pY a†Y
+çm-T9wkê&ÙÓâ¥	@¼\s [w@úË‡vt‚ó?´ 	é¥£ò?İa°¸@¨€G¢ãµÛ¿¼?*õ3#@ƒ©0üú?2ïÜ+¡2û?ª!œŸÅáú?,A%¾›è¿aoÓ…Õİ@¼ Nì‘Ôø¿¿[<Øà?ÓBLK 0               ˆ       ˆ       ˆÄw6ÆŞº½ÅÉ†ŠFpz½ë—Õ?â÷9ì+™ÿ?úJ³‚ç?@EŸt5»?ş×ºêûıĞ?şrî›p<Ğ?†{æØq@záî
+Ìô?XœúÊ¹@†>«#@Ş?¶¯m 8o
+@áÏÎ–÷õ? ¿–;†Öí?Ü˜-ŸÎ—õ?N‚ì_ÚÓ?(~gç@÷s lº3ı?ÓBLK 0               p       p       pY a†Y
+çm-T9wkê&ÙÓâ¥	@¼\s [w@úË‡vt‚ó?´ 	é¥£ò?İa°¸@¨€G¢ãµÛ¿¼?*õ3#@ƒ©0üú?2ïÜ+¡2û?ª!œŸÅáú?,A%¾›è¿aoÓ…Õİ@¼ Nì‘Ôø¿¿[<Øà?#ASDF BLOCK INDEX
 %YAML 1.1
 ---
-- 9070
-- 9260
-- 9386
-- 9536
-- 9686
+- 9061
+- 9251
+- 9377
+- 9543
+- 9733
 ...
