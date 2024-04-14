@@ -307,11 +307,8 @@ def test_gradients(chunksize, numgrad):
     gradient_func_num = Gradient(loss_funcparam1)
 
     gradient1_num = gradient_func_num([param2])
-    # print(f"{float(param2)} param2 and initial2: {initial2}")
     gradient1 = nll.gradient(params=param2, numgrad=numgrad)
-    param2.set_value(initial2)  # todo: this should not be needed, param should be reset?
     grad_num_truth = jacobi.jacobi(loss_funcparam1, [param2])[0]
-    # print(f"Truthjacobi= {grad_num_truth}, zfit grad= {gradient1[0]} numdiff= {gradient1_num}")
     assert pytest.approx(grad_num_truth) == gradient1
     assert pytest.approx(gradient1_num) == gradient1[0]
     param1.set_value(initial1)

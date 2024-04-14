@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import jacobi
+import numpy as np
 
 if TYPE_CHECKING:
     import zfit
@@ -71,8 +72,9 @@ def numerical_gradient(func: Callable, params: Iterable[zfit.Parameter]) -> tf.T
     gradient = tf.numpy_function(grad_func, inp=[param_vals], Tout=tf.float64)
     gradient = znp.atleast_1d(gradient)
     gradient.set_shape(param_vals.shape)
-    assign_values(params, param_vals)
-    return gradient
+    with tf.control_dependencies([gradient]):
+        assign_values(params, param_vals)
+        return gradient
 
 
 def numerical_value_gradient(func: Callable, params: Iterable[zfit.Parameter]) -> [tf.Tensor, tf.Tensor]:
@@ -115,12 +117,10 @@ def numerical_hessian(func: Callable | None, params: Iterable[zfit.Parameter], h
     def wrapped_func(param_values):
         assign_values(params, param_values)
         value = func()
-        if hasattr(value, "numpy"):
-            value = value.numpy()
-        return value
+        return np.asarray(value)  # numdifftools doesn't understand the TF dtype
 
-    param_vals = znp.stack(params)
-    original_vals = [param.value() for param in params]
+    nparams = len(params)
+    param_vals = znp.array(params)
 
     if hessian == "diag":
         hesse_func = numdifftools.Hessdiag(
@@ -139,14 +139,14 @@ def numerical_hessian(func: Callable | None, params: Iterable[zfit.Parameter], h
         computed_hessian = convert_to_tensor(hesse_func(param_vals))
     else:
         computed_hessian = tf.numpy_function(hesse_func, inp=[param_vals], Tout=tf.float64)
-    n_params = param_vals.shape[0]
     if hessian == "diag":
-        computed_hessian.set_shape((n_params,))
+        computed_hessian.set_shape((nparams,))
     else:
-        computed_hessian.set_shape((n_params, n_params))
+        computed_hessian.set_shape((nparams, nparams))
 
-    assign_values(params, original_vals)
-    return computed_hessian
+    with tf.control_dependencies([computed_hessian]):
+        assign_values(params, param_vals)
+        return computed_hessian
 
 
 def numerical_value_gradient_hessian(
