@@ -1,11 +1,10 @@
 """Top-level package for zfit."""
 
 #  Copyright (c) 2024 zfit
-import warnings
 
-from importlib.metadata import version
+from importlib.metadata import version as _importlib_version
 
-__version__ = version(__name__)
+__version__ = _importlib_version(__name__)
 
 __license__ = "BSD 3-Clause"
 __copyright__ = "Copyright 2018, zfit"
@@ -20,7 +19,7 @@ __author__ = (
 __maintainer__ = "zfit"
 __email__ = "zfit@physik.uzh.ch"
 __credits__ = (
-    "Chris Burr, Martina Ferrillo, Abhijit Mathad, Oliver Lantwin, Johannes Lade"
+    "Chris Burr, Martina Ferrillo, Abhijit Mathad, Oliver Lantwin, Johannes Lade, Iason Krommydas"
 )
 
 __all__ = [
@@ -29,6 +28,7 @@ __all__ = [
     "pdf",
     "minimize",
     "loss",
+    "dill",
     "data",
     "func",
     "dimension",
@@ -52,7 +52,7 @@ __all__ = [
 
 
 def _maybe_disable_warnings():
-    import os
+    import os, warnings
 
     disable_warnings = os.environ.get("ZFIT_DISABLE_TF_WARNINGS")
     if disable_warnings is None:
@@ -76,11 +76,11 @@ def _maybe_disable_warnings():
 
 _maybe_disable_warnings()
 
-import tensorflow as tf
+import tensorflow as _tf
 
-if int(tf.__version__[0]) < 2:
+if int(_tf.__version__[0]) < 2:
     raise RuntimeError(
-        f"You are using TensorFlow version {tf.__version__}. This zfit version ({__version__}) works"
+        f"You are using TensorFlow version {_tf.__version__}. This zfit version ({__version__}) works"
         f" only with TF >= 2"
     )
 
@@ -91,6 +91,7 @@ from . import (
     dimension,
     exception,
     func,
+    dill,
     loss,
     binned,
     minimize,
@@ -139,7 +140,6 @@ def _maybe_disable_jit():
 
 
 # experimental flags
-
 
 _maybe_disable_jit()
 

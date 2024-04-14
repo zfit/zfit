@@ -6,7 +6,6 @@ from __future__ import annotations
 import functools
 import operator
 import platform
-import sys
 import warnings
 from pathlib import Path
 
@@ -92,9 +91,6 @@ for req_name, req in extras_require.items():
     req = [r.split("#")[0].strip() for r in req]
     req = [r for r in req if r]  # remove empty string
     cleaned_req[req_name] = req
-    if sys.version_info >= (3, 12):  # ipyopt not available
-        if ipyopt_req in req and req_name != "ipyopt":
-            req.remove(ipyopt_req)
 
 setup(
     install_requires=requirements,

@@ -159,11 +159,10 @@ register_tensor_conversion(OverloadableMixin, overload_operators=True)
 
 
 class WrappedVariable(metaclass=MetaBaseParameter):
-    def __init__(self, initial_value, constraint, *args, **kwargs):
+    def __init__(self, initial_value, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.variable = tf.Variable(
             initial_value=initial_value,
-            constraint=constraint,
             name=self.name,
             dtype=self.dtype,
         )
@@ -184,7 +183,7 @@ class WrappedVariable(metaclass=MetaBaseParameter):
     def value(self):
         return self.variable.value()
 
-    def read_valu(self):
+    def read_value(self):
         return self.variable.read_value()
 
     @property
@@ -359,7 +358,7 @@ class Parameter(
 
     _independent = True
     _independent_params = WeakSet()
-    DEFAULT_STEP_SIZE = 0.001
+    DEFAULT_STEP_SIZE = 0.01
 
     @deprecated_args(None, "Use `lower` instead.", "lower_limit")
     @deprecated_args(None, "Use `upper` instead.", "upper_limit")
@@ -419,14 +418,10 @@ class Parameter(
             self._upper_limit_neg_inf = znp.asarray(np.inf, dtype)
         value = znp.asarray(value, dtype=ztypes.float)
 
-        def constraint(x):
-            return tfp.math.clip_by_value_preserve_gradient(x, clip_value_min=self.lower, clip_value_max=self.upper)
-
         super().__init__(
             initial_value=value,
             dtype=dtype,
             name=name,
-            constraint=constraint,
             params={},
             label=label,
         )
@@ -525,15 +520,14 @@ class Parameter(
     def value(self):
         value = super().value()
         if self.has_limits:
-            value = self.constraint(value)
+            value = tfp.math.clip_by_value_preserve_gradient(
+                value, clip_value_min=self.lower, clip_value_max=self.upper
+            )
         return value
 
     @deprecated(None, "Use `value` instead.")
     def read_value(self):
-        value = super().value()
-        if self.has_limits:
-            value = self.constraint(value)
-        return value
+        return self.value()
 
     @property
     def floating(self):
@@ -729,6 +723,18 @@ class Parameter(
 
     def __tf_tracing_type__(self, signature_context):
         return ParameterType(parameter=self)
+
+    def __reduce__(self):  # for pickling
+        return functools.partial(
+            Parameter,
+            name=self.name,
+            value=self.value(),
+            lower=self.lower,
+            upper=self.upper,
+            floating=self.floating,
+            label=self.label,
+            step_size=self.step_size,
+        ), ()
 
 
 # delattr(Parameter, "__tf_tracing_type__")

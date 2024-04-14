@@ -39,14 +39,18 @@ minimizer = zfit.minimize.Minuit()
 result = minimizer.minimize(nll)
 # do the error calculations, here with hesse, than with minos
 param_hesse = result.hesse()
+
+# the second return value is a new FitResult if a new minimum was found
 (
     param_errors,
     _,
-) = result.errors()  # this returns a new FitResult if a new minimum was found
+) = result.errors()
+
+# Storing the result can be achieved in many ways. Using dill (like pickle), we can dump and load the result
+result_dilled = zfit.dill.dumps(result)
+result_loaded = zfit.dill.loads(result_dilled)
 
 # EXPERIMENTAL: we can serialize the model to a human-readable format with HS3
-# or we can simply pickle the result (first freezing it)
-
 # human readable representation
 hs3like = zfit.hs3.dumps(nll)
 # print(hs3like)
@@ -54,6 +58,8 @@ hs3like = zfit.hs3.dumps(nll)
 nll_loaded = zfit.hs3.loads(hs3like)
 
 
+# pickle can also be used, but as not all objects are pickleable, we need to freeze the result
+# which makes it read-only and no new error calculations can be done
 result.freeze()
 dumped = pickle.dumps(result)
 loaded = pickle.loads(dumped)
