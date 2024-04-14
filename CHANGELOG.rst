@@ -20,6 +20,7 @@ Deprecations
 
 Bug fixes and small changes
 ---------------------------
+- runing binned fits without a graph could deadlock, fixed.
 
 Experimental
 ------------

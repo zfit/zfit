@@ -18,6 +18,10 @@ from ..util.warnings import warn_advanced_feature
 from .binned_functor import BaseBinnedFunctorPDF
 
 
+class MapNotVectorized(Exception):
+    pass
+
+
 class BinnedFromUnbinnedPDF(BaseBinnedFunctorPDF):
     def __init__(
         self,
@@ -118,13 +122,12 @@ class BinnedFromUnbinnedPDF(BaseBinnedFunctorPDF):
         from zfit import run
 
         try:
-            if run.executing_eagerly():
+            if run.get_graph_mode() is False:
                 msg = "Just stearing the eager execution"
-                raise TypeError(msg)
+                raise MapNotVectorized(msg)
             values = tf.vectorized_map(integrate_one, limits)[:, 0]
-        except (ValueError, TypeError):
-            with run.aquire_cpu(-1) as cpus:
-                values = tf.map_fn(integrate_one, limits, parallel_iterations=len(cpus))
+        except (ValueError, MapNotVectorized):
+            values = znp.asarray(tuple(map(integrate_one, limits)))
         values = znp.reshape(values, shape)
         if norm:
             values /= pdf.normalization(norm)
@@ -170,13 +173,12 @@ class BinnedFromUnbinnedPDF(BaseBinnedFunctorPDF):
         from zfit import run
 
         try:
-            if run.executing_eagerly():
+            if run.get_graph_mode() is False:
                 msg = "Just stearing the eager execution"
-                raise TypeError(msg)
+                raise MapNotVectorized(msg)
             values = tf.vectorized_map(integrate_one, limits)[:, 0]
-        except (ValueError, TypeError):
-            with run.aquire_cpu(-1) as cpus:
-                values = tf.map_fn(integrate_one, limits, parallel_iterations=len(cpus))
+        except (ValueError, MapNotVectorized):
+            values = znp.asarray(tuple(map(integrate_one, limits)))
         values = znp.reshape(values, shape)
         if missing_yield:
             values *= self.get_yield()

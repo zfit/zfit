@@ -299,7 +299,7 @@ class SumPDFRepr(FunctorPDFRepr):
 
     @pydantic.root_validator(pre=True)
     def validate_all_sumpdf(cls, values):
-        # todo: remove?
+        # the created variable could be used, i.e. the composed autoparameter, so it should be the same
         # if cls.orm_mode(values):
         #     init = values["hs3"].original_init
         #     values = dict(values)

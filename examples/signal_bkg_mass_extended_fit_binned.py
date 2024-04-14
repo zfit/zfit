@@ -8,9 +8,7 @@ import numpy as np
 import zfit
 
 plt.style.use(mplhep.style.LHCb2)
-
 n_bins = 50
-
 # create space
 obs_binned = zfit.Space("x", binning=zfit.binned.RegularBinning(50, -10, 10, name="x"))
 obs = obs_binned.with_binning(None)  # unbinned obs
@@ -77,17 +75,15 @@ zfit.param.set_values([mu, sigma, nr, alpha, lambd], [0.5, 1.2, 2.0, 1.5, -0.05]
 nll = zfit.loss.ExtendedBinnedNLL(model=model, data=data)
 
 # create a minimizer
-minimizer = zfit.minimize.Minuit()
+minimizer = zfit.minimize.Minuit(gradient="zfit", verbosity=7)
 
 plot_pdf("before fit")
 
 result = minimizer.minimize(nll)
 # do the error calculations, here with hesse, than with minos
 param_hesse = result.hesse()
-(
-    param_errors,
-    _,
-) = result.errors()  # this returns a new FitResult if a new minimum was found
+# second return value is a new FitResult if a new minimum was found
+param_errors, _ = result.errors()
 
 # plot the data
 

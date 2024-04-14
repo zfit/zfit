@@ -7,14 +7,18 @@
 BASEDIR=$( dirname -- "$0"; )
 python -m venv "${BASEDIR}/.test_examples_env"
 source "${BASEDIR}/.test_examples_env/bin/activate"
-pip install -U pip
-pip install "${BASEDIR}/../../[all]"
-pip install -r ${BASEDIR}/../../examples/example_requirements.txt
+pip install uv && uv pip install "${BASEDIR}/../../[all]" && uv pip install -r ${BASEDIR}/../../examples/example_requirements.txt || { echo "Failed installing zfit"; exit 1; }
 #set -e
 #export ZFIT_GRAPH_MODE=0
 fail=0
 for file in ${BASEDIR}/../../examples/*.py; do
-  python "$file" || fail=1;
+  echo "----------------------------------------------------------------------------------------------"
+  echo "Running example: $file"
+  echo "----------------------------------------------------------------------------------------------"
+  python "$file" || { fail=1 && echo "Failed running example: $file"; }
+  echo "----------------------------------------------------------------------------------------------"
+  echo "Finished example: $file"
+  echo "----------------------------------------------------------------------------------------------"
 done
 deactivate
 rm -rf "${BASEDIR}/.test_examples_env"

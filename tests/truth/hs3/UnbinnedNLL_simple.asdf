@@ -23,16 +23,16 @@ data:
       source: 3
       datatype: float64
       byteorder: little
-      shape: [17, 1]
+      shape: [14, 1]
     space:
     - {max: 5.0, min: -4.0, name: obs1, type: Space}
     type: Data
-  None_<range_iterator object at 0x745fd7496900>:
+  None_<range_iterator object at 0x7b7adae2f6c0>:
     data: !core/ndarray-1.0.0
       source: 4
       datatype: float64
       byteorder: little
-      shape: [14, 1]
+      shape: [17, 1]
     space:
     - {max: 5.0, min: -4.0, name: obs1, type: Space}
     type: Data
@@ -44,7 +44,7 @@ distributions:
     type: Gauss
     x: {max: 5.0, min: -4.0, name: obs1, type: Space}
   SumPDF:
-    fracs: [frac1, frac2, Composed_autoparam_0]
+    fracs: [frac1, frac2]
     name: SumPDF
     pdfs:
     - mu: mu
@@ -63,11 +63,11 @@ distributions:
       type: Gauss
       x: {max: 5.0, min: -4.0, name: obs1, type: Space}
     type: SumPDF
-  SumPDF_<range_iterator object at 0x745fd7496900>:
-    fracs: [frac3, Composed_autoparam_1]
+  SumPDF_<range_iterator object at 0x7b7adae2f6c0>:
+    fracs: [frac3]
     name: SumPDF
     pdfs:
-    - fracs: [frac1, frac2, Composed_autoparam_0]
+    - fracs: [frac1, frac2]
       name: SumPDF
       pdfs:
       - mu: mu
@@ -125,7 +125,7 @@ loss:
       - {max: 5.0, min: -4.0, name: obs1, type: Space}
       type: Data
     model:
-    - fracs: [frac1, frac2, Composed_autoparam_0]
+    - fracs: [frac1, frac2]
       name: SumPDF
       pdfs:
       - mu: mu
@@ -149,10 +149,10 @@ loss:
       sigma: sigma2
       type: Gauss
       x: {max: 5.0, min: -4.0, name: obs1, type: Space}
-    - fracs: [frac3, Composed_autoparam_1]
+    - fracs: [frac3]
       name: SumPDF
       pdfs:
-      - fracs: [frac1, frac2, Composed_autoparam_0]
+      - fracs: [frac1, frac2]
         name: SumPDF
         pdfs:
         - mu: mu
@@ -218,19 +218,15 @@ variables:
   sigma3: {floating: true, max: 1.0, min: 0.0, name: sigma3, step_size: 0.01, value: 0.6}
   sigma4: {floating: true, max: 1.0, min: 0.0, name: sigma4, step_size: 0.01, value: 0.5}
 ...
-ÓBLK 0               ˆ       ˆ       ˆÄw6ÆŞº½ÅÉ†ŠFpz½ë—Õ?â÷9ì+™ÿ?úJ³‚ç?@EŸt5»?ş×ºêûıĞ?şrî›p<Ğ?†{æØq@záî
-Ìô?XœúÊ¹@†>«#@Ş?¶¯m 8o
-@áÏÎ–÷õ? ¿–;†Öí?Ü˜-ŸÎ—õ?N‚ì_ÚÓ?(~gç@÷s lº3ı?ÓBLK 0               H       H       H;!JMk•M)‘
-}r¹óV3¹@\HV«é@k›ßë_@@Îr{]é?ÿ«(}À	@”z-½£9ö??~±÷‚ø?µç§Ôö?éEŸ)ş?ÓBLK 0               p       p       pY a†Y
-çm-T9wkê&ÙÓâ¥	@¼\s [w@úË‡vt‚ó?´ 	é¥£ò?İa°¸@¨€G¢ãµÛ¿¼?*õ3#@ƒ©0üú?2ïÜ+¡2û?ª!œŸÅáú?,A%¾›è¿aoÓ…Õİ@¼ Nì‘Ôø¿¿[<Øà?ÓBLK 0               ˆ       ˆ       ˆÄw6ÆŞº½ÅÉ†ŠFpz½ë—Õ?â÷9ì+™ÿ?úJ³‚ç?@EŸt5»?ş×ºêûıĞ?şrî›p<Ğ?†{æØq@záî
-Ìô?XœúÊ¹@†>«#@Ş?¶¯m 8o
-@áÏÎ–÷õ? ¿–;†Öí?Ü˜-ŸÎ—õ?N‚ì_ÚÓ?(~gç@÷s lº3ı?ÓBLK 0               p       p       pY a†Y
-çm-T9wkê&ÙÓâ¥	@¼\s [w@úË‡vt‚ó?´ 	é¥£ò?İa°¸@¨€G¢ãµÛ¿¼?*õ3#@ƒ©0üú?2ïÜ+¡2û?ª!œŸÅáú?,A%¾›è¿aoÓ…Õİ@¼ Nì‘Ôø¿¿[<Øà?#ASDF BLOCK INDEX
+ÓBLK 0               ˆ       ˆ       ˆGÊ@{*tUÃfÇ¸pÇ[ÄÛ”ûÕ]­÷?š¾^ıóğú?®$¸CjZ@põë²Äí?\ZÜªàÅ@rÅÑôù–ı?·'ø¬hyò?x¡ıßÂÁ?± ÁÀ¶>û?ÔâAúöD @º¶§,Y¨ü?¸q<3ö?|a6ní?’¼4°ƒú?Ò'Ò‹Ujõ?ÜkçsFì?ŠL¼_Šõ÷?ÓBLK 0               H       H       H€pæ¢èéìreŠë¹µn¤’'aAÎ7ğ@YFøä @À#ôêöì˜?€¯¼w¯‘?v(Ñ–A@Œ'¦ñ5
+@ş…ŒŸÙƒá?½<HáVaó?U¾á\Y@ÓBLK 0               p       p       p>xßäí ¥‡¶GÍœ&ºs™+1@@c8ô5@<íıé˜	@ï±Ô‘?Ü@Áq+íx @„ñúlçb@Ò£ã×$ú¿õ/ğ­oó?{Âx>|û?Hd.„¢@8–ô¨¬ê?Rš&x
+­ò?JBŒkÈï?4l+Ú.@ÓBLK 0               p       p       p>xßäí ¥‡¶GÍœ&ºs™+1@@c8ô5@<íıé˜	@ï±Ô‘?Ü@Áq+íx @„ñúlçb@Ò£ã×$ú¿õ/ğ­oó?{Âx>|û?Hd.„¢@8–ô¨¬ê?Rš&x
+­ò?JBŒkÈï?4l+Ú.@ÓBLK 0               ˆ       ˆ       ˆGÊ@{*tUÃfÇ¸pÇ[ÄÛ”ûÕ]­÷?š¾^ıóğú?®$¸CjZ@põë²Äí?\ZÜªàÅ@rÅÑôù–ı?·'ø¬hyò?x¡ıßÂÁ?± ÁÀ¶>û?ÔâAúöD @º¶§,Y¨ü?¸q<3ö?|a6ní?’¼4°ƒú?Ò'Ò‹Ujõ?ÜkçsFì?ŠL¼_Šõ÷?#ASDF BLOCK INDEX
 %YAML 1.1
 ---
-- 9061
-- 9251
-- 9377
-- 9543
-- 9733
+- 8929
+- 9119
+- 9245
+- 9411
+- 9577
 ...

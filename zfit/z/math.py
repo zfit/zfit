@@ -69,7 +69,7 @@ def numerical_gradient(func: Callable, params: Iterable[zfit.Parameter]) -> tf.T
     #     gradients.set_shape(values.shape)
     #     return gradients  # element 1 are the errors
 
-    grad_func = numdifftools.Gradient(wrapped_func, order=3, base_step=1e-1)
+    grad_func = numdifftools.Gradient(wrapped_func, order=2, base_step=1e-1)
     gradient = tf.numpy_function(grad_func, inp=[param_vals], Tout=tf.float64)
     gradient = znp.atleast_1d(gradient)
     gradient.set_shape(param_vals.shape)

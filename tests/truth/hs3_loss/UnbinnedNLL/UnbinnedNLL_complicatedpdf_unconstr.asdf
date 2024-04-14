@@ -30,23 +30,6 @@ model:
     value: 0.1}
   - {floating: true, max: 1.0, min: -1.0, name: frac_sum3_2, step_size: 0.01, type: Parameter,
     value: 0.1}
-  - func: 800495d1010000000000008c0a64696c6c2e5f64696c6c948c105f6372656174655f66756e6374696f6e9493942868008c0c5f6372656174655f636f6465949394284b014b004b004b014b064a53000001432274006a01640174026a0364028d027400a00474057c00a006a1008301a10118005300944e473ff00000000000008c0564747970659485948794288c027466948c08636f6e7374616e74948c067a7479706573948c05666c6f6174948c056164645f6e948c046c697374948c0676616c7565739474948c06706172616d739485948c582f686f6d652f6a6f6e61732f446f63756d656e74732f706879736963732f736f6674776172652f7a6669745f70726f6a6563742f7a6669745f7265706f2f7a6669742f6d6f64656c732f6261736566756e63746f722e7079948c1372656d61696e696e675f667261635f66756e63944bc44302000194292974945294637a6669742e6d6f64656c732e6261736566756e63746f720a5f5f646963745f5f0a68144e4e749452947d947d94288c0f5f5f616e6e6f746174696f6e735f5f947d948c0c5f5f7175616c6e616d655f5f948c315f70726570726f636573735f696e69745f73756d2e3c6c6f63616c733e2e72656d61696e696e675f667261635f66756e6394758694622e
-    internal_params:
-      frac_0: {floating: true, max: 1.0, min: -1.0, name: frac_sum3_0, step_size: 0.01,
-        type: Parameter, value: 0.1}
-      frac_1: {floating: true, max: 1.0, min: -1.0, name: frac_sum3_1, step_size: 0.01,
-        type: Parameter, value: 0.1}
-      frac_2: {floating: true, max: 1.0, min: -1.0, name: frac_sum3_2, step_size: 0.01,
-        type: Parameter, value: 0.1}
-    name: Composed_autoparam_11
-    params:
-      frac_0: {floating: true, max: 1.0, min: -1.0, name: frac_sum3_0, step_size: 0.01,
-        type: Parameter, value: 0.1}
-      frac_1: {floating: true, max: 1.0, min: -1.0, name: frac_sum3_1, step_size: 0.01,
-        type: Parameter, value: 0.1}
-      frac_2: {floating: true, max: 1.0, min: -1.0, name: frac_sum3_2, step_size: 0.01,
-        type: Parameter, value: 0.1}
-    type: ComposedParameter
   name: complicatedpdf
   pdfs:
   - data: &id002 !core/ndarray-1.0.0
@@ -285,19 +268,6 @@ model:
         type: Parameter, value: 0.1}
       - {floating: true, max: 1.0, min: -1.0, name: frac_sum2_1, step_size: 0.01,
         type: Parameter, value: 0.1}
-      - func: 800495d1010000000000008c0a64696c6c2e5f64696c6c948c105f6372656174655f66756e6374696f6e9493942868008c0c5f6372656174655f636f6465949394284b014b004b004b014b064a53000001432274006a01640174026a0364028d027400a00474057c00a006a1008301a10118005300944e473ff00000000000008c0564747970659485948794288c027466948c08636f6e7374616e74948c067a7479706573948c05666c6f6174948c056164645f6e948c046c697374948c0676616c7565739474948c06706172616d739485948c582f686f6d652f6a6f6e61732f446f63756d656e74732f706879736963732f736f6674776172652f7a6669745f70726f6a6563742f7a6669745f7265706f2f7a6669742f6d6f64656c732f6261736566756e63746f722e7079948c1372656d61696e696e675f667261635f66756e63944bc44302000194292974945294637a6669742e6d6f64656c732e6261736566756e63746f720a5f5f646963745f5f0a68144e4e749452947d947d94288c0f5f5f616e6e6f746174696f6e735f5f947d948c0c5f5f7175616c6e616d655f5f948c315f70726570726f636573735f696e69745f73756d2e3c6c6f63616c733e2e72656d61696e696e675f667261635f66756e6394758694622e
-        internal_params:
-          frac_0: {floating: true, max: 1.0, min: -1.0, name: frac_sum2_0, step_size: 0.01,
-            type: Parameter, value: 0.1}
-          frac_1: {floating: true, max: 1.0, min: -1.0, name: frac_sum2_1, step_size: 0.01,
-            type: Parameter, value: 0.1}
-        name: Composed_autoparam_10
-        params:
-          frac_0: {floating: true, max: 1.0, min: -1.0, name: frac_sum2_0, step_size: 0.01,
-            type: Parameter, value: 0.1}
-          frac_1: {floating: true, max: 1.0, min: -1.0, name: frac_sum2_1, step_size: 0.01,
-            type: Parameter, value: 0.1}
-        type: ComposedParameter
       name: SumPDF
       pdfs:
       - data: *id001
@@ -326,19 +296,6 @@ model:
           type: Parameter, value: 0.1}
         - {floating: true, max: 1.0, min: -1.0, name: frac_sum1_1, step_size: 0.01,
           type: Parameter, value: 0.1}
-        - func: 800495d1010000000000008c0a64696c6c2e5f64696c6c948c105f6372656174655f66756e6374696f6e9493942868008c0c5f6372656174655f636f6465949394284b014b004b004b014b064a53000001432274006a01640174026a0364028d027400a00474057c00a006a1008301a10118005300944e473ff00000000000008c0564747970659485948794288c027466948c08636f6e7374616e74948c067a7479706573948c05666c6f6174948c056164645f6e948c046c697374948c0676616c7565739474948c06706172616d739485948c582f686f6d652f6a6f6e61732f446f63756d656e74732f706879736963732f736f6674776172652f7a6669745f70726f6a6563742f7a6669745f7265706f2f7a6669742f6d6f64656c732f6261736566756e63746f722e7079948c1372656d61696e696e675f667261635f66756e63944bc44302000194292974945294637a6669742e6d6f64656c732e6261736566756e63746f720a5f5f646963745f5f0a68144e4e749452947d947d94288c0f5f5f616e6e6f746174696f6e735f5f947d948c0c5f5f7175616c6e616d655f5f948c315f70726570726f636573735f696e69745f73756d2e3c6c6f63616c733e2e72656d61696e696e675f667261635f66756e6394758694622e
-          internal_params:
-            frac_0: {floating: true, max: 1.0, min: -1.0, name: frac_sum1_0, step_size: 0.01,
-              type: Parameter, value: 0.1}
-            frac_1: {floating: true, max: 1.0, min: -1.0, name: frac_sum1_1, step_size: 0.01,
-              type: Parameter, value: 0.1}
-          name: Composed_autoparam_9
-          params:
-            frac_0: {floating: true, max: 1.0, min: -1.0, name: frac_sum1_0, step_size: 0.01,
-              type: Parameter, value: 0.1}
-            frac_1: {floating: true, max: 1.0, min: -1.0, name: frac_sum1_1, step_size: 0.01,
-              type: Parameter, value: 0.1}
-          type: ComposedParameter
         name: SumPDF
         pdfs:
         - data:
@@ -425,10 +382,10 @@ B^Işá¿ñışkÏEß¿–@Û®â¿û‚ÇT	²?×PÖ?ÕØ?İ:;bzX@Ü»ÕV»ã?/Aßk«	ü?Ñ&›­çâ¿Rñ/‹ùÜ?Å
 âé?¼\…X{İÛ?G£ßğ¿Ğu\Utó?J‚RIÃÏ¿§İÀìÑ¿ìhJÉ’î³?‘kt¡âü¿P¤èøÛn¤¿Àg·aËÅÍ¿íidTµ	ç¿·ıeğ¿[x$À¿ïÿz@w~¸fÕò?€Sÿõ›™ô?éõdªG7è?ÆJz _#ô?)@’ÔÃù¿™Ù Êt]Â¿âm¨mÉE÷¿éÌ60«ï¿5ëÿı/Õ?«4ô…‘Ö¿…4¶0‘Få?•¦¢2·^º¿° lK@Dj€Û¥È?ªÂv	”¿â-C?¶?ë¿äbˆG&ò¿Ş÷ò0á¿ÄèúIĞÎ¿#ASDF BLOCK INDEX
 %YAML 1.1
 ---
-- 20083
-- 20305
-- 20527
-- 20749
-- 20971
-- 21193
+- 15036
+- 15258
+- 15480
+- 15702
+- 15924
+- 16146
 ...
