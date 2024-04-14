@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-import jacobi
 import numpy as np
 
 if TYPE_CHECKING:
@@ -62,13 +61,15 @@ def numerical_gradient(func: Callable, params: Iterable[zfit.Parameter]) -> tf.T
     param_vals = znp.array(params)
     param_vals = znp.atleast_1d(param_vals)
 
-    def grad_func(values):
-        # todo: adjust rtol?
-        gradients = jacobi.jacobi(wrapped_func, values)[0]
-        gradients = znp.asarray(gradients)
-        gradients.set_shape(values.shape)
-        return gradients  # element 1 are the errors
+    # fails for apple silicon runners weirdly, but preferable
+    # def grad_func(values):
+    #     # todo: adjust rtol?
+    #     gradients = jacobi.jacobi(wrapped_func, values)[0]
+    #     gradients = znp.asarray(gradients)
+    #     gradients.set_shape(values.shape)
+    #     return gradients  # element 1 are the errors
 
+    grad_func = numdifftools.Gradient(wrapped_func, order=3, base_step=1e-1)
     gradient = tf.numpy_function(grad_func, inp=[param_vals], Tout=tf.float64)
     gradient = znp.atleast_1d(gradient)
     gradient.set_shape(param_vals.shape)
