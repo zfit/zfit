@@ -330,7 +330,7 @@ class ZfitParameterMixin(BaseNumeric):
         return super().__rmul__(other)
 
     def __eq__(self, other):
-        return id(self) == id(other)
+        return self is other
 
     def __hash__(self):
         if not hasattr(self, "_cached_hash"):
@@ -360,8 +360,6 @@ class Parameter(
     _independent_params = WeakSet()
     DEFAULT_STEP_SIZE = 0.01
 
-    @deprecated_args(None, "Use `lower` instead.", "lower_limit")
-    @deprecated_args(None, "Use `upper` instead.", "upper_limit")
     def __init__(
         self,
         name: str,
@@ -396,9 +394,11 @@ class Parameter(
 
         # legacy start
         if lower_limit is not None:
-            lower = lower_limit
+            msg = "The argument `lower_limit` has been renamed to `lower`."
+            raise BreakingAPIChangeError(msg)
         if upper_limit is not None:
-            upper = upper_limit
+            msg = "The argument `upper_limit` has been renamed to `upper`."
+            raise BreakingAPIChangeError(msg)
         if dtype is None:
             dtype = ztypes.float
         else:
@@ -636,7 +636,7 @@ class Parameter(
 
         return TemporarilySet(value=value, setter=setter, getter=getter)
 
-    def assign(self, value, use_locking=None, name=None, read_value=False):
+    def assign(self, value, use_locking: bool | None = None, read_value=False):
         """Set the :py:class:`~zfit.Parameter` to `value` without any checks.
 
         Compared to ``set_value``, this method cannot be used with a context manager and won't raise an
@@ -645,7 +645,7 @@ class Parameter(
         Args:
             value: The value the parameter will take on.
         """
-        return super().assign(value=value, use_locking=use_locking, name=name, read_value=read_value)
+        return super().assign(value=value, use_locking=use_locking, read_value=read_value)
 
     def randomize(
         self,
@@ -705,24 +705,39 @@ class Parameter(
         return f"<zfit.{self.__class__.__name__} '{name}' floating={floating} value={value}>"
 
     # LEGACY, deprecate?
+
     @property
+    @deprecated(None, "Use `lower` instead.")
     def lower_limit(self):
         return self.lower
 
     @lower_limit.setter
+    @deprecated(None, "Use `lower` instead.")
     def lower_limit(self, value):
         self.lower = value
 
     @property
+    @deprecated(None, "Use `upper` instead.")
     def upper_limit(self):
         return self.upper
 
     @upper_limit.setter
+    @deprecated(None, "Use `upper` instead.")
     def upper_limit(self, value):
         self.upper = value
 
     def __tf_tracing_type__(self, signature_context):
-        return ParameterType(parameter=self)
+        return ParameterSpec(parameter=self)
+
+    # below needed?
+    # CompositeTensor method
+    # @property
+    # def _type_spec(self):
+    #     return ParameterSpec(parameter=self)
+    #
+    # # CompositeTensor method
+    # def _shape_invariant_to_type_spec(self, shape):
+    #     return ParameterSpec(shape, self.dtype, self.trainable)
 
     def __reduce__(self):  # for pickling
         return functools.partial(
@@ -740,12 +755,12 @@ class Parameter(
 # delattr(Parameter, "__tf_tracing_type__")
 
 
-class ParameterType(VariableSpec):
+class ParameterSpec(VariableSpec):
     value_type = property(lambda _: Parameter)
 
     def __init__(self, shape=None, dtype=None, trainable=True, alias_id=None, *, parameter=None):
         if parameter is None:
-            msg = "Unknown error, please report"
+            msg = "Unknown error, please report, parameter should not be none"
             raise RuntimeError(msg)
         if parameter is not None:  # initialize from parameter
             shape = parameter.shape
@@ -754,11 +769,11 @@ class ParameterType(VariableSpec):
             alias_id = None
         self.parameter_value = parameter
         self._name = parameter.name
-        self.parameter_type = type(self)
+        self.parameter_type = type(parameter)
         if dtype is None:
             dtype = tf.float64
         super().__init__(shape=shape, dtype=dtype, trainable=trainable, alias_id=alias_id)
-        self.hash = hash(self.name)
+        self.hash = hash(id(parameter))
 
     @classmethod
     def from_value(cls, value):
@@ -775,7 +790,11 @@ class ParameterType(VariableSpec):
         return [value]
 
     def is_subtype_of(self, other):
-        return type(other) is ParameterType and self.parameter_type is other.parameter_type and self.name == other.name
+        return (
+            type(other) is ParameterSpec
+            and self.parameter_type is other.parameter_type
+            and self.parameter_value is other.parameter_value
+        )
 
     def most_specific_common_supertype(self, others):
         return self if all(self == other for other in others) else None
@@ -784,78 +803,16 @@ class ParameterType(VariableSpec):
         del placeholder_context  # unused
         return self.parameter_value
 
+    def is_compatible_with(self, spec_or_value):
+        return isinstance(spec_or_value, ParameterSpec) and self.parameter_value is spec_or_value.parameter_value
+
     def __eq__(self, other) -> bool:
-        return self.parameter_type == type(other) and self.name == other.name
+        if not isinstance(other, ParameterSpec):
+            return False
+        return self.parameter_value is other.parameter_value
 
     def __hash__(self):
         return self.hash
-
-
-# class ParameterType(VariableSpec):
-#     value_type = property(lambda self: Parameter)
-#
-#     def __init__(self, shape=None, dtype=None, trainable=True, alias_id=None, *, parameter=None):
-#         if parameter is not None:  # initialize from parameter
-#             shape = parameter.shape
-#             dtype = parameter.dtype
-#             trainable = True
-#             alias_id = None
-#         self.parameter_value = parameter
-#         if dtype is None:
-#             dtype = tf.float64
-#         super().__init__(shape=shape, dtype=dtype, trainable=trainable, alias_id=alias_id)
-#
-#     def is_compatible_with(self, spec_or_value):
-#         return super().is_compatible_with(spec_or_value) and self.name == spec_or_value.name
-#
-#     def is_subtype_of(self, other):
-#         return super().is_subtype_of(other) and self.name == other.name
-#
-#     def most_specific_compatible_type(self, other: "TypeSpec") -> "TypeSpec":
-#         if self.is_subtype_of(self, other):
-#             return self
-#
-#     def placeholder_value(self, placeholder_context):
-#         return self.parameter_value
-#         # return super().placeholder_value(placeholder_context) if self.parameter_value is None else self.parameter_value
-
-
-# class ParameterType(tf.types.experimental.TraceType):
-#     def __init__(self, parameter):
-#         self.name = parameter.name
-#         self.parameter_value = parameter
-#         self.parameter_type = type(parameter)
-#
-#     def is_subtype_of(self, other) -> bool:
-#         """Returns True if `self` is a subtype of `other`.
-#
-#         Implements the tf.types.experimental.func.TraceType interface.
-#
-#         If not overridden by a subclass, the default behavior is to assume the
-#         TypeSpec is covariant upon attributes that implement TraceType and
-#         invariant upon rest of the attributes as well as the structure and type
-#         of the TypeSpec.
-#
-#         Args:
-#           other: A TraceType object.
-#         """
-#
-#         if self.parameter_type is not type(other):
-#             return False
-#
-#         return self.name == other.name
-#
-#     def most_specific_common_supertype(self, others):
-#         if self.name == others.name:
-#             return self.name
-#         else:
-#             return None
-#
-#     def placeholder_value(self, placeholder_context=None):
-#         return self.parameter_value
-#
-#     def __eq__(self, other):
-#         return type(other) == self.parameter_type and self.name == other.name
 
 
 class ParameterRepr(BaseRepr):  # add label?
@@ -1670,11 +1627,13 @@ def check_convert_param_values_assign(params, values, allow_partial=False):
         values = new_values
         params = new_params
 
-    elif len(params) > 1:
+    else:
         if not (tf.is_tensor(values) or isinstance(values, np.ndarray)):
             values = convert_to_container(values)
             lenvalues = len(values)
         else:
+            values = znp.asarray(values, dtype=znp.float64)
+            values = znp.atleast_1d(values)
             shape = values.shape
             lenvalues = shape[0] if shape is not None else None
         if lenvalues is not None and lenvalues != len(params):

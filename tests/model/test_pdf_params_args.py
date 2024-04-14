@@ -10,7 +10,7 @@ import zfit.z.numpy as znp
 # todo: expand tests with pdfs?
 
 def pdf_gauss():
-    scale = zfit.Parameter('scale1', 10000.)
+    scale = zfit.Parameter('scale1', 3065.)
     mu = zfit.Parameter('muparam', 1.2, -1., 3.)
     sigma = zfit.Parameter('sigmaparam', 13, 0.1, 100.)
     obs = zfit.Space('obs1', -10, 10)
@@ -29,7 +29,7 @@ def pdf_gaussnonext():
 
 
 def pdf_expnonext():
-    lambda_ = zfit.Parameter('lambda', -0.5, -2., 0.)
+    lambda_ = zfit.Parameter('lambda', -0.03, -2., 0.)
     obs = zfit.Space('obs1', -10, 10)
 
     exp = zfit.pdf.Exponential(lambda_=lambda_, obs=obs)
@@ -37,12 +37,12 @@ def pdf_expnonext():
 
 
 def pdf_sumnonext():
-    sum_pdf = zfit.pdf.SumPDF(pdfs=[pdf_gaussnonext(), pdf_expnonext()], fracs=zfit.Parameter('frac', 0.3))
+    sum_pdf = zfit.pdf.SumPDF(pdfs=[pdf_gaussnonext(), pdf_expnonext()], fracs=zfit.Parameter('frac', 0.25))
     return sum_pdf
 
 
 def pdf_exp():
-    lambda_ = zfit.Parameter('lambda', -0.3, -2., 0.)
+    lambda_ = zfit.Parameter('lambda', -0.03, -2., 0.)
     scale = zfit.Parameter('scale2', 10001.)
     obs = zfit.Space('obs1', -10, 10)
 
@@ -85,7 +85,8 @@ def test_pdf_params_args_methods(binning):
     data = znp.array([1.1, 1.2, 1.3, 1.4, 1.5])
 
     assert np.argmax(gauss.pdf(data)) == 1
-    assert np.argmax(gauss.pdf(data, params={'muparam': 1.4})) == 3
+    probs = gauss.pdf(data, params={'muparam': 1.4})
+    assert np.argmax(probs) == 3
     with pytest.raises(ValueError):
         gauss.pdf(data, params={'muparam': 1.4, 'sigma': 1.5})
     assert np.argmax(gauss.pdf(data)) == 1
@@ -195,6 +196,7 @@ def test_params_as_args_fitresult(loss):
     loss = loss()
     minimizer = zfit.minimize.Minuit()
     result = minimizer.minimize(loss)
+    assert result.valid, "Test is flawed"
     params = loss.get_params(is_yield=False)
     param1 = list(params)[0]
     loss_values = result.fmin

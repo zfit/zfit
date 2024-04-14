@@ -10,6 +10,7 @@ Develop
 Major Features and Improvements
 -------------------------------
 - add ``zfit.dill`` to dump and load objects with dill (a more powerful pickle). This way, any zfit object can be saved and loaded, such as ``FitResult`` that contains all other important objects to recreate the fit.
+- improved performance for numerical gradient calculation, fixing also a minor numerical issue.
 
 Breaking changes
 ------------------
@@ -19,6 +20,7 @@ Deprecations
 
 Bug fixes and small changes
 ---------------------------
+- runing binned fits without a graph could deadlock, fixed.
 
 Experimental
 ------------

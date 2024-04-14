@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import contextlib
+import functools
 import multiprocessing
 import os
 import sys
@@ -168,7 +169,7 @@ class RunManager:
 
         return TemporarilySet(value=value, setter=setter, getter=lambda: not settings.options.auto_update_params)
 
-    def set_graph_mode(self, graph: bool | str | dict | None = None):
+    def set_graph_mode(self, graph: bool | str | dict | None = None, *, set_backend: bool | None = None):
         """Set the policy for graph building and the usage of automatic vs numerical gradients.
 
         zfit runs on top of TensorFlow, a modern, powerful computing engine very similar in design to Numpy.
@@ -259,6 +260,10 @@ class RunManager:
               - (**advanced and experimental!**): a dictionary containing the string of a wrapped function identifier
                 (see also :py:func:`~zfit.z.function` for more information about this) with a boolean that switches
                 explicitly on/off the graph building for this type of decorated functions.
+            set_backend: if true, also set the mode for the backend (if mode is set to `False`). This is usually desired, as
+                the backend (TensorFlow) can have compiled functions as well, especially in control flows that are used for example
+                in binned PDFs. This can also be manually achieved using ``tf.config.run_functions_eagerly``. Setting this to false
+                *can* have deadlocks with threads.
         """
         if not tf.executing_eagerly():
             msg = (
@@ -266,12 +271,15 @@ class RunManager:
                 " decorated function. Only possible in an eager context."
             )
             raise IllegalInGraphModeError(msg)
-        return self._force_set_graph_mode(graph)
+        if set_backend is None:
+            set_backend = True
+        return self._force_set_graph_mode(graph, set_backend=set_backend)
 
-    def _force_set_graph_mode(self, graph):
+    def _force_set_graph_mode(self, graph, set_backend=True):
         if graph is None:
             graph = "auto"
-        return TemporarilySet(value=graph, setter=self._set_graph_mode, getter=self.get_graph_mode)
+        mode_setter = functools.partial(self._set_graph_mode, set_backend=set_backend)
+        return TemporarilySet(value=graph, setter=mode_setter, getter=self.get_graph_mode)
 
     def set_autograd_mode(self, autograd: bool | None = None):
         """Use automatic or numerical gradients.
@@ -309,7 +317,6 @@ class RunManager:
             getter=self.get_autograd_mode,
         )
 
-    @deprecated(None, "Use `set_graph_mode` or `set_autograd_mode`.")
     def set_mode(
         self,
         graph: bool | str | dict | None = None,  # noqa: ARG002
@@ -329,13 +336,14 @@ class RunManager:
             settings.options.numerical_grad = not autograd
             self._mode["autograd"] = autograd
 
-    def _set_graph_mode(self, graph):
+    def _set_graph_mode(self, graph, *, set_backend=True):
         if graph is None:
             graph = "auto"
         from .graph import jit as jit_obj
 
         # only run eagerly if no graph
-        # tf.config.run_functions_eagerly(graph is False)
+        if set_backend:
+            tf.config.run_functions_eagerly(graph is False)
         if graph is True:
             jit_obj._set_all(True)
         elif graph is False:
@@ -391,7 +399,7 @@ class RunManager:
         self.set_autograd_mode(True)
         self.set_graph_mode("auto")
 
-    def clear_graph_cache(self):
+    def clear_graph_cache(self, *, call_gc: bool | None = None):
         """Clear all generated graphs and effectively reset. Should not affect execution, only performance.
 
         In a simple fit scenario, this is not used. But if several fits are performed with different python objects such
@@ -401,10 +409,16 @@ class RunManager:
 
         To clean, this function can be invoked. The only effect should be to speed up things, but should not have any
         side-effects other than that.
+
+        Args:
+            call_gc: If `True`, call the garbage collector after clearing the cache. This can help if there are issues with non-cleared graphs.
+           (it can impact the performance if called in a loop, as the gc can take up to a second)
         """
+        if call_gc is None:
+            call_gc = False
         from zfit.util.cache import clear_graph_cache
 
-        clear_graph_cache()
+        clear_graph_cache(call_gc=call_gc)
 
     def set_graph_cache_size(self, size: int | None = None):
         """Set the size of the graph cache to the same value for all.

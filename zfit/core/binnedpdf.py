@@ -6,6 +6,8 @@ from typing import TYPE_CHECKING
 
 from tensorflow.python.util.deprecation import deprecated_args
 
+from ..util.plotter import PDFPlotter
+
 if TYPE_CHECKING:
     import zfit
 
@@ -103,6 +105,7 @@ class BaseBinnedPDFV1(
         **kwargs,
     ):
         self._label = label
+        self.plot = None
         super().__init__(dtype=znp.float64, name=name, **kwargs)
 
         self._space = self._check_convert_obs_init(obs)
@@ -112,6 +115,9 @@ class BaseBinnedPDFV1(
             extended = False
         if extended is not False:
             self._set_yield(extended)
+
+        if self.plot is None:  # todo: have a binned plotter
+            self.plot = PDFPlotter(self)
 
     @property
     def label(self):

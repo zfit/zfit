@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Mapping, Optional
+from typing import TYPE_CHECKING, Iterable, Mapping, Optional
 
 if TYPE_CHECKING:
     pass
@@ -245,8 +245,12 @@ def mc_integrate(
         space = limits
         data_obs = x.obs
         integrate_data = x.value()
+
         # todo: more finegrained control over vectorize vs map_fn?
-        mapfn = tf.vectorized_map if (vectorize_partial := zfit.run.get_graph_mode() is not False) else tf.map_fn
+        def map_eager(func: Callable, iterable: Iterable):
+            return znp.asarray(tuple(map(func, iterable)))
+
+        mapfn = tf.vectorized_map if (vectorize_partial := zfit.run.get_graph_mode() is not False) else map_eager
 
         if xfixed is not None:
             msg = "xfixed should be None"

@@ -1,4 +1,5 @@
 #  Copyright (c) 2024 zfit
+import jacobi
 import numpy as np
 import pytest
 import tensorflow as tf
@@ -274,8 +275,9 @@ def test_add():
     assert set(simult_nll.get_params()) == {param1, param2, param3}
 
 
+@pytest.mark.parametrize("numgrad", [True, False], ids=["numgrad", "autograd"])
 @pytest.mark.parametrize("chunksize", [10000000, 1000])
-def test_gradients(chunksize):
+def test_gradients(chunksize, numgrad):
     from numdifftools import Gradient
 
     zfit.run.chunking.active = True
@@ -294,35 +296,43 @@ def test_gradients(chunksize):
 
     nll = UnbinnedNLL(model=[gauss1, gauss2], data=[data1, data2])
 
-    def loss_func(values):
-        for val, param in zip(values, nll.get_cache_deps(only_floating=True)):
-            param.set_value(val)
-        return nll.value()
+    def loss_funcparam1(values):
+        with zfit.param.set_values(param2, values):
+            return nll.value()
 
-    # theoretical, numerical = tf.test.compute_gradient(loss_func, list(params))
-    gradient1 = nll.gradient(params=param1)
-    gradient_func = Gradient(loss_func)
-    # gradient_func = lambda *args, **kwargs: list(gradient_func_numpy(*args, **kwargs))
-    assert pytest.approx(gradient_func([param1])) == gradient1[0]
+    def loss_funcparam1and2(values):
+        with zfit.param.set_values([param2, param1], values):
+            return nll.value()
+
+    gradient_func_num = Gradient(loss_funcparam1)
+
+    gradient1_num = gradient_func_num([param2])
+    gradient1 = nll.gradient(params=param2, numgrad=numgrad)
+    grad_num_truth = jacobi.jacobi(loss_funcparam1, [param2])[0]
+    np.testing.assert_allclose(gradient1, grad_num_truth, rtol=1e-6)
+    np.testing.assert_allclose(gradient1, gradient1_num, rtol=1e-6)
     param1.set_value(initial1)
     param2.set_value(initial2)
     params = [param2, param1]
-    gradient2 = nll.gradient(params=params)
-    both_gradients_true = list(
-        reversed(list(gradient_func([initial1, initial2])))
-    )  # because param2, then param1
-    np.testing.assert_allclose(gradient2, both_gradients_true)
+    gradient2 = nll.gradient(params=params, numgrad=numgrad)
+    gradient_func1and2 = Gradient(loss_funcparam1and2, order=2, base_step=0.1)
+    gradient2_true_numdiff = gradient_func1and2([initial2, initial1])
+    gradient2_true = jacobi.jacobi(loss_funcparam1and2, [initial2, initial1])[0]
+    np.testing.assert_allclose(gradient2_true, gradient2_true_numdiff, rtol=1e-6)  # if this fails, numdiff/jacobi disagree
+    np.testing.assert_allclose(gradient2, gradient2_true, rtol=1e-6)
 
     param1.set_value(initial1)
     param2.set_value(initial2)
-    gradient3 = nll.gradient()
+
+    params3 = nll.get_params()
+    gradient3 = nll.gradient(params3)
     gradients_true3 = []
-    for param_o in nll.get_params():
+    for param_o in params3:
         for param, grad in zip(params, gradient2):
             if param_o is param:
                 gradients_true3.append(float(grad))
                 break
-    np.testing.assert_allclose(gradient3, gradients_true3)
+    np.testing.assert_allclose(gradient3, gradients_true3, rtol=1e-6)
 
 
 def test_simple_loss():

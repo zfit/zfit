@@ -207,13 +207,15 @@ def _preprocess_init_sum(fracs, obs, pdfs):
             fracs_cleaned = [*fracs, remaining_frac]
 
         elif len(fracs) == len(pdfs):
-            warn_changed_feature(
-                "A SumPDF with the number of fractions equal to the number of pdf will no longer "
-                "be extended. To make it extended, either manually use 'create_exteneded' or set "
-                "the yield. OR provide all pdfs as extended pdfs and do not provide a fracs "
-                "argument.",
-                identifier="new_sum",
-            )
+            # skip if deserializing, this is fine, we know what we're doing
+            if Serializer._existing_params is None:  # todo: make a better context for serialization/deserialization
+                warn_changed_feature(
+                    "A SumPDF with the number of fractions equal to the number of pdf will no longer "
+                    "be extended. To make it extended, either manually use 'create_exteneded' or set "
+                    "the yield. OR provide all pdfs as extended pdfs and do not provide a fracs "
+                    "argument.",
+                    identifier="new_sum",
+                )
             fracs_cleaned = fracs
 
         else:

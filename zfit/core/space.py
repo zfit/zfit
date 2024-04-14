@@ -812,6 +812,7 @@ def equal_limits(limit1: Limit, limit2: Limit, allow_graph=True) -> bool:
         lower, upper = limit1.rect_limits_np
         lower_other, upper_other = limit2.rect_limits_np
     except CannotConvertToNumpyError as error:
+        # todo: why does it fail without False?
         if not allow_graph:
             msg = (
                 "Cannot use equality in graph mode, e.g. inside a `tf.function` decorated "
