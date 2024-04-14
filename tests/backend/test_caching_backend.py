@@ -1,13 +1,16 @@
 #  Copyright (c) 2024 zfit
 import pytest
-
+import tensorflow as tf
 import zfit
+from zfit import z
 
-
-def test_parameter_caching():
+# this works now also for tensorflow, as all variables given as args, effectively Params, have a
+# custom tf retracing behavior on their identity
+# Therefore, the legacy fix in z.function works (still, but z.function is not needed anymore for this)
+# and with tf.function
+@pytest.mark.parametrize("function", [z.function, tf.function])
+def test_parameter_caching(function):
     # this is to ensure that we fixed the bug (https://github.com/tensorflow/tensorflow/issues/57365) internally
-    import tensorflow as tf
-    from zfit import z
 
     x1 = zfit.Parameter("x1", 2.0)
     x2 = zfit.Parameter("x2", 4.0)
@@ -19,16 +22,28 @@ def test_parameter_caching():
     cx1 = zfit.ComposedParameter("cx1", one_plus, dependents=[x1])
     cx2 = zfit.ComposedParameter("cx2", one_plus, dependents=[x2])
 
+    ncompile1 = 0
+    ncompile2 = 0
+
+
     @tf.function(autograph=False)
     def f():
+        nonlocal ncompile1
+        ncompile1 += 1
         res = x1 + x2**2 / 2
         return res
 
     def f2():
+        nonlocal ncompile2
+        ncompile2 += 1
         res = cx1 + cx2**2 / 2
         return res
 
+    ncompgrad1 = 0
+    ncompgrad2 = 0
     def grad(param):
+        nonlocal ncompgrad1
+        ncompgrad1 += 1
 
         with tf.GradientTape(watch_accessed_variables=False) as tape:
             tape.watch(param)
@@ -36,18 +51,30 @@ def test_parameter_caching():
         return tf.stack(tape.gradient(value, param))
 
     def grad2(param):
-
+        nonlocal ncompgrad2
+        ncompgrad2 += 1
         with tf.GradientTape(watch_accessed_variables=False) as tape:
             tape.watch(param)
             value = f2()
         return tf.stack(tape.gradient(value, param))
 
-    jitted_grad = z.function(grad)
-    jitted_grad2 = z.function(grad2)
-    jitted_grad = tf.function(grad)
+    jitted_grad = function(grad)
+    jitted_grad2 = function(grad2)
 
     y1 = grad(x1)
+    ncomp1_after1 = ncompile1
     y1_jit = jitted_grad(x1)
+    ncompgrad1_after1 = ncompgrad1
+    assert ncomp1_after1 == ncompile1
+    y1_jit = jitted_grad(x1)
+    assert ncompgrad1_after1 == ncompgrad1
+    with x1.set_value(142.):
+        y1_jit = jitted_grad(x1)
+        assert ncompgrad1_after1 == ncompgrad1
+
+    y1_jit = jitted_grad(x1)
+    assert ncompgrad1_after1 == ncompgrad1
+
     assert abs(y1 - 1.0) < 1e-5  # because d x1 / dx1 = 1
     assert abs(y1_jit - 1.0) < 1e-5
     y2 = grad(x2)
@@ -59,6 +86,8 @@ def test_parameter_caching():
 
     # use both parameters
     y = grad([x1, x2])
+    ncompgrad1_after2 = ncompgrad1
+    assert ncompgrad1_after2 > ncompgrad1_after1
     y_jit = jitted_grad([x1, x2])
 
     assert abs(y[0] - 1.0) < 1e-5
@@ -68,6 +97,7 @@ def test_parameter_caching():
 
     # use both parameters, swap order
     y = grad([x2, x1])
+
     y_jit = jitted_grad([x2, x1])
 
     assert pytest.approx(y[0], 1e-5) == 4.0

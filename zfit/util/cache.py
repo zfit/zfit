@@ -52,6 +52,7 @@ from __future__ import annotations
 
 import collections.abc
 import functools
+import gc
 import typing
 import weakref
 from abc import abstractmethod
@@ -274,8 +275,9 @@ class FunctionCacheHolder(GraphCachable):
 
         Returns:
         """
+        # todo: we can probably get rid of this check, this is somewhat for legacy purpose
+        # with the new parameter tf type spec, TF should take care of this
         # is initialized before the core
-        return True  # HACK!
         # args = tuple(args)
         # kwargs = list(kwargs.keys()) + list(kwargs.values())
         combined = (*args, *kwargs.keys(), *kwargs.values())
@@ -359,12 +361,23 @@ class FunctionCacheHolder(GraphCachable):
         return f"<FunctionCacheHolder: {self.python_func}, valid={self.is_valid}>"
 
 
-def clear_graph_cache():
+def clear_graph_cache(*, call_gc=None):
+    """Clear the graph cache.
+
+    Args:
+        call_gc: If `True`, call the garbage collector after clearing the cache. This can help if there are issues with non-cleared graphs.
+           (it can impact the performance if called in a loop, as the gc can take up to a second)
+    """
+    if call_gc is None:
+        call_gc = False
+
     from zfit.z.zextension import FunctionWrapperRegistry
 
     for registry in FunctionWrapperRegistry.registries:
         for wrapped_meth in registry.function_cache:
             wrapped_meth = wrapped_meth.wrapped_func
+            wrapped_meth._variable_creation_config.function_cache.clear()
+            wrapped_meth._concrete_variable_creation_fn = None
             wrapped_meth._created_variables = None
             wrapped_meth._stateful_fn = None
             wrapped_meth._stateless_fn = None
@@ -377,3 +390,5 @@ def clear_graph_cache():
     # Cachable.graph_caching_methods.clear()
 
     tf.compat.v1.reset_default_graph()
+    if call_gc:
+        gc.collect()

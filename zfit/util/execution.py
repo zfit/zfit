@@ -391,7 +391,7 @@ class RunManager:
         self.set_autograd_mode(True)
         self.set_graph_mode("auto")
 
-    def clear_graph_cache(self):
+    def clear_graph_cache(self, *, call_gc: bool | None = None):
         """Clear all generated graphs and effectively reset. Should not affect execution, only performance.
 
         In a simple fit scenario, this is not used. But if several fits are performed with different python objects such
@@ -401,10 +401,16 @@ class RunManager:
 
         To clean, this function can be invoked. The only effect should be to speed up things, but should not have any
         side-effects other than that.
+
+        Args:
+            call_gc: If `True`, call the garbage collector after clearing the cache. This can help if there are issues with non-cleared graphs.
+           (it can impact the performance if called in a loop, as the gc can take up to a second)
         """
+        if call_gc is None:
+            call_gc = False
         from zfit.util.cache import clear_graph_cache
 
-        clear_graph_cache()
+        clear_graph_cache(call_gc=call_gc)
 
     def set_graph_cache_size(self, size: int | None = None):
         """Set the size of the graph cache to the same value for all.

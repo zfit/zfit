@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+import jacobi
+
 if TYPE_CHECKING:
     import zfit
 
@@ -54,23 +56,22 @@ def numerical_gradient(func: Callable, params: Iterable[zfit.Parameter]) -> tf.T
 
     def wrapped_func(param_values):
         assign_values(params, param_values)
-        value = func()
-        if hasattr(value, "numpy"):
-            value = value.numpy()
-        return value
+        return func()
 
-    param_vals = znp.stack(params)
-    original_vals = [param.value() for param in params]
-    grad_func = numdifftools.Gradient(wrapped_func, order=2, base_step=1e-4)
-    if tf.executing_eagerly():
-        grad_vals = grad_func(param_vals)
-        gradient = convert_to_tensor(grad_vals)
-    else:
-        gradient = tf.numpy_function(grad_func, inp=[param_vals], Tout=tf.float64)
-    if gradient.shape == ():
-        gradient = znp.reshape(gradient, newshape=(1,))
+    param_vals = znp.array(params)
+    param_vals = znp.atleast_1d(param_vals)
+
+    def grad_func(values):
+        # todo: adjust rtol?
+        gradients = jacobi.jacobi(wrapped_func, values)[0]
+        gradients = znp.asarray(gradients)
+        gradients.set_shape(values.shape)
+        return gradients  # element 1 are the errors
+
+    gradient = tf.numpy_function(grad_func, inp=[param_vals], Tout=tf.float64)
+    gradient = znp.atleast_1d(gradient)
     gradient.set_shape(param_vals.shape)
-    assign_values(params, original_vals)
+    assign_values(params, param_vals)
     return gradient
 
 
@@ -124,15 +125,15 @@ def numerical_hessian(func: Callable | None, params: Iterable[zfit.Parameter], h
     if hessian == "diag":
         hesse_func = numdifftools.Hessdiag(
             wrapped_func,
-            order=2,
+            order=3,
             # TODO: maybe add step to remove numerical problems?
-            base_step=1e-4,
+            base_step=1e-1,
         )
     else:
         hesse_func = numdifftools.Hessian(
             wrapped_func,
-            order=2,
-            base_step=1e-4,
+            order=3,
+            base_step=1e-1,
         )
     if tf.executing_eagerly():
         computed_hessian = convert_to_tensor(hesse_func(param_vals))

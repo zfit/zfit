@@ -85,9 +85,6 @@ def test_pdf_params_args_methods(binning):
     data = znp.array([1.1, 1.2, 1.3, 1.4, 1.5])
 
     assert np.argmax(gauss.pdf(data)) == 1
-    import tensorflow as tf
-    zfit.run.set_graph_mode(True)
-    # tf.config.run_functions_eagerly(True)
     probs = gauss.pdf(data, params={'muparam': 1.4})
     assert np.argmax(probs) == 3
     with pytest.raises(ValueError):

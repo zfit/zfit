@@ -82,7 +82,7 @@ def test_sampling():
         def _sample(self, n, limits):
             raise SpecificFunctionNotImplemented  # fallback to the default sampling
 
-    sample_size = 100000
+    sample_size = 100_000
     tol = 0.1
     mu1, mu2 = 0, 10
     frac = 0.9

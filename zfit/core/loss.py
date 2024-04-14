@@ -387,7 +387,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         return model_checked, data_checked
 
     def _input_check_params(self, params):
-        return list(self.get_params()) if params is None else convert_to_container(params)
+        return tuple(self.get_params()) if params is None else convert_to_container(params)
 
     @deprecated(None, "Use `create_new` instead and fill the constraints there.")
     def add_constraints(self, constraints):
@@ -543,7 +543,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
 
     def gradient(
         self, params: ztyping.ParamTypeInput = None, *, numgrad=None, paramvals: ztyping.ParamTypeInput = None
-    ) -> list[tf.Tensor]:
+    ) -> tf.Tensor:
         """Calculate the gradient of the loss with respect to the given parameters.
 
         Args:
@@ -567,7 +567,6 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         """
         params = self._input_check_params(params)
         numgrad = self._options["numgrad"] if numgrad is None else numgrad
-        params = {p.name: p for p in params}
         paramvals, checked = self.check_precompile(params=paramvals)
         with self._check_set_input_params(paramvals, guarantee_checked=checked):
             return self._gradient(params=params, numgrad=numgrad)
@@ -578,7 +577,6 @@ class BaseLoss(ZfitLoss, BaseNumeric):
 
     @z.function(wraps="loss")
     def _gradient(self, params, numgrad):
-        params = tuple(params.values())
         self_value = partial(self.value, full=False)
         if numgrad:
             gradient = numerical_gradient(self_value, params=params)
@@ -620,12 +618,12 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         """
         params = self._input_check_params(params)
         numgrad = self._options["numgrad"]
-        params = {p.name: p for p in params}
         if full is None:
             full = DEFAULT_FULL_ARG
         paramvals, checked = self.check_precompile(params=paramvals)
         with self._check_set_input_params(paramvals, guarantee_checked=checked):
-            return self._value_gradient(params=params, numgrad=numgrad, full=full)
+            value, gradient = self._value_gradient(params=params, numgrad=numgrad, full=full)
+        return value, gradient
 
     def value_gradients(self, *_, **__):
         msg = "`value_gradients` is deprecated, use `value_gradient` instead."
@@ -633,7 +631,6 @@ class BaseLoss(ZfitLoss, BaseNumeric):
 
     @z.function(wraps="loss")
     def _value_gradient(self, params, numgrad=False, *, full: bool | None = None):
-        params = tuple(params.values())
         if full is None:
             full = DEFAULT_FULL_ARG
         self_value = partial(self.value, full=full)
@@ -706,15 +703,11 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         """
         params = self._input_check_params(params)
         numgrad = self._options["numhess"] if numgrad is None else numgrad
-        params = {p.name: p for p in params}
         if full is None:
             full = DEFAULT_FULL_ARG
-
         paramvals, checked = self.check_precompile(params=paramvals)
         with self._check_set_input_params(paramvals, guarantee_checked=checked):
-            vals = self._value_gradient_hessian(params=params, hessian=hessian, numerical=numgrad, full=full)
-
-        return vals[0], z.convert_to_tensor(vals[1]), vals[2]
+            return self._value_gradient_hessian(params=params, hessian=hessian, numerical=numgrad, full=full)
 
     def value_gradients_hessian(self, *_, **__):
         msg = "`value_gradients_hessian` is deprecated, use `value_gradient_hessian` instead."
@@ -722,7 +715,6 @@ class BaseLoss(ZfitLoss, BaseNumeric):
 
     @z.function(wraps="loss")
     def _value_gradient_hessian(self, params, hessian, numerical=False, *, full: bool | None = None):
-        params = tuple(params.values())
         self_value = partial(self.value, full=full)
         if numerical:
             return numerical_value_gradients_hessian(

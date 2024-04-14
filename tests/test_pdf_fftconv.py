@@ -324,6 +324,11 @@ def test_conv_2D_simple():
     x, y = z.unstack_x(sample)
     xns, yns = z.unstack_x(sample_nosample)
 
+
+    # remove np.array if fixed: https://github.com/matplotlib/matplotlib/issues/22879
+    x, y = np.array(x), np.array(y)
+    xns, yns = np.array(xns), np.array(yns)
+
     plt.figure()
     plt.title("FFT conv, custom sampling, addition")
     plt.hist2d(x, y, bins=30)
@@ -336,6 +341,7 @@ def test_conv_2D_simple():
 
     plt.figure()
     plt.title("FFT conv x projection")
+    # remove np.array if fixed: https://github.com/matplotlib/matplotlib/issues/22879
     plt.hist(x, bins=50, label="custom", alpha=0.5)
     plt.hist(xns, bins=50, label="fallback", alpha=0.5)
     plt.legend()
