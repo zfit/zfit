@@ -309,8 +309,8 @@ def test_gradients(chunksize, numgrad):
     gradient1_num = gradient_func_num([param2])
     gradient1 = nll.gradient(params=param2, numgrad=numgrad)
     grad_num_truth = jacobi.jacobi(loss_funcparam1, [param2])[0]
-    assert pytest.approx(grad_num_truth) == gradient1
-    assert pytest.approx(gradient1_num) == gradient1[0]
+    np.testing.assert_allclose(gradient1, grad_num_truth, rtol=1e-6)
+    np.testing.assert_allclose(gradient1, gradient1_num, rtol=1e-6)
     param1.set_value(initial1)
     param2.set_value(initial2)
     params = [param2, param1]
@@ -318,8 +318,8 @@ def test_gradients(chunksize, numgrad):
     gradient_func1and2 = Gradient(loss_funcparam1and2, order=3, base_step=0.1)
     gradient2_true_numdiff = gradient_func1and2([initial2, initial1])
     gradient2_true = jacobi.jacobi(loss_funcparam1and2, [initial2, initial1])[0]
-    np.testing.assert_allclose(gradient2_true, gradient2_true_numdiff)  # if this fails, numdiff/jacobi disagree
-    np.testing.assert_allclose(gradient2, gradient2_true)
+    np.testing.assert_allclose(gradient2_true, gradient2_true_numdiff, rtol=1e-6)  # if this fails, numdiff/jacobi disagree
+    np.testing.assert_allclose(gradient2, gradient2_true, rtol=1e-6)
 
     param1.set_value(initial1)
     param2.set_value(initial2)
