@@ -236,12 +236,11 @@ def pytest_generate_tests(metafunc):
     "jit",
     [
         False,
-        # True
+        # True  # todo: activate again?
     ],
 )
 @pytest.mark.parametrize("npoints", [1100, 500_000])
 def test_all_kde(kdetype, npoints, jit, request):
-    import zfit
 
     full = request.config.getoption("--longtests")
     full = full or request.config.getoption("--longtests-kde")
@@ -295,6 +294,7 @@ def test_all_kde(kdetype, npoints, jit, request):
             bandwidth_print = ""
         else:
             bandwidth_print = f", h={bandwidth_printready}"
+        bandwidth_print = bandwidth_print[:25]
 
         num_grid_points = cfg.get("num_grid_points")
         if num_grid_points is not None:
