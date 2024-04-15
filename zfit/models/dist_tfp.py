@@ -217,6 +217,11 @@ class Gauss(WrapDistribution, SerializableMixin):
 
                The default space is used for example in the sample method: if no
                sampling limits are given, the default space is used.
+ 
+               If the observables are binned and the model is unbinned, the
+               model will be a binned model, by wrapping the model in a
+               :py:class:`~zfit.pdf.BinnedFromUnbinnedPDF`, equivalent to
+               calling :py:meth:`~zfit.pdf.BasePDF.to_binned`.
 
                If the observables are binned and the model is unbinned, the
                model will be a binned model, by wrapping the model in a
@@ -705,54 +710,52 @@ class StudentT(WrapDistribution, SerializableMixin):
     ):
         """StudentT distribution for ndof degrees of freedom.
 
-                 The StudentT shape for `d` degrees of freedom is defined as
+        The StudentT shape for `d` degrees of freedom is defined as
 
-                 .. math::
+        .. math::
 
-                     f(x \\mid d, \\mu, \\sigma) = \\left(1 + \\frac{1}{d} \\left(\\frac{x - \\mu}{\\sigma}\\right)^2\\right)^{-\\frac{d+1}{2}} / Z
+            f(x \\mid d, \\mu, \\sigma) = \\left(1 + \\frac{1}{d} \\left(\\frac{x - \\mu}{\\sigma}\\right)^2\\right)^{-\\frac{d+1}{2}} / Z
 
-                 with the normalization over [-inf, inf] of
+        with the normalization over [-inf, inf] of
 
-                 .. math::
+        .. math::
 
-                     Z = \\frac{\\sqrt{d \\pi} \\Gamma(\\frac{d}{2})}{\\Gamma(\\frac{d+1}{2})}
+            Z = \\frac{\\sqrt{d \\pi} \\Gamma(\\frac{d}{2})}{\\Gamma(\\frac{d+1}{2})}
 
-                 The normalization changes for different normalization ranges
+        The normalization changes for different normalization ranges
 
-                 Args:
-                     ndof: Number of degrees of freedom
-                     mu: Mean of the distribution
-                     sigma: Scale of the distribution
-                     obs: |@doc:pdf.init.obs| Observables of the
-                  model. This will be used as the default space of the PDF and,
-                  if not given explicitly, as the normalization range.
+        Args:
+            ndof: Number of degrees of freedom
+            mu: Mean of the distribution
+            sigma: Scale of the distribution
+            obs: |@doc:pdf.init.obs| Observables of the
+               model. This will be used as the default space of the PDF and,
+               if not given explicitly, as the normalization range.
 
-                  The default space is used for example in the sample method: if no
-                  sampling limits are given, the default space is used.
+               The default space is used for example in the sample method: if no
+               sampling limits are given, the default space is used.
+ 
+               If the observables are binned and the model is unbinned, the
+               model will be a binned model, by wrapping the model in a
+               :py:class:`~zfit.pdf.BinnedFromUnbinnedPDF`, equivalent to
+               calling :py:meth:`~zfit.pdf.BasePDF.to_binned`.
 
-                  If the observables are binned and the model is unbinned, the
-                  model will be a binned model, by wrapping the model in a
-                  :py:class:`~zfit.pdf.BinnedFromUnbinnedPDF`, equivalent to
-                  calling :py:meth:`~zfit.pdf.BasePDF.to_binned`.
-
-                  The observables are not equal to the domain as it does not restrict or
-                  truncate the model outside this range.
-
-        |@docend:pdf.init.obs|
-                     extended: |@doc:pdf.init.extended| The overall yield of the PDF.
-                  If this is parameter-like, it will be used as the yield,
-                  the expected number of events, and the PDF will be extended.
-                  An extended PDF has additional functionality, such as the
-                  ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
-                     norm: |@doc:pdf.init.norm| Normalization of the PDF.
-                  By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
-                     name: |@doc:pdf.init.name| Name of the PDF.
-                  Maybe has implications on the serialization and deserialization of the PDF.
-                  For a human-readable name, use the label. |@docend:pdf.init.name|
-                     label: |@doc:pdf.init.label| Human-readable name
-                  or label of
-                  the PDF for a better description, to be used with plots etc.
-                  Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
+               The observables are not equal to the domain as it does not restrict or
+               truncate the model outside this range. |@docend:pdf.init.obs|
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+            norm: |@doc:pdf.init.norm| Normalization of the PDF.
+               By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
+            name: |@doc:pdf.init.name| Name of the PDF.
+               Maybe has implications on the serialization and deserialization of the PDF.
+               For a human-readable name, use the label. |@docend:pdf.init.name|
+            label: |@doc:pdf.init.label| Human-readable name
+               or label of
+               the PDF for a better description, to be used with plots etc.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
         """
         ndof, mu, sigma = self._check_input_params_tfp(ndof, mu, sigma)
         params = {"ndof": ndof, "mu": mu, "sigma": sigma}
@@ -799,69 +802,67 @@ class QGauss(WrapDistribution, SerializableMixin):
     ):
         """Q-Gaussian distribution with parameter `q`.
 
-                 The q-Gaussian is a probability distribution arising from the maximization of the Tsallis entropy under appropriate constraints.
-                 It is defined for q < 3 and the Gaussian distribution is recovered as q -> 1.
-                 For q < 1, is it the PDF of a bounded random variable.
-                 We only support 1 < q < 3 in this implementation.
-                 If you want to use exactly q = 1, use the `zfit.pdf.Gauss` class.
-                 During fitting, if you want to start from a Gaussian shape, you can initialize the `q` parameter to be really close to 1.
-                 It is related to the Student's t-distribution according to the `corresponding Wikipedia entry <https://en.wikipedia.org/wiki/Q-Gaussian_distribution#Student's_t-distribution>`_
-                 and that is how it is implemented here.
+        The q-Gaussian is a probability distribution arising from the maximization of the Tsallis entropy under appropriate constraints.
+        It is defined for q < 3 and the Gaussian distribution is recovered as q -> 1.
+        For q < 1, is it the PDF of a bounded random variable.
+        We only support 1 < q < 3 in this implementation.
+        If you want to use exactly q = 1, use the `zfit.pdf.Gauss` class.
+        During fitting, if you want to start from a Gaussian shape, you can initialize the `q` parameter to be really close to 1.
+        It is related to the Student's t-distribution according to the `corresponding Wikipedia entry <https://en.wikipedia.org/wiki/Q-Gaussian_distribution#Student's_t-distribution>`_
+        and that is how it is implemented here.
 
-                 The q-Gaussian shape for 1 < q < 3 is defined as
+        The q-Gaussian shape for 1 < q < 3 is defined as
 
-                 .. math::
+        .. math::
 
-                     f(x \\mid q, \\mu, \\sigma) = \\frac{1}{C_{q} \\sigma} e_{q}\\left(-\\left(\\frac{x - \\mu}{\\sigma}\\right)^{2}\\right)
+            f(x \\mid q, \\mu, \\sigma) = \\frac{1}{C_{q} \\sigma} e_{q}\\left(-\\left(\\frac{x - \\mu}{\\sigma}\\right)^{2}\\right)
 
-                 with
+        with
 
-                 .. math::
+        .. math::
 
-                     e_q(x) = \\left[1 + (1 - q) x\\right]_{+}^{\\frac{1}{1 - q}}
+            e_q(x) = \\left[1 + (1 - q) x\\right]_{+}^{\\frac{1}{1 - q}}
 
-                 and the normalization over [-inf, inf] of
+        and the normalization over [-inf, inf] of
 
-                 .. math::
+        .. math::
 
-                     C_{q} = \\frac{\\sqrt{\\pi} \\Gamma \\left(\\frac{3 - q}{2 (q - 1)}\\right)}{\\sqrt{q - 1}\\Gamma \\left(\\frac{1}{q - 1}\\right)}
+            C_{q} = \\frac{\\sqrt{\\pi} \\Gamma \\left(\\frac{3 - q}{2 (q - 1)}\\right)}{\\sqrt{q - 1}\\Gamma \\left(\\frac{1}{q - 1}\\right)}
 
-                 The normalization changes for different normalization ranges
+        The normalization changes for different normalization ranges
 
-                 Args:
-                     q: Shape parameter of the q-Gaussian. Must be 1 < q < 3.
-                     mu: Mean of the distribution
-                     sigma: Scale of the distribution
-                     obs: |@doc:pdf.init.obs| Observables of the
-                  model. This will be used as the default space of the PDF and,
-                  if not given explicitly, as the normalization range.
+        Args:
+            q: Shape parameter of the q-Gaussian. Must be 1 < q < 3.
+            mu: Mean of the distribution
+            sigma: Scale of the distribution
+            obs: |@doc:pdf.init.obs| Observables of the
+               model. This will be used as the default space of the PDF and,
+               if not given explicitly, as the normalization range.
 
-                  The default space is used for example in the sample method: if no
-                  sampling limits are given, the default space is used.
+               The default space is used for example in the sample method: if no
+               sampling limits are given, the default space is used.
+ 
+               If the observables are binned and the model is unbinned, the
+               model will be a binned model, by wrapping the model in a
+               :py:class:`~zfit.pdf.BinnedFromUnbinnedPDF`, equivalent to
+               calling :py:meth:`~zfit.pdf.BasePDF.to_binned`.
 
-                  If the observables are binned and the model is unbinned, the
-                  model will be a binned model, by wrapping the model in a
-                  :py:class:`~zfit.pdf.BinnedFromUnbinnedPDF`, equivalent to
-                  calling :py:meth:`~zfit.pdf.BasePDF.to_binned`.
-
-                  The observables are not equal to the domain as it does not restrict or
-                  truncate the model outside this range.
-
-        |@docend:pdf.init.obs|
-                     extended: |@doc:pdf.init.extended| The overall yield of the PDF.
-                  If this is parameter-like, it will be used as the yield,
-                  the expected number of events, and the PDF will be extended.
-                  An extended PDF has additional functionality, such as the
-                  ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
-                     norm: |@doc:pdf.init.norm| Normalization of the PDF.
-                  By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
-                     name: |@doc:pdf.init.name| Name of the PDF.
-                  Maybe has implications on the serialization and deserialization of the PDF.
-                  For a human-readable name, use the label. |@docend:pdf.init.name|
-                     label: |@doc:pdf.init.label| Human-readable name
-                  or label of
-                  the PDF for a better description, to be used with plots etc.
-                  Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
+               The observables are not equal to the domain as it does not restrict or
+               truncate the model outside this range. |@docend:pdf.init.obs|
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+            norm: |@doc:pdf.init.norm| Normalization of the PDF.
+               By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
+            name: |@doc:pdf.init.name| Name of the PDF.
+               Maybe has implications on the serialization and deserialization of the PDF.
+               For a human-readable name, use the label. |@docend:pdf.init.name|
+            label: |@doc:pdf.init.label| Human-readable name
+               or label of
+               the PDF for a better description, to be used with plots etc.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
         """
         from zfit import run
 
@@ -932,57 +933,55 @@ class BifurGauss(WrapDistribution, SerializableMixin):
     ):
         """Bifurcated Gaussian distribution different standard deviations for the left and right side of the mean.
 
-                 The bifurcated Gaussian shape is defined as
+        The bifurcated Gaussian shape is defined as
 
-                 .. math::
+        .. math::
 
-                     f(x \\mid \\mu, \\sigma_{L}, \\sigma_{R}) = \\begin{cases}
-                     A \\exp{\\left(-\\frac{(x - \\mu)^2}{2 \\sigma_{L}^2}\\right)}, & \\mbox{for } x < \\mu \\newline
-                     A \\exp{\\left(-\\frac{(x - \\mu)^2}{2 \\sigma_{R}^2}\\right)}, & \\mbox{for } x \\geq \\mu
-                     \\end{cases}
+            f(x \\mid \\mu, \\sigma_{L}, \\sigma_{R}) = \\begin{cases}
+            A \\exp{\\left(-\\frac{(x - \\mu)^2}{2 \\sigma_{L}^2}\\right)}, & \\mbox{for } x < \\mu \\newline
+            A \\exp{\\left(-\\frac{(x - \\mu)^2}{2 \\sigma_{R}^2}\\right)}, & \\mbox{for } x \\geq \\mu
+            \\end{cases}
 
-                 with the normalization over [-inf, inf] of
+        with the normalization over [-inf, inf] of
 
-                 .. math::
+        .. math::
 
-                     A = \\sqrt{\\frac{2}{\\pi}} \\frac{1}{\\sigma_{L} + \\sigma_{R}}
+            A = \\sqrt{\\frac{2}{\\pi}} \\frac{1}{\\sigma_{L} + \\sigma_{R}}
 
-                 The normalization changes for different normalization ranges
+        The normalization changes for different normalization ranges
 
-                 Args:
-                     mu: Mean of the distribution
-                     sigmal: Standard deviation on the left side of the mean
-                     sigmar: Standard deviation for the right side of the mean
-                     obs: |@doc:pdf.init.obs| Observables of the
-                  model. This will be used as the default space of the PDF and,
-                  if not given explicitly, as the normalization range.
+        Args:
+            mu: Mean of the distribution
+            sigmal: Standard deviation on the left side of the mean
+            sigmar: Standard deviation for the right side of the mean
+            obs: |@doc:pdf.init.obs| Observables of the
+               model. This will be used as the default space of the PDF and,
+               if not given explicitly, as the normalization range.
 
-                  The default space is used for example in the sample method: if no
-                  sampling limits are given, the default space is used.
+               The default space is used for example in the sample method: if no
+               sampling limits are given, the default space is used.
+ 
+               If the observables are binned and the model is unbinned, the
+               model will be a binned model, by wrapping the model in a
+               :py:class:`~zfit.pdf.BinnedFromUnbinnedPDF`, equivalent to
+               calling :py:meth:`~zfit.pdf.BasePDF.to_binned`.
 
-                  If the observables are binned and the model is unbinned, the
-                  model will be a binned model, by wrapping the model in a
-                  :py:class:`~zfit.pdf.BinnedFromUnbinnedPDF`, equivalent to
-                  calling :py:meth:`~zfit.pdf.BasePDF.to_binned`.
-
-                  The observables are not equal to the domain as it does not restrict or
-                  truncate the model outside this range.
-
-        |@docend:pdf.init.obs|
-                     extended: |@doc:pdf.init.extended| The overall yield of the PDF.
-                  If this is parameter-like, it will be used as the yield,
-                  the expected number of events, and the PDF will be extended.
-                  An extended PDF has additional functionality, such as the
-                  ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
-                     norm: |@doc:pdf.init.norm| Normalization of the PDF.
-                  By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
-                     name: |@doc:pdf.init.name| Name of the PDF.
-                  Maybe has implications on the serialization and deserialization of the PDF.
-                  For a human-readable name, use the label. |@docend:pdf.init.name|
-                     label: |@doc:pdf.init.label| Human-readable name
-                  or label of
-                  the PDF for a better description, to be used with plots etc.
-                  Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
+               The observables are not equal to the domain as it does not restrict or
+               truncate the model outside this range. |@docend:pdf.init.obs|
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+            norm: |@doc:pdf.init.norm| Normalization of the PDF.
+               By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
+            name: |@doc:pdf.init.name| Name of the PDF.
+               Maybe has implications on the serialization and deserialization of the PDF.
+               For a human-readable name, use the label. |@docend:pdf.init.name|
+            label: |@doc:pdf.init.label| Human-readable name
+               or label of
+               the PDF for a better description, to be used with plots etc.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
         """
         mu, sigmal, sigmar = self._check_input_params_tfp(mu, sigmal, sigmar)
         params = {"mu": mu, "sigmal": sigmal, "sigmar": sigmar}
@@ -1038,56 +1037,54 @@ class Gamma(WrapDistribution, SerializableMixin):
     ):
         """Gamma distribution.
 
-                 The gamma shape is parametrized here with `gamma`, `beta` and `mu`, following
-                 the same parametrization `as RooFit <https://root.cern.ch/doc/master/classRooGamma.html>`_.
-                 The gamma shape is defined as
+        The gamma shape is parametrized here with `gamma`, `beta` and `mu`, following
+        the same parametrization `as RooFit <https://root.cern.ch/doc/master/classRooGamma.html>`_.
+        The gamma shape is defined as
 
-                 .. math::
+        .. math::
 
-                     f(x \\mid \\gamma, \\beta, \\mu) = (x - \\mu)^{\\gamma - 1} \\exp{\\left(-\\frac{x - \\mu}{\\beta}\\right)} / Z
+            f(x \\mid \\gamma, \\beta, \\mu) = (x - \\mu)^{\\gamma - 1} \\exp{\\left(-\\frac{x - \\mu}{\\beta}\\right)} / Z
 
-                 with the normalization over [0, inf] of
+        with the normalization over [0, inf] of
 
-                 .. math::
+        .. math::
 
-                     Z = \\Gamma(\\gamma) \\beta^{\\gamma}
+            Z = \\Gamma(\\gamma) \\beta^{\\gamma}
 
-                 The normalization changes for different normalization ranges and `Z=1` for the unnormalized shape.
+        The normalization changes for different normalization ranges and `Z=1` for the unnormalized shape.
 
-                 Args:
-                     gamma: Shape parameter of the gamma distribution
-                     beta: Scale parameter of the gamma distribution
-                     mu: Shift of the distribution
-                     obs: |@doc:pdf.init.obs| Observables of the
-                  model. This will be used as the default space of the PDF and,
-                  if not given explicitly, as the normalization range.
+        Args:
+            gamma: Shape parameter of the gamma distribution
+            beta: Scale parameter of the gamma distribution
+            mu: Shift of the distribution
+            obs: |@doc:pdf.init.obs| Observables of the
+               model. This will be used as the default space of the PDF and,
+               if not given explicitly, as the normalization range.
 
-                  The default space is used for example in the sample method: if no
-                  sampling limits are given, the default space is used.
+               The default space is used for example in the sample method: if no
+               sampling limits are given, the default space is used.
+ 
+               If the observables are binned and the model is unbinned, the
+               model will be a binned model, by wrapping the model in a
+               :py:class:`~zfit.pdf.BinnedFromUnbinnedPDF`, equivalent to
+               calling :py:meth:`~zfit.pdf.BasePDF.to_binned`.
 
-                  If the observables are binned and the model is unbinned, the
-                  model will be a binned model, by wrapping the model in a
-                  :py:class:`~zfit.pdf.BinnedFromUnbinnedPDF`, equivalent to
-                  calling :py:meth:`~zfit.pdf.BasePDF.to_binned`.
-
-                  The observables are not equal to the domain as it does not restrict or
-                  truncate the model outside this range.
-
-        |@docend:pdf.init.obs|
-                     extended: |@doc:pdf.init.extended| The overall yield of the PDF.
-                  If this is parameter-like, it will be used as the yield,
-                  the expected number of events, and the PDF will be extended.
-                  An extended PDF has additional functionality, such as the
-                  ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
-                     norm: |@doc:pdf.init.norm| Normalization of the PDF.
-                  By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
-                     name: |@doc:pdf.init.name| Name of the PDF.
-                  Maybe has implications on the serialization and deserialization of the PDF.
-                  For a human-readable name, use the label. |@docend:pdf.init.name|
-                     label: |@doc:pdf.init.label| Human-readable name
-                  or label of
-                  the PDF for a better description, to be used with plots etc.
-                  Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
+               The observables are not equal to the domain as it does not restrict or
+               truncate the model outside this range. |@docend:pdf.init.obs|
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+            norm: |@doc:pdf.init.norm| Normalization of the PDF.
+               By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
+            name: |@doc:pdf.init.name| Name of the PDF.
+               Maybe has implications on the serialization and deserialization of the PDF.
+               For a human-readable name, use the label. |@docend:pdf.init.name|
+            label: |@doc:pdf.init.label| Human-readable name
+               or label of
+               the PDF for a better description, to be used with plots etc.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
         """
         gamma, beta, mu = self._check_input_params_tfp(gamma, beta, mu)
         params = {"gamma": gamma, "beta": beta, "mu": mu}
