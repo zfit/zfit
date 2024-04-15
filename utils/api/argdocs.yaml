@@ -30,10 +30,7 @@ space.init.label: |1+
                 or label for a better description of the space, to be used with plots etc.
                 Has no programmatical functional purpose as identification.
 
-model.init.name: |1+
-    Human-readable name
-                or label of
-                the PDF for better identification.
+
 
 pdf.init.name: |1+
     Name of the PDF.
@@ -45,20 +42,7 @@ pdf.init.label: |1+
                 or label of
                 the PDF for a better description, to be used with plots etc.
                 Has no programmatical functional purpose as identification.
-model.init.obs: |1+
-    Observables of the
-                model. This will be used as the default space of the PDF and,
-                if not given explicitly, as the normalization range.
-                If the observables are binned and the model is unbinned, the
-                model will be a binned model, by wrapping the model in a
-                :py:class:`~zfit.pdf.BinnedFromUnbinnedPDF`, equivalent to
-                calling :py:meth:`~zfit.pdf.BasePDF.to_binned`.
 
-                The default space is used for example in the sample method: if no
-                sampling limits are given, the default space is used.
-
-                The observables are not equal to the domain as it does not restrict or
-                truncate the model outside this range.
 
 model.args.params: |1+
     Mapping of the parameter names to the actual
@@ -146,9 +130,16 @@ pdf.init.obs: |1+
 
                 The default space is used for example in the sample method: if no
                 sampling limits are given, the default space is used.
+  
+                If the observables are binned and the model is unbinned, the
+                model will be a binned model, by wrapping the model in a
+                :py:class:`~zfit.pdf.BinnedFromUnbinnedPDF`, equivalent to
+                calling :py:meth:`~zfit.pdf.BasePDF.to_binned`.
 
                 The observables are not equal to the domain as it does not restrict or
                 truncate the model outside this range.
+     
+     
 
 pdf.init.norm: |1+
   Normalization of the PDF.

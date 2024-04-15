@@ -1,45 +1,40 @@
 #  Copyright (c) 2024 zfit
 from __future__ import annotations
 
+import numpy as np
+
 import zfit
 
-# Addition of limit with the same observables
-simple_limit1 = zfit.Space(obs="obs1", limits=(-5, 1))
-simple_limit2 = zfit.Space(obs="obs1", limits=(3, 7.5))
+# create a multidimensional space
+xobs = zfit.Space("xobs", -4, 4)
+yobs = zfit.Space("yobs", -3, 5)
+zobs = zfit.Space("z", -2, 4)
+obs = xobs * yobs * zobs
+assert obs.n_obs == 3
 
-added_limits = simple_limit1 + simple_limit2
-# OR equivalently
-added_limits = simple_limit1.add(simple_limit2)
+# retrieve a subspace
+xobs = obs.with_obs("xobs")
+yxobs = obs.with_obs(["yobs", "xobs"])  # note the change in order
 
-# multiplication of limits with different observables
-first_limit_lower = (-5, 6)
-first_limit_upper = (5, 10)
+# retrieve the limits
+# they have been overcomplicated in the past, now they are simple. Just access the limits via space.v1
+limits = obs.v1.limits  # (lower, upper)
+lower = obs.v1.lower
+upper = obs.v1.upper
 
-second_limit_lower = (7, 12)
-second_limit_upper = (9, 15)
+assert np.all(lower == [-4, -3, -2])
+assert np.all(upper == [4, 5, 4])
 
-space1 = zfit.Space(obs=["obs1", "obs2"], limits=(first_limit_lower, first_limit_upper))
-space2 = zfit.Space(obs=["obs3", "obs4"], limits=(second_limit_lower, second_limit_upper))
+# the volume is the product of the volumes of the individual spaces
+volume = obs.volume
+assert volume == xobs.volume * yobs.volume * zobs.volume
+assert xobs.volume == xobs.v1.upper - xobs.v1.lower
 
-space4 = space1 * space2
+# for example, creating a linspace object is simple
+x = np.linspace(xobs.v1.lower, xobs.v1.upper, 1000)
+# or
+x = np.linspace(*xobs.v1.limits, 1000)
 
-assert space4.obs == ("obs1", "obs2", "obs3", "obs4")
-assert space4.n_obs == 4
-
-# retreiving the limits
-# for a one dimensional space, we can use `limit1d` as a shortcut
-lower, upper = simple_limit1.limit1d
-
-# However, for a higher dimensional space, this won't work. We can use `space.limits`, which is equivalent to
-# (space.lower, space.upper).
-lower2d, upper2d = space1.limits
-
-# these have shape (nevents, nobs), whereas nevents is usually just 1
-assert lower2d.shape == (1, space1.n_obs)
-
-# order to retrieve now the same limits as from the first space, we can use array notation [:, i]
-lower1_from2d = lower2d[:, 0]
-upper1_from2d = upper2d[:, 0]
-
-assert lower1_from2d == first_limit_lower[0]
-assert upper1_from2d == first_limit_upper[0]
+# or even in 3D
+x = np.linspace(*obs.v1.limits, 1000)
+assert x.shape == (1000, 3)

@@ -116,7 +116,7 @@ Example in short
 
     # minimize
     minimizer = zfit.minimize.Minuit()
-    result = minimizer.minimize(nll)
+    result = minimizer.minimize(nll).update_params()
 
     # calculate errors
     param_errors = result.hesse()
@@ -173,7 +173,7 @@ Fits are performed in three steps:
     minimizer = zfit.minimize.Minuit()
 
     # Stage 3: minimise the given negative log-likelihood
-    result = minimizer.minimize(nll)
+    result = minimizer.minimize(nll).update_params()
 
 Errors are calculated with a further function call to avoid running potentially expensive operations if not needed:
 

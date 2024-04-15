@@ -9,5 +9,5 @@ Recent changes in the newest version :ref:`newest-changelog`
 .. toctree::
     :maxdepth: 2
 
-    upgrade_guide
+    upgrade_guide_020.ipynb
     changelog

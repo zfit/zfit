@@ -15,7 +15,7 @@ for file in ${BASEDIR}/../../examples/*.py; do
   echo "----------------------------------------------------------------------------------------------"
   echo "Running example: $file"
   echo "----------------------------------------------------------------------------------------------"
-  python "$file" || { fail=1 && echo "Failed running example: $file"; }
+  python "$file" || { fail=$((fail+1)) && echo "Failed running example: $file"; }
   echo "----------------------------------------------------------------------------------------------"
   echo "Finished example: $file"
   echo "----------------------------------------------------------------------------------------------"
@@ -27,7 +27,7 @@ echo "========================================="
 if [ $fail -eq 0 ]; then
   echo "all examples run SUCCESSFULLY"
 else
-  echo "some examples FAILED"
+  echo " ${fail} examples FAILED"
 fi
 echo "========================================="
 exit $fail

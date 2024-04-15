@@ -12,7 +12,7 @@ import zfit.z.numpy as znp
 from .. import z
 from ..core.interfaces import ZfitPDF, ZfitSpace
 from ..core.serialmixin import SerializableMixin
-from ..core.space import convert_to_space, supports
+from ..core.space import Space, convert_to_space, supports
 from ..serialization import Serializer, SpaceRepr  # noqa: F401
 from ..util import ztyping
 from ..util.container import convert_to_container
@@ -21,13 +21,38 @@ from .basefunctor import FunctorPDFRepr
 from .functor import BaseFunctor
 
 
-def check_limits(limits: Union[ZfitSpace, list[ZfitSpace]]):
+def check_limits(limits: Union[ZfitSpace, list[ZfitSpace]], obs=None):
     """Check if the limits are valid Spaces and return an iterable."""
     limits = convert_to_container(limits, container=tuple)
+    obs = obs.obs if obs is not None else None
+
+    newlimits = []
     if limits is not None:
-        notspace = [limit for limit in limits if not isinstance(limit, ZfitSpace)]
+        # check if it's a list of exactly two limits given as numbers or arrays
+        if (
+            obs is not None
+            and (
+                np.shape(limits) == (2, len(obs))
+                or (
+                    len(limits) == 2
+                    and np.atleast_1d(limits[0]).shape == (len(obs),)
+                    and np.atleast_1d(limits[1]).shape == (len(obs),)
+                )
+            )
+            and not (isinstance(limits[0], ZfitSpace) or isinstance(limits[1], ZfitSpace))
+        ):
+            limits = [Space(obs=obs, limits=limits)]
+        notspace = []
+        for limit in limits:
+            if not isinstance(limit, ZfitSpace):
+                if obs is None:
+                    notspace.append(limit)
+                else:
+                    limit = Space(obs=obs, limits=limit)
+            newlimits.append(limit)
+        limits = newlimits
         if notspace:
-            msg = f"limits {notspace} are not of type ZfitSpace."
+            msg = f"limits {notspace} are not of type ZfitSpace and obs could not be automatically determined."
             raise TypeError(msg)
     limits_sorted = tuple(sorted(limits, key=lambda limit: limit.v1.lower))
     return check_overlap(limits_sorted)
@@ -125,8 +150,8 @@ class TruncatedPDF(BaseFunctor, SerializableMixin):
         original_init = {"extended": extended, "obs": obs}
         if name is None:
             name = "TruncatedPDF"
-        self._limits = check_limits(limits)
         obs = pdf.space if obs is None else convert_to_space(obs)
+        self._limits = check_limits(limits, obs=obs)
         if extended is None:
             extended = pdf.is_extended
         if extended is True and pdf.is_extended:

@@ -270,7 +270,7 @@ def _sanitize_x_input(x, n_obs):
 
 
 def is_range_definition(limit):
-    if isinstance(limit, LimitRangeDefinition):
+    if isinstance(limit, (LimitRangeDefinition, ZfitSpace)):
         return True
     elif (isinstance(limit, np.ndarray) and limit.dtype != object) or tf.is_tensor(limit):
         return False
