@@ -130,6 +130,11 @@ pdf.init.obs: |1+
 
                 The default space is used for example in the sample method: if no
                 sampling limits are given, the default space is used.
+  
+                If the observables are binned and the model is unbinned, the
+                model will be a binned model, by wrapping the model in a
+                :py:class:`~zfit.pdf.BinnedFromUnbinnedPDF`, equivalent to
+                calling :py:meth:`~zfit.pdf.BasePDF.to_binned`.
 
                 If the observables are binned and the model is unbinned, the
                 model will be a binned model, by wrapping the model in a
@@ -138,6 +143,8 @@ pdf.init.obs: |1+
 
                 The observables are not equal to the domain as it does not restrict or
                 truncate the model outside this range.
+     
+     
 
 pdf.init.norm: |1+
     Normalization of the PDF.
