@@ -217,7 +217,7 @@ class Gauss(WrapDistribution, SerializableMixin):
 
                The default space is used for example in the sample method: if no
                sampling limits are given, the default space is used.
- 
+
                If the observables are binned and the model is unbinned, the
                model will be a binned model, by wrapping the model in a
                :py:class:`~zfit.pdf.BinnedFromUnbinnedPDF`, equivalent to
@@ -734,7 +734,7 @@ class StudentT(WrapDistribution, SerializableMixin):
 
                The default space is used for example in the sample method: if no
                sampling limits are given, the default space is used.
- 
+
                If the observables are binned and the model is unbinned, the
                model will be a binned model, by wrapping the model in a
                :py:class:`~zfit.pdf.BinnedFromUnbinnedPDF`, equivalent to
@@ -841,7 +841,7 @@ class QGauss(WrapDistribution, SerializableMixin):
 
                The default space is used for example in the sample method: if no
                sampling limits are given, the default space is used.
- 
+
                If the observables are binned and the model is unbinned, the
                model will be a binned model, by wrapping the model in a
                :py:class:`~zfit.pdf.BinnedFromUnbinnedPDF`, equivalent to
@@ -960,7 +960,7 @@ class BifurGauss(WrapDistribution, SerializableMixin):
 
                The default space is used for example in the sample method: if no
                sampling limits are given, the default space is used.
- 
+
                If the observables are binned and the model is unbinned, the
                model will be a binned model, by wrapping the model in a
                :py:class:`~zfit.pdf.BinnedFromUnbinnedPDF`, equivalent to
@@ -1063,7 +1063,7 @@ class Gamma(WrapDistribution, SerializableMixin):
 
                The default space is used for example in the sample method: if no
                sampling limits are given, the default space is used.
- 
+
                If the observables are binned and the model is unbinned, the
                model will be a binned model, by wrapping the model in a
                :py:class:`~zfit.pdf.BinnedFromUnbinnedPDF`, equivalent to

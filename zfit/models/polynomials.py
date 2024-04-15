@@ -69,7 +69,7 @@ class RecursivePolynomial(BasePDF):
 
                The default space is used for example in the sample method: if no
                sampling limits are given, the default space is used.
- 
+
                If the observables are binned and the model is unbinned, the
                model will be a binned model, by wrapping the model in a
                :py:class:`~zfit.pdf.BinnedFromUnbinnedPDF`, equivalent to
@@ -274,7 +274,7 @@ class Legendre(RecursivePolynomial, SerializableMixin):
 
                The default space is used for example in the sample method: if no
                sampling limits are given, the default space is used.
- 
+
                If the observables are binned and the model is unbinned, the
                model will be a binned model, by wrapping the model in a
                :py:class:`~zfit.pdf.BinnedFromUnbinnedPDF`, equivalent to
@@ -385,7 +385,7 @@ class Chebyshev(RecursivePolynomial, SerializableMixin):
 
                The default space is used for example in the sample method: if no
                sampling limits are given, the default space is used.
- 
+
                If the observables are binned and the model is unbinned, the
                model will be a binned model, by wrapping the model in a
                :py:class:`~zfit.pdf.BinnedFromUnbinnedPDF`, equivalent to

@@ -13,7 +13,7 @@ space.init.limits: |1+
 space.init.binning: |1+
     Binning of the space.
                 Currently, only regular and variable binning *with a name* is supported.
-                If an integer or a list of integers is given with 
+                If an integer or a list of integers is given with
                 lengths equal to the number of observables,
                 it is interpreted as the number of bins and
                 a regular binning is automatically created using the limits as the
@@ -109,7 +109,7 @@ data.init.use_hash: |1+
 
 data.init.returns: |1+
     ``zfit.Data`` or ``zfit.BinnedData``:
-                A ``Data`` object containing the unbinned data 
+                A ``Data`` object containing the unbinned data
                 or a ``BinnedData`` if the obs is binned.
 
 binnedpdf.pdf.x: |1+
@@ -130,7 +130,7 @@ pdf.init.obs: |1+
 
                 The default space is used for example in the sample method: if no
                 sampling limits are given, the default space is used.
-  
+
                 If the observables are binned and the model is unbinned, the
                 model will be a binned model, by wrapping the model in a
                 :py:class:`~zfit.pdf.BinnedFromUnbinnedPDF`, equivalent to
