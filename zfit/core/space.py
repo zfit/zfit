@@ -1285,7 +1285,7 @@ class Space(
                These are the lower and upper limits. |@docend:space.init.limits|
             binning: |@doc:space.init.binning| Binning of the space.
                Currently, only regular and variable binning *with a name* is supported.
-               If an integer or a list of integers is given with 
+               If an integer or a list of integers is given with
                lengths equal to the number of observables,
                it is interpreted as the number of bins and
                a regular binning is automatically created using the limits as the

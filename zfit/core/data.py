@@ -192,7 +192,7 @@ class Data(
 
         Returns:
             |@doc:data.init.returns| ``zfit.Data`` or ``zfit.BinnedData``:
-               A ``Data`` object containing the unbinned data 
+               A ``Data`` object containing the unbinned data
                or a ``BinnedData`` if the obs is binned. |@docend:data.init.returns|
 
         Raises:
@@ -461,7 +461,7 @@ class Data(
 
         Returns:
             |@doc:data.init.returns| ``zfit.Data`` or ``zfit.BinnedData``:
-               A ``Data`` object containing the unbinned data 
+               A ``Data`` object containing the unbinned data
                or a ``BinnedData`` if the obs is binned. |@docend:data.init.returns|
 
         Raises:
@@ -562,7 +562,7 @@ class Data(
 
         Returns:
             |@doc:data.init.returns| ``zfit.Data`` or ``zfit.BinnedData``:
-               A ``Data`` object containing the unbinned data 
+               A ``Data`` object containing the unbinned data
                or a ``BinnedData`` if the obs is binned. |@docend:data.init.returns|
 
         Raises:
@@ -727,7 +727,7 @@ class Data(
 
         Returns:
             |@doc:data.init.returns| ``zfit.Data`` or ``zfit.BinnedData``:
-               A ``Data`` object containing the unbinned data 
+               A ``Data`` object containing the unbinned data
                or a ``BinnedData`` if the obs is binned. |@docend:data.init.returns|
 
         Raises:
@@ -806,7 +806,7 @@ class Data(
 
         Returns:
             |@doc:data.init.returns| ``zfit.Data`` or ``zfit.BinnedData``:
-               A ``Data`` object containing the unbinned data 
+               A ``Data`` object containing the unbinned data
                or a ``BinnedData`` if the obs is binned. |@docend:data.init.returns|
 
         Raises:
