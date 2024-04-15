@@ -70,6 +70,11 @@ class RecursivePolynomial(BasePDF):
                The default space is used for example in the sample method: if no
                sampling limits are given, the default space is used.
 
+               If the observables are binned and the model is unbinned, the
+               model will be a binned model, by wrapping the model in a
+               :py:class:`~zfit.pdf.BinnedFromUnbinnedPDF`, equivalent to
+               calling :py:meth:`~zfit.pdf.BasePDF.to_binned`.
+
                The observables are not equal to the domain as it does not restrict or
                truncate the model outside this range. |@docend:pdf.init.obs|
             coeffs: |@doc:pdf.polynomial.init.coeffs| Coefficients of the sum of the polynomial.
@@ -265,6 +270,11 @@ class Legendre(RecursivePolynomial, SerializableMixin):
                The default space is used for example in the sample method: if no
                sampling limits are given, the default space is used.
 
+               If the observables are binned and the model is unbinned, the
+               model will be a binned model, by wrapping the model in a
+               :py:class:`~zfit.pdf.BinnedFromUnbinnedPDF`, equivalent to
+               calling :py:meth:`~zfit.pdf.BasePDF.to_binned`.
+
                The observables are not equal to the domain as it does not restrict or
                truncate the model outside this range. |@docend:pdf.init.obs|
             coeffs: A list of the coefficients for the polynomials of order 1+ in the sum.
@@ -365,6 +375,11 @@ class Chebyshev(RecursivePolynomial, SerializableMixin):
 
                The default space is used for example in the sample method: if no
                sampling limits are given, the default space is used.
+
+               If the observables are binned and the model is unbinned, the
+               model will be a binned model, by wrapping the model in a
+               :py:class:`~zfit.pdf.BinnedFromUnbinnedPDF`, equivalent to
+               calling :py:meth:`~zfit.pdf.BasePDF.to_binned`.
 
                The observables are not equal to the domain as it does not restrict or
                truncate the model outside this range. |@docend:pdf.init.obs|

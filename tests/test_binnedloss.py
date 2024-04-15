@@ -192,6 +192,7 @@ def test_binned_loss(weights, Loss, simultaneous):
     plt.title(title)
     mplhep.histplot(binned_gauss.to_hist(), label="PDF before fit")
     mplhep.histplot(test_values_binned.to_hist(), label="Data")
+    pytest.zfit_savefig(folder=plot_folder)
 
     # timing, uncomment to test
     # loss.value_gradient(params=loss.get_params())

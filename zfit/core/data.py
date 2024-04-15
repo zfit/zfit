@@ -192,7 +192,8 @@ class Data(
 
         Returns:
             |@doc:data.init.returns| ``zfit.Data`` or ``zfit.BinnedData``:
-               A ``Data`` object containing the unbinned data or a ``BinnedData`` if the obs is binned. |@docend:data.init.returns|
+               A ``Data`` object containing the unbinned data
+               or a ``BinnedData`` if the obs is binned. |@docend:data.init.returns|
 
         Raises:
             ShapeIncompatibleError: If the shape of the data is incompatible with the observables.
@@ -460,7 +461,8 @@ class Data(
 
         Returns:
             |@doc:data.init.returns| ``zfit.Data`` or ``zfit.BinnedData``:
-               A ``Data`` object containing the unbinned data or a ``BinnedData`` if the obs is binned. |@docend:data.init.returns|
+               A ``Data`` object containing the unbinned data
+               or a ``BinnedData`` if the obs is binned. |@docend:data.init.returns|
 
         Raises:
             ValueError: If the observables are not in the dataframe.
@@ -560,7 +562,8 @@ class Data(
 
         Returns:
             |@doc:data.init.returns| ``zfit.Data`` or ``zfit.BinnedData``:
-               A ``Data`` object containing the unbinned data or a ``BinnedData`` if the obs is binned. |@docend:data.init.returns|
+               A ``Data`` object containing the unbinned data
+               or a ``BinnedData`` if the obs is binned. |@docend:data.init.returns|
 
         Raises:
             ValueError: If the observables are not in the mapping.
@@ -724,7 +727,8 @@ class Data(
 
         Returns:
             |@doc:data.init.returns| ``zfit.Data`` or ``zfit.BinnedData``:
-               A ``Data`` object containing the unbinned data or a ``BinnedData`` if the obs is binned. |@docend:data.init.returns|
+               A ``Data`` object containing the unbinned data
+               or a ``BinnedData`` if the obs is binned. |@docend:data.init.returns|
 
         Raises:
             TypeError: If the array is not a numpy array.
@@ -802,7 +806,8 @@ class Data(
 
         Returns:
             |@doc:data.init.returns| ``zfit.Data`` or ``zfit.BinnedData``:
-               A ``Data`` object containing the unbinned data or a ``BinnedData`` if the obs is binned. |@docend:data.init.returns|
+               A ``Data`` object containing the unbinned data
+               or a ``BinnedData`` if the obs is binned. |@docend:data.init.returns|
 
         Raises:
             TypeError: If the tensor is not a tensorflow tensor.

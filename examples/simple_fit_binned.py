@@ -24,7 +24,7 @@ data_binned = data.to_binned(obs_binned)  # could also be a hist object
 nll = zfit.loss.BinnedNLL(model=gauss_binned, data=data_binned)
 
 minimizer = zfit.minimize.Minuit(gradient="zfit")
-result = minimizer.minimize(nll)
+result = minimizer.minimize(nll).update_params()
 
 param_errors = result.hesse()
 

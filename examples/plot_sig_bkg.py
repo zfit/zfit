@@ -22,6 +22,11 @@ gauss = zfit.pdf.Gauss(mu=mu, sigma=sigma, obs=obs)
 exponential = zfit.pdf.Exponential(lambd, obs=obs)
 model = zfit.pdf.SumPDF([gauss, exponential], fracs=frac)
 
+# for a quick plot, we can use the attached "plotter"
+plt.figure()
+plt.title("Model before fit, using plotter")
+model.plot.plotpdf()
+
 # data
 n_sample = 5000
 
@@ -70,12 +75,14 @@ def plot_pdf(title):
 
 # plot the pdf BEFORE fitting
 plot_pdf("Before fitting")
+
+
 # create NLL
 nll = zfit.loss.UnbinnedNLL(model=model, data=data)
 
 # create a minimizer
 minimizer = zfit.minimize.Minuit()
-result = minimizer.minimize(nll)
+result = minimizer.minimize(nll).update_params()
 
 # do the error calculations, here with minos
 param_errors, _ = result.errors()

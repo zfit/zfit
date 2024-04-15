@@ -1583,6 +1583,11 @@ def check_convert_param_values_assign(params, values, allow_partial=False):
     """
     if isinstance(params, ZfitResult) and values is None:
         params, values = None, params
+    elif isinstance(params, Mapping):
+        if values is not None:
+            msg = "Cannot set values to parameters if params are a Mapping."
+            raise ValueError(msg)
+        params, values = tuple(params.keys()), tuple(params.values())
     elif not isinstance(values, ZfitResult):
         params = convert_to_container(params)
         if params is None:

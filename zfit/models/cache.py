@@ -76,7 +76,8 @@ class CachedPDF(BaseFunctor, SerializableMixin):
                the expected number of events, and the PDF will be extended.
                An extended PDF has additional functionality, such as the
                ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
-            norm: |@doc:model.init.norm| The normalization of the PDF. |@docend:model.init.norm|
+            norm: |@doc:pdf.init.norm| Normalization of the PDF.
+               By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
             name: |@doc:pdf.init.name| Name of the PDF.
                Maybe has implications on the serialization and deserialization of the PDF.
                For a human-readable name, use the label. |@docend:pdf.init.name|
