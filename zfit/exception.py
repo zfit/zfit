@@ -49,6 +49,7 @@ __all__ = [
     "LogicalUndefinedOperationError",
     "NumpyArrayNotSerializableError",
     "AnalyticGradientNotAvailable",
+    "IpyoptPicklingError",
     "NONE",
 ]
 
@@ -107,3 +108,11 @@ class NameAlreadyTakenError(Exception):
             msg="NameAlreadyTakenError has been removed and the behavior has substantially changed:"
             "parameters are now allowed to exist with the same as long as they are not within the same PDF/loss/func."
         )
+
+
+class IpyoptPicklingError(TypeError):
+    pass
+
+
+class OutsideLimitsError(Exception):
+    pass

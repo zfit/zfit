@@ -84,7 +84,7 @@ Another feature for the PDF is to calculate its integral in a certain limit. Thi
     print(f"Integral={integral_norm}")
 
 In this case the CB has been normalised using the range defined in the observable.
-Conversely, the ``norm_range`` in which the PDF is normalised can also be specified as input.
+Conversely, the ``norm`` in which the PDF is normalised can also be specified as input.
 
 Composite PDF
 -------------

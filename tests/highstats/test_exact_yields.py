@@ -88,7 +88,8 @@ def test_yield_bias(exact_nsample, ntoys=300):
         f'{"Exact" if exact_nsample else "Binomial sum"} sampled. Fit with {minimizer.name}.'
     )
 
-    counts, edges, _ = plt.hist(nsigs, bins=50, label=" Signal yields", alpha=0.5)
+    # remove np.array if fixed: https://github.com/matplotlib/matplotlib/issues/22879
+    counts, edges, _ = plt.hist(np.array(nsigs), bins=50, label=" Signal yields", alpha=0.5)
     npoints = 50
     plt.plot(
         np.ones(npoints) * true_nsig, np.linspace(0, np.max(counts)), "gx", label="true"

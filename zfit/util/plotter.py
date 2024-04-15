@@ -133,7 +133,7 @@ def plot_model_pdfV1(
     plotfunc(x, y, linestyle=linestyle, **plotkwargs)
     if full:
         ax.set_xlabel(obs.label)
-        ylabel = "Probability density" if not extended else "Probability"
+        ylabel = "Probability density" if not extended else "Extended probability density"
         ax.set_ylabel(ylabel)
         plt.legend()
     return ax

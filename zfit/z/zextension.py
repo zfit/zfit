@@ -255,6 +255,12 @@ class FunctionWrapperRegistry:
 
             self.currently_traced.add(func)
             nonlocal wrapped_func
+            # todo: we could return the function here? Need still registry to avoid deadlock in TF
+            # try:
+            #     value = wrapped_func(*args, **kwargs)
+            # finally:
+            #     self.currently_traced.remove(func)
+            # return value
 
             def deleter(proxy):
                 del proxy

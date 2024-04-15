@@ -4,29 +4,18 @@ Changelog
 
 .. _newest-changelog:
 
-Develop
+0.20.1 (14 Apr 2024)
 ========================
 
 Major Features and Improvements
 -------------------------------
-
-Breaking changes
-------------------
-
-Deprecations
--------------
+- fix dumping and add convenience wrapper ``zfit.dill`` to dump and load objects with dill (a more powerful pickle). This way, any zfit object can be saved and loaded, such as ``FitResult`` that contains all other important objects to recreate the fit.
+- improved performance for numerical gradient calculation, fixing also a minor numerical issue.
 
 Bug fixes and small changes
 ---------------------------
+- runing binned fits without a graph could deadlock, fixed.
 
-Experimental
-------------
-
-Requirement changes
--------------------
-
-Thanks
-------
 
 0.20.0 (12 Apr 2024)
 ========================
@@ -54,7 +43,7 @@ Major Features and Improvements
 - add ``StudentT`` PDF, the standard Student's t distribution, taken from `tensorflow-probability implementation <https://www.tensorflow.org/probability/api_docs/python/tfp/distributions/StudentT>`_.
 - add ``GaussExpTail`` and ``GeneralizedGaussExpTail`` PDFs, which are a Gaussian with an exponential tail on one side and a Gaussian with different sigmas on each side and different exponential tails on each side respectively.
 - add ``QGauss`` PDF, a distribution that arises from the maximization of the Tsallis entropy under appropriate constraints, see `here <https://en.wikipedia.org/wiki/Q-Gaussian_distribution>`_.
-- add ``BifurGauss` PDF, a Gaussian distribution with different sigmas on each side of the mean.
+- add ``BifurGauss`` PDF, a Gaussian distribution with different sigmas on each side of the mean.
 - add ``Bernstein`` PDF, which is a PDF defined by a linear combination of Bernstein polynomials given their coefficients.
 - add ``Gamma`` PDF, the Gamma distribution.
 - ``Data`` has now a ``with_weights`` method that returns a new data object with different weights and an improved ``with_obs`` that allows to set obs with new limits. These replace the ``set_weights`` and ``set_data_range`` methods for a more functional approach.
@@ -77,7 +66,7 @@ This release contains multiple "breaking changes", however, the vast majority if
 - ``Data.from_root``: deprecated arguments ``branches`` and ``branch_aliases`` have been removed. Use ``obs`` and ``obs_aliases`` instead.
 - ``NameAlreadyTakenError`` was removed, see above for the new behavior. This should not have an effect on any existing code *except if you relied on the error being thrown*.
 - Data objects had an intrinsic, TensorFlow V1 legacy behavior: they were actually cut when the data was *retrieved*. This is now changed and the data is cut when it is created. This should not have any impact on existing code and just improve runtime and memory usage.
-- Partial integration used to use some broadcasting tricks that could potentially fail. It uses now a dynamic while loop that _could_ be slower but works for arbitrary PDFs. This should not have any impact on existing code and just improve stability (but technically, the data given to the PDF _if doing partial integration_ is now "different", in the sense that it's now not different anymore from any other call)
+- Partial integration used to use some broadcasting tricks that could potentially fail. It uses now a dynamic while loop that _could_ be slower but works for arbitrary PDFs. This should not have any impact on existing code and just improve stability (but technically, the data given to the PDF *if doing partial integration* is now "different", in the sense that it's now not different anymore from any other call)
 - if a ``tf.Variable`` was used to store the number of sampled values in a sampler, it was possible to change the value of that variable to change the number of samples drawn. This is now not possible anymore and the number of samples should be given as an argument ``n`` to the ``resample`` method, as was possible since a long time.
 - ``create_sampler`` has a breaking change for ``fixed_params``: when the argument was set to False, any change in the parameters would be reflected when resampling.
   This highly statebased behavior was confusing and is now removed. The argument is now called ``params``
@@ -126,7 +115,7 @@ Requirement changes
 
 Thanks
 ------
-- huge thanks to @iasonkrommydas for the addition of various PDFs and to welcome him on board as a new contributor!
+- huge thanks to @ikrommyd (Iason Krommydas) for the addition of various PDFs and to welcome him on board as a new contributor!
 - @anjabeck for the addition of the ``ChiSquared`` PDF
 
 0.18.2 (13 Mar 2024)
@@ -271,7 +260,7 @@ Bug fixes and small changes
 Requirement changes
 -------------------
 - update to TensorFlow 2.12
-- removed tf_quant_finance
+- removed ``tf_quant_finance``
 
 
 0.13.2 (15. June 2023)
@@ -313,7 +302,7 @@ Bug fixes and small changes
 
 Experimental
 ------------
-- Added support on a best-effort for human-readable serialization of objects including an HS3-like representation, find a `tutorial on serialization here<https://zfit-tutorials.readthedocs.io/en/latest/tutorials/components/README.html#serialization>`_. Most built-in unbinned PDFs are supported. This is still experimental and not yet fully supported. Dumping can be performed safely, loading maybe easily breaks (also between versions), so do not rely on it yet. Everything else - apart of trying to dump - should only be used for playing around and giving feedback purposes.
+- Added support on a best-effort for human-readable serialization of objects including an HS3-like representation, find a `tutorial on serialization here <https://zfit-tutorials.readthedocs.io/en/latest/tutorials/components/README.html#serialization>`_. Most built-in unbinned PDFs are supported. This is still experimental and not yet fully supported. Dumping can be performed safely, loading maybe easily breaks (also between versions), so do not rely on it yet. Everything else - apart of trying to dump - should only be used for playing around and giving feedback purposes.
 
 Requirement changes
 -------------------
@@ -480,11 +469,11 @@ Major Features and Improvements
 Deprecations
 -------------
 - the default name of the uncertainty methods ``hesse`` and ``errors`` depended on
-  the method used (such as 'minuit_hesse', 'zfit_errors' etc.) and would be the exact method name.
+  the method used (such as ``"minuit_hesse"``, ``"zfit_errors"`` etc.) and would be the exact method name.
   New names are now 'hesse' and 'errors', independent of the method used. This reflects better that the
   methods, while internally different, produce the same result.
   To update, use 'hesse' instead of 'minuit_hesse' or 'hesse_np' and 'errors' instead of 'zfit_errors'
-  or 'minuit_minos' in order to access the uncertainties in the fitresult.
+  or ``"minuit_minos"`` in order to access the uncertainties in the fitresult.
   Currently, the old names are still available for backwards compatibility.
   If a name was explicitly chosen in the error method, nothing changed.
 
@@ -846,7 +835,7 @@ Requirement changes
 -------------------
 
 - TensorFlow==2.3 (before 2.2)
-- tensorflow_probability==0.11
+- ``tensorflow_probability==0.11``
 - tensorflow-addons  # spline interpolation in convolution
 
 
@@ -970,7 +959,7 @@ Major Features and Improvements
 
   To test if a value is inside a space, ``Space.inside`` can be used. To filter values, ``Space.filter``.
 
-  The limits returned are now by default numpy arrays with the shape (1, n_obs). This corresponds well
+  The limits returned are now by default numpy arrays with the shape ``(1, n_obs)``. This corresponds well
   to the old layout and can, using ``z.unstack_x(lower)`` be treated like ``Data``. This has also some
   consequences for the output format of ``rect_area``: this is now a vector.
 
@@ -1048,7 +1037,7 @@ Bug fixes and small changes
 
 Experimental
 ------------
-- added a new error method, 'zfit_error' that is equivalent to 'minuit_minos', but not fully
+- added a new error method, ``'zfit_error'`` that is equivalent to ``'minuit_minos'``, but not fully
   stable. It can be used with other minimizers as well, not only Minuit.
 
 Requirement changes
@@ -1279,7 +1268,7 @@ Fixed Partial numeric integration
 Bugfixes mostly, a few major fixes. Partial numeric integration works now.
 
 Bugfixes
- - data_range cuts are now applied correctly, also in several dimensions when a subset is selected
+ - ``data_range`` cuts are now applied correctly, also in several dimensions when a subset is selected
    (which happens internally of some Functors, e.g. ProductPDF). Before, only the selected obs was respected for cuts.
  - parital integration had a wrong take on checking limits (now uses supports).
 
@@ -1291,7 +1280,7 @@ With 0.3.2, bugfixes and three changes in the API/behavior
 
 Breaking changes
 ----------------
- - tfp distributions wrapping is now different with dist_kwargs allowing for non-Parameter arguments (like other dists)
+ - tfp distributions wrapping is now different with ``dist_kwargs`` allowing for non-Parameter arguments (like other dists)
  - sampling allows now for importance sampling (sampler in Model specified differently)
  - ``model.sample`` now also returns a tensor, being consistent with ``pdf`` and ``integrate``
 

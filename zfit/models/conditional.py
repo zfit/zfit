@@ -106,7 +106,9 @@ class ConditionalPDFV1(BaseFunctor):
         param_x_indices = {p: x.obs.index(p_space.obs[0]) for p, p_space in self._cond.items()}
         x_values = x.value()
 
-        if self._use_vectorized_map:
+        from zfit import run
+
+        if self._use_vectorized_map and run.get_graph_mode() is not False:
             tf_map = tf.vectorized_map
         else:
             output_signature = tf.TensorSpec(shape=(1, *x_values.shape[1:-1]), dtype=self.dtype)
@@ -150,7 +152,7 @@ class ConditionalPDFV1(BaseFunctor):
         x_values = x.value()
         pdf = self.pdfs[0]
 
-        if self._use_vectorized_map:
+        if self._use_vectorized_map and run.get_graph_mode() is not False:
             tf_map = tf.vectorized_map
         else:
             output_signature = tf.TensorSpec(shape=(1, *x_values.shape[1:-1]), dtype=self.dtype)
@@ -180,7 +182,9 @@ class ConditionalPDFV1(BaseFunctor):
         #     x_values = z.random.sample_with_replacement(x_values, axis=0, sample_shape=(n,))
         pdf = self.pdfs[0]
 
-        if self._use_vectorized_map:
+        from zfit import run  # todo: we could use the normal python map for eager?
+
+        if self._use_vectorized_map and run.get_graph_mode() is not False:
             tf_map = tf.vectorized_map
         else:
             output_signature = tf.TensorSpec(shape=(1, pdf.n_obs), dtype=self.dtype)

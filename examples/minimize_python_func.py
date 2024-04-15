@@ -63,5 +63,5 @@ params = [1, -3, 2, 1.4, 11]
 result = minimizer.minimize(func, params)
 
 # estimate errors
-result.hesse(name="hesse")
-result.errors(name="errors")
+result.hesse()
+result.errors()

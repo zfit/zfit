@@ -36,7 +36,7 @@ clip the value to the limits given by :py:meth:`~zfit.Parameter.lower_limit` and
 
 The value of the parameter can be changed with the :py:func:`~zfit.Parameter.set_value` method.
 Using this method as a context manager, the value can also temporarily changed.
-However, be aware that anything _dependent_ on the parameter will have a value with the
+However, be aware that anything *dependent* on the parameter will have a value with the
 parameter evaluated with the new value at run-time:
 
 .. jupyter-execute::

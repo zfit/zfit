@@ -211,7 +211,20 @@ class Gauss(WrapDistribution, SerializableMixin):
         Args:
             mu: Mean of the gaussian dist
             sigma: Standard deviation or spread of the gaussian
-            obs: Observables and normalization range the pdf is defined in
+            obs: |@doc:pdf.init.obs| Observables of the
+               model. This will be used as the default space of the PDF and,
+               if not given explicitly, as the normalization range.
+
+               The default space is used for example in the sample method: if no
+               sampling limits are given, the default space is used.
+
+               If the observables are binned and the model is unbinned, the
+               model will be a binned model, by wrapping the model in a
+               :py:class:`~zfit.pdf.BinnedFromUnbinnedPDF`, equivalent to
+               calling :py:meth:`~zfit.pdf.BasePDF.to_binned`.
+
+               The observables are not equal to the domain as it does not restrict or
+               truncate the model outside this range. |@docend:pdf.init.obs|
             extended: |@doc:pdf.init.extended| The overall yield of the PDF.
                If this is parameter-like, it will be used as the yield,
                the expected number of events, and the PDF will be extended.
@@ -219,10 +232,13 @@ class Gauss(WrapDistribution, SerializableMixin):
                ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
             norm: |@doc:pdf.init.norm| Normalization of the PDF.
                By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
-            name: |@doc:model.init.name| Human-readable name
+            name: |@doc:pdf.init.name| Name of the PDF.
+               Maybe has implications on the serialization and deserialization of the PDF.
+               For a human-readable name, use the label. |@docend:pdf.init.name|
+            label: |@doc:pdf.init.label| Human-readable name
                or label of
-               the PDF for better identification. |@docend:model.init.name|
-               label: |@doc:model.init.label| Label of the PDF, if None is given, it will be the name. |@docend:model.init.label|
+               the PDF for a better description, to be used with plots etc.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
         """
         mu, sigma = self._check_input_params_tfp(mu, sigma)
         params = {"mu": mu, "sigma": sigma}
@@ -707,19 +723,20 @@ class StudentT(WrapDistribution, SerializableMixin):
             ndof: Number of degrees of freedom
             mu: Mean of the distribution
             sigma: Scale of the distribution
-            obs: |@doc:model.init.obs| Observables of the
+            obs: |@doc:pdf.init.obs| Observables of the
                model. This will be used as the default space of the PDF and,
                if not given explicitly, as the normalization range.
+
+               The default space is used for example in the sample method: if no
+               sampling limits are given, the default space is used.
+
                If the observables are binned and the model is unbinned, the
                model will be a binned model, by wrapping the model in a
                :py:class:`~zfit.pdf.BinnedFromUnbinnedPDF`, equivalent to
                calling :py:meth:`~zfit.pdf.BasePDF.to_binned`.
 
-               The default space is used for example in the sample method: if no
-               sampling limits are given, the default space is used.
-
                The observables are not equal to the domain as it does not restrict or
-               truncate the model outside this range. |@docend:model.init.obs|
+               truncate the model outside this range. |@docend:pdf.init.obs|
             extended: |@doc:pdf.init.extended| The overall yield of the PDF.
                If this is parameter-like, it will be used as the yield,
                the expected number of events, and the PDF will be extended.
@@ -813,19 +830,20 @@ class QGauss(WrapDistribution, SerializableMixin):
             q: Shape parameter of the q-Gaussian. Must be 1 < q < 3.
             mu: Mean of the distribution
             sigma: Scale of the distribution
-            obs: |@doc:model.init.obs| Observables of the
+            obs: |@doc:pdf.init.obs| Observables of the
                model. This will be used as the default space of the PDF and,
                if not given explicitly, as the normalization range.
+
+               The default space is used for example in the sample method: if no
+               sampling limits are given, the default space is used.
+
                If the observables are binned and the model is unbinned, the
                model will be a binned model, by wrapping the model in a
                :py:class:`~zfit.pdf.BinnedFromUnbinnedPDF`, equivalent to
                calling :py:meth:`~zfit.pdf.BasePDF.to_binned`.
 
-               The default space is used for example in the sample method: if no
-               sampling limits are given, the default space is used.
-
                The observables are not equal to the domain as it does not restrict or
-               truncate the model outside this range. |@docend:model.init.obs|
+               truncate the model outside this range. |@docend:pdf.init.obs|
             extended: |@doc:pdf.init.extended| The overall yield of the PDF.
                If this is parameter-like, it will be used as the yield,
                the expected number of events, and the PDF will be extended.
@@ -931,19 +949,20 @@ class BifurGauss(WrapDistribution, SerializableMixin):
             mu: Mean of the distribution
             sigmal: Standard deviation on the left side of the mean
             sigmar: Standard deviation for the right side of the mean
-            obs: |@doc:model.init.obs| Observables of the
+            obs: |@doc:pdf.init.obs| Observables of the
                model. This will be used as the default space of the PDF and,
                if not given explicitly, as the normalization range.
+
+               The default space is used for example in the sample method: if no
+               sampling limits are given, the default space is used.
+
                If the observables are binned and the model is unbinned, the
                model will be a binned model, by wrapping the model in a
                :py:class:`~zfit.pdf.BinnedFromUnbinnedPDF`, equivalent to
                calling :py:meth:`~zfit.pdf.BasePDF.to_binned`.
 
-               The default space is used for example in the sample method: if no
-               sampling limits are given, the default space is used.
-
                The observables are not equal to the domain as it does not restrict or
-               truncate the model outside this range. |@docend:model.init.obs|
+               truncate the model outside this range. |@docend:pdf.init.obs|
             extended: |@doc:pdf.init.extended| The overall yield of the PDF.
                If this is parameter-like, it will be used as the yield,
                the expected number of events, and the PDF will be extended.
@@ -1033,19 +1052,20 @@ class Gamma(WrapDistribution, SerializableMixin):
             gamma: Shape parameter of the gamma distribution
             beta: Scale parameter of the gamma distribution
             mu: Shift of the distribution
-            obs: |@doc:model.init.obs| Observables of the
+            obs: |@doc:pdf.init.obs| Observables of the
                model. This will be used as the default space of the PDF and,
                if not given explicitly, as the normalization range.
+
+               The default space is used for example in the sample method: if no
+               sampling limits are given, the default space is used.
+
                If the observables are binned and the model is unbinned, the
                model will be a binned model, by wrapping the model in a
                :py:class:`~zfit.pdf.BinnedFromUnbinnedPDF`, equivalent to
                calling :py:meth:`~zfit.pdf.BasePDF.to_binned`.
 
-               The default space is used for example in the sample method: if no
-               sampling limits are given, the default space is used.
-
                The observables are not equal to the domain as it does not restrict or
-               truncate the model outside this range. |@docend:model.init.obs|
+               truncate the model outside this range. |@docend:pdf.init.obs|
             extended: |@doc:pdf.init.extended| The overall yield of the PDF.
                If this is parameter-like, it will be used as the yield,
                the expected number of events, and the PDF will be extended.

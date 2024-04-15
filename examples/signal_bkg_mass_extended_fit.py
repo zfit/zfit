@@ -27,33 +27,42 @@ data = model.create_sampler(n=21200)
 data.resample()
 
 # set the values to a start value for the fit
-mu.set_value(0.5)
-sigma.set_value(1.2)
-lambd.set_value(-0.05)
+zfit.param.set_values({mu: 0.5, sigma: 1.2, lambd: -0.05})
+# alternatively, we can set the values individually
+# mu.set_value(0.5)
+# sigma.set_value(1.2)
+# lambd.set_value(-0.05)
 
 # create NLL
 nll = zfit.loss.ExtendedUnbinnedNLL(model=model, data=data)
 
 # create a minimizer
-minimizer = zfit.minimize.Minuit()
-result = minimizer.minimize(nll)
+# this uses the automatic gradient (more precise, but can fail)
+minimizer = zfit.minimize.Minuit(gradient="zfit")
+result = minimizer.minimize(nll).update_params()
 # do the error calculations, here with hesse, than with minos
 param_hesse = result.hesse()
+
+# the second return value is a new FitResult if a new minimum was found
+
 (
     param_errors,
     _,
-) = result.errors()  # this returns a new FitResult if a new minimum was found
+) = result.errors()
+
+# Storing the result can be achieved in many ways. Using dill (like pickle), we can dump and load the result
+result_dilled = zfit.dill.dumps(result)
+result_loaded = zfit.dill.loads(result_dilled)
 
 # EXPERIMENTAL: we can serialize the model to a human-readable format with HS3
-# or we can simply pickle the result (first freezing it)
-
 # human readable representation
 hs3like = zfit.hs3.dumps(nll)
 # print(hs3like)
 # and we can load it again
 nll_loaded = zfit.hs3.loads(hs3like)
 
-
+# pickle can also be used, but as not all objects are pickleable, we need to freeze the result
+# which makes it read-only and no new error calculations can be done
 result.freeze()
 dumped = pickle.dumps(result)
 loaded = pickle.loads(dumped)

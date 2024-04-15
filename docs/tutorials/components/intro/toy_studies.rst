@@ -82,24 +82,3 @@ If some parameters are constrained to values observed from external measurements
 then sampling of the observed values might be needed to obtain an unbiased sample from the model. Example:
 
 TODO: the sample below is not correct and needs updating...
-
-.. jupyter-execute::
-
-    # same model depending on mu1, sigma1, mu2, sigma2
-
-    constraint = zfit.constraint.GaussianConstraint(params=[sigma1, sigma2],
-                                                    observation=[1.0, 0.5],
-                                                    uncertainty=[0.1, 0.05])
-
-    n_samples = 5
-
-    sampler = model.create_sampler(n=n_samples)
-    nll = zfit.loss.UnbinnedNLL(model=model, data=sampler, constraints=constraint)
-
-    constr_values = constraint.sample(n=n_samples)
-
-    for constr_params, constr_vals in constr_values.items():
-        sampler.resample()
-        # do something with nll, temporarily assigning values to the parameters
-        with zfit.param.set_values(constr_params, constr_vals):
-            minimizer.minimize(nll)  # minimize

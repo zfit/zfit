@@ -10,7 +10,7 @@ on:
     tags:
       - "*"
     branches:
-      - master
+      - main
       - develop
       - "release/*"
       - "hotfix/*"
@@ -22,7 +22,7 @@ on:
 jobs:
   unittests:
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 240 # for eager mode
+    timeout-minutes: 200 # for eager mode
     name: tests on ${{ matrix.os }} with ${{ matrix.python-version }} compiled = ${{ matrix.use-graph }}
     env:
       ZFIT_DO_JIT: ${{ matrix.use-graph }}
@@ -88,7 +88,7 @@ jobs:
         run: |
           pytest --cov=. --cov-config=pyproject.toml -n2 --cov-report=xml --cov-report=term-missing
 
-#          pytest --cov=. --cov-config=pyproject.toml -n${{ steps.cpu-cores.outputs.count }} --cov-report=xml --cov-report=term-missing
+#          pytest --cov=. --cov-config=pyproject.toml -n auto --cov-report=xml --cov-report=term-missing  # logical number of cpus, falls back to auto
   #               TODO: fails on windows? add again above pytest?
   #          if [ "$GITHUB_REF" == 'refs/heads/develop' ]; then
   #            echo "PYTEST_ADDOPTS=--longtests-kde --longtests" >> "$GITHUB_ENV"

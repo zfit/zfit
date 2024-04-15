@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+import numpy as np
+
 if TYPE_CHECKING:
     import zfit
 
@@ -54,24 +56,26 @@ def numerical_gradient(func: Callable, params: Iterable[zfit.Parameter]) -> tf.T
 
     def wrapped_func(param_values):
         assign_values(params, param_values)
-        value = func()
-        if hasattr(value, "numpy"):
-            value = value.numpy()
-        return value
+        return func()
 
-    param_vals = znp.stack(params)
-    original_vals = [param.value() for param in params]
-    grad_func = numdifftools.Gradient(wrapped_func, order=2, base_step=1e-4)
-    if tf.executing_eagerly():
-        grad_vals = grad_func(param_vals)
-        gradient = convert_to_tensor(grad_vals)
-    else:
-        gradient = tf.numpy_function(grad_func, inp=[param_vals], Tout=tf.float64)
-    if gradient.shape == ():
-        gradient = znp.reshape(gradient, newshape=(1,))
+    param_vals = znp.array(params)
+    param_vals = znp.atleast_1d(param_vals)
+
+    # fails for apple silicon runners weirdly, but preferable
+    # def grad_func(values):
+    #     # todo: adjust rtol?
+    #     gradients = jacobi.jacobi(wrapped_func, values)[0]
+    #     gradients = znp.asarray(gradients)
+    #     gradients.set_shape(values.shape)
+    #     return gradients  # element 1 are the errors
+
+    grad_func = numdifftools.Gradient(wrapped_func, order=2, base_step=1e-1)
+    gradient = tf.numpy_function(grad_func, inp=[param_vals], Tout=tf.float64)
+    gradient = znp.atleast_1d(gradient)
     gradient.set_shape(param_vals.shape)
-    assign_values(params, original_vals)
-    return gradient
+    with tf.control_dependencies([gradient]):
+        assign_values(params, param_vals)
+        return gradient
 
 
 def numerical_value_gradient(func: Callable, params: Iterable[zfit.Parameter]) -> [tf.Tensor, tf.Tensor]:
@@ -114,38 +118,36 @@ def numerical_hessian(func: Callable | None, params: Iterable[zfit.Parameter], h
     def wrapped_func(param_values):
         assign_values(params, param_values)
         value = func()
-        if hasattr(value, "numpy"):
-            value = value.numpy()
-        return value
+        return np.asarray(value)  # numdifftools doesn't understand the TF dtype
 
-    param_vals = znp.stack(params)
-    original_vals = [param.value() for param in params]
+    nparams = len(params)
+    param_vals = znp.array(params)
 
     if hessian == "diag":
         hesse_func = numdifftools.Hessdiag(
             wrapped_func,
-            order=2,
+            order=3,
             # TODO: maybe add step to remove numerical problems?
-            base_step=1e-4,
+            base_step=1e-1,
         )
     else:
         hesse_func = numdifftools.Hessian(
             wrapped_func,
-            order=2,
-            base_step=1e-4,
+            order=3,
+            base_step=1e-1,
         )
     if tf.executing_eagerly():
         computed_hessian = convert_to_tensor(hesse_func(param_vals))
     else:
         computed_hessian = tf.numpy_function(hesse_func, inp=[param_vals], Tout=tf.float64)
-    n_params = param_vals.shape[0]
     if hessian == "diag":
-        computed_hessian.set_shape((n_params,))
+        computed_hessian.set_shape((nparams,))
     else:
-        computed_hessian.set_shape((n_params, n_params))
+        computed_hessian.set_shape((nparams, nparams))
 
-    assign_values(params, original_vals)
-    return computed_hessian
+    with tf.control_dependencies([computed_hessian]):
+        assign_values(params, param_vals)
+        return computed_hessian
 
 
 def numerical_value_gradient_hessian(

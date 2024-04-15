@@ -24,7 +24,7 @@ n_sample = 10000
 data = model.sample(n_sample, limits=obs)  # limits can be omitted, then the default limits are used
 
 # set the values to a start value for the fit
-zfit.param.set_values([mu, sigma, lambd, frac], [0.5, 1.2, -0.05, 0.07])
+zfit.param.set_values({mu: 0.5, sigma: 1.2, lambd: -0.05, frac: 0.07})
 
 # create NLL
 nll = zfit.loss.UnbinnedNLL(model=model, data=data)
@@ -32,7 +32,9 @@ nll = zfit.loss.UnbinnedNLL(model=model, data=data)
 # create a minimizer
 minimizer = zfit.minimize.Minuit()
 zfit.run.experimental_disable_param_update()
-result = minimizer.minimize(nll).update_params()
+result = minimizer.minimize(
+    nll
+).update_params()  # forward compatibility, update_params will update the values of the parameters to the minimum
 
 # do the error calculations, here with minos
 param_hesse = result.hesse()

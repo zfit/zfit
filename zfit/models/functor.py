@@ -104,6 +104,11 @@ class SumPDF(BaseFunctor, SerializableMixin):  # TODO: add extended argument
                The default space is used for example in the sample method: if no
                sampling limits are given, the default space is used.
 
+               If the observables are binned and the model is unbinned, the
+               model will be a binned model, by wrapping the model in a
+               :py:class:`~zfit.pdf.BinnedFromUnbinnedPDF`, equivalent to
+               calling :py:meth:`~zfit.pdf.BasePDF.to_binned`.
+
                The observables are not equal to the domain as it does not restrict or
                truncate the model outside this range. |@docend:pdf.init.obs|
                If not given, the observables of the pdfs are used if they agree.
@@ -299,7 +304,7 @@ class SumPDFRepr(FunctorPDFRepr):
 
     @pydantic.root_validator(pre=True)
     def validate_all_sumpdf(cls, values):
-        # todo: remove?
+        # the created variable could be used, i.e. the composed autoparameter, so it should be the same
         # if cls.orm_mode(values):
         #     init = values["hs3"].original_init
         #     values = dict(values)
@@ -330,6 +335,11 @@ class ProductPDF(BaseFunctor, SerializableMixin):
 
                The default space is used for example in the sample method: if no
                sampling limits are given, the default space is used.
+
+               If the observables are binned and the model is unbinned, the
+               model will be a binned model, by wrapping the model in a
+               :py:class:`~zfit.pdf.BinnedFromUnbinnedPDF`, equivalent to
+               calling :py:meth:`~zfit.pdf.BasePDF.to_binned`.
 
                The observables are not equal to the domain as it does not restrict or
                truncate the model outside this range. |@docend:pdf.init.obs|

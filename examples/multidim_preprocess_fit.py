@@ -24,12 +24,9 @@ gauss_z = zfit.pdf.Gauss(mu=mu23, sigma=sigma3, obs=zobs)
 
 product_gauss = zfit.pdf.ProductPDF([gauss_x, gauss_y, gauss_z])
 
-# OR create directly from your 3 dimensional pdf as
-# model = MyPDF(obs=obs, param1=..., param2,...)
-
 # data
 normal_np = np.random.normal(loc=[2.0, 2.5, 2.5], scale=[3.0, 3, 1.5], size=(10000, 3))
-data_raw = zfit.Data.from_numpy(obs=obs, array=normal_np)  # or from anywhere else, e.g. root
+data_raw = zfit.Data(normal_np, obs=obs)  # or from anywhere else, e.g. root
 
 df = data_raw.to_pandas()
 # preprocessing here, rename things. Match column names with the observable names "xobs", "yobs", "z" (they have to be
@@ -44,7 +41,7 @@ nll = zfit.loss.UnbinnedNLL(model=product_gauss, data=data)
 
 # create a minimizer
 minimizer = zfit.minimize.Minuit()
-result = minimizer.minimize(nll)
+result = minimizer.minimize(nll).update_params()
 
 # do the error calculations, here with minos
 param_errors, _ = result.errors()

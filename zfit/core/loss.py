@@ -9,6 +9,7 @@ import pydantic
 from pydantic import Field
 from tensorflow.python.util.deprecation import deprecated
 
+from ..exception import OutsideLimitsError
 from ..serialization.serializer import BaseRepr, Serializer
 from .data import convert_to_data
 from .serialmixin import SerializableMixin
@@ -70,7 +71,10 @@ def _unbinned_nll_tf(
                in the same order to do a simultaneous fit. |@docend:loss.init.model|
         data: |@doc:loss.init.data| Dataset that will be given to the *model*.
                If multiple model and data are given, they will be used
-               in the same order to do a simultaneous fit. |@docend:loss.init.data|
+               in the same order to do a simultaneous fit.
+               If the data is not a ``ZfitData`` object, i.e. it doesn't have ha space
+               it has to be withing the limits of the model, otherwise, an
+               :py:class:`~zfit.exception.IntentionAmbiguousError` will be raised. |@docend:loss.init.data|
         fit_range:
 
     Returns:
@@ -368,14 +372,22 @@ class BaseLoss(ZfitLoss, BaseNumeric):
                 if fit_range is not None:
                     msg = "Fit range should not be used if data is not ZfitData."
                     raise TypeError(msg)
-
-                dat = convert_to_data(data=dat, obs=mod.obs)
+                try:
+                    dat = convert_to_data(data=dat, obs=mod.space, check_limits=True)
+                except OutsideLimitsError as error:
+                    msg = (
+                        f"Data {dat} is not a zfit Data (and therefore has no Space that defines possible limits) "
+                        f"and is not fully within the limits {mod.space} of the model {mod}."
+                        f"If the data should be what it is, please convert to zfit Data (`zfit.Data(data, obs=obs)`) "
+                        f"or remove events outside the space"
+                    )
+                    raise IntentionAmbiguousError(msg) from error
             model_checked.append(mod)
             data_checked.append(dat)
         return model_checked, data_checked
 
     def _input_check_params(self, params):
-        return list(self.get_params()) if params is None else convert_to_container(params)
+        return tuple(self.get_params()) if params is None else convert_to_container(params)
 
     @deprecated(None, "Use `create_new` instead and fill the constraints there.")
     def add_constraints(self, constraints):
@@ -531,7 +543,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
 
     def gradient(
         self, params: ztyping.ParamTypeInput = None, *, numgrad=None, paramvals: ztyping.ParamTypeInput = None
-    ) -> list[tf.Tensor]:
+    ) -> tf.Tensor:
         """Calculate the gradient of the loss with respect to the given parameters.
 
         Args:
@@ -555,7 +567,6 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         """
         params = self._input_check_params(params)
         numgrad = self._options["numgrad"] if numgrad is None else numgrad
-        params = {p.name: p for p in params}
         paramvals, checked = self.check_precompile(params=paramvals)
         with self._check_set_input_params(paramvals, guarantee_checked=checked):
             return self._gradient(params=params, numgrad=numgrad)
@@ -566,7 +577,6 @@ class BaseLoss(ZfitLoss, BaseNumeric):
 
     @z.function(wraps="loss")
     def _gradient(self, params, numgrad):
-        params = tuple(params.values())
         self_value = partial(self.value, full=False)
         if numgrad:
             gradient = numerical_gradient(self_value, params=params)
@@ -608,12 +618,12 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         """
         params = self._input_check_params(params)
         numgrad = self._options["numgrad"]
-        params = {p.name: p for p in params}
         if full is None:
             full = DEFAULT_FULL_ARG
         paramvals, checked = self.check_precompile(params=paramvals)
         with self._check_set_input_params(paramvals, guarantee_checked=checked):
-            return self._value_gradient(params=params, numgrad=numgrad, full=full)
+            value, gradient = self._value_gradient(params=params, numgrad=numgrad, full=full)
+        return value, gradient
 
     def value_gradients(self, *_, **__):
         msg = "`value_gradients` is deprecated, use `value_gradient` instead."
@@ -621,7 +631,6 @@ class BaseLoss(ZfitLoss, BaseNumeric):
 
     @z.function(wraps="loss")
     def _value_gradient(self, params, numgrad=False, *, full: bool | None = None):
-        params = tuple(params.values())
         if full is None:
             full = DEFAULT_FULL_ARG
         self_value = partial(self.value, full=full)
@@ -694,15 +703,11 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         """
         params = self._input_check_params(params)
         numgrad = self._options["numhess"] if numgrad is None else numgrad
-        params = {p.name: p for p in params}
         if full is None:
             full = DEFAULT_FULL_ARG
-
         paramvals, checked = self.check_precompile(params=paramvals)
         with self._check_set_input_params(paramvals, guarantee_checked=checked):
-            vals = self._value_gradient_hessian(params=params, hessian=hessian, numerical=numgrad, full=full)
-
-        return vals[0], z.convert_to_tensor(vals[1]), vals[2]
+            return self._value_gradient_hessian(params=params, hessian=hessian, numerical=numgrad, full=full)
 
     def value_gradients_hessian(self, *_, **__):
         msg = "`value_gradients_hessian` is deprecated, use `value_gradient_hessian` instead."
@@ -710,7 +715,6 @@ class BaseLoss(ZfitLoss, BaseNumeric):
 
     @z.function(wraps="loss")
     def _value_gradient_hessian(self, params, hessian, numerical=False, *, full: bool | None = None):
-        params = tuple(params.values())
         self_value = partial(self.value, full=full)
         if numerical:
             return numerical_value_gradients_hessian(
@@ -773,7 +777,10 @@ class BaseUnbinnedNLL(BaseLoss, SerializableMixin):
             data: If not given, the current one will be used.
                 |@doc:loss.init.data| Dataset that will be given to the *model*.
                If multiple model and data are given, they will be used
-               in the same order to do a simultaneous fit. |@docend:loss.init.data|
+               in the same order to do a simultaneous fit.
+               If the data is not a ``ZfitData`` object, i.e. it doesn't have ha space
+               it has to be withing the limits of the model, otherwise, an
+               :py:class:`~zfit.exception.IntentionAmbiguousError` will be raised. |@docend:loss.init.data|
             fit_range:
             constraints: If not given, the current one will be used.
                 |@doc:loss.init.constraints| Auxiliary measurements ("constraints")
@@ -891,7 +898,10 @@ class UnbinnedNLL(BaseUnbinnedNLL):
                in the same order to do a simultaneous fit. |@docend:loss.init.model|
             data: |@doc:loss.init.data| Dataset that will be given to the *model*.
                If multiple model and data are given, they will be used
-               in the same order to do a simultaneous fit. |@docend:loss.init.data|
+               in the same order to do a simultaneous fit.
+               If the data is not a ``ZfitData`` object, i.e. it doesn't have ha space
+               it has to be withing the limits of the model, otherwise, an
+               :py:class:`~zfit.exception.IntentionAmbiguousError` will be raised. |@docend:loss.init.data|
             constraints: |@doc:loss.init.constraints| Auxiliary measurements ("constraints")
                that add a likelihood term to the loss.
 

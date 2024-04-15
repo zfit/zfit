@@ -143,11 +143,15 @@ def create_fitresult(
 
     return ret
 
+def create_fitresult_dilled(*args, **kwargs):
+    return zfit.dill.dumps(create_fitresult(*args, **kwargs))
 
-@pytest.mark.parametrize("do_pickle", [True, False], ids=["pickle", "no_pickle"])
+
+@pytest.mark.parametrize("do_pickle", [False, "pickle", "dill"], ids=["no_pickle", "pickle", "dill"])
 @pytest.mark.parametrize("weights", [None, np.random.normal(1, 0.1, true_ntot)])
 @pytest.mark.parametrize("extended", [True, False], ids=["extended", "not_extended"])
-def test_set_values_fitresult(do_pickle, weights, extended):
+@pytest.mark.parametrize("fitres_creator", [create_fitresult, create_fitresult_dilled])
+def test_set_values_fitresult(do_pickle, weights, extended, fitres_creator):
     upper1 = 5.33
     lower1 = 0.0
     param1 = zfit.Parameter("param1", 2.0, lower1, upper1)
@@ -160,9 +164,11 @@ def test_set_values_fitresult(do_pickle, weights, extended):
     with pytest.raises(ValueError):
         param1.set_value(upper1 + 0.001)
 
-    fitresult = create_fitresult(
+    fitresult = fitres_creator(
         (zfit.minimize.Minuit, {}, True), weights=weights, extended=extended
     )
+    if fitres_creator is create_fitresult_dilled:
+        fitresult = zfit.dill.loads(fitresult)
     result = fitresult["result"]
     param_b = fitresult["b_param"]
     param_c = fitresult["c_param"]
@@ -172,9 +178,11 @@ def test_set_values_fitresult(do_pickle, weights, extended):
     with pytest.raises(ValueError):
         param_b.set_value(999)
     param_c.assign(9999)
-    if do_pickle:
+    if do_pickle == "pickle":
         result.freeze()
         result = pickle.loads(pickle.dumps(result))
+    elif do_pickle == "dill":
+        zfit.dill.loads(zfit.dill.dumps(result))
     with zfit.param.set_values([param_c, param_b], values=result):
         assert znp.asarray(param_b.value()) == val_b
         assert znp.asarray(param_c.value()) == val_c
@@ -204,9 +212,7 @@ minimizers = [
 ]
 
 
-if sys.version_info[1] < 12 and (platf := platform.system()) not in ("Darwin",):
-    # TODO: remove all of this conditions once NLopt is available for Python 3.12
-    # see also https://github.com/DanielBok/nlopt-python/issues/24
+if (platf := platform.system()) not in ("Darwin",):
     # TODO: Ipyopt installation on macosx not working
     minimizers.append(
         (zfit.minimize.NLoptLBFGSV1, {}, True),
@@ -220,21 +226,37 @@ minimizers = sorted(minimizers, key=lambda val: repr(val))
 @pytest.mark.parametrize(
     "minimizer_class_and_kwargs", minimizers, ids=lambda val: val[0].__name__
 )
+@pytest.mark.parametrize("dill", [False, True], ids=["no_dill", "dill"])
 @pytest.mark.parametrize("weights", [np.random.normal(1, 0.1, true_ntot), None])
 @pytest.mark.parametrize("extended", [True, False], ids=["extended", "not_extended"])
-def test_freeze(minimizer_class_and_kwargs, weights, extended):
+def test_freeze(minimizer_class_and_kwargs, dill, weights, extended):
     result = create_fitresult(
         minimizer_class_and_kwargs, weights=weights, extended=extended
     )["result"]
+
+    if dill:
+        if isinstance(result.minimizer, zfit.minimize.IpyoptV1):
+            with pytest.raises(zfit.exception.IpyoptPicklingError):
+                _ = zfit.dill.loads(zfit.dill.dumps(result))
+            pytest.skip("Ipyopt cannot be pickled")
+        result = zfit.dill.loads(zfit.dill.dumps(result))
 
     try:
         pickle.dumps(result)
     except Exception:
         pass
     result.covariance()
+    if dill:
+        result = zfit.dill.loads(zfit.dill.dumps(result))
     result.errors()
+    if dill:
+        result = zfit.dill.loads(zfit.dill.dumps(result))
     result.hesse()
+    if dill:
+        result = zfit.dill.loads(zfit.dill.dumps(result))
     result.freeze()
+    if dill:
+        result = zfit.dill.loads(zfit.dill.dumps(result))
 
     dumped = pickle.dumps(result)
     loaded = pickle.loads(dumped)

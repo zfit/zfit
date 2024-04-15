@@ -8,9 +8,7 @@ import numpy as np
 import zfit
 
 plt.style.use(mplhep.style.LHCb2)
-
 n_bins = 50
-
 # create space
 obs_binned = zfit.Space("x", binning=zfit.binned.RegularBinning(50, -10, 10, name="x"))
 obs = obs_binned.with_binning(None)  # unbinned obs
@@ -37,16 +35,13 @@ lambd = zfit.Parameter("lambda", -0.06, -1, -0.01)
 n_bkg = zfit.Parameter("n_bkg", 5000 * (1 - 0.3))
 exponential = zfit.pdf.Exponential(lambd, obs=obs, extended=n_bkg)
 
-model_unbinned = zfit.pdf.SumPDF([doublecb, exponential])
-
-# make binned
-model = model_unbinned.to_binned(obs_binned)
+# since `obs_binned` is binned, giving it to the pdf will return a binned pdf
+# note that this is different from binning both pdfs and summing them (there, we would need a BinnedSumPDF)
+model = zfit.pdf.SumPDF([doublecb, exponential], obs=obs_binned)
 
 # data
 n_sample = 5000
 data = model.sample(n=n_sample)
-
-n_bins = 50
 
 plot_scaling = n_sample / n_bins * obs.volume
 
@@ -57,8 +52,8 @@ def plot_pdf(title):
     plt.figure()
     plt.title(title)
     y = model.pdf(x)
-    y_doublecb = doublecb.pdf(x) * model_unbinned.params["frac_0"]
-    y_exp = exponential.pdf(x) * model_unbinned.params["frac_1"]
+    y_doublecb = doublecb.pdf(x) * model.pdfs[0].params["frac_0"]
+    y_exp = exponential.pdf(x) * model.pdfs[0].params["frac_1"]
     plt.plot(x, y * plot_scaling, label="Sum - Binned Model")
     plt.plot(x, y_doublecb * plot_scaling, label="Gauss - Signal")
     plt.plot(x, y_exp * plot_scaling, label="Exp - Background")
@@ -71,26 +66,30 @@ def plot_pdf(title):
 
 
 # set the values to a start value for the fit
-zfit.param.set_values([mu, sigma, nr, alpha, lambd], [0.5, 1.2, 2.0, 1.5, -0.05])
+zfit.param.set_values({mu: 0.5, sigma: 1.2, nr: 2.0, alpha: 1.5, lambd: -0.05})
+# alternatively, we can set the values with a list/array
+# zfit.param.set_values([mu, sigma, nr, alpha, lambd], [0.5, 1.2, 2.0, 1.5, -0.05])
 
 # create NLL
 nll = zfit.loss.ExtendedBinnedNLL(model=model, data=data)
 
 # create a minimizer
-minimizer = zfit.minimize.Minuit()
+minimizer = zfit.minimize.Minuit(gradient="zfit")
 
 plot_pdf("before fit")
 
-result = minimizer.minimize(nll)
+result = minimizer.minimize(nll).update_params()
 # do the error calculations, here with hesse, than with minos
+
 param_hesse = result.hesse()
 (
     param_errors,
     _,
 ) = result.errors()  # this returns a new FitResult if a new minimum was found
 
-# plot the data
-
+# this returns a new FitResult if a new minimum was found
+param_errors, _ = result.errors()
+# plot the data and pdf
 plot_pdf("after fit")
 # uncomment to display plots
 # plt.show()

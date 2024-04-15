@@ -310,10 +310,12 @@ def test_conv_2D_simple():
     plt.figure()
     plt.imshow(true_probsr, label="true probs")
     plt.title("true probs")
+    pytest.zfit_savefig(folder=plot_folder)
 
     plt.figure()
     plt.imshow(probsr, label="zfit conv")
     plt.title("zfit conv")
+    pytest.zfit_savefig(folder=plot_folder)
 
     # test the sampling
     conv_nosample = FFTConvPDFV1NoSampling(func=func, kernel=gauss)
@@ -323,6 +325,11 @@ def test_conv_2D_simple():
     sample_nosample = conv_nosample.sample(npoints_sample)
     x, y = z.unstack_x(sample)
     xns, yns = z.unstack_x(sample_nosample)
+
+
+    # remove np.array if fixed: https://github.com/matplotlib/matplotlib/issues/22879
+    x, y = np.array(x), np.array(y)
+    xns, yns = np.array(xns), np.array(yns)
 
     plt.figure()
     plt.title("FFT conv, custom sampling, addition")
@@ -336,6 +343,7 @@ def test_conv_2D_simple():
 
     plt.figure()
     plt.title("FFT conv x projection")
+    # remove np.array if fixed: https://github.com/matplotlib/matplotlib/issues/22879
     plt.hist(x, bins=50, label="custom", alpha=0.5)
     plt.hist(xns, bins=50, label="fallback", alpha=0.5)
     plt.legend()
