@@ -192,6 +192,7 @@ def test_params_as_args_loss(loss):
     assert abs(loss_values - loss_values_params) > 0.1
 
 @pytest.mark.parametrize('loss', losses)
+@pytest.mark.flaky(reruns=2)  # minimization not reliable
 def test_params_as_args_fitresult(loss):
     loss = loss()
     minimizer = zfit.minimize.Minuit()

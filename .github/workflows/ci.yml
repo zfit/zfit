@@ -10,7 +10,7 @@ on:
     tags:
       - "*"
     branches:
-      - master
+      - main
       - develop
       - "release/*"
       - "hotfix/*"
