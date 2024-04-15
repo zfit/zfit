@@ -443,7 +443,6 @@ def test_kde_border(kdetype, npoints, upper):
     mplhep.histplot(data_binned, density=True, alpha=0.3, label="Kernel points")
     plt.legend()
     pytest.zfit_savefig(folder="kde_border")
-    plt.show()
 
     abs_tol = 0.05
     assert pytest.approx(expected_integral, abs=abs_tol) == (integral)
