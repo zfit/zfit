@@ -1,12 +1,10 @@
 space.init.obs: |1+
     Observable of the space.
-
-
+                Serves as the "variable".
 
 space.init.lowerupper: |1+
     Lower and upper limits of the space, respectively.
                 Each of them should be a scalar-like object.
-
 
 space.init.limits: |1+
     A tuple-like object of the limits of the space.
@@ -15,7 +13,8 @@ space.init.limits: |1+
 space.init.binning: |1+
     Binning of the space.
                 Currently, only regular and variable binning *with a name* is supported.
-                If an integer or a list of integers is given with lengths equal to the number of observables,
+                If an integer or a list of integers is given with 
+                lengths equal to the number of observables,
                 it is interpreted as the number of bins and
                 a regular binning is automatically created using the limits as the
                 start and end points.
@@ -29,8 +28,6 @@ space.init.label: |1+
     Human-readable name
                 or label for a better description of the space, to be used with plots etc.
                 Has no programmatical functional purpose as identification.
-
-
 
 pdf.init.name: |1+
     Name of the PDF.
@@ -50,9 +47,11 @@ model.args.params: |1+
                 typically :py:class:`~zfit.Parameter`, that
                 the model was _initialized_ with, not the name of the models
                 parametrization.
+
 binneddata.param.space: |1+
     Binned space of the data.
                 The space is used to define the binning and the limits of the data.
+
 binneddata.param.values: |1+
     Corresponds to the counts of the histogram.
                 Follows the definition of the
@@ -110,7 +109,8 @@ data.init.use_hash: |1+
 
 data.init.returns: |1+
     ``zfit.Data`` or ``zfit.BinnedData``:
-                A ``Data`` object containing the unbinned data or a ``BinnedData`` if the obs is binned.
+                A ``Data`` object containing the unbinned data 
+                or a ``BinnedData`` if the obs is binned.
 
 binnedpdf.pdf.x: |1+
     Values to evaluate the PDF at.
@@ -119,12 +119,12 @@ binnedpdf.pdf.x: |1+
                 evaluated at the points of ``x``.
 
 binnedpdf.out.problike: |1+
-  If the input was unbinned, it returns an array
+    If the input was unbinned, it returns an array
                 of shape (nevents,). If the input was binned, the dimensions and ordering of
                 the axes corresponds to the input axes.
 
 pdf.init.obs: |1+
-  Observables of the
+    Observables of the
                 model. This will be used as the default space of the PDF and,
                 if not given explicitly, as the normalization range.
 
@@ -138,32 +138,30 @@ pdf.init.obs: |1+
 
                 The observables are not equal to the domain as it does not restrict or
                 truncate the model outside this range.
-     
-     
 
 pdf.init.norm: |1+
-  Normalization of the PDF.
+    Normalization of the PDF.
                 By default, this is the same as the default space of the PDF.
 
 pdf.pdf.norm: |1+
-  Normalization of the function.
+    Normalization of the function.
                 By default, this is the ``norm`` of the PDF (which by default is the same as
                 the space of the PDF).
 
 pdf.param.norm: |1+
-  Normalization of the function.
+    Normalization of the function.
                 By default, this is the ``norm`` of the PDF (which by default is the same as
                 the space of the PDF). Should be ``ZfitSpace`` to define the space
                 to normalize over.
 
 pdf.param.x: |1+
-  Data to evaluate the method on. Should be ``ZfitData``
+    Data to evaluate the method on. Should be ``ZfitData``
                 or a mapping of *obs* to numpy-like arrays.
                 If an array is given, the first dimension is interpreted as the events while
                 the second is meant to be the dimensionality of a single event.
 
 pdf.init.extended: |1+
-  The overall yield of the PDF.
+    The overall yield of the PDF.
                 If this is parameter-like, it will be used as the yield,
                 the expected number of events, and the PDF will be extended.
                 An extended PDF has additional functionality, such as the
@@ -177,24 +175,24 @@ pdf.init.extended.auto: |1+
                 This is the default.
 
 pdf.integrate.limits: |1+
-  Limits of the integration.
+    Limits of the integration.
 
 pdf.partial_integrate.limits: |1+
-  Limits of the integration that will be integrated out.
+    Limits of the integration that will be integrated out.
                 Has to be a subset of the PDFs observables.
 pdf.integrate.norm: |1+
-  Normalization of the integration.
+    Normalization of the integration.
                 By default, this is the same as the default space of the PDF.
                 ``False`` means no normalization and returns the unnormed integral.
 pdf.integrate.options: |1+
-  Options for the integration.
+    Options for the integration.
                 Additional options for the integration. Currently supported options are:
                 - type: one of (``bins``)
-                  This hints that bins are integrated. A method that is vectorizable, non-dynamic and
-                  therefore less suitable for complicated functions is chosen.
+                  This hints that bins are integrated. A method that is vectorizable,
+                  non-dynamic and therefore less suitable for complicated functions is chosen.
 
 pdf.param.yield: |1+
-  Yield (expected number of events) of the PDF.
+    Yield (expected number of events) of the PDF.
                 This is the expected number of events.
                 If this is parameter-like, it will be used as the yield,
                 the expected number of events, and the PDF will be extended.
@@ -202,53 +200,53 @@ pdf.param.yield: |1+
                 ``ext_*`` methods and the ``counts`` (for binned PDFs).
 
 pdf.sample.n: |1+
-  Number of samples to draw.
+    Number of samples to draw.
                 For an extended PDF, the argument is optional and will be the
                 poisson-fluctuated expected number of events, i.e. the yield.
 
 pdf.sample.limits: |1+
-  Limits of the sampling.
+    Limits of the sampling.
                 By default, this is the same as the default space of the PDF.
 
 pdf.binned.counts.x: |1+
-  Data for the binned PDF.
+    Data for the binned PDF.
                 The returned counts correspond to the binned axis in ``x``.
 
 pdf.binned.counts.norm: |1+
-  Normalization of the counts.
+    Normalization of the counts.
                 This normalizes the counts so that the actual sum of all counts is
                 equal to the yield.
 
 pdf.polynomial.init.coeff0: |1+
-  Coefficient of the constant term.
+    Coefficient of the constant term.
                 This is the coefficient of the constant term, i.e. the term
                 :math:`x^0`. If None, set to 1.
 
 pdf.polynomial.init.coeffs: |1+
-  Coefficients of the sum of the polynomial.
+    Coefficients of the sum of the polynomial.
                 The coefficients of the polynomial, starting with the first order
                 term. To set the constant term, use ``coeff0``.
 
 pdf.polynomial.init.apply_scaling: |1+
-  Rescale the data so that the actual limits represent (-1, 1).
+    Rescale the data so that the actual limits represent (-1, 1).
                 This is usually wanted as the polynomial is defined in this range.
                 Default is ``True``.
 
 
 
 pdf.kde.bandwidth.weights: |1+
-  Weights of each event
+    Weights of each event
                 in *data*, can be None or Tensor-like with shape compatible
                 with *data*. This will change the count of the events, whereas
                 weight :math:`w_i` of :math:`x_i`.
 
 
 pdf.kde.bandwidth.data: |1+
-  Data points to determine the bandwidth
+    Data points to determine the bandwidth
                 from.
 
 pdf.kde.init.data: |1+
-  Data sample to approximate
+    Data sample to approximate
               the density from. The points represent positions of the *kernel*,
               the :math:`x_i`. This is preferrably a ``ZfitData``, but can also
               be an array-like object.
@@ -263,7 +261,7 @@ pdf.kde.init.data: |1+
 
 
 pdf.kde.init.obs: |1+
-  Observable space of the KDE.
+    Observable space of the KDE.
               As with any other PDF, this will be used as the default *norm*, but
               does not define the domain of the PDF. Namely, this can be a smaller
               space than *data*, as long as the name of the observable match.
@@ -271,7 +269,7 @@ pdf.kde.init.obs: |1+
               bountary biases, see also :ref:`sec-boundary-bias-and-padding`.
 
 pdf.kde.init.bandwidth: |1+
-  Bandwidth of the kernel,
+    Bandwidth of the kernel,
               often also denoted as :math:`h`. For a Gaussian kernel, this
               corresponds to *sigma*. This can be calculated using
               pre-defined options or by specifying a numerical value that is
@@ -282,7 +280,7 @@ pdf.kde.init.bandwidth: |1+
               an array holds local bandwidths
 
 pdf.kde.init.kernel: |1+
-  The kernel is the heart
+    The kernel is the heart
               of the Kernel Density Estimation, which consists of the sum of
               kernels around each sample point. Therefore, a kernel should represent
               the distribution probability of a single data point as close as
@@ -300,7 +298,7 @@ pdf.kde.init.kernel: |1+
               that belong to the loc-scale family.
 
 pdf.kde.init.padding: |1+
-  KDEs have a peculiar
+    KDEs have a peculiar
               weakness: the boundaries, as the outside has a zero density. This makes the KDE
               go down at the bountary as well, as the density approaches zero, no matter what the
               density inside the boundary was.
@@ -326,7 +324,7 @@ pdf.kde.init.padding: |1+
 
 
 pdf.kde.init.weights: |1+
-  Weights of each event
+    Weights of each event
               in *data*, can be None or Tensor-like with shape compatible
               with *data*. Instead of using this parameter, it is preferred
               to use a ``ZfitData`` as *data* that contains weights.
@@ -338,7 +336,7 @@ pdf.kde.init.weights: |1+
               constant :math:`\frac{1}{n_{data}}`.
 
 pdf.kde.init.num_grid_points: |1+
-  Number of points in
+    Number of points in
               the binning grid.
 
               The data will be binned using the *binning_method* in *num_grid_points*
@@ -351,7 +349,7 @@ pdf.kde.init.num_grid_points: |1+
               at the cost of accuracy.
 
 pdf.kde.init.binning_method: |1+
-  Method to be used for
+    Method to be used for
               binning the data. Options are 'linear', 'simple'.
 
               The data can be binned in the usual way ('simple'), but this is less precise
@@ -367,7 +365,7 @@ pdf.kde.init.binning_method: |1+
               grids.
 
 pdf.kde.bandwidth.explain_global: |1+
-  A global bandwidth
+    A global bandwidth
               is a single parameter that is shared amongst all kernels.
               While this is a fast and robust method,
               it is a rule of thumb approximation. Due to its global nature,
@@ -376,7 +374,7 @@ pdf.kde.bandwidth.explain_global: |1+
               of all methods.
 
 pdf.kde.bandwidth.explain_local: |1+
-  A local bandwidth
+    A local bandwidth
               means that each kernel :math:`i` has a different bandwidth.
               In other words, given some data points with size n,
               we will need n bandwidth parameters.
@@ -394,7 +392,7 @@ pdf.kde.bandwidth.explain_local: |1+
               kernels and/or evaluating on large datasets (> 10'000).
 
 pdf.kde.bandwidth.explain_adaptive: |1+
-  Adaptive bandwidths are
+    Adaptive bandwidths are
               a way to reduce the dependence on the bandwidth parameter
               and are usually local bandwidths that take into account
               the local densities.
@@ -413,7 +411,7 @@ pdf.kde.bandwidth.explain_adaptive: |1+
               bandwidth.
 
 minimizer.verbosity: |1+
- Verbosity of the minimizer. Has to be between 0 and 10.
+    Verbosity of the minimizer. Has to be between 0 and 10.
                The verbosity has the meaning:
 
                 - a value of 0 means quiet and no output
@@ -796,13 +794,14 @@ hs3.ini.reuse_params: |1+
                     parameter will be created.
 
 hs3.explain: |1+
-    HS3 is the `HEP Statistics Serialization Standard <https://github.com/hep-statistics-serialization-standard/hep-statistics-serialization-standard>`_.
+    The `HEP Statistics Serialization Standard <https://github.com/hep-statistics-serialization-standard/hep-statistics-serialization-standard>`_,
+                    or in short, :math:`\text{HS}^3`, is a serialization format for statistical models.
                     It is a JSON/YAML-based serialization that is a
                     coordinated effort of the HEP community to standardize the serialization of statistical models. The standard
                     is still in development and is not yet finalized. This function is experimental and may change in the future.
 
 hs3.layout.explain: |1+
-  The keys in the HS3 format are:
+    The keys in the HS3 format are:
                      - 'distributions': list of PDFs
                      - 'variables': list of variables, i.e. ``zfit.Space`` and ``zfit.Parameter`` (or more generally parameters)
                      - 'loss': list of losses

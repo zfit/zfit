@@ -627,8 +627,8 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
             options: |@doc:pdf.integrate.options| Options for the integration.
                Additional options for the integration. Currently supported options are:
                - type: one of (``bins``)
-                 This hints that bins are integrated. A method that is vectorizable, non-dynamic and
-                 therefore less suitable for complicated functions is chosen. |@docend:pdf.integrate.options|
+                 This hints that bins are integrated. A method that is vectorizable,
+                 non-dynamic and therefore less suitable for complicated functions is chosen. |@docend:pdf.integrate.options|
             params: |@doc:model.args.params| Mapping of the parameter names to the actual
                values. The parameter names refer to the names of the parameters,
                typically :py:class:`~zfit.Parameter`, that
@@ -843,8 +843,8 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
             options: |@doc:pdf.integrate.options| Options for the integration.
                Additional options for the integration. Currently supported options are:
                - type: one of (``bins``)
-                 This hints that bins are integrated. A method that is vectorizable, non-dynamic and
-                 therefore less suitable for complicated functions is chosen. |@docend:pdf.integrate.options|
+                 This hints that bins are integrated. A method that is vectorizable,
+                 non-dynamic and therefore less suitable for complicated functions is chosen. |@docend:pdf.integrate.options|
 
         Returns:
             A pdf without the dimensions from ``limits``.
@@ -1036,6 +1036,11 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
 
                The default space is used for example in the sample method: if no
                sampling limits are given, the default space is used.
+
+               If the observables are binned and the model is unbinned, the
+               model will be a binned model, by wrapping the model in a
+               :py:class:`~zfit.pdf.BinnedFromUnbinnedPDF`, equivalent to
+               calling :py:meth:`~zfit.pdf.BasePDF.to_binned`.
 
                The observables are not equal to the domain as it does not restrict or
                truncate the model outside this range. |@docend:pdf.init.obs|

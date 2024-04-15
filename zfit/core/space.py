@@ -1277,14 +1277,16 @@ class Space(
         axes 0 corresponds to the 0th data column we get (which corresponds to a certain observable).
 
         Args:
-            obs: |@doc:space.init.obs| Observable of the space. |@docend:space.init.obs|
+            obs: |@doc:space.init.obs| Observable of the space.
+               Serves as the "variable". |@docend:space.init.obs|
             lower, upper: |@doc:space.init.lowerupper| Lower and upper limits of the space, respectively.
                Each of them should be a scalar-like object. |@docend:space.init.lowerupper|
             limits: |@doc:space.init.limits| A tuple-like object of the limits of the space.
                These are the lower and upper limits. |@docend:space.init.limits|
             binning: |@doc:space.init.binning| Binning of the space.
                Currently, only regular and variable binning *with a name* is supported.
-               If an integer or a list of integers is given with lengths equal to the number of observables,
+               If an integer or a list of integers is given with 
+               lengths equal to the number of observables,
                it is interpreted as the number of bins and
                a regular binning is automatically created using the limits as the
                start and end points. |@docend:space.init.binning|
