@@ -7,7 +7,7 @@ from importlib.metadata import version as _importlib_version
 __version__ = _importlib_version(__name__)
 
 __license__ = "BSD 3-Clause"
-__copyright__ = "Copyright 2018, zfit"
+__copyright__ = "2024, zfit"
 __status__ = "Beta"
 
 __author__ = (
