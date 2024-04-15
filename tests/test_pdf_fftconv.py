@@ -310,10 +310,12 @@ def test_conv_2D_simple():
     plt.figure()
     plt.imshow(true_probsr, label="true probs")
     plt.title("true probs")
+    pytest.zfit_savefig(folder=plot_folder)
 
     plt.figure()
     plt.imshow(probsr, label="zfit conv")
     plt.title("zfit conv")
+    pytest.zfit_savefig(folder=plot_folder)
 
     # test the sampling
     conv_nosample = FFTConvPDFV1NoSampling(func=func, kernel=gauss)
