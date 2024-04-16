@@ -1,4 +1,5 @@
 #  Copyright (c) 2024 zfit
+import hist.axis
 import numpy as np
 import pandas as pd
 import pytest
@@ -94,7 +95,9 @@ limits_to_test = [
     [{"multi": [limits1, limits2any]}, {"multi": [limits1any, limits2]}],
 ]
 
-
+def test_no_binning_transform():
+    with pytest.raises(ValueError):
+        _ = zfit.Space("x",binning=hist.axis.Regular(1, 1, 2, name='x', transform=hist.axis.transform.log))
 def test_illegal_bounds():
     with pytest.raises(tf.errors.InvalidArgumentError):
         _ = zfit.Space(["obs1", "obs2"], ([-1, 4], [2, 3]))

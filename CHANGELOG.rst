@@ -32,7 +32,9 @@ Thanks
 0.20.2 (16 Apr 2024)
 ========================
 
+Two small bugfixes
 - fix backwards incompatible change of sampler
+- detect if a RegularBinning has been transformed, raise error.
 
 0.20.1 (14 Apr 2024)
 ========================

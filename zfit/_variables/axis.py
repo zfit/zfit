@@ -102,6 +102,13 @@ def axis_to_histaxis(axis):
 def new_from_axis(axis):
     if isinstance(axis, hist.axis.Regular):
         lower, upper = axis.edges[0], axis.edges[-1]
+        if axis.transform is not None:
+            msg = (
+                "Transformed axes are not supported. Please convert it explicitly to a Variable axis using the edges."
+                "Example: ax2 = hist.axis.Variable(ax1.edges, name='x')."
+                "If this is an issue or you prefer to have this automatically converted, please open an issue on github with zfit."
+            )
+            raise ValueError(msg)
         return RegularBinning(axis.size, lower, upper, name=axis.name)
     if isinstance(axis, hist.axis.Variable):
         return VariableBinning(axis.edges, name=axis.name)
