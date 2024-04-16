@@ -30,7 +30,7 @@ import zfit
 import zfit.z.numpy as znp
 
 from .. import z
-from .._variables.axis import Binnings, RegularBinning
+from .._variables.axis import Binnings, RegularBinning, histaxes_to_binning
 from ..settings import ztypes
 from ..util import ztyping
 from ..util.container import convert_to_container
@@ -1318,7 +1318,7 @@ class Space(
                 if not isinstance(binning, Binnings):
                     binning = convert_to_container(binning)
                     if binning is not None:
-                        binning = Binnings(binning)
+                        binning = histaxes_to_binning(binning)
                 if not all(binning.name):
                     msg = f"Axes must have a name. Missing: {[axis for axis in binning if not hasattr(axis, 'name')]}"
                     raise TypeError(msg)

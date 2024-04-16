@@ -18,6 +18,7 @@ Deprecations
 
 Bug fixes and small changes
 ---------------------------
+- detect if a RegularBinning has been transformed, raise error.
 
 
 Experimental
