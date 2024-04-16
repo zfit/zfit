@@ -18,7 +18,7 @@ Deprecations
 
 Bug fixes and small changes
 ---------------------------
-- fix backwards incompatible change of sampler
+
 
 Experimental
 ------------
@@ -28,6 +28,11 @@ Requirement changes
 
 Thanks
 ------
+
+0.20.2 (16 Apr 2024)
+========================
+
+- fix backwards incompatible change of sampler
 
 0.20.1 (14 Apr 2024)
 ========================
