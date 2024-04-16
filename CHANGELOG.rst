@@ -4,6 +4,36 @@ Changelog
 
 .. _newest-changelog:
 
+Develop
+========================
+
+Major Features and Improvements
+-------------------------------
+
+Breaking changes
+------------------
+
+Deprecations
+-------------
+
+Bug fixes and small changes
+---------------------------
+
+
+Experimental
+------------
+
+Requirement changes
+-------------------
+
+Thanks
+------
+
+0.20.2 (16 Apr 2024)
+========================
+
+- fix backwards incompatible change of sampler
+
 0.20.1 (14 Apr 2024)
 ========================
 

@@ -64,7 +64,7 @@ repos:
     rev: v2.5.0
     hooks:
       - id: setup-cfg-fmt
-        args: [ --max-py-version=3.11, --include-version-classifiers ]
+        args: [ --max-py-version=3.12, --include-version-classifiers ]
 
   # Notebook formatting
   - repo: https://github.com/nbQA-dev/nbQA
@@ -116,25 +116,6 @@ repos:
       - id: check-dependabot
       - id: check-readthedocs
 
-# needs rust, todo, reactivate?
-#  - repo: https://github.com/jonasbb/pre-commit-latex-hooks
-#    rev: v1.4.3
-#    hooks:
-#      - id: american-eg-ie
-#      - id: cleveref-capitalization
-#      - id: consistent-spelling
-#        args:
-#          [
-#            "--emph=et al.",
-#            "--emph=a priori",
-#            "--emph=a posteriori",
-#            '--regex=naive=\bna(i|\\"i)ve',
-#          ]
-#      - id: csquotes
-#      - id: ensure-labels-for-sections
-#      - id: no-space-in-cite
-#      - id: tilde-cite
-#      - id: unique-labels
 
   - repo: https://github.com/dannysepler/rm_unneeded_f_str
     rev: v0.2.0
