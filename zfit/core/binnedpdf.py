@@ -897,6 +897,8 @@ class BaseBinnedPDFV1(
                 raise BreakingAPIChangeError(msg)
             if fixed_params is True:
                 fixed_params = None  # default behavior is to catch all anyway
+            if isinstance(fixed_params, (list, tuple)):
+                fixed_params = {param.name: znp.asarray(param) for param in fixed_params}
             params = fixed_params
 
         # legacy end
