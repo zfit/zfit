@@ -18,6 +18,7 @@ Deprecations
 
 Bug fixes and small changes
 ---------------------------
+- fix backwards incompatible change of sampler
 
 Experimental
 ------------
