@@ -596,7 +596,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
             return self._gradient(params=params, numgrad=numgrad)
 
         with suppress(ValueGradientNotImplementedError):
-            return self._value_gradient(params=params, numgrad=numgrad)[1]
+            return self._value_gradient(params=params, numgrad=numgrad, full=False)[1]
         return self._fallback_gradient(params=params, numgrad=numgrad)
 
     def gradients(self, *_, **__):
@@ -784,9 +784,9 @@ class BaseLoss(ZfitLoss, BaseNumeric):
     def _value_gradient_hessian(self, params, hessian, numerical=False, full: bool | None = None):  # noqa: ARG002
         raise ValueGradientHessianNotImplementedError
 
-    def _fallback_value_gradient_hessian(self, params, hessian, numerical=False, *, full: bool | None = None):
+    def _fallback_value_gradient_hessian(self, params, hessian, numgrad=False, *, full: bool | None = None):
         self_value = partial(self.value, full=full)
-        if numerical:
+        if numgrad:
             return numerical_value_gradients_hessian(
                 func=self_value, gradient=self.gradient, params=params, hessian=hessian
             )
