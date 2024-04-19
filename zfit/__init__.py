@@ -83,7 +83,6 @@ if int(_tf.__version__[0]) < 2:
         f"You are using TensorFlow version {_tf.__version__}. This zfit version ({__version__}) works"
         f" only with TF >= 2"
     )
-
 from . import z  # initialize first
 from . import (
     constraint,

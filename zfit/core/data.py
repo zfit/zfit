@@ -739,6 +739,8 @@ class Data(
         #     warn_once("The order of the arguments `obs` and `array` has been swapped, array goes first (as any other `from_` constructor.", identifier="data_from_numpy")
         #     obs, array = array, obs
         # # legacy end
+        if isinstance(array, (float, int)):
+            array = np.array([array])
         if not isinstance(array, (np.ndarray)) and not (tf.is_tensor(array) and hasattr(array, "numpy")):
             msg = f"`array` has to be a `np.ndarray`. Is currently {type(array)}"
             raise TypeError(msg)

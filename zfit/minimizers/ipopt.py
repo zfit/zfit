@@ -379,7 +379,9 @@ class IpyoptV1(BaseMinimizer):
             minimizer.set(**{option: "yes" for option in warm_start_options})
 
             # update the tolerances
-            self._update_tol_inplace(criterion_value=criterion_value, internal_tol=internal_tol)
+            self._update_tol_inplace(
+                criterion_value=criterion_value, internal_tol=internal_tol * 0.1
+            )  # hand-tuned 0.1 factor
 
         else:
             valid = False

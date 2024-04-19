@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from contextlib import suppress
 from functools import partial
 from typing import TYPE_CHECKING, Literal, Optional, Union
 
@@ -9,7 +10,7 @@ import pydantic
 from pydantic import Field
 from tensorflow.python.util.deprecation import deprecated
 
-from ..exception import OutsideLimitsError
+from ..exception import OutsideLimitsError, SpecificFunctionNotImplementedError
 from ..serialization.serializer import BaseRepr, Serializer
 from .data import convert_to_data
 from .serialmixin import SerializableMixin
@@ -40,9 +41,11 @@ from ..util.exception import (
 from ..util.warnings import warn_advanced_feature
 from ..z.math import (
     autodiff_gradient,
+    autodiff_hessian,
     autodiff_value_gradients,
     automatic_value_gradients_hessian,
     numerical_gradient,
+    numerical_hessian,
     numerical_value_gradient,
     numerical_value_gradients_hessian,
 )
@@ -154,6 +157,22 @@ class BaseLossRepr(BaseRepr):
         if cls.orm_mode(v):
             v = convert_to_container(v, list)
         return v
+
+
+class GradientNotImplementedError(SpecificFunctionNotImplementedError):
+    pass
+
+
+class ValueGradientNotImplementedError(SpecificFunctionNotImplementedError):
+    pass
+
+
+class ValueGradientHessianNotImplementedError(SpecificFunctionNotImplementedError):
+    pass
+
+
+class HessianNotImplementedError(SpecificFunctionNotImplementedError):
+    pass
 
 
 class BaseLoss(ZfitLoss, BaseNumeric):
@@ -569,14 +588,25 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         numgrad = self._options["numgrad"] if numgrad is None else numgrad
         paramvals, checked = self.check_precompile(params=paramvals)
         with self._check_set_input_params(paramvals, guarantee_checked=checked):
+            return self._call_gradient(params, numgrad)
+
+    @z.function(wraps="loss")
+    def _call_gradient(self, params, numgrad):
+        with suppress(GradientNotImplementedError):
             return self._gradient(params=params, numgrad=numgrad)
+
+        with suppress(ValueGradientNotImplementedError):
+            return self._value_gradient(params=params, numgrad=numgrad)[1]
+        return self._fallback_gradient(params=params, numgrad=numgrad)
 
     def gradients(self, *_, **__):
         msg = "`gradients` is deprecated, use `gradient` instead."
         raise BreakingAPIChangeError(msg)
 
-    @z.function(wraps="loss")
-    def _gradient(self, params, numgrad):
+    def _gradient(self, params, numgrad):  # noqa: ARG002
+        raise GradientNotImplementedError
+
+    def _fallback_gradient(self, params, numgrad):
         self_value = partial(self.value, full=False)
         if numgrad:
             gradient = numerical_gradient(self_value, params=params)
@@ -622,15 +652,26 @@ class BaseLoss(ZfitLoss, BaseNumeric):
             full = DEFAULT_FULL_ARG
         paramvals, checked = self.check_precompile(params=paramvals)
         with self._check_set_input_params(paramvals, guarantee_checked=checked):
-            value, gradient = self._value_gradient(params=params, numgrad=numgrad, full=full)
+            value, gradient = self._call_value_gradient(params, numgrad, full)
         return value, gradient
+
+    @z.function(wraps="loss")
+    def _call_value_gradient(self, params, numgrad, full):
+        with suppress(ValueGradientNotImplementedError):
+            return self._value_gradient(params=params, numgrad=numgrad, full=full)
+        with suppress(GradientNotImplementedError):
+            gradient = self._gradient(params=params, numgrad=numgrad)
+            return self.value(full=full), gradient
+        return self._fallback_value_gradient(params=params, numgrad=numgrad, full=full)
 
     def value_gradients(self, *_, **__):
         msg = "`value_gradients` is deprecated, use `value_gradient` instead."
         raise BreakingAPIChangeError(msg)
 
-    @z.function(wraps="loss")
-    def _value_gradient(self, params, numgrad=False, *, full: bool | None = None):
+    def _value_gradient(self, params, numgrad, full):  # noqa: ARG002
+        raise ValueGradientNotImplementedError
+
+    def _fallback_value_gradient(self, params, numgrad=False, *, full: bool | None = None):
         if full is None:
             full = DEFAULT_FULL_ARG
         self_value = partial(self.value, full=full)
@@ -665,13 +706,31 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         numgrad = self._options["numgrad"] if numgrad is None else numgrad
         paramvals, checked = self.check_precompile(params=paramvals)
         with self._check_set_input_params(paramvals, guarantee_checked=checked):
-            return self.value_gradient_hessian(params=params, hessian=hessian, full=False, numgrad=numgrad)[2]
+            return self._call_hessian(params, numgrad, hessian)
+
+    def _call_hessian(self, params, numgrad, hessian):
+        with suppress(HessianNotImplementedError):
+            return self._hessian(params=params, hessian=hessian, numgrad=numgrad)
+        with suppress(ValueGradientHessianNotImplementedError):
+            return self._value_gradient_hessian(params=params, hessian=hessian, numerical=numgrad, full=False)[2]
+        return self._fallback_hessian(params=params, hessian=hessian, numgrad=numgrad)
+
+    def _hessian(self, params, hessian, numgrad):  # noqa: ARG002
+        raise HessianNotImplementedError
+
+    def _fallback_hessian(self, params, hessian, numgrad):
+        self_value = partial(self.value, full=False)
+        if numgrad:
+            hessian = numerical_hessian(self_value, params=params, hessian=hessian)
+        else:
+            hessian = autodiff_hessian(self_value, params=params, hessian=hessian)
+        return hessian
 
     def value_gradient_hessian(
         self,
         params: ztyping.ParamTypeInput = None,
-        hessian=None,
         *,
+        hessian=None,
         full: bool | None = None,
         numgrad=None,
         paramvals: ztyping.ParamTypeInput = None,
@@ -707,14 +766,25 @@ class BaseLoss(ZfitLoss, BaseNumeric):
             full = DEFAULT_FULL_ARG
         paramvals, checked = self.check_precompile(params=paramvals)
         with self._check_set_input_params(paramvals, guarantee_checked=checked):
+            return self._call_value_gradient_hessian(params, numgrad, full, hessian)
+
+    @z.function(wraps="loss")
+    def _call_value_gradient_hessian(self, params, numgrad, full, hessian):
+        with suppress(ValueGradientHessianNotImplementedError):
             return self._value_gradient_hessian(params=params, hessian=hessian, numerical=numgrad, full=full)
+        with suppress(HessianNotImplementedError):
+            hessian = self._hessian(params=params, hessian=hessian, numgrad=numgrad)
+            return *self.value_gradient(params=params, numgrad=numgrad, full=full), hessian
+        return self._fallback_value_gradient_hessian(params=params, hessian=hessian, numgrad=numgrad, full=full)
 
     def value_gradients_hessian(self, *_, **__):
         msg = "`value_gradients_hessian` is deprecated, use `value_gradient_hessian` instead."
         raise BreakingAPIChangeError(msg)
 
-    @z.function(wraps="loss")
-    def _value_gradient_hessian(self, params, hessian, numerical=False, *, full: bool | None = None):
+    def _value_gradient_hessian(self, params, hessian, numerical=False, full: bool | None = None):  # noqa: ARG002
+        raise ValueGradientHessianNotImplementedError
+
+    def _fallback_value_gradient_hessian(self, params, hessian, numerical=False, *, full: bool | None = None):
         self_value = partial(self.value, full=full)
         if numerical:
             return numerical_value_gradients_hessian(
@@ -1111,6 +1181,9 @@ class SimpleLoss(BaseLoss):
         func: Callable,
         params: Iterable[zfit.Parameter] | None = None,
         errordef: float | None = None,
+        *,
+        gradient: Callable | None = None,
+        hessian: Callable | None = None,
         # legacy
         deps: Iterable[zfit.Parameter] = NONE,
         dependents: Iterable[zfit.Parameter] = NONE,
@@ -1126,10 +1199,14 @@ class SimpleLoss(BaseLoss):
               the ``func`` depends on.
             errordef: Definition of which change in the loss corresponds to a change of 1 sigma.
                 For example, 1 for Chi squared, 0.5 for negative log-likelihood.
+            gradient: Function that calculates the gradient of the loss with respect to the parameters. If not given,
+                the gradient will be calculated automatically.
+            hessian: Function that calculates the hessian of the loss with respect to the parameters.
+                If not given, the hessian will be calculated automatically.
 
         Usage:
 
-        .. code:: python
+        .. code-block:: python
 
             import zfit
             import zfit.z.numpy as znp
@@ -1188,6 +1265,8 @@ class SimpleLoss(BaseLoss):
 
         self._simple_func = func
         self._errordef = errordef
+        self._grad_fn = gradient
+        self._hess_fn = hessian
         params = convert_to_parameters(params, prefer_constant=False)
         self._params = params
         self._simple_func_params = _extract_dependencies(params)
@@ -1205,6 +1284,18 @@ class SimpleLoss(BaseLoss):
         own_params = extract_filter_params(self._params, floating=floating, extract_independent=extract_independent)
         return params.union(own_params)
 
+    def _gradient(self, params, numgrad):
+        del numgrad
+        if self._grad_fn is not None:
+            return self._grad_fn(params)
+        raise GradientNotImplementedError
+
+    def _hessian(self, params, hessian, numgrad):
+        del hessian, numgrad
+        if self._hess_fn is not None:
+            return self._hess_fn(params)
+        raise HessianNotImplementedError
+
     @property
     def errordef(self):
         errordef = self._errordef
@@ -1213,11 +1304,10 @@ class SimpleLoss(BaseLoss):
             raise RuntimeError(msg)
         return errordef
 
-    # @z.function(wraps='loss')
     def _loss_func(self, model, data, fit_range, constraints=None, log_offset=None):  # noqa: ARG002
-        if log_offset not in (None, False):
-            msg = "log_offset is not allowed for a SimpleLoss"
-            raise ValueError(msg)
+        if log_offset is not None and log_offset is not False:
+            pass
+            # raise ValueError(msg)
         try:
             params = self._simple_func_params
             params = tuple(params)
@@ -1227,7 +1317,7 @@ class SimpleLoss(BaseLoss):
                 value = self._simple_func()
             else:
                 raise error
-        return z.convert_to_tensor(value)
+        return znp.asarray(value)
 
     def __add__(self, other):
         msg = "Cannot add a SimpleLoss, 'addition' of losses can mean anything." "Add them manually"
