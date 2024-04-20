@@ -19,8 +19,6 @@ Deprecations
 
 Bug fixes and small changes
 ---------------------------
-- enhanced loss: simple loss can take a gradient and hesse function and the default base loss provides fallbacks that work correctly between ``value_gradient`` and ``gradient``. This maybe matters if you've implemented a custom loss and should fix any issues with it.
-- multiprocessing would get stuck due to an `upstream bug in TensorFlow <https://github.com/tensorflow/tensorflow/issues/66115>`_. Working around it by disabling an unused piece of code.
 
 
 Experimental
@@ -28,6 +26,17 @@ Experimental
 
 Requirement changes
 -------------------
+
+Thanks
+------
+
+0.20.3 (19 Apr 2024)
+========================
+
+Bug fixes and small changes
+---------------------------
+- consistent behavior in loss: simple loss can take a gradient and hesse function and the default base loss provides fallbacks that work correctly between ``value_gradient`` and ``gradient``. This maybe matters if you've implemented a custom loss and should fix any issues with it.
+- multiprocessing would get stuck due to an `upstream bug in TensorFlow <https://github.com/tensorflow/tensorflow/issues/66115>`_. Working around it by disabling an unused piece of code.
 
 Thanks
 ------
