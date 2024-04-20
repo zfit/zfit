@@ -133,7 +133,6 @@ CacherOrCachersType = Union[
     Iterable["zfit.core.interfaces.ZfitGraphCachable"],
 ]  #:
 
-
 LimitsDictAxes = Dict[Tuple[int], "zfit.core.interfaces.ZfitLimit"]  #:
 LimitsDictObs = Dict[Tuple[str], "zfit.core.interfaces.ZfitLimit"]  #:
 LimitsDictNoCoords = Union[LimitsDictAxes, LimitsDictObs]  #:
@@ -148,6 +147,5 @@ ConstraintsInputType = Optional[
     ]
 ]  #:
 ArrayLike = tf.types.experimental.TensorLike  #:
-
 
 ParamValuesMap = Optional[Mapping[Union[str, "zfit.core.interfaces.ZfitParameter"], NumericalScalarType]]

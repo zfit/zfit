@@ -337,7 +337,8 @@ def _voigt_integral_from_inf_to_inf(limits, params, model):
     return sigma * np.sqrt(2 * np.pi)
 
 
-limits = Space(axes=0, limits=(-znp.inf, znp.inf))
+# do NOT uncomment, this can lead to deadlocks. No joke: https://github.com/tensorflow/tensorflow/issues/66115
+# limits = Space(axes=0, limits=(-znp.inf, znp.inf))
 
 
 # todo: this only works if executing eagerly, which fails for at least the binned PDFs
