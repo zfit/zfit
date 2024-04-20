@@ -380,7 +380,7 @@ class IpyoptV1(BaseMinimizer):
 
             # update the tolerances
             self._update_tol_inplace(
-                criterion_value=criterion_value, internal_tol=internal_tol * 0.1
+                criterion_value=criterion_value, internal_tol=internal_tol
             )  # hand-tuned 0.1 factor
 
         else:
