@@ -1131,7 +1131,7 @@ class JohnsonSU(WrapDistribution, SerializableMixin):
         name: str = "JohnsonSU",
         label: str | None = None,
     ):
-        """Johnson SU distribution.
+        """Johnson's SU distribution.
 
         The Johnson SU shape is parametrized here with `mu`, `lambd`, `gamma` and `delta`, following
         the same parametrization `as RooFit <https://root.cern.ch/doc/master/classRooJohnson.html>`_.
