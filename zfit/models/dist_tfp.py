@@ -1113,3 +1113,107 @@ class GammaPDFRepr(BasePDFRepr):
     gamma: Serializer.types.ParamTypeDiscriminated
     beta: Serializer.types.ParamTypeDiscriminated
     mu: Serializer.types.ParamTypeDiscriminated
+
+
+class JohnsonSU(WrapDistribution, SerializableMixin):
+    _N_OBS = 1
+
+    def __init__(
+        self,
+        mu: ztyping.ParamTypeInput,
+        lambd: ztyping.ParamTypeInput,
+        gamma: ztyping.ParamTypeInput,
+        delta: ztyping.ParamTypeInput,
+        obs: ztyping.ObsTypeInput,
+        *,
+        extended: ExtendedInputType = None,
+        norm: NormInputType = None,
+        name: str = "JohnsonSU",
+        label: str | None = None,
+    ):
+        """Johnson SU distribution.
+
+        The Johnson SU shape is parametrized here with `mu`, `lambd`, `gamma` and `delta`, following
+        the same parametrization `as RooFit <https://root.cern.ch/doc/master/classRooJohnson.html>`_.
+        The Johnson SU shape results from transforming a normally distributed variable `x` to
+
+        .. math::
+
+            z = \\gamma + \\delta \\sinh^{-1}\\left(\\frac{x - \\mu}{\\lambda}\\right)
+
+        The resulting shape is then
+
+        .. math::
+
+            f(x \\mid \\mu, \\lambda, \\gamma, \\delta) = \\exp{\\left[-\\frac{1}{2} \\left(\\gamma + \\delta \\sinh^{-1}\\left(\\frac{x - \\mu}{\\lambda}\\right)\\right)^2\\right]} / Z
+
+        with the normalization over [-inf, inf] of
+
+        .. math::
+
+            Z = \\lambda \\sqrt{2 \\pi} \\sqrt{1 + \\left(\\frac{x - \\mu}{\\lambda}\\right)^2} / \\delta
+
+        The normalization changes for different normalization ranges and `Z=1` for the unnormalized shape.
+
+        Args:
+            mu: Mean of the distribution
+            lambd: Scale of the distribution
+            gamma: Skewness of the distribution
+            delta: Tailweight of the distribution
+            obs: |@doc:pdf.init.obs| Observables of the
+               model. This will be used as the default space of the PDF and,
+               if not given explicitly, as the normalization range.
+
+               The default space is used for example in the sample method: if no
+               sampling limits are given, the default space is used.
+
+               If the observables are binned and the model is unbinned, the
+               model will be a binned model, by wrapping the model in a
+               :py:class:`~zfit.pdf.BinnedFromUnbinnedPDF`, equivalent to
+               calling :py:meth:`~zfit.pdf.BasePDF.to_binned`.
+
+               The observables are not equal to the domain as it does not restrict or
+               truncate the model outside this range. |@docend:pdf.init.obs|
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+            norm: |@doc:pdf.init.norm| Normalization of the PDF.
+               By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
+            name: |@doc:pdf.init.name| Name of the PDF.
+               Maybe has implications on the serialization and deserialization of the PDF.
+               For a human-readable name, use the label. |@docend:pdf.init.name|
+            label: |@doc:pdf.init.label| Human-readable name
+               or label of
+               the PDF for a better description, to be used with plots etc.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
+        """
+
+        mu, lambd, gamma, delta = self._check_input_params_tfp(mu, lambd, gamma, delta)
+        params = {"mu": mu, "lambd": lambd, "gamma": gamma, "delta": delta}
+
+        def dist_params():
+            return {"skewness": gamma.value(), "tailweight": delta.value(), "loc": mu.value(), "scale": lambd.value()}
+
+        distribution = tfp.distributions.JohnsonSU
+        super().__init__(
+            distribution=distribution,
+            dist_params=dist_params,
+            obs=obs,
+            params=params,
+            name=name,
+            extended=extended,
+            norm=norm,
+            label=label,
+        )
+
+
+class JohnsonSUPDFRepr(BasePDFRepr):
+    _implementation = JohnsonSU
+    hs3_type: Literal["JohnsonSU"] = Field("JohnsonSU", alias="type")
+    x: SpaceRepr
+    mu: Serializer.types.ParamTypeDiscriminated
+    lambd: Serializer.types.ParamTypeDiscriminated
+    gamma: Serializer.types.ParamTypeDiscriminated
+    delta: Serializer.types.ParamTypeDiscriminated
