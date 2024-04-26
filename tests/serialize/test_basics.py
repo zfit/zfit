@@ -300,6 +300,18 @@ def gamma(extended=None, **kwargs):
     obs = zfit.Space("obs", positive_limits)
     return zfit.pdf.Gamma(gamma=gamma, beta=beta, mu=mu, obs=obs, extended=extended)
 
+
+def johnsonsu(extended=None, **kwargs):
+    import zfit
+
+    mu = zfit.Parameter("mu_johnsonsu", 0.1, -1, 1)
+    lambd = zfit.Parameter("lambda_johnsonsu", 0.1, 0, 1)
+    gamma = zfit.Parameter("gamma_johnsonsu", 0.1, 0, 1)
+    delta = zfit.Parameter("delta_johnsonsu", 0.1, 0, 1)
+    obs = zfit.Space("obs", default_limits)
+    return zfit.pdf.JohnsonSU(mu=mu, lambd=lambd, gamma=gamma, delta=delta, obs=obs, extended=extended)
+
+
 def kde1dimexact(pdfs=None, extended=None, **kwargs):
     data = np.array(
         [
@@ -442,6 +454,7 @@ basic_pdfs = [
     generalizedcb,
     gaussexptail,
     generalizedgaussexptail,
+    johnsonsu,
     legendre,
     bernstein,
     chebyshev,
