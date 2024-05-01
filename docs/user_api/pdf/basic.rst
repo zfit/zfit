@@ -24,4 +24,5 @@ Any missing shape can be easily wrapped using :py:class:`~zfit.pdf.WrapDistribut
     zfit.pdf.ChiSquared
     zfit.pdf.StudentT
     zfit.pdf.Gamma
+    zfit.pdf.JohnsonSU
     zfit.pdf.Landau
