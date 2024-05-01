@@ -920,3 +920,257 @@ class GeneralizedGaussExpTailPDFRepr(BasePDFRepr):
 GeneralizedGaussExpTail.register_analytic_integral(
     func=generalized_gaussexptail_integral, limits=gaussexptail_integral_limits
 )
+
+
+@z.function(wraps="tensor", keepalive=True, stateless_args=False)
+def landau_pdf_func(x, mu, sigma):
+    """Calculate the Landau PDF.
+    Args:
+         x: value(s) for which the PDF will be calculated.
+         mu: Mean value
+         sigma: width
+
+    Returns:
+        `tf.Tensor`: The calculated PDF values.
+
+    Notes:
+        Based on code from "https://root.cern.ch/doc/master/PdfFuncMathCore_8cxx_source.html" (start line 21),
+        i.e. LANDAU pdf : algorithm from CERNLIB G110 denlan, the same algorithm is used in GSL
+        See also the paper
+            Kölbig, Kurt Siegfried, and Benno Schorr. "A program package for the Landau distribution."
+            Comput. Phys. Commun. 31.CERN-DD-83-18 (1983): 97-111.
+    """
+    # x = z.unstack_x(x)
+
+    # define constant parameters
+    p1 = [0.4259894875, -0.1249762550, 0.03984243700, -0.006298287635, 0.001511162253]
+    q1 = [1.0, -0.3388260629, 0.09594393323, -0.01608042283, 0.003778942063]
+
+    p2 = [0.1788541609, 0.1173957403, 0.01488850518, -0.001394989411, 0.0001283617211]
+    q2 = [1.0, 0.7428795082, 0.3153932961, 0.06694219548, 0.008790609714]
+
+    p3 = [0.1788544503, 0.09359161662, 0.006325387654, 0.00006611667319, -0.000002031049101]
+    q3 = [1.0, 0.6097809921, 0.2560616665, 0.04746722384, 0.006957301675]
+
+    p4 = [0.9874054407, 118.6723273, 849.2794360, -743.7792444, 427.0262186]
+    q4 = [1.0, 106.8615961, 337.6496214, 2016.712389, 1597.063511]
+
+    p5 = [1.003675074, 167.5702434, 4789.711289, 21217.86767, -22324.94910]
+    q5 = [1.0, 156.9424537, 3745.310488, 9834.698876, 66924.28357]
+
+    p6 = [1.000827619, 664.9143136, 62972.92665, 475554.6998, -5743609.109]
+    q6 = [1.0, 651.4101098, 56974.73333, 165917.4725, -2815759.939]
+
+    a1 = [0.04166666667, -0.01996527778, 0.02709538966]
+    a2 = [-1.845568670, -4.284640743]
+
+    if sigma <= 0:
+        return 0
+
+    v = (x - mu) / sigma
+    u = 0.0
+    ue = 0.0
+    us = 0.0
+    denlan = 0.0
+
+    if tf.less(v, -5.5):
+        u = znp.exp(v + 1.0)
+        if tf.less(u, 1e-10):
+            return 0.0
+        ue = z.exp(-1 / u)
+        us = z.sqrt(u)
+        denlan = 0.3989422803 * (ue / us) * (1 + (a1[0] + (a1[1] + a1[2] * u) * u) * u)
+
+    elif tf.less(v, -1):
+        u = z.exp(-v - 1)
+        denlan = (
+            z.exp(-u)
+            * z.sqrt(u)
+            * (p1[0] + (p1[1] + (p1[2] + (p1[3] + p1[4] * v) * v) * v) * v)
+            / (q1[0] + (q1[1] + (q1[2] + (q1[3] + q1[4] * v) * v) * v) * v)
+        )
+
+    elif tf.less(v, 1):
+        denlan = (p2[0] + (p2[1] + (p2[2] + (p2[3] + p2[4] * v) * v) * v) * v) / (
+            q2[0] + (q2[1] + (q2[2] + (q2[3] + q2[4] * v) * v) * v) * v
+        )
+
+    elif tf.less(v, 5):
+        denlan = (p3[0] + (p3[1] + (p3[2] + (p3[3] + p3[4] * v) * v) * v) * v) / (
+            q3[0] + (q3[1] + (q3[2] + (q3[3] + q3[4] * v) * v) * v) * v
+        )
+    elif tf.less(v, 12):
+        u = 1 / v
+        denlan = (
+            u
+            * u
+            * (p4[0] + (p4[1] + (p4[2] + (p4[3] + p4[4] * u) * u) * u) * u)
+            / (q4[0] + (q4[1] + (q4[2] + (q4[3] + q4[4] * u) * u) * u) * u)
+        )
+    elif tf.less(v, 50):
+        u = 1 / v
+        denlan = (
+            u
+            * u
+            * (p5[0] + (p5[1] + (p5[2] + (p5[3] + p5[4] * u) * u) * u) * u)
+            / (q5[0] + (q5[1] + (q5[2] + (q5[3] + q5[4] * u) * u) * u) * u)
+        )
+    elif tf.less(v, 300):
+        u = 1 / v
+        denlan = (
+            u
+            * u
+            * (p6[0] + (p6[1] + (p6[2] + (p6[3] + p6[4] * u) * u) * u) * u)
+            / (q6[0] + (q6[1] + (q6[2] + (q6[3] + q6[4] * u) * u) * u) * u)
+        )
+    else:
+        u = 1 / (v - v * z.log(v) / (v + 1))
+        denlan = u * u * (1 + (a2[0] + a2[1] * u) * u)
+
+    return denlan / sigma
+
+
+@z.function(wraps="tensor", keepalive=True)
+def landau_cdf_func(x, mu, sigma):
+    """Analytical function for the CDF of the Landau distribution.
+
+    Args:
+         x: value(s) for which the CDF will be calculated.
+         mu: Mean value
+         sigma: width
+
+    Returns:
+        `tf.Tensor`: The calculated CDF values.
+
+    Notes:
+        Based on code from this https://root.cern/doc/v610/ProbFuncMathCore_8cxx_source.html, start line 336.
+    """
+    # x = z.unstack_x(x)
+    # define constant parameters
+    p1 = [0.2514091491e0, -0.6250580444e-1, 0.1458381230e-1, -0.2108817737e-2, 0.7411247290e-3]
+    q1 = [1.0, -0.5571175625e-2, 0.6225310236e-1, -0.3137378427e-2, 0.1931496439e-2]
+
+    p2 = [0.2868328584e0, 0.3564363231e0, 0.1523518695e0, 0.2251304883e-1]
+    q2 = [1.0, 0.6191136137e0, 0.1720721448e0, 0.2278594771e-1]
+
+    p3 = [0.2868329066e0, 0.3003828436e0, 0.9950951941e-1, 0.8733827185e-2]
+    q3 = [1.0, 0.4237190502e0, 0.1095631512e0, 0.8693851567e-2]
+
+    p4 = [0.1000351630e1, 0.4503592498e1, 0.1085883880e2, 0.7536052269e1]
+    q4 = [1.0, 0.5539969678e1, 0.1933581111e2, 0.2721321508e2]
+
+    p5 = [0.1000006517e1, 0.4909414111e2, 0.8505544753e2, 0.1532153455e3]
+    q5 = [1.0, 0.5009928881e2, 0.1399819104e3, 0.4200002909e3]
+
+    p6 = [0.1000000983e1, 0.1329868456e3, 0.9162149244e3, -0.9605054274e3]
+    q6 = [1.0, 0.1339887843e3, 0.1055990413e4, 0.5532224619e3]
+
+    a1 = [0, -0.4583333333e0, 0.6675347222e0, -0.1641741416e1]
+    a2 = [0, 1.0, -0.4227843351e0, -0.2043403138e1]
+
+    v = (x - mu) / sigma
+    u = 0.0
+    cdf = 0.0
+
+    if tf.less(v, -5.5):
+        u = z.exp(v + 1)
+        cdf = 0.3989422803 * z.exp(-1.0 / u) * z.sqrt(u) * (1 + (a1[1] + (a1[2] + a1[3] * u) * u) * u)
+
+    elif tf.less(v, -1):
+        u = z.exp(-v - 1)
+        cdf = (
+            (z.exp(-u) / z.sqrt(u))
+            * (p1[0] + (p1[1] + (p1[2] + (p1[3] + p1[4] * v) * v) * v) * v)
+            / (q1[0] + (q1[1] + (q1[2] + (q1[3] + q1[4] * v) * v) * v) * v)
+        )
+    elif tf.less(v, 1):
+        cdf = (p2[0] + (p2[1] + (p2[2] + p2[3] * v) * v) * v) / (q2[0] + (q2[1] + (q2[2] + q2[3] * v) * v) * v)
+
+    elif tf.less(v, 4):
+        cdf = (p3[0] + (p3[1] + (p3[2] + p3[3] * v) * v) * v) / (q3[0] + (q3[1] + (q3[2] + q3[3] * v) * v) * v)
+
+    elif tf.less(v, 12):
+        u = 1.0 / v
+        cdf = (p4[0] + (p4[1] + (p4[2] + p4[3] * u) * u) * u) / (q4[0] + (q4[1] + (q4[2] + q4[3] * u) * u) * u)
+
+    elif tf.less(v, 50):
+        u = 1.0 / v
+        cdf = (p5[0] + (p5[1] + (p5[2] + p5[3] * u) * u) * u) / (q5[0] + (q5[1] + (q5[2] + q5[3] * u) * u) * u)
+
+    elif tf.less(v, 300):
+        u = 1.0 / v
+        cdf = (p6[0] + (p6[1] + (p6[2] + p6[3] * u) * u) * u) / (q6[0] + (q6[1] + (q6[2] + q6[3] * u) * u) * u)
+
+    else:
+        u = 1.0 / (v - v * z.log(v) / (v + 1))
+        cdf = 1 - (a2[1] + (a2[2] + a2[3] * u) * u) * u
+    return cdf
+
+
+@z.function(wraps="tensor", keepalive=True)
+def landau_integral(limits: ztyping.SpaceType, params: dict) -> tf.Tensor:
+    """Calculates the analytic integral of the Landau PDF.
+
+    Args:
+        limits: An object with attribute rect_limits.
+        params: A hashmap from which the parameters that defines the PDF will be extracted.
+    Returns:
+        The calculated integral.
+    """
+    lower, upper = limits.rect_limits
+    lower_cdf = landau_cdf_func(x=lower, mu=params["mu"], sigma=params["sigma"])
+    upper_cdf = landau_cdf_func(x=upper, mu=params["m"], sigma=params["sigma"])
+    return upper_cdf - lower_cdf
+
+
+class Landau(BasePDF, SerializableMixin):
+    _N_OBS = 1
+
+    def __init__(
+        self,
+        mu: ztyping.ParamTypeInput,
+        sigma: ztyping.ParamTypeInput,
+        obs: ztyping.ObsTypeInput,
+        *,
+        extended: ExtendedInputType = None,
+        norm: NormInputType = None,
+        name: str = "Landau",
+        label: str | None = None,
+    ):
+        """Landau distribution. Useful for describing energy loss of charged particles in thin layers.
+
+        Formula for PDF and CDF are based on https://root.cern.ch/doc/master/PdfFuncMathCore_8cxx_source.html and
+        https://root.cern/doc/v610/ProbFuncMathCore_8cxx_source.html, respectively.
+
+        These in turn come from CERNLIB G110 denlan, the same algorithm is used in GSL. The implementations seem
+        to be implementations of:
+            Kölbig, Kurt Siegfried, and Benno Schorr. "A program package for the Landau distribution."
+            Comput. Phys. Commun. 31.CERN-DD-83-18 (1983): 97-111.
+
+        Args:
+            mu: the average value
+            sigma: the width of the distribution
+        """
+        params = {"mu": mu, "sigma": sigma}
+        super().__init__(obs=obs, name=name, params=params, extended=extended, norm=norm, label=label)
+
+    @supports(norm=False)
+    def _pdf(self, x, norm, params):
+        del norm
+        mu = params["mu"]
+        sigma = params["sigma"]
+        x = z.unstack_x(x)
+        return landau_pdf_func(x, mu=mu, sigma=sigma)
+
+
+class LandauPDFRepr(BasePDFRepr):
+    _implementation = Landau
+    hs3_type: Literal["Landau"] = pydantic.Field("Landau", alias="type")
+    x: SpaceRepr
+    mu: Serializer.types.ParamTypeDiscriminated
+    sigma: Serializer.types.ParamTypeDiscriminated
+
+
+# These lines of code add the analytic integral function to Landau PDF.
+landau_integral_limits = Space(axes=(0,), limits=(ANY_LOWER, ANY_UPPER))
+Landau.register_analytic_integral(func=landau_integral, limits=landau_integral_limits)
