@@ -22,6 +22,7 @@ __all__ = [
     "ChiSquared",
     "StudentT",
     "Gamma",
+    "Landau",
     "Bernstein",
     "Chebyshev",
     "Legendre",
@@ -85,13 +86,7 @@ from .models.kde import (
     KDE1DimISJ,
 )
 from .models.morphing import SplineMorphingPDF
-from .models.physics import (
-    CrystalBall,
-    DoubleCB,
-    GaussExpTail,
-    GeneralizedCB,
-    GeneralizedGaussExpTail,
-)
+from .models.physics import CrystalBall, DoubleCB, GaussExpTail, GeneralizedCB, GeneralizedGaussExpTail, Landau
 from .models.polynomials import (
     Bernstein,
     Chebyshev,
