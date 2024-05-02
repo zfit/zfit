@@ -294,7 +294,7 @@ class ZfitParameterMixin(BaseNumeric):
         return label
 
     def __del__(self):
-        with suppress(AttributeError, NotImplementedError):  # if super does not have a __del__
+        with suppress(AttributeError, NotImplementedError, TypeError):  # if super does not have a __del__
             super().__del__(self)
 
     def __add__(self, other):
