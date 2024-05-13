@@ -14,9 +14,6 @@ build:
     - asdf global uv latest
     - uv venv
     - uv pip install .[alldev]
-
-# Build documentation in the docs/ directory with Sphinx
-sphinx:
-  configuration: docs/conf.py
+    - .venv/bin/python -m sphinx -T -b html -d docs/_build/doctrees -D language=en docs $READTHEDOCS_OUTPUT/html
 
 formats: [ ]
