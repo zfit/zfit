@@ -44,7 +44,7 @@ def test_dumpload(tmp_path):
         results_dict["model1"] = gauss1
 
         with open(tmpfile, "wb") as f:
-            zfit.dill.dump(results_dict, f)
+            zfit.dill.dump(results_dict, f, verify=False)
 
         with open(tmpfile, "rb") as f:
             results_dict_again = zfit.dill.load(f)

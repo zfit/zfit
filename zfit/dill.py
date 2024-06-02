@@ -21,7 +21,7 @@ class ZfitDillLoadError(Exception):
     pass
 
 
-def _retry_with_gc(func, kwargs, *, max_retries: int | None = None):
+def __retry_with_gc(func, kwargs, *, max_retries: int | None = None):
     """Helper function to retry a function with garbage collection if necessary.
 
     Main intended use is to retry a function that failed due to a graph that cannot be pickled. This can happen
@@ -75,7 +75,7 @@ def _retry_with_gc(func, kwargs, *, max_retries: int | None = None):
         import gc
 
         gc.collect()
-        result_dilled = _retry_with_gc(func, kwargs, max_retries=max_retries - 1)
+        result_dilled = __retry_with_gc(func, kwargs, max_retries=max_retries - 1)
 
     assert result_dilled is not _NONE, "result_dilled should have been set, logic error in zfit/dill.py"
     return result_dilled
@@ -108,9 +108,11 @@ def dumps(
     elif max_retries < 0:
         msg = "max_retries has to be >= 0"
         raise ValueError(msg)
+    if verify is None:
+        verify = True
     kwargs = dict(obj=obj, protocol=protocol, byref=byref, fmode=fmode, recurse=recurse, **kwds)
     for ntry in range(max_retries + 1):
-        out = _retry_with_gc(func=__dill.dumps, kwargs=kwargs, max_retries=max_retries)
+        out = __retry_with_gc(func=__dill.dumps, kwargs=kwargs, max_retries=max_retries)
         if verify:
             try:
                 loads(out, max_retries=max_retries)
@@ -165,11 +167,12 @@ def dump(
     elif max_retries < 0:
         msg = "max_retries has to be >= 0"
         raise ValueError(msg)
-
+    if verify is None:
+        verify = True
     kwargs = dict(obj=obj, file=file, protocol=protocol, byref=byref, fmode=fmode, recurse=recurse, **kwds)
     initial_position = file.tell()
     for ntry in range(max_retries + 1):
-        out = _retry_with_gc(func=__dill.dump, kwargs=kwargs, max_retries=max_retries)
+        out = __retry_with_gc(func=__dill.dump, kwargs=kwargs, max_retries=max_retries)
         if verify:
             post_out_position = file.tell()
             file.seek(initial_position)
@@ -192,7 +195,7 @@ def dump(
     return out
 
 
-def _retry_with_graphclear(func, kwargs, max_retries, _file_to_reset=None):
+def __retry_with_graphclear(func, kwargs, max_retries, _file_to_reset=None):
     original_error = None
 
     # make sure to reset the file to the initial position after an error was raised
@@ -208,7 +211,7 @@ def _retry_with_graphclear(func, kwargs, max_retries, _file_to_reset=None):
         except io.UnsupportedOperation as error:
             if "read" in str(error):
                 msg = (
-                    "Tried to verify dumps by loading but failed (most likely because the file was opened in write mode only. "
+                    "Tried to verify (use `verify=False` to not verify) dumping by loading but failed (most likely because the file was opened in write mode only. "
                     "Try to open it in write and read mode, for example by changing `wb` to `w+b`.)"
                 )
                 raise io.UnsupportedOperation(msg) from error
@@ -251,7 +254,7 @@ def loads(str, *, max_retries: Optional[int | bool] = None, **kwds):
         msg = "max_retries has to be >= 0"
         raise ValueError(msg)
     kwargs = dict(str=str, **kwds)
-    return _retry_with_graphclear(func=__dill.loads, kwargs=kwargs, max_retries=max_retries)
+    return __retry_with_graphclear(func=__dill.loads, kwargs=kwargs, max_retries=max_retries)
 
 
 @_functools.wraps(__dill.load)
@@ -276,7 +279,7 @@ def load(file, *, max_retries: Optional[int | bool] = None, **kwds):
         msg = "max_retries has to be >= 0"
         raise ValueError(msg)
     kwargs = dict(file=file, **kwds)
-    return _retry_with_graphclear(func=__dill.load, kwargs=kwargs, max_retries=max_retries, _file_to_reset=file)
+    return __retry_with_graphclear(func=__dill.load, kwargs=kwargs, max_retries=max_retries, _file_to_reset=file)
 
 
 dump.__doc__ = dump.__doc__.format(docstring=__dill.dump.__doc__)
