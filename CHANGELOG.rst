@@ -19,6 +19,7 @@ Deprecations
 
 Bug fixes and small changes
 ---------------------------
+- increase reliability of ``zfit.dill.dump`` and ``zfit.dill.dumps`` with an additional ``verify`` argument that reloads the dumped object to verify it was correctly dumped and retries if it wasn't.
 
 
 Experimental
@@ -29,6 +30,7 @@ Requirement changes
 
 Thanks
 ------
+- Davide Lancierini for findind and helping to debug the dill dumping issue
 
 0.20.3 (19 Apr 2024)
 ========================
