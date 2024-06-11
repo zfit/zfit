@@ -32,6 +32,7 @@ Requirement changes
 Thanks
 ------
 - Davide Lancierini for findind and helping to debug the dill dumping issue
+- James Herd for finding and reproducing the memory leak
 
 0.20.3 (19 Apr 2024)
 ========================
