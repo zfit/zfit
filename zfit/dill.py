@@ -96,6 +96,12 @@ def dumps(
     """Wrapper around :py:func`dill.dumps` that helps dumping zfit objects as it retries with garbage collection if
     necessary.
 
+    .. note::
+
+        This function can dump any python object, including list/dicts of zfit objects. If two objects are in any way
+        related, for example they share parameters, they *have* to be dumped together. Otherwise, the parameters will
+        be duplicated when loading, with the same name, which will fail to run the fit.
+
     Additional argument max_retries: Maximum number of retries if it fails (can occur due to garbage collector required to run first).
         If None, defaults to 2.
 
@@ -148,6 +154,12 @@ def dump(
 ):
     """Wrapper around :py:func`dill.dump` that helps dumping zfit objects as it retries with garbage collection if
     necessary.
+
+    .. note::
+
+        This function can dump any python object, including list/dicts of zfit objects. If two objects are in any way
+        related, for example they share parameters, they *have* to be dumped together. Otherwise, the parameters will
+        be duplicated when loading, with the same name, which will fail to run the fit.
 
     Additional arguments
         - max_retries: Maximum number of retries if it fails (can occur due to garbage collector required to run first).

@@ -20,6 +20,7 @@ Deprecations
 Bug fixes and small changes
 ---------------------------
 - increase reliability of ``zfit.dill.dump`` and ``zfit.dill.dumps`` with an additional ``verify`` argument that reloads the dumped object to verify it was correctly dumped and retries if it wasn't.
+- fixed a memory leak when creating multiple parameters
 
 
 Experimental
