@@ -11,6 +11,7 @@ Major Features and Improvements
 -------------------------------
 - add ``JohnsonSU`` PDF, the Johnson SU distribution.
 
+
 Breaking changes
 ------------------
 
@@ -20,6 +21,7 @@ Deprecations
 Bug fixes and small changes
 ---------------------------
 - increase reliability of ``zfit.dill.dump`` and ``zfit.dill.dumps`` with an additional ``verify`` argument that reloads the dumped object to verify it was correctly dumped and retries if it wasn't.
+- fix missing imported namespaces
 - fixed a memory leak when creating multiple parameters
 
 
@@ -28,10 +30,11 @@ Experimental
 
 Requirement changes
 -------------------
+- upgrade to TensorFlow 2.17 and TensorFlow Probability 0.25
 
 Thanks
 ------
-- Davide Lancierini for findind and helping to debug the dill dumping issue
+- Davide Lancierini for finding and helping to debug the dill dumping issue
 - James Herd for finding and reproducing the memory leak
 
 0.20.3 (19 Apr 2024)
