@@ -59,6 +59,24 @@ class BinnedHolder:
             message=f"Edges (minus one) and values do not have the same shape:" f" {edges_shape} vs {value_shape}",
         )
 
+    @classmethod
+    def from_hist(cls, h: hist.NamedHist):
+        """Create a binned data object from a ``hist`` histogram.
+
+        A histogram (following the UHI definition) with named axes.
+
+        Args:
+            h: A NamedHist. The axes will be used as the binning in zfit.
+        """
+        from zfit import Space
+
+        space = Space(binning=histaxes_to_binning(h.axes))
+        values = znp.asarray(h.values(flow=flow))
+        variances = h.variances(flow=flow)
+        if variances is not None:
+            variances = znp.asarray(variances)
+        return cls(space=space, values=values, variances=variances)
+
     def with_obs(self, obs: ztyping.ObsTypeInput):
         """Return a new binned data object with updated observables order.
 
@@ -234,14 +252,7 @@ class BinnedData(
         Args:
             h: A NamedHist. The axes will be used as the binning in zfit.
         """
-        from zfit import Space
-
-        space = Space(binning=histaxes_to_binning(h.axes))
-        values = znp.asarray(h.values(flow=flow))
-        variances = h.variances(flow=flow)
-        if variances is not None:
-            variances = znp.asarray(variances)
-        holder = BinnedHolder(space=space, values=values, variances=variances)
+        holder = BinnedHolder.from_hist(h)
         return cls(holder=holder)
 
     def with_obs(self, obs: ztyping.ObsTypeInput) -> BinnedData:

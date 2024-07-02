@@ -14,4 +14,16 @@ __all__ = [
     "SamplerData",
     "BinnedSamplerData",
     "concat",
+    "from_numpy",
+    "from_pandas",
+    "from_root",
+    "from_binned_tensor",
+    "from_hist",
 ]
+
+# create aliases for class constructors
+from_numpy = Data.from_numpy
+from_pandas = Data.from_pandas
+from_root = Data.from_root
+from_binned_tensor = BinnedData.from_tensor
+from_hist = BinnedData.from_hist
