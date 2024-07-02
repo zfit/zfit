@@ -263,6 +263,12 @@ class BaseParameter(Variable, ZfitParameter, TensorType, metaclass=MetaBaseParam
         return 1
 
 
+def _finalize_weakref(name):
+    if (params := ZfitParameterMixin._existing_params.get(name)) is not None and len(params) == 0:
+        # if it's the last one
+        ZfitParameterMixin._existing_params.pop(name)
+
+
 class ZfitParameterMixin(BaseNumeric):
     _existing_params: typing.ClassVar = {}
 
@@ -272,7 +278,7 @@ class ZfitParameterMixin(BaseNumeric):
             # Is an alternative arg for pop needed in case it fails? Why would it fail?
             weakref.finalize(
                 self,
-                lambda name: name in self._existing_params and self._existing_params.pop,
+                _finalize_weakref,
                 name,
             )
         self._existing_params[name].add(self)
@@ -292,10 +298,6 @@ class ZfitParameterMixin(BaseNumeric):
         if (label := self._label) is None:
             label = self.name
         return label
-
-    def __del__(self):
-        with suppress(AttributeError, NotImplementedError):  # if super does not have a __del__
-            super().__del__(self)
 
     def __add__(self, other):
         if isinstance(other, (ZfitModel, ZfitParameter)):
@@ -333,9 +335,7 @@ class ZfitParameterMixin(BaseNumeric):
         return self is other
 
     def __hash__(self):
-        if not hasattr(self, "_cached_hash"):
-            self._cached_hash = hash(id(self))
-        return self._cached_hash
+        return id(self)
 
 
 class TFBaseVariable(TFVariable, metaclass=MetaBaseParameter):
@@ -762,11 +762,11 @@ class ParameterSpec(VariableSpec):
         if parameter is None:
             msg = "Unknown error, please report, parameter should not be none"
             raise RuntimeError(msg)
-        if parameter is not None:  # initialize from parameter
-            shape = parameter.shape
-            dtype = parameter.dtype
-            trainable = True
-            alias_id = None
+
+        shape = parameter.shape
+        dtype = parameter.dtype
+        trainable = True
+        alias_id = None
         self.parameter_value = parameter
         self._name = parameter.name
         self.parameter_type = type(parameter)
