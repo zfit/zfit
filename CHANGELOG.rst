@@ -4,7 +4,7 @@ Changelog
 
 .. _newest-changelog:
 
-Develop
+0.21.0 (2 Jul 2024)
 ========================
 
 Major Features and Improvements
@@ -12,11 +12,6 @@ Major Features and Improvements
 - add ``JohnsonSU`` PDF, the Johnson SU distribution.
 
 
-Breaking changes
-------------------
-
-Deprecations
--------------
 
 Bug fixes and small changes
 ---------------------------
@@ -26,8 +21,6 @@ Bug fixes and small changes
 - add data loaders to ``zfit.data`` namespace
 
 
-Experimental
-------------
 
 Requirement changes
 -------------------
