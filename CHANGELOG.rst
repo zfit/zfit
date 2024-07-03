@@ -10,6 +10,7 @@ Changelog
 Major Features and Improvements
 -------------------------------
 - add ``JohnsonSU`` PDF, the Johnson SU distribution.
+- add Landau distribution.
 
 
 
