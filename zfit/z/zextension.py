@@ -275,7 +275,6 @@ class FunctionWrapperRegistry:
                 deleter=deleter,
                 stateless_args=self.stateless_args,
             )
-            #
             try:
                 func_holder_index = cache.index(function_holder)
             except ValueError:
