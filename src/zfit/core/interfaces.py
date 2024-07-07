@@ -974,6 +974,9 @@ class ZfitPDF(ZfitModel):
     def log_pdf(self, data, *, params=None):
         raise NotImplementedError
 
+    def log_pdf(self, data, *, params=None):
+        raise NotImplementedError
+
 
 class ZfitFunctorMixin:
     @property
