@@ -963,6 +963,9 @@ class ZfitPDF(ZfitModel):
     def as_func(self, norm_range: ztyping.LimitsType = False):
         raise NotImplementedError
 
+    def log_pdf(self, data, *, params=None):
+        raise NotImplementedError
+
 
 class ZfitFunctorMixin:
     @property
@@ -1004,6 +1007,10 @@ class ZfitBinnedData(ZfitDimensional, ZfitMinimalHist, metaclass=ABCMeta):
     def with_obs(self, obs) -> ZfitBinnedData:
         raise NotImplementedError
 
+    @property
+    def space(self):
+        raise NotImplementedError
+
     # @abstractmethod
     # def counts(self):  # TODO: name?
     #     raise NotImplementedError
@@ -1027,7 +1034,7 @@ class ZfitBinnedPDF(ZfitPDF, metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def rel_counts(self, x, norm):
+    def rel_counts(self, x=None, norm=None, *, params=None):
         pass
 
 
