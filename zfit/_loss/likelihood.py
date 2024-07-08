@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import functools
 import operator
+from collections.abc import Iterable
 
 import numpy as np
 
@@ -24,6 +25,8 @@ class ZfitNLLs:
 def to_nlls(nll):
     if isinstance(nll, NLL):
         return NLLs(nlls=[nll])
+    elif isinstance(nll, Iterable):
+        return NLLs(nlls=list(nll))
     elif isinstance(nll, NLLs):
         return nll
     else:
