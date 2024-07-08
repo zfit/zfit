@@ -511,7 +511,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         params, checked = self.check_precompile(params=params)
         if full is None:
             full = DEFAULT_FULL_ARG
-        log_offset = False if full else self._options.get("subtr_const_value")
+        log_offset = False if full else self._options.get("subtr_const_value", False)
 
         if log_offset is not False:
             log_offset = z.convert_to_tensor(log_offset)
