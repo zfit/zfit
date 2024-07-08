@@ -100,7 +100,7 @@ def _unbinned_nll_tf(
             probs = model.pdf(data)
         log_probs = znp.log(probs + znp.asarray(1e-307, dtype=znp.float64))  # minor offset to avoid NaNs from log(0)
         if log_offset is None:
-            log_offset = znp.array([0.0], dtype=znp.float64)
+            log_offset = False
         nll = _nll_calc_unbinned_tf(
             log_probs=log_probs,
             weights=data.weights if data.weights is not None else None,
@@ -511,9 +511,9 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         params, checked = self.check_precompile(params=params)
         if full is None:
             full = DEFAULT_FULL_ARG
-        log_offset = 0.0 if full else self._options.get("subtr_const_value")
+        log_offset = False if full else self._options.get("subtr_const_value", False)
 
-        if log_offset is not None:
+        if log_offset is not False:
             log_offset = z.convert_to_tensor(log_offset)
 
         # log_offset = z.convert_to_tensor(log_offset)

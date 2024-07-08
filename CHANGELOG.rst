@@ -4,6 +4,32 @@ Changelog
 
 .. _newest-changelog:
 
+Develop
+=======
+
+Major Features and Improvements
+-------------------------------
+
+Breaking changes
+------------------
+
+Deprecations
+-------------
+
+Bug fixes and small changes
+---------------------------
+- ``full`` argument for binned NLLs was not working properly and return a partially optimized loss value.
+
+Experimental
+------------
+
+Requirement changes
+-------------------
+
+Thanks
+------
+
+
 0.21.0 (2 Jul 2024)
 ========================
 
