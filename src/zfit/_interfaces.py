@@ -938,11 +938,25 @@ class ZfitModel(ZfitNumericParametrized, ZfitDimensional):
 
 class ZfitFunc(ZfitModel):
     @abstractmethod
+    def __call__(self, x, *, params=None):
+        raise NotImplementedError
+
+    @abstractmethod
     def func(self, x: ztyping.XType, name: str = "value") -> ztyping.XType:
         raise NotImplementedError
 
     @abstractmethod
     def as_pdf(self):
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def output(self) -> ztyping.SpaceType:
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def space(self) -> ztyping.SpaceType:
         raise NotImplementedError
 
 
