@@ -7,6 +7,7 @@ from ._loss.binnedloss import (
     ExtendedBinnedChi2,
     ExtendedBinnedNLL,
 )
+from ._loss.general import Chi2
 from .core.loss import BaseLoss, ExtendedUnbinnedNLL, SimpleLoss, UnbinnedNLL
 
 __all__ = [
@@ -19,4 +20,6 @@ __all__ = [
     "ExtendedUnbinnedNLL",
     "SimpleLoss",
     "UnbinnedNLL",
+    # general losses
+    "Chi2",
 ]

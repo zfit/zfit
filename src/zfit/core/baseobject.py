@@ -80,7 +80,11 @@ def convert_param_values(params: Union[Mapping[Union[str, ztyping.ParamType], fl
         params = {}
     elif isinstance(params, ZfitResult):
         params = params.values
-
+    elif isinstance(params, (list, tuple)):
+        if not all(isinstance(param, ZfitParameter) for param in params):
+            msg = f"Expected all elements of `params` to be `ZfitParameter`s but got {params}."
+            raise TypeError(msg)
+        params = {param.name: param.value() for param in params}
     elif not isinstance(params, Mapping):
         msg = f"`params` has to be a mapping (dict-like) or a `ZfitResult`, is {params} of type {type(params)}."
         raise TypeError(msg)
