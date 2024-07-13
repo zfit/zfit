@@ -308,7 +308,8 @@ def automatic_value_gradient_hessian(
         msg = "Parameters have to be specified, are currently None."
         raise ValueError(msg)
     if func is None and value_grad_func is None:
-        ValueError("Either `func` or `value_grad_func` has to be specified.")
+        msg = "Either `func` or `value_grad_func` has to be specified."
+        raise ValueError(msg)
 
     from .. import z
 
