@@ -18,9 +18,6 @@ Deprecations
 
 Bug fixes and small changes
 ---------------------------
-- ``full`` argument for binned NLLs was not working properly and return a partially optimized loss value.
-- jit compile all methods of the loss (gradient, hessian) to avoid recompilation every time. This can possibly speed up
-  different minimizers significantly.
 
 Experimental
 ------------
@@ -30,6 +27,16 @@ Requirement changes
 
 Thanks
 ------
+
+0.21.1 (13 Jul 2024)
+========================
+
+Bug fixes and small changes
+---------------------------
+- ``full`` argument for binned NLLs was not working properly and return a partially optimized loss value.
+- jit compile all methods of the loss (gradient, hessian) to avoid recompilation every time. This can possibly speed up
+  different minimizers significantly.
+
 
 
 0.21.0 (2 Jul 2024)
