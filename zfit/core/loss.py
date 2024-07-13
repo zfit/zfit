@@ -520,6 +520,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         with self._check_set_input_params(params, guarantee_checked=checked):
             return self._call_value(self.model, self.data, self.fit_range, self.constraints, log_offset)
 
+    @z.function(wraps="loss")
     def _call_value(self, model, data, fit_range, constraints, log_offset):
         return self._value(
             model=model,
@@ -708,6 +709,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         with self._check_set_input_params(paramvals, guarantee_checked=checked):
             return self._call_hessian(params, numgrad, hessian)
 
+    @z.function(wraps="loss")
     def _call_hessian(self, params, numgrad, hessian):
         with suppress(HessianNotImplementedError):
             return self._hessian(params=params, hessian=hessian, numgrad=numgrad)
