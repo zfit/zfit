@@ -1,17 +1,16 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 
 import numpy as np
 
-from .. import z
 from ..core.interfaces import ZfitLoss
 from ..core.parameter import Parameter, assign_values
 from ..util.cache import GraphCachable
-from ..util.deprecation import deprecated_args
-from ..util.exception import MaximumIterationReached
-from .baseminimizer import BaseMinimizer, minimize_supports, print_minimization_status
+from .baseminimizer import BaseMinimizer, minimize_supports
 from .fitresult import FitResult
 from .strategy import ZfitStrategy
-from .termination import EDM, ConvergenceCriterion
+from .termination import ConvergenceCriterion
 
 
 class LevenbergMarquardt(BaseMinimizer, GraphCachable):
@@ -29,9 +28,8 @@ class LevenbergMarquardt(BaseMinimizer, GraphCachable):
         strategy: ZfitStrategy | None = None,
         name: str | None = None,
     ):
-        """
-        Levenberg-Marquardt minimizer for general non-linear minimization by
-        interpolating between Gauss-Newton and Gradient descent optimization.
+        """Levenberg-Marquardt minimizer for general non-linear minimization by interpolating between Gauss-Newton and
+        Gradient descent optimization.
 
         LM minimizes a function by iteratively solving a locally linearized
         version of the problem. Using the gradient (g) and the Hessian (H) of
@@ -72,7 +70,6 @@ class LevenbergMarquardt(BaseMinimizer, GraphCachable):
         direction = "none"
         nostep = True
         for _ in range(10):
-
             # Determine damped hessian
             damped_hess = self._damped_hess0(hess, L)
 
@@ -129,12 +126,12 @@ class LevenbergMarquardt(BaseMinimizer, GraphCachable):
             # use any improvement if a safe improvement could not be found
             if scarry_best[0] is not None:
                 return scarry_best
-            raise OptimizeStop("No step found")
+            msg = "No step found"
+            raise OptimizeStop(msg)
         return best
 
     @minimize_supports(init=True)
     def _minimize(self, loss: ZfitLoss, params: list[Parameter], init):
-
         if init:
             assign_values(params=params, values=init)
 
@@ -142,7 +139,6 @@ class LevenbergMarquardt(BaseMinimizer, GraphCachable):
         L = self.L0
         success = False
         for _ in range(self.maxiter):
-
             try:
                 step = self._mode0_step(loss, params, L)
             except OptimizeStop:
