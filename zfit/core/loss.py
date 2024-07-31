@@ -6,8 +6,8 @@ from contextlib import suppress
 from functools import partial
 from typing import TYPE_CHECKING, Literal, Optional, Union
 
-import pydantic
-from pydantic import Field
+import pydantic.v1 as pydantic
+from pydantic.v1 import Field
 from tensorflow.python.util.deprecation import deprecated
 
 from ..exception import OutsideLimitsError, SpecificFunctionNotImplementedError

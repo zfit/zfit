@@ -15,7 +15,7 @@ from collections import Counter
 from collections.abc import Iterable
 from typing import Literal, Optional
 
-import pydantic
+import pydantic.v1 as pydantic
 import tensorflow as tf
 
 import zfit.data

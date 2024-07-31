@@ -14,7 +14,7 @@ numdifftools
 numpy>=1.16
 ordered-set
 pandas
-pydantic<2.0.0  # fails with not a "subclass", won't fix soon
+pydantic>=2.0.0
 pyyaml
 scipy>=1.2
 tabulate

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Callable, Literal
 
-import pydantic
+import pydantic.v1 as pydantic
 import tensorflow as tf
 
 import zfit.z.numpy as znp
