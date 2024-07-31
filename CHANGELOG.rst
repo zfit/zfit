@@ -25,6 +25,7 @@ Experimental
 
 Requirement changes
 -------------------
+- Upgrade from Pydantic V1 to V2
 
 Thanks
 ------
