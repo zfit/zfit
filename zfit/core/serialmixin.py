@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import weakref
 
-import pydantic
+import pydantic.v1 as pydantic
 import yaml
 
 from zfit.util.warnings import warn_experimental_feature

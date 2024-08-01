@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Literal
 
 import numpy as np
-import pydantic
+import pydantic.v1 as pydantic
 import tensorflow as tf
 
 import zfit.z.numpy as znp

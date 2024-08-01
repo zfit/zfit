@@ -19,13 +19,13 @@ from weakref import WeakSet
 
 import dill
 import numpy as np
-import pydantic
+import pydantic.v1 as pydantic
 import tensorflow as tf
 import tensorflow_probability as tfp
 
 # TF backwards compatibility
 from ordered_set import OrderedSet
-from pydantic import Field, validator
+from pydantic.v1 import Field, validator
 from tensorflow.python.ops import tensor_getitem_override
 from tensorflow.python.ops.resource_variable_ops import (
     ResourceVariable as TFVariable,
