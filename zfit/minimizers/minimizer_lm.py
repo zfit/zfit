@@ -13,6 +13,7 @@ from .baseminimizer import BaseMinimizer, minimize_supports
 from .fitresult import FitResult
 from .strategy import ZfitStrategy
 from .termination import ConvergenceCriterion
+from ..util.exception import MaximumIterationReached
 
 
 class OptimizeStop(Exception):
@@ -73,7 +74,7 @@ class LevenbergMarquardt(BaseMinimizer, GraphCachable):
     def _mode0_step(self, loss, params, L):
         init_chi2, grad = loss.value_gradient(params)
         hess = loss.hessian(params)
-        grad = grad[..., None]  # right shape for the solve
+        grad = - grad[..., None]  # right shape for the solve
         best = (znp.zeros_like(params), init_chi2, L)
         scarry_best = (None, init_chi2, L)
         direction = "none"
@@ -157,15 +158,17 @@ class LevenbergMarquardt(BaseMinimizer, GraphCachable):
                 break
 
             L = step[2]
-            params = params + step[0]
+            params = params + step[0][:, 0]
             loss_history.append(step[1])
             if len(loss_history) >= 3:
                 # Loss no longer updating and L is small, minimum reached
-                if (loss_history[-3] - loss_history[-1]) / loss_history[-1] < self.tol and L < 0.1:
+                if (loss_history[-3] - loss_history[-1]) / loss_history[-1] < self.tol and znp.all(znp.diag(L) < 0.1):
                     success = True
                     break
+        else:
+            raise IOError(f"Maximum number of iterations ({self.maxiter}) reached.")
 
         if step is None:
             msg = "No step taken. This should not happen?"
-            raise RuntimeError(msg)
+            raise IOError(msg)
         return FitResult(loss=step[1], params=params, minimizer=self, valid=success)
