@@ -5,13 +5,14 @@ from collections.abc import Mapping
 import numpy as np
 
 import zfit.z.numpy as znp
+
+from ..core.interfaces import ZfitLoss
+from ..core.parameter import Parameter, assign_values
+from ..util.cache import GraphCachable
 from .baseminimizer import BaseMinimizer, minimize_supports
 from .fitresult import FitResult
 from .strategy import ZfitStrategy
 from .termination import ConvergenceCriterion
-from ..core.interfaces import ZfitLoss
-from ..core.parameter import Parameter, assign_values
-from ..util.cache import GraphCachable
 
 
 class OptimizeStop(Exception):
@@ -22,16 +23,16 @@ class LevenbergMarquardt(BaseMinimizer, GraphCachable):
     _DEFAULT_name = "LM"
 
     def __init__(
-            self,
-            tol: float | None = None,
-            mode: int = 0,
-            confidence: float = 2.0,
-            verbosity: int | None = None,
-            options: Mapping[str, object] | None = None,
-            maxiter: int = 100,
-            criterion: ConvergenceCriterion | None = None,
-            strategy: ZfitStrategy | None = None,
-            name: str | None = None,
+        self,
+        tol: float | None = None,
+        mode: int = 0,
+        confidence: float = 2.0,
+        verbosity: int | None = None,
+        options: Mapping[str, object] | None = None,
+        maxiter: int = 100,
+        criterion: ConvergenceCriterion | None = None,
+        strategy: ZfitStrategy | None = None,
+        name: str | None = None,
     ):
         """Levenberg-Marquardt minimizer for general non-linear minimization by interpolating between Gauss-Newton and
         Gradient descent optimization.
@@ -165,5 +166,6 @@ class LevenbergMarquardt(BaseMinimizer, GraphCachable):
                     break
 
         if step is None:
-            raise RuntimeError("No step taken. This should not happen?")
+            msg = "No step taken. This should not happen?"
+            raise RuntimeError(msg)
         return FitResult(loss=step[1], params=params, minimizer=self, valid=success)
