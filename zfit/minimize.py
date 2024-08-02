@@ -8,6 +8,7 @@ from .minimizers.baseminimizer import (
     minimize_supports,
 )
 from .minimizers.ipopt import IpyoptV1
+from .minimizers.minimizer_lm import LevenbergMarquardt
 from .minimizers.minimizer_minuit import Minuit
 from .minimizers.minimizer_nlopt import (
     NLoptBaseMinimizerV1,
@@ -43,6 +44,7 @@ __all__ = [
     "WrapOptimizer",
     "Adam",
     "Minuit",
+    "LevenbergMarquardt",
     "ScipyBaseMinimizerV1",
     "ScipyLBFGSBV1",
     "ScipyTrustConstrV1",
