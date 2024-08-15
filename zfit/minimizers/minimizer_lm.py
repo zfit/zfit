@@ -26,10 +26,11 @@ class LevenbergMarquardt(BaseMinimizer, GraphCachable):
         self,
         tol: float | None = None,
         mode: int = 0,
-        confidence: float = 2.0,
+        rho_min: float = 0.1,
+        rho_max: float = 2.0,
         verbosity: int | None = None,
         options: Mapping[str, object] | None = None,
-        maxiter: int = 100,
+        maxiter: int = 10000,
         criterion: ConvergenceCriterion | None = None,
         strategy: ZfitStrategy | None = None,
         name: str | None = None,
@@ -52,8 +53,10 @@ class LevenbergMarquardt(BaseMinimizer, GraphCachable):
         """
 
         self.mode = mode
-        self.confidence = confidence
-        self.Lup = 10  # TODO: just added this adhoc
+        self.rho_min = rho_min
+        self.rho_max = rho_max
+        self.Lup = 11
+        self.Ldn = 9
         super().__init__(
             name=name,
             strategy=strategy,
@@ -73,7 +76,7 @@ class LevenbergMarquardt(BaseMinimizer, GraphCachable):
     def _mode0_step(self, loss, params, L):
         init_chi2, grad = loss.value_gradient(params)
         hess = loss.hessian(params)
-        grad = -grad[..., None]  # right shape for the solve
+        grad = grad[..., None]  # right shape for the solve
         best = (znp.zeros_like(params), init_chi2, L)
         scarry_best = (None, init_chi2, L)
         direction = "none"
@@ -81,20 +84,18 @@ class LevenbergMarquardt(BaseMinimizer, GraphCachable):
         for _ in range(10):
             # Determine damped hessian
             damped_hess = self._damped_hess0(hess, L)
-
             # Solve for step with minimum chi^2
-            h = znp.linalg.solve(damped_hess, grad)
+            h = znp.linalg.solve(damped_hess, -grad)
 
             # Calculate expected improvement in chi^2
-            expected_improvement = znp.transpose(h) @ damped_hess @ h - 2 * znp.transpose(h) @ grad
+            expected_improvement = -znp.transpose(h) @ damped_hess @ h - 2 * znp.transpose(h) @ grad
 
             # Calculate new chi^2
             params1 = params + h[:, 0]
             chi2 = loss.value(params1)
-
             # Skip if chi^2 is nan
             if not np.isfinite(chi2):
-                L *= self.Lup
+                L = L * self.Lup
                 if direction == "better":
                     break
                 direction = "worse"
@@ -104,10 +105,11 @@ class LevenbergMarquardt(BaseMinimizer, GraphCachable):
             if chi2 <= scarry_best[1]:
                 scarry_best = (h, chi2, L)
 
-            # Check if chi^2 improved too much
-            if ((init_chi2 - chi2) / init_chi2) > (self.confidence * expected_improvement):
+            # Check if chi^2 improved the expected amount
+            rho = (init_chi2 - chi2) / expected_improvement
+            if rho < self.rho_min or rho > self.rho_max:
                 L = L * self.Lup
-                if direction == "better":
+                if L > 1e9 or direction == "better":
                     break
                 direction = "worse"
                 continue
@@ -117,10 +119,10 @@ class LevenbergMarquardt(BaseMinimizer, GraphCachable):
                 best = (h, chi2, L)
                 L = L / self.Ldn
                 nostep = False
-                if L < 1e-8 or direction == "worse":
+                if L < 1e-9 or direction == "worse":
                     break
                 direction = "better"
-            elif chi2 >= best[1] and direction in ["worse", "none"]:
+            elif chi2 >= best[1] and direction in ["worse", "none"] and L < 1e9:
                 L = L * self.Lup
                 direction = "worse"
                 continue
@@ -145,9 +147,8 @@ class LevenbergMarquardt(BaseMinimizer, GraphCachable):
             assign_values(params=params, values=init)
 
         evaluator = self.create_evaluator(loss=loss, params=params)
-
         loss_history = [evaluator.value(params)]
-        L = znp.eye(len(params))
+        L = 1.0
         success = False
         step = None
         for _ in range(self.maxiter):
@@ -155,13 +156,12 @@ class LevenbergMarquardt(BaseMinimizer, GraphCachable):
                 step = self._mode0_step(evaluator, params, L)
             except OptimizeStop:
                 break
-
             L = step[2]
             params = params + step[0][:, 0]
             loss_history.append(step[1])
             if len(loss_history) >= 3:
                 # Loss no longer updating and L is small, minimum reached
-                if (loss_history[-3] - loss_history[-1]) / loss_history[-1] < self.tol and znp.all(znp.diag(L) < 0.1):
+                if (loss_history[-3] - loss_history[-1]) / loss_history[-1] < self.tol and L < 0.1:
                     success = True
                     break
         else:
@@ -171,4 +171,12 @@ class LevenbergMarquardt(BaseMinimizer, GraphCachable):
         if step is None:
             msg = "No step taken. This should not happen?"
             raise OSError(msg)
-        return FitResult(loss=step[1], params=params, minimizer=self, valid=success)
+        return FitResult(
+            loss=loss,
+            params=params,
+            edm=self.tol,
+            fminopt=step[1],
+            minimizer=self,
+            valid=success,
+            criterion=None,
+        )
