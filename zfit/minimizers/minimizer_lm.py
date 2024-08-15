@@ -30,7 +30,7 @@ class LevenbergMarquardt(BaseMinimizer, GraphCachable):
         rho_max: float = 2.0,
         verbosity: int | None = None,
         options: Mapping[str, object] | None = None,
-        maxiter: int = 10000,
+        maxiter: int = 1000,
         criterion: ConvergenceCriterion | None = None,
         strategy: ZfitStrategy | None = None,
         name: str | None = None,
@@ -157,7 +157,7 @@ class LevenbergMarquardt(BaseMinimizer, GraphCachable):
             except OptimizeStop:
                 break
             L = step[2]
-            params = params + step[0][:, 0]
+            assign_values(params, params + step[0][:, 0])
             loss_history.append(step[1])
             if len(loss_history) >= 3:
                 # Loss no longer updating and L is small, minimum reached
