@@ -8,7 +8,7 @@ from collections.abc import Callable
 from typing import Iterable, Literal, Mapping, Optional
 
 import numpy as np
-import pydantic
+import pydantic.v1 as pydantic
 import tensorflow as tf
 import tensorflow_probability as tfp
 from ordered_set import OrderedSet

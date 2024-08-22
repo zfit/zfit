@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections.abc import Iterable
 from typing import Optional
 
-import pydantic
+import pydantic.v1 as pydantic
 import tensorflow as tf
 
 from ..core.coordinates import convert_to_obs_str
@@ -151,8 +151,8 @@ class FunctorPDFRepr(BasePDFRepr):
 def _extract_common_obs(obs: tuple[tuple[str] | Space]) -> tuple[str]:
     obs_iter = [space.obs if isinstance(space, Space) else space for space in obs]
     unique_obs = []
-    for obs in obs_iter:
-        for o in obs:
+    for currobs in obs_iter:
+        for o in currobs:
             if o not in unique_obs:
                 unique_obs.append(o)
     return tuple(unique_obs)

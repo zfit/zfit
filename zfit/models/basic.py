@@ -13,7 +13,7 @@ from typing import Literal
 
 import numpy as np
 import tensorflow as tf
-from pydantic import Field
+from pydantic.v1 import Field
 
 import zfit.z.numpy as znp
 from zfit import z

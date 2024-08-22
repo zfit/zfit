@@ -6,8 +6,8 @@ from contextlib import suppress
 from functools import partial
 from typing import TYPE_CHECKING, Literal, Optional, Union
 
-import pydantic
-from pydantic import Field
+import pydantic.v1 as pydantic
+from pydantic.v1 import Field
 from tensorflow.python.util.deprecation import deprecated
 
 from ..exception import OutsideLimitsError, SpecificFunctionNotImplementedError
@@ -1145,8 +1145,8 @@ class ExtendedUnbinnedNLL(BaseUnbinnedNLL):
             nevents = dat.n_events if dat.weights is None else z.reduce_sum(dat.weights)
             nevents = znp.asarray(nevents, tf.float64)
             nevents_collected.append(nevents)
-            yields.append(mod.get_yield())
-        yields = znp.stack(yields, axis=0)
+            yields.append(znp.atleast_1d(mod.get_yield()))
+        yields = znp.concatenate(yields, axis=0)
         nevents_collected = znp.stack(nevents_collected, axis=0)
 
         term_new = tf.nn.log_poisson_loss(nevents_collected, znp.log(yields), compute_full_loss=log_offset is False)

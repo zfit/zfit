@@ -21,10 +21,10 @@ from typing import (
 )
 
 import numpy as np
-import pydantic
+import pydantic.v1 as pydantic
 import tensorflow as tf
 from frozendict import frozendict
-from pydantic import Field
+from pydantic.v1 import Field
 
 from zfit.core.interfaces import (
     ZfitBinnedData,

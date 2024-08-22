@@ -126,3 +126,56 @@ def test_truncated_pdf_sample(pdf, limits):
     samples = np.array(truncated_pdf.sample(n, space2)[pdf.obs[0]])
     all_inside = (samples >= -1) * (samples <= 1) + (samples >= 2) * (samples <= 3)
     np.testing.assert_array_equal(all_inside, np.ones(n, dtype=bool))
+
+
+def test_dynamic_truncated_yield():
+    import numpy as np
+
+    import zfit
+
+    obs = zfit.Space("x", -10, 10)
+
+    mean = 3
+    obs1 = zfit.Space("x", -10, mean)
+    obs2 = zfit.Space("x", mean, 10)
+
+
+    # parameters
+    mu_shared = zfit.Parameter("mu_shared", 2.0, -4, 6)  # mu is a shared parameter
+    sigma1 = zfit.Parameter("sigma_one", 1.0, 0.1, 10)
+    globyield = zfit.Parameter("yield1", 1100, 500, 2000)
+
+
+    # model building, pdf creation
+    gauss1 = zfit.pdf.Gauss(mu=mu_shared, sigma=sigma1, obs=obs, extended=globyield)
+    gauss2 = zfit.pdf.Gauss(mu=mu_shared, sigma=sigma1, obs=obs, extended=globyield)
+
+    # data
+    normal_np = np.random.normal(loc=2.0, scale=3.0, size=1000)
+    data = zfit.Data.from_numpy(obs=obs, array=normal_np)
+    data1 = zfit.Data.from_numpy(obs=obs1, array=normal_np)  # data for the first model, can also be just a numpy array
+    # the data objects just makes sure that the data is within the limits
+
+    mean = 5
+    gauss1_trunc = gauss1.to_truncated(limits=(-10, mean))
+    gauss2_trunc = gauss1.to_truncated(limits=(mean, 10))
+
+    # data
+    data2 = zfit.Data.from_numpy(obs=obs2, array=normal_np)
+
+
+    nll1 = zfit.loss.ExtendedUnbinnedNLL(model=gauss1_trunc, data=data1)
+    nll2 = zfit.loss.ExtendedUnbinnedNLL(model=gauss2_trunc, data=data2)
+    nll_simultaneous2 = nll1 + nll2
+
+    minimizer = zfit.minimize.Minuit(tol=1e-3, gradient='zfit')
+    result = minimizer.minimize(nll_simultaneous2)
+    result.hesse()
+
+    ntrue = data1.nevents + data2.nevents
+    assert pytest.approx(result.params[globyield]['value'], abs=0.3) == ntrue
+
+    nll_norm = zfit.loss.ExtendedUnbinnedNLL(model=gauss1, data=data)
+    result = minimizer.minimize(nll_norm)
+    result.hesse()
+    assert pytest.approx(result.params[globyield]['value'], abs=0.3) == ntrue
