@@ -37,14 +37,9 @@ Bug fixes and small changes
   for left and right) could cause a crash due to some internal caching. This is now fixed.
 
 
-Experimental
-------------
-
 Requirement changes
 -------------------
 
-Thanks
-------
 
 0.22.0 22 Aug 2024
 ===================
