@@ -4,31 +4,17 @@ Changelog
 
 .. _newest-changelog:
 
-Develop
-=======
-
-Major Features and Improvements
--------------------------------
-
-Breaking changes
-------------------
-
-Deprecations
--------------
+0.22.0 22 Aug 2024
+============
 
 Bug fixes and small changes
 ---------------------------
 - change the truncated PDF with a yield to reflect a dynamic change in shape
 
-Experimental
-------------
-
 Requirement changes
 -------------------
 - Upgrade from Pydantic V1 to V2
 
-Thanks
-------
 
 0.21.1 (13 Jul 2024)
 ========================
