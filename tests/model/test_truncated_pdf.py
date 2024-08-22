@@ -127,7 +127,6 @@ def test_truncated_pdf_sample(pdf, limits):
     all_inside = (samples >= -1) * (samples <= 1) + (samples >= 2) * (samples <= 3)
     np.testing.assert_array_equal(all_inside, np.ones(n, dtype=bool))
 
-
 def test_dynamic_truncated_yield():
     import numpy as np
 
