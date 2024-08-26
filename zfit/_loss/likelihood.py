@@ -75,7 +75,9 @@ class BinnedNLL(NLLs):
             ComposedParameter(
                 name=f"{np.random.randint(1e15)}_expected",
                 params=expected.get_params(),
-                func=lambda params, i=i: znp.flatten(expected.rel_counts(params=params) * znp.sum(data_array))[i],
+                func=lambda params, i=i: znp.flatten(
+                    expected.rel_counts(params={p: p.value() for p in params}) * znp.sum(data_array)
+                )[i],
             )
             for i in range(znp.flatten(expected.rel_counts()).shape[0])
         ]
