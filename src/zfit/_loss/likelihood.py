@@ -6,6 +6,7 @@ import operator
 from collections.abc import Iterable
 
 import numpy as np
+import tensorflow as tf
 
 import zfit
 import zfit.z.numpy as znp
@@ -39,16 +40,26 @@ class NLL(ZfitNLL):
         self.dist = dist
         self.data = data
 
-    def __call__(self, params=None):
-        logpdf = self.dist.log_pdf(self.data, params=params)
-        return -znp.sum(logpdf)
+    def __call__(self, params=None, *, options=None):
+        logpdf = self.logpfds(params=params)
+        return -self.summation(logpdf, options=options)
 
     def __add__(self, other):
         return to_nlls(self) + to_nlls(other)
 
+    def logpfds(self, params=None):
+        return self.dist.log_pdf(self.data, params=params)
+
+    def summation(self, logpdfs, *, options=None, full=True):
+        if options is None:
+            options = {}
+        if not full and (offset := options.get("offset", False)):
+            logpdfs -= offset
+        return znp.sum(logpdfs)
+
 
 class NLLs(ZfitNLLs):
-    def __init__(self, nlls):
+    def __init__(self, nlls, *, options=None):
         self.nlls = nlls
         self.dist = functools.reduce(
             operator.iadd, [nll.dist if isinstance(nll.dist, list) else [nll.dist] for nll in nlls], []
@@ -56,21 +67,32 @@ class NLLs(ZfitNLLs):
         self.data = functools.reduce(
             operator.iadd, [nll.data if isinstance(nll.data, list) else [nll.data] for nll in nlls], []
         )
+        self.options = {"offset": 0} if options is None else options
 
     def __call__(self, params=None):
         return znp.sum([nll(params) for nll in self.nlls])
 
     def __add__(self, other):
-        return NLLs(nlls=self.nlls + other.nlls)
+        return type(self)(nlls=self.nlls + other.nlls)
+
+    def logpfds(self, params=None):
+        return znp.concatenate([nll.logpfds(params=params) for nll in self.nlls])
+
+    def summation(self, logpdfs, *, options=None, full=True):
+        if options is None:
+            options = self.options
+        if not full:
+            logpdfs -= options["offset"]
+        return znp.sum(logpdfs)
 
 
 class BinnedNLL(NLLs):
     def __init__(self, expected: ZfitBinnedPDF, observed: ZfitBinnedData):
+        # TODO: check if expected and observed are compatible with obs
         self.expected = expected
         self.observed = observed
         # create unique name using random number
         data_array = znp.flatten(observed.values())
-        # raise WorkInProgressError("TODO: how to solve this? We need a diagonal, but then, for every bin a name?")
         expectedparams = [
             ComposedParameter(
                 name=f"{np.random.randint(1e15)}_expected",
@@ -88,6 +110,14 @@ class BinnedNLL(NLLs):
             nlls.append(nll)
 
         super().__init__(nlls=nlls)
+
+    def __call__(self, params=None, *, options=None, full=True):
+        values = self.observed.values()
+        nvalues = znp.sum(values)
+        expected = self.expected.rel_counts(params=params) * nvalues
+        logexpected = znp.log(expected)
+        pterms = tf.nn.log_poisson_loss(targets=values, log_input=logexpected, compute_full_loss=full)
+        return self.summation(pterms, full=full, options=options)
 
 
 class ExtendedTerm(NLL):
