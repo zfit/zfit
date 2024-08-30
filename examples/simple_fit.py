@@ -26,7 +26,7 @@ nll = zfit.loss.UnbinnedNLL(model=gauss, data=data)
 
 # create a minimizer
 # minimizer = zfit.minimize.Minuit(gradient=False)
-minimizer = zfit.minimize.LevenbergMarquardt()
+minimizer = zfit.minimize.LevenbergMarquardt(verbosity=7)
 result = minimizer.minimize(nll)
 result.update_params()
 

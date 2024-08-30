@@ -1,3 +1,5 @@
+#  Copyright (c) 2024 zfit
+
 from __future__ import annotations
 
 from collections.abc import Mapping
@@ -9,6 +11,7 @@ import zfit.z.numpy as znp
 from ..core.interfaces import ZfitLoss
 from ..core.parameter import Parameter, assign_values
 from ..util.cache import GraphCachable
+from ..util.exception import MaximumIterationReached
 from .baseminimizer import BaseMinimizer, minimize_supports
 from .fitresult import FitResult
 from .strategy import ZfitStrategy
@@ -69,7 +72,7 @@ class LevenbergMarquardt(BaseMinimizer, GraphCachable):
 
     @staticmethod
     def _damped_hess0(hess, L):
-        I = znp.eye(hess.shape[0])
+        I = znp.eye(hess.shape[0])  # noqa: E741
         D = znp.ones_like(hess) - I
         return hess * (I + D / (1 + L)) + L * I * (1 + znp.diag(hess))
 
@@ -147,6 +150,7 @@ class LevenbergMarquardt(BaseMinimizer, GraphCachable):
             assign_values(params=params, values=init)
 
         evaluator = self.create_evaluator(loss=loss, params=params)
+        criterion = self.create_criterion(loss=loss, params=params)
         loss_history = [evaluator.value(params)]
         L = 1.0
         success = False
@@ -155,28 +159,43 @@ class LevenbergMarquardt(BaseMinimizer, GraphCachable):
             try:
                 step = self._mode0_step(evaluator, params, L)
             except OptimizeStop:
+                if self.verbosity >= 7:
+                    pass
                 break
             L = step[2]
             assign_values(params, params + step[0][:, 0])
             loss_history.append(step[1])
+
+            tempres = FitResult(
+                loss=loss,
+                params={p: p.value() for p in params},
+                minimizer=self,
+                valid=False,
+                criterion=criterion,
+                edm=-999,
+                fminopt=loss_history[-1],
+            )
             if len(loss_history) >= 3:
                 # Loss no longer updating and L is small, minimum reached
-                if (loss_history[-3] - loss_history[-1]) / loss_history[-1] < self.tol and L < 0.1:
+                rel_change = (loss_history[-3] - loss_history[-1]) / loss_history[-1]
+                if rel_change < self.tol and L < 0.1 and criterion.converged(tempres):
                     success = True
+                    if self.verbosity >= 6:
+                        pass
                     break
         else:
             msg = f"Maximum number of iterations ({self.maxiter}) reached."
-            raise OSError(msg)
+            raise MaximumIterationReached(msg)
 
-        if step is None:
-            msg = "No step taken. This should not happen?"
-            raise OSError(msg)
+        msg = "No step taken. This should not happen?"
+        assert step is not None, msg
+
         return FitResult(
             loss=loss,
-            params=params,
-            edm=self.tol,
-            fminopt=step[1],
+            params={p: p.value() for p in params},
+            edm=criterion.last_value,
+            fminopt=loss_history[-1],
             minimizer=self,
             valid=success,
-            criterion=None,
+            criterion=criterion,
         )
