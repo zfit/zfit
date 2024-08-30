@@ -6,8 +6,8 @@ from contextlib import suppress
 from functools import partial
 from typing import TYPE_CHECKING, Literal, Optional, Union
 
-import pydantic
-from pydantic import Field
+import pydantic.v1 as pydantic
+from pydantic.v1 import Field
 from tensorflow.python.util.deprecation import deprecated
 
 from ..exception import OutsideLimitsError, SpecificFunctionNotImplementedError
@@ -100,7 +100,7 @@ def _unbinned_nll_tf(
             probs = model.pdf(data)
         log_probs = znp.log(probs + znp.asarray(1e-307, dtype=znp.float64))  # minor offset to avoid NaNs from log(0)
         if log_offset is None:
-            log_offset = znp.array([0.0], dtype=znp.float64)
+            log_offset = False
         nll = _nll_calc_unbinned_tf(
             log_probs=log_probs,
             weights=data.weights if data.weights is not None else None,
@@ -511,15 +511,16 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         params, checked = self.check_precompile(params=params)
         if full is None:
             full = DEFAULT_FULL_ARG
-        log_offset = 0.0 if full else self._options.get("subtr_const_value")
+        log_offset = False if full else self._options.get("subtr_const_value", False)
 
-        if log_offset is not None:
+        if log_offset is not False:
             log_offset = z.convert_to_tensor(log_offset)
 
         # log_offset = z.convert_to_tensor(log_offset)
         with self._check_set_input_params(params, guarantee_checked=checked):
             return self._call_value(self.model, self.data, self.fit_range, self.constraints, log_offset)
 
+    @z.function(wraps="loss")
     def _call_value(self, model, data, fit_range, constraints, log_offset):
         return self._value(
             model=model,
@@ -708,6 +709,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         with self._check_set_input_params(paramvals, guarantee_checked=checked):
             return self._call_hessian(params, numgrad, hessian)
 
+    @z.function(wraps="loss")
     def _call_hessian(self, params, numgrad, hessian):
         with suppress(HessianNotImplementedError):
             return self._hessian(params=params, hessian=hessian, numgrad=numgrad)
@@ -1143,8 +1145,8 @@ class ExtendedUnbinnedNLL(BaseUnbinnedNLL):
             nevents = dat.n_events if dat.weights is None else z.reduce_sum(dat.weights)
             nevents = znp.asarray(nevents, tf.float64)
             nevents_collected.append(nevents)
-            yields.append(mod.get_yield())
-        yields = znp.stack(yields, axis=0)
+            yields.append(znp.atleast_1d(mod.get_yield()))
+        yields = znp.concatenate(yields, axis=0)
         nevents_collected = znp.stack(nevents_collected, axis=0)
 
         term_new = tf.nn.log_poisson_loss(nevents_collected, znp.log(yields), compute_full_loss=log_offset is False)

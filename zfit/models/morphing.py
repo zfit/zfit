@@ -9,7 +9,7 @@ from uhi.typing.plottable import PlottableHistogram
 
 import zfit.z.numpy as znp
 from zfit import z
-from zfit.core.binnedpdf import BaseBinnedPDFV1
+from zfit.core.binnedpdf import BaseBinnedPDF
 
 from ..core import parameter
 from ..core.interfaces import ZfitBinnedPDF
@@ -36,7 +36,7 @@ def spline_interpolator(alpha, alphas, densities):
     return znp.reshape(y_flat, shape)
 
 
-class SplineMorphingPDF(BaseBinnedPDFV1):
+class SplineMorphingPDF(BaseBinnedPDF):
     _morphing_interpolator = staticmethod(spline_interpolator)
 
     def __init__(

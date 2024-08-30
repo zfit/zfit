@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from typing import Literal, Optional, Tuple, Union
 
-from pydantic import Field, root_validator, validator
+from pydantic.v1 import Field, root_validator, validator
 
 from ..core.space import Space
 from ..util.exception import WorkInProgressError

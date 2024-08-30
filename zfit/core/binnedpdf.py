@@ -88,7 +88,7 @@ def _BinnedPDF_register_check_support(has_support: bool):
     return register
 
 
-class BaseBinnedPDFV1(
+class BaseBinnedPDF(
     BaseNumeric,
     GraphCachable,
     BaseDimensional,
@@ -1332,6 +1332,9 @@ class BaseBinnedPDFV1(
         from zfit.models.unbinnedpdf import UnbinnedFromBinnedPDF
 
         return UnbinnedFromBinnedPDF(self, self.space.with_binning(None))
+
+
+BaseBinnedPDFV1 = BaseBinnedPDF  # alias, backwards compatibility
 
 
 def binned_rect_integration(

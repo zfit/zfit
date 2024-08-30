@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Literal, Optional
 
-import pydantic
+import pydantic.v1 as pydantic
 
 from ..core.serialmixin import SerializableMixin
 from ..serialization import Serializer, SpaceRepr

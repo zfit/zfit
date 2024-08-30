@@ -49,6 +49,8 @@ __all__ = [
     "SplineMorphingPDF",
     "BinwiseScaleModifier",
     "BinnedSumPDF",
+    "BaseBinnedFunctorPDF",
+    "BaseBinnedPDF",
     "SplinePDF",
     "TruncatedPDF",
     "LogNormal",
@@ -56,8 +58,9 @@ __all__ = [
 ]
 
 from .core.basepdf import BasePDF
+from .core.binnedpdf import BaseBinnedPDF
 from .models.basic import Exponential, Voigt
-from .models.binned_functor import BinnedSumPDF
+from .models.binned_functor import BaseBinnedFunctorPDF, BinnedSumPDF
 from .models.cache import CachedPDF
 from .models.conditional import ConditionalPDFV1
 from .models.convolution import FFTConvPDFV1

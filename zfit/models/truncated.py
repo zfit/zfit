@@ -4,7 +4,7 @@ from __future__ import annotations
 from typing import Iterable, Literal, Union
 
 import numpy as np
-import pydantic
+import pydantic.v1 as pydantic
 import tensorflow as tf
 
 import zfit.z.numpy as znp
@@ -160,15 +160,32 @@ class TruncatedPDF(BaseFunctor, SerializableMixin):
         if extended is None:
             extended = pdf.is_extended
         if extended is True and pdf.is_extended:
-            base_norm = pdf.integrate(limits=obs, norm=False)
-            piecewise_norms = znp.asarray([pdf.integrate(limits=limit, norm=False) for limit in self._limits])
-            relative_scale = znp.sum(piecewise_norms / base_norm)
+            paramname = "wrapped_yield"
+
+            def scaled_yield(params):
+                base_norm = pdf.integrate(limits=obs, norm=False)
+                piecewise_norms = znp.asarray([pdf.integrate(limits=limit, norm=False) for limit in self._limits])
+                relative_scale = znp.sum(piecewise_norms / base_norm)
+                return (params[paramname] * relative_scale,)
+
             import zfit
+
+            params_deps = {p.name: p for p in pdf.get_params(floating=None)}
+            toreplace = paramname
+            while toreplace in params_deps:
+                newtoreplace = f"{toreplace}_x"
+                params_deps[newtoreplace] = params_deps.pop(toreplace)
+                toreplace = newtoreplace
+
+            pdfyield = pdf.get_yield()
+            params_deps[paramname] = pdfyield
+            if pdfyield.name in params_deps:
+                params_deps.pop(pdfyield.name)
 
             extended = zfit.param.ComposedParameter(
                 name=f"AUTO_yield{zfit.core.parameter.get_auto_number()!s}_{name}",
-                func=lambda params, scale=relative_scale: params["wrapped_yield"] * scale,
-                params={"wrapped_yield": pdf.get_yield()},
+                func=scaled_yield,
+                params=params_deps,
             )
         super().__init__(obs=obs, name=name, extended=extended, norm=norm, pdfs=pdf, label=label)
         if self.obs != pdf.obs:

@@ -14,7 +14,7 @@ from typing import Literal
 import tensorflow as tf
 import tensorflow_probability as tfp
 import tensorflow_probability.python.distributions as tfd
-from pydantic import Field
+from pydantic.v1 import Field
 
 import zfit.z.numpy as znp
 from zfit import z

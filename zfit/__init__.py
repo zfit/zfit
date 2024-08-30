@@ -43,6 +43,7 @@ __all__ = [
     "Space",
     "convert_to_space",
     "supports",
+    "result",
     "run",
     "settings",
 ]
@@ -96,6 +97,7 @@ from . import (
     minimize,
     param,
     pdf,
+    result,
     sample,
     settings,
     hs3,

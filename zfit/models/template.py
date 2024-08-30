@@ -4,13 +4,13 @@ from __future__ import annotations
 import numpy as np
 import tensorflow as tf
 
-from ..core.binnedpdf import BaseBinnedPDFV1
+from ..core.binnedpdf import BaseBinnedPDF
 from ..core.space import supports
 from ..util.exception import SpecificFunctionNotImplemented
 from ..z import numpy as znp
 
 
-class BinnedTemplatePDFV1(BaseBinnedPDFV1):
+class BinnedTemplatePDFV1(BaseBinnedPDF):
     def __init__(
         self, data, sysshape=None, extended=None, norm=None, name="BinnedTemplatePDF", label: str | None = None
     ):

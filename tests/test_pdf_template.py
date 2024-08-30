@@ -101,7 +101,7 @@ def test_morphing_templates(alphas):
                 (morph.counts() - counts[i + 1]) ** 2, max_dist
             )
 
-    import matplotlib.cm as cm
+    import matplotlib as mpl
 
     amin, amax = -2, 2
     n = 5
@@ -119,7 +119,7 @@ def test_morphing_templates(alphas):
 
         for a in list(znp.linspace(amin, amax, n * 2)) + list(template_alphas):
             normed_a = (a - amin) / (amax - amin) / 1.3  # 3 is a scaling factor
-            color = cm.get_cmap("winter")(normed_a)
+            color = mpl.colormaps.get_cmap("winter")(normed_a)
             alpha.set_value(a)
             histo = morph.ext_pdf(None)
             histo = BinnedData.from_tensor(obs, histo)

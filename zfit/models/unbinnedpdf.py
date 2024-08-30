@@ -1,7 +1,7 @@
 #  Copyright (c) 2024 zfit
 from __future__ import annotations
 
-import pydantic
+import pydantic.v1 as pydantic
 import tensorflow as tf
 
 from zfit import z

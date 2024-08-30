@@ -3,8 +3,8 @@ from __future__ import annotations
 
 from typing import Literal, Optional, Union
 
-import pydantic
-from pydantic import Field, root_validator
+import pydantic.v1 as pydantic
+from pydantic.v1 import Field, root_validator
 
 from .serializer import BaseRepr, Serializer
 

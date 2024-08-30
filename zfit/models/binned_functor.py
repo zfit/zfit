@@ -8,7 +8,7 @@ from typing import Union
 from uhi.typing.plottable import PlottableHistogram
 
 from .. import z
-from ..core.binnedpdf import BaseBinnedPDFV1
+from ..core.binnedpdf import BaseBinnedPDF
 from ..core.interfaces import ZfitPDF
 from ..core.space import supports
 from ..util import ztyping
@@ -27,7 +27,7 @@ def preprocess_pdf_or_hist(models: Union[ZfitPDF, Iterable[ZfitPDF], BinnedDataI
     return [HistogramPDF(model) if isinstance(model, PlottableHistogram) else model for model in models]
 
 
-class BaseBinnedFunctorPDF(FunctorMixin, BaseBinnedPDFV1):
+class BaseBinnedFunctorPDF(FunctorMixin, BaseBinnedPDF):
     """Base class for binned functors."""
 
     def __init__(self, models, obs, **kwargs):

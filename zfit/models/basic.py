@@ -13,7 +13,7 @@ from typing import Literal
 
 import numpy as np
 import tensorflow as tf
-from pydantic import Field
+from pydantic.v1 import Field
 
 import zfit.z.numpy as znp
 from zfit import z
@@ -191,7 +191,6 @@ class Exponential(BasePDF, SerializableMixin):
         with self._set_numerics_data_shift(limits=norm):
             return super()._single_hook_pdf(x, norm)
 
-    #
     def _single_hook_log_pdf(self, x, norm):
         with self._set_numerics_data_shift(limits=norm):
             return super()._single_hook_log_pdf(x, norm)

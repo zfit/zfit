@@ -6,14 +6,14 @@ from uhi.typing.plottable import PlottableHistogram
 
 import zfit.z.numpy as znp
 
-from ..core.binnedpdf import BaseBinnedPDFV1
+from ..core.binnedpdf import BaseBinnedPDF
 from ..core.interfaces import ZfitBinnedData
 from ..core.space import supports
 from ..util import ztyping
 from ..util.exception import SpecificFunctionNotImplemented
 
 
-class HistogramPDF(BaseBinnedPDFV1):
+class HistogramPDF(BaseBinnedPDF):
     def __init__(
         self,
         data: ztyping.BinnedDataInputType,

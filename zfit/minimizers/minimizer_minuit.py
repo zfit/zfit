@@ -168,7 +168,7 @@ class Minuit(BaseMinimizer, GraphCachable):
         msg = "This property is not available anymore. Use `gradient` instead."
         raise BreakingAPIChangeError(msg)
 
-    @minimize_supports()
+    @minimize_supports(init=True)
     def _minimize(self, loss: ZfitLoss, params: list[Parameter], init):
         if init:
             assign_values(params=params, values=init)

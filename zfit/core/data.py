@@ -4,9 +4,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Iterable, Literal, Optional, Union
 
-import pydantic
+import pydantic.v1 as pydantic
 import xxhash
-from pydantic import Field
+from pydantic.v1 import Field
 from tensorflow.python.types.core import TensorLike
 from tensorflow.python.util.deprecation import deprecated, deprecated_args
 

@@ -6,7 +6,7 @@ from collections.abc import Callable
 from typing import ClassVar, Literal, Optional, Union
 
 import numpy as np
-import pydantic
+import pydantic.v1 as pydantic
 import tensorflow as tf
 import tensorflow_probability as tfp
 from tensorflow_probability.python import distributions as tfd

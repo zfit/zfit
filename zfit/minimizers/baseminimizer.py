@@ -81,7 +81,7 @@ def minimize_supports(*, init: bool = False) -> Callable:
 
                 if isinstance(init_result, FitResult):
                     if init == "same":
-                        if type(self_minimizer) is not type(init_result.minimizer):  # noqa: E721
+                        if type(self_minimizer) is not type(init_result.minimizer):
                             can_handle = False
                     elif not init:
                         can_handle = False

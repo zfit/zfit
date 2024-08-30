@@ -5,11 +5,10 @@ Changelog
 .. _newest-changelog:
 
 Develop
-========================
+=======
 
 Major Features and Improvements
 -------------------------------
-- add ``JohnsonSU`` PDF, the Johnson SU distribution.
 - add Landau distribution.
 
 Breaking changes
@@ -21,7 +20,6 @@ Deprecations
 Bug fixes and small changes
 ---------------------------
 
-
 Experimental
 ------------
 
@@ -30,6 +28,56 @@ Requirement changes
 
 Thanks
 ------
+
+0.22.0 22 Aug 2024
+====================
+
+Bug fixes and small changes
+---------------------------
+- change the truncated PDF with a yield to reflect a dynamic change in shape
+
+Requirement changes
+-------------------
+- Upgrade from Pydantic V1 to V2
+
+
+0.21.1 (13 Jul 2024)
+========================
+
+Bug fixes and small changes
+---------------------------
+- ``full`` argument for binned NLLs was not working properly and return a partially optimized loss value.
+- jit compile all methods of the loss (gradient, hessian) to avoid recompilation every time. This can possibly speed up
+  different minimizers significantly.
+
+
+
+0.21.0 (2 Jul 2024)
+========================
+
+Major Features and Improvements
+-------------------------------
+- add ``JohnsonSU`` PDF, the Johnson SU distribution.
+
+
+
+Bug fixes and small changes
+---------------------------
+- increase reliability of ``zfit.dill.dump`` and ``zfit.dill.dumps`` with an additional ``verify`` argument that reloads the dumped object to verify it was correctly dumped and retries if it wasn't.
+- fix missing imported namespaces
+- fixed a memory leak when creating multiple parameters
+- add data loaders to ``zfit.data`` namespace
+
+
+
+Requirement changes
+-------------------
+- upgrade to TensorFlow 2.17 and TensorFlow Probability 0.25
+
+Thanks
+------
+- Davide Lancierini for finding and helping to debug the dill dumping issue
+- James Herd for finding and reproducing the memory leak
 
 0.20.3 (19 Apr 2024)
 ========================

@@ -1,7 +1,9 @@
 #  Copyright (c) 2024 zfit
 from __future__ import annotations
 
-import pydantic
+import weakref
+
+import pydantic.v1 as pydantic
 import yaml
 
 from zfit.util.warnings import warn_experimental_feature
@@ -183,8 +185,12 @@ class HS3:
 
     def __init__(self, obj):
         super().__init__()
-        self.obj = obj
+        self._obj = weakref.ref(obj)
         self.original_init = {}
+
+    @property
+    def obj(self):
+        return self._obj()
 
     def to_json(self):
         orm = self.repr.from_orm(self)
