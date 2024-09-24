@@ -184,7 +184,9 @@ class LevenbergMarquardt(BaseMinimizer, GraphCachable):
             #     -1] < self.tol) and criterion.converged(tempres)
             success = criterion.converged(tempres)
             if self.verbosity >= 7:
-                pass
+                print(
+                    f"Iteration {_niter}, loss: {loss_history[-1]}, success: {success}, criterion: {criterion.last_value}"
+                )
             if success:
                 if self.verbosity >= 6:
                     pass
