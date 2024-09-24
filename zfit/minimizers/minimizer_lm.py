@@ -13,7 +13,7 @@ from ..core.parameter import Parameter, assign_values
 from ..util.cache import GraphCachable
 from ..util.exception import MaximumIterationReached
 from .baseminimizer import BaseMinimizer, minimize_supports
-from .fitresult import FitResult
+from .fitresult import Approximations, FitResult
 from .strategy import ZfitStrategy
 from .termination import ConvergenceCriterion
 
@@ -81,7 +81,7 @@ class LevenbergMarquardt(BaseMinimizer, GraphCachable):
         hess = loss.hessian(params)
         grad = grad[..., None]  # right shape for the solve
         best = (znp.zeros_like(params), init_chi2, L)
-        scarry_best = (None, init_chi2, L)
+        scary_best = (None, init_chi2, L)
         direction = "none"
         nostep = True
         for _ in range(10):
@@ -98,20 +98,20 @@ class LevenbergMarquardt(BaseMinimizer, GraphCachable):
             chi2 = loss.value(params1)
             # Skip if chi^2 is nan
             if not np.isfinite(chi2):
-                L = L * self.Lup
+                L *= self.Lup
                 if direction == "better":
                     break
                 direction = "worse"
                 continue
 
             # Keep track of any chi^2 improvement
-            if chi2 <= scarry_best[1]:
-                scarry_best = (h, chi2, L)
+            if chi2 <= scary_best[1]:
+                scary_best = (h, chi2, L)
 
             # Check if chi^2 improved the expected amount
             rho = (init_chi2 - chi2) / expected_improvement
             if rho < self.rho_min or rho > self.rho_max:
-                L = L * self.Lup
+                L *= self.Lup
                 if L > 1e9 or direction == "better":
                     break
                 direction = "worse"
@@ -120,13 +120,13 @@ class LevenbergMarquardt(BaseMinimizer, GraphCachable):
             # Check for new best chi^2
             if chi2 < best[1]:
                 best = (h, chi2, L)
-                L = L / self.Ldn
+                L /= self.Ldn
                 nostep = False
                 if L < 1e-9 or direction == "worse":
                     break
                 direction = "better"
             elif chi2 >= best[1] and direction in ["worse", "none"] and L < 1e9:
-                L = L * self.Lup
+                L *= self.Lup
                 direction = "worse"
                 continue
             else:  # chi2 >= best[1] and direction == "better"
@@ -138,11 +138,11 @@ class LevenbergMarquardt(BaseMinimizer, GraphCachable):
 
         if nostep:
             # use any improvement if a safe improvement could not be found
-            if scarry_best[0] is not None:
-                return scarry_best
+            if scary_best[0] is not None:
+                return scary_best
             msg = "No step found"
             raise OptimizeStop(msg)
-        return best
+        return {"step": best, "hessian": damped_hess, "gradient": grad[:, 0]}
 
     @minimize_supports(init=True)
     def _minimize(self, loss: ZfitLoss, params: list[Parameter], init):
@@ -154,41 +154,48 @@ class LevenbergMarquardt(BaseMinimizer, GraphCachable):
         loss_history = [evaluator.value(params)]
         L = 1.0
         success = False
+        paramvals = znp.asarray(params)
         step = None
-        for _ in range(self.maxiter):
+        iterator = range(self.maxiter)
+        for _niter in iterator:
             try:
-                step = self._mode0_step(evaluator, params, L)
+                new_point = self._mode0_step(evaluator, paramvals, L)
+                step = new_point["step"]
             except OptimizeStop:
                 if self.verbosity >= 7:
                     pass
                 break
             L = step[2]
-            assign_values(params, params + step[0][:, 0])
             loss_history.append(step[1])
 
+            paramvals = step[0][:, 0]
+            Approximations(params=params, gradient=new_point.get("gradient"), hessian=new_point.get("hessian"))
             tempres = FitResult(
                 loss=loss,
-                params={p: p.value() for p in params},
+                params=dict(zip(params, paramvals)),
                 minimizer=self,
                 valid=False,
                 criterion=criterion,
                 edm=-999,
                 fminopt=loss_history[-1],
+                # approx=approx,
             )
-            if len(loss_history) >= 3:
-                # Loss no longer updating and L is small, minimum reached
-                rel_change = (loss_history[-3] - loss_history[-1]) / loss_history[-1]
-                if rel_change < self.tol and L < 0.1 and criterion.converged(tempres):
-                    success = True
-                    if self.verbosity >= 6:
-                        pass
-                    break
+            # success = (len(loss_history) < 3 or (loss_history[-3] - loss_history[-1]) / loss_history[
+            #     -1] < self.tol) and criterion.converged(tempres)
+            success = criterion.converged(tempres)
+            if self.verbosity >= 7:
+                pass
+            if success:
+                if self.verbosity >= 6:
+                    pass
+                break
         else:
             msg = f"Maximum number of iterations ({self.maxiter}) reached."
             raise MaximumIterationReached(msg)
 
         msg = "No step taken. This should not happen?"
         assert step is not None, msg
+        assign_values(params, params + step[0][:, 0])
 
         return FitResult(
             loss=loss,
