@@ -79,7 +79,7 @@ class Approximations:
             msg = f"params has to be a list or tuple, not {type(params)}"
             raise TypeError(msg)
         if gradient is not None:
-            if gradient.shape.rank > 1:
+            if gradient.ndim > 1:
                 msg = f"Gradient has to be a 1D array, not {gradient.shape}"
                 raise ValueError(msg)
             if gradient.shape[0] != len(params):
@@ -87,7 +87,7 @@ class Approximations:
                 raise ValueError(msg)
 
         if hessian is not None:
-            if hessian.shape.rank != 2:
+            if hessian.ndim != 2:
                 msg = f"Hessian has to be a 2D array, not {hessian.shape}"
                 raise ValueError(msg)
             if hessian.shape[0] != len(params) or hessian.shape[1] != len(params):
@@ -95,7 +95,7 @@ class Approximations:
                 raise ValueError(msg)
 
         if inv_hessian is not None:
-            if inv_hessian.shape.rank != 2:
+            if inv_hessian.ndim != 2:
                 msg = f"Inverse Hessian has to be a 2D array, not {inv_hessian.shape}"
                 raise ValueError(msg)
             if inv_hessian.shape[0] != len(params) or inv_hessian.shape[1] != len(params):

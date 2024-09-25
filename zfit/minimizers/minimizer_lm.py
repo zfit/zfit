@@ -28,12 +28,12 @@ class LevenbergMarquardt(BaseMinimizer, GraphCachable):
     def __init__(
         self,
         tol: float | None = None,
-        mode: int = 0,
-        rho_min: float = 0.1,
-        rho_max: float = 2.0,
+        mode: int | None = None,
+        rho_min: float | None = None,
+        rho_max: float | None = None,
         verbosity: int | None = None,
         options: Mapping[str, object] | None = None,
-        maxiter: int = 1000,
+        maxiter: int | None = None,
         criterion: ConvergenceCriterion | None = None,
         strategy: ZfitStrategy | None = None,
         name: str | None = None,
@@ -54,6 +54,11 @@ class LevenbergMarquardt(BaseMinimizer, GraphCachable):
         LM algorithm see: Gavin, Henri 2016
         (https://msulaiman.org/onewebmedia/LM%20Method%20matlab%20codes%20and%20implementation.pdf)
         """
+
+        mode = 0 if mode is None else mode
+        rho_min = 0.1 if rho_min is None else rho_min
+        rho_max = 2.0 if rho_max is None else rho_max
+        maxiter = 1000 if maxiter is None else maxiter
 
         self.mode = mode
         self.rho_min = rho_min
@@ -156,6 +161,7 @@ class LevenbergMarquardt(BaseMinimizer, GraphCachable):
         success = False
         paramvals = znp.asarray(params)
         step = None
+        approx = None
         iterator = range(self.maxiter)
         for _niter in iterator:
             try:
@@ -168,8 +174,8 @@ class LevenbergMarquardt(BaseMinimizer, GraphCachable):
             L = step[2]
             loss_history.append(step[1])
 
-            paramvals = step[0][:, 0]
-            Approximations(params=params, gradient=new_point.get("gradient"), hessian=new_point.get("hessian"))
+            paramvals += step[0][:, 0]
+            approx = Approximations(params=params, gradient=new_point.get("gradient"), hessian=new_point.get("hessian"))
             tempres = FitResult(
                 loss=loss,
                 params=dict(zip(params, paramvals)),
@@ -178,7 +184,7 @@ class LevenbergMarquardt(BaseMinimizer, GraphCachable):
                 criterion=criterion,
                 edm=-999,
                 fminopt=loss_history[-1],
-                # approx=approx,
+                approx=approx,
             )
             # success = (len(loss_history) < 3 or (loss_history[-3] - loss_history[-1]) / loss_history[
             #     -1] < self.tol) and criterion.converged(tempres)
@@ -197,14 +203,15 @@ class LevenbergMarquardt(BaseMinimizer, GraphCachable):
 
         msg = "No step taken. This should not happen?"
         assert step is not None, msg
-        assign_values(params, params + step[0][:, 0])
+        assign_values(params, paramvals)
 
         return FitResult(
             loss=loss,
-            params={p: p.value() for p in params},
+            params={p: float(p.value()) for p in params},
             edm=criterion.last_value,
             fminopt=loss_history[-1],
             minimizer=self,
             valid=success,
             criterion=criterion,
+            approx=approx,
         )
