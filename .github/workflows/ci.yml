@@ -129,7 +129,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install uv
-          uv pip install --ignore-requires-python .[docs]
+          uv pip install .[docs]
       - name: Build the docs, check for failure
         run: |
           bash utils/ci/testbuild_docs.sh
