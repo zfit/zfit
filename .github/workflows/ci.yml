@@ -82,7 +82,7 @@ jobs:
           uv pip install .[${{ matrix.extras }}]
       - name: Test with pytest
         run: |
-          pytest --cov=. --cov-config=pyproject.toml -n2 --cov-report=xml --cov-report=term-missing
+          pytest --cov=. --cov-config=pyproject.toml -n auto --cov-report=xml --cov-report=term-missing
 
 #          pytest --cov=. --cov-config=pyproject.toml -n auto --cov-report=xml --cov-report=term-missing  # logical number of cpus, falls back to auto
   #               TODO: fails on windows? add again above pytest?
