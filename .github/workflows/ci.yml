@@ -38,7 +38,8 @@ jobs:
       matrix:
         use-graph: [ 1 ]
         python-version: [ "3.9", "3.12"]  # omit "3.10", "3.11" to save compute time
-        os: [ ubuntu-latest ]
+#        os: [ ubuntu-latest ]
+        os: [ self-hosted ]
         extras: [ alldev ]
         include:
           - os: ubuntu-latest
