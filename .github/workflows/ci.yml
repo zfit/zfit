@@ -25,6 +25,9 @@ on:
 jobs:
   unittests:
     runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash -el {0}
     timeout-minutes: 200 # for eager mode
     name: tests on ${{ matrix.os }} with ${{ matrix.python-version }} compiled = ${{ matrix.use-graph }}
     env:
