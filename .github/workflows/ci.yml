@@ -37,9 +37,9 @@ jobs:
       fail-fast: False
       matrix:
         use-graph: [ 1 ]
-        python-version: [ "3.9", "3.12"]  # omit "3.10", "3.11" to save compute time
+        python-version: [ "3.9", "3.12" ]  # omit "3.10", "3.11" to save compute time
         os: [ ubuntu-latest ]
-#        os: [ self-hosted ]
+        #        os: [ self-hosted ]
         extras: [ alldev ]
         include:
           - os: ubuntu-latest
@@ -63,8 +63,8 @@ jobs:
       - name: Get number of CPU cores
         uses: SimenB/github-actions-cpu-cores@v2
         id: cpu-cores
-#      - run: echo "ZFIT_HALF_NCORES=$((steps.cpu-cores.outputs.count))" >> $GITHUB_ENV  # todo: set number of cores a bit lower, memory?
-#        id: set-ncpus
+      #      - run: echo "ZFIT_HALF_NCORES=$((steps.cpu-cores.outputs.count))" >> $GITHUB_ENV  # todo: set number of cores a bit lower, memory?
+      #        id: set-ncpus
       - uses: actions/checkout@v4
       - name: Get history and tags for SCM versioning to work
         run: |
@@ -76,7 +76,10 @@ jobs:
           create-args: >-
             python=${{ matrix.python-version }}
             uv
-            root
+      - name: Install ROOT (if not on windows)
+        if: runner.os != 'Windows'
+        run: |
+          mamba install root -y
       - name: Install dependencies
         run: |
           uv pip install coverage-lcov pytest-xdist pytest-cov
@@ -85,13 +88,13 @@ jobs:
         run: |
           pytest --cov=. --cov-config=pyproject.toml -n auto --cov-report=xml --cov-report=term-missing
 
-#          pytest --cov=. --cov-config=pyproject.toml -n auto --cov-report=xml --cov-report=term-missing  # logical number of cpus, falls back to auto
+  #          pytest --cov=. --cov-config=pyproject.toml -n auto --cov-report=xml --cov-report=term-missing  # logical number of cpus, falls back to auto
   #               TODO: fails on windows? add again above pytest?
   #          if [ "$GITHUB_REF" == 'refs/heads/develop' ]; then
   #            echo "PYTEST_ADDOPTS=--longtests-kde --longtests" >> "$GITHUB_ENV"
   #          fi
-#           convert to lcov format
-#          mkdir coverage && coverage-lcov --output_file_path ./coverage/lcov.info
+  #           convert to lcov format
+  #          mkdir coverage && coverage-lcov --output_file_path ./coverage/lcov.info
   #      # TODO(jonas): fix coverage report? Needs converter to lcov format
   #      - name: Coveralls Parallel
   #        uses: coverallsapp/github-action@v2.3.0
@@ -123,25 +126,24 @@ jobs:
             python=${{ matrix.python-version }}
             uv
             root
-#      - uses: actions/setup-python@v5
-#        name: Set up Python ${{ matrix.python-version }}
-#        with:
-#          python-version: ${{ matrix.python-version }}
-#      - name: Get pip cache dir
-#        id: pip-cache
-#        run: |
-#          echo "::set-output name=dir::$(pip cache dir)"
-#      - name: pip cache
-#        uses: actions/cache@v4.0.2
-#        with:
-#          path: ${{ steps.pip-cache.outputs.dir }}
-#          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}-pip-${{ hashFiles('**/requirements_dev.txt') }}-pip-${{ hashFiles('**/pyproject.toml') }}-pip-${{ hashFiles('**/setup.cfg') }}-pip-${{ hashFiles('**/setup.py') }}
-#          restore-keys: |
-#            ${{ runner.os }}-pip-
+      #      - uses: actions/setup-python@v5
+      #        name: Set up Python ${{ matrix.python-version }}
+      #        with:
+      #          python-version: ${{ matrix.python-version }}
+      #      - name: Get pip cache dir
+      #        id: pip-cache
+      #        run: |
+      #          echo "::set-output name=dir::$(pip cache dir)"
+      #      - name: pip cache
+      #        uses: actions/cache@v4.0.2
+      #        with:
+      #          path: ${{ steps.pip-cache.outputs.dir }}
+      #          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}-pip-${{ hashFiles('**/requirements_dev.txt') }}-pip-${{ hashFiles('**/pyproject.toml') }}-pip-${{ hashFiles('**/setup.cfg') }}-pip-${{ hashFiles('**/setup.py') }}
+      #          restore-keys: |
+      #            ${{ runner.os }}-pip-
 
       - name: Install dependencies
         run: |
-          python -m pip install uv
           uv pip install .[docs]
       - name: Build the docs, check for failure
         run: |
@@ -161,8 +163,8 @@ jobs:
         python-version: [ "3.9", "3.12" ]
         include:
           - os: ubuntu-latest
-            extras: alldev-linux
-            python-version: "3.11"
+            extras: all
+            python-version: "3.12"
             use-graph: 0
     name: Run tutorials, Python ${{ matrix.python-version }}, compiled = ${{ matrix.use-graph }}
     env:
@@ -183,33 +185,33 @@ jobs:
             python=${{ matrix.python-version }}
             uv
             root
-#      - uses: actions/setup-python@v5
-#        name: Set up Python ${{ matrix.python-version }}
-#
-#        with:
-#          python-version: ${{ matrix.python-version }}
+      #      - uses: actions/setup-python@v5
+      #        name: Set up Python ${{ matrix.python-version }}
+      #
+      #        with:
+      #          python-version: ${{ matrix.python-version }}
 
       - name: Clone Tutorials
         run: |
           git clone https://github.com/zfit/zfit-tutorials.git
 
-#      - name: Get pip cache dir
-#        id: pip-cache
-#        run: |
-#          echo "::set-output name=dir::$(pip cache dir)"
-#      - name: pip cache
-#        uses: actions/cache@v4.0.2
-#        with:
-#          path: ${{ steps.pip-cache.outputs.dir }}
-#          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}-pip-${{ hashFiles('**/requirements_dev.txt') }}-pip-${{ hashFiles('**/pyproject.toml') }}-pip-${{ hashFiles('**/setup.cfg') }}-pip-${{ hashFiles('**/setup.py') }}
-#          restore-keys: |
-#            ${{ runner.os }}-pip-
+      #      - name: Get pip cache dir
+      #        id: pip-cache
+      #        run: |
+      #          echo "::set-output name=dir::$(pip cache dir)"
+      #      - name: pip cache
+      #        uses: actions/cache@v4.0.2
+      #        with:
+      #          path: ${{ steps.pip-cache.outputs.dir }}
+      #          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}-pip-${{ hashFiles('**/requirements_dev.txt') }}-pip-${{ hashFiles('**/pyproject.toml') }}-pip-${{ hashFiles('**/setup.cfg') }}-pip-${{ hashFiles('**/setup.py') }}
+      #          restore-keys: |
+      #            ${{ runner.os }}-pip-
       - name: Install dependencies
         run: |
           uv pip install nbval pytest-helpers-namespace pytest-xdist
           uv pip install -U .[all]
           uv pip install -r zfit-tutorials/requirements.txt
-#          uv pip install -U --force-reinstall .[all]  # yep. Needed. Otherwise i.e. numpy needs to be upgraded
+      #          uv pip install -U --force-reinstall .[all]  # yep. Needed. Otherwise i.e. numpy needs to be upgraded
 
       - name: Run notebooks
         run: |
@@ -247,25 +249,38 @@ jobs:
             python=${{ matrix.python-version }}
             uv
             root
-#      - uses: actions/setup-python@v5
-#        name: Set up Python ${{ matrix.python-version }}
-#        with:
-#          python-version: ${{ matrix.python-version }}
-#      - name: Get pip cache dir
-#        id: pip-cache
-#        run: |
-#          echo "::set-output name=dir::$(pip cache dir)"
-#      - name: pip cache
-#        uses: actions/cache@v4.0.2
-#        with:
-#          path: ${{ steps.pip-cache.outputs.dir }}
-#          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}-pip-${{ hashFiles('**/requirements_dev.txt') }}-pip-${{ hashFiles('**/pyproject.toml') }}-pip-${{ hashFiles('**/setup.cfg') }}-pip-${{ hashFiles('**/setup.py') }}
-#          restore-keys: |
-#            ${{ runner.os }}-pip-
+      - name: Install dependencies
+        run: |
+          uv pip install .[all]
+      #      - uses: actions/setup-python@v5
+      #        name: Set up Python ${{ matrix.python-version }}
+      #        with:
+      #          python-version: ${{ matrix.python-version }}
+      #      - name: Get pip cache dir
+      #        id: pip-cache
+      #        run: |
+      #          echo "::set-output name=dir::$(pip cache dir)"
+      #      - name: pip cache
+      #        uses: actions/cache@v4.0.2
+      #        with:
+      #          path: ${{ steps.pip-cache.outputs.dir }}
+      #          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}-pip-${{ hashFiles('**/requirements_dev.txt') }}-pip-${{ hashFiles('**/pyproject.toml') }}-pip-${{ hashFiles('**/setup.cfg') }}-pip-${{ hashFiles('**/setup.py') }}
+      #          restore-keys: |
+      #            ${{ runner.os }}-pip-
 
       - name: Run examples
         run: |
-          bash utils/ci/install_test_examples.sh
+          BASEDIR=$( dirname -- "$0"; )
+          fail=0
+          for file in ${BASEDIR}/../../examples/*.py; do
+          echo "----------------------------------------------------------------------------------------------"
+          echo "Running example: $file"
+          echo "----------------------------------------------------------------------------------------------"
+          python "$file" || { fail=$((fail+1)) && echo "Failed running example: $file"; }
+          echo "----------------------------------------------------------------------------------------------"
+          echo "Finished example: $file"
+          echo "----------------------------------------------------------------------------------------------"
+          done
 
   finish:
     needs: unittests
