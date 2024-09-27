@@ -70,19 +70,22 @@ jobs:
         run: |
           git fetch --prune --unshallow
           git fetch --depth=1 origin +refs/tags/*:refs/tags/*
+      # do not install ROOT on windows
       - uses: mamba-org/setup-micromamba@v1
+        if: runner.os != 'Windows'
         with:
           environment-name: zfit
-          create-args: >-
+          create-args: >-  
             python=${{ matrix.python-version }}
             uv
-          init-shell: >-
-            bash
-            zsh
-      - name: Install ROOT (if not on windows)
-        if: runner.os != 'Windows'
-        run: |
-          mamba install root -y
+            root
+      - uses: mamba-org/setup-micromamba@v1
+        if: runner.os == 'Windows'
+        with:
+            environment-name: zfit
+            create-args: >-  
+              python=${{ matrix.python-version }}
+              uv
       - name: Install dependencies
         run: |
           uv pip install coverage-lcov pytest-xdist pytest-cov
