@@ -76,6 +76,9 @@ jobs:
           create-args: >-
             python=${{ matrix.python-version }}
             uv
+          init-shell: >-
+            bash
+            zsh
       - name: Install ROOT (if not on windows)
         if: runner.os != 'Windows'
         run: |
