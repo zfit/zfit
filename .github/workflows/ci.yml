@@ -63,8 +63,6 @@ jobs:
       - name: Get number of CPU cores
         uses: SimenB/github-actions-cpu-cores@v2
         id: cpu-cores
-      #      - run: echo "ZFIT_HALF_NCORES=$((steps.cpu-cores.outputs.count))" >> $GITHUB_ENV  # todo: set number of cores a bit lower, memory?
-      #        id: set-ncpus
       - uses: actions/checkout@v4
       - name: Get history and tags for SCM versioning to work
         run: |
@@ -132,21 +130,7 @@ jobs:
             python=${{ matrix.python-version }}
             uv
             root
-      #      - uses: actions/setup-python@v5
-      #        name: Set up Python ${{ matrix.python-version }}
-      #        with:
-      #          python-version: ${{ matrix.python-version }}
-      #      - name: Get pip cache dir
-      #        id: pip-cache
-      #        run: |
-      #          echo "::set-output name=dir::$(pip cache dir)"
-      #      - name: pip cache
-      #        uses: actions/cache@v4.0.2
-      #        with:
-      #          path: ${{ steps.pip-cache.outputs.dir }}
-      #          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}-pip-${{ hashFiles('**/requirements_dev.txt') }}-pip-${{ hashFiles('**/pyproject.toml') }}-pip-${{ hashFiles('**/setup.cfg') }}-pip-${{ hashFiles('**/setup.py') }}
-      #          restore-keys: |
-      #            ${{ runner.os }}-pip-
+      
 
       - name: Install dependencies
         run: |
@@ -191,33 +175,16 @@ jobs:
             python=${{ matrix.python-version }}
             uv
             root
-      #      - uses: actions/setup-python@v5
-      #        name: Set up Python ${{ matrix.python-version }}
-      #
-      #        with:
-      #          python-version: ${{ matrix.python-version }}
 
       - name: Clone Tutorials
         run: |
           git clone https://github.com/zfit/zfit-tutorials.git
 
-      #      - name: Get pip cache dir
-      #        id: pip-cache
-      #        run: |
-      #          echo "::set-output name=dir::$(pip cache dir)"
-      #      - name: pip cache
-      #        uses: actions/cache@v4.0.2
-      #        with:
-      #          path: ${{ steps.pip-cache.outputs.dir }}
-      #          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}-pip-${{ hashFiles('**/requirements_dev.txt') }}-pip-${{ hashFiles('**/pyproject.toml') }}-pip-${{ hashFiles('**/setup.cfg') }}-pip-${{ hashFiles('**/setup.py') }}
-      #          restore-keys: |
-      #            ${{ runner.os }}-pip-
       - name: Install dependencies
         run: |
           uv pip install nbval pytest-helpers-namespace pytest-xdist
           uv pip install -U .[all]
           uv pip install -r zfit-tutorials/requirements.txt
-      #          uv pip install -U --force-reinstall .[all]  # yep. Needed. Otherwise i.e. numpy needs to be upgraded
 
       - name: Run notebooks
         run: |
@@ -233,11 +200,11 @@ jobs:
       fail-fast: False
       matrix:
         use-graph: [ 1 ]
-        python-version: [ "3.9", "3.11" ]  # todo: upgrade to 3.12 if nlopt available for 3.12
+        python-version: [ "3.9", "3.12" ]
         include:
           - os: ubuntu-latest
-            extras: alldev-linux
-            python-version: "3.11"
+            extras: all
+            python-version: "3.12"
             use-graph: 0
     name: Run examples, Python ${{ matrix.python-version }}, compiled = ${{ matrix.use-graph }}
     env:
@@ -258,21 +225,6 @@ jobs:
       - name: Install dependencies
         run: |
           uv pip install .[all]
-      #      - uses: actions/setup-python@v5
-      #        name: Set up Python ${{ matrix.python-version }}
-      #        with:
-      #          python-version: ${{ matrix.python-version }}
-      #      - name: Get pip cache dir
-      #        id: pip-cache
-      #        run: |
-      #          echo "::set-output name=dir::$(pip cache dir)"
-      #      - name: pip cache
-      #        uses: actions/cache@v4.0.2
-      #        with:
-      #          path: ${{ steps.pip-cache.outputs.dir }}
-      #          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}-pip-${{ hashFiles('**/requirements_dev.txt') }}-pip-${{ hashFiles('**/pyproject.toml') }}-pip-${{ hashFiles('**/setup.cfg') }}-pip-${{ hashFiles('**/setup.py') }}
-      #          restore-keys: |
-      #            ${{ runner.os }}-pip-
 
       - name: Run examples
         run: |
