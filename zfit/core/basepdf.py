@@ -136,10 +136,10 @@ class PDFMeta(type):
         if binned:
             pdf = pdf.to_binned(
                 binned_obs,
-                extended=kwargs.get("extended", None),
-                norm=kwargs.get("norm", None),
-                name=kwargs.get("name", None),
-                label=kwargs.get("label", None),
+                extended=kwargs.get("extended"),
+                norm=kwargs.get("norm"),
+                name=kwargs.get("name"),
+                label=kwargs.get("label"),
             )
 
         return pdf
