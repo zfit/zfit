@@ -169,7 +169,7 @@ class LevenbergMarquardt(BaseMinimizer, GraphCachable):
                 step = new_point["step"]
             except OptimizeStop:
                 if self.verbosity >= 7:
-                    pass
+                    print(f"OptimizeStop, Iteration {_niter}, loss: {loss_history[-1]}")
                 break
             L = step[2]
             loss_history.append(step[1])
