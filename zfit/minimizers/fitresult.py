@@ -60,7 +60,7 @@ init(autoreset=True)
 class Approximations:
     def __init__(
         self,
-        params: list[ZfitParameter],
+        params: list[ZfitParameter] | tuple[ZfitParameter],
         gradient: np.ndarray | None = None,
         hessian: np.ndarray | None = None,
         inv_hessian: np.ndarray | None = None,
@@ -73,6 +73,35 @@ class Approximations:
             hessian: Hessian Matrix
             inv_hessian: Inverse of the Hessian Matrix
         """
+        if isinstance(params, dict):
+            params = list(params)
+        if not isinstance(params, (list, tuple)):
+            msg = f"params has to be a list or tuple, not {type(params)}"
+            raise TypeError(msg)
+        if gradient is not None:
+            if gradient.ndim > 1:
+                msg = f"Gradient has to be a 1D array, not {gradient.shape}"
+                raise ValueError(msg)
+            if gradient.shape[0] != len(params):
+                msg = f"Gradient has to have the same length as params, {gradient.shape[0]} != {len(params)}"
+                raise ValueError(msg)
+
+        if hessian is not None:
+            if hessian.ndim != 2:
+                msg = f"Hessian has to be a 2D array, not {hessian.shape}"
+                raise ValueError(msg)
+            if hessian.shape[0] != len(params) or hessian.shape[1] != len(params):
+                msg = f"Hessian has to have the same length as params, {hessian.shape} != {len(params)}"
+                raise ValueError(msg)
+
+        if inv_hessian is not None:
+            if inv_hessian.ndim != 2:
+                msg = f"Inverse Hessian has to be a 2D array, not {inv_hessian.shape}"
+                raise ValueError(msg)
+            if inv_hessian.shape[0] != len(params) or inv_hessian.shape[1] != len(params):
+                msg = f"Inverse Hessian has to have the same length as params, {inv_hessian.shape} != {len(params)}"
+                raise ValueError(msg)
+
         self._params = params
         self._gradient = gradient
         self._hessian = hessian
@@ -1183,8 +1212,8 @@ class FitResult(ZfitResult):
                 raise ValueError(msg)
             name = "hesse"
 
-        with self._input_check_reset_params(params) as params:
-            uncached_params = self._check_get_uncached_params(params=params, method_name=name, cl=cl)
+        with self._input_check_reset_params(params) as paramschecked:
+            uncached_params = self._check_get_uncached_params(params=paramschecked, method_name=name, cl=cl)
             if uncached_params:
                 error_dict = self._hesse(params=uncached_params, method=method, cl=cl)
                 if any(val["error"] is None for val in error_dict.values()):
@@ -1196,10 +1225,10 @@ class FitResult(ZfitResult):
             else:
                 error_dict = {}
 
-        error_dict.update({p: self.params[p][name] for p in params if p not in uncached_params})
+        error_dict.update({p: self.params[p][name] for p in paramschecked if p not in uncached_params})
         if name_warning_triggered:
-            error_dict.update({p: self.params[p][method] for p in params if p not in uncached_params})
-        return {p: error_dict[p] for p in params}
+            error_dict.update({p: self.params[p][method] for p in paramschecked if p not in uncached_params})
+        return {p: error_dict[p] for p in paramschecked}
 
     def _cache_errors(self, name, errors):
         for param, error in errors.items():
@@ -1369,7 +1398,7 @@ class FitResult(ZfitResult):
             method = self._default_hesse
 
         if method not in self._covariance_dict:
-            with self._input_check_reset_params(params) as params:
+            with self._input_check_reset_params(params) as params:  # noqa: PLR1704
                 self._covariance_dict[method] = self._covariance(method=method)
 
         params = self._input_check_params(params)

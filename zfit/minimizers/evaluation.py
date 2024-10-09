@@ -403,18 +403,36 @@ class LossEval:
 
 def print_params(params, values, loss=None):
     table = tt.Texttable()
-    table.header(["Parameter", "Value"])
 
-    for param, value in zip(params, values):
-        table.add_row([param.name, value])
+    header = ["Values"]
     if loss is not None:
-        table.add_row(["Loss value:", loss])
+        loss = float(loss)
+        header += ["Loss:", loss]
+    table.header(header)
+
+    # for param, value in zip(params, values):
+    table.add_row(["Parameter"] + [param.name for param in params])
+    table.add_row(["value", *list(values)])
+    # if loss is not None:
+    #     table.add_row()
+    print(table.draw())
 
 
 def print_gradient(params, values, gradient, loss=None):
     table = tt.Texttable()
-    table.header(["Parameter", "Value", "Gradient"])
-    for param, value, grad in zip(params, values, gradient):
-        table.add_row([param.name, value, grad])
+    # table.header(["Parameter", "Value", "Gradient"])
+    # for param, value, grad in zip(params, values, gradient):
+    #     table.add_row([param.name, value, grad])
+
+    header = ["Val & Grad"]
     if loss is not None:
-        table.add_row(["Loss value:", loss, "|"])
+        loss = float(loss)
+        header += ["Loss:", loss]
+    table.header(header)
+
+    table.add_row(["Parameter"] + [param.name for param in params])
+    table.add_row(["value", *list(values)])
+    table.add_row(["gradient", *list(gradient)])
+    # if loss is not None:
+    #     table.add_row(["Loss value:", loss, "|"])
+    print(table.draw())
