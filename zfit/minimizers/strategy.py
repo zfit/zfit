@@ -40,7 +40,16 @@ class BaseStrategy(ZfitStrategy):
         self.error = None
         super().__init__()
 
-    def minimize_nan(self, loss: ZfitLoss, params: ztyping.ParamTypeInput, values: Mapping | None = None) -> float:  # noqa: ARG002
+    def minimize_nan(
+        self, loss: ZfitLoss, params: ztyping.ParamTypeInput, values: Mapping = None
+    ) -> float:
+        print(
+            "The minimization failed due to too many NaNs being produced in the loss."
+            "This is most probably caused by negative"
+            " values returned from the PDF. Changing the initial values/stepsize of the parameters can solve this"
+            " problem. Also check your model (if custom) for problems. For more information,"
+            " visit https://github.com/zfit/zfit/wiki/FAQ#fitting-and-minimization"
+        )
         raise FailMinimizeNaN()
 
     def callback(self, value, gradient, hessian, params, loss):

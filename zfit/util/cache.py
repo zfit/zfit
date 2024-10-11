@@ -203,6 +203,7 @@ class FunctionCacheHolder(GraphCachable):
         stateless_args: bool | None = None,
         deleter=None,
         keepalive=None,
+            do_jit=None,
     ):
         """`tf.function` decorated function holder with caching dependencies on inputs.
 
@@ -233,6 +234,9 @@ class FunctionCacheHolder(GraphCachable):
         """
         if keepalive is None:
             keepalive = False
+        if do_jit is None:
+            do_jit = True
+        self.do_jit = do_jit
         self.deleter = lambda _: None
         self.delete_from_cache = False
         if stateless_args is None:
@@ -240,7 +244,7 @@ class FunctionCacheHolder(GraphCachable):
         self.stateless_args = stateless_args
         if not keepalive:
             wrapped_func = weakref.proxy(wrapped_func, deleter)
-        self.wrapped_func = wrapped_func
+        self._wrapped_func = wrapped_func
 
         self.python_func = func
 
@@ -261,6 +265,10 @@ class FunctionCacheHolder(GraphCachable):
         self.add_cache_deps(cachables_all)
         self.is_valid = True  # needed to make the cache valid again
         self.deleter = deleter
+
+    @property
+    def wrapped_func(self):
+        return self._wrapped_func if self.do_jit else self.python_func
 
     def reset_cache_self(self):
         self.is_valid = False

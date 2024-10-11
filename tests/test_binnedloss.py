@@ -209,6 +209,7 @@ def test_binned_loss(weights, Loss, simultaneous):
     result = minimizer.minimize(loss=loss)
 
     params = result.params
+    plt.title(title + " after fit")
     mplhep.histplot(binned_gauss.to_hist(), label="PDF after fit")
     plt.legend()
     pytest.zfit_savefig(folder=plot_folder)

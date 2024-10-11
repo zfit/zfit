@@ -9,15 +9,19 @@ Develop
 
 Major Features and Improvements
 -------------------------------
+- Minimizers can directly minimize RooFit ``RooNllVar`` (as created by ``createNLL`` described `here <https://root.cern.ch/doc/master/classRooAbsPdf.html#a24b1afec4fd149e08967eac4285800de>`_
 
 Breaking changes
 ------------------
+
+
 
 Deprecations
 -------------
 
 Bug fixes and small changes
 ---------------------------
+- add possibility to not jit by using `force_eager` in `tf.function` or raise a `z.DoNotCompile` error
 
 Experimental
 ------------

@@ -252,7 +252,7 @@ def compute_errors(
         from .. import settings
 
         if settings.get_verbosity() >= 5:
-            pass
+            print("New minimum was discovered in running errors!")
         minimizer = result.minimizer
         loss = result.loss
         new_found_fmin = loss.value(full=False)
