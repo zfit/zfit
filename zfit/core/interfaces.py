@@ -761,13 +761,13 @@ class ZfitIndependentParameter(ZfitParameter, metaclass=ABCMeta):
         raise NotImplementedError
 
     @property
-    def step_size(self) -> tf.Tensor:
+    def stepsize(self) -> tf.Tensor:
         """Step size of the parameter, the estimated order of magnitude of the uncertainty.
 
-        This can be crucial to tune for the minimization. A too large `step_size` can produce NaNs, a too small won't
+        This can be crucial to tune for the minimization. A too large `stepsize` can produce NaNs, a too small won't
         converge.
 
-        If the step size is not set, the `DEFAULT_STEP_SIZE` is used.
+        If the step size is not set, the `DEFAULT_stepsize` is used.
 
         Returns:
             The step size

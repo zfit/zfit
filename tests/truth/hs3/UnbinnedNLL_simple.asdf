@@ -4,13 +4,14 @@
 %TAG ! tag:stsci.edu:asdf/
 --- !core/asdf-1.1.0
 asdf_library: !core/software-1.0.0 {author: The ASDF Developers, homepage: 'http://github.com/asdf-format/asdf',
-  name: asdf, version: 3.2.0}
+  name: asdf, version: 3.5.0}
 history:
   extensions:
   - !core/extension_metadata-1.0.0
     extension_class: asdf.extension._manifest.ManifestExtension
     extension_uri: asdf://asdf-format.org/core/extensions/core-1.5.0
-    software: !core/software-1.0.0 {name: asdf, version: 3.2.0}
+    manifest_software: !core/software-1.0.0 {name: asdf_standard, version: 1.1.1}
+    software: !core/software-1.0.0 {name: asdf, version: 3.5.0}
 constraints:
   GaussianConstraint:
     observation: [1.2]
@@ -23,16 +24,16 @@ data:
       source: 3
       datatype: float64
       byteorder: little
-      shape: [14, 1]
+      shape: [13, 1]
     space:
     - {max: 5.0, min: -4.0, name: obs1, type: Space}
     type: Data
-  None_<range_iterator object at 0x7b7adae2f6c0>:
+  None_<range_iterator object at 0x71eef56a3510>:
     data: !core/ndarray-1.0.0
       source: 4
       datatype: float64
       byteorder: little
-      shape: [17, 1]
+      shape: [9, 1]
     space:
     - {max: 5.0, min: -4.0, name: obs1, type: Space}
     type: Data
@@ -44,30 +45,10 @@ distributions:
     type: Gauss
     x: {max: 5.0, min: -4.0, name: obs1, type: Space}
   SumPDF:
-    fracs: [frac1, frac2]
+    fracs: [frac3, Composed_autoparam_1]
     name: SumPDF
     pdfs:
-    - mu: mu
-      name: Gauss
-      sigma: sigma1
-      type: Gauss
-      x: {max: 5.0, min: -4.0, name: obs1, type: Space}
-    - mu: mu
-      name: Gauss
-      sigma: sigma2
-      type: Gauss
-      x: {max: 5.0, min: -4.0, name: obs1, type: Space}
-    - mu: mu3
-      name: Gauss
-      sigma: sigma3
-      type: Gauss
-      x: {max: 5.0, min: -4.0, name: obs1, type: Space}
-    type: SumPDF
-  SumPDF_<range_iterator object at 0x7b7adae2f6c0>:
-    fracs: [frac3]
-    name: SumPDF
-    pdfs:
-    - fracs: [frac1, frac2]
+    - fracs: [frac1, frac2, Composed_autoparam_0]
       name: SumPDF
       pdfs:
       - mu: mu
@@ -89,6 +70,26 @@ distributions:
     - mu: mu4
       name: Gauss
       sigma: sigma4
+      type: Gauss
+      x: {max: 5.0, min: -4.0, name: obs1, type: Space}
+    type: SumPDF
+  SumPDF_<range_iterator object at 0x71eef56a3510>:
+    fracs: [frac1, frac2, Composed_autoparam_0]
+    name: SumPDF
+    pdfs:
+    - mu: mu
+      name: Gauss
+      sigma: sigma1
+      type: Gauss
+      x: {max: 5.0, min: -4.0, name: obs1, type: Space}
+    - mu: mu
+      name: Gauss
+      sigma: sigma2
+      type: Gauss
+      x: {max: 5.0, min: -4.0, name: obs1, type: Space}
+    - mu: mu3
+      name: Gauss
+      sigma: sigma3
       type: Gauss
       x: {max: 5.0, min: -4.0, name: obs1, type: Space}
     type: SumPDF
@@ -120,12 +121,12 @@ loss:
         source: 2
         datatype: float64
         byteorder: little
-        shape: [14, 1]
+        shape: [13, 1]
       space:
       - {max: 5.0, min: -4.0, name: obs1, type: Space}
       type: Data
     model:
-    - fracs: [frac1, frac2]
+    - fracs: [frac1, frac2, Composed_autoparam_0]
       name: SumPDF
       pdfs:
       - mu: mu
@@ -149,10 +150,10 @@ loss:
       sigma: sigma2
       type: Gauss
       x: {max: 5.0, min: -4.0, name: obs1, type: Space}
-    - fracs: [frac3]
+    - fracs: [frac3, Composed_autoparam_1]
       name: SumPDF
       pdfs:
-      - fracs: [frac1, frac2]
+      - fracs: [frac1, frac2, Composed_autoparam_0]
         name: SumPDF
         pdfs:
         - mu: mu
@@ -186,47 +187,53 @@ variables:
   Composed_autoparam_0:
     func: 800495d1010000000000008c0a64696c6c2e5f64696c6c948c105f6372656174655f66756e6374696f6e9493942868008c0c5f6372656174655f636f6465949394284b014b004b004b014b064a53000001432274006a01640174026a0364028d027400a00474057c00a006a1008301a10118005300944e473ff00000000000008c0564747970659485948794288c027466948c08636f6e7374616e74948c067a7479706573948c05666c6f6174948c056164645f6e948c046c697374948c0676616c7565739474948c06706172616d739485948c582f686f6d652f6a6f6e61732f446f63756d656e74732f706879736963732f736f6674776172652f7a6669745f70726f6a6563742f7a6669745f7265706f2f7a6669742f6d6f64656c732f6261736566756e63746f722e7079948c1372656d61696e696e675f667261635f66756e63944bc44302000194292974945294637a6669742e6d6f64656c732e6261736566756e63746f720a5f5f646963745f5f0a68144e4e749452947d947d94288c0f5f5f616e6e6f746174696f6e735f5f947d948c0c5f5f7175616c6e616d655f5f948c315f70726570726f636573735f696e69745f73756d2e3c6c6f63616c733e2e72656d61696e696e675f667261635f66756e6394758694622e
     internal_params:
-      frac_0: {floating: false, name: frac1, type: ConstantParameter, value: 0.2}
-      frac_1: {floating: true, max: 1.0, min: 0.0, name: frac2, step_size: 0.01, type: Parameter,
-        value: 0.3}
+      frac_0: {floating: false, label: frac1, name: frac1, type: ConstantParameter,
+        value: 0.2}
+      frac_1: {floating: true, label: frac2, max: 1.0, min: 0.0, name: frac2, stepsize: 0.01,
+        type: Parameter, value: 0.3}
     name: Composed_autoparam_0
     params: {frac_0: frac1, frac_1: frac2}
   Composed_autoparam_1:
     func: 800495d1010000000000008c0a64696c6c2e5f64696c6c948c105f6372656174655f66756e6374696f6e9493942868008c0c5f6372656174655f636f6465949394284b014b004b004b014b064a53000001432274006a01640174026a0364028d027400a00474057c00a006a1008301a10118005300944e473ff00000000000008c0564747970659485948794288c027466948c08636f6e7374616e74948c067a7479706573948c05666c6f6174948c056164645f6e948c046c697374948c0676616c7565739474948c06706172616d739485948c582f686f6d652f6a6f6e61732f446f63756d656e74732f706879736963732f736f6674776172652f7a6669745f70726f6a6563742f7a6669745f7265706f2f7a6669742f6d6f64656c732f6261736566756e63746f722e7079948c1372656d61696e696e675f667261635f66756e63944bc44302000194292974945294637a6669742e6d6f64656c732e6261736566756e63746f720a5f5f646963745f5f0a68144e4e749452947d947d94288c0f5f5f616e6e6f746174696f6e735f5f947d948c0c5f5f7175616c6e616d655f5f948c315f70726570726f636573735f696e69745f73756d2e3c6c6f63616c733e2e72656d61696e696e675f667261635f66756e6394758694622e
     internal_params:
-      frac_0: {floating: true, max: 1.0, min: 0.0, name: frac3, step_size: 0.01, type: Parameter,
-        value: 0.4}
+      frac_0: {floating: true, label: frac3, max: 1.0, min: 0.0, name: frac3, stepsize: 0.01,
+        type: Parameter, value: 0.4}
     name: Composed_autoparam_1
     params: {frac_0: frac3}
-  frac1: {floating: false, name: frac1, value: 0.2}
-  frac2: {floating: true, max: 1.0, min: 0.0, name: frac2, step_size: 0.01, value: 0.3}
-  frac3: {floating: true, max: 1.0, min: 0.0, name: frac3, step_size: 0.01, value: 0.4}
-  mu: {floating: true, max: 5.0, min: -4.0, name: mu, step_size: 0.01, value: 1.2}
-  mu3: {floating: true, max: 3.0, min: -2.0, name: mu3, step_size: 0.1, value: 2.0}
-  mu4: {floating: true, max: 3.0, min: -2.0, name: mu4, step_size: 0.1, value: 2.0}
+  frac1: {floating: false, label: frac1, name: frac1, value: 0.2}
+  frac2: {floating: true, label: frac2, max: 1.0, min: 0.0, name: frac2, stepsize: 0.01,
+    value: 0.3}
+  frac3: {floating: true, label: frac3, max: 1.0, min: 0.0, name: frac3, stepsize: 0.01,
+    value: 0.4}
+  mu: {floating: true, label: mu, max: 5.0, min: -4.0, name: mu, stepsize: 0.01, value: 1.2}
+  mu3: {floating: true, label: mu3, max: 3.0, min: -2.0, name: mu3, stepsize: 0.1,
+    value: 2.0}
+  mu4: {floating: true, label: mu4, max: 3.0, min: -2.0, name: mu4, stepsize: 0.1,
+    value: 2.0}
   obs1: {max: 5.0, min: -4.0, name: obs1}
   sigma1:
     func: 80049549010000000000008c0a64696c6c2e5f64696c6c948c105f6372656174655f66756e6374696f6e9493942868008c0c5f6372656174655f636f6465949394284b014b004b004b014b024b5343087c00640117005300944e4b018694298c01789485948c5e2f686f6d652f6a6f6e61732f446f63756d656e74732f706879736963732f736f6674776172652f7a6669745f70726f6a6563742f7a6669745f7265706f2f74657374732f73657269616c697a652f746573745f6873335f757365722e7079948c083c6c616d6264613e944b4643009429297494529463746573745f6873335f757365720a5f5f646963745f5f0a680a4e4e749452947d947d94288c0f5f5f616e6e6f746174696f6e735f5f947d948c0c5f5f7175616c6e616d655f5f948c28746573745f64756d706c6f61645f6873335f6c6f73732e3c6c6f63616c733e2e3c6c616d6264613e94758694622e
     internal_params:
-    - {floating: true, max: 1002.0, min: 0.0, name: sigma1_free, step_size: 0.01,
-      type: Parameter, value: 422.0}
+    - {floating: true, label: sigma1_free, max: 1002.0, min: 0.0, name: sigma1_free,
+      stepsize: 0.01, type: Parameter, value: 422.0}
     name: sigma1
     params: {param_0: sigma1_free}
-  sigma1_free: {floating: true, max: 1002.0, min: 0.0, name: sigma1_free, step_size: 0.01,
-    value: 422.0}
-  sigma2: {floating: true, max: 100.0, min: 0.0, name: sigma2, step_size: 0.01, value: 0.4}
-  sigma3: {floating: true, max: 1.0, min: 0.0, name: sigma3, step_size: 0.01, value: 0.6}
-  sigma4: {floating: true, max: 1.0, min: 0.0, name: sigma4, step_size: 0.01, value: 0.5}
+  sigma1_free: {floating: true, label: sigma1_free, max: 1002.0, min: 0.0, name: sigma1_free,
+    stepsize: 0.01, value: 422.0}
+  sigma2: {floating: true, label: sigma2, max: 100.0, min: 0.0, name: sigma2, stepsize: 0.01,
+    value: 0.4}
+  sigma3: {floating: true, label: sigma3, max: 1.0, min: 0.0, name: sigma3, stepsize: 0.01,
+    value: 0.6}
+  sigma4: {floating: true, label: sigma4, max: 1.0, min: 0.0, name: sigma4, stepsize: 0.01,
+    value: 0.5}
 ...
-”BLK 0               à       à       àG @{*tU√f«∏p«[ƒ€î˚’]≠˜?öæ^˝Û˙?Æ$∏CjZ@pıÎ≤ƒÌ?\Z‹™‡≈@r≈—Ù˘ñ˝?∑'¯¨hyÚ?x°˝éﬂ¬¡?±†¡¿∂>˚?‘‚A˙ˆD @∫∂ß,Y®¸?∏q<3ˆ?|a6nÌ?íº4∞É˙?“'“ãUjı?‹kÁsÅFÏ?äLº_äı˜?”BLK 0               H       H       HÄpÊ¢ËÈÏreäÎπµn§í'aAŒ7@YFç¯‰ @¿#ÙÍˆÏò?ÄØºwØë?v(—ñA@å'¶Ò5
-@˛ÖåüŸÉ·?Ω<H·VaÛ?Uæ·\Y@”BLK 0               p       p       p>xﬂ‰Ì •á∂GçÕú&∫sô+1@@cè8Ù5@<Ì˝Èò	@Ô±‘ë?‹@¡qè+Ìx @ÑÒ˙lÁb@“£„◊$˙øı/≠oÛ?{é¬x>|˚?Hd.Ñ¢@8ñÙ®¨Í?Rö&x
-≠Ú?JBåk»Ô?ê4l+⁄.@”BLK 0               p       p       p>xﬂ‰Ì •á∂GçÕú&∫sô+1@@cè8Ù5@<Ì˝Èò	@Ô±‘ë?‹@¡qè+Ìx @ÑÒ˙lÁb@“£„◊$˙øı/≠oÛ?{é¬x>|˚?Hd.Ñ¢@8ñÙ®¨Í?Rö&x
-≠Ú?JBåk»Ô?ê4l+⁄.@”BLK 0               à       à       àG @{*tU√f«∏p«[ƒ€î˚’]≠˜?öæ^˝Û˙?Æ$∏CjZ@pıÎ≤ƒÌ?\Z‹™‡≈@r≈—Ù˘ñ˝?∑'¯¨hyÚ?x°˝éﬂ¬¡?±†¡¿∂>˚?‘‚A˙ˆD @∫∂ß,Y®¸?∏q<3ˆ?|a6nÌ?íº4∞É˙?“'“ãUjı?‹kÁsÅFÏ?äLº_äı˜?#ASDF BLOCK INDEX
+”BLK 0               à       à       àπÇÖ]IΩÓ√úOÕ±Hf¯‰ø<◊ @4ái√
+¶’øX–I$Ñ√øùwlÏ?0˝ÅÀ≤Ê∑?†ë Ÿ,œØ?›‰˘óø?»‰5‡@ü€øé.üaå~@j◊RåÓQ@Ú`@:'√¯?¥íﬁW/Ã¯?!’ÒÆhπ @ÿ\s˚¡øh=·ˆÆ⁄?ª—∏]- Û?‡úêÒ∑Ë˙?”BLK 0               H       H       HÜ$TàÔ'ò˚“∑çô∂¥ÄAü©©øÉ Ä†[ı?|Ñ-m/Ï?˜∏M1…˝?¶≠⁄•§D @v[}xRÒ?„’†õ9i @ﬁAônbé	@∏¢/◊Âø”BLK 0               h       h       hS¿πH‚W}0€¢f&¡lÇˆ2Ÿ(ß @ÈôlÇYÓ˜?‰ò¢’»õ‰ømﬂ£E‚!ı?(∞:ñ© ??˝2∫É2Á?4ßl∑À9Ÿøån^Ûµ6’?EôÃùq≠@∂såê≠”@§54Ã6mÓø¶ÂKõu‡?H¶;Yµ™@”BLK 0               h       h       hS¿πH‚W}0€¢f&¡lÇˆ2Ÿ(ß @ÈôlÇYÓ˜?‰ò¢’»õ‰ømﬂ£E‚!ı?(∞:ñ© ??˝2∫É2Á?4ßl∑À9Ÿøån^Ûµ6’?EôÃùq≠@∂såê≠”@§54Ã6mÓø¶ÂKõu‡?H¶;Yµ™@”BLK 0               H       H       HÜ$TàÔ'ò˚“∑çô∂¥ÄAü©©øÉ Ä†[ı?|Ñ-m/Ï?˜∏M1…˝?¶≠⁄•§D @v[}xRÒ?„’†õ9i @ﬁAônbé	@∏¢/◊Âø#ASDF BLOCK INDEX
 %YAML 1.1
 ---
-- 8929
-- 9119
-- 9245
-- 9411
-- 9577
+- 9370
+- 9560
+- 9686
+- 9844
+- 10002
 ...

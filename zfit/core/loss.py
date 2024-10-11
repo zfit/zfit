@@ -1204,7 +1204,7 @@ class SimpleLoss(BaseLoss):
 
         Args:
             func: Callable that evaluates the loss and takes the parameter values as a single, array-like argument
-            params: The dependents (independent ``zfit.Parameter``) of the loss. Essentially the (free) parameters that
+            params: The parameters (independent ``zfit.Parameter``) of the loss. Essentially the (free) parameters that
               the ``func`` depends on.
             errordef: Definition of which change in the loss corresponds to a change of 1 sigma.
                 For example, 1 for Chi squared, 0.5 for negative log-likelihood.
@@ -1354,15 +1354,14 @@ class SimpleLoss(BaseLoss):
         cls._convertable_funcs = sorted(cls._convertable_funcs, key=lambda x: x["priority"], reverse=True)
 
     @classmethod
-    def from_any(self, func, params=None, **kwargs):
-        loss = None
-        for conv in self._convertable_funcs:
+    def from_any(cls, func, params=None, **kwargs):
+        for conv in cls._convertable_funcs:
             if (loss := conv["constructor"](func, params=params, **kwargs)) is not False:
                 break
         else:
             msg = (
                 f"Cannot convert {func} to a SimpleLoss, no valid converter registered. \n"
-                f"Current converters: {self._convertable_funcs}."
+                f"Current converters: {cls._convertable_funcs}."
             )
             raise RuntimeError(msg)
         return loss
@@ -1392,8 +1391,42 @@ class SimpleLoss(BaseLoss):
         return znp.asarray(value)
 
     def __add__(self, other):
-        msg = "Cannot add a SimpleLoss, 'addition' of losses can mean anything." "Add them manually"
-        raise IntentionAmbiguousError(msg)
+        if not isinstance(other, BaseLoss):
+            return NotImplemented
+        scaleouter = 1.0 if (errordef := self.errordef) == other.errordef else errordef / other.errordef
+
+        def value(params, *, full=None):
+            del params  # implicitly set
+            # TODO: needed? should be correct this way
+            # if scaleouter is None:
+            #     scale = 1.
+            # else:
+            #     scale = znp.asarray(scaleouter)
+            #     full = True
+
+            return self.value(full=full) + scaleouter * other.value(full=full)
+
+        # Not that easy to combine, overlap etc
+        # def gradient(params, *, numgrad=None):
+        #     paramsself = [p for p in params if p in self.get_params(floating=None, is_yield=None, extract_independent=None)]
+        #     paramsother = [p for p in params if p in other.get_params(floating=None, is_yield=None, extract_independent=None)]
+        #     selfgrad = self.gradient(params=paramsself, numgrad=numgrad) if paramsself else 0.
+        #     othergrad = other.gradient(params=paramsother, numgrad=numgrad) if paramsother else 0.
+        #     return selfgrad + scale * othergrad
+        gradient = None
+
+        # def hessian(params, *, numgrad=None, hessian=None):
+        #
+        #     return self.hessian(params=params, numgrad=numgrad, hessian=hessian) + scale * other.hessian(
+        #         params=params, numgrad=numgrad, hessian=hessian)
+        hessian = None
+
+        params = list(
+            self.get_params(floating=None, is_yield=None, extract_independent=None)
+            | other.get_params(floating=None, is_yield=None, extract_independent=None)
+        )
+
+        return SimpleLoss(func=value, params=params, errordef=errordef, gradient=gradient, hessian=hessian)
 
     def create_new(
         self,

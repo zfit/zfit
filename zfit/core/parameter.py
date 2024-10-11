@@ -181,7 +181,7 @@ class WrappedVariable(metaclass=MetaBaseParameter):
     def value(self):
         return self.variable.value()
 
-    def read_value(self):
+    def read_value(self):  # keep! Needed by TF internally
         return self.variable.read_value()
 
     @property
@@ -356,7 +356,7 @@ class Parameter(
 
     _independent = True
     _independent_params = WeakSet()
-    DEFAULT_STEP_SIZE = 0.01
+    DEFAULT_stepsize = 0.01
 
     def __init__(
         self,
@@ -516,8 +516,7 @@ class Parameter(
 
     @deprecated(None, "Use `value` instead.")
     def read_value(self):
-        msg = "Use `value` instead of `read_value`."
-        raise BreakingAPIChangeError(msg)
+        return self.value()
 
     @property
     def floating(self):
@@ -541,31 +540,36 @@ class Parameter(
         return self._independent
 
     @property
-    def has_step_size(self):
-        return self._step_size is not None
+    def has_stepsize(self):
+        return self._stepsize is not None
 
     @property
-    def stepsize(self) -> tf.Tensor:  # TODO: improve default step_size?
+    @deprecated(None, "Use `has_stepsize` instead.")
+    def has_step_size(self):
+        return self.has_stepsize
+
+    @property
+    def stepsize(self) -> tf.Tensor:  # TODO: improve default stepsize?
         """Step size of the parameter, the estimated order of magnitude of the uncertainty.
 
-        This can be crucial to tune for the minimization. A too large ``step_size`` can produce NaNs, a too small won't
+        This can be crucial to tune for the minimization. A too large ``stepsize`` can produce NaNs, a too small won't
         converge.
 
-        If the step size is not set, the ``DEFAULT_STEP_SIZE`` is used.
+        If the step size is not set, the ``DEFAULT_stepsize`` is used.
 
         Returns:
             The step size
         """
-        step_size = self._step_size
-        if step_size is None:
-            step_size = self.DEFAULT_STEP_SIZE
-        return step_size
+        stepsize = self._stepsize
+        if stepsize is None:
+            stepsize = self.DEFAULT_stepsize
+        return stepsize
 
     @stepsize.setter
     def stepsize(self, value):
         if value is not None:
             value = float(value)
-        self._step_size = value
+        self._stepsize = value
 
     @property
     @deprecated(None, "Use `stepsize` instead.")
@@ -732,7 +736,7 @@ class Parameter(
             upper=self.upper,
             floating=self.floating,
             label=self.label,
-            step_size=self.stepsize,
+            stepsize=self.stepsize,
         ), ()
 
 
@@ -858,9 +862,9 @@ class BaseComposedParameter(ZfitParameterMixin, OverloadableMixin, BaseParameter
 
         # return tf.convert_to_tensor(value, dtype=self.dtype)
 
-    def read_value(self):
-        msg = "Use `value` instead of `read_value`."
-        raise BreakingAPIChangeError(msg)
+    @deprecated(None, "Use `value` instead.")
+    def read_value(self):  # keep! Needed by TF internally
+        return self.value()
 
     @property
     def shape(self):
@@ -930,9 +934,9 @@ class ConstantParameter(OverloadableMixin, ZfitParameterMixin, BaseParameter, Se
     def value(self) -> tf.Tensor:
         return self._value
 
-    def read_value(self) -> tf.Tensor:
-        msg = "Use `value` instead of `read_value`."
-        raise BreakingAPIChangeError(msg)
+    @deprecated(None, "Use `value` instead.")
+    def read_value(self) -> tf.Tensor:  # keep! Needed by TF internally
+        return self.value()
 
     @property
     def floating(self):
@@ -993,9 +997,9 @@ class ComposedParameter(SerializableMixin, BaseComposedParameter):
     def __init__(
         self,
         name: str,
-        value_fn: Optional[Callable] = None,
-        *,
         func: Optional[Callable] = None,
+        *,
+        value_fn: Optional[Callable] = None,
         params: (dict[str, ZfitParameter] | Iterable[ZfitParameter] | ZfitParameter) = NotSpecified,
         label: str | None = None,
         unpack_params: bool | None = None,
@@ -1184,7 +1188,7 @@ class ComplexParameter(ComposedParameter):  # TODO: change to real, imag as inpu
         *,
         value_fn: Callable | None = None,
         params,
-        dtype=ztypes.complex,
+        dtype=None,
         label: str | None = None,
     ):
         """Create a complex parameter.
@@ -1258,7 +1262,6 @@ class ComplexParameter(ComposedParameter):  # TODO: change to real, imag as inpu
         arg: ztyping.NumericalScalarType,
         floating=True,
         *,
-        dtype=ztypes.complex,
         label: str | None = None,
         **__,
     ) -> ComplexParameter:
@@ -1276,7 +1279,7 @@ class ComplexParameter(ComposedParameter):  # TODO: change to real, imag as inpu
         arg = convert_to_parameter(arg, name=name + "_arg", prefer_constant=not floating)
         param = cls(
             name=name,
-            func=lambda _mod, _arg: znp.asarray(tf.complex(_mod * znp.cos(_arg), _mod * znp.sin(_arg)), dtype=dtype),
+            func=lambda _mod, _arg: znp.asarray(tf.complex(_mod * znp.cos(_arg), _mod * znp.sin(_arg))),
             params=[mod, arg],
             label=label,
         )
@@ -1296,7 +1299,6 @@ class ComplexParameter(ComposedParameter):  # TODO: change to real, imag as inpu
                 name=name,
                 func=lambda: znp.conj(self),
                 params=self.get_cache_deps(),
-                dtype=self.dtype,
                 label=label,
             )
         return self._conj
@@ -1346,7 +1348,7 @@ def convert_to_parameters(
     prefer_constant: bool | None = None,
     lower=None,
     upper=None,
-    step_size=None,
+    stepsize=None,
 ):
     if prefer_constant is None:
         prefer_constant = True
@@ -1364,7 +1366,7 @@ def convert_to_parameters(
         "name": name,
         "lower": lower,
         "upper": upper,
-        "step_size": step_size,
+        "stepsize": stepsize,
     }
     params_dict = {
         key: convert_to_container(val, ignore=np.ndarray) for key, val in params_dict.items() if val is not None
@@ -1389,7 +1391,7 @@ def convert_to_parameter(
     params: ZfitParameter | Iterable[ZfitParameter] | None = None,
     lower: ztyping.NumericalScalarType | None = None,
     upper: ztyping.NumericalScalarType | None = None,
-    step_size: ztyping.NumericalScalarType | None = None,
+    stepsize: ztyping.NumericalScalarType | None = None,
     *,
     label: str | None = None,
     # legacy
@@ -1404,7 +1406,7 @@ def convert_to_parameter(
         params: If the value is a callable, the parameters that are passed to the callable.
         lower: Lower limit of the parameter.
         upper: Upper limit of the parameter.
-        step_size: Step size of the parameter.
+        stepsize: Step size of the parameter.
         label: |@doc:param.init.label||@docend:param.init.label|
     """
     # legacy start
@@ -1455,7 +1457,7 @@ def convert_to_parameter(
 
     else:
         name = "autoparam_" + str(get_auto_number()) if name is None else name
-        value = Parameter(name=name, value=value, lower=lower, upper=upper, step_size=step_size, label=label)
+        value = Parameter(name=name, value=value, lower=lower, upper=upper, stepsize=stepsize, label=label)
 
     return value
 

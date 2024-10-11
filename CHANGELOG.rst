@@ -9,19 +9,23 @@ Develop
 
 Major Features and Improvements
 -------------------------------
-- Minimizers can directly minimize RooFit ``RooNllVar`` (as created by ``createNLL`` described `here <https://root.cern.ch/doc/master/classRooAbsPdf.html#a24b1afec4fd149e08967eac4285800de>`_
+- Minimizers can use the new ``SimpleLoss.from_any`` method that allows other libraries to hook into the minimization.
+  For example, using zfit-physics, minimizers can directly minimize RooFit ``RooNllVar`` (as created by ``createNLL`` described `here <https://root.cern.ch/doc/master/classRooAbsPdf.html#a24b1afec4fd149e08967eac4285800de>`_
 
 Breaking changes
 ------------------
+- removed multiple, old deprecated methods and arguments
 
 
 
 Deprecations
 -------------
+- use ``stepsize`` instead of ``step_size`` in the ``zfit.Parameter`` constructor
 
 Bug fixes and small changes
 ---------------------------
-- add possibility to not jit by using `force_eager` in `tf.function` or raise a `z.DoNotCompile` error
+- add possibility to not jit by using ``force_eager`` in ``tf.function`` or raise a ``z.DoNotCompile`` error
+- ``SimpleLoss`` can now be added
 
 Experimental
 ------------

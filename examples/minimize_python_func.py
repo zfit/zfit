@@ -56,7 +56,7 @@ params = [1, -3, 2, 1.4, 11]
 #     'value': [1, -3, 2, 1.4, 11],  # mandatory
 #     'lower': [-2, -5, -5, -10, -15],  # lower bound, can be omitted
 #     'upper': [2, 4, 5, 10, 15],  # upper bound, can be omitted
-#     'step_size': [0.1] * 5,  # initial step size, can be omitted
+#     'stepsize': [0.1] * 5,  # initial step size, can be omitted
 # }
 
 # minimize

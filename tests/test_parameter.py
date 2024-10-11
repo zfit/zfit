@@ -289,7 +289,7 @@ def test_convert_to_parameters():
         {
             "value": values4,
             "name": truename4,
-            "step_size": stepsize4,
+            "stepsize": stepsize4,
             "upper": trueupper4,
         },
         prefer_constant=False,
@@ -307,7 +307,7 @@ def test_convert_to_parameters():
         name=truename5,
         upper=trueupper4,
         prefer_constant=False,
-        step_size=stepsize4,
+        stepsize=stepsize4,
     )
     assert [p.name for p in conv_param4dict] == truename5
 
@@ -344,7 +344,7 @@ def test_convert_to_parameters_equivalence_to_single_multi():
         name=truename4,
         upper=[213, 14.0, 1110.0, 314, 213],
         prefer_constant=False,
-        step_size=stepsize4,
+        stepsize=stepsize4,
     )[1]
     assert conv_param4.floating
     assert conv_param4.name == "myname1"
@@ -374,7 +374,7 @@ def test_convert_to_parameters_equivalence_to_single():
     truename4 = "myname1"
     stepsize4 = 1.5
     conv_param4 = zfit.param.convert_to_parameters(
-        12.0, name=truename4, upper=14.0, prefer_constant=False, step_size=stepsize4
+        12.0, name=truename4, upper=14.0, prefer_constant=False, stepsize=stepsize4
     )[0]
     assert conv_param4.floating
     assert conv_param4.name == truename4
@@ -410,13 +410,13 @@ def test_convert_to_parameter():
     truename4 = "myname1"
     stepsize4 = 1.5
     conv_param4 = zfit.param.convert_to_parameter(
-        12.0, name=truename4, upper=14.0, prefer_constant=False, step_size=stepsize4
+        12.0, name=truename4, upper=14.0, prefer_constant=False, stepsize=stepsize4
     )
     assert conv_param4.floating
     assert conv_param4.name == truename4
     assert conv_param4.has_limits
     assert conv_param4.floating
-    assert pytest.approx(znp.asarray(conv_param4.step_size)) == stepsize4
+    assert pytest.approx(znp.asarray(conv_param4.stepsize)) == stepsize4
 
 
 def test_set_values():

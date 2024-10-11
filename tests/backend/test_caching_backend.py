@@ -19,8 +19,8 @@ def test_parameter_caching(function):
     def one_plus(x):
         return x + 1
 
-    cx1 = zfit.ComposedParameter("cx1", one_plus, dependents=[x1])
-    cx2 = zfit.ComposedParameter("cx2", one_plus, dependents=[x2])
+    cx1 = zfit.ComposedParameter("cx1", one_plus, params=[x1])
+    cx2 = zfit.ComposedParameter("cx2", one_plus, params=[x2])
 
     ncompile1 = 0
     ncompile2 = 0

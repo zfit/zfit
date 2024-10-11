@@ -424,7 +424,7 @@ class BaseMinimizer(ZfitMinimizer):
                     - ``name``: list of unique names of the parameters.
                     - ``lower``: array-like lower limits of the parameters,
                     - ``upper``: array-like upper limits of the parameters,
-                    - ``step_size``: array-like initial step size of the parameters (approximately the expected
+                    - ``stepsize``: array-like initial step size of the parameters (approximately the expected
                       uncertainty)
 
                 This will create internally a single parameter for each value that can be accessed in the `FitResult`
