@@ -298,7 +298,7 @@ def test_convert_to_parameters():
 
     np.testing.assert_allclose(znp.asarray([p.upper for p in conv_param4dict]), trueupper4)
     np.testing.assert_allclose(
-        znp.asarray([p.step_size for p in conv_param4dict]), stepsize4
+        znp.asarray([p.stepsize for p in conv_param4dict]), stepsize4
     )
 
     truename5 = [name + "_five" for name in truename4]
@@ -313,7 +313,7 @@ def test_convert_to_parameters():
 
     np.testing.assert_allclose(znp.asarray([p.upper for p in conv_param4dict]), trueupper4)
     np.testing.assert_allclose(
-        znp.asarray([p.step_size for p in conv_param4dict]), stepsize4
+        znp.asarray([p.stepsize for p in conv_param4dict]), stepsize4
     )
 
 
@@ -350,7 +350,7 @@ def test_convert_to_parameters_equivalence_to_single_multi():
     assert conv_param4.name == "myname1"
     assert conv_param4.has_limits
     assert conv_param4.floating
-    assert pytest.approx(znp.asarray(conv_param4.step_size)) == 1.5
+    assert pytest.approx(znp.asarray(conv_param4.stepsize)) == 1.5
 
 
 def test_convert_to_parameters_equivalence_to_single():
@@ -380,7 +380,7 @@ def test_convert_to_parameters_equivalence_to_single():
     assert conv_param4.name == truename4
     assert conv_param4.has_limits
     assert conv_param4.floating
-    assert pytest.approx(znp.asarray(conv_param4.step_size)) == stepsize4
+    assert pytest.approx(znp.asarray(conv_param4.stepsize)) == stepsize4
 
 
 def test_convert_to_parameter():

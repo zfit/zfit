@@ -256,7 +256,7 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
             for param in params:
                 step_size = approx_step_sizes.get(param, empty_dict).get("error")
                 if step_size is None and param.has_step_size:
-                    step_size = param.step_size
+                    step_size = param.stepsize
                 init_scale.append(step_size)
             minimizer.set_initial_step(init_scale)
 
@@ -285,9 +285,7 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
                 valid_message = "Maxiter reached, terminated without convergence"
             except RuntimeError:
                 if self.verbosity > 3:
-                    print(
-                        "Minimization in NLopt failed, restarting with slightly varied parameters."
-                    )
+                    pass
                 if nrandom < self._nrandom_max:  # in order not to start too close
                     init_scale_isnot_none = np.asarray([scale is not None for scale in init_scale], dtype=bool)
                     init_scale = np.where(

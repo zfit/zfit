@@ -875,7 +875,7 @@ def test_params_dumpload(param_factory):
             assert param.floating == param_loaded.floating
             assert pytest.approx(param.lower) == param_loaded.lower
             assert pytest.approx(param.upper) == param_loaded.upper
-            assert pytest.approx(param.step_size) == param_loaded.step_size
+            assert pytest.approx(param.stepsize) == param_loaded.stepsize
     assert json == param_loaded.to_json()
 
 

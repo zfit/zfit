@@ -199,7 +199,7 @@ class Minuit(BaseMinimizer, GraphCachable):
             else:
                 if evaluator.maxiter is not None:
                     maxiter_reached = evaluator.niter > evaluator.maxiter
-            if type(criterion) == EDM:  # use iminuits edm
+            if type(criterion) is EDM:  # use iminuits edm
                 criterion.last_value = minimizer.fmin.edm
                 converged = not minimizer.fmin.is_above_max_edm
             else:
@@ -294,7 +294,7 @@ class Minuit(BaseMinimizer, GraphCachable):
         for param in params:
             step_size = approx_step_sizes.get(param, empty_dict).get("error")
             if step_size is None and param.has_step_size:
-                step_size = param.step_size
+                step_size = param.stepsize
             if step_size is not None:
                 minimizer.errors[param.name] = step_size
         # set limits

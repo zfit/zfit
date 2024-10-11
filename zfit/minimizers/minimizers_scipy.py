@@ -242,7 +242,7 @@ class ScipyBaseMinimizerV1(BaseMinimizer):
             if approx_init_hesse:
                 approx_step_sizes = [val["error"] for val in approx_init_hesse.values()] or None
         if approx_step_sizes is None:
-            approx_step_sizes = np.array([0.1 if p.step_size is None else p.step_size for p in params])
+            approx_step_sizes = np.array([0.1 if p.stepsize is None else p.stepsize for p in params])
 
         if (maxiter := self.get_maxiter(len(params))) is not None:
             # stop 3 iterations earlier than we

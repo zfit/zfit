@@ -252,7 +252,7 @@ def compute_errors(
         from .. import settings
 
         if settings.get_verbosity() >= 5:
-            print("New minimum was discovered in running errors!")
+            pass
         minimizer = result.minimizer
         loss = result.loss
         new_found_fmin = loss.value(full=False)
@@ -270,12 +270,27 @@ def compute_errors(
 
 
 def numerical_pdf_jacobian(func, params):  # TODO: jit?
+    """
+    Args:
+        func: The function for which the Jacobian will be computed.
+        params: A dictionary of parameter values for the function.
+
+    Returns:
+        The numerical Jacobian of the given function with respect to the parameters.
+    """
     params = list(params.values())
     return znp.asarray(jacobi.jacobi(func, params)[0].T)
 
 
 # @z.function(wraps="autodiff")
 def autodiff_pdf_jacobian(func, params):
+    """
+    Computes the Jacobian matrix of a function using automatic differentiation.
+
+    Args:
+        func: A callable representing the function for which the Jacobian is to be calculated.
+        params: A dictionary of parameters with their values that are passed to the function.
+    """
     params = list(params.values())
     # TODO(WrappedVariable): this is needed if we want to use wrapped Variables
     # params = z.math._extract_tfparams(params)

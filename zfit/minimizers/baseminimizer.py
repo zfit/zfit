@@ -1,5 +1,4 @@
 #  Copyright (c) 2024 zfit
-"""Definition of minimizers, wrappers etc."""
 
 from __future__ import annotations
 
@@ -16,15 +15,6 @@ from contextlib import contextmanager
 import numpy as np
 from ordered_set import OrderedSet
 
-from .evaluation import LossEval
-from .fitresult import FitResult
-from .interface import ZfitMinimizer, ZfitResult
-from .strategy import (
-    FailMinimizeNaN,
-    PushbackStrategy,
-    ZfitStrategy,
-)
-from .termination import EDM, ConvergenceCriterion
 from ..core.interfaces import ZfitLoss, ZfitParameter
 from ..core.parameter import assign_values, convert_to_parameters, set_values
 from ..util import ztyping
@@ -38,6 +28,15 @@ from ..util.exception import (
     ParameterNotIndependentError,
 )
 from ..util.warnings import warn_changed_feature
+from .evaluation import LossEval
+from .fitresult import FitResult
+from .interface import ZfitMinimizer, ZfitResult
+from .strategy import (
+    FailMinimizeNaN,
+    PushbackStrategy,
+    ZfitStrategy,
+)
+from .termination import EDM, ConvergenceCriterion
 
 DefaultStrategy = PushbackStrategy
 
@@ -129,48 +128,6 @@ def _Minimizer_register_check_support(has_support: bool):
     return register
 
 
-def nll_from_roofit(nll):
-    import zfit
-    def roofit_eval(x):
-        for par, arg in zip(nll.getVariables(), x):
-            par.setVal(arg)
-        # following RooMinimizerFcn.cxx
-        nll.setHideOffset(False)
-        r = nll.getVal()
-        nll.setHideOffset(True)
-        return r
-
-    params = []
-    for v in nll.getVariables():
-        param = roo2z_param(v)
-        params.append(param)
-
-    if (errordef := getattr(nll, "defaultErrorLevel", lambda: None)()) is None:
-        if (errordef := getattr(nll, "errordef", lambda: None)()) is None:
-            raise TypeError("Provided loss is RooFit loss but has not error level. Either set it or create an attribute on the fly (like `nllroofit.errordef = 0.5` ")
-    nllz = zfit.loss.SimpleLoss(roofit_eval, params, errordef=errordef, jit=False, gradient='num', hessian='num')
-    return nllz
-
-
-def roo2z_param(v):
-    import zfit
-
-    name = v.GetName()
-    value = v.getVal()
-    label = v.GetTitle()
-    lower = v.getMin()
-    upper = v.getMax()
-    floating = not v.isConstant()
-    stepsize = None
-    if v.hasError():
-        stepsize = v.getError()
-    elif v.hasAsymError():  # just take average
-        stepsize = (v.getErrorHi() - v.getErrorLo()) / 2
-    param = zfit.Parameter(name, value, lower=lower, upper=upper, floating=floating, step_size=stepsize,
-                           label=label)
-    return param
-
-
 class BaseMinimizer(ZfitMinimizer):
     _DEFAULTS: typing.ClassVar = {
         "tol": 1e-3,
@@ -181,14 +138,14 @@ class BaseMinimizer(ZfitMinimizer):
     }
 
     def __init__(
-            self,
-            tol: float | None = None,
-            verbosity: int | None = None,
-            criterion: ConvergenceCriterion | None = None,
-            strategy: ZfitStrategy | None = None,
-            minimizer_options: dict | None = None,
-            maxiter: str | int | None = None,
-            name: str | None = None,
+        self,
+        tol: float | None = None,
+        verbosity: int | None = None,
+        criterion: ConvergenceCriterion | None = None,
+        strategy: ZfitStrategy | None = None,
+        minimizer_options: dict | None = None,
+        maxiter: str | int | None = None,
+        name: str | None = None,
     ) -> None:
         """Base Minimizer to minimize loss functions and return a result.
 
@@ -247,8 +204,8 @@ class BaseMinimizer(ZfitMinimizer):
         except TypeError:  # legacy
             warn_changed_feature(
                 message="A strategy should now be a class, not an instance. The minimizer will"
-                        " at the beginning of the minimization create an instance that can be"
-                        " stateful during the minimization and will be stored in the FitResult.",
+                " at the beginning of the minimization create an instance that can be"
+                " stateful during the minimization and will be stored in the FitResult.",
                 identifier="strategies_in_minimizers.",
             )
             do_error = not isinstance(strategy, ZfitStrategy)
@@ -308,7 +265,7 @@ class BaseMinimizer(ZfitMinimizer):
             raise MinimizerSubclassingError(msg)
 
     def _check_convert_input(
-            self, loss: ZfitLoss, params, init=None, floating=True
+        self, loss: ZfitLoss, params, init=None, floating=True
     ) -> tuple[ZfitLoss, Iterable[ZfitParameter], None | FitResult]:
         """Sanitize the input values and return all of them.
 
@@ -348,24 +305,9 @@ class BaseMinimizer(ZfitMinimizer):
 
         # convert the function to a SimpleLoss
         if not isinstance(loss, ZfitLoss):
-            try:
-                import ROOT
-            except ImportError:
-                ROOT = None
-            if ROOT is not None and isinstance(loss, ROOT.RooAbsReal):
-                loss = nll_from_roofit(loss)
-            else:
-                if not callable(loss):
-                    msg = "Given Loss has to  be a ZfitLoss or a callable."
-                    raise TypeError(msg)
-                if params is None:
-                    msg = "If the loss is a callable, the params cannot be None."
-                    raise ValueError(msg)
+            from zfit.loss import SimpleLoss
 
-                from zfit.loss import SimpleLoss
-
-                convert_to_parameters(params, prefer_constant=False)
-                loss = SimpleLoss(func=loss, params=params, jit=False, gradient='num', hessian='num')
+            loss = SimpleLoss.from_any(loss, params=params)
 
         if isinstance(params, (tuple, list)) and not any(isinstance(p, ZfitParameter) for p in params):
             loss_params = loss.get_params()
@@ -437,10 +379,10 @@ class BaseMinimizer(ZfitMinimizer):
         self._tol = tol
 
     def minimize(
-            self,
-            loss: ZfitLoss | Callable,
-            params: ztyping.ParamsTypeOpt | None = None,
-            init: ZfitResult | None = None,
+        self,
+        loss: ZfitLoss | Callable,
+        params: ztyping.ParamsTypeOpt | None = None,
+        init: ZfitResult | None = None,
     ) -> FitResult:
         """Fully minimize the `loss` with respect to `params`, optionally using information from `init`.
 
@@ -535,10 +477,10 @@ class BaseMinimizer(ZfitMinimizer):
             return self._call_minimize(loss=loss, params=params, init=init)
 
     def _call_minimize(
-            self,
-            loss: ZfitLoss | Callable,
-            params: ztyping.ParamsTypeOpt | None = None,
-            init: ZfitResult | None = None,
+        self,
+        loss: ZfitLoss | Callable,
+        params: ztyping.ParamsTypeOpt | None = None,
+        init: ZfitResult | None = None,
     ) -> FitResult:
         do_recovery = False
         prelim_result = None
@@ -560,8 +502,8 @@ class BaseMinimizer(ZfitMinimizer):
             assign_values(params=params, values=init)
             result = self._call_minimize(loss=loss, params=params)
         except (
-                FailMinimizeNaN,
-                RuntimeError,
+            FailMinimizeNaN,
+            RuntimeError,
         ):  # iminuit raises RuntimeError if user raises Error
             do_recovery = True
             strategy = self._state.get("strategy")
@@ -581,10 +523,10 @@ class BaseMinimizer(ZfitMinimizer):
 
     @_Minimizer_register_check_support(True)
     def _minimize(
-            self,
-            loss: ZfitLoss | Callable,  # noqa: ARG002
-            params: ztyping.ParamsTypeOpt | None = None,  # noqa: ARG002
-            init: ZfitResult | None = None,  # noqa: ARG002
+        self,
+        loss: ZfitLoss | Callable,  # noqa: ARG002
+        params: ztyping.ParamsTypeOpt | None = None,  # noqa: ARG002
+        init: ZfitResult | None = None,  # noqa: ARG002
     ) -> FitResult:
         raise MinimizeNotImplemented
 
@@ -594,10 +536,10 @@ class BaseMinimizer(ZfitMinimizer):
 
     @contextmanager
     def _make_stateful(
-            self,
-            loss: ZfitLoss | Callable,
-            params: ztyping.ParamsTypeOpt | None = None,
-            init: ZfitResult | None = None,
+        self,
+        loss: ZfitLoss | Callable,
+        params: ztyping.ParamsTypeOpt | None = None,
+        init: ZfitResult | None = None,
     ) -> None:
         """Remember the loss, param and init that is currently used inside the minimization.
 
@@ -643,11 +585,11 @@ class BaseMinimizer(ZfitMinimizer):
         return maxiter
 
     def create_evaluator(
-            self,
-            loss: ZfitLoss | None = None,
-            params: ztyping.ParametersType | None = None,
-            numpy_converter: Callable | None = None,
-            strategy: ZfitStrategy | None = None,
+        self,
+        loss: ZfitLoss | None = None,
+        params: ztyping.ParametersType | None = None,
+        numpy_converter: Callable | None = None,
+        strategy: ZfitStrategy | None = None,
     ) -> LossEval:
         """Make a loss evaluator using the strategy and more from the minimizer.
 
@@ -711,9 +653,9 @@ class BaseMinimizer(ZfitMinimizer):
                 internal_tol[tol] *= tol_factor
 
     def create_criterion(
-            self,
-            loss: ZfitLoss | None = None,
-            params: ztyping.ParametersType | None = None,
+        self,
+        loss: ZfitLoss | None = None,
+        params: ztyping.ParametersType | None = None,
     ) -> ConvergenceCriterion:
         """Create a criterion instance for the given loss and parameters.
 
@@ -871,12 +813,12 @@ class NOT_SUPPORTED:
 
 
 def print_minimization_status(
-        converged,  # noqa: ARG001
-        criterion,  # noqa: ARG001
-        evaluator,  # noqa: ARG001
-        i,  # noqa: ARG001
-        fminopt,  # noqa: ARG001
-        internal_tol: Mapping[str, float] | None = None,
+    converged,  # noqa: ARG001
+    criterion,  # noqa: ARG001
+    evaluator,  # noqa: ARG001
+    i,  # noqa: ARG001
+    fminopt,  # noqa: ARG001
+    internal_tol: Mapping[str, float] | None = None,
 ):
     internal_tol = {} if internal_tol is None else internal_tol
     ", ".join(f"{tol}={val:.3g}" for tol, val in internal_tol.items())

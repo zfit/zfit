@@ -17,6 +17,7 @@ import numpy as np
 import tensorflow as tf
 
 import zfit.z.numpy as znp
+
 from ..settings import run, ztypes
 from ..util.exception import BreakingAPIChangeError
 from ..util.warnings import warn_advanced_feature
@@ -61,11 +62,11 @@ def nth_pow(x, n):
 
 
 def unstack_x(
-        value: Any,
-        num: Any = None,
-        axis: int = -1,
-        always_list: bool = False,
-        name: str = "unstack_x",
+    value: Any,
+    num: Any = None,
+    axis: int = -1,
+    always_list: bool = False,
+    name: str = "unstack_x",
 ):
     """Unstack a Data object and return a list of (or a single) tensors in the right order.
 
@@ -109,11 +110,11 @@ def convert_to_tensor(value, dtype=None, name=None, preferred_dtype=None):
 
 
 def safe_where(
-        condition: tf.Tensor,
-        func: Callable,
-        safe_func: Callable,
-        values: tf.Tensor,
-        value_safer: Callable = tf.ones_like,
+    condition: tf.Tensor,
+    func: Callable,
+    safe_func: Callable,
+    values: tf.Tensor,
+    value_safer: Callable = tf.ones_like,
 ) -> tf.Tensor:
     """Like :py:func:`tf.where` but fixes gradient `NaN` if func produces `NaN` with certain `values`.
 
@@ -178,14 +179,14 @@ class FunctionWrapperRegistry:
     do_jit_types = _DEFAULT_DO_JIT_TYPES.copy()
 
     def __init__(
-            self,
-            wraps=None,
-            *,
-            stateless_args=None,
-            cachesize=None,
-            keepalive=None,
-            force_eager=None,
-            **kwargs_user,
+        self,
+        wraps=None,
+        *,
+        stateless_args=None,
+        cachesize=None,
+        keepalive=None,
+        force_eager=None,
+        **kwargs_user,
     ) -> None:
         """`tf.function`-like decorator with additional cache-invalidation functionality.
 
@@ -325,7 +326,7 @@ class FunctionWrapperRegistry:
                 cache.append(function_holder)
             else:
                 function_holder = cache[func_holder_index]
-                func_to_run = function_holder.wrapped_func
+                func_to_run = function_holder.execute_func
 
             try:
                 result = func_to_run(*args, **kwargs)
@@ -333,7 +334,7 @@ class FunctionWrapperRegistry:
                 function_holder.do_jit = False
                 if not run.executing_eagerly():
                     raise
-                result = function_holder.python_func(*args, **kwargs)
+                result = function_holder.execute_func(*args, **kwargs)
             finally:
                 self.currently_traced.remove(func)
             return result

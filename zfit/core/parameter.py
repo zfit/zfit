@@ -9,7 +9,6 @@ import collections
 import copy
 import functools
 import typing
-import warnings
 import weakref
 from collections.abc import Callable, Iterable
 from contextlib import suppress
@@ -71,6 +70,8 @@ class MetaBaseParameter(type(tf.Variable), type(zinterfaces.ZfitParameter)):  # 
 def register_tensor_conversion(
     convertable, name=None, overload_operators=True, priority=10
 ):  # higher than any tf conversion
+    del name
+
     def _dense_var_to_tensor(var, dtype=None, name=None, as_ref=False):
         return var._dense_var_to_tensor(dtype=dtype, name=name, as_ref=as_ref)
 
@@ -363,14 +364,13 @@ class Parameter(
         value: ztyping.NumericalScalarType,
         lower: ztyping.NumericalScalarType | None = None,
         upper: ztyping.NumericalScalarType | None = None,
-        step_size: ztyping.NumericalScalarType | None = None,
+        stepsize: ztyping.NumericalScalarType | None = None,
         floating: bool = True,
         *,
-        dtype: tf.DType = None,
         label: str | None = None,
         # legacy
-        lower_limit: ztyping.NumericalScalarType | None = None,
-        upper_limit: ztyping.NumericalScalarType | None = None,
+        dtype: tf.DType = None,
+        step_size: ztyping.NumericalScalarType | None = None,
     ):
         """Fit Parameter that has a default state (value) and limits (lower, upper).
 
@@ -385,25 +385,17 @@ class Parameter(
             upper : upper limit of the parameter. If the parameter is set to a value above the upper limit, it will raise an error.
             floating : If the parameter is floating (can change value) or fixed (constant) in the minimization.
             label: |@doc:param.init.label||@docend:param.init.label|
-            step_size : Initial step size for minimization. If not set, a default value is used.
+            stepsize : Initial step size for minimization. If not set, a default value is used.
         """
         self._independent_params.add(self)
 
         # legacy start
-        if lower_limit is not None:
-            msg = "The argument `lower_limit` has been renamed to `lower`."
+        if step_size is not None:
+            stepsize = step_size
+        if dtype is not None:
+            msg = "The argument `dtype` has been removed. The dtype is now automatically the default float type."
             raise BreakingAPIChangeError(msg)
-        if upper_limit is not None:
-            msg = "The argument `upper_limit` has been renamed to `upper`."
-            raise BreakingAPIChangeError(msg)
-        if dtype is None:
-            dtype = ztypes.float
-        else:
-            warnings.warn(
-                "The argument `dtype` is deprecated and will be removed in the future.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
+        dtype = ztypes.float
         # legacy end
 
         # TODO: sanitize input for TF2
@@ -426,7 +418,7 @@ class Parameter(
         self.lower = lower
         self.upper = upper
         self.floating = floating
-        self.step_size = step_size
+        self.stepsize = stepsize
         self.set_value(value)  # to check that it is in the limits
 
     def __init_subclass__(cls, **kwargs):
@@ -524,7 +516,8 @@ class Parameter(
 
     @deprecated(None, "Use `value` instead.")
     def read_value(self):
-        return self.value()
+        msg = "Use `value` instead of `read_value`."
+        raise BreakingAPIChangeError(msg)
 
     @property
     def floating(self):
@@ -552,7 +545,7 @@ class Parameter(
         return self._step_size is not None
 
     @property
-    def step_size(self) -> tf.Tensor:  # TODO: improve default step_size?
+    def stepsize(self) -> tf.Tensor:  # TODO: improve default step_size?
         """Step size of the parameter, the estimated order of magnitude of the uncertainty.
 
         This can be crucial to tune for the minimization. A too large ``step_size`` can produce NaNs, a too small won't
@@ -565,30 +558,24 @@ class Parameter(
         """
         step_size = self._step_size
         if step_size is None:
-            #     # auto-infer from limits
-            #     step_splits = 1e5
-            #     if self.has_limits:
-            #         step_size = (self.upper_limit - self.lower_limit) / step_splits  # TODO improve? can be tensor?
-            #     else:
-            #         step_size = self.DEFAULT_STEP_SIZE
-            #     if np.isnan(step_size):
-            #         if self.lower_limit == -np.infty or self.upper_limit == np.infty:
-            #             step_size = self.DEFAULT_STEP_SIZE
-            #         else:
-            #             raise ValueError("Could not set step size. Is NaN.")
-            #     # step_size = z.to_real(step_size)
-            #     self.step_size = step_size
             step_size = self.DEFAULT_STEP_SIZE
-        # step_size = z.convert_to_tensor(step_size)
         return step_size
 
-    @step_size.setter
-    def step_size(self, value):
+    @stepsize.setter
+    def stepsize(self, value):
         if value is not None:
             value = float(value)
-            # value = z.convert_to_tensor(value, preferred_dtype=ztypes.float)
-            # value = znp.asarray(value, dtype=ztypes.float)
         self._step_size = value
+
+    @property
+    @deprecated(None, "Use `stepsize` instead.")
+    def step_size(self) -> tf.Tensor:
+        return self.stepsize
+
+    @step_size.setter
+    @deprecated(None, "Use `stepsize` instead.")
+    def step_size(self, value):
+        self.stepsize = value
 
     def set_value(self, value: ztyping.NumericalScalarType):
         """Set the :py:class:`~zfit.Parameter` to `value` (temporarily if used in a context manager).
@@ -704,24 +691,24 @@ class Parameter(
     # LEGACY, deprecate?
 
     @property
-    @deprecated(None, "Use `lower` instead.")
     def lower_limit(self):
-        return self.lower
+        msg = "Use `lower` instead of `lower_limit`."
+        raise BreakingAPIChangeError(msg)
 
     @lower_limit.setter
-    @deprecated(None, "Use `lower` instead.")
-    def lower_limit(self, value):
-        self.lower = value
+    def lower_limit(self, value):  # noqa: ARG002
+        msg = "Use `lower` instead of `lower_limit`."
+        raise BreakingAPIChangeError(msg)
 
     @property
-    @deprecated(None, "Use `upper` instead.")
     def upper_limit(self):
-        return self.upper
+        msg = "Use `upper` instead of `upper_limit`."
+        raise BreakingAPIChangeError(msg)
 
     @upper_limit.setter
-    @deprecated(None, "Use `upper` instead.")
-    def upper_limit(self, value):
-        self.upper = value
+    def upper_limit(self, value):  # noqa: ARG002
+        msg = "Use `upper` instead of `upper_limit`."
+        raise BreakingAPIChangeError(msg)
 
     def __tf_tracing_type__(self, signature_context):
         return ParameterSpec(parameter=self)
@@ -745,7 +732,7 @@ class Parameter(
             upper=self.upper,
             floating=self.floating,
             label=self.label,
-            step_size=self.step_size,
+            step_size=self.stepsize,
         ), ()
 
 
@@ -820,8 +807,9 @@ class ParameterRepr(BaseRepr):  # add label?
     value: float
     lower: Optional[float] = Field(None, alias="min")
     upper: typing.Optional[float] = Field(None, alias="max")
-    step_size: Optional[float] = None
+    stepsize: Optional[float] = None
     floating: Optional[bool] = None
+    label: Optional[str] = None
 
     @validator("value", pre=True)
     def _validate_value(cls, v):
@@ -871,7 +859,8 @@ class BaseComposedParameter(ZfitParameterMixin, OverloadableMixin, BaseParameter
         # return tf.convert_to_tensor(value, dtype=self.dtype)
 
     def read_value(self):
-        return tf.identity(self.value())
+        msg = "Use `value` instead of `read_value`."
+        raise BreakingAPIChangeError(msg)
 
     @property
     def shape(self):
@@ -942,7 +931,8 @@ class ConstantParameter(OverloadableMixin, ZfitParameterMixin, BaseParameter, Se
         return self._value
 
     def read_value(self) -> tf.Tensor:
-        return self.value()
+        msg = "Use `value` instead of `read_value`."
+        raise BreakingAPIChangeError(msg)
 
     @property
     def floating(self):
@@ -983,9 +973,7 @@ class ConstantParamRepr(BaseRepr):
     name: str
     value: float
     floating: bool = False
-
-    # lower: Optional[float] = Field(None, alias="min")
-    # upper: Optional[float] = Field(None, alias="max")
+    label: Optional[str] = None
 
     @validator("value", pre=True)
     def _validate_value(cls, value):
@@ -1009,10 +997,10 @@ class ComposedParameter(SerializableMixin, BaseComposedParameter):
         *,
         func: Optional[Callable] = None,
         params: (dict[str, ZfitParameter] | Iterable[ZfitParameter] | ZfitParameter) = NotSpecified,
-        dtype: tf.dtypes.DType = ztypes.float,
         label: str | None = None,
         unpack_params: bool | None = None,
         dependents: (dict[str, ZfitParameter] | Iterable[ZfitParameter] | ZfitParameter) = NotSpecified,
+        dtype: tf.dtypes.DType = ztypes.float,
     ):
         """Arbitrary composition of parameters.
 
@@ -1058,11 +1046,8 @@ class ComposedParameter(SerializableMixin, BaseComposedParameter):
         """
         # legacy
         if value_fn is not None:
-            if func is not None:
-                msg = "Cannot specify both `value_fn` and `func`."
-                raise ValueError(msg)
-            func = value_fn
-            del value_fn
+            msg = "Use `func` instead of `value_fn`."
+            raise BreakingAPIChangeError(msg)
         # end legacy
         if not isinstance(params, Mapping):
             params = convert_to_container(params)
@@ -1070,8 +1055,9 @@ class ComposedParameter(SerializableMixin, BaseComposedParameter):
 
         # legacy
         if dependents is not NotSpecified:
-            params = dependents
-        elif params is NotSpecified:
+            msg = "Use `params` instead of `dependents`."
+            raise BreakingAPIChangeError(msg)
+        if params is NotSpecified:
             raise ValueError
         # end legacy
 
@@ -1158,6 +1144,7 @@ class ComposedParameterRepr(BaseRepr):
     func: str
     params: dict[str, Serializer.types.ParamTypeDiscriminated]
     unpack_params: Optional[bool]
+    label: Optional[str] = None
     internal_params: Optional[
         Union[
             Serializer.types.ParamTypeDiscriminated,
@@ -1193,9 +1180,9 @@ class ComplexParameter(ComposedParameter):  # TODO: change to real, imag as inpu
     def __init__(
         self,
         name: str,
-        value_fn: Callable | None = None,
-        *,
         func: Callable | None = None,
+        *,
+        value_fn: Callable | None = None,
         params,
         dtype=ztypes.complex,
         label: str | None = None,
@@ -1213,16 +1200,16 @@ class ComplexParameter(ComposedParameter):  # TODO: change to real, imag as inpu
             func: Function that returns the value of the complex parameter and takes as arguments the real and
                 imaginary part.
             params: List of the real and imaginary part of the complex parameter.
-            dtype: Data type of the complex parameter.
             label: |@doc:param.init.label||@docend:param.init.label|
         """
         # legacy
         if value_fn is not None:
-            if func is not None:
-                msg = "Cannot specify both `value_fn` and `func`."
-                raise ValueError(msg)
-            func = value_fn
-            del value_fn
+            msg = "Use `func` instead of `value_fn`."
+            raise BreakingAPIChangeError(msg)
+        if dtype is not None:
+            msg = "The argument `dtype` has been removed. The dtype is now automatically the default complex dtype."
+            raise BreakingAPIChangeError(msg)
+        dtype = ztypes.complex
         super().__init__(name, func=func, params=params, dtype=dtype, label=label)
         self._conj = None
         self._mod = None
