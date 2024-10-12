@@ -20,6 +20,7 @@ import math
 import warnings
 from collections.abc import Callable, Mapping
 from contextlib import suppress
+from typing import Mapping, Optional
 from typing import Optional
 
 import tensorflow as tf
