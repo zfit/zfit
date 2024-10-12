@@ -82,13 +82,15 @@ def create_params(name_add=""):
     return mu1, mu2, mu3, sigma1, sigma2, sigma3
 
 
-def create_gaussians() -> list[ZfitPDF]:
+def create_gaussians(norms=None) -> list[ZfitPDF]:
     # Gauss for sum, same axes
+    if norms is None:
+        norms = [None] * 3
     obs1 = makeobs1()
     mu1, mu2, mu3, sigma1, sigma2, sigma3 = create_params()
-    gauss1 = Gauss(mu=mu1, sigma=sigma1, obs=obs1, name="gauss1asum")
-    gauss2 = Gauss(mu=mu2, sigma=sigma2, obs=obs1, name="gauss2asum")
-    gauss3 = Gauss(mu=mu3, sigma=sigma3, obs=obs1, name="gauss3asum")
+    gauss1 = Gauss(mu=mu1, sigma=sigma1, obs=obs1, name="gauss1asum", norm=norms[0])
+    gauss2 = Gauss(mu=mu2, sigma=sigma2, obs=obs1, name="gauss2asum", norm=norms[1])
+    gauss3 = Gauss(mu=mu3, sigma=sigma3, obs=obs1, name="gauss3asum", norm=norms[2])
     return [gauss1, gauss2, gauss3]
 
 
@@ -212,11 +214,11 @@ def test_prod_gauss_nd(binned):
     probs = product_pdf.pdf(x=test_values_data)
     gaussians = create_gaussians()
     # raise RuntimeError("Cleanup test!")
-    for gauss, space in zip(gaussians, [obs1, obs2, obs3]):  # TODO: cleanup test
-        gauss.set_norm_range(space.rect_limits)
+    norms = [obs1, obs2, obs3]
+
 
     true_probs = np.prod(
-        [gauss.pdf(test_values[:, i]) for i, gauss in enumerate(gaussians)], axis=0
+        [gauss.pdf(test_values[:, i], norm=norm.v1.limits) for i, (gauss, norm) in enumerate(zip(gaussians, norms))], axis=0
     )
 
     rtol = 1e-5
@@ -236,12 +238,9 @@ def test_prod_gauss_nd_mixed():
     test_values_data = Data.from_tensor(obs=obs4d, tensor=test_values)
     limits_4d = Space(limits=(((-5,) * 4,), ((4,) * 4,)), obs=obs4d)
     prod_gauss_4d = product_gauss_4d()
-    prod_gauss_4d.set_norm_range(limits_4d)
     probs = prod_gauss_4d.pdf(x=test_values_data, norm=limits_4d)
-    gausses = create_gaussians()
+    gausses = create_gaussians(norms=[norm] * 3)
 
-    for gauss in gausses:
-        gauss.set_norm_range(norm)
     gauss1, gauss2, gauss3 = gausses
     prod_gauss_3d = product_gauss_3d()
 
@@ -327,15 +326,15 @@ def normalization_testing(pdf, limits=None):
 
     limits = (low, high) if limits is None else limits
     space = Space(obs=makeobs1(), limits=limits)
-    with pdf.set_norm_range(space):
-        samples = znp.random.uniform(
-            low=space.v1.lower, high=space.v1.upper, size=(100_000, pdf.n_obs)
-        )
 
-        samples = zfit.Data.from_tensor(obs=space, tensor=samples)
-        probs = pdf.pdf(samples)
-        result = znp.asarray(np.average(probs) * space._legacy_area())
-        assert pytest.approx(result, rel=0.03) == 1
+    samples = znp.random.uniform(
+        low=space.v1.lower, high=space.v1.upper, size=(100_000, pdf.n_obs)
+    )
+
+    samples = zfit.Data.from_tensor(obs=space, tensor=samples)
+    probs = pdf.pdf(samples, norm=space)
+    result = znp.asarray(np.average(probs) * space.volume)
+    assert pytest.approx(result, rel=0.03) == 1
 
 
 def test_extended_gauss():

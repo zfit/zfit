@@ -52,10 +52,10 @@ class BaseFunctor(FunctorMixin, BasePDF):
         norm = super().norm
         if not norm.limits_are_set:
             norm = extract_daughter_input_obs(obs=norm, spaces=[model.space for model in self.models])
-            self.set_norm_range(norm)
         if not norm.limits_are_set:
             msg = f"Daughter pdfs {self.pdfs} do not agree on a `norm` and/or no `norm`" "has been explicitly set."
             raise NormRangeUnderdefinedError(msg)
+        self._norm = norm
 
     @property
     def pdfs_extended(self):

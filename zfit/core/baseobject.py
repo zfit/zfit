@@ -94,10 +94,8 @@ class BaseParametrized(BaseObject, ZfitParametrized):
         from zfit.core.parameter import convert_to_parameter
 
         params = params or {}
-        # params = dict(sorted((n, convert_to_parameter(p)) for n, p in params.items()))
         params = {n: convert_to_parameter(p) for n, p in params.items()}  # why sorted?
 
-        # parameters = dict(sorted(parameters))  # to always have a consistent order
         self._params = params
         self._repr["params"] = self.params
         # check if the object has duplicated names as parameters
@@ -123,6 +121,7 @@ class BaseParametrized(BaseObject, ZfitParametrized):
         floating: bool | None = True,
         is_yield: bool | None = None,
         extract_independent: bool | None = True,
+        *,
         only_floating=NotSpecified,
     ) -> set[ZfitParameter]:
         """Recursively collect parameters that this object depends on according to the filter criteria.
@@ -232,7 +231,7 @@ class BaseNumeric(
 
 
 def extract_filter_params(
-    params: Iterable[ZfitParametrized],
+    params: Iterable[ZfitParametrized] | ZfitParametrized,
     floating: bool | None = True,
     extract_independent: bool | None = True,
 ) -> set[ZfitParameter]:

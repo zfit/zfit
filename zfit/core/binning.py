@@ -9,50 +9,7 @@ import tensorflow as tf
 import tensorflow_probability as tfp
 
 import zfit.z.numpy as znp
-from zfit import z
-from zfit.core.interfaces import ZfitData, ZfitRectBinning, ZfitSpace
-from zfit.util.ztyping import XTypeInput
-
-
-def rect_binning_histogramdd(data: XTypeInput, binning: ZfitRectBinning):
-    if isinstance(data, ZfitData):
-        data = data.value()
-    return histogramdd(sample=data, bins=binning.get_edges())
-
-
-def histogramdd(sample, bins=10, range=None, weights=None, density=None):
-    out_dtype = [tf.float64, tf.float64]
-    if isinstance(sample, ZfitData):
-        sample = sample.value()
-        n_obs = sample.n_obs
-    else:
-        sample = z.convert_to_tensor(sample)
-        n_obs = sample.shape[-1]
-
-    none_tensor = tf.constant("NONE_TENSOR", shape=(), name="none_tensor")
-    inputs = [sample, bins, range, weights]
-    inputs_cleaned = [inp if inp is not None else none_tensor for inp in inputs]
-
-    def histdd(sample, bins, range, weights):
-        kwargs = {"sample": sample, "bins": bins, "range": range, "weights": weights}
-        new_kwargs = {}
-        for key, value in kwargs.items():
-            is_empty = value == b"NONE_TENSOR"
-            try:
-                is_empty = bool(is_empty)
-            except ValueError:  # if it's a numpy array we need the "all" method, otherwise it's ambiguous
-                is_empty = is_empty.all()
-
-            if is_empty:
-                value = None
-
-            new_kwargs[key] = value
-        return np.histogramdd(**new_kwargs, density=density)
-
-    bincounts, *edges = tf.numpy_function(func=histdd, inp=inputs_cleaned, Tout=out_dtype)
-    bincounts.set_shape(shape=(None,) * n_obs)
-    # edges = [edge.set_shape(shape=(None)) for edge in edges]
-    return bincounts, edges
+from zfit.core.interfaces import ZfitSpace
 
 
 def unbinned_to_hist_eager_edgesweightsargs(values, *edges_weights):
@@ -156,25 +113,3 @@ def unbinned_to_binindex(data, space, flow=False):
         binindices = znp.where(bin_is_nan, zeros, stacked_bins)
         stacked_bins = znp.asarray(binindices, dtype=znp.int32)
     return stacked_bins
-
-
-def midpoints_from_hist(bincounts, edges):  # TODO: implement correctly, old
-    """Calculate the midpoints of a hist and return the non-zero entries, non-zero bincounts and indices.
-
-    Args:
-        bincounts: Tensor with shape (nbins_0, ..., nbins_n) with n being the dimension.
-        edges: Tensor with shape (n_obs, nbins + 1) holding the position of the edges, assuming a rectangular grid.
-    Returns:
-        bincounts: the bincounts that are non-zero in a 1-D array corresponding to the indices and the midpoints
-        midpoints: the coordinates of the midpoint of each bin with shape (nbincounts, n_obs)
-        indices: original position in the bincounts from the input
-    """
-    bincounts = z.convert_to_tensor(bincounts)
-    edges = z.convert_to_tensor(edges)
-
-    midpoints = (edges[:, :-1] + edges[:, 1:]) / 2.0
-    midpoints_grid = tf.stack(tf.meshgrid(*tf.unstack(midpoints), indexing="ij"), axis=-1)
-    bincounts_nonzero_index = tf.where(bincounts)
-    bincounts_nonzero = tf.gather_nd(bincounts, indices=bincounts_nonzero_index)
-    midpoints_nonzero = tf.gather_nd(midpoints_grid, indices=bincounts_nonzero_index)
-    return bincounts_nonzero, midpoints_nonzero, bincounts_nonzero_index

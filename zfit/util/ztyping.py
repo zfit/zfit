@@ -116,6 +116,7 @@ ParamsOrNameType = Optional[Union[ParamsTypeOpt, Iterable[str]]]  #:
 ParameterType = TypeVar("ParameterType", bound=Dict[str, "zfit.core.interfaces.ZfitParameter"])  #:
 ParametersType = Iterable[ParameterType]
 ParamTypeInput = TypeVar("ParamTypeInput", "zfit.core.interfaces.ZfitParameter", NumericalScalarType)  #:
+ParamsTypeInput = Mapping[Union[str, "zfit.core.interfaces.ZfitParameter"], ParamTypeInput]  #:
 
 ExtendedInputType = Optional[Union[bool, ParamTypeInput]]  #:
 

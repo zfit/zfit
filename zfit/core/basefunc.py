@@ -44,16 +44,6 @@ class BaseFuncV1(BaseModel, ZfitFunc):
         new_params.update(override_params)
         return type(self)(new_params)
 
-    # def gradient(  # TODO: gradient?
-    #     self,
-    #     x: ztyping.XType,
-    #     norm: ztyping.LimitsType = None,
-    #     params: ztyping.ParamsTypeOpt = None,
-    # ):
-    #     # TODO(Mayou36): well, really needed... this gradient?
-    #     msg = "What do you need? Use tf.gradient..."
-    #     raise NotImplementedError(msg)
-
     @abc.abstractmethod
     def _func(self, x):
         raise SpecificFunctionNotImplemented
@@ -63,7 +53,7 @@ class BaseFuncV1(BaseModel, ZfitFunc):
         x: ztyping.XType,
         name: str = "value",
         *,
-        params: ztyping.ParamsTypeInput = None,
+        params: ztyping.ParamsTypeInput | None = None,
     ) -> ztyping.XType:
         """The function evaluated at ``x``.
 
@@ -74,8 +64,8 @@ class BaseFuncV1(BaseModel, ZfitFunc):
         Returns:
              # TODO(Mayou36): or dataset? Update: rather not, what would obs be?
         """
-        with self._convert_sort_x(x) as x, self._check_set_input_params(params=params):
-            return self._single_hook_value(x=x, name=name)
+        with self._convert_sort_x(x) as xclean, self._check_set_input_params(params=params):
+            return self._single_hook_value(x=xclean, name=name)
 
     def _single_hook_value(self, x, name):
         return self._hook_value(x, name)

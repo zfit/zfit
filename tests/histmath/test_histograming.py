@@ -4,10 +4,8 @@ import numpy as np
 
 import zfit
 import zfit.z.numpy as znp
-
 # TODO: what is needed in this file?
-from zfit import z
-from zfit.core.binning import histogramdd, midpoints_from_hist, unbinned_to_binindex
+from zfit.core.binning import unbinned_to_binindex
 
 data1 = np.random.normal(size=(1000, 3))
 obs1 = zfit.Space("obs1", limits=(-100, 300))
@@ -15,27 +13,6 @@ obs2 = zfit.Space("obs2", limits=(-100, 300))
 obs3 = zfit.Space("obs3", limits=(-100, 300))
 
 obs = obs1 * obs2 * obs3
-
-
-def test_histogramdd():
-    histdd_kwargs = {"sample": data1}
-    bincount_np, edges_np = histogramdd(**histdd_kwargs)
-    bincount_true, edges_true = np.histogramdd(**histdd_kwargs)
-    np.testing.assert_allclose(bincount_true, bincount_np)
-    np.testing.assert_allclose(edges_true, edges_np)
-
-
-def test_midpoints():
-    edges = np.array([[-1.0, 0, 3, 10], [-5.0, 0, 1, 4]])
-    bincounts = np.array([[0, 0, 1], [0, 5, 7], [0, 3, 0], [0, 0, 0]])
-
-    edges = z.convert_to_tensor(edges)
-    midpoints_true = np.array([[-0.5, 2.5], [1.5, 0.5], [1.5, 2.5], [6.5, 0.5]])
-    bincounts_nonzero, midpoints_nonzero, bincounts_nonzero_index = midpoints_from_hist(
-        bincounts=bincounts, edges=edges
-    )
-    np.testing.assert_allclose(np.array([1, 5, 7, 3]), znp.asarray(bincounts_nonzero))
-    np.testing.assert_allclose(midpoints_true, znp.asarray(midpoints_nonzero))
 
 
 def test_unbinned_to_bins():

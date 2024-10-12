@@ -27,8 +27,8 @@ def test_extract_extended_pdfs():
     sum3 = zfit.pdf.SumPDF((gauss5, gauss6), 0.4)
     sum3_ext = sum3.create_extended(yield1)
 
-    sum_all = zfit.pdf.SumPDF(pdfs=[sum2_ext_daughters, sum3_ext])
-    sum_all.set_norm_range((-5, 5))
+    sum_all = zfit.pdf.SumPDF(pdfs=[sum2_ext_daughters, sum3_ext], norm=(-5, 5))
+
 
     extracted_pdfs = extract_extended_pdfs(pdfs=sum_all)
     assert frozenset(extracted_pdfs) == {gauss3_ext, gauss4_ext, sum3_ext}
