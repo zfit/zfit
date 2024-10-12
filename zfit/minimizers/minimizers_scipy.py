@@ -100,8 +100,8 @@ class ScipyBaseMinimizerV1(BaseMinimizer):
 
         if initializer is None:
 
-            def initializer(options, init, step_size):
-                del init, step_size
+            def initializer(options, init, stepsize):
+                del init, stepsize
                 return options
 
         if not callable(initializer):
@@ -236,13 +236,13 @@ class ScipyBaseMinimizerV1(BaseMinimizer):
             init_scale = "auto"
             # get possible initial step size from previous minimizer
 
-        approx_step_sizes = None
+        approx_stepsizes = None
         if init:
             approx_init_hesse = result_prelim.hesse(params=params, method="approx", name="approx")
             if approx_init_hesse:
-                approx_step_sizes = [val["error"] for val in approx_init_hesse.values()] or None
-        if approx_step_sizes is None:
-            approx_step_sizes = np.array([0.1 if p.step_size is None else p.step_size for p in params])
+                approx_stepsizes = [val["error"] for val in approx_init_hesse.values()] or None
+        if approx_stepsizes is None:
+            approx_stepsizes = np.array([0.1 if p.stepsize is None else p.stepsize for p in params])
 
         if (maxiter := self.get_maxiter(len(params))) is not None:
             # stop 3 iterations earlier than we
@@ -271,13 +271,13 @@ class ScipyBaseMinimizerV1(BaseMinimizer):
             minimizer_options["options"] = self._scipy_initializer(
                 minimizer_options["options"],
                 init=result_prelim,
-                step_size=approx_step_sizes,
+                stepsize=approx_stepsizes,
             )
 
             # update from previous run/result
             if use_hessian and is_update_strat:
                 if not isinstance(init_scale, str):
-                    init_scale = np.mean([approx for approx in approx_step_sizes if approx is not None])
+                    init_scale = np.mean([approx for approx in approx_stepsizes if approx is not None])
                 if i == 0:
                     hessian_updater = hessian(init_scale=init_scale)
                     minimizer_options["hess"] = hessian_updater
@@ -327,7 +327,7 @@ class ScipyBaseMinimizerV1(BaseMinimizer):
                 n_paramatlim += 1
             approx_init_hesse = result_prelim.hesse(params=params, method="approx", name="approx")
             if approx_init_hesse:
-                approx_step_sizes = [val["error"] for val in approx_init_hesse.values()] or None
+                approx_stepsizes = [val["error"] for val in approx_init_hesse.values()] or None
             converged = criterion.converged(result_prelim)
             valid = converged
             edm = criterion.last_value
@@ -344,7 +344,7 @@ class ScipyBaseMinimizerV1(BaseMinimizer):
 
             if math.isclose(old_edm, edm, rel_tol=1e-4, abs_tol=1e-12):
                 if nrandom < self._nrandom_max:  # in order not to start too close
-                    rnd_range = np.ones_like(values) if approx_step_sizes is None else approx_step_sizes
+                    rnd_range = np.ones_like(values) if approx_stepsizes is None else approx_stepsizes
                     rnd_range_no_nan = np.nan_to_num(rnd_range, nan=1.0)
                     values += np.random.uniform(low=-rnd_range_no_nan, high=rnd_range_no_nan) / 5
                     nrandom += 1
@@ -776,12 +776,12 @@ class ScipyTrustNCGV1(ScipyBaseMinimizerV1):
         if init_trust_radius is not None:
             options["initial_trust_radius"] = init_trust_radius
 
-        def initializer(options, init, step_size, **_):
+        def initializer(options, init, stepsize, **_):
             trust_radius = None
             if init is not None:
                 trust_radius = init.info.get("tr_radius")
-            elif step_size is not None:
-                trust_radius = np.mean(step_size)
+            elif stepsize is not None:
+                trust_radius = np.mean(stepsize)
             if trust_radius is not None:
                 options["initial_trust_radius"] = trust_radius
             return options
@@ -951,12 +951,12 @@ class ScipyTrustConstrV1(ScipyBaseMinimizerV1):
         if init_trust_radius is not None:
             options["initial_tr_radius"] = init_trust_radius
 
-        def initializer(options, init, step_size, **_):
+        def initializer(options, init, stepsize, **_):
             trust_radius = None
             if init is not None:
                 trust_radius = init.info.get("tr_radius")
-            elif step_size is not None:
-                trust_radius = np.mean(step_size)
+            elif stepsize is not None:
+                trust_radius = np.mean(stepsize)
             if trust_radius is not None:
                 options["initial_tr_radius"] = trust_radius
             return options
@@ -1289,9 +1289,9 @@ class ScipyTruncNCV1(ScipyBaseMinimizerV1):
         if options:
             minimizer_options["options"] = options
 
-        def initializer(options, step_size, **_):
-            if step_size is not None:
-                options["scale"] = step_size
+        def initializer(options, stepsize, **_):
+            if stepsize is not None:
+                options["scale"] = stepsize
             return options
 
         scipy_tols = {"xtol": None, "ftol": None, "gtol": None}

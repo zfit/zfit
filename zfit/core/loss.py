@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import copy
+import typing
 from contextlib import suppress
 from functools import partial
 from typing import TYPE_CHECKING, Literal, Optional, Union
@@ -245,18 +247,18 @@ class BaseLoss(ZfitLoss, BaseNumeric):
             nevents = sum(d.nevents for d in data)
         except RuntimeError:  # can happen if not yet sampled. What to do? Approx_nevents?
             nevents = 150_000  # sensible default
-        options = {} if options is None else options
+        options = {} if options is None else copy.copy(options)
+        optionsclean = copy.copy(options)
+        if options.pop("numhess", None) is None:
+            optionsclean["numhess"] = True
 
-        if options.get("numhess") is None:
-            options["numhess"] = True
+        if options.pop("numgrad", None) is None:
+            optionsclean["numgrad"] = settings.options["numerical_grad"]
 
-        if options.get("numgrad") is None:
-            options["numgrad"] = settings.options["numerical_grad"]
+        if options.pop("kahansum", None) is None:
+            optionsclean["kahansum"] = nevents > 500_000  # start using kahan if we have more than 500k events
 
-        if options.get("kahansum") is None:
-            options["kahansum"] = nevents > 500_000  # start using kahan if we have more than 500k events
-
-        if options.get("subtr_const") is None:  # TODO: balance better?
+        if options.pop("subtr_const", None) is None:  # TODO: balance better?
             # if nevents < 200_000:
             #     subtr_const = True
             # elif nevents < 1_000_000:
@@ -264,9 +266,11 @@ class BaseLoss(ZfitLoss, BaseNumeric):
             # else:
             #     subtr_const = 'elewise'
             subtr_const = True
-            options["subtr_const"] = subtr_const
-
-        return options
+            optionsclean["subtr_const"] = subtr_const
+        # TODO: check if options are leftover
+        # if options:
+        #     raise ValueError(f"Unrecognized options: {options}")
+        return optionsclean
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
@@ -549,7 +553,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         if not isinstance(other, BaseLoss):
             msg = "Has to be a subclass of `BaseLoss` or overwrite `__add__`."
             raise TypeError(msg)
-        if type(other) != type(self):
+        if type(other) is not type(self):
             msg = "cannot safely add two different kind of loss."
             raise ValueError(msg)
         model = self.model + other.model
@@ -1022,7 +1026,7 @@ class UnbinnedNLL(BaseUnbinnedNLL):
         )
         self._errordef = 0.5
         extended_pdfs = [pdf for pdf in self.model if pdf.is_extended]
-        if extended_pdfs and type(self) == UnbinnedNLL:
+        if extended_pdfs and type(self) is not UnbinnedNLL:
             warn_advanced_feature(
                 f"Extended PDFs ({extended_pdfs}) are given to a normal UnbinnedNLL. "
                 f" This won't take the yield "
@@ -1031,6 +1035,7 @@ class UnbinnedNLL(BaseUnbinnedNLL):
                 identifier="extended_in_UnbinnedNLL",
             )
 
+    @z.function(wraps="loss")
     def _loss_func(self, model, data, fit_range, constraints, log_offset):
         return self._loss_func_watched(
             data=data,
@@ -1176,6 +1181,7 @@ class ExtendedUnbinnedNLLRepr(BaseLossRepr):
 
 class SimpleLoss(BaseLoss):
     _name = "SimpleLoss"
+    _convertable_funcs: typing.ClassVar = []
 
     @deprecated_args(None, "Use params instead.", ("deps", "dependents"))
     def __init__(
@@ -1184,8 +1190,9 @@ class SimpleLoss(BaseLoss):
         params: Iterable[zfit.Parameter] | None = None,
         errordef: float | None = None,
         *,
-        gradient: Callable | None = None,
-        hessian: Callable | None = None,
+        gradient: Callable | str | None = None,
+        hessian: Callable | str | None = None,
+        jit: Optional[bool] = None,
         # legacy
         deps: Iterable[zfit.Parameter] = NONE,
         dependents: Iterable[zfit.Parameter] = NONE,
@@ -1196,15 +1203,22 @@ class SimpleLoss(BaseLoss):
         should depend on ``zfit.Parameter``.
 
         Args:
-            func: Callable that constructs the loss and returns a tensor without taking an argument.
-            params: The dependents (independent ``zfit.Parameter``) of the loss. Essentially the (free) parameters that
+            func: Callable that evaluates the loss and takes the parameter values as a single, array-like argument
+            params: The parameters (independent ``zfit.Parameter``) of the loss. Essentially the (free) parameters that
               the ``func`` depends on.
             errordef: Definition of which change in the loss corresponds to a change of 1 sigma.
                 For example, 1 for Chi squared, 0.5 for negative log-likelihood.
             gradient: Function that calculates the gradient of the loss with respect to the parameters. If not given,
-                the gradient will be calculated automatically.
+                the gradient will be calculated automatically. Can be a string to determine the method, either
+                'num' (default) to calculate the gradient numerically, or 'zfit' to use automatic differentiation.
+                The latter requires that the whole function is written using ``znp`` or ``tf`` operations
             hessian: Function that calculates the hessian of the loss with respect to the parameters.
-                If not given, the hessian will be calculated automatically.
+                If not given, the hessian will be calculated automatically.C an be a string to determine the method,
+                either 'num' (default) to calculate the hessian numerically, or 'zfit' to use automatic differentiation.
+                The latter requires that the whole function is written using ``znp`` or ``tf`` operations
+            jit: If true, jit compiles the different functions. Only use if function is fully built using ``znp``
+             or ``tf`` operations and no Python conditionals that depend on the *concrete value* of inputs.
+                Defaults to ``False``.
 
         Usage:
 
@@ -1240,7 +1254,32 @@ class SimpleLoss(BaseLoss):
             minimizer = zfit.minimize.Minuit()
             result = minimizer.minimize(loss)
         """
-        super().__init__(model=[], data=[], options={"subtr_const": False})
+        gradient = "num" if gradient is None else gradient
+        hessian = "num" if hessian is None else hessian
+        numgrad = True
+        numhess = True
+        if isinstance(gradient, str):
+            if gradient == "num":
+                numgrad = True
+            elif gradient == "zfit":
+                numgrad = False
+            else:
+                msg = f"Gradient argument has to be either a callable or 'num' or 'zfit', is {gradient}"
+                raise ValueError(msg)
+            gradient = None
+
+        if isinstance(hessian, str):
+            if hessian == "num":
+                numhess = True
+            elif hessian == "zfit":
+                numhess = False
+            else:
+                msg = f"Hessian argument has to be either a callable or 'num' or 'zfit', is {hessian}"
+                raise ValueError(msg)
+            hessian = None
+
+        jit = False if jit is None else jit
+        super().__init__(model=[], data=[], options={"subtr_const": False, "numgrad": numgrad, "numhess": numhess})
         if dependents is not NONE and params is None:
             params = dependents
         elif deps is not NONE and params is None:  # depreceation
@@ -1265,6 +1304,7 @@ class SimpleLoss(BaseLoss):
             )
             raise ValueError(msg)
 
+        self._do_jit = jit
         self._simple_func = func
         self._errordef = errordef
         self._grad_fn = gradient
@@ -1272,6 +1312,13 @@ class SimpleLoss(BaseLoss):
         params = convert_to_parameters(params, prefer_constant=False)
         self._params = params
         self._simple_func_params = _extract_dependencies(params)
+
+    def _check_jit_or_not(self):
+        if not self._do_jit:
+            from zfit import run
+
+            if not run.executing_eagerly():
+                raise z.DoNotCompile
 
     def _get_dependencies(self):
         return self._simple_func_params
@@ -1287,16 +1334,37 @@ class SimpleLoss(BaseLoss):
         return params.union(own_params)
 
     def _gradient(self, params, numgrad):
+        self._check_jit_or_not()
         del numgrad
         if self._grad_fn is not None:
             return self._grad_fn(params)
         raise GradientNotImplementedError
 
     def _hessian(self, params, hessian, numgrad):
+        self._check_jit_or_not()
         del hessian, numgrad
         if self._hess_fn is not None:
             return self._hess_fn(params)
         raise HessianNotImplementedError
+
+    @classmethod
+    def register_convertable_loss(cls, constructor, *, priority=0):
+        convertable = {"constructor": constructor, "priority": priority}
+        cls._convertable_funcs.append(convertable)
+        cls._convertable_funcs = sorted(cls._convertable_funcs, key=lambda x: x["priority"], reverse=True)
+
+    @classmethod
+    def from_any(cls, func, params=None, **kwargs):
+        for conv in cls._convertable_funcs:
+            if (loss := conv["constructor"](func, params=params, **kwargs)) is not False:
+                break
+        else:
+            msg = (
+                f"Cannot convert {func} to a SimpleLoss, no valid converter registered. \n"
+                f"Current converters: {cls._convertable_funcs}."
+            )
+            raise RuntimeError(msg)
+        return loss
 
     @property
     def errordef(self):
@@ -1307,6 +1375,7 @@ class SimpleLoss(BaseLoss):
         return errordef
 
     def _loss_func(self, model, data, fit_range, constraints=None, log_offset=None):  # noqa: ARG002
+        self._check_jit_or_not()
         if log_offset is not None and log_offset is not False:
             pass
             # raise ValueError(msg)
@@ -1322,8 +1391,42 @@ class SimpleLoss(BaseLoss):
         return znp.asarray(value)
 
     def __add__(self, other):
-        msg = "Cannot add a SimpleLoss, 'addition' of losses can mean anything." "Add them manually"
-        raise IntentionAmbiguousError(msg)
+        if not isinstance(other, BaseLoss):
+            return NotImplemented
+        scaleouter = 1.0 if (errordef := self.errordef) == other.errordef else errordef / other.errordef
+
+        def value(params, *, full=None):
+            del params  # implicitly set
+            # TODO: needed? should be correct this way
+            # if scaleouter is None:
+            #     scale = 1.
+            # else:
+            #     scale = znp.asarray(scaleouter)
+            #     full = True
+
+            return self.value(full=full) + scaleouter * other.value(full=full)
+
+        # Not that easy to combine, overlap etc
+        # def gradient(params, *, numgrad=None):
+        #     paramsself = [p for p in params if p in self.get_params(floating=None, is_yield=None, extract_independent=None)]
+        #     paramsother = [p for p in params if p in other.get_params(floating=None, is_yield=None, extract_independent=None)]
+        #     selfgrad = self.gradient(params=paramsself, numgrad=numgrad) if paramsself else 0.
+        #     othergrad = other.gradient(params=paramsother, numgrad=numgrad) if paramsother else 0.
+        #     return selfgrad + scale * othergrad
+        gradient = None
+
+        # def hessian(params, *, numgrad=None, hessian=None):
+        #
+        #     return self.hessian(params=params, numgrad=numgrad, hessian=hessian) + scale * other.hessian(
+        #         params=params, numgrad=numgrad, hessian=hessian)
+        hessian = None
+
+        params = list(
+            self.get_params(floating=None, is_yield=None, extract_independent=None)
+            | other.get_params(floating=None, is_yield=None, extract_independent=None)
+        )
+
+        return SimpleLoss(func=value, params=params, errordef=errordef, gradient=gradient, hessian=hessian)
 
     def create_new(
         self,
@@ -1339,3 +1442,14 @@ class SimpleLoss(BaseLoss):
             errordef = self.errordef
 
         return type(self)(func=func, params=params, errordef=errordef)
+
+
+def _simple_loss_constructor(func, **kwargs):
+    try:
+        return SimpleLoss(func=func, **kwargs)
+    except TypeError as error:
+        if "got an unexpected keyword argument" in str(error):
+            return False
+
+
+SimpleLoss.register_convertable_loss(constructor=_simple_loss_constructor, priority=-1)

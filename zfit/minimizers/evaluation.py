@@ -201,8 +201,7 @@ class LossEval:
 
         finally:
             if self.do_print:
-                with contextlib.suppress(Exception):
-                    print_gradient(params, values, gradient=gradient, loss=loss_value)
+                print_gradient(params, values, gradient=gradient, loss=loss_value)
 
         check_derivative_none_raise(gradient, params)
         is_nan = is_nan or any(znp.isnan(gradient)) or znp.isnan(loss_value)
@@ -262,8 +261,7 @@ class LossEval:
 
         finally:
             if self.do_print:
-                with contextlib.suppress(Exception):
-                    print_params(params, values, loss=loss_value)
+                print_params(params, values, loss=loss_value)
 
         is_nan = is_nan or np.isnan(loss_value).any()
         if is_nan:
@@ -318,8 +316,7 @@ class LossEval:
 
         finally:
             if self.do_print:
-                with contextlib.suppress(Exception):
-                    print_gradient(params, values, gradient=gradient, loss=None)
+                print_gradient(params, values, gradient=gradient, loss=None)
 
         check_derivative_none_raise(gradient, params)
 
@@ -378,8 +375,8 @@ class LossEval:
 
         finally:
             if self.do_print:
-                with contextlib.suppress(Exception):
-                    print_params(params, values, loss=None)
+                print_params(params, values, loss=None)
+
         check_derivative_none_raise(hessian, params)
 
         is_nan = is_nan or znp.any(znp.isnan(hessian))
@@ -402,19 +399,32 @@ class LossEval:
 
 
 def print_params(params, values, loss=None):
-    table = tt.Texttable()
-    table.header(["Parameter", "Value"])
+    table = tt.Texttable(max_width=0)
 
-    for param, value in zip(params, values):
-        table.add_row([param.name, value])
+    row1 = []
+    row2 = []
     if loss is not None:
-        table.add_row(["Loss value:", loss])
+        loss = float(loss)
+        row1.append("Loss")
+        row2.append(loss)
+
+    # for param, value in zip(params, values):
+    table.header(row1 + ["Parameter: "] + [param.label for param in params])
+    table.add_row([*row2, "value: ", *list(values)])
 
 
 def print_gradient(params, values, gradient, loss=None):
-    table = tt.Texttable()
-    table.header(["Parameter", "Value", "Gradient"])
-    for param, value, grad in zip(params, values, gradient):
-        table.add_row([param.name, value, grad])
+    table = tt.Texttable(max_width=0)
+
+    header = []
+    valrow = []
+    gradrow = []
     if loss is not None:
-        table.add_row(["Loss value:", loss, "|"])
+        loss = float(loss)
+        header.append("Loss")
+        valrow.append(loss)
+        gradrow.append("")
+
+    table.header(header + ["Parameter"] + [param.name for param in params])
+    table.add_row([*valrow, "Value:", *list(values)])
+    table.add_row([*gradrow, "Gradient:", *list(gradient)])

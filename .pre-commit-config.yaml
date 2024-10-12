@@ -40,11 +40,11 @@ repos:
         always_run: true
         additional_dependencies: [ pyyaml ]
 
-  - repo: https://github.com/PyCQA/docformatter
-    rev: v1.7.5
-    hooks:
-      - id: docformatter
-        args: [ -r, --in-place, --wrap-descriptions, '120', --wrap-summaries, '120', -- ]
+#  - repo: https://github.com/PyCQA/docformatter
+#    rev: v1.7.5
+#    hooks:
+#      - id: docformatter
+#        args: [ -r, --in-place, --wrap-descriptions, '120', --wrap-summaries, '120', -- ]
 
 
   - repo: https://github.com/pre-commit/pygrep-hooks
@@ -80,7 +80,7 @@ repos:
         args: [ --py36-plus ]
 
   - repo: https://github.com/mgedmin/check-manifest
-    rev: "0.49"
+    rev: "0.50"
     hooks:
       - id: check-manifest
         args: [ --update, --no-build-isolation ]

@@ -209,9 +209,8 @@ def _covariance_np(result, params):
             stacklevel=3,
         )
 
-    _, gradient, hessian = result.loss.value_gradient_hessian(params)
+    hessian = result.loss.hessian(params)
     covariance = znp.linalg.inv(hessian)
-
     return matrix_to_dict(params, covariance)
 
 

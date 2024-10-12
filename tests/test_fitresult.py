@@ -26,7 +26,7 @@ def minimizer_ids(minimizer_class_and_kwargs):
 
 def create_loss(n=15000, weights=None, extended=None, constraints=None):
     avalue = 1.5
-    a_param = zfit.Parameter("variable_a15151", avalue, -1.0, 20.0, step_size=0.1)
+    a_param = zfit.Parameter("variable_a15151", avalue, -1.0, 20.0, stepsize=0.1)
     a_param.init_val = avalue
     bvalue = 1.9
     b_param = zfit.Parameter("variable_b15151", bvalue, 0, 20)

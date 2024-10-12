@@ -249,15 +249,15 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
         nrandom = 0
         for i in range(self._internal_maxiter):
             init_scale = []
-            approx_step_sizes = {}
+            approx_stepsizes = {}
             if result_prelim:
-                approx_step_sizes = result_prelim.hesse(params=params, method="approx", name="approx")
+                approx_stepsizes = result_prelim.hesse(params=params, method="approx", name="approx")
             empty_dict = {}
             for param in params:
-                step_size = approx_step_sizes.get(param, empty_dict).get("error")
-                if step_size is None and param.has_step_size:
-                    step_size = param.step_size
-                init_scale.append(step_size)
+                stepsize = approx_stepsizes.get(param, empty_dict).get("error")
+                if stepsize is None and param.has_stepsize:
+                    stepsize = param.stepsize
+                init_scale.append(stepsize)
             minimizer.set_initial_step(init_scale)
 
             self._set_tols_inplace(

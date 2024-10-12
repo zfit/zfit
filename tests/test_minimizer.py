@@ -22,10 +22,10 @@ max_distance_to_min = 0.5
 
 
 def create_loss(obs1):
-    mu_param = zfit.Parameter("mu", true_mu + 0.85, -15.0, 15, step_size=0.03)
-    sigma_param = zfit.Parameter("sigma", true_sigma * 0.62, 0.01, 50, step_size=0.03)
+    mu_param = zfit.Parameter("mu", true_mu + 0.85, -15.0, 15, stepsize=0.03)
+    sigma_param = zfit.Parameter("sigma", true_sigma * 0.62, 0.01, 50, stepsize=0.03)
     lambda_param = zfit.Parameter(
-        "lambda", true_lambda * 0.69, -0.51, -0.0003, step_size=0.001
+        "lambda", true_lambda * 0.69, -0.51, -0.0003, stepsize=0.001
     )
 
     gauss1 = zfit.pdf.Gauss(mu=mu_param, sigma=sigma_param, obs=obs1)
@@ -360,7 +360,7 @@ def test_floating_flag():
             "value": [1.4, 0.6, 1.5],
             "lower": np.ones(3) * (-5),
             "upper": np.ones(3) * (9),
-            "step_size": np.linspace(0.1, 0.2, 3),
+            "stepsize": np.linspace(0.1, 0.2, 3),
         },
     ],
 )
