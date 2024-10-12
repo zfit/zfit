@@ -93,7 +93,6 @@ class BaseParametrized(BaseObject, ZfitParametrized):
         from zfit.core.parameter import convert_to_parameter
 
         params = params or {}
-        # params = dict(sorted((n, convert_to_parameter(p)) for n, p in params.items()))
         params = {n: convert_to_parameter(p) for n, p in params.items()}  # why sorted?
 
         if autograd_params is None:
@@ -262,7 +261,7 @@ class BaseNumeric(
 
 
 def extract_filter_params(
-    params: Iterable[ZfitParametrized],
+    params: Iterable[ZfitParametrized] | ZfitParametrized,
     floating: bool | None = True,
     extract_independent: bool | None = True,
 ) -> OrderedSet[ZfitParameter]:

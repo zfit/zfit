@@ -233,7 +233,8 @@ class TruncatedPDF(BaseFunctor, SerializableMixin):
     @supports()
     def _integrate(self, limits, norm, options=None):
         del norm  # not used here
-        if limits != self.space:  # we could also do it, but would need to check each limit
+        # cannot equal, as possibly jitted
+        if limits is not self.space:  # we could also do it, but would need to check each limit
             raise SpecificFunctionNotImplemented
         limits = convert_to_container(
             self.limits
@@ -247,7 +248,9 @@ class TruncatedPDF(BaseFunctor, SerializableMixin):
     @supports()
     def _sample(self, n, limits):
         pdf = self.pdfs[0]
-        if limits != self.space:  # we could also do it, but would need to check each limit
+
+        # cannot compare, as possibly jitted
+        if limits is not self.space:  # we could also do it, but would need to check each limit
             raise SpecificFunctionNotImplemented
         limits = self.limits
         # should be `self.integrate`, but as we do it numerically currently, more efficient to use pdf

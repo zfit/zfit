@@ -4,14 +4,10 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Iterable, Mapping, Optional
-
-if TYPE_CHECKING:
-    pass
-
 import collections
 from collections.abc import Callable
 from contextlib import suppress
+from typing import Iterable, Mapping, Optional
 
 import numpy as np
 import tensorflow as tf
@@ -285,8 +281,7 @@ def mc_integrate(
         n_samples = draws_per_dim * n_axes
 
         chunked_normalization = zfit.run.chunksize < n_samples
-        if chunked_normalization and partial:
-            pass
+
         if chunked_normalization and not partial:
             n_chunks = int(np.ceil(n_samples / zfit.run.chunksize))
             chunksize = int(np.ceil(n_samples / n_chunks))
