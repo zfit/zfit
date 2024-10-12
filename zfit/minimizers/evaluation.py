@@ -10,13 +10,13 @@ import numpy as np
 import tensorflow as tf
 import texttable as tt
 
-from .strategy import ZfitStrategy
 from ..core.interfaces import ZfitLoss
 from ..core.parameter import assign_values_jit
 from ..util import ztyping
 from ..util.container import convert_to_container
 from ..util.exception import DerivativeCalculationError, MaximumIterationReached
 from ..z import numpy as znp
+from .strategy import ZfitStrategy
 
 
 def assign_values_func(params, values):
@@ -45,16 +45,16 @@ def check_derivative_none_raise(values, params) -> None:
 
 class LossEval:
     def __init__(
-            self,
-            loss: ZfitLoss,
-            params: ztyping.ParamTypeInput,
-            strategy: ZfitStrategy,
-            do_print: bool,
-            maxiter: int,
-            grad_fn: Callable | None = None,
-            hesse_fn: Callable | None = None,
-            numpy_converter: Callable | None = None,
-            full: bool | None = None,
+        self,
+        loss: ZfitLoss,
+        params: ztyping.ParamTypeInput,
+        strategy: ZfitStrategy,
+        do_print: bool,
+        maxiter: int,
+        grad_fn: Callable | None = None,
+        hesse_fn: Callable | None = None,
+        numpy_converter: Callable | None = None,
+        full: bool | None = None,
     ):
         r"""Convenience wrapper for the evaluation of a loss with given parameters and strategy.
 
@@ -405,13 +405,12 @@ def print_params(params, values, loss=None):
     row2 = []
     if loss is not None:
         loss = float(loss)
-        row1.append(f"Loss")
+        row1.append("Loss")
         row2.append(loss)
 
     # for param, value in zip(params, values):
     table.header(row1 + ["Parameter: "] + [param.label for param in params])
-    table.add_row(row2 + ["value: ", *list(values)])
-    print(table.draw())
+    table.add_row([*row2, "value: ", *list(values)])
 
 
 def print_gradient(params, values, gradient, loss=None):
@@ -427,6 +426,5 @@ def print_gradient(params, values, gradient, loss=None):
         gradrow.append("")
 
     table.header(header + ["Parameter"] + [param.name for param in params])
-    table.add_row(valrow + ["Value:", *list(values)])
-    table.add_row(gradrow + ["Gradient:", *list(gradient)])
-    print(table.draw())
+    table.add_row([*valrow, "Value:", *list(values)])
+    table.add_row([*gradrow, "Gradient:", *list(gradient)])
