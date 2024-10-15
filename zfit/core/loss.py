@@ -1396,7 +1396,6 @@ class SimpleLoss(BaseLoss):
         scaleouter = znp.array(1.0) if (errordef := self.errordef) == other.errordef else errordef / other.errordef
 
         def value(params, *, full=None):
-            del params  # implicitly set
             # TODO: needed? should be correct this way
             # if scaleouter is None:
             #     scale = 1.
@@ -1404,7 +1403,7 @@ class SimpleLoss(BaseLoss):
             #     scale = znp.asarray(scaleouter)
             #     full = True
 
-            return self.value(full=full) + scaleouter * other.value(full=full)
+            return self.value(params=params, full=full) + scaleouter * other.value(params=params, full=full)
 
         # Not that easy to combine, overlap etc
         # def gradient(params, *, numgrad=None):
