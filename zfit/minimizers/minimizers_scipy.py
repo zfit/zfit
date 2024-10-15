@@ -219,6 +219,8 @@ class ScipyBaseMinimizerV1(BaseMinimizer):
 
         minimizer_options["bounds"] = limits
 
+        eval_func = evaluator.value
+
         use_gradient = "grad" in minimizer_options
         if use_gradient:
             gradient = minimizer_options.pop("grad")
@@ -289,7 +291,7 @@ class ScipyBaseMinimizerV1(BaseMinimizer):
             # perform minimization
             optim_result = None
             try:
-                optim_result = self._minimize_func(fun=evaluator.value, x0=init_values, **minimizer_options)
+                optim_result = self._minimize_func(fun=eval_func, x0=init_values, **minimizer_options)
             except MaximumIterationReached as error:
                 if optim_result is None:  # it didn't even run once
                     msg = (
@@ -504,6 +506,166 @@ class ScipyLBFGSBV1(ScipyBaseMinimizerV1):
 
 
 ScipyLBFGSBV1._add_derivative_methods(
+    gradient=[
+        "2-point",
+        "3-point",
+        # 'cs'  # works badly
+        None,
+        True,
+        False,
+        "zfit",
+    ]
+)
+
+
+class ScipyBFGS(ScipyBaseMinimizerV1):
+    def __init__(
+        self,
+        tol: float | None = None,
+        c1: float | None = None,
+        c2: float | None = None,
+        verbosity: int | None = None,
+        gradient: Callable | str | None = None,
+        maxiter: int | str | None = None,
+        criterion: ConvergenceCriterion | None = None,
+        strategy: ZfitStrategy | None = None,
+        name: str | None = None,
+    ) -> None:
+        """Local, gradient based quasi-Newton algorithm using the BFGS algorithm.
+
+        BFGS, named after Broyden, Fletcher, Goldfarb, and Shanno, is a quasi-Newton method
+        that approximates the Hessian matrix of the loss function using the gradients of the loss function.
+        It stores an approximation of the inverse Hessian matrix and updates it at each iteration.
+        For a limited memory version, which doesn't store the full matrix, see L-BFGS-B.
+
+
+
+        |@doc:minimizer.scipy.info| This implenemtation wraps the minimizers in
+        `SciPy optimize <https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html>`_. |@docend:minimizer.scipy.info|
+
+        Args:
+            tol: |@doc:minimizer.tol| Termination value for the
+                   convergence/stopping criterion of the algorithm
+                   in order to determine if the minimum has
+                   been found. Defaults to 1e-3. |@docend:minimizer.tol|
+            c1: |@doc:minimizer.init.c1| The coefficient for the Wolfe condition for the Armijo rule.
+                   The Armijo rule is a line search method that ensures that the step size
+                   is not too large. This is also called the sufficient decrease condition,
+                   which effectively provides an upper bound to the step size.
+                   The value is constrained to be 0 < c1 < c2 < 1.
+                   Defaults to 1e-4. |@docend:minimizer.init.c1|
+            c2: |@doc:minimizer.init.c2| The coefficient for the Wolfe condition for the curvature rule.
+                   The curvature rule is a line search method that ensures that the step size
+                   is not too small. This is also called the curvature condition,
+                   which effectively provides a lower bound to the step size.
+                   The value is constrained to be 0 < c1 < c2 < 1.
+                   Defaults to 0.4. |@docend:minimizer.init.c2|
+
+            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10.
+              The verbosity has the meaning:
+
+               - a value of 0 means quiet and no output
+               - above 0 up to 5, information that is good to know but without
+                 flooding the user, corresponding to a "INFO" level.
+               - A value above 5 starts printing out considerably more and
+                 is used more for debugging purposes.
+               - Setting the verbosity to 10 will print out every
+                 evaluation of the loss function and gradient.
+
+               Some minimizers offer additional output which is also
+               distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
+
+              Increasing the verbosity will gradually increase the output.
+            gradient: |@doc:minimizer.scipy.gradient| Define the method to use for the gradient computation
+                   that the minimizer should use. This can be the
+                   gradient provided by the loss itself or
+                   method from the minimizer.
+                   In general, using the zfit provided automatic gradient is
+                   more precise and needs less computation time for the
+                   evaluation compared to a numerical method, but it may not always be
+                   possible. In this case, zfit switches to a generic, numerical gradient
+                   which in general performs worse than if the minimizer has its own
+                   numerical gradient.
+                   The following are possible choices:
+
+                   If set to ``False`` or ``'zfit'`` (or ``None``; default), the
+                   gradient of the loss (usually the automatic gradient) will be used;
+                   the minimizer won't use an internal algorithm. |@docend:minimizer.scipy.gradient|
+                   |@doc:minimizer.scipy.gradient.internal| ``True`` tells the minimizer to use its default internal
+                   gradient estimation. This can be specified more clearly using the
+                   arguments ``'2-point'`` and ``'3-point'``, which specify the
+                   numerical algorithm the minimizer should use in order to
+                   estimate the gradient. |@docend:minimizer.scipy.gradient.internal|
+            maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
+                   This corresponds to roughly the maximum number of
+                   evaluations of the ``value``, 'gradient`` or ``hessian``. |@docend:minimizer.maxiter|
+            criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
+                   estimated measure for the distance to the
+                   minimum and can include the relative
+                   or absolute changes of the parameters,
+                   function value, gradients and more.
+                   If the value of the criterion is smaller
+                   than ``loss.errordef * tol``, the algorithm
+                   stopps and it is assumed that the minimum
+                   has been found. |@docend:minimizer.criterion|
+            strategy: |@doc:minimizer.strategy| A class of type ``ZfitStrategy`` that takes no
+                   input arguments in the init. Determines the behavior of the minimizer in
+                   certain situations, most notably when encountering
+                   NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
+            name: |@doc:minimizer.name| Human-readable name of the minimizer. |@docend:minimizer.name|
+        """
+        if name is None:
+            name = "SciPy BFGS"
+        options = {}
+
+        if c1 is None:
+            c1 = 1e-4
+        options["c1"] = c1
+        if c2 is None:
+            c2 = 0.4
+        options["c2"] = c2
+
+        minimizer_options = {}
+        if options:
+            minimizer_options["options"] = options
+
+        def verbosity_setter(options, verbosity):
+            options["disp"] = bool(verbosity - 6) >= 0  # start printing at 6
+            return options
+
+        scipy_tols = {
+            "gtol": None,
+            # 'xrtol': None
+        }
+
+        def initializer(options, init: FitResult, stepsize, **_):
+            hess_inv0 = None
+            if init is not None:
+                hess_inv0 = init.approx.inv_hessian()
+            elif stepsize is not None:
+                hess_inv0 = np.diag(np.array(stepsize) ** 2)
+            if False:
+                options["hess_inv0"] = hess_inv0
+            return options
+
+        super().__init__(
+            method="BFGS",
+            internal_tol=scipy_tols,
+            gradient=gradient,
+            hessian=NOT_SUPPORTED,
+            minimizer_options=minimizer_options,
+            initializer=initializer,
+            tol=tol,
+            verbosity=verbosity,
+            maxiter=maxiter,
+            verbosity_setter=verbosity_setter,
+            strategy=strategy,
+            criterion=criterion,
+            name=name,
+        )
+
+
+ScipyBFGS._add_derivative_methods(
     gradient=[
         "2-point",
         "3-point",

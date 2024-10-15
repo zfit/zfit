@@ -242,7 +242,7 @@ class LossEval:
         params = self.params
         assign_values_func(params, values=values)
         is_nan = False
-
+        loss_value = None
         try:
             loss_value = self.loss.value(full=self.full)
             loss_value, _, _ = self.strategy.callback(
@@ -297,7 +297,7 @@ class LossEval:
         params = self.params
         assign_values_func(params, values=values)
         is_nan = False
-
+        gradient = None
         try:
             gradient = self.gradients_fn(params=params)
             _, gradient, _ = self.strategy.callback(
@@ -356,7 +356,7 @@ class LossEval:
         params = self.params
         assign_values_func(params, values=values)
         is_nan = False
-
+        hessian = None
         try:
             hessian = self.hesse_fn(params=params)
             _, _, hessian = self.strategy.callback(

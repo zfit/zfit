@@ -27,6 +27,7 @@ from .minimizers.minimizer_nlopt import (
 )
 from .minimizers.minimizers_scipy import (
     ScipyBaseMinimizerV1,
+    ScipyBFGS,
     ScipyLBFGSBV1,
     ScipyNelderMeadV1,
     ScipyNewtonCGV1,
@@ -51,6 +52,7 @@ __all__ = [
     "ScipyNewtonCGV1",
     "ScipyTruncNCV1",
     "ScipyNelderMeadV1",
+    "ScipyBFGS",
     "NLoptBaseMinimizerV1",
     "NLoptLBFGSV1",
     "NLoptTruncNewtonV1",

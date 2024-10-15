@@ -466,6 +466,21 @@ minimizer.maxcor: |1+
 minimizer.init.maxls: |1+
     Maximum number of linesearch points.
 
+minimizer.init.c1: |1+
+    The coefficient for the Wolfe condition for the Armijo rule.
+                    The Armijo rule is a line search method that ensures that the step size
+                    is not too large. This is also called the sufficient decrease condition,
+                    which effectively provides an upper bound to the step size.
+                    The value is constrained to be 0 < c1 < c2 < 1.
+                    Defaults to 1e-4.
+minimizer.init.c2: |1+
+    The coefficient for the Wolfe condition for the curvature rule.
+                    The curvature rule is a line search method that ensures that the step size
+                    is not too small. This is also called the curvature condition,
+                    which effectively provides a lower bound to the step size.
+                    The value is constrained to be 0 < c1 < c2 < 1.
+                    Defaults to 0.4.
+
 minimizer.scipy.gradient: |1+
     Define the method to use for the gradient computation
                     that the minimizer should use. This can be the

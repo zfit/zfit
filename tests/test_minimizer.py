@@ -8,8 +8,8 @@ import pytest
 import scipy.optimize
 from ordered_set import OrderedSet
 
-import zfit.z.numpy as znp
 import zfit.minimizers.optimizers_tf
+import zfit.z.numpy as znp
 from zfit.minimizers.base_tf import WrapOptimizer
 from zfit.util.exception import OperationNotAllowedError
 
@@ -139,6 +139,7 @@ minimizers = [
     # {"verbosity": verbosity},
     # {"error": True, "numgrad": False, "approx": True},
     # ),
+    (zfit.minimize.ScipyBFGS, {"verbosity": verbosity}, {"error": do_errors_most}),
     # (zfit.minimize.ScipyTrustNCGV1, {'tol': 1e-5, "verbosity": verbosity}, True),
     # (zfit.minimize.ScipyTrustKrylovV1, {"verbosity": verbosity}, True),  # Too unstable
     (
@@ -270,10 +271,37 @@ nlopt_minimizers = [
 if platform.system() not in ("Darwin",):
     minimizers.extend(nlopt_minimizers)
 
+
+
+
+minimizers_small = [
+    (zfit.minimize.ScipyTrustConstrV1, {}, True),
+    (zfit.minimize.Minuit, {}, True),
+]
+if sys.version_info[1] < 12 and platform.system() not in ("Darwin",):
+    minimizers_small.append((zfit.minimize.NLoptLBFGSV1, {}, True))
+if (
+        platform.system()
+        not in (
+        "Darwin",
+        "Windows",
+)
+        and sys.version_info[1] < 12
+):  # TODO: Ipyopt installation on macosx not working
+    # TODO: ipyopt fails? Why
+    minimizers_small.append((zfit.minimize.IpyoptV1, {}, False))
+    minimizers.append(
+        (
+            zfit.minimize.IpyoptV1,
+            {"verbosity": verbosity},
+            {"error": True, "longtests": True},
+        )
+    )
 # To run individual minimizers
 # minimizers = [(zfit.minimize.Minuit, {"verbosity": verbosity, 'gradient': True}, {'error': True, 'longtests': True})]
 # minimizers = [(zfit.minimize.IpyoptV1, {'verbosity': 7}, True)]
 # minimizers = [(zfit.minimize.ScipyLBFGSBV1, {'verbosity': 7}, True)]
+# minimizers = [(zfit.minimize.ScipyBFGS, {"verbosity": 10}, True)]
 # minimizers = [(zfit.minimize.ScipyPowellV1, {'verbosity': 7}, True)]
 # minimizers = [(zfit.minimize.ScipySLSQPV1, {'verbosity': 7}, True)]
 # minimizers = [(zfit.minimize.ScipyNelderMeadV1, {'verbosity': 7}, True)]
@@ -300,39 +328,15 @@ if platform.system() not in ("Darwin",):
 # minimizers = [(zfit.minimize.BFGS, {'verbosity': 6}, True)]
 
 
-minimizers_small = [
-    (zfit.minimize.ScipyTrustConstrV1, {}, True),
-    (zfit.minimize.Minuit, {}, True),
-]
-if sys.version_info[1] < 12 and platform.system() not in ("Darwin",):
-    minimizers_small.append((zfit.minimize.NLoptLBFGSV1, {}, True))
-if (
-    platform.system()
-    not in (
-        "Darwin",
-        "Windows",
-    )
-    and sys.version_info[1] < 12
-):  # TODO: Ipyopt installation on macosx not working
-    # TODO: ipyopt fails? Why
-    minimizers_small.append((zfit.minimize.IpyoptV1, {}, False))
-    minimizers.append(
-        (
-            zfit.minimize.IpyoptV1,
-            {"verbosity": verbosity},
-            {"error": True, "longtests": True},
-        )
-    )
-
 # sort for xdist: https://github.com/pytest-dev/pytest-xdist/issues/432
 minimizers = sorted(minimizers, key=lambda val: repr(val))
 minimizers_small = sorted(minimizers_small, key=lambda val: repr(val))
 
 obs1 = zfit.Space(obs="obs1", limits=(-2.4, 9.1))
 obs1_split = (
-    zfit.Space(obs="obs1", limits=(-2.4, 1.3))
-    + zfit.Space(obs="obs1", limits=(1.3, 2.1))
-    + zfit.Space(obs="obs1", limits=(2.1, 9.1))
+        zfit.Space(obs="obs1", limits=(-2.4, 1.3))
+        + zfit.Space(obs="obs1", limits=(1.3, 2.1))
+        + zfit.Space(obs="obs1", limits=(2.1, 9.1))
 )
 
 
@@ -409,8 +413,8 @@ def test_dependent_param_extraction():
     sigma.floating = False
     params_checked = minimizer._check_convert_input(nll, params=[mu, sigma1])[1]
     assert {
-        mu,
-    } == set(params_checked)
+               mu,
+           } == set(params_checked)
 
 
 # @pytest.mark.run(order=4)
@@ -456,13 +460,13 @@ def test_minimizers(minimizer_class_and_kwargs, chunksize, numgrad, spaces, requ
         test_error = test_error["error"]
 
         skip_tests = (
-            not long_clarg
-            and not do_long
-            and not (
+                not long_clarg
+                and not do_long
+                and not (
                 chunksize == chunksizes[0]
                 and numgrad is False
                 and spaces is spaces_all[0]
-            )
+        )
         )
 
         if skip_tests:
@@ -496,8 +500,8 @@ def test_minimizers(minimizer_class_and_kwargs, chunksize, numgrad, spaces, requ
         assert pytest.approx(result.fminopt, abs=2.0) == result_lowtol.fminopt
         if not isinstance(minimizer, zfit.minimize.IpyoptV1):
             assert (
-                result_lowtol.info["n_eval"]
-                < 1.2 * result.info["n_eval"] + 10  # +10 if it's very small, it's hard
+                    result_lowtol.info["n_eval"]
+                    < 1.2 * result.info["n_eval"] + 10  # +10 if it's very small, it's hard
             )  # should not be more, surely not a lot
 
         aval, bval, cval = (znp.asarray(v) for v in (mu_param, sigma_param, lambda_param))
@@ -518,13 +522,13 @@ def test_minimizers(minimizer_class_and_kwargs, chunksize, numgrad, spaces, requ
                 profile_methods.append("minuit_minos")
                 # the following minimizers should support the "approx" option as the give access to the approx Hessian
                 if isinstance(
-                    minimizer,
-                    (
-                        Minuit,
-                        zfit.minimize.ScipyLBFGSBV1,
-                        zfit.minimize.ScipyNewtonCGV1,
-                        zfit.minimize.ScipyTruncNCV1,
-                    ),
+                        minimizer,
+                        (
+                                Minuit,
+                                zfit.minimize.ScipyLBFGSBV1,
+                                zfit.minimize.ScipyNewtonCGV1,
+                                zfit.minimize.ScipyTruncNCV1,
+                        ),
                 ):
                     hesse_methods.append("approx")
 
