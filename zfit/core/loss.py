@@ -1380,7 +1380,7 @@ class SimpleLoss(BaseLoss):
             pass
             # raise ValueError(msg)
         try:
-            params = self._simple_func_params
+            params = self._params
             params = tuple(params)
             value = self._simple_func(params)
         except TypeError as error:
@@ -1393,7 +1393,7 @@ class SimpleLoss(BaseLoss):
     def __add__(self, other):
         if not isinstance(other, BaseLoss):
             return NotImplemented
-        scaleouter = 1.0 if (errordef := self.errordef) == other.errordef else errordef / other.errordef
+        scaleouter = znp.array(1.0) if (errordef := self.errordef) == other.errordef else errordef / other.errordef
 
         def value(params, *, full=None):
             del params  # implicitly set
