@@ -1355,7 +1355,7 @@ def convert_to_parameters(
     if isinstance(value, collections.abc.Mapping):
         return convert_to_parameters(**value, prefer_constant=False)
     value = convert_to_container(value)
-    is_param_already = [isinstance(val, ZfitIndependentParameter) for val in value]
+    is_param_already = [isinstance(val, ZfitParameter) for val in value]
     if all(is_param_already):
         return value
     elif any(is_param_already):
