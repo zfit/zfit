@@ -11,6 +11,7 @@ Major Features and Improvements
 -------------------------------
 - Minimizers can use the new ``SimpleLoss.from_any`` method that allows other libraries to hook into the minimization.
   For example, using zfit-physics, minimizers can directly minimize RooFit ``RooNllVar`` (as created by ``createNLL`` described `here <https://root.cern.ch/doc/master/classRooAbsPdf.html#a24b1afec4fd149e08967eac4285800de>`_
+- New BFGS minimizer implementation of Scipy, ``ScipyBFGS``.
 
 Breaking changes
 ------------------

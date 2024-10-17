@@ -43,11 +43,14 @@ Scipy
 .. autosummary::
     :toctree: _generated/minimizers
 
+    zfit.minimize.ScipyBFGS
     zfit.minimize.ScipyLBFGSBV1
     zfit.minimize.ScipyTrustConstrV1
     zfit.minimize.ScipyPowellV1
     zfit.minimize.ScipySLSQPV1
     zfit.minimize.ScipyTruncNCV1
+
+
 
 
 NLopt
@@ -69,13 +72,3 @@ NLopt
     zfit.minimize.NLoptISRESV1
     zfit.minimize.NLoptESCHV1
     zfit.minimize.NLoptShiftVarV1
-
-
-
-Tensorflow
-======================
-
-.. autosummary::
-    :toctree: _generated/minimizers
-
-    zfit.minimize.Adam
