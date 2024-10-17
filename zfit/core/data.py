@@ -1791,9 +1791,11 @@ class LightDataset:
         if tensor is None and isinstance(tensormap, Mapping):
             tensormap = tensormap.copy()
             for _key, value in tensormap.items():
-                if value.dtype != ztypes.float:
+                if value.dtype not in (ztypes.float, znp.float32, znp.float64, znp.int32, znp.int64):
                     msg = f"Value of tensormap has to be a float, not {value.dtype}."
                     raise TypeError(msg)
+                if value.dtype != ztypes.float:
+                    value = znp.array(value, dtype=ztypes.float)
         elif tensormap is None:  # the actual preprocessing, otherwise we pass it through
             if not isinstance(tensor, tf.Variable):
                 tensor = znp.asarray(tensor)
