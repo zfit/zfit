@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Iterable, Mapping, Optional
 if TYPE_CHECKING:
     pass
 
+import os
 import collections
 from collections.abc import Callable
 from contextlib import suppress
@@ -20,7 +21,7 @@ import tensorflow_probability as tfp
 import zfit.z.numpy as znp
 from zfit import z
 
-from ..settings import ztypes
+from ..settings import ztypes, get_verbosity
 from ..util import ztyping
 from ..util.exception import AnalyticIntegralNotImplemented, WorkInProgressError
 from .interfaces import ZfitModel, ZfitSpace
@@ -40,6 +41,7 @@ def auto_integrate(
     vectorizable=None,
     mc_options=None,
     simpsons_options=None,
+    vf_options=None,
 ):
     if vectorizable is None:
         vectorizable = False
@@ -71,6 +73,29 @@ def auto_integrate(
     elif method.lower() == "simpson":
         num_points = simpsons_options["draws_simpson"]
         integral = simpson_integrate(func=func, limits=limits, num_points=num_points)
+    elif method.lower() == "mc_vegasflow":
+        vf_options = vf_options or {}
+        n_iter = vf_options.get("n_iter", 20)
+        n_iter_pre = vf_options.get("n_iter_pre", 10)
+        n_events = vf_options.get("n_events", int(6e6))
+        events_limit = vf_options.get("events_limit", int(1e6))
+        list_devices = vf_options.get("list_devices")
+        compilable = vf_options.get("compilable", False)
+        verbose = vf_options.get("verbose", 3)
+        integral = mc_vf_integrate(
+            func=func,
+            limits=limits,
+            dtype=dtype,
+            n_iter=n_iter,
+            n_iter_pre=n_iter_pre,
+            n_events=n_events,
+            events_limit=events_limit,
+            list_devices=list_devices,
+            compilable=compilable,
+            verbose=verbose,
+            # tol=tol,
+            **vf_options,
+        )
     else:
         msg = f"Method {method} not a legal choice for integration method."
         raise ValueError(msg)
@@ -188,7 +213,7 @@ def mc_integrate(
     x: ztyping.XType | None = None,
     n_axes: int | None = None,
     draws_per_dim: int = 40000,
-    max_draws=800_000,
+    max_draws: int = 800_000,
     tol: float = 1e-6,
     method: Optional[str] = None,  # noqa: ARG001
     xfixed: Mapping | None = None,
@@ -403,6 +428,133 @@ def mc_integrate(
         integrals.append(integral)
     integral = z.reduce_sum(integrals, axis=0)
     return znp.atleast_1d(integral)
+
+
+# @z.function
+def mc_vf_integrate(
+    func: Callable,
+    limits: ztyping.LimitsType,
+    dtype: type = ztypes.float,
+    n_iter: int = 20,
+    n_iter_prec: int = 10,
+    n_events: int = int(6e6),
+    events_limit: int = int(1e6),
+    list_devices: list = None,
+    compilable: bool = False,
+    verbose: int | str = 3,
+    tol: float = 1e-6,
+    **kwargs,
+) -> tf.Tensor:
+    """Monte Carlo integration of `func` over `limits` via VegasFlow package.
+
+    Args:
+        func: The function to be integrated over
+        limits: The limits of the integral
+        dtype: |dtype_arg_descr|
+        n_iter: Number of iterations
+        n_iter_prec: Number of iterations to precompute
+            not adapted integrator tends to give bad estimates of the integral with low variance,
+            hence precomputation is used to drop the first `n_iter_prec` measurements
+        n_events: Number of events (samples) to draw per iteration
+        events_limit: Maximum number of events per step
+            if `events_limit` is below `n_events` each iteration of the MC
+            will be broken down into several steps (in order to limit memory).
+            Note: for a better performance, when n_events is greater than the event limit,
+            `n_events` should be exactly divisible by `events_limit`
+        list_devices: List of devices to look for (if available, "GPU" will be chosen)
+        compilable: whether to pass `func` through tf.function or not
+        verbose: set verbosity level for logging
+            1 - error
+            2 - warning
+            3 - info
+            4 - debug
+            details: https://github.com/N3PDF/vegasflow/blob/master/src/vegasflow/configflow.py
+
+    Returns:
+        The integral
+    """
+    try:
+        verbose = str(verbose)
+        assert verbose in ("1", "2", "3", "4")
+        os.environ["VEGASFLOW_LOG_LEVEL"] = verbose
+        verbose = verbose in ("3", "4")  # to display iteration results
+    except AssertionError as e:
+        raise ValueError("`verbose` param must be one of (1, 2, 3, 4)") from e
+    try:
+        import vegasflow as vflow
+    except ImportError as e:
+        raise ImportError("Install vegasflow to use `mc_vf_integrate`") from e
+
+    axes = limits.axes
+    n_dim = len(axes)
+
+    integrals = []
+    for space in limits:
+        lower, upper = space._rect_limits_tf
+        tf.debugging.assert_all_finite(
+            (lower, upper),
+            "MC integration does (currently) not support unbound limits (np.infty) as given here:"
+            "\nlower: {}, upper: {}".format(lower, upper),
+        )
+
+        if n_dim == 1:
+            lower = tf.reshape(lower, -1)
+            upper = tf.reshape(upper, -1)
+
+            def vf_integrand(x):
+                """Transform original `func` to match samples `x` ~ U(0,1)."""
+                new_x = lower + (upper - lower) * x[:, 0]
+                jac = tf.reduce_prod(upper - lower)
+                return func(new_x) * jac
+
+        else:
+
+            def vf_integrand(x):
+                """Same vf_integrand, but n_dim > 1."""
+                new_x = lower + (upper - lower) * x
+                jac = tf.reduce_prod(upper - lower)
+                return func(new_x) * jac
+
+        if compilable:
+            spec_shape = (None,) if n_dim == 1 else (None, n_dim)
+            vf_integrand = z.function(
+                vf_integrand,
+                input_signature=[tf.TensorSpec(shape=spec_shape, dtype=dtype)],
+            )
+
+        vf_integ = vflow.VegasFlow(
+            n_dim=n_dim,
+            n_events=n_events,
+            events_limit=events_limit,
+            verbose=verbose,
+            list_devices=list_devices,
+        )
+        vf_integ.compile(vf_integrand, compilable=compilable)
+
+        if n_iter_prec:
+            vf_integ.run_integration(n_iter_prec, verbose)
+        integral, error = vf_integ.run_integration(n_iter, verbose)
+
+        def print_none_return():
+            if get_verbosity() >= 0:
+                tf.print(
+                    "Estimated integral error (",
+                    error,
+                    ") larger than tolerance (",
+                    tol,
+                    "), which is maybe not enough (but maybe it's also fine)."
+                    " You can (best solution) implement an analytical integral (see examples in repo) or"
+                    " manually set a higher `n_events`/`n_iter` (preferably, the former) or adjust `tol`. "
+                    "This is a new warning checking the integral accuracy. It may warn too often as it is"
+                    " Work In Progress. If you have any observation on it, please tell us about it:"
+                    " https://github.com/zfit/zfit/issues/new/choose"
+                    "To suppress this warning, use zfit.settings.set_verbosity(-1).",
+                )
+            return
+
+        tf.cond(error > tol, print_none_return, lambda: None)
+        integrals.append(tf.reshape(integral, (1,)))
+    return z.reduce_sum(integrals, axis=0)
 
 
 # TODO(Mayou36): Make more flexible for sampling
