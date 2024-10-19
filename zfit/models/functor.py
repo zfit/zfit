@@ -177,9 +177,10 @@ class SumPDF(BaseFunctor, SerializableMixin):  # TODO: add extended argument
         else:
             return super()._apply_yield(value=value, norm=norm, log=log)
 
-    def _unnormalized_pdf(self, x):  # NOT _pdf, as the normalization range can differ
+    @supports()
+    def _unnormalized_pdf(self, x, params):  # NOT _pdf, as the normalization range can differ
         pdfs = self.pdfs
-        fracs = self.params.values()
+        fracs = params.values()
         probs = [pdf.pdf(x) * frac for pdf, frac in zip(pdfs, fracs)]
         prob = sum(probs)  # to keep the broadcasting ability
         return z.convert_to_tensor(prob)
