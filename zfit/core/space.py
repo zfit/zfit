@@ -131,11 +131,11 @@ class V1Space:
 
     @property
     def lower(self) -> np.ndarray:
-        return znp.atleast_1d(self.space.lower[0])
+        return np.atleast_1d(self.space.lower[0])
 
     @property
     def upper(self) -> np.ndarray:
-        return znp.atleast_1d(self.space.upper[0])
+        return np.atleast_1d(self.space.upper[0])
 
     @property
     def limits(self) -> tuple[np.ndarray, np.ndarray]:
@@ -143,10 +143,10 @@ class V1Space:
 
     @property
     def volume(self) -> np.ndarray:
-        return znp.atleast_1d(self.space._legacy_area())
+        return np.atleast_1d(self.space._legacy_area())
 
     def area(self):
-        return znp.atleast_1d(self.space.area())  # intentional, we want the deprecated one to trigger
+        return np.atleast_1d(self.space.area())  # intentional, we want the deprecated one to trigger
 
 
 class V0Space:
