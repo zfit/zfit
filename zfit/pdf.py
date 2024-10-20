@@ -13,6 +13,7 @@ __all__ = [
     "GeneralizedGaussExpTail",
     "Gauss",
     "BifurGauss",
+    "Binomial",
     "Uniform",
     "TruncatedGauss",
     "WrapDistribution",
@@ -65,6 +66,7 @@ from .models.conditional import ConditionalPDFV1
 from .models.convolution import FFTConvPDFV1
 from .models.dist_tfp import (
     BifurGauss,
+    Binomial,
     Cauchy,
     ChiSquared,
     Gamma,

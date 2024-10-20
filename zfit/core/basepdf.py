@@ -183,8 +183,8 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
             norm = self.norm
         return super()._check_input_norm(norm=norm, none_is_error=none_is_error)
 
-    def _check_input_params_tfp(self, *params):
-        return tuple(convert_to_parameter(p) for p in params)
+    def _check_input_params_tfp(self, *params, **kwargs):
+        return tuple(convert_to_parameter(p, **kwargs) for p in params)
 
     def _func_to_integrate(self, x: ztyping.XType):
         return self.pdf(x, norm=False)
