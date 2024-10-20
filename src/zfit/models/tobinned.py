@@ -8,6 +8,8 @@ if typing.TYPE_CHECKING:
 
 from typing import TYPE_CHECKING
 
+from ..util.exception import WorkInProgressError
+
 if TYPE_CHECKING:
     import zfit
 
@@ -38,6 +40,7 @@ class BinnedFromUnbinnedPDF(BaseBinnedFunctorPDF):
         norm: ztyping.NormInputType = None,
         name: str | None = None,
         label: str | None = None,
+        vectorized: bool | None = None,
     ) -> None:
         """Create a binned pdf from an unbinned pdf binning in *space*.
 
@@ -77,7 +80,9 @@ class BinnedFromUnbinnedPDF(BaseBinnedFunctorPDF):
                the PDF for a better description, to be used with plots etc.
                Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
         """
-        self._use_vectorized_map = None
+        if vectorized is None:
+            vectorized = False
+        self._use_vectorized_map = vectorized
         if pdf.is_extended:
             if extended is not None:
                 warn_advanced_feature(
