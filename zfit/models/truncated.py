@@ -217,24 +217,15 @@ class TruncatedPDF(BaseFunctor, SerializableMixin):
         prob = self.pdfs[0].pdf(data, norm=False)
         return tf.scatter_nd(indices, prob, tf.shape(xarray, out_type=np.int64)[:1])  # only nevents
 
-    # todo: not needed? We just allow truncation to have multiple limits, should be sufficient?
-    # @supports(norm=True)
-    # def _normalization(self, norm, options):
-    #     if (norms := self._norms) is None:
-    #         raise SpecificFunctionNotImplemented("Fallback to default, no norms given.")
-    #     elif norm != self.space:
-    #         msg = f"Cannot normalize to a different space than the one given, the norms {norms}."
-    #         raise SpecificFunctionNotImplemented(msg)
-    #
-    #
-    #     normterms = [self.normalization(norm, options=options) for norm in norms]
-    #     return znp.sum(normterms, axis=0)
-
     @supports()
     def _integrate(self, limits, norm, options=None):
         del norm  # not used here
         # cannot equal, as possibly jitted
-        if limits != self.space:  # we could also do it, but would need to check each limit
+        from zfit import run
+
+        if (
+            not run.executing_eagerly() or limits != self.space
+        ):  # we could also do it, but would need to check each limit
             raise SpecificFunctionNotImplemented
         limits = convert_to_container(
             self.limits
@@ -250,7 +241,11 @@ class TruncatedPDF(BaseFunctor, SerializableMixin):
         pdf = self.pdfs[0]
 
         # TODO: cannot compare, as possibly jitted
-        if limits != self.space:  # we could also do it, but would need to check each limit
+        from zfit import run
+
+        if (
+            not run.executing_eagerly() or limits != self.space
+        ):  # we could also do it, but would need to check each limit
             raise SpecificFunctionNotImplemented
         limits = self.limits
         # should be `self.integrate`, but as we do it numerically currently, more efficient to use pdf

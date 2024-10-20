@@ -133,13 +133,16 @@ class RecursivePolynomial(BasePDF):
         """Int: degree of the polynomial, starting from 0."""
         return self._degree
 
-    def _unnormalized_pdf(self, x):
+    @supports(norm=False)
+    def _pdf(self, x, norm, params):
+        assert norm is False, "Norm has to be False"
         x = x.unstack_x()
         x = self._polynomials_rescale(x)
-        return self._poly_func(x=x)
+        return self._poly_func(x=x, params=params)
 
+    @staticmethod
     @abc.abstractmethod
-    def _poly_func(self, x):
+    def _poly_func(x, params):
         raise SpecificFunctionNotImplemented
 
 
@@ -316,8 +319,9 @@ class Legendre(RecursivePolynomial, SerializableMixin):
             label=label,
         )
 
-    def _poly_func(self, x):
-        coeffs = convert_coeffs_dict_to_list(self.params)
+    @staticmethod
+    def _poly_func(x, params):
+        coeffs = convert_coeffs_dict_to_list(params)
         return legendre_shape(x=x, coeffs=coeffs)
 
 
@@ -427,8 +431,9 @@ class Chebyshev(RecursivePolynomial, SerializableMixin):
             label=label,
         )
 
-    def _poly_func(self, x):
-        coeffs = convert_coeffs_dict_to_list(self.params)
+    @staticmethod
+    def _poly_func(x, params):
+        coeffs = convert_coeffs_dict_to_list(params)
         return chebyshev_shape(x=x, coeffs=coeffs)
 
 
@@ -551,8 +556,9 @@ class Chebyshev2(RecursivePolynomial, SerializableMixin):
             label=label,
         )
 
-    def _poly_func(self, x):
-        coeffs = convert_coeffs_dict_to_list(self.params)
+    @staticmethod
+    def _poly_func(x, params):
+        coeffs = convert_coeffs_dict_to_list(params)
         return chebyshev2_shape(x=x, coeffs=coeffs)
 
 
@@ -693,8 +699,9 @@ class Laguerre(RecursivePolynomial, SerializableMixin):
             label=label,
         )
 
-    def _poly_func(self, x):
-        coeffs = convert_coeffs_dict_to_list(self.params)
+    @staticmethod
+    def _poly_func(x, params):
+        coeffs = convert_coeffs_dict_to_list(params)
         return laguerre_shape(x=x, coeffs=coeffs)
 
 
@@ -822,8 +829,9 @@ class Hermite(RecursivePolynomial, SerializableMixin):
             label=label,
         )
 
-    def _poly_func(self, x):
-        coeffs = convert_coeffs_dict_to_list(self.params)
+    @staticmethod
+    def _poly_func(x, params):
+        coeffs = convert_coeffs_dict_to_list(params)
         return hermite_shape(x=x, coeffs=coeffs)
 
 
@@ -959,13 +967,14 @@ class Bernstein(BasePDF, SerializableMixin):
         """Int: degree of the polynomial, starting from 0."""
         return self._degree
 
-    @supports()
-    def _unnormalized_pdf(self, x, params):
+    @supports(norm=False)
+    def _pdf(self, x, norm, params):
         x = x[0]
         x = self._polynomials_rescale(x)
         return self._poly_func(x=x, params=params)
 
-    def _poly_func(self, x, params):
+    @staticmethod
+    def _poly_func(x, params):
         coeffs = convert_coeffs_dict_to_list(params)
         return bernstein_shape(x=x, coeffs=coeffs)
 

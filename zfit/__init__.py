@@ -111,7 +111,6 @@ from .core.parameter import (
 )
 from .core.space import Space, convert_to_space, supports
 from .settings import run, ztypes
-from .util.graph import jit as _jit
 
 
 def _maybe_disable_jit():
