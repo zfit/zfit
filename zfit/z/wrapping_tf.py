@@ -9,7 +9,7 @@ import tensorflow as tf
 import zfit.z.numpy as _znp
 
 from ..settings import ztypes
-from ..util.deprecation import deprecated
+from ..util.exception import BreakingAPIChangeError
 from .tools import _auto_upcast
 
 
@@ -22,29 +22,19 @@ def convert_to_tensor(value, dtype=ztypes.float):
     return _znp.asarray(value, dtype)
 
 
-@deprecated(None, "Use z.random.normal instead.")
-def random_normal(shape, mean=0.0, stddev=1.0, dtype=ztypes.float, seed=None, name=None):
-    from zfit import z
-
-    return z.random.get_prng().normal(shape=shape, mean=mean, stddev=stddev, dtype=dtype, seed=seed, name=name)
+def random_normal(*_, **__):
+    msg = "Use z.random.normal instead."
+    raise BreakingAPIChangeError(msg)
 
 
-@deprecated(None, "Use z.random.uniform instead.")
-def random_uniform(shape, minval=0, maxval=None, dtype=ztypes.float, seed=None, name=None):
-    from zfit import z
-
-    return z.random.get_prng().uniform(shape=shape, minval=minval, maxval=maxval, dtype=dtype, seed=seed, name=name)
+def random_uniform(*_, **__):
+    msg = "Use z.random.uniform instead."
+    raise BreakingAPIChangeError(msg)
 
 
-@deprecated(None, "Use z.random.poisson instead.")
-def random_poisson(
-    lam: Any,
-    shape: Any,
-    dtype: tf.DType = ztypes.float,
-    seed: Any = None,
-    name: Any = None,
-):
-    return tf.random.poisson(lam=lam, shape=shape, dtype=dtype, seed=seed, name=name)
+def random_poisson(*_, **__):
+    msg = "Use z.random.poisson instead."
+    raise BreakingAPIChangeError(msg)
 
 
 def square(x, name=None):

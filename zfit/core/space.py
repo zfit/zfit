@@ -130,23 +130,23 @@ class V1Space:
         self.space = space
 
     @property
-    def lower(self):
-        return znp.atleast_1d(self.space.lower[0])
+    def lower(self) -> np.ndarray:
+        return np.atleast_1d(self.space.lower[0])
 
     @property
-    def upper(self):
-        return znp.atleast_1d(self.space.upper[0])
+    def upper(self) -> np.ndarray:
+        return np.atleast_1d(self.space.upper[0])
 
     @property
-    def limits(self):
+    def limits(self) -> tuple[np.ndarray, np.ndarray]:
         return self.lower, self.upper
 
     @property
-    def volume(self):
-        return znp.atleast_1d(self.space._legacy_area())
+    def volume(self) -> np.ndarray:
+        return np.atleast_1d(self.space._legacy_area())
 
     def area(self):
-        return znp.atleast_1d(self.space.area())  # intentional, we want the deprecated one to trigger
+        return np.atleast_1d(self.space.area())  # intentional, we want the deprecated one to trigger
 
 
 class V0Space:
@@ -2537,11 +2537,45 @@ def less_equal_space(space1, space2, allow_graph=True):
 
 
 def equal_space(space1, space2, allow_graph=True):
-    return compare_multispace(
-        space1=space1,
-        space2=space2,
-        comparator=lambda limit1, limit2: limit1.equal(limit2, allow_graph=allow_graph),
-    )
+    has_any = True
+    with suppress(Exception):
+        has_any = np.any(space1.ANY in np.array(space1.v1.limits)) or np.any(space2.ANY in np.array(space2.v1.limits))
+
+    if has_any or allow_graph or isinstance(space1, MultiSpace) or isinstance(space2, MultiSpace):
+        return compare_multispace(
+            space1=space1,
+            space2=space2,
+            comparator=lambda limit1, limit2: limit1.equal(limit2, allow_graph=allow_graph),
+        )
+    else:
+        return compare_spaces_equal_static(space1, space2)
+
+
+def compare_spaces_equal_static(space1: Space, space2: Space):
+    """Compare two spaces if they have the same obs, axes, and, if a comparator is given, limits.
+
+    It is automatically checked if the limits are set resp. are False
+
+    Args:
+        space1:
+        space2:
+        comparator:
+
+    Returns:
+    """
+    try:
+        space2obs1 = space2.with_coords(space1, allow_superset=False, allow_subset=False)
+    except CoordinatesIncompatibleError:
+        return False
+
+    try:
+        limits1 = np.array(space1.v1.limits)
+        limits2 = np.array(space2obs1.v1.limits)
+        diff = np.abs(limits1 - limits2)
+    except Exception:
+        return False
+
+    return np.all(diff < 1e-8)
 
 
 def compare_multispace(space1: ZfitSpace, space2: ZfitSpace, comparator: Callable):

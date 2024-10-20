@@ -25,7 +25,6 @@ from .. import z
 from ..core.interfaces import ZfitIndependentParameter
 from ..core.parameter import assign_values
 from ..util.container import convert_to_container
-from ..util.deprecation import deprecated_args
 
 
 class NewMinimum(Exception):
@@ -41,10 +40,10 @@ class RootFound(Exception):
     initial evaluation."""
 
 
-@deprecated_args(None, "Use cl for confidence level instead.", "sigma")
 def compute_errors(
     result: zfit.result.FitResult,
     params: list[ZfitIndependentParameter],
+    *,
     cl: float | None = None,
     rtol: float | None = None,
     method: str | None = None,
@@ -66,7 +65,8 @@ def compute_errors(
         result: fit result to be used to compute the uncertainties.
         params: The parameters to calculate the
             error. If None, use all parameters.
-        cl: Confidence Level of the parameter to be determined. Defaults to 68.3%.
+        sigma: Number of sigmas to calculate the error. Alternative to ``cl``.
+        cl: Confidence Level of the parameter to be determined. Defaults to 68.3%. Alternative to ``sigma``.
         rtol: relative tol between the computed and the exact roots
         method: type of solver, ``method`` argument of :py:func:`scipy.optimize.root`. Defaults to "hybr".
         covariance_method: The method to use to calculate the correlation matrix, will be forwarded directly
@@ -184,7 +184,7 @@ def compute_errors(
                     try:
                         loss_value, gradient = optimized_loss_gradient(values, index_poi)
                     except tf.errors.InvalidArgumentError:
-                        loss_value = znp.array(999999.0)
+                        loss_value = znp.array(9999999999.0)
                         gradient = z.random.normal(stddev=0.1, shape=(len(all_params) - 1,))
                         # raise FailEvalLossNaN(msg)
                     zeroed_loss = loss_value - fmin

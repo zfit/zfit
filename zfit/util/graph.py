@@ -2,37 +2,7 @@
 
 from __future__ import annotations
 
-import tensorflow as tf
-
 from zfit.util.temporary import TemporarilySet
-
-
-def all_parents(op, current_obs=None):
-    if current_obs is None:
-        current_obs = set()
-    ops = {input_.op for input_ in op.inputs if input_.op not in current_obs}
-    current_obs = current_obs.union(ops)
-    return ops.union(*(all_parents(op, current_obs=current_obs) for op in ops))
-
-
-def get_dependents_auto(tensor: tf.Tensor, candidates: list[tf.Tensor]) -> list[tf.Tensor]:
-    """Return the nodes in `candidates` that `tensor` depends on.
-
-    Args:
-        tensor:
-        candidates:
-    """
-    try:
-        dependent_ops = all_parents(tensor.op)
-    except RuntimeError as error:
-        msg = (
-            "Tensor too deeply nested, recursion limit exceeded. In the future,"
-            "implementation will be different and any dependents can be found."
-            "Currently, specify dependents explicitly if needed."
-            f"Orignal Error: {error}"
-        )
-        raise ValueError(msg) from error
-    return [cand for cand in candidates if cand.op in dependent_ops]
 
 
 class JIT:

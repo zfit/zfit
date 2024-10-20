@@ -19,7 +19,6 @@ import tensorflow as tf
 import zfit.z.numpy as znp
 
 from ..settings import run, ztypes
-from ..util.exception import BreakingAPIChangeError
 from ..util.warnings import warn_advanced_feature
 
 
@@ -366,18 +365,6 @@ def function(func=None, *, stateless_args=None, cachesize=None, **kwargs):
         raise ValueError(msg)
 
     return FunctionWrapperRegistry(**kwargs, cachesize=cachesize, stateless_args=stateless_args)
-
-
-# legacy, remove 0.6
-def function_tf_input(*_, **__):
-    msg = "This function has been removed. Use `z.function(wraps='zfit_tensor') or your" "own category"
-    raise BreakingAPIChangeError(msg)
-
-
-# legacy, remove 0.6
-def function_sampling(*_, **__):
-    msg = "This function has been removed. Use `z.function(wraps='zfit_sampling') or your" "own category"
-    raise BreakingAPIChangeError(msg)
 
 
 @functools.wraps(tf.py_function)
