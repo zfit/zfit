@@ -44,8 +44,6 @@ from .zextension import (
     abs_square,
     constant,
     function as function,
-    function_sampling,
-    function_tf_input,
     nth_pow,
     pi,
     py_function,

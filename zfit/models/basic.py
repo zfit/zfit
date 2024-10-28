@@ -108,7 +108,7 @@ class Exponential(BasePDF, SerializableMixin):
 
     @supports()
     def _unnormalized_pdf(self, x, params):
-        lambda_ = params["lambda"].value()
+        lambda_ = params["lambda"]
         x = x.unstack_x()
         probs = znp.exp(lambda_ * (self._shift_x(x)))
         tf.debugging.assert_all_finite(

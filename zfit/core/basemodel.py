@@ -1259,7 +1259,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         )
 
     @classmethod
-    def register_additional_repr(cls, **kwargs):
+    def _register_additional_repr(cls, **kwargs):
         """Register an additional attribute to add to the repr.
 
         Args:

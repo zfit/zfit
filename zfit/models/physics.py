@@ -427,13 +427,13 @@ class DoubleCB(BasePDF, SerializableMixin):
     @supports(norm=False)
     def _pdf(self, x, norm, params):
         assert norm is False, "Norm cannot be a space"
-        mu = params["mu"].value()
-        sigma = params["sigma"].value()
-        alphal = params["alphal"].value()
-        nl = params["nl"].value()
-        alphar = params["alphar"].value()
-        nr = params["nr"].value()
-        x = x.unstack_x()
+        mu = params["mu"]
+        sigma = params["sigma"]
+        alphal = params["alphal"]
+        nl = params["nl"]
+        alphar = params["alphar"]
+        nr = params["nr"]
+        x = x[0]
         return double_crystalball_func(
             x=x,
             mu=mu,
@@ -562,14 +562,14 @@ class GeneralizedCB(BasePDF, SerializableMixin):
     @supports(norm=False)
     def _pdf(self, x, norm, params):
         assert norm is False, "Norm has to be False"
-        mu = params["mu"].value()
-        sigmal = params["sigmal"].value()
-        alphal = params["alphal"].value()
-        sigmar = params["sigmar"].value()
-        nl = params["nl"].value()
-        alphar = params["alphar"].value()
-        nr = params["nr"].value()
-        x = x.unstack_x()
+        mu = params["mu"]
+        sigmal = params["sigmal"]
+        alphal = params["alphal"]
+        sigmar = params["sigmar"]
+        nl = params["nl"]
+        alphar = params["alphar"]
+        nr = params["nr"]
+        x = x[0]
         return generalized_crystalball_func(
             x=x,
             mu=mu,
@@ -784,10 +784,10 @@ class GaussExpTail(BasePDF, SerializableMixin):
     @supports(norm=False)
     def _pdf(self, x, norm, params):
         assert norm is False, "Norm has to be False"
-        mu = params["mu"].value()
-        sigma = params["sigma"].value()
-        alpha = params["alpha"].value()
-        x = z.unstack_x(x)
+        mu = params["mu"]
+        sigma = params["sigma"]
+        alpha = params["alpha"]
+        x = x[0]
         return gaussexptail_func(x=x, mu=mu, sigma=sigma, alpha=alpha)
 
 
@@ -891,12 +891,12 @@ class GeneralizedGaussExpTail(BasePDF, SerializableMixin):
     @supports(norm=False)
     def _pdf(self, x, norm, params):
         assert norm is False, "Norm has to be False"
-        mu = params["mu"].value()
-        sigmal = params["sigmal"].value()
-        alphal = params["alphal"].value()
-        sigmar = params["sigmar"].value()
-        alphar = params["alphar"].value()
-        x = z.unstack_x(x)
+        mu = params["mu"]
+        sigmal = params["sigmal"]
+        alphal = params["alphal"]
+        sigmar = params["sigmar"]
+        alphar = params["alphar"]
+        x = x[0]
         return generalized_gaussexptail_func(
             x=x,
             mu=mu,

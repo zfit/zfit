@@ -20,6 +20,8 @@ __all__ = [
     "LogNormalConstraint",
 ]
 
+from .util.exception import BreakingAPIChangeError
+
 
 @deprecated(None, "Use `GaussianConstraint` directly.")
 def nll_gaussian(
@@ -39,5 +41,4 @@ def nll_gaussian(
     Raises:
         ShapeIncompatibleError: if params, mu and sigma don't have the same size.
     """
-
-    return GaussianConstraint(params=params, observation=observation, uncertainty=uncertainty)
+    raise BreakingAPIChangeError()

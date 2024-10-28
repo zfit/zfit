@@ -1540,11 +1540,11 @@ class SamplerData(Data):
         n: TensorLike = None,
         param_values: ztyping.ParamValuesMap = None,
     ):
-        """Update the sample by newly sampling. This affects any object that used this data already internally.
+        """Update the sample by newly sampling *inplace*, affecting objects that have it internally, like likelihoods.
 
-        All params that are not in the attribute ``params`` will use their current value for
-        the creation of the new sample. The value can also be overwritten for one sampling by providing
-        a mapping with ``param_values`` from ``Parameter`` to the temporary ``value``.
+        The values of the parameters used to sample the PDF are taken from the creation of the Sampler and won't change
+        by setting their values, i.e. using `param.set_values`. Parameter values (some or all) can be overridden
+        by providing the ``params`` argument.
 
         Args:
             params: a mapping from :py:class:`~zfit.Parameter` or string to a `value` so that the sampler will use

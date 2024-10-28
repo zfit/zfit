@@ -56,6 +56,14 @@ class RunManager:
             return self.MAX_CHUNK_SIZE
 
     @property
+    def check_numerics(self):
+        return self.numeric_checks
+
+    @check_numerics.setter
+    def check_numerics(self, value):
+        self.numeric_checks = value
+
+    @property
     def n_cpu(self):
         return len(self._cpu)
 

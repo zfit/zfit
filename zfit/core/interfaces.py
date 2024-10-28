@@ -5,6 +5,8 @@ from __future__ import annotations
 from collections.abc import Callable
 from typing import TYPE_CHECKING
 
+from ..util.exception import BreakingAPIChangeError
+
 if TYPE_CHECKING:
     pass
 
@@ -16,7 +18,6 @@ import tensorflow as tf
 from uhi.typing.plottable import PlottableHistogram
 
 from ..util import ztyping
-from ..util.deprecation import deprecated
 
 
 class ZfitObject:
@@ -628,15 +629,14 @@ class ZfitDependenciesMixin:
     def get_cache_deps(self, only_floating: bool = True) -> ztyping.DependentsType:
         raise NotImplementedError
 
-    @deprecated(
-        date=None,
-        instructions="Use `get_params` instead if you want to retrieve the "
-        "independent parameters or `get_cache_deps` in case you need "
-        "the numerical cache dependents (advanced).",
-    )
     def get_dependencies(self, only_floating: bool = True) -> ztyping.DependentsType:
-        # raise BreakingAPIChangeError
-        return self.get_cache_deps(only_floating=only_floating)
+        msg = (
+            "Use `get_params` instead if you want to retrieve the "
+            "independent parameters or `get_cache_deps` in case you need "
+            "the numerical cache dependents (advanced)."
+        )
+        raise BreakingAPIChangeError(msg)
+        # return self.get_cache_deps(only_floating=only_floating)
 
 
 class ZfitParametrized(ZfitDependenciesMixin, ZfitObject):
