@@ -5,6 +5,8 @@ from __future__ import annotations
 from collections.abc import Callable
 from typing import TYPE_CHECKING
 
+from ..util.exception import BreakingAPIChangeError
+
 if TYPE_CHECKING:
     pass
 
