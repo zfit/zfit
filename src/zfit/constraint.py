@@ -22,6 +22,8 @@ __all__ = [
     "SimpleConstraint",
 ]
 
+from .util.exception import BreakingAPIChangeError
+
 
 @deprecated(None, "Use `GaussianConstraint` directly.")
 def nll_gaussian(

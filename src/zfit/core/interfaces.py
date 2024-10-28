@@ -10,6 +10,8 @@ if typing.TYPE_CHECKING:
 from collections.abc import Callable
 from typing import TYPE_CHECKING
 
+from ..util.exception import BreakingAPIChangeError
+
 if TYPE_CHECKING:
     pass
 
