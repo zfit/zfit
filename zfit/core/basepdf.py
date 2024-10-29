@@ -194,7 +194,7 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
 
     @property
     def label(self):
-        return self._label
+        return self._label if self._label is not None else self.name
 
     @property
     @deprecated(None, "Use the `norm` attribute instead.")
@@ -801,11 +801,15 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
 
     def _get_params(
         self,
-        floating: bool | None = True,
-        is_yield: bool | None = None,
-        extract_independent: bool | None = True,
+        floating: bool | None,
+        is_yield: bool | None,
+        extract_independent: bool | None,
+        *,
+        autograd: bool | None = None,
     ) -> set[ZfitParameter]:
-        params = super()._get_params(floating, is_yield=is_yield, extract_independent=extract_independent)
+        params = super()._get_params(
+            floating, is_yield=is_yield, extract_independent=extract_independent, autograd=autograd
+        )
 
         if is_yield is not False:
             if self.is_extended:
@@ -814,11 +818,27 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
                     floating=floating,
                     extract_independent=extract_independent,
                 )
-                yield_params.update(params)  # putting the yields at the beginning
+                # we care if it supports autograd or not
+                if autograd is False:
+                    if "yield" not in self._autograd_params:  # it doesn't support autograd
+                        yield_params.update(params)
+                    else:
+                        yield_params = params
+                elif autograd is None:
+                    yield_params.update(params)
+                else:
+                    msg = "autograd should either be None or False, internal error"
+                    raise AssertionError(msg)
                 params = yield_params
             elif is_yield is True:
                 msg = "PDF is not extended but only yield parameters were requested."
                 raise NotExtendedPDFError(msg)
+        return params
+
+    def _get_autograd_params(self):
+        params = super()._get_autograd_params()
+        if self.is_extended and "yield" in self._autograd_params:
+            params.update(self.get_params(floating=None, is_yield=True, extract_independent=True))
         return params
 
     def create_projection_pdf(

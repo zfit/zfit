@@ -154,6 +154,7 @@ def test_sig_bkg_fit(n, floatall, use_sampler, nbins, use_wrapper, request):
         nlls_binned.append(nll.value())
 
     plt.figure()
+    assert len(nlls) > len(param_vals) * 0.7, "Too many fits failed!"
     nlls = np.array(nlls) - np.min(nlls)
     nlls_binned = np.array(nlls_binned) - np.min(nlls_binned)
     plt.title(

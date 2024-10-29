@@ -9,10 +9,11 @@ from functools import partial
 from typing import TYPE_CHECKING, Literal, Optional, Union
 
 import pydantic.v1 as pydantic
+import tensorflow_probability as tfp
 from pydantic.v1 import Field
 from tensorflow.python.util.deprecation import deprecated
 
-from ..exception import OutsideLimitsError, SpecificFunctionNotImplementedError
+from ..exception import AutogradNotSupported, OutsideLimitsError, SpecificFunctionNotImplementedError
 from ..serialization.serializer import BaseRepr, Serializer
 from .data import convert_to_data
 from .serialmixin import SerializableMixin
@@ -39,13 +40,14 @@ from ..util.exception import (
     BreakingAPIChangeError,
     IntentionAmbiguousError,
     NotExtendedPDFError,
+    WorkInProgressError,
 )
 from ..util.warnings import warn_advanced_feature
 from ..z.math import (
     autodiff_gradient,
     autodiff_hessian,
-    autodiff_value_gradients,
-    automatic_value_gradients_hessian,
+    autodiff_value_gradient,
+    automatic_value_gradient_hessian,
     numerical_gradient,
     numerical_hessian,
     numerical_value_gradient,
@@ -66,6 +68,8 @@ def _unbinned_nll_tf(
     data: ztyping.DataInputType,
     fit_range: ZfitSpace,
     log_offset,
+    *,
+    kahan=None,
 ):
     """Return the unbinned negative log likelihood for a PDF.
 
@@ -88,12 +92,14 @@ def _unbinned_nll_tf(
 
     if is_container(model):
         nlls = [
-            _unbinned_nll_tf(model=p, data=d, fit_range=r, log_offset=log_offset)
+            _unbinned_nll_tf(model=p, data=d, fit_range=r, log_offset=log_offset, kahan=kahan)
             for p, d, r in zip(model, data, fit_range)
         ]
+        nlls, nlls_corr = [nll[0] for nll in nlls], [nll[1] for nll in nlls]
+        nll_corrs = znp.sum(nlls_corr, axis=0)
         nlls_summed = znp.sum(nlls, axis=0)
 
-        nll_finished = nlls_summed
+        nll_finished = nlls_summed, nll_corrs
     else:
         if fit_range is not None:
             data = data.with_obs(fit_range)
@@ -107,21 +113,25 @@ def _unbinned_nll_tf(
             log_probs=log_probs,
             weights=data.weights if data.weights is not None else None,
             log_offset=log_offset,
+            kahan=kahan,
         )
         nll_finished = nll
     return nll_finished
 
 
 @z.function(wraps="tensor", keepalive=True)
-def _nll_calc_unbinned_tf(log_probs, weights, log_offset):
+def _nll_calc_unbinned_tf(log_probs, weights, log_offset, kahan=False):
     """Calculate the negative log likelihood from the log probabilities."""
 
     if weights is not None:
         log_probs *= weights  # because it's prob ** weights
     if log_offset is not False:
         log_probs -= log_offset
-    return -znp.sum(log_probs, axis=0)
-    # nll = -tfp.math.reduce_kahan_sum(input_tensor=log_probs, axis=0)
+    if kahan:
+        nll, corr = tfp.math.reduce_kahan_sum(input_tensor=log_probs, axis=0)
+    else:
+        nll, corr = (znp.sum(log_probs, axis=0), tf.constant(0.0, dtype=log_probs.dtype))
+    return -nll, -corr
 
 
 def _constraint_check_convert(constraints):
@@ -255,18 +265,16 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         if options.pop("numgrad", None) is None:
             optionsclean["numgrad"] = settings.options["numerical_grad"]
 
-        if options.pop("kahansum", None) is None:
-            optionsclean["kahansum"] = nevents > 500_000  # start using kahan if we have more than 500k events
-
         if options.pop("subtr_const", None) is None:  # TODO: balance better?
-            # if nevents < 200_000:
-            #     subtr_const = True
-            # elif nevents < 1_000_000:
-            #     subtr_const = 'kahan'
             # else:
             #     subtr_const = 'elewise'
             subtr_const = True
             optionsclean["subtr_const"] = subtr_const
+
+        if options.pop("sumtype", None) is None:
+            # max, implement elewise?
+            sumtype = "kahan" if nevents > 200_000 else None  # upper limit for new technique?
+            optionsclean["sumtype"] = sumtype
         # TODO: check if options are leftover
         # if options:
         #     raise ValueError(f"Unrecognized options: {options}")
@@ -278,17 +286,17 @@ class BaseLoss(ZfitLoss, BaseNumeric):
 
     def _get_params(
         self,
-        floating: bool | None = True,
-        is_yield: bool | None = None,
-        extract_independent: bool | None = True,
+        floating: bool | None,
+        is_yield: bool | None,
+        extract_independent: bool | None,
+        *,
+        autograd: bool | None = None,
     ) -> set[ZfitParameter]:
         params = OrderedSet()
         params = params.union(
             *(
                 model.get_params(
-                    floating=floating,
-                    is_yield=is_yield,
-                    extract_independent=extract_independent,
+                    floating=floating, is_yield=is_yield, extract_independent=extract_independent, autograd=autograd
                 )
                 for model in self.model
             )
@@ -297,9 +305,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         return params.union(
             *(
                 constraint.get_params(
-                    floating=floating,
-                    is_yield=False,
-                    extract_independent=extract_independent,
+                    floating=floating, is_yield=False, extract_independent=extract_independent, autograd=autograd
                 )
                 for constraint in self.constraints
             )
@@ -409,8 +415,17 @@ class BaseLoss(ZfitLoss, BaseNumeric):
             data_checked.append(dat)
         return model_checked, data_checked
 
-    def _input_check_params(self, params):
-        return tuple(self.get_params()) if params is None else convert_to_container(params)
+    def _input_check_params(self, params, only_independent=False):
+        params_container = tuple(self.get_params()) if params is None else convert_to_container(params)
+        if only_independent and (not_indep := {p for p in params_container if not p.independent}):
+            msg = f"Parameters {not_indep} are not independent and `only_independent` is set to True."
+            raise ValueError(msg)
+        if not_in_model := set(params_container) - set(
+            self.get_params(floating=None, extract_independent=None, is_yield=None)
+        ):
+            msg = f"Parameters {not_in_model} are not in the model."
+            raise ValueError(msg)
+        return params_container
 
     @deprecated(None, "Use `create_new` instead and fill the constraints there.")
     def add_constraints(self, constraints):
@@ -589,7 +604,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         Returns:
             The gradient of the loss with respect to the given parameters.
         """
-        params = self._input_check_params(params)
+        params = self._input_check_params(params, only_independent=True)
         numgrad = self._options["numgrad"] if numgrad is None else numgrad
         paramvals, checked = self.check_precompile(params=paramvals)
         with self._check_set_input_params(paramvals, guarantee_checked=checked):
@@ -616,6 +631,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         if numgrad:
             gradient = numerical_gradient(self_value, params=params)
         else:
+            self._check_assert_autograd(params)
             gradient = autodiff_gradient(self_value, params=params)
         return gradient
 
@@ -683,7 +699,8 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         if numgrad:
             value, gradient = numerical_value_gradient(self_value, params=params)
         else:
-            value, gradient = autodiff_value_gradients(self_value, params=params)
+            self._check_assert_autograd(params)
+            value, gradient = autodiff_value_gradient(self_value, params=params)
         return value, gradient
 
     def hessian(
@@ -729,6 +746,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         if numgrad:
             hessian = numerical_hessian(self_value, params=params, hessian=hessian)
         else:
+            self._check_assert_autograd(params)
             hessian = autodiff_hessian(self_value, params=params, hessian=hessian)
         return hessian
 
@@ -797,7 +815,8 @@ class BaseLoss(ZfitLoss, BaseNumeric):
                 func=self_value, gradient=self.gradient, params=params, hessian=hessian
             )
         else:
-            return automatic_value_gradients_hessian(self_value, params=params, hessian=hessian)
+            self._check_assert_autograd(params)
+            return automatic_value_gradient_hessian(self_value, params=params, hessian=hessian)
 
     def __repr__(self) -> str:
         class_name = repr(self.__class__)[:-2].split(".")[-1]
@@ -818,6 +837,20 @@ class BaseLoss(ZfitLoss, BaseNumeric):
             f' constraints={one_two_many(self.constraints, many="True")}'
             f">"
         )
+
+    def _check_assert_autograd(self, params):
+        params = convert_to_container(params, set)
+        if noautograd := params - self.get_params(
+            autograd=True, is_yield=None, floating=None, extract_independent=True
+        ):
+            msg = (
+                f"Parameters {noautograd} are not supported to use automatic gradients (that is because a PDF"
+                f" claims they are not differentiable). Use a minimizer with its own gradient by setting `gradient=True`"
+                " (if available), or set either numgrad=True for this loss by using"
+                " `Loss(..., options={'numgrad': True, 'numhess': True})` or set it globaly (temorary with a with)"
+                " using `zfit.run.set_autograd_mode(False)`."
+            )
+            raise AutogradNotSupported(msg)
 
 
 def one_two_many(values, n=3, many="multiple"):
@@ -1043,6 +1076,7 @@ class UnbinnedNLL(BaseUnbinnedNLL):
             fit_range=fit_range,
             constraints=constraints,
             log_offset=log_offset,
+            sumtype=self._options.get("sumtype"),
         )
 
     @property
@@ -1050,22 +1084,27 @@ class UnbinnedNLL(BaseUnbinnedNLL):
         return False
 
     @z.function(wraps="loss")
-    def _loss_func_watched(self, data, model, fit_range, constraints, log_offset):
-        nll = _unbinned_nll_tf(model=model, data=data, fit_range=fit_range, log_offset=log_offset)
+    def _loss_func_watched(self, data, model, fit_range, constraints, log_offset, sumtype=None):
+        kahan = sumtype == "kahan"
+        nll, nll_corr = _unbinned_nll_tf(
+            model=model, data=data, fit_range=fit_range, log_offset=log_offset, kahan=kahan
+        )
         if constraints:
             constraints = z.reduce_sum([c.value() for c in constraints])
             nll += constraints
-        return nll
+        return nll - nll_corr
 
     def _get_params(
         self,
-        floating: bool | None = True,
-        is_yield: bool | None = None,
-        extract_independent: bool | None = True,
+        floating: bool | None,
+        is_yield: bool | None,
+        extract_independent: bool | None,
+        *,
+        autograd: bool | None = None,
     ) -> set[ZfitParameter]:
         if not self.is_extended:
             is_yield = False  # the loss does not depend on the yields
-        return super()._get_params(floating, is_yield, extract_independent)
+        return super()._get_params(floating, is_yield, extract_independent, autograd=autograd)
 
 
 class UnbinnedNLLRepr(BaseLossRepr):
@@ -1136,11 +1175,15 @@ class ExtendedUnbinnedNLL(BaseUnbinnedNLL):
         self._errordef = 0.5
 
     @z.function(wraps="loss")
-    def _loss_func(self, model, data, fit_range, constraints, log_offset):
-        nll = _unbinned_nll_tf(model=model, data=data, fit_range=fit_range, log_offset=log_offset)
+    def _loss_func(self, model, data, fit_range, constraints, log_offset, *, sumtype=None):
+        kahan = sumtype == "kahan"
+        nll, nll_corr = _unbinned_nll_tf(
+            model=model, data=data, fit_range=fit_range, log_offset=log_offset, kahan=kahan
+        )
         if constraints:
             constraints = z.reduce_sum([c.value() for c in constraints])
             nll += constraints
+
         yields = []
         nevents_collected = []
         for mod, dat in zip(model, data):
@@ -1159,7 +1202,7 @@ class ExtendedUnbinnedNLL(BaseUnbinnedNLL):
             log_offset = znp.asarray(log_offset, dtype=znp.float64)
             term_new += log_offset
         nll += znp.sum(term_new, axis=0)
-        return nll
+        return nll - nll_corr
 
     @property
     def is_extended(self):
@@ -1167,11 +1210,13 @@ class ExtendedUnbinnedNLL(BaseUnbinnedNLL):
 
     def _get_params(
         self,
-        floating: bool | None = True,
-        is_yield: bool | None = None,
-        extract_independent: bool | None = True,
+        floating: bool | None,
+        is_yield: bool | None,
+        extract_independent: bool | None,
+        *,
+        autograd: bool | None = None,
     ) -> set[ZfitParameter]:
-        return super()._get_params(floating, is_yield, extract_independent)
+        return super()._get_params(floating, is_yield, extract_independent, autograd=autograd)
 
 
 class ExtendedUnbinnedNLLRepr(BaseLossRepr):
@@ -1325,11 +1370,16 @@ class SimpleLoss(BaseLoss):
 
     def _get_params(
         self,
-        floating: bool | None = True,
-        is_yield: bool | None = None,
-        extract_independent: bool | None = True,
+        floating: bool | None,
+        is_yield: bool | None,
+        extract_independent: bool | None,
+        *,
+        autograd: bool | None = None,
     ) -> set[ZfitParameter]:
-        params = super()._get_params(floating, is_yield, extract_independent)
+        if autograd is not None:
+            msg = "Cannot distinguish currently between autograd and not autograd."
+            raise WorkInProgressError(msg)
+        params = super()._get_params(floating, is_yield, extract_independent, autograd=autograd)
         own_params = extract_filter_params(self._params, floating=floating, extract_independent=extract_independent)
         return params.union(own_params)
 

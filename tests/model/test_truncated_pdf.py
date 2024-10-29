@@ -168,7 +168,7 @@ def test_dynamic_truncated_yield():
     nll2 = zfit.loss.ExtendedUnbinnedNLL(model=gauss2_trunc, data=data2)
     nll_simultaneous2 = nll1 + nll2
 
-    minimizer = zfit.minimize.Minuit(tol=1e-3, gradient='zfit')
+    minimizer = zfit.minimize.Minuit(tol=1e-4, gradient='zfit')
     result = minimizer.minimize(nll_simultaneous2)
     result.hesse()
 
