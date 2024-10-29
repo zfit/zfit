@@ -3,8 +3,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from ..util.exception import WorkInProgressError
-
 if TYPE_CHECKING:
     import zfit
 
@@ -35,7 +33,6 @@ class BinnedFromUnbinnedPDF(BaseBinnedFunctorPDF):
         norm: ztyping.NormInputType = None,
         name: str | None = None,
         label: str | None = None,
-        vectorized: bool | None = None,
     ) -> None:
         """Create a binned pdf from an unbinned pdf binning in *space*.
 
@@ -75,9 +72,7 @@ class BinnedFromUnbinnedPDF(BaseBinnedFunctorPDF):
                the PDF for a better description, to be used with plots etc.
                Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
         """
-        if vectorized is None:
-            vectorized = False
-        self.vectorized = vectorized
+        self._use_vectorized_map = None
         if pdf.is_extended:
             if extended is not None:
                 warn_advanced_feature(
@@ -138,18 +133,16 @@ class BinnedFromUnbinnedPDF(BaseBinnedFunctorPDF):
         limits = znp.stack([lower_flat, upper_flat], axis=1)
         from zfit import run
 
+        vectorized = self._use_vectorized_map or (self._use_vectorized_map is not False and pdf.has_analytic_integral)
         try:
-            if run.get_graph_mode() is False:  # TODO
+            if run.get_graph_mode() is False:  #  we cannot use the vectorized version, as it jit compiles
+                # also, the map_fn is slower...
                 msg = "Just stearing the eager execution"
                 raise MapNotVectorized(msg)
-
-            values = tf.vectorized_map(integrate_one, limits)[:, 0]  # this fails...
-            msg = (
-                "Continue HERE: chahing the bins/limits in scratch_1.py changes the error..."
-                "\nMaybe something with the return shape of unbinned of binned pdfs?"
-            )
-            raise WorkInProgressError(msg)
-            # values = tf.map_fn(integrate_one, limits)  # this works
+            if vectorized:  # noqa: SIM108
+                values = tf.vectorized_map(integrate_one, limits)[:, 0]
+            else:
+                values = tf.map_fn(integrate_one, limits)  # this works
         except (ValueError, MapNotVectorized):
             values = znp.asarray(tuple(map(integrate_one, limits)))
         values = znp.reshape(values, shape)
@@ -198,11 +191,16 @@ class BinnedFromUnbinnedPDF(BaseBinnedFunctorPDF):
         limits = znp.stack([lower_flat, upper_flat], axis=1)
         from zfit import run
 
+        vectorized = self._use_vectorized_map or (self._use_vectorized_map is not False and pdf.has_analytic_integral)
         try:
-            if run.get_graph_mode() is False:
+            if run.get_graph_mode() is False:  #  we cannot use the vectorized version, as it jit compiles
+                # also, the map_fn is slower...
                 msg = "Just stearing the eager execution"
                 raise MapNotVectorized(msg)
-            values = tf.vectorized_map(integrate_one, limits)[:, 0]
+            if vectorized:  # noqa: SIM108
+                values = tf.vectorized_map(integrate_one, limits)[:, 0]
+            else:
+                values = tf.map_fn(integrate_one, limits)  # this works
         except (ValueError, MapNotVectorized):
             values = znp.asarray(tuple(map(integrate_one, limits)))
         values = znp.reshape(values, shape)
@@ -213,4 +211,4 @@ class BinnedFromUnbinnedPDF(BaseBinnedFunctorPDF):
         return values
 
     def __str__(self):
-        return f"<BinnedFromUnbinnedPDF model={self.pdfs[0]} binning={self.space.binning}>"
+        return f"<Binned {self.pdfs[0]} binning={self.space.binning}>"

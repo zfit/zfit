@@ -16,7 +16,7 @@ from ..core.space import Space, convert_to_space, supports
 from ..serialization import Serializer, SpaceRepr  # noqa: F401
 from ..util import ztyping
 from ..util.container import convert_to_container
-from ..util.exception import SpecificFunctionNotImplemented
+from ..util.exception import AnalyticIntegralNotImplemented, SpecificFunctionNotImplemented
 from .basefunctor import FunctorPDFRepr
 from .functor import BaseFunctor
 
@@ -232,6 +232,23 @@ class TruncatedPDF(BaseFunctor, SerializableMixin):
         )  # if it's the overarching limits, we can just use our own ones, the real ones
         # limits = create_subset_limits(limits, self.limits)  # TODO: be smart about limits, we would not need to throw the SpecificFunctionNotImplemented
         integrals = [self.pdfs[0].integrate(limits=limit, norm=False, options=options) for limit in limits]
+        return znp.sum(integrals, axis=0)
+
+    @supports()
+    def _analytic_integrate(self, limits, norm):
+        del norm  # not used here
+        # cannot equal, as possibly jitted
+        from zfit import run
+
+        if (
+            not run.executing_eagerly() or limits != self.space
+        ):  # we could also do it, but would need to check each limit
+            raise AnalyticIntegralNotImplemented
+        limits = convert_to_container(
+            self.limits
+        )  # if it's the overarching limits, we can just use our own ones, the real ones
+        # limits = create_subset_limits(limits, self.limits)  # TODO: be smart about limits, we would not need to throw the SpecificFunctionNotImplemented
+        integrals = [self.pdfs[0].analytic_integrate(limits=limit, norm=False) for limit in limits]
         return znp.sum(integrals, axis=0)
 
     # TODO: we could make sampling more efficient by only sampling the relevant ranges, however, that would

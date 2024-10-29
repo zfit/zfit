@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+
 if TYPE_CHECKING:
     import zfit
 
@@ -310,16 +311,21 @@ def test_analytic_sampling(obs1):
         pass
 
     import zfit
-    from zfit.core.space import ANY_UPPER
+    from zfit.core.space import ANY_UPPER, ANY_LOWER
+    mu, sigma = create_mu_sigma_true_params()
+    gauss_noana = SampleGauss(obs=obs1, mu=mu, sigma=sigma)
+
+
 
     SampleGauss.register_analytic_integral(
         func=lambda limits, params, model: 2 * limits.v1.upper[0],
-        limits=zfit.Space(limits=(-float("inf"), ANY_UPPER), axes=(0,)),
+        limits=zfit.Space(limits=(ANY_LOWER, ANY_UPPER), axes=(0,)),
     )  # DUMMY!
     SampleGauss.register_inverse_analytic_integral(func=lambda x, params: x)
 
-    mu, sigma = create_mu_sigma_true_params()
+
     gauss1 = SampleGauss(obs=obs1, mu=mu, sigma=sigma)
+    assert gauss_noana.has_analytic_integral
     sample = gauss1.sample(n=10000, limits=(2.0, 5.0))
 
 

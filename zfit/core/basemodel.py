@@ -604,6 +604,31 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         except (SpecificFunctionNotImplemented, AnalyticIntegralNotImplemented):
             raise AnalyticIntegralNotImplemented from None
 
+    @property
+    def has_analytic_integral(self):
+        """Return whether the PDF has an analytic integral over its full dimension.
+
+        This does not imply that all different integrals, i.e. over different ranges or just partial variable are
+        available.
+
+        Returns:
+
+        """
+        try:
+            _ = self.analytic_integrate(self.space)  # what about extended?
+        except AnalyticIntegralNotImplemented:
+            return False
+        except Exception as error:
+            warnings.warn(
+                f"Called analytic integral to test if available, but unknown error occured: {error}."
+                f" This can be ignored, but may be reported as an issue (you're welcome to do so!)",
+                stacklevel=1,
+                category=UserWarning,
+            )
+            return False
+        else:
+            return True
+
     @_BaseModel_register_check_support(True)
     @deprecated_norm_range
     def _numeric_integrate(self, limits, norm, *, params: Mapping[str, ZfitParameter], options=None):  # noqa: ARG002
