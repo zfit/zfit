@@ -844,9 +844,11 @@ class BaseLoss(ZfitLoss, BaseNumeric):
             autograd=True, is_yield=None, floating=None, extract_independent=True
         ):
             msg = (
-                f"Parameters {noautograd} are not supported to use automatic gradients (that is because a PDF claims they"
-                " are not differentiable). Set either numgrad=True for this loss by using `Loss(..., options={'numgrad': True})`"
-                f" or set it globaly (temorary with a with) using `zfit.run.set_autograd_mode(False)`."
+                f"Parameters {noautograd} are not supported to use automatic gradients (that is because a PDF"
+                f" claims they are not differentiable). Use a minimizer with its own gradient by setting `gradient=True`"
+                " (if available), or set either numgrad=True for this loss by using"
+                " `Loss(..., options={'numgrad': True, 'numhess': True})` or set it globaly (temorary with a with)"
+                " using `zfit.run.set_autograd_mode(False)`."
             )
             raise AutogradNotSupported(msg)
 
