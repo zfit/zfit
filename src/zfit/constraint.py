@@ -16,13 +16,12 @@ from .util import ztyping
 from .util.deprecation import deprecated
 
 __all__ = [
+    "SimpleConstraint",
     "GaussianConstraint",
     "LogNormalConstraint",
     "PoissonConstraint",
     "SimpleConstraint",
 ]
-
-from .util.exception import BreakingAPIChangeError
 
 
 @deprecated(None, "Use `GaussianConstraint` directly.")
