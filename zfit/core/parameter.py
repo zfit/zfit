@@ -669,9 +669,14 @@ class Parameter(
         floating: bool | None = True,
         is_yield: bool | None = None,
         extract_independent: bool | None = True,
-        only_floating=NotSpecified,
-    ) -> set[ZfitParameter]:
-        del is_yield, only_floating, extract_independent  # doesnot make sense for a single parameter
+        *,
+        autograd: bool | None = None,
+    ) -> OrderedSet[ZfitParameter]:
+        del is_yield, extract_independent  # does not make sense for a single parameter
+        # if autograd is not None:
+        #     raise WorkInProgressError("autograd distinction not available, needed?")
+        if autograd is False:
+            return OrderedSet()  # we assume that all support autograd
         return extract_filter_params(self, floating=floating, extract_independent=False)
 
     def __repr__(self):  # many try and except in case it's not fully initialized yet

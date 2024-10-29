@@ -218,11 +218,15 @@ class BaseBinnedPDF(
 
     def _get_params(
         self,
-        floating: bool | None = True,
-        is_yield: bool | None = None,
-        extract_independent: bool | None = True,
+        floating: bool | None,
+        is_yield: bool | None,
+        extract_independent: bool | None,
+        *,
+        autograd: bool | None = None,
     ) -> set[ZfitParameter]:
-        params = super()._get_params(floating, is_yield=is_yield, extract_independent=extract_independent)
+        params = super()._get_params(
+            floating, is_yield=is_yield, extract_independent=extract_independent, autograd=autograd
+        )
 
         if is_yield is not False:
             if self.is_extended:
@@ -231,8 +235,11 @@ class BaseBinnedPDF(
                     floating=floating,
                     extract_independent=extract_independent,
                 )
-                yield_params.update(params)  # putting the yields at the beginning
-                params = yield_params
+                # we care if it supports autograd or not
+                if autograd is None or (autograd is False and "yield" not in self._autograd_params):
+                    params = yield_params | params
+
+                assert autograd is not True, "autograd should either be None or False, internal error"
             elif is_yield is True:
                 msg = "PDF is not extended but only yield parameters were requested."
                 raise NotExtendedPDFError(msg)

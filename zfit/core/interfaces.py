@@ -646,6 +646,8 @@ class ZfitParametrized(ZfitDependenciesMixin, ZfitObject):
         floating: bool | None = True,
         is_yield: bool | None = None,
         extract_independent: bool | None = True,
+        *,
+        autograd: bool | None = None,
     ) -> set[ZfitParameter]:
         """Recursively collect parameters that this object depends on according to the filter criteria.
 
@@ -657,6 +659,7 @@ class ZfitParametrized(ZfitDependenciesMixin, ZfitObject):
             only parameters that are not floating.
 
         Args:
+
             floating: if a parameter is floating, e.g. if :py:meth:`~ZfitParameter.floating` returns `True`
             is_yield: if a parameter is a yield of the _current_ model. This won't be applied recursively, but may include
                yields if they do also represent a parameter parametrizing the shape. So if the yield of the current
@@ -664,6 +667,9 @@ class ZfitParametrized(ZfitDependenciesMixin, ZfitObject):
                depend on a yield (as their yield) and it is not correlated to the output of our model, they won't be
                included.
             extract_independent: If the parameter is an independent parameter, i.e. if it is a `ZfitIndependentParameter`.
+            autograd: Selection criteria if the parameter supports automatic differentiation. If `None`, no filtering
+                is done. If `True`, only parameters that support autograd are returned, if `False`, only parameters
+                that do not support autograd are returned.
         """
         raise NotImplementedError
 

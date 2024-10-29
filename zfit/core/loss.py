@@ -39,6 +39,7 @@ from ..util.exception import (
     BreakingAPIChangeError,
     IntentionAmbiguousError,
     NotExtendedPDFError,
+    WorkInProgressError,
 )
 from ..util.warnings import warn_advanced_feature
 from ..z.math import (
@@ -278,17 +279,17 @@ class BaseLoss(ZfitLoss, BaseNumeric):
 
     def _get_params(
         self,
-        floating: bool | None = True,
-        is_yield: bool | None = None,
-        extract_independent: bool | None = True,
+        floating: bool | None,
+        is_yield: bool | None,
+        extract_independent: bool | None,
+        *,
+        autograd: bool | None = None,
     ) -> set[ZfitParameter]:
         params = OrderedSet()
         params = params.union(
             *(
                 model.get_params(
-                    floating=floating,
-                    is_yield=is_yield,
-                    extract_independent=extract_independent,
+                    floating=floating, is_yield=is_yield, extract_independent=extract_independent, autograd=autograd
                 )
                 for model in self.model
             )
@@ -297,9 +298,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         return params.union(
             *(
                 constraint.get_params(
-                    floating=floating,
-                    is_yield=False,
-                    extract_independent=extract_independent,
+                    floating=floating, is_yield=False, extract_independent=extract_independent, autograd=autograd
                 )
                 for constraint in self.constraints
             )
@@ -1059,13 +1058,15 @@ class UnbinnedNLL(BaseUnbinnedNLL):
 
     def _get_params(
         self,
-        floating: bool | None = True,
-        is_yield: bool | None = None,
-        extract_independent: bool | None = True,
+        floating: bool | None,
+        is_yield: bool | None,
+        extract_independent: bool | None,
+        *,
+        autograd: bool | None = None,
     ) -> set[ZfitParameter]:
         if not self.is_extended:
             is_yield = False  # the loss does not depend on the yields
-        return super()._get_params(floating, is_yield, extract_independent)
+        return super()._get_params(floating, is_yield, extract_independent, autograd=autograd)
 
 
 class UnbinnedNLLRepr(BaseLossRepr):
@@ -1167,11 +1168,13 @@ class ExtendedUnbinnedNLL(BaseUnbinnedNLL):
 
     def _get_params(
         self,
-        floating: bool | None = True,
-        is_yield: bool | None = None,
-        extract_independent: bool | None = True,
+        floating: bool | None,
+        is_yield: bool | None,
+        extract_independent: bool | None,
+        *,
+        autograd: bool | None = None,
     ) -> set[ZfitParameter]:
-        return super()._get_params(floating, is_yield, extract_independent)
+        return super()._get_params(floating, is_yield, extract_independent, autograd=autograd)
 
 
 class ExtendedUnbinnedNLLRepr(BaseLossRepr):
@@ -1325,11 +1328,16 @@ class SimpleLoss(BaseLoss):
 
     def _get_params(
         self,
-        floating: bool | None = True,
-        is_yield: bool | None = None,
-        extract_independent: bool | None = True,
+        floating: bool | None,
+        is_yield: bool | None,
+        extract_independent: bool | None,
+        *,
+        autograd: bool | None = None,
     ) -> set[ZfitParameter]:
-        params = super()._get_params(floating, is_yield, extract_independent)
+        if autograd is not None:
+            msg = "Cannot distinguish currently between autograd and not autograd."
+            raise WorkInProgressError(msg)
+        params = super()._get_params(floating, is_yield, extract_independent, autograd=autograd)
         own_params = extract_filter_params(self._params, floating=floating, extract_independent=extract_independent)
         return params.union(own_params)
 

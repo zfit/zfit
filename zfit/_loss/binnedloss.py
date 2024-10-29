@@ -332,11 +332,15 @@ class ExtendedBinnedNLL(BaseBinned):
 
     def _get_params(
         self,
-        floating: bool | None = True,
-        is_yield: bool | None = None,
-        extract_independent: bool | None = True,
+        floating: bool | None,
+        is_yield: bool | None,
+        extract_independent: bool | None,
+        *,
+        autograd: bool | None = None,
     ) -> set[ZfitParameter]:
-        return super()._get_params(floating, is_yield, extract_independent)
+        return super()._get_params(
+            floating=floating, is_yield=is_yield, extract_independent=extract_independent, autograd=autograd
+        )
 
 
 class BinnedNLL(BaseBinned):
@@ -477,13 +481,15 @@ class BinnedNLL(BaseBinned):
 
     def _get_params(
         self,
-        floating: bool | None = True,
-        is_yield: bool | None = None,
-        extract_independent: bool | None = True,
+        floating: bool | None,
+        is_yield: bool | None,
+        extract_independent: bool | None,
+        *,
+        autograd: bool | None = None,
     ) -> set[ZfitParameter]:
         if not self.is_extended:
             is_yield = False  # the loss does not depend on the yields
-        return super()._get_params(floating, is_yield, extract_independent)
+        return super()._get_params(floating, is_yield, extract_independent, autograd=autograd)
 
 
 @z.function(wraps="tensor", keepalive=True)
@@ -686,13 +692,15 @@ class BinnedChi2(BaseBinned):
 
     def _get_params(
         self,
-        floating: bool | None = True,
-        is_yield: bool | None = None,
-        extract_independent: bool | None = True,
+        floating: bool | None,
+        is_yield: bool | None,
+        extract_independent: bool | None,
+        *,
+        autograd: bool | None = None,
     ) -> set[ZfitParameter]:
         if not self.is_extended:
             is_yield = False  # the loss does not depend on the yields
-        return super()._get_params(floating, is_yield, extract_independent)
+        return super()._get_params(floating, is_yield, extract_independent, autograd=autograd)
 
 
 class ExtendedBinnedChi2(BaseBinned):

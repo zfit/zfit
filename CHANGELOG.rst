@@ -26,7 +26,12 @@ Deprecations
 Bug fixes and small changes
 ---------------------------
 - add possibility to not jit by using ``force_eager`` in ``tf.function`` or raise a ``z.DoNotCompile`` error
-- ``SimpleLoss`` can now be added
+- ``SimpleLoss`` can now be added together with another SimpleLoss
+- ``get_params`` supports an ``autograd`` argument to filter parameters that do not support automatic differentiation.
+  An object with parameters can advertise, which parameters are differentiable (with ``autograd_params``); by default, all
+  parameters are assumed to be differentiable, the same effect as ``True``. If autograd is performed on parameters that
+  do not support it, an error is raised.
+
 
 Experimental
 ------------

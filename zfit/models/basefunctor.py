@@ -80,15 +80,15 @@ class FunctorMixin(ZfitFunctorMixin):
         floating: bool | None = True,
         is_yield: bool | None = None,
         extract_independent: bool | None = True,
+        *,
+        autograd: bool | None = None,
     ) -> set[ZfitParameter]:
-        params = super()._get_params(floating, is_yield, extract_independent)
+        params = super()._get_params(floating, is_yield, extract_independent, autograd=autograd)
         if is_yield is not True:
             params = params.union(
                 *(
                     model.get_params(
-                        floating=floating,
-                        is_yield=False,
-                        extract_independent=extract_independent,
+                        floating=floating, is_yield=False, extract_independent=extract_independent, autograd=autograd
                     )
                     for model in self.models
                 )
