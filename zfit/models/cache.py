@@ -95,8 +95,8 @@ class CachedPDF(BaseFunctor, SerializableMixin):
             "name": name,
         }
         name = name or pdf.name
-        super().__init__(pdfs=pdf, obs=obs, name=name, extended=extended, norm=norm, label=label)
-        params = list(pdf.get_params(floating=None))
+        super().__init__(pdfs=pdf, obs=obs, name=name, extended=extended, norm=norm, label=label, autograd_params=[])
+        params = list(pdf.get_params(floating=None, is_yield=None, extract_independent=True))
 
         param_cache = tf.Variable(
             znp.zeros(shape=tf.shape(tf.stack(params)), dtype=ztypes.float),

@@ -1,8 +1,6 @@
 #  Copyright (c) 2024 zfit
 from __future__ import annotations
 
-import tensorflow as tf
-
 from .core.constraint import (
     GaussianConstraint,
     LogNormalConstraint,
@@ -13,14 +11,11 @@ from .util import ztyping
 from .util.deprecation import deprecated
 
 __all__ = [
-    "nll_gaussian",
     "SimpleConstraint",
     "GaussianConstraint",
     "PoissonConstraint",
     "LogNormalConstraint",
 ]
-
-from .util.exception import BreakingAPIChangeError
 
 
 @deprecated(None, "Use `GaussianConstraint` directly.")
@@ -28,7 +23,7 @@ def nll_gaussian(
     params: ztyping.ParamTypeInput,
     observation: ztyping.NumericalScalarType,
     uncertainty: ztyping.NumericalScalarType,
-) -> tf.Tensor:
+) -> GaussianConstraint:
     """Return negative log likelihood graph for gaussian constraints on a list of parameters.
 
     Args:
@@ -41,4 +36,4 @@ def nll_gaussian(
     Raises:
         ShapeIncompatibleError: if params, mu and sigma don't have the same size.
     """
-    raise BreakingAPIChangeError()
+    return GaussianConstraint(params=params, observation=observation, sigma=uncertainty)

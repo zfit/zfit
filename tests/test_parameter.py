@@ -127,7 +127,7 @@ def test_composed_param():
     assert param_a2.params["p1"] == param2
     assert isinstance(param_a.get_params(floating=True), OrderedSet)
     assert set(param_a.get_params(floating=True)) == {param1, param2}
-    assert set(param_a.get_params(floating=False)) == {param1, param2, param3}
+    assert set(param_a.get_params(floating=None)) == {param1, param2, param3}
     a_unchanged = func(param1, param2, param3)
     assert a_unchanged == param_a.value()
     param2.assign(3.5)

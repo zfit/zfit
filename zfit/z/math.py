@@ -315,10 +315,10 @@ def automatic_value_gradient_hessian(
 
     from .. import z
 
-    persistant = hessian == "diag" or tf.executing_eagerly()  # currently needed, TODO: can we better parallelize that?
     # TODO(WrappedVariable): this is needed if we want to use wrapped Variables
     # params = _extract_tfparams(params)
-    with tf.GradientTape(persistent=persistant, watch_accessed_variables=False) as tape:
+    # persistant is needed for jacobian later, which fails otherwise if we try again without the vectorization
+    with tf.GradientTape(persistent=True, watch_accessed_variables=False) as tape:
         tape.watch(params)
         if callable(value_grad_func):
             loss, gradients = value_grad_func(params)
@@ -332,13 +332,21 @@ def automatic_value_gradient_hessian(
         # gradfunc = lambda par_grad: tape.gradient(par_grad[0], sources=par_grad[1])
         # computed_hessian = tf.vectorized_map(gradfunc, zip(params, gradients))
     else:
-        computed_hessian = z.convert_to_tensor(
-            tape.jacobian(
-                gradients,
-                sources=params,
-                experimental_use_pfor=True,  # causes TF bug? Slow..
-            )
-        )
+        for usepfor in [True, False]:
+            try:
+                computed_hessian = z.convert_to_tensor(
+                    tape.jacobian(
+                        gradients,
+                        sources=params,
+                        experimental_use_pfor=usepfor,  # causes TF bug? Slow..
+                    )
+                )
+            except ValueError as error:
+                if "Encountered an exception while vectorizing the jacobian computation." in str(error):
+                    continue
+                raise
+            else:
+                break
     del tape
     return loss, gradients, computed_hessian
 

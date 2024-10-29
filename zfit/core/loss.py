@@ -55,7 +55,6 @@ from ..z.math import (
 )
 from .baseobject import BaseNumeric, extract_filter_params
 from .constraint import BaseConstraint
-from .dependents import _extract_dependencies
 from .interfaces import ZfitBinnedData, ZfitData, ZfitLoss, ZfitParameter, ZfitPDF, ZfitSpace
 from .parameter import convert_to_parameters, set_values
 
@@ -1351,7 +1350,6 @@ class SimpleLoss(BaseLoss):
         self._hess_fn = hessian
         params = convert_to_parameters(params, prefer_constant=False)
         self._params = params
-        self._simple_func_params = _extract_dependencies(params)
 
     def _check_jit_or_not(self):
         if not self._do_jit:
