@@ -13,7 +13,7 @@ import tensorflow_probability as tfp
 from pydantic.v1 import Field
 from tensorflow.python.util.deprecation import deprecated
 
-from ..exception import OutsideLimitsError, SpecificFunctionNotImplementedError
+from ..exception import AutogradNotSupported, OutsideLimitsError, SpecificFunctionNotImplementedError
 from ..serialization.serializer import BaseRepr, Serializer
 from .data import convert_to_data
 from .serialmixin import SerializableMixin
@@ -46,8 +46,8 @@ from ..util.warnings import warn_advanced_feature
 from ..z.math import (
     autodiff_gradient,
     autodiff_hessian,
-    autodiff_value_gradients,
-    automatic_value_gradients_hessian,
+    autodiff_value_gradient,
+    automatic_value_gradient_hessian,
     numerical_gradient,
     numerical_hessian,
     numerical_value_gradient,
@@ -273,7 +273,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
 
         if options.pop("sumtype", None) is None:
             # max, implement elewise?
-            sumtype = "kahan" if 200_000 < nevents < 1_000_000 * 1e20 else None
+            sumtype = "kahan" if nevents > 200_000 else None  # upper limit for new technique?
             optionsclean["sumtype"] = sumtype
         # TODO: check if options are leftover
         # if options:
@@ -415,8 +415,17 @@ class BaseLoss(ZfitLoss, BaseNumeric):
             data_checked.append(dat)
         return model_checked, data_checked
 
-    def _input_check_params(self, params):
-        return tuple(self.get_params()) if params is None else convert_to_container(params)
+    def _input_check_params(self, params, only_independent=False):
+        params_container = tuple(self.get_params()) if params is None else convert_to_container(params)
+        if only_independent and (not_indep := {p for p in params_container if not p.independent}):
+            msg = f"Parameters {not_indep} are not independent and `only_independent` is set to True."
+            raise ValueError(msg)
+        if not_in_model := set(params_container) - set(
+            self.get_params(floating=None, extract_independent=None, is_yield=None)
+        ):
+            msg = f"Parameters {not_in_model} are not in the model."
+            raise ValueError(msg)
+        return params_container
 
     @deprecated(None, "Use `create_new` instead and fill the constraints there.")
     def add_constraints(self, constraints):
@@ -595,7 +604,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         Returns:
             The gradient of the loss with respect to the given parameters.
         """
-        params = self._input_check_params(params)
+        params = self._input_check_params(params, only_independent=True)
         numgrad = self._options["numgrad"] if numgrad is None else numgrad
         paramvals, checked = self.check_precompile(params=paramvals)
         with self._check_set_input_params(paramvals, guarantee_checked=checked):
@@ -622,6 +631,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         if numgrad:
             gradient = numerical_gradient(self_value, params=params)
         else:
+            self._check_assert_autograd(params)
             gradient = autodiff_gradient(self_value, params=params)
         return gradient
 
@@ -689,7 +699,8 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         if numgrad:
             value, gradient = numerical_value_gradient(self_value, params=params)
         else:
-            value, gradient = autodiff_value_gradients(self_value, params=params)
+            self._check_assert_autograd(params)
+            value, gradient = autodiff_value_gradient(self_value, params=params)
         return value, gradient
 
     def hessian(
@@ -735,6 +746,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         if numgrad:
             hessian = numerical_hessian(self_value, params=params, hessian=hessian)
         else:
+            self._check_assert_autograd(params)
             hessian = autodiff_hessian(self_value, params=params, hessian=hessian)
         return hessian
 
@@ -803,7 +815,8 @@ class BaseLoss(ZfitLoss, BaseNumeric):
                 func=self_value, gradient=self.gradient, params=params, hessian=hessian
             )
         else:
-            return automatic_value_gradients_hessian(self_value, params=params, hessian=hessian)
+            self._check_assert_autograd(params)
+            return automatic_value_gradient_hessian(self_value, params=params, hessian=hessian)
 
     def __repr__(self) -> str:
         class_name = repr(self.__class__)[:-2].split(".")[-1]
@@ -824,6 +837,18 @@ class BaseLoss(ZfitLoss, BaseNumeric):
             f' constraints={one_two_many(self.constraints, many="True")}'
             f">"
         )
+
+    def _check_assert_autograd(self, params):
+        params = convert_to_container(params, set)
+        if noautograd := params - self.get_params(
+            autograd=True, is_yield=None, floating=None, extract_independent=True
+        ):
+            msg = (
+                f"Parameters {noautograd} are not supported to use automatic gradients (that is because a PDF claims they"
+                " are not differentiable). Set either numgrad=True for this loss by using `Loss(..., options={'numgrad': True})`"
+                f" or set it globaly (temorary with a with) using `zfit.run.set_autograd_mode(False)`."
+            )
+            raise AutogradNotSupported(msg)
 
 
 def one_two_many(values, n=3, many="multiple"):

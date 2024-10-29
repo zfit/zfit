@@ -1303,7 +1303,7 @@ class ComplexParameter(ComposedParameter):  # TODO: change to real, imag as inpu
             self._conj = ComplexParameter(
                 name=name,
                 func=lambda: znp.conj(self),
-                params=self.get_cache_deps(),
+                params=self.get_params(floating=None),
                 label=label,
             )
         return self._conj

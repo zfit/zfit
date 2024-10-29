@@ -2,7 +2,8 @@
 import numpy as np
 import pytest
 
-import zfit.pdf
+import zfit
+import zfit.z.numpy as znp
 from zfit import supports
 
 
@@ -21,8 +22,10 @@ def createpdf1(obs, params):
             b = params['b']
             c = params['c']
             d = params['d']
+            e = params['e']
+            f = params['f']
             x = x[0]
-            return a * x + b * x**2 + c * x**3 + d * x**4
+            return (znp.exp(-a * x) + znp.exp(-b * x) + c * x + d * x + e * x + f * x) ** 2
     return SomeGradsPDF(obs=obs, **params, extended=yieldp)
 
 def createpdfbinned1(obs, params):
@@ -48,14 +51,14 @@ def createbinnedsum2(obs, params):
 
 def createnll1(obs,params):
     pdf = createpdf1(obs,params)
-    data = zfit.Data(obs=obs, data=np.array([1.1, 1.2, 1.3, 1.4, 1.5]))
+    data = pdf.sample(1000)
     nll = zfit.loss.ExtendedUnbinnedNLL(model=pdf, data=data)
     return nll
 
 def createbinnednll1(obs,params):
     obs = obs.with_binning(12)
     pdf = createpdf1(obs,params)
-    data = zfit.Data(obs=obs, data=np.array([1.1, 1.2, 1.3, 1.4, 1.5]))
+    data = pdf.sample(1000)
     nll = zfit.loss.ExtendedBinnedNLL(model=pdf, data=data)
     return nll
 
@@ -88,7 +91,7 @@ def test_nograd_params(paramdepfactory):
     paramf = zfit.ComposedParameter("param_f", lambda params: params[0] + params[1],
                                        params=[pnograd[0], pnograd[-1]])
     pnograd.append(paramf)
-    obs = zfit.Space('obs1', -1, 1)
+    obs = zfit.Space('obs1', -1, 5)
     pdf = paramdepfactory(obs, {'a': parama, 'b': paramb, 'c': paramc, 'd': paramd, 'e': parame, 'f': paramf, 'yield': yieldp})
     # yieldp = pdf.get_yield()
 
@@ -120,3 +123,45 @@ def test_nograd_params(paramdepfactory):
     assert set() == set(pdf.get_params(is_yield=True, autograd=False, floating=None, extract_independent=None))
     assert {paramc, paramfindep} == set(pdf.get_params(is_yield=None, autograd=False, floating=True, extract_independent=True))
     assert {paramd} == set(pdf.get_params(is_yield=None, autograd=False, floating=False, extract_independent=True))
+
+@pytest.mark.parametrize('lossfactory', [createbinnednll1, createnll1])
+def test_autograd_nogradparams_raises(lossfactory):
+    parama = zfit.Parameter("param_a", 1.)
+    paramb = zfit.Parameter("param_b", 2., floating=False)
+    yieldp = zfit.Parameter("yieldp", 1000.)
+    parameindep = zfit.Parameter("param_eindep", 6., floating=True)
+    pgrad = [parama, paramb,
+             yieldp, parameindep]
+    parame = zfit.ComposedParameter("param_e", lambda params: params[0] * params[1], params=[pgrad[0], parameindep])
+    paramc = zfit.Parameter("param_c", 0.4, floating=True)
+    paramd = zfit.Parameter("param_d", 5., floating=False)
+    paramfindep = zfit.Parameter("param_findep", 3., floating=True)
+    pnograd = [paramc, paramd,paramfindep]
+    paramf = zfit.ComposedParameter("param_f", lambda params: params[0] + params[1],
+                                       params=[pnograd[0], paramfindep])
+    obs = zfit.Space('obs1', -1, 5)
+    loss = lossfactory(obs, {'a': parama, 'b': paramb, 'c': paramc, 'd': paramd, 'e': parame, 'f': paramf, 'yield': yieldp})
+    value = loss.value()
+    assert not np.isnan(value), "Test is not valid if value is nan"
+    with pytest.raises(zfit.exception.AutogradNotSupported):
+        loss.gradient()
+    with pytest.raises(zfit.exception.AutogradNotSupported):
+        loss.gradient(params=pnograd)
+    with pytest.raises(zfit.exception.AutogradNotSupported):
+        loss.gradient(params=pnograd[0])
+    _ = loss.gradient(params=pnograd, numgrad=True)
+    _ = loss.gradient(numgrad=True)
+    gradient1 = loss.gradient(params=pgrad, numgrad=True)
+    gradient2 = loss.gradient(params=pgrad, numgrad=False)
+    assert np.allclose(gradient1, gradient2, rtol=1e-5, atol=1e-5)
+
+    hessian1 = loss.hessian(params=pgrad, numgrad=True)
+    hessian2 = loss.hessian(params=pgrad, numgrad=False)
+    np.testing.assert_allclose(hessian1, hessian2, atol=1e-4, rtol=1e10)
+
+    with pytest.raises(zfit.exception.AutogradNotSupported):
+        _ = loss.hessian(params=pnograd, numgrad=False)
+    hessian3 = loss.hessian(params=pnograd, numgrad=True)
+    assert not np.any(np.isnan(hessian3)), f"NaN in hessian: {hessian3}"
+    with pytest.raises(zfit.exception.AutogradNotSupported):
+        _ = loss.hessian(params=loss.get_params(), numgrad=False)
