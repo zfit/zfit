@@ -9,6 +9,7 @@ from functools import partial
 from typing import TYPE_CHECKING, Literal, Optional, Union
 
 import pydantic.v1 as pydantic
+import tensorflow_probability as tfp
 from pydantic.v1 import Field
 from tensorflow.python.util.deprecation import deprecated
 
@@ -67,6 +68,8 @@ def _unbinned_nll_tf(
     data: ztyping.DataInputType,
     fit_range: ZfitSpace,
     log_offset,
+    *,
+    kahan=None,
 ):
     """Return the unbinned negative log likelihood for a PDF.
 
@@ -89,12 +92,14 @@ def _unbinned_nll_tf(
 
     if is_container(model):
         nlls = [
-            _unbinned_nll_tf(model=p, data=d, fit_range=r, log_offset=log_offset)
+            _unbinned_nll_tf(model=p, data=d, fit_range=r, log_offset=log_offset, kahan=kahan)
             for p, d, r in zip(model, data, fit_range)
         ]
+        nlls, nlls_corr = [nll[0] for nll in nlls], [nll[1] for nll in nlls]
+        nll_corrs = znp.sum(nlls_corr, axis=0)
         nlls_summed = znp.sum(nlls, axis=0)
 
-        nll_finished = nlls_summed
+        nll_finished = nlls_summed, nll_corrs
     else:
         if fit_range is not None:
             data = data.with_obs(fit_range)
@@ -108,21 +113,25 @@ def _unbinned_nll_tf(
             log_probs=log_probs,
             weights=data.weights if data.weights is not None else None,
             log_offset=log_offset,
+            kahan=kahan,
         )
         nll_finished = nll
     return nll_finished
 
 
 @z.function(wraps="tensor", keepalive=True)
-def _nll_calc_unbinned_tf(log_probs, weights, log_offset):
+def _nll_calc_unbinned_tf(log_probs, weights, log_offset, kahan=False):
     """Calculate the negative log likelihood from the log probabilities."""
 
     if weights is not None:
         log_probs *= weights  # because it's prob ** weights
     if log_offset is not False:
         log_probs -= log_offset
-    return -znp.sum(log_probs, axis=0)
-    # nll = -tfp.math.reduce_kahan_sum(input_tensor=log_probs, axis=0)
+    if kahan:
+        nll, corr = tfp.math.reduce_kahan_sum(input_tensor=log_probs, axis=0)
+    else:
+        nll, corr = (znp.sum(log_probs, axis=0), tf.constant(0.0, dtype=log_probs.dtype))
+    return -nll, -corr
 
 
 def _constraint_check_convert(constraints):
@@ -256,18 +265,16 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         if options.pop("numgrad", None) is None:
             optionsclean["numgrad"] = settings.options["numerical_grad"]
 
-        if options.pop("kahansum", None) is None:
-            optionsclean["kahansum"] = nevents > 500_000  # start using kahan if we have more than 500k events
-
         if options.pop("subtr_const", None) is None:  # TODO: balance better?
-            # if nevents < 200_000:
-            #     subtr_const = True
-            # elif nevents < 1_000_000:
-            #     subtr_const = 'kahan'
             # else:
             #     subtr_const = 'elewise'
             subtr_const = True
             optionsclean["subtr_const"] = subtr_const
+
+        if options.pop("sumtype", None) is None:
+            # max, implement elewise?
+            sumtype = "kahan" if 200_000 < nevents < 1_000_000 * 1e20 else None
+            optionsclean["sumtype"] = sumtype
         # TODO: check if options are leftover
         # if options:
         #     raise ValueError(f"Unrecognized options: {options}")
@@ -1042,6 +1049,7 @@ class UnbinnedNLL(BaseUnbinnedNLL):
             fit_range=fit_range,
             constraints=constraints,
             log_offset=log_offset,
+            sumtype=self._options.get("sumtype"),
         )
 
     @property
@@ -1049,12 +1057,15 @@ class UnbinnedNLL(BaseUnbinnedNLL):
         return False
 
     @z.function(wraps="loss")
-    def _loss_func_watched(self, data, model, fit_range, constraints, log_offset):
-        nll = _unbinned_nll_tf(model=model, data=data, fit_range=fit_range, log_offset=log_offset)
+    def _loss_func_watched(self, data, model, fit_range, constraints, log_offset, sumtype=None):
+        kahan = sumtype == "kahan"
+        nll, nll_corr = _unbinned_nll_tf(
+            model=model, data=data, fit_range=fit_range, log_offset=log_offset, kahan=kahan
+        )
         if constraints:
             constraints = z.reduce_sum([c.value() for c in constraints])
             nll += constraints
-        return nll
+        return nll - nll_corr
 
     def _get_params(
         self,
@@ -1137,11 +1148,15 @@ class ExtendedUnbinnedNLL(BaseUnbinnedNLL):
         self._errordef = 0.5
 
     @z.function(wraps="loss")
-    def _loss_func(self, model, data, fit_range, constraints, log_offset):
-        nll = _unbinned_nll_tf(model=model, data=data, fit_range=fit_range, log_offset=log_offset)
+    def _loss_func(self, model, data, fit_range, constraints, log_offset, *, sumtype=None):
+        kahan = sumtype == "kahan"
+        nll, nll_corr = _unbinned_nll_tf(
+            model=model, data=data, fit_range=fit_range, log_offset=log_offset, kahan=kahan
+        )
         if constraints:
             constraints = z.reduce_sum([c.value() for c in constraints])
             nll += constraints
+
         yields = []
         nevents_collected = []
         for mod, dat in zip(model, data):
@@ -1160,7 +1175,7 @@ class ExtendedUnbinnedNLL(BaseUnbinnedNLL):
             log_offset = znp.asarray(log_offset, dtype=znp.float64)
             term_new += log_offset
         nll += znp.sum(term_new, axis=0)
-        return nll
+        return nll - nll_corr
 
     @property
     def is_extended(self):

@@ -31,6 +31,7 @@ Bug fixes and small changes
   An object with parameters can advertise, which parameters are differentiable (with ``autograd_params``); by default, all
   parameters are assumed to be differentiable, the same effect as ``True``. If autograd is performed on parameters that
   do not support it, an error is raised.
+- Use ``kanah`` sum for larger likelihoods by default to improve numerical stability
 
 
 Experimental
