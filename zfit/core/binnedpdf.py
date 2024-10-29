@@ -213,9 +213,6 @@ class BaseBinnedPDF(
         self.add_cache_deps(value)
         self._yield = value
 
-    def _get_dependencies(self) -> ztyping.DependentsType:
-        return super()._get_dependencies()
-
     def _get_params(
         self,
         floating: bool | None,

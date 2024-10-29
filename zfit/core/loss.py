@@ -457,11 +457,6 @@ class BaseLoss(ZfitLoss, BaseNumeric):
     def constraints(self):
         return self._constraints
 
-    def _get_dependencies(self):  # TODO: fix, add constraints
-        pdf_dependents = _extract_dependencies(self.model)
-        pdf_dependents |= _extract_dependencies(self.constraints)
-        return pdf_dependents
-
     @abc.abstractmethod
     def _loss_func(self, model, data, fit_range, constraints, log_offset):
         raise NotImplementedError
@@ -1364,9 +1359,6 @@ class SimpleLoss(BaseLoss):
 
             if not run.executing_eagerly():
                 raise z.DoNotCompile
-
-    def _get_dependencies(self):
-        return self._simple_func_params
 
     def _get_params(
         self,

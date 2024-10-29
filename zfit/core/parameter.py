@@ -56,7 +56,6 @@ from ..util.exception import (
 )
 from ..util.temporary import TemporarilySet
 from . import interfaces as zinterfaces
-from .dependents import _extract_dependencies
 from .interfaces import ZfitIndependentParameter, ZfitModel, ZfitParameter
 from .serialmixin import SerializableMixin
 
@@ -532,9 +531,6 @@ class Parameter(
             raise TypeError(msg)
         self._floating = value
 
-    def _get_dependencies(self):
-        return {self}
-
     @property
     def independent(self):
         return self._independent
@@ -844,9 +840,6 @@ class BaseComposedParameter(ZfitParameterMixin, OverloadableMixin, BaseParameter
         self._func = func
         self._dtype = dtype if dtype is not None else ztypes.float
 
-    def _get_dependencies(self):
-        return _extract_dependencies(list(self.params.values()))
-
     @property
     def floating(self):
         msg = "Cannot be floating or not. Look at the dependencies."
@@ -955,9 +948,6 @@ class ConstantParameter(OverloadableMixin, ZfitParameterMixin, BaseParameter, Se
     @property
     def independent(self) -> bool:
         return False
-
-    def _get_dependencies(self) -> ztyping.DependentsType:
-        return OrderedSet()
 
     @property
     def static_value(self):

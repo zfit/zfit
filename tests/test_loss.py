@@ -367,7 +367,6 @@ def test_simple_loss():
     loss = zfit.loss.SimpleLoss(func=loss_func, params=param_list)
     loss2 = zfit.loss.SimpleLoss(func=loss_func, params=truevals)
 
-    assert loss_deps.get_cache_deps() == set(param_list)
     assert set(loss_deps.get_params()) == set(param_list)
 
     loss_tensor = loss_func(param_list)

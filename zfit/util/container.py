@@ -53,7 +53,7 @@ def convert_to_container(
         raise TypeError(msg)
     if value is None and not convert_none:
         return value
-    if type(value) != container and non_containers is not False:
+    if type(value) is not container and non_containers is not False:
         import hist
 
         non_containers.extend(

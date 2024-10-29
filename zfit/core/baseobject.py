@@ -18,7 +18,6 @@ from ..util import ztyping
 from ..util.cache import GraphCachable
 from ..util.container import convert_to_container
 from ..util.exception import ParamNameNotUniqueError
-from .dependents import BaseDependentsMixin
 from .interfaces import (
     ZfitIndependentParameter,
     ZfitNumericParametrized,
@@ -239,7 +238,6 @@ class BaseParametrized(BaseObject, ZfitParametrized):
 
 class BaseNumeric(
     GraphCachable,
-    BaseDependentsMixin,
     BaseParametrized,
     ZfitNumericParametrized,
     BaseObject,

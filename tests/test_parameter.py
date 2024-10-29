@@ -49,7 +49,7 @@ def test_complex_param():
     mod_part_param = Parameter("mod_part_param", mod_val)
     arg_part_param = Parameter("arg_part_param", arg_val)
     param3 = ComplexParameter.from_polar("param3_compl", mod_part_param, arg_part_param)
-    part1, part2 = param3.get_cache_deps()
+    part1, part2 = param3.get_params()
     part1_val, part2_val = [part1.value(), part2.value()]
     if pytest.approx(mod_val) == part1_val:
         assert pytest.approx(arg_val) == part2_val
@@ -60,7 +60,7 @@ def test_complex_param():
 
     param4_name = "param4"
     param4 = ComplexParameter.from_polar(param4_name, 4.0, 2.0, floating=True)
-    deps_param4 = param4.get_cache_deps()
+    deps_param4 = param4.get_params()
     assert len(deps_param4) == 2
     for dep in deps_param4:
         assert dep.floating
@@ -125,9 +125,9 @@ def test_composed_param():
         params={f"p{i}": p for i, p in enumerate((param1, param2, param3))},
     )
     assert param_a2.params["p1"] == param2
-    assert isinstance(param_a.get_cache_deps(only_floating=True), OrderedSet)
-    assert param_a.get_cache_deps(only_floating=True) == {param1, param2}
-    assert param_a.get_cache_deps(only_floating=False) == {param1, param2, param3}
+    assert isinstance(param_a.get_params(floating=True), OrderedSet)
+    assert set(param_a.get_params(floating=True)) == {param1, param2}
+    assert set(param_a.get_params(floating=False)) == {param1, param2, param3}
     a_unchanged = func(param1, param2, param3)
     assert a_unchanged == param_a.value()
     param2.assign(3.5)
@@ -255,7 +255,7 @@ def test_fixed_param():
     assert isinstance(sigma, zfit.param.ConstantParameter)
     assert not sigma.floating
     assert not sigma.independent
-    assert sigma.get_cache_deps() == set()
+    assert set(sigma.get_params()) == set()
 
 
 def test_convert_to_parameters():

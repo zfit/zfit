@@ -47,7 +47,6 @@ from . import integration as zintegrate
 from . import sample as zsample
 from .baseobject import BaseNumeric
 from .data import Data, SamplerData, convert_to_data
-from .dependents import _extract_dependencies
 from .dimension import BaseDimensional
 from .interfaces import ZfitData, ZfitModel, ZfitParameter, ZfitSpace
 from .sample import UniformSampleAndWeights
@@ -1339,9 +1338,6 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             msg = "Function {} is not callable."
             raise TypeError(msg)
         return func
-
-    def _get_dependencies(self) -> ztyping.DependentsType:
-        return _extract_dependencies(self.get_params())
 
     def __add__(self, other):
         from . import operations
