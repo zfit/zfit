@@ -3,6 +3,7 @@ from contextlib import suppress
 
 import numpy as np
 import pytest
+import scipy.stats as spt
 import tensorflow as tf
 
 import zfit
@@ -14,6 +15,9 @@ from zfit.core.interfaces import ZfitData
 from zfit.core.parameter import Parameter
 from zfit.core.space import Space
 from zfit.models.dist_tfp import Gauss
+
+np.random.seed(42)
+tf.random.set_seed(42)
 
 limits1_5deps = [((1.0, -1.0, 2.0, 4.0, 3.0),), ((5.0, 4.0, 5.0, 8.0, 9.0),)]
 limits_simple_5deps = [((1.0, -1.0, -5.0, 3.4, 2.1),), ((5.0, 5.4, -1.1, 7.6, 3.5),)]
@@ -245,10 +249,38 @@ def func4_3deps_1_integrated(x, limits):
     return integral
 
 
+limits5 = [(tuple(np.zeros(8)),), (tuple(np.ones(8)),)]
+func5_mean, func5_sigma = 0.5, 0.01
+func5_prod_gauss_lst = []
+for i in range(1, 9):
+    func5_obs_i = zfit.Space(f"gauss_{i}", limits=(0, 1))
+    func5_mu_i = zfit.Parameter(f"mu_{i}", func5_mean)
+    func5_sigma_i = zfit.Parameter(f"sigma_{i}", func5_sigma)
+    func5_gauss_i = zfit.pdf.Gauss(obs=func5_obs_i, mu=func5_mu_i, sigma=func5_sigma_i)
+    func5_prod_gauss_lst.append(func5_gauss_i)
+func5_prod_gauss = zfit.pdf.ProductPDF(pdfs=func5_prod_gauss_lst[::-1])
+
+
+def func5_8deps(x):
+    return func5_prod_gauss.pdf(x)
+
+
+def func5_8deps_fully_integrated(limits, params=None, model=None):
+    lower, upper = limits.rect_limits
+    with suppress(TypeError):
+        lower, upper = lower[0], upper[0]
+
+    norm_dist = spt.norm(loc=func5_mean, scale=func5_sigma)
+    integral = 1
+    for i in range(8):
+        integral *= norm_dist.cdf(upper[i]) - norm_dist.cdf(lower[i])
+    return z.convert_to_tensor(integral)
+
+
 @pytest.mark.parametrize("chunksize", [10000000, 1000])
 @pytest.mark.parametrize("limits", [limits2, limits2_split])
 def test_mc_integration(chunksize, limits):
-    # simpel example
+    # simple example
     zfit.run.chunking.active = True
     zfit.run.chunking.max_n_points = chunksize
     num_integral = zintegrate.mc_integrate(
@@ -280,6 +312,60 @@ def test_mc_integration(chunksize, limits):
     assert pytest.approx(integral3, rel=0.03) == np.atleast_1d(func3_2deps_fully_integrated(
         Space(limits=limits3, axes=(0, 1))
     ))
+
+
+def test_mc_vf_integration():
+    # simple examples
+    num_integral = zintegrate.mc_vf_integrate(
+        func=func1_5deps,
+        limits=Space(limits=limits_simple_5deps, axes=tuple(range(5))),
+        n_iter=30,
+        n_events=int(2e7),
+    )
+    spaces_fromlist = [
+        Space(limits=limit, axes=tuple(range(1))) for limit in limits2_split
+    ]
+    space2_fromlist = spaces_fromlist[0] + spaces_fromlist[1]
+    num_integral2_fromlist = zintegrate.mc_vf_integrate(
+        func=func2_1deps, limits=space2_fromlist
+    )
+    space2_fromtuple = Space(limits=limits2, axes=tuple(range(1)))
+    num_integral2_fromtuple = zintegrate.mc_vf_integrate(
+        func=func2_1deps, limits=space2_fromtuple
+    )
+    num_integral3 = zintegrate.mc_vf_integrate(
+        func=func3_2deps, limits=Space(limits=limits3, axes=(0, 1))
+    )
+    num_integral5 = zintegrate.mc_vf_integrate(
+        func=func5_8deps, limits=Space(limits=limits5, axes=tuple(range(8)))
+    )
+
+    integral = num_integral.numpy()
+    integral2_fromlist = num_integral2_fromlist.numpy()
+    integral2_fromtuple = num_integral2_fromtuple.numpy()
+    integral3 = num_integral3.numpy()
+    integral5 = num_integral5.numpy()
+
+    assert integral.shape == (1,)
+    assert integral2_fromlist.shape == (1,)
+    assert integral2_fromtuple.shape == (1,)
+    assert integral3.shape == (1,)
+    assert integral5.shape == (1,)
+    assert func1_5deps_fully_integrated(limits_simple_5deps) == pytest.approx(
+        integral, rel=0.1
+    )
+    assert func2_1deps_fully_integrated(limits2) == pytest.approx(
+        integral2_fromlist, rel=1e-4
+    )
+    assert func2_1deps_fully_integrated(limits2) == pytest.approx(
+        integral2_fromtuple, rel=1e-4
+    )
+    assert func3_2deps_fully_integrated(
+        Space(limits=limits3, axes=(0, 1))
+    ).numpy() == pytest.approx(integral3, rel=1e-3)
+    assert func5_8deps_fully_integrated(
+        Space(limits=limits5, axes=tuple(range(8)))
+    ).numpy() == pytest.approx(integral5, rel=1e-4)
 
 
 @pytest.mark.flaky(2)
