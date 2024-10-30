@@ -6,7 +6,8 @@ coverage-lcov
 docformatter
 flake8>=3.5.0
 jax<=0.4.28  # we need to pin jax, otherwise jaxlib won't be compatible
-jaxlib<=0.4.28
+jaxlib
+jaxlib<=0.4.28  # yes, needed, both! Otherwise, it fails with "jaxlib" not in list...
 Jinja2
 jupyter-sphinx
 matplotlib  # docs, tests
