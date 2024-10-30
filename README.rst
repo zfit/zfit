@@ -100,7 +100,7 @@ Example in short
 ----------------
 .. code-block:: python
 
-    obs = zfit.Space('x', limits=(-10, 10))
+    obs = zfit.Space('x', -10, 10)
 
     # create the model
     mu    = zfit.Parameter("mu"   , 2.4, -1, 5)
@@ -109,17 +109,20 @@ Example in short
 
     # load the data
     data_np = np.random.normal(size=10000)
-    data = zfit.Data.from_numpy(obs=obs, array=data_np)
+    data = zfit.Data(obs=obs, data=data_np)
+    # or sample from model
+    data = gauss.sample()
 
     # build the loss
     nll = zfit.loss.UnbinnedNLL(model=gauss, data=data)
 
-    # minimize
+    # minimize (20+ interchangeable minimizers available!)
     minimizer = zfit.minimize.Minuit()
     result = minimizer.minimize(nll).update_params()
 
     # calculate errors
-    param_errors = result.hesse()
+    sym_errors = result.hesse()
+    asym_errors = result.errors()
 
 This follows the zfit workflow
 
@@ -137,7 +140,7 @@ The default space (e.g. normalization range) of a PDF is defined by an *observab
 
 .. code-block:: python
 
-    obs = zfit.Space('x', limits=(-10, 10))
+    obs = zfit.Space('x', -10, 10)
 
 
 To create a simple Gaussian PDF, we define its parameters and their limits using the ``zfit.Parameter`` class.
@@ -156,7 +159,7 @@ For simplicity, we create the dataset to be fitted starting from a numpy array, 
     mu_true = 0
     sigma_true = 1
     data_np = np.random.normal(mu_true, sigma_true, size=10000)
-    data = zfit.Data.from_numpy(obs=obs, array=data_np)
+    data = zfit.Data(obs=obs, data=data_np)
 
 Fits are performed in three steps:
 
@@ -175,19 +178,25 @@ Fits are performed in three steps:
     # Stage 3: minimise the given negative log-likelihood
     result = minimizer.minimize(nll).update_params()
 
-Errors are calculated with a further function call to avoid running potentially expensive operations if not needed:
+The ``.update_params()`` changes the default values of the parameters
+(*this is currently happen by default but won't anymore in the future*)
+
+Symmetric errors are calculated with a further function call to avoid running potentially expensive operations if not needed. Asymmetric errors using a
+profiling method can also be obtained:
 
 .. code-block:: python
 
-    param_errors = result.hesse()
+    sym_errors = result.hesse()
+    asym_errors = result.errors()
 
-Once we've performed the fit and obtained the corresponding uncertainties, we can examine the fit results:
+Once we've performed the fit and obtained the corresponding uncertainties, we can examine the fit results by printing it or looking at individual parts
 
 .. code-block:: python
+
+    print(result)  # nice representation of a whole result
 
     print("Function minimum:", result.fmin)
     print("Converged:", result.converged)
-    print("Full minimizer information:", result)
 
     # Information on all the parameters in the fit
     params = result.params
@@ -225,24 +234,6 @@ Prerequisites
 The main dependency is `tensorflow <https://www.tensorflow.org/>`_: zfit follows a close version compatibility with TensorFlow.
 
 For a full list of all dependencies, check the `requirements <requirements.txt>`_.
-
-Installing
-==========
-
-zfit is currently available on `PyPI <https://pypi.org/project/zfit/>`_ and `conda-forge <https://anaconda.org/conda-forge/zfit>`_.
-
-If possible, use a conda or virtual environment and do:
-
-.. code-block:: console
-
-    $ pip install zfit
-
-
-For the newest development version, you can install the version from git with
-
-.. code-block:: console
-
-   $ pip install git+https://github.com/zfit/zfit
 
 
 Contributing
