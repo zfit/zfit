@@ -598,7 +598,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
                 axes=limits.axes,
                 norm=norm,
                 model=self,
-                params=self.params,
+                params={k: znp.array(v) for k, v in self.params.items()},
             )
         except (SpecificFunctionNotImplemented, AnalyticIntegralNotImplemented):
             raise AnalyticIntegralNotImplemented from None
@@ -700,7 +700,9 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
 
     def _call_numeric_integrate(self, limits, norm, options):
         with suppress(FunctionNotImplemented):
-            return self._numeric_integrate(limits, norm, options=options, params=self.params)
+            return self._numeric_integrate(
+                limits, norm, options=options, params={k: znp.array(v) for k, v in self.params.items()}
+            )
         return self._fallback_numeric_integrate(limits=limits, norm=norm, options=options)
 
     def _fallback_numeric_integrate(self, limits, norm, options):
@@ -912,7 +914,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
                 axes=limits.axes,
                 norm=norm,
                 model=self,
-                params=self.params,
+                params={k: znp.array(v) for k, v in self.params.items()},
             )
         except (SpecificFunctionNotImplemented, AnalyticIntegralNotImplemented):
             raise AnalyticIntegralNotImplemented from None
@@ -1042,9 +1044,9 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         icdf = self._inverse_analytic_integral[0]
         params = inspect.signature(icdf).parameters
         if len(params) == 2:
-            return icdf(x=x, params=self.params)
+            return icdf(x=x, params={k: znp.array(v) for k, v in self.params.items()})
         elif len(params) == 3:
-            return icdf(x=x, params=self.params, model=self)
+            return icdf(x=x, params={k: znp.array(v) for k, v in self.params.items()}, model=self)
         else:
             msg = f"icdf function does not have the right signature: {icdf}"
             raise RuntimeError(msg)
