@@ -759,9 +759,9 @@ class ParameterSpec(VariableSpec):
         shape = parameter.shape
         dtype = parameter.dtype
         trainable = True
-        alias_id = None
+        alias_id = hash(parameter)
         self.parameter_value = parameter
-        self._name = parameter.name
+        # self._name = parameter.name  # TODO: not needed anymore?
         self.parameter_type = type(parameter)
         if dtype is None:
             dtype = tf.float64
@@ -776,8 +776,7 @@ class ParameterSpec(VariableSpec):
         return super()._to_components(value)
 
     def _from_components(self, components):
-        _ = super()._from_components(components)  # checking that there is no error
-        return Parameter._from_name(self.name)
+        return super()._from_components(components)  # checking that there is no error
 
     def _to_tensors(self, value):
         return [value]
@@ -793,7 +792,7 @@ class ParameterSpec(VariableSpec):
         return self if all(self == other for other in others) else None
 
     def placeholder_value(self, placeholder_context=None):
-        del placeholder_context  # unused
+        del placeholder_context  # unused, because it's not understood
         return self.parameter_value
 
     def is_compatible_with(self, spec_or_value):
