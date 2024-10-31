@@ -52,12 +52,12 @@ verbosity = None
 
 def make_min_grad_hesse():
     minimizers = [
-        zfit.minimize.ScipyTruncNCV1,
-        # zfit.minimize.ScipyTrustNCGV1,  # Too bad
-        # zfit.minimize.ScipyTrustKrylovV1,  # Too bad
-        zfit.minimize.ScipySLSQPV1,
-        zfit.minimize.ScipyLBFGSBV1,
-        zfit.minimize.ScipyTrustConstrV1,
+        zfit.minimize.ScipyTruncNC,
+        zfit.minimize.ScipyTrustNCG,  # Too bad
+        zfit.minimize.ScipyTrustKrylov,  # Too bad
+        zfit.minimize.ScipySLSQP,
+        zfit.minimize.ScipyLBFGSB,
+        zfit.minimize.ScipyTrustConstr,
     ]
     min_options = []
     for opt in minimizers:
@@ -134,40 +134,40 @@ minimizers = [
     # TensorFlow Probability minimizer
     # (BFGS, {}, True),  # doesn't work as it uses the graph, violates assumption in minimizer
     # SciPy Minimizer
-    # (  # TODO: reactivate. Not working, completely overshooting estimates. Maybe normalize variables?
-    # zfit.minimize.ScipyLBFGSBV1,
-    # {"verbosity": verbosity},
-    # {"error": True, "numgrad": False, "approx": True},
-    # ),
+    (  # TODO: reactivate. Not working, completely overshooting estimates. Maybe normalize variables?
+    zfit.minimize.ScipyLBFGSB,
+    {"verbosity": verbosity},
+    {"error": True, "numgrad": False, "approx": True},
+    ),
     (zfit.minimize.ScipyBFGS, {"verbosity": verbosity}, {"error": do_errors_most}),
-    # (zfit.minimize.ScipyTrustNCGV1, {'tol': 1e-5, "verbosity": verbosity}, True),
-    # (zfit.minimize.ScipyTrustKrylovV1, {"verbosity": verbosity}, True),  # Too unstable
+    (zfit.minimize.ScipyTrustNCG, {'tol': 1e-5, "verbosity": verbosity}, True),
+    (zfit.minimize.ScipyTrustKrylov, {"verbosity": verbosity}, True),  # Too unstable
     (
-        zfit.minimize.ScipyTrustConstrV1,
+        zfit.minimize.ScipyTrustConstr,
         {
             "verbosity": verbosity,
         },
         {"error": True, "longtests": bool(zfit.run.get_graph_mode())},
     ),
     (
-        zfit.minimize.ScipyPowellV1,
+        zfit.minimize.ScipyPowell,
         {
             "verbosity": verbosity,
         },
         {"error": do_errors_most},
     ),
     (
-        zfit.minimize.ScipySLSQPV1,
+        zfit.minimize.ScipySLSQP,
         {
             "verbosity": verbosity,
         },
         {"error": do_errors_most},
     ),
-    # (zfit.minimize.ScipyCOBYLAV1, {"verbosity": verbosity, }, {'error': do_errors_most}),  # Too bad
-    # (zfit.minimize.ScipyDoglegV1, {'tol': 1e-5, "verbosity": verbosity}, do_errors_most),  # works badly
-    # (zfit.minimize.ScipyNewtonCGV1, {"verbosity":verbosity,}, {'error': do_errors_most}),  # Too sensitive? Fails in line-search?
+    (zfit.minimize.ScipyCOBYLA, {"verbosity": verbosity, }, {'error': do_errors_most}),  # Too bad
+    (zfit.minimize.ScipyDogleg, {'tol': 1e-5, "verbosity": verbosity}, do_errors_most),  # works badly
+    (zfit.minimize.ScipyNewtonCG, {"verbosity":verbosity, }, {'error': do_errors_most}),  # Too sensitive? Fails in line-search?
     (
-        zfit.minimize.ScipyTruncNCV1,
+        zfit.minimize.ScipyTruncNC,
         {
             "verbosity": verbosity,
         },
@@ -177,91 +177,91 @@ minimizers = [
 # NLopt minimizer
 nlopt_minimizers = [
     (
-        zfit.minimize.NLoptLBFGSV1,
+        zfit.minimize.NLoptLBFGS,
         {
             "verbosity": verbosity,
         },
         {"error": True, "longtests": bool(zfit.run.get_graph_mode())},
     ),
     (
-        zfit.minimize.NLoptTruncNewtonV1,
+        zfit.minimize.NLoptTruncNewton,
         {
             "verbosity": verbosity,
         },
         {"error": do_errors_most},
     ),
     (
-        zfit.minimize.NLoptSLSQPV1,
+        zfit.minimize.NLoptSLSQP,
         {
             "verbosity": verbosity,
         },
         {"error": do_errors_most},
     ),
     (
-        zfit.minimize.NLoptMMAV1,
+        zfit.minimize.NLoptMMA,
         {
             "verbosity": verbosity,
         },
         {"error": do_errors_most},
     ),
     (
-        zfit.minimize.NLoptCCSAQV1,
+        zfit.minimize.NLoptCCSAQ,
         {
             "verbosity": verbosity,
         },
         {"error": do_errors_most},
     ),
     (
-        zfit.minimize.NLoptSubplexV1,
+        zfit.minimize.NLoptSubplex,
         {
             "verbosity": verbosity,
         },
         {"error": do_errors_most},
     ),
     (
-        zfit.minimize.NLoptCOBYLAV1,
+        zfit.minimize.NLoptCOBYLA,
         {
             "verbosity": verbosity,
         },
         {"error": do_errors_most},
     ),
     (
-        zfit.minimize.NLoptMLSLV1,
+        zfit.minimize.NLoptMLSL,
         {
             "verbosity": verbosity,
         },
         {"error": do_errors_most},
     ),
     (
-        zfit.minimize.NLoptStoGOV1,
+        zfit.minimize.NLoptStoGO,
         {
             "verbosity": verbosity,
         },
         {"error": do_errors_most},
     ),
     (
-        zfit.minimize.NLoptBOBYQAV1,
+        zfit.minimize.NLoptBOBYQA,
         {
             "verbosity": verbosity,
         },
         {"error": do_errors_most},
     ),
     (
-        zfit.minimize.NLoptISRESV1,
+        zfit.minimize.NLoptISRES,
         {
             "verbosity": verbosity,
         },
         {"error": do_errors_most},
     ),
     (
-        zfit.minimize.NLoptESCHV1,
+        zfit.minimize.NLoptESCH,
         {
             "verbosity": verbosity,
         },
         {"error": do_errors_most},
     ),
     (
-        zfit.minimize.NLoptShiftVarV1,
+        zfit.minimize.NLoptShiftVar,
         {
             "verbosity": verbosity,
         },
@@ -275,11 +275,11 @@ if platform.system() not in ("Darwin",):
 
 
 minimizers_small = [
-    (zfit.minimize.ScipyTrustConstrV1, {}, True),
+    (zfit.minimize.ScipyTrustConstr, {}, True),
     (zfit.minimize.Minuit, {}, True),
 ]
 if sys.version_info[1] < 12 and platform.system() not in ("Darwin",):
-    minimizers_small.append((zfit.minimize.NLoptLBFGSV1, {}, True))
+    minimizers_small.append((zfit.minimize.NLoptLBFGS, {}, True))
 if (
         platform.system()
         not in (
@@ -289,10 +289,10 @@ if (
         and sys.version_info[1] < 12
 ):  # TODO: Ipyopt installation on macosx not working
     # TODO: ipyopt fails? Why
-    minimizers_small.append((zfit.minimize.IpyoptV1, {}, False))
+    minimizers_small.append((zfit.minimize.Ipyopt, {}, False))
     minimizers.append(
         (
-            zfit.minimize.IpyoptV1,
+            zfit.minimize.Ipyopt,
             {"verbosity": verbosity},
             {"error": True, "longtests": True},
         )
@@ -498,7 +498,7 @@ def test_minimizers(minimizer_class_and_kwargs, chunksize, numgrad, spaces, requ
         assert true_min + max_distance_to_min >= found_min
 
         assert pytest.approx(result.fminopt, abs=2.0) == result_lowtol.fminopt
-        if not isinstance(minimizer, zfit.minimize.IpyoptV1):
+        if not isinstance(minimizer, zfit.minimize.Ipyopt):
             assert (
                     result_lowtol.info["n_eval"]
                     < 1.2 * result.info["n_eval"] + 10  # +10 if it's very small, it's hard
@@ -525,9 +525,9 @@ def test_minimizers(minimizer_class_and_kwargs, chunksize, numgrad, spaces, requ
                         minimizer,
                         (
                                 Minuit,
-                                zfit.minimize.ScipyLBFGSBV1,
-                                zfit.minimize.ScipyNewtonCGV1,
-                                zfit.minimize.ScipyTruncNCV1,
+                                zfit.minimize.ScipyLBFGSB,
+                                zfit.minimize.ScipyNewtonCG,
+                                zfit.minimize.ScipyTruncNC,
                         ),
                 ):
                     hesse_methods.append("approx")

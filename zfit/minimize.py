@@ -3,73 +3,112 @@ from __future__ import annotations
 
 from .minimizers.baseminimizer import (
     BaseMinimizer,
-    BaseMinimizerV1,
     DefaultStrategy,
     minimize_supports,
 )
-from .minimizers.ipopt import IpyoptV1
+from .minimizers.ipopt import Ipyopt
 from .minimizers.minimizer_minuit import Minuit
 from .minimizers.minimizer_nlopt import (
-    NLoptBaseMinimizerV1,
-    NLoptBOBYQAV1,
-    NLoptCCSAQV1,
-    NLoptCOBYLAV1,
-    NLoptESCHV1,
-    NLoptISRESV1,
-    NLoptLBFGSV1,
-    NLoptMLSLV1,
-    NLoptMMAV1,
-    NLoptShiftVarV1,
-    NLoptSLSQPV1,
-    NLoptStoGOV1,
-    NLoptSubplexV1,
-    NLoptTruncNewtonV1,
+    NLoptBaseMinimizer,
+    NLoptBOBYQA,
+    NLoptCCSAQ,
+    NLoptCOBYLA,
+    NLoptESCH,
+    NLoptISRES,
+    NLoptLBFGS,
+    NLoptMLSL,
+    NLoptMMA,
+    NLoptShiftVar,
+    NLoptSLSQP,
+    NLoptStoGO,
+    NLoptSubplex,
+    NLoptTruncNewton,
 )
 from .minimizers.minimizers_scipy import (
-    ScipyBaseMinimizerV1,
+    ScipyBaseMinimizer,
     ScipyBFGS,
-    ScipyLBFGSBV1,
-    ScipyNelderMeadV1,
-    ScipyNewtonCGV1,
-    ScipyPowellV1,
-    ScipySLSQPV1,
-    ScipyTruncNCV1,
-    ScipyTrustConstrV1,
+    ScipyCOBYLA,
+    ScipyDogleg,
+    ScipyLBFGSB,
+    ScipyNelderMead,
+    ScipyNewtonCG,
+    ScipyPowell,
+    ScipySLSQP,
+    ScipyTruncNC,
+    ScipyTrustConstr,
+    ScipyTrustKrylov,
+    ScipyTrustNCG,
 )
 from .minimizers.optimizers_tf import Adam, WrapOptimizer
 from .minimizers.strategy import DefaultToyStrategy, PushbackStrategy
 from .minimizers.termination import EDM
 
+ScipyTrustConstrV1 = ScipyTrustConstr
+ScipyTrustNCGV1 = ScipyTrustNCG
+ScipyTrustKrylovV1 = ScipyTrustKrylov
+ScipyDoglegV1 = ScipyDogleg
+ScipyCOBYLAV1 = ScipyCOBYLA
+ScipyLBFGSBV1 = ScipyLBFGSB
+ScipyPowellV1 = ScipyPowell
+ScipySLSQPV1 = ScipySLSQP
+ScipyNewtonCGV1 = ScipyNewtonCG
+ScipyTruncNCV1 = ScipyTruncNC
+ScipyNelderMeadV1 = ScipyNelderMead
+NLoptLBFGSV1 = NLoptLBFGS
+NLoptTruncNewtonV1 = NLoptTruncNewton
+NLoptSLSQPV1 = NLoptSLSQP
+NLoptMMAV1 = NLoptMMA
+NLoptCCSAQV1 = NLoptCCSAQ
+NLoptShiftVarV1 = NLoptShiftVar
+NLoptMLSLV1 = NLoptMLSL
+NLoptStoGOV1 = NLoptStoGO
+NLoptESCHV1 = NLoptESCH
+NLoptISRESV1 = NLoptISRES
+NLoptSubplexV1 = NLoptSubplex
+NLoptBOBYQAV1 = NLoptBOBYQA
+NLoptCOBYLAV1 = NLoptCOBYLA
+IpyoptV1 = Ipyopt
+ScipyBaseMinimizerV1 = ScipyBaseMinimizer
+NLoptBaseMinimizerV1 = NLoptBaseMinimizer
+
+BaseMinimizerV1 = BaseMinimizer
+
+
 __all__ = [
+    # temp added
+    "ScipyDogleg",
+    "ScipyCOBYLA",
+    "ScipyTrustNCG",
+    "ScipyTrustKrylov",
+    # temp added end
     "WrapOptimizer",
     "Adam",
     "Minuit",
-    "ScipyBaseMinimizerV1",
-    "ScipyLBFGSBV1",
-    "ScipyTrustConstrV1",
-    "ScipyPowellV1",
-    "ScipySLSQPV1",
-    "ScipyNewtonCGV1",
-    "ScipyTruncNCV1",
-    "ScipyNelderMeadV1",
+    "ScipyBaseMinimizer",
+    "ScipyLBFGSB",
+    "ScipyTrustConstr",
+    "ScipyPowell",
+    "ScipySLSQP",
+    "ScipyNewtonCG",
+    "ScipyTruncNC",
+    "ScipyNelderMead",
     "ScipyBFGS",
-    "NLoptBaseMinimizerV1",
-    "NLoptLBFGSV1",
-    "NLoptTruncNewtonV1",
-    "NLoptSLSQPV1",
-    "NLoptMMAV1",
-    "NLoptCCSAQV1",
-    "NLoptShiftVarV1",
-    "NLoptMLSLV1",
-    "NLoptStoGOV1",
-    "NLoptESCHV1",
-    "NLoptISRESV1",
-    "NLoptSubplexV1",
-    "NLoptBOBYQAV1",
-    "NLoptCOBYLAV1",
-    "IpyoptV1",
+    "NLoptBaseMinimizer",
+    "NLoptLBFGS",
+    "NLoptTruncNewton",
+    "NLoptSLSQP",
+    "NLoptMMA",
+    "NLoptCCSAQ",
+    "NLoptShiftVar",
+    "NLoptMLSL",
+    "NLoptStoGO",
+    "NLoptESCH",
+    "NLoptISRES",
+    "NLoptSubplex",
+    "NLoptBOBYQA",
+    "NLoptCOBYLA",
+    "Ipyopt",
     "BaseMinimizer",
-    "BaseMinimizerV1",
     "minimize_supports",
     "DefaultStrategy",
     "DefaultToyStrategy",

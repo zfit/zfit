@@ -207,7 +207,7 @@ def test_set_values_fitresult(do_pickle, weights, extended, fitres_creator):
 
 
 minimizers = [
-    (zfit.minimize.ScipyTrustConstrV1, {}, True),
+    (zfit.minimize.ScipyTrustConstr, {}, True),
     (zfit.minimize.Minuit, {}, True),
 ]
 
@@ -215,10 +215,10 @@ minimizers = [
 if (platf := platform.system()) not in ("Darwin",):
     # TODO: Ipyopt installation on macosx not working
     minimizers.append(
-        (zfit.minimize.NLoptLBFGSV1, {}, True),
+        (zfit.minimize.NLoptLBFGS, {}, True),
     )
     if platf not in ("Windows",):
-        minimizers.append((zfit.minimize.IpyoptV1, {}, False))
+        minimizers.append((zfit.minimize.Ipyopt, {}, False))
 # sort for xdist: https://github.com/pytest-dev/pytest-xdist/issues/432
 minimizers = sorted(minimizers, key=lambda val: repr(val))
 
@@ -235,7 +235,7 @@ def test_freeze(minimizer_class_and_kwargs, dill, weights, extended):
     )["result"]
 
     if dill:
-        if isinstance(result.minimizer, zfit.minimize.IpyoptV1):
+        if isinstance(result.minimizer, zfit.minimize.Ipyopt):
             with pytest.raises(zfit.exception.IpyoptPicklingError):
                 _ = zfit.dill.loads(zfit.dill.dumps(result))
             pytest.skip("Ipyopt cannot be pickled")
@@ -480,7 +480,7 @@ def test_new_minimum(minimizer_class_and_kwargs):
 
     minimizer_class, minimizer_kwargs, test_error = minimizer_class_and_kwargs
     minimizer = minimizer_class(**minimizer_kwargs)
-    if isinstance(minimizer, zfit.minimize.NLoptLBFGSV1):
+    if isinstance(minimizer, zfit.minimize.NLoptLBFGS):
         return  # TODO: fix this, nlopt lbfgs cannot find the minimum when starting so close...
     a_param, b_param, c_param = params
 

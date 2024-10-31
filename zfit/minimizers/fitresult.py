@@ -518,7 +518,7 @@ class FitResult(ZfitResult):
         loss: ZfitLoss,
         params: Iterable[ZfitParameter],
         problem: ipyopt.Problem,
-        minimizer: zfit.minimize.IpyoptV1,
+        minimizer: zfit.minimize.Ipyopt,
         valid: bool,
         values: np.ndarray,
         message: str | None,
@@ -802,7 +802,7 @@ class FitResult(ZfitResult):
         """
         result_values = result["x"]
         if niter is None:
-            niter = result.get("nit")
+            niter = result.get("nit", 0)
 
         converged = result.get("success", valid)
         status = result["status"]
@@ -1182,8 +1182,8 @@ class FitResult(ZfitResult):
                 raise ValueError(msg)
             name = "hesse"
 
-        with self._input_check_reset_params(params) as params:
-            uncached_params = self._check_get_uncached_params(params=params, method_name=name, cl=cl)
+        with self._input_check_reset_params(params) as checkedparams:
+            uncached_params = self._check_get_uncached_params(params=checkedparams, method_name=name, cl=cl)
             if uncached_params:
                 error_dict = self._hesse(params=uncached_params, method=method, cl=cl)
                 if any(val["error"] is None for val in error_dict.values()):
@@ -1195,10 +1195,10 @@ class FitResult(ZfitResult):
             else:
                 error_dict = {}
 
-        error_dict.update({p: self.params[p][name] for p in params if p not in uncached_params})
+        error_dict.update({p: self.params[p][name] for p in checkedparams if p not in uncached_params})
         if name_warning_triggered:
-            error_dict.update({p: self.params[p][method] for p in params if p not in uncached_params})
-        return {p: error_dict[p] for p in params}
+            error_dict.update({p: self.params[p][method] for p in checkedparams if p not in uncached_params})
+        return {p: error_dict[p] for p in checkedparams}
 
     def _cache_errors(self, name, errors):
         for param, error in errors.items():
@@ -1368,15 +1368,14 @@ class FitResult(ZfitResult):
             method = self._default_hesse
 
         if method not in self._covariance_dict:
-            with self._input_check_reset_params(params) as params:
+            with self._input_check_reset_params(params) as checkedparams:
                 self._covariance_dict[method] = self._covariance(method=method)
 
-        params = self._input_check_params(params)
-        covariance = {k: self._covariance_dict[method].get(k) for k in itertools.product(params, params)}
+        covariance = {k: self._covariance_dict[method].get(k) for k in itertools.product(checkedparams, checkedparams)}
 
         if as_dict:
             return covariance
-        return dict_to_matrix(params, covariance)
+        return dict_to_matrix(checkedparams, covariance)
 
     def _covariance(self, method):
         if not callable(method):

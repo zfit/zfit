@@ -267,6 +267,7 @@ create_zfit_nll = CachedNLLConstructor()
         # True
     ], ids=lambda x: "eager" if x else "graph"
 )
+@pytest.mark.flaky(reruns=1)
 def test_hypotest(benchmark, n_bins, hypotest, eager):
     """Benchmark the performance of pyhf.utils.hypotest() for various numbers of bins and different backends.
 
@@ -330,29 +331,29 @@ def test_hypotest(benchmark, n_bins, hypotest, eager):
                 minimizer = zfit.minimize.Minuit(tol=1e-3, gradient=False, mode=2, verbosity=7)
             elif minimizer == "nloptmma":
                 nlopt = pytest.importorskip("nlopt")
-                minimizer = zfit.minimize.NLoptMMAV1(tol=1e-3, verbosity=7)
+                minimizer = zfit.minimize.NLoptMMA(tol=1e-3, verbosity=7)
             elif minimizer == "nloptlbfgs":
                 nlopt = pytest.importorskip("nlopt")
-                minimizer = zfit.minimize.NLoptLBFGSV1(verbosity=7)
+                minimizer = zfit.minimize.NLoptLBFGS(verbosity=7)
             elif minimizer == "scipylbfgs":
-                minimizer = zfit.minimize.ScipyLBFGSBV1(verbosity=7)
+                minimizer = zfit.minimize.ScipyLBFGSB(verbosity=7)
             elif minimizer == "scipytrustconstr":
-                minimizer = zfit.minimize.ScipyTrustConstrV1(verbosity=7)
+                minimizer = zfit.minimize.ScipyTrustConstr(verbosity=7)
             elif minimizer == "ipopt":
                 ipyopt = pytest.importorskip("ipyopt")
-                minimizer = zfit.minimize.IpyoptV1(verbosity=7)
+                minimizer = zfit.minimize.Ipyopt(verbosity=7)
             elif minimizer == "lm":
                 minimizer = zfit.minimize.LevenbergMarquardt(verbosity=7)
             elif minimizer == "newtoncg":
-                minimizer = zfit.minimize.ScipyNewtonCGV1(verbosity=7)
+                minimizer = zfit.minimize.ScipyNewtonCG(verbosity=7)
             elif minimizer == "truncnc":
-                minimizer = zfit.minimize.ScipyTruncNCV1(verbosity=7)
+                minimizer = zfit.minimize.ScipyTruncNC(verbosity=7)
             elif minimizer == "nlopttruncnc":
                 _ = pytest.importorskip("nlopt")
-                minimizer = zfit.minimize.NLoptTruncNewtonV1(verbosity=7)
+                minimizer = zfit.minimize.NLoptTruncNewton(verbosity=7)
             elif minimizer == "shiftvar":
                 _ = pytest.importorskip("nlopt")
-                minimizer = zfit.minimize.NLoptShiftVarV1(verbosity=7)
+                minimizer = zfit.minimize.NLoptShiftVar(verbosity=7)
 
             start = time.time()
             # print(f"Running {hypotest_orig} with {minimizer}, {n_bins} bins, evaluating nll")
