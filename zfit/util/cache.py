@@ -57,6 +57,7 @@ import typing
 import weakref
 from abc import abstractmethod
 from collections.abc import Iterable
+from contextlib import suppress
 from itertools import zip_longest
 
 import numpy as np
@@ -388,7 +389,8 @@ def clear_graph_cache(*, call_gc=None):
     for registry in FunctionWrapperRegistry.registries:
         for wrapped_meth in registry.function_cache:
             wrapped_meth = wrapped_meth.wrapped_func
-            wrapped_meth._variable_creation_config.function_cache.clear()
+            with suppress(AttributeError):
+                wrapped_meth._variable_creation_config.function_cache.clear()
             wrapped_meth._concrete_variable_creation_fn = None
             wrapped_meth._created_variables = None
             wrapped_meth._stateful_fn = None

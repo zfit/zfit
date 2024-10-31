@@ -5,8 +5,9 @@ coverage-lcov
 # coverage-lcov  # reactivate once https://github.com/TheCleric/coverage-lcov/issues/6 resolved (remove it CI)
 docformatter
 flake8>=3.5.0
-jax
+jax<=0.4.28  # we need to pin jax, otherwise jaxlib won't be compatible
 jaxlib
+jaxlib<=0.4.28  # yes, needed, both! Otherwise, it fails with "jaxlib" not in list...
 Jinja2
 jupyter-sphinx
 matplotlib  # docs, tests

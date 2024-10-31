@@ -206,7 +206,7 @@ class FunctionWrapperRegistry:
         if stateless_args is None:
             stateless_args = False
         if keepalive is None:
-            keepalive = False
+            keepalive = True
         self._initial_user_kwargs = kwargs_user
         self._deleted_cachers = collections.Counter()
 
@@ -328,7 +328,16 @@ class FunctionWrapperRegistry:
                 func_to_run = function_holder.execute_func
 
             try:
-                result = func_to_run(*args, **kwargs)
+                try:
+                    result = func_to_run(*args, **kwargs)
+                except KeyError as error:
+                    warnings.warn(
+                        f"An error occurred while running a jitted function. The error was: {error}."
+                        f" The function will be recompiled",
+                        RuntimeWarning,
+                        stacklevel=3,
+                    )
+                    result = func_to_run(*args, **kwargs)
             except DoNotCompile:
                 function_holder.do_jit = False
                 if not run.executing_eagerly():

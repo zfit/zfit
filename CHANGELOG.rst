@@ -32,6 +32,8 @@ Bug fixes and small changes
   parameters are assumed to be differentiable, the same effect as ``True``. If autograd is performed on parameters that
   do not support it, an error is raised.
 - Use ``kanah`` sum for larger likelihoods by default to improve numerical stability
+- Using the same ``zfit.Parameter`` for multiple arguments (i.e. to specify a common width in a PDF with a different width
+  for left and right) could cause a crash due to some internal caching. This is now fixed.
 
 
 Experimental
