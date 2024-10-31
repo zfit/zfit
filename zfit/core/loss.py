@@ -55,7 +55,7 @@ from ..z.math import (
 )
 from .baseobject import BaseNumeric, extract_filter_params
 from .constraint import BaseConstraint
-from .interfaces import ZfitBinnedData, ZfitData, ZfitLoss, ZfitParameter, ZfitPDF, ZfitSpace
+from .interfaces import ZfitBinnedData, ZfitData, ZfitIndependentParameter, ZfitLoss, ZfitParameter, ZfitPDF, ZfitSpace
 from .parameter import convert_to_parameters, set_values
 
 DEFAULT_FULL_ARG = True
@@ -309,6 +309,15 @@ class BaseLoss(ZfitLoss, BaseNumeric):
                 for constraint in self.constraints
             )
         )
+
+    def _check_set_input_params(self, params, guarantee_checked=None):
+        if isinstance(params, Iterable) and not isinstance(params, Mapping):
+            all_params = self.get_params(floating=None, extract_independent=True, is_yield=None)
+            if len(params) != len(all_params):
+                msg = "Length of params does not match the length of all parameters or provide a Mapping."
+                raise ValueError(msg)
+            params = dict(zip(all_params, params))
+        return super()._check_set_input_params(params, guarantee_checked)
 
     def _input_check(self, pdf, data, fit_range):
         if isinstance(pdf, tuple):
@@ -1442,8 +1451,27 @@ class SimpleLoss(BaseLoss):
             # else:
             #     scale = znp.asarray(scaleouter)
             #     full = True
+            if not isinstance(params, Mapping):
+                if isinstance(params, Iterable):
+                    if all(isinstance(p, ZfitIndependentParameter) for p in params):
+                        params = {p.name: p for p in params}
+                else:
+                    msg = f"The parameters have to be either a mapping or an iterable, not {params}."
+                    raise ValueError(msg)
 
-            return self.value(params=params, full=full) + scaleouter * other.value(params=params, full=full)
+            selfnames = [p.name for p in self.get_params(floating=None, is_yield=None, extract_independent=True)]
+            othernames = [p.name for p in other.get_params(floating=None, is_yield=None, extract_independent=True)]
+            if isinstance(params, Mapping):
+                paramsself = {name: p for name, p in params if name in selfnames}
+                paramsother = {name: p for name, p in params.items() if name in othernames}
+            elif len(params) == len(selfnames) + len(othernames):
+                paramsself = dict(zip(selfnames, params[: len(selfnames)]))
+                paramsother = dict(zip(othernames, params[len(selfnames) :]))
+            else:
+                msg = "The parameters do not match the sum of the parameters of the two losses."
+                raise ValueError(msg)
+
+            return self.value(params=paramsself, full=full) + scaleouter * other.value(params=paramsother, full=full)
 
         # Not that easy to combine, overlap etc
         # def gradient(params, *, numgrad=None):
