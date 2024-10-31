@@ -766,7 +766,7 @@ class ParameterSpec(VariableSpec):
         if dtype is None:
             dtype = tf.float64
         super().__init__(shape=shape, dtype=dtype, trainable=trainable, alias_id=alias_id)
-        self.hash = hash(id(parameter))
+        self.hash = hash(parameter)
 
     @classmethod
     def from_value(cls, value):

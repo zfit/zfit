@@ -208,9 +208,7 @@ def generalized_crystalball_mu_integral(limits, params, model):
     )
 
 
-@z.function(
-    wraps="tensor"
-)  # TODO: this errors, for whatever reason, when running example/signal_bkg_mass_extended_fit_binned.py
+@z.function(wraps="tensor")
 def generalized_crystalball_mu_integral_func(mu, sigmal, alphal, nl, sigmar, alphar, nr, lower, upper):
     # mu_broadcast =
     upper_of_lowerint = znp.minimum(mu, upper)

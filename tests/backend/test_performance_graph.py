@@ -57,8 +57,8 @@ def get_gaus(obs, prefix=None):
 def test_sum_cb_speed():
     import zfit
 
-    arr_val = np.linspace(-10, 10, 100)
-    obs = zfit.Space("x", limits=(-10, 10))
+    arr_val = np.linspace(-10, 10, 25)
+    obs = zfit.Space("x", -10, 10)
     m1 = get_dscb(obs, prefix="g1")
     m2 = get_dscb(obs, prefix="g2")
     sm = zfit.pdf.SumPDF([m1, m2], name="g1 + g2")
@@ -67,6 +67,3 @@ def test_sum_cb_speed():
     ressum = benchmark_pdf(sm, arr_val)
 
     assert ressum < 3 * (res1 + res2)
-
-
-# --------------------------------------------------

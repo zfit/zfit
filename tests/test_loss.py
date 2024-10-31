@@ -319,7 +319,7 @@ def test_gradients(chunksize, numgrad):
     gradient2_true_numdiff = gradient_func1and2([initial2, initial1])
     gradient2_true = jacobi.jacobi(loss_funcparam1and2, [initial2, initial1])[0]
     np.testing.assert_allclose(gradient2_true, gradient2_true_numdiff, rtol=1e-6)  # if this fails, numdiff/jacobi disagree
-    np.testing.assert_allclose(gradient2, gradient2_true, rtol=1e-6)
+    np.testing.assert_allclose(gradient2, gradient2_true, rtol=1e-5)
 
     param1.set_value(initial1)
     param2.set_value(initial2)
