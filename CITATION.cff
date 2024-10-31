@@ -2,6 +2,7 @@
 # Visit https://bit.ly/cffinit to generate yours today!
 
 cff-version: 1.2.0
+
 title: zfit
 message: >-
   If you use this software, please cite it using the
@@ -28,10 +29,12 @@ authors:
     family-names: Marinangeli
     email: matthieu.marinangeli@gmail.com
     orcid: 'https://orcid.org/0000-0002-8361-9356'
-identifiers:
-  - type: doi
-    value: 10.1016/j.softx.2020.100508
-    description: Paper
+  - given-names: Iason Krommydas
+    email: ik23@rice.edu
+    orcid: https://orcid.org/0000-0001-7849-8863
+
+doi: 10.5281/zenodo.2602042
+type: software
 repository-code: 'https://github.com/zfit/zfit'
 url: 'https://zfit.readthedocs.io/en/latest/'
 abstract: >-
@@ -55,6 +58,32 @@ keywords:
   - model fitting
   - statistical inference
 license: Apache-2.0
-commit: 1afc6b7f2a4df2f0e6d9eba88cccf02081e449b8
-version: 0.11.2
+version: '0.22.1'
 date-released: '2023-02-25'
+
+preferred-citation:
+    authors:
+      - given-names: Jonas
+        family-names: Eschle
+        email: jonas.eschle@cern.ch
+        orcid: 'https://orcid.org/0000-0002-7312-3699'
+      - given-names: Albert Puig
+        family-names: Navarro
+        orcid: 'https://orcid.org/0000-0001-8868-2947'
+        email: albert.puig.navarro@gmail.com
+      - given-names: Rafael Silva
+        family-names: Coutinho
+        orcid: 'https://orcid.org/0000-0002-1545-959X'
+        email: rafael.silva.coutinho@cern.ch
+      - given-names: Nicola
+        family-names: Serra
+        email: Nicola.Serra@cern.ch
+        orcid: 'https://orcid.org/0000-0002-5033-0580'
+      - given-names: Matthieu
+        family-names: Marinangeli
+        email: matthieu.marinangeli@gmail.com
+        orcid: 'https://orcid.org/0000-0002-8361-9356'
+    identifiers:
+      - type: doi
+        value: 10.1016/j.softx.2020.100508
+        description: Paper
