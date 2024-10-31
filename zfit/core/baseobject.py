@@ -18,7 +18,6 @@ from ..util import ztyping
 from ..util.cache import GraphCachable
 from ..util.container import convert_to_container
 from ..util.exception import ParamNameNotUniqueError
-from .dependents import BaseDependentsMixin
 from .interfaces import (
     ZfitIndependentParameter,
     ZfitNumericParametrized,
@@ -93,7 +92,6 @@ class BaseParametrized(BaseObject, ZfitParametrized):
         from zfit.core.parameter import convert_to_parameter
 
         params = params or {}
-        # params = dict(sorted((n, convert_to_parameter(p)) for n, p in params.items()))
         params = {n: convert_to_parameter(p) for n, p in params.items()}  # why sorted?
 
         if autograd_params is None:
@@ -240,7 +238,6 @@ class BaseParametrized(BaseObject, ZfitParametrized):
 
 class BaseNumeric(
     GraphCachable,
-    BaseDependentsMixin,
     BaseParametrized,
     ZfitNumericParametrized,
     BaseObject,
@@ -262,7 +259,7 @@ class BaseNumeric(
 
 
 def extract_filter_params(
-    params: Iterable[ZfitParametrized],
+    params: Iterable[ZfitParametrized] | ZfitParametrized,
     floating: bool | None = True,
     extract_independent: bool | None = True,
 ) -> OrderedSet[ZfitParameter]:

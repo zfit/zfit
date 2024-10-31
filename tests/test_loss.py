@@ -195,10 +195,10 @@ def test_unbinned_nll(weights, sigma, options):
         np.std(test_values_np), rel=rel_error
     ) == params[sigma1]["value"]
 
-    constraints = zfit.constraint.nll_gaussian(
+    constraints = zfit.constraint.GaussianConstraint(
         params=[mu2, sigma2],
         observation=[mu_constr[0], sigma_constr[0]],
-        uncertainty=sigma(),
+        cov=sigma(),
     )
     nll_object = UnbinnedNLL(
         model=gaussian2, data=test_values, constraints=constraints, options=options
@@ -235,11 +235,11 @@ def test_add():
     ranges[2] = Space(limits=(3, 6), obs=obs1)
     ranges[3] = Space(limits=(4, 7), obs=obs1)
 
-    constraint1 = zfit.constraint.nll_gaussian(
-        params=param1, observation=1.0, uncertainty=0.5
+    constraint1 = zfit.constraint.GaussianConstraint(
+        params=param1, observation=1.0, sigma=0.5
     )
-    constraint2 = zfit.constraint.nll_gaussian(
-        params=param3, observation=2.0, uncertainty=0.25
+    constraint2 = zfit.constraint.GaussianConstraint(
+        params=param3, observation=2.0, sigma=0.25
     )
     merged_contraints = [constraint1, constraint2]
 
@@ -367,7 +367,6 @@ def test_simple_loss():
     loss = zfit.loss.SimpleLoss(func=loss_func, params=param_list)
     loss2 = zfit.loss.SimpleLoss(func=loss_func, params=truevals)
 
-    assert loss_deps.get_cache_deps() == set(param_list)
     assert set(loss_deps.get_params()) == set(param_list)
 
     loss_tensor = loss_func(param_list)

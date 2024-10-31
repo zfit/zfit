@@ -997,44 +997,13 @@ class Data(
 
         return perm_indices
 
-    @invalidate_graph
-    @deprecated(None, "Use `with_obs` instead.")
-    def sort_by_axes(self, axes: ztyping.AxesTypeInput, allow_superset: bool = True):
-        if not allow_superset and not frozenset(axes) <= frozenset(self.axes):
-            msg = (
-                f"The observable(s) {frozenset(axes) - frozenset(self.axes)} are not contained in the dataset. "
-                f"Only the following are: {self.axes}"
-            )
-            raise ValueError(msg)
-        space = self.space.with_axes(axes=axes, allow_subset=True)
+    def sort_by_axes(self, *_, **__):
+        msg = "Use `with_axes` instead."
+        raise BreakingAPIChangeError(msg)
 
-        def setter(value):
-            self._space = value
-
-        def getter():
-            return self.space
-
-        return TemporarilySet(value=space, setter=setter, getter=getter)
-
-    @invalidate_graph
-    @deprecated(None, "Use `with_obs` instead.")
-    def sort_by_obs(self, obs: ztyping.ObsTypeInput, allow_superset: bool = False):
-        if not allow_superset and not frozenset(obs) <= frozenset(self.obs):
-            msg = (
-                f"The observable(s) {frozenset(obs) - frozenset(self.obs)} are not contained in the dataset. "
-                f"Only the following are: {self.obs}"
-            )
-            raise ValueError(msg)
-
-        space = self.space.with_obs(obs=obs, allow_subset=True, allow_superset=allow_superset)
-
-        def setter(value):
-            self._space = value
-
-        def getter():
-            return self.space
-
-        return TemporarilySet(value=space, setter=setter, getter=getter)
+    def sort_by_obs(self, *_, **__):
+        msg = "Use `with_obs` instead."
+        raise BreakingAPIChangeError(msg)
 
     def _check_input_data_range(self, data_range):
         data_range = self._convert_sort_space(limits=data_range)
@@ -1571,11 +1540,11 @@ class SamplerData(Data):
         n: TensorLike = None,
         param_values: ztyping.ParamValuesMap = None,
     ):
-        """Update the sample by newly sampling. This affects any object that used this data already internally.
+        """Update the sample by newly sampling *inplace*, affecting objects that have it internally, like likelihoods.
 
-        All params that are not in the attribute ``params`` will use their current value for
-        the creation of the new sample. The value can also be overwritten for one sampling by providing
-        a mapping with ``param_values`` from ``Parameter`` to the temporary ``value``.
+        The values of the parameters used to sample the PDF are taken from the creation of the Sampler and won't change
+        by setting their values, i.e. using `param.set_values`. Parameter values (some or all) can be overridden
+        by providing the ``params`` argument.
 
         Args:
             params: a mapping from :py:class:`~zfit.Parameter` or string to a `value` so that the sampler will use
@@ -1683,12 +1652,7 @@ def concat_data_obs(datasets, obs, name, label, use_hash):
         if set(space.obs) != (set_allobs := set(all_obs)):
             msg = f"The given observables ({space.obs}) have to be the same as the observables in the data ({set_allobs})."
             raise ObsIncompatibleError(msg)
-    # else:
-    #     obs_ordered = []
-    #     for ob in all_obs:
-    #         if ob not in obs_ordered:
-    #             obs_ordered.append(ob)
-    #     space = convert_to_space(obs_ordered)
+
     weights_new = []
     new_spaces = None
     nevents = []

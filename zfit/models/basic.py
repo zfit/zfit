@@ -20,7 +20,7 @@ from zfit import z
 
 from ..core.basepdf import BasePDF
 from ..core.serialmixin import SerializableMixin
-from ..core.space import ANY_LOWER, ANY_UPPER, Space
+from ..core.space import ANY_LOWER, ANY_UPPER, Space, supports
 from ..serialization import Serializer, SpaceRepr
 from ..serialization.pdfrepr import BasePDFRepr
 from ..util import ztyping
@@ -106,8 +106,9 @@ class Exponential(BasePDF, SerializableMixin):
             )
         self._set_numerics_data_shift(self.space)
 
-    def _unnormalized_pdf(self, x):
-        lambda_ = self.params["lambda"].value()
+    @supports()
+    def _unnormalized_pdf(self, x, params):
+        lambda_ = params["lambda"]
         x = x.unstack_x()
         probs = znp.exp(lambda_ * (self._shift_x(x)))
         tf.debugging.assert_all_finite(
@@ -326,10 +327,11 @@ class Voigt(BasePDF, SerializableMixin):
         params = {"m": m, "sigma": sigma, "gamma": gamma}
         super().__init__(obs, name=name, params=params, extended=extended, norm=norm, label=label)
 
-    def _unnormalized_pdf(self, x):
-        m = self.params["m"]
-        sigma = self.params["sigma"]
-        gamma = self.params["gamma"]
+    @supports()
+    def _unnormalized_pdf(self, x, params):
+        m = params["m"]
+        sigma = params["sigma"]
+        gamma = params["gamma"]
         x = z.unstack_x(x)
         x = znp.asarray(znp.atleast_1d(x) - m, dtype=znp.complex128)
         gamma_complex = znp.asarray(gamma, dtype=znp.complex128)

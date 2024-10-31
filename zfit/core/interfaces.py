@@ -16,7 +16,6 @@ import tensorflow as tf
 from uhi.typing.plottable import PlottableHistogram
 
 from ..util import ztyping
-from ..util.deprecation import deprecated
 
 
 class ZfitObject:
@@ -623,23 +622,7 @@ class ZfitSpace(ZfitLimit, ZfitOrderableDimensional, ZfitObject, metaclass=ABCMe
         raise NotImplementedError
 
 
-class ZfitDependenciesMixin:
-    @abstractmethod
-    def get_cache_deps(self, only_floating: bool = True) -> ztyping.DependentsType:
-        raise NotImplementedError
-
-    @deprecated(
-        date=None,
-        instructions="Use `get_params` instead if you want to retrieve the "
-        "independent parameters or `get_cache_deps` in case you need "
-        "the numerical cache dependents (advanced).",
-    )
-    def get_dependencies(self, only_floating: bool = True) -> ztyping.DependentsType:
-        # raise BreakingAPIChangeError
-        return self.get_cache_deps(only_floating=only_floating)
-
-
-class ZfitParametrized(ZfitDependenciesMixin, ZfitObject):
+class ZfitParametrized(ZfitObject):
     @abstractmethod
     def get_params(
         self,

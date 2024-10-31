@@ -213,9 +213,6 @@ class BaseBinnedPDF(
         self.add_cache_deps(value)
         self._yield = value
 
-    def _get_dependencies(self) -> ztyping.DependentsType:
-        return super()._get_dependencies()
-
     def _get_params(
         self,
         floating: bool | None,
@@ -666,7 +663,6 @@ class BaseBinnedPDF(
     def _normalization(self, limits, *, options, params=None):  # noqa: ARG002
         raise SpecificFunctionNotImplemented
 
-    @deprecated_args(None, "Use `norm` instead.", "limits")
     def normalization(self, norm=None, *, params=None, options=None, limits=None) -> ztyping.NumericalTypeReturn:
         """Normalization of the PDF. For a binned PDF, this is the sum over the counts or the integral over the density.
 
@@ -689,7 +685,8 @@ class BaseBinnedPDF(
         Returns:
         """
         if limits is not None:
-            norm = limits
+            msg = "Use `norm` instead of `limits`."
+            raise BreakingAPIChangeError(msg)
         if options is None:
             options = {}
         norm = self._check_convert_norm(norm)

@@ -23,7 +23,7 @@ def test_get_dependents_is_deterministic():
     for params in (parameters, reversed(parameters)):
         pdf = create_pdf(params)
         assert (
-            pdf.get_cache_deps() == pdf.get_cache_deps()
+            pdf.get_params(floating=None) == pdf.get_params(floating=None)
         ), "get_dependents() not deterministic"
 
 

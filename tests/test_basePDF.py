@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+
 if TYPE_CHECKING:
     import zfit
 
@@ -174,7 +175,7 @@ def test_input_space():
     gauss3 = create_gauss3()
     space = zfit.Space("nonexisting_obs", (-3, 5))
     with pytest.raises(ObsIncompatibleError):
-        gauss3.set_norm_range(space)
+        gauss3.pdf(x=[1.0], norm=space)
 
 
 def test_func(obs1, test_values):
@@ -219,20 +220,21 @@ def test_normalization(obs1, pdf_factory):
 
     small_samples = znp.random.uniform(low=low, high=high, size=(10,))
 
-    with dist.set_norm_range(zfit.Space(obs1, limits=(low, high))):
-        probs = dist.pdf(samples)
-        probs_small = dist.pdf(small_samples)
-        log_probs = dist.log_pdf(small_samples)
-        probs = np.average(probs) * (high - low)
-        assert pytest.approx(1.0, rel=0.05) == probs
-        assert pytest.approx(znp.log(probs_small), rel=0.05) == log_probs
-        dist = dist.create_extended(z.constant(test_yield))
-        probs = dist.pdf(samples)
-        probs_extended = dist.ext_pdf(samples)
-        result = np.average(probs) * (high - low)
-        result_ext = np.average(probs_extended) * (high - low)
-        assert pytest.approx(1, rel=0.05)  == result
-        assert pytest.approx(test_yield, rel=0.05)  == result_ext
+    norm = zfit.Space(obs1, limits=(low, high))
+
+    probs = dist.pdf(samples, norm=norm)
+    probs_small = dist.pdf(small_samples, norm=norm)
+    log_probs = dist.log_pdf(small_samples, norm=norm)
+    probs = np.average(probs) * (high - low)
+    assert pytest.approx(1.0, rel=0.05) == probs
+    assert pytest.approx(znp.log(probs_small), rel=0.05) == log_probs
+    dist = dist.create_extended(z.constant(test_yield))
+    probs = dist.pdf(samples, norm=norm)
+    probs_extended = dist.ext_pdf(samples, norm=norm)
+    result = np.average(probs) * (high - low)
+    result_ext = np.average(probs_extended) * (high - low)
+    assert pytest.approx(1, rel=0.05)  == result
+    assert pytest.approx(test_yield, rel=0.05)  == result_ext
 
 
 @pytest.mark.parametrize("gauss_factory", [create_gauss1, create_test_gauss1])
@@ -309,16 +311,21 @@ def test_analytic_sampling(obs1):
         pass
 
     import zfit
-    from zfit.core.space import ANY_UPPER
+    from zfit.core.space import ANY_UPPER, ANY_LOWER
+    mu, sigma = create_mu_sigma_true_params()
+    gauss_noana = SampleGauss(obs=obs1, mu=mu, sigma=sigma)
+
+
 
     SampleGauss.register_analytic_integral(
         func=lambda limits, params, model: 2 * limits.v1.upper[0],
-        limits=zfit.Space(limits=(-float("inf"), ANY_UPPER), axes=(0,)),
+        limits=zfit.Space(limits=(ANY_LOWER, ANY_UPPER), axes=(0,)),
     )  # DUMMY!
     SampleGauss.register_inverse_analytic_integral(func=lambda x, params: x)
 
-    mu, sigma = create_mu_sigma_true_params()
+
     gauss1 = SampleGauss(obs=obs1, mu=mu, sigma=sigma)
+    assert gauss_noana.has_analytic_integral
     sample = gauss1.sample(n=10000, limits=(2.0, 5.0))
 
 

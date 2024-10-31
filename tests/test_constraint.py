@@ -99,7 +99,7 @@ def test_gaussian_constraint_matrix_legacy():
     assert pytest.approx(trueval) == constr_np
     # assert constr_np == pytest.approx(3.989638)
 
-    assert constr.get_cache_deps() == set(params)
+    assert set(constr.get_params()) == set(params)
 
 
 @pytest.mark.parametrize("kwargs", [{'sigma': np.array([[1, 0.3], [0.3, 0.5]]) ** 0.5}, {'cov': np.array([[1, 0.3], [0.3, 0.5]])}], ids=['sigma', 'cov'])
@@ -123,7 +123,7 @@ def test_gaussian_constraint_matrix(kwargs):
     assert constr_np == pytest.approx(trueval)
     # assert constr_np == pytest.approx(3.989638)
 
-    assert constr.get_cache_deps() == set(params)
+    assert set(constr.get_params()) == set(params)
 
 
 
@@ -179,7 +179,7 @@ def test_gaussian_constraint_legacy():
     constr = GaussianConstraint(params=params, observation=observed, uncertainty=sigma)
     constr_np = constr.value()
     assert pytest.approx(true_val) == constr_np
-    assert constr.get_cache_deps() == set(params)
+    assert set(constr.get_params()) == set(params)
 
     param_vals[0] = 2
     params[0].set_value(param_vals[0])
@@ -214,7 +214,7 @@ def test_gaussian_constraint(kwargs):
     constr = GaussianConstraint(params=params, observation=observed, **kwargs)
     constr_np = constr.value().numpy()
     assert constr_np == pytest.approx(true_val)
-    assert constr.get_cache_deps() == set(params)
+    assert set(constr.get_params()) == set(params)
 
     param_vals[0] = 2
     params[0].set_value(param_vals[0])
@@ -376,7 +376,7 @@ def test_simple_constraint_legacy():
     constr_np = constr.value()
     assert pytest.approx(2.02) == constr_np
 
-    assert constr.get_cache_deps() == set(params)
+    assert set(constr.get_params()) == set(params)
 
 def test_gauss_fails_params():
     param1 = zfit.Parameter("Param1", 5)
@@ -408,7 +408,7 @@ def test_simple_constraint_paramfunc():
 
     assert pytest.approx(2.02) == constr.value()
 
-    assert constr.get_cache_deps() == set(params.values())
+    assert set(constr.get_params()) == set(params.values())
 
 
 def test_log_normal_constraint():

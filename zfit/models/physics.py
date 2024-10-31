@@ -424,14 +424,16 @@ class DoubleCB(BasePDF, SerializableMixin):
         }
         super().__init__(obs=obs, name=name, params=params, extended=extended, norm=norm, label=label)
 
-    def _unnormalized_pdf(self, x):
-        mu = self.params["mu"].value()
-        sigma = self.params["sigma"].value()
-        alphal = self.params["alphal"].value()
-        nl = self.params["nl"].value()
-        alphar = self.params["alphar"].value()
-        nr = self.params["nr"].value()
-        x = x.unstack_x()
+    @supports(norm=False)
+    def _pdf(self, x, norm, params):
+        assert norm is False, "Norm cannot be a space"
+        mu = params["mu"]
+        sigma = params["sigma"]
+        alphal = params["alphal"]
+        nl = params["nl"]
+        alphar = params["alphar"]
+        nr = params["nr"]
+        x = x[0]
         return double_crystalball_func(
             x=x,
             mu=mu,
@@ -557,15 +559,17 @@ class GeneralizedCB(BasePDF, SerializableMixin):
         }
         super().__init__(obs=obs, name=name, params=params, extended=extended, norm=norm, label=label)
 
-    def _unnormalized_pdf(self, x):
-        mu = self.params["mu"].value()
-        sigmal = self.params["sigmal"].value()
-        alphal = self.params["alphal"].value()
-        sigmar = self.params["sigmar"].value()
-        nl = self.params["nl"].value()
-        alphar = self.params["alphar"].value()
-        nr = self.params["nr"].value()
-        x = x.unstack_x()
+    @supports(norm=False)
+    def _pdf(self, x, norm, params):
+        assert norm is False, "Norm has to be False"
+        mu = params["mu"]
+        sigmal = params["sigmal"]
+        alphal = params["alphal"]
+        sigmar = params["sigmar"]
+        nl = params["nl"]
+        alphar = params["alphar"]
+        nr = params["nr"]
+        x = x[0]
         return generalized_crystalball_func(
             x=x,
             mu=mu,
@@ -777,11 +781,13 @@ class GaussExpTail(BasePDF, SerializableMixin):
         params = {"mu": mu, "sigma": sigma, "alpha": alpha}
         super().__init__(obs=obs, name=name, params=params, extended=extended, norm=norm, label=label)
 
-    def _unnormalized_pdf(self, x):
-        mu = self.params["mu"].value()
-        sigma = self.params["sigma"].value()
-        alpha = self.params["alpha"].value()
-        x = z.unstack_x(x)
+    @supports(norm=False)
+    def _pdf(self, x, norm, params):
+        assert norm is False, "Norm has to be False"
+        mu = params["mu"]
+        sigma = params["sigma"]
+        alpha = params["alpha"]
+        x = x[0]
         return gaussexptail_func(x=x, mu=mu, sigma=sigma, alpha=alpha)
 
 
@@ -882,13 +888,15 @@ class GeneralizedGaussExpTail(BasePDF, SerializableMixin):
         }
         super().__init__(obs=obs, name=name, params=params, extended=extended, norm=norm, label=label)
 
-    def _unnormalized_pdf(self, x):
-        mu = self.params["mu"].value()
-        sigmal = self.params["sigmal"].value()
-        alphal = self.params["alphal"].value()
-        sigmar = self.params["sigmar"].value()
-        alphar = self.params["alphar"].value()
-        x = z.unstack_x(x)
+    @supports(norm=False)
+    def _pdf(self, x, norm, params):
+        assert norm is False, "Norm has to be False"
+        mu = params["mu"]
+        sigmal = params["sigmal"]
+        alphal = params["alphal"]
+        sigmar = params["sigmar"]
+        alphar = params["alphar"]
+        x = x[0]
         return generalized_gaussexptail_func(
             x=x,
             mu=mu,

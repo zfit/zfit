@@ -111,15 +111,15 @@ class ShapeIncompatibleError(IncompatibleError):
     pass
 
 
-class ObsIncompatibleError(IncompatibleError):
-    pass
-
-
-class AxesIncompatibleError(IncompatibleError):
-    pass
-
-
 class CoordinatesIncompatibleError(IncompatibleError):
+    pass
+
+
+class ObsIncompatibleError(CoordinatesIncompatibleError):
+    pass
+
+
+class AxesIncompatibleError(CoordinatesIncompatibleError):
     pass
 
 

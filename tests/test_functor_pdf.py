@@ -29,12 +29,7 @@ def test_norm_range():
 
     with pytest.raises(NormRangeUnderdefinedError):
         _ = zfit.pdf.SumPDF(pdfs=[gauss1, gauss3], fracs=0.34)
-    sum2 = zfit.pdf.SumPDF(pdfs=[gauss1, gauss3], fracs=0.34, obs=space3)
 
-    sum2.set_norm_range(space2)
-    with sum2.set_norm_range(space3):
-        assert sum2.norm == space3
-    assert sum2.norm == space2
 
 
 
