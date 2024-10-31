@@ -25,8 +25,8 @@ class ZfitNLLs:
 
 def to_nlls(nll):
     if isinstance(nll, NLL):
-        return NLLs(nlls=[nll])
-    elif isinstance(nll, Iterable):
+        nll = [nll]
+    if isinstance(nll, Iterable):
         return NLLs(nlls=list(nll))
     elif isinstance(nll, NLLs):
         return nll
@@ -93,7 +93,6 @@ class BinnedNLL(NLLs):
         self.observed = observed
         # create unique name using random number
         data_array = znp.flatten(observed.values())
-        # raise WorkInProgressError("TODO: how to solve this? We need a diagonal, but then, for every bin a name?")
         expectedparams = [
             ComposedParameter(
                 name=f"{np.random.randint(1e15)}_expected",
