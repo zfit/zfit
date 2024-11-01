@@ -1397,7 +1397,7 @@ class FitResult(ZfitResult):
             method = self._default_hesse
 
         if method not in self._covariance_dict:
-            with self._input_check_reset_params(params) as checkedparams:  # noqa: PLR1704
+            with self._input_check_reset_params(params) as checkedparams:
                 self._covariance_dict[method] = self._covariance(method=method)
 
         else:
