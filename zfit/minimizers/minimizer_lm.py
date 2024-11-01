@@ -104,9 +104,17 @@ class LevenbergMarquardt(BaseMinimizer, GraphCachable):
         """
 
         mode = 0 if mode is None else mode
+        if mode != 0:
+            msg = "Only mode 0 is currently implemented"
+            raise NotImplementedError(msg)
         rho_min = 0.1 if rho_min is None else rho_min
+        if rho_min <= 0:
+            msg = "rho_min has to be > 0"
+            raise ValueError(msg)
         rho_max = 2.0 if rho_max is None else rho_max
-        maxiter = 1000 if maxiter is None else maxiter
+        if rho_max <= 1:
+            msg = "rho_max has to be > 1"
+            raise ValueError(msg)
 
         self.mode = mode
         self.rho_min = rho_min
