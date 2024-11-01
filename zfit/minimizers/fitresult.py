@@ -1371,6 +1371,8 @@ class FitResult(ZfitResult):
             with self._input_check_reset_params(params) as checkedparams:
                 self._covariance_dict[method] = self._covariance(method=method)
 
+        else:
+            checkedparams = self._input_check_params(params)
         covariance = {k: self._covariance_dict[method].get(k) for k in itertools.product(checkedparams, checkedparams)}
 
         if as_dict:
