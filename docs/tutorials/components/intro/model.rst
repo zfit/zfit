@@ -71,9 +71,8 @@ to set a temporary normalisation range can be given as
 
 .. jupyter-execute::
 
-    # The norm range of the pdf can be changed any time with a contextmanager (temporary) or without (permanent)
-    with model_cb.set_norm_range((5000, 6000)):
-        print(model_cb.norm_range)
+    # A different normalisation range can be provided as an argument
+    probs = model_cb.pdf(x=np.random.random(10), norm=(5000, 5250))
 
 Another feature for the PDF is to calculate its integral in a certain limit. This can be easily achieved by
 
@@ -225,7 +224,7 @@ With this new PDF one can access the same feature of the predefined PDFs, e.g.
     # For instance sampling, integral and probabilities
     data     = my_gauss.sample(15)
     integral = my_gauss.integrate(limits=(-1, 2))
-    probs    = my_gauss.pdf(data,norm_range=(-3, 4))
+    probs    = my_gauss.pdf(data,norm=(-3, 4))
     print(f"Probs: {probs} and integral: {integral}")
 
 Finally, we could also improve the description of the PDF by providing a analytical integral for the ``MyGauss`` PDF:

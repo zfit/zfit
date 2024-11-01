@@ -1271,7 +1271,7 @@ class Space(
         Observables are like the columns of a spreadsheet/dataframe, and are therefore needed for any object that does
         numerical operations or holds data in order to match the right axes. On object creation, the observables are
         assigned using a `Space`. This is often used as the default space of an object and can be used as the
-        default `norm_range`, sampling limits etc.
+        default `norm`, sampling limits etc.
 
         Axes are the same concept as observables, but numbers, indexes, and are used *inside* an object. There,
         axes 0 corresponds to the 0th data column we get (which corresponds to a certain observable).

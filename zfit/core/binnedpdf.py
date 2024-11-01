@@ -1008,7 +1008,7 @@ class BaseBinnedPDF(
         msg = "Integration options not available for BinnedPDF"
         raise RuntimeError(msg)
 
-    def as_func(self, norm_range: ztyping.LimitsType = False):  # noqa: ARG002
+    def as_func(self, norm: ztyping.LimitsType = False):  # noqa: ARG002
         msg = "as_func not yet available for BinnedPDF"
         raise WorkInProgressError(msg)
 

@@ -32,14 +32,14 @@ Let's create an instance and some example data
 Now we can get the probability
 >>> probs = gauss.pdf(example_data)  # ``norm`` specifies over which range to normalize
 Or the integral
->>> integral = gauss.integrate(limits=(-5, 3.1),norm=False)  # norm_range is False -> return unnormalized
+>>> integral = gauss.integrate(limits=(-5, 3.1),norm=False)  # norm is False -> return unnormalized
 integral
 Or directly sample from it
 >>> sample = gauss.sample(n_draws=1000, limits=(-10, 10))  # draw 1000 samples within (-10, 10)
 
-We can create an extended PDF, which will result in anything using a ``norm_range`` to not return the
+We can create an extended PDF, which will result in anything using a ``norm`` to not return the
 probability but the number probability (the function will be normalized to ``yield`` instead of 1 inside
-the ``norm_range``)
+the ``norm``)
 >>> yield1 = Parameter("yield1", 100, 0, 1000)
 >>> gauss_extended = gauss.create_extended(yield1)
 >>> gauss.is_extended
@@ -325,7 +325,7 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
         *,
         params: ztyping.ParamsTypeOpt = None,
     ) -> ztyping.XType:
-        """Probability density function scaled by yield, normalized over ``norm_range``.
+        """Probability density function scaled by yield, normalized over ``norm``.
 
         Args:
           x: |@doc:pdf.param.x| Data to evaluate the method on. Should be ``ZfitData``
@@ -381,7 +381,7 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
         *,
         params: ztyping.ParamsTypeOpt = None,
     ) -> ztyping.XType:
-        """Log of probability density function scaled by yield, normalized over ``norm_range``.
+        """Log of probability density function scaled by yield, normalized over ``norm``.
 
         Args:
           x: |@doc:pdf.param.x| Data to evaluate the method on. Should be ``ZfitData``
@@ -513,7 +513,7 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
         *,
         params: ztyping.ParamsTypeOpt = None,
     ) -> ztyping.XType:
-        """Log probability density function normalized over ``norm_range``.
+        """Log probability density function normalized over ``norm``.
 
         Args:
             x: |@doc:pdf.param.x| Data to evaluate the method on. Should be ``ZfitData``
@@ -621,7 +621,7 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
         options=None,
         params: ztyping.ParamsTypeOpt = None,
     ) -> ztyping.XType:
-        """Integrate the function over ``limits`` (normalized over ``norm_range`` if not False).
+        """Integrate the function over ``limits`` (normalized over ``norm`` if not False).
 
         Args:
             limits: |@doc:pdf.integrate.limits| Limits of the integration. |@docend:pdf.integrate.limits|

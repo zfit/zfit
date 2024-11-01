@@ -284,8 +284,7 @@ def numerical_pdf_jacobian(func, params):  # TODO: jit?
 
 # @z.function(wraps="autodiff")
 def autodiff_pdf_jacobian(func, params):
-    """
-    Computes the Jacobian matrix of a function using automatic differentiation.
+    """Computes the Jacobian matrix of a function using automatic differentiation.
 
     Args:
         func: A callable representing the function for which the Jacobian is to be calculated.

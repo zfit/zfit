@@ -63,7 +63,7 @@ Minimizer
 .. toctree::
     :maxdepth: 1
 
-    intro/minimizer
+    intro/minimize
 
 Result
 ======

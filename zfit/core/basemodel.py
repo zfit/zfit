@@ -508,7 +508,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
 
     @_BaseModel_register_check_support(True)
     @deprecated_norm_range
-    def _analytic_integrate(self, limits, norm, *, norm_range=None):  # noqa: ARG002
+    def _analytic_integrate(self, limits, norm):  # noqa: ARG002
         raise SpecificFunctionNotImplemented
 
     @deprecated_norm_range
@@ -611,7 +611,6 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         available.
 
         Returns:
-
         """
         try:
             _ = self.analytic_integrate(self.space)  # what about extended?
@@ -816,7 +815,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
 
     @_BaseModel_register_check_support(True)
     @deprecated_norm_range
-    def _partial_analytic_integrate(self, x, limits, norm, *, params=None, norm_range=None):  # noqa: ARG002
+    def _partial_analytic_integrate(self, x, limits, norm, *, params=None):  # noqa: ARG002
         raise SpecificFunctionNotImplemented
 
     @deprecated_norm_range
@@ -831,7 +830,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         """Do analytical partial integration of the function over the `limits` and evaluate it at `x`.
 
         Dimension of `limits` and `x` have to add up to the full dimension and be therefore equal
-        to the dimensions of `norm_range` (if not False)
+        to the dimensions of `norm` (if not False)
 
         Args:
             x: The value at which the partially integrated function will be evaluated

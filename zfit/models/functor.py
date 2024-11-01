@@ -226,9 +226,9 @@ class SumPDF(BaseFunctor, SerializableMixin):  # TODO: add extended argument
             raise SpecificFunctionNotImplemented
         pdfs = self.pdfs
         # TODO(SUM): why was this needed?
-        # assert norm_range not in (None, False), "Bug, who requested an unnormalized integral?"
+        # assert norm not in (None, False), "Bug, who requested an unnormalized integral?"
         integrals = [
-            pdf.ext_integrate(limits=limits, options=options)  # do NOT propagate the norm_range!
+            pdf.ext_integrate(limits=limits, options=options)  # do NOT propagate the norm!
             for pdf in pdfs
         ]
         return znp.sum(integrals, axis=0)
@@ -240,7 +240,7 @@ class SumPDF(BaseFunctor, SerializableMixin):  # TODO: add extended argument
         fracs = self.fracs
         try:
             integrals = [
-                frac * pdf.analytic_integrate(limits=limits)  # do NOT propagate the norm_range!
+                frac * pdf.analytic_integrate(limits=limits)  # do NOT propagate the norm!
                 for pdf, frac in zip(pdfs, fracs)
             ]
         except AnalyticIntegralNotImplemented as error:
@@ -259,7 +259,7 @@ class SumPDF(BaseFunctor, SerializableMixin):  # TODO: add extended argument
         pdfs = self.pdfs
         fracs = self.fracs
 
-        # do NOT propagate the norm_range!
+        # do NOT propagate the norm!
         partial_integral = [
             pdf.partial_integrate(x=x, limits=limits, options=options) * frac for pdf, frac in zip(pdfs, fracs)
         ]
@@ -274,7 +274,7 @@ class SumPDF(BaseFunctor, SerializableMixin):  # TODO: add extended argument
         try:
             partial_integral = [
                 pdf.partial_analytic_integrate(x=x, limits=limits) * frac
-                # do NOT propagate the norm_range!
+                # do NOT propagate the norm!
                 for pdf, frac in zip(pdfs, fracs)
             ]
         except AnalyticIntegralNotImplemented as error:
@@ -457,7 +457,7 @@ class ProductPDF(BaseFunctor, SerializableMixin):
             else:
                 has_data_but_no_limits = (not intersection_limits) and intersection_data
                 assert has_data_but_no_limits, "Something slipped, the logic is flawed."
-                values.append(pdf.pdf(x, norm_range=norm))
+                values.append(pdf.pdf(x, norm=norm))
         values = functools.reduce(operator.mul, values)
         return z.convert_to_tensor(values)
 

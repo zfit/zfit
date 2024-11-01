@@ -729,9 +729,9 @@ class AnalyticIntegral:
             return integral_fn(limits=limits, norm=norm, params=params, model=model)
 
         with suppress(TypeError):
-            return integral_fn(x=x, limits=limits, norm_range=norm, params=params, model=model)
+            return integral_fn(x=x, limits=limits, norm=norm, params=params, model=model)
         with suppress(TypeError):
-            return integral_fn(limits=limits, norm_range=norm, params=params, model=model)
+            return integral_fn(limits=limits, norm=norm, params=params, model=model)
         msg = "Could not integrate, unknown reason. Please fill a bug report."
         raise AssertionError(msg)
 

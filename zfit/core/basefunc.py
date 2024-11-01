@@ -94,6 +94,6 @@ class BaseFuncV1(BaseModel, ZfitFunc):
 
         return convert_func_to_pdf(func=self)
 
-    def _check_input_norm_range_default(self, norm_range, caller_name="", none_is_error=True):  # TODO(Mayou36): default
+    def _check_input_norm_range_default(self, norm, caller_name="", none_is_error=True):  # TODO(Mayou36): default
         del caller_name  # unused
-        return self._check_input_norm(norm=norm_range, none_is_error=none_is_error)
+        return self._check_input_norm(norm=norm, none_is_error=none_is_error)

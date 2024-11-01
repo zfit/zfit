@@ -5,8 +5,6 @@ Minimize
 
 This module contains everything related to minimization in zfit.
 
-Minimizers
-###########
 
 
 zfit supplies wrappers for different minimizers from multiple libraries. Most of the are local
@@ -20,8 +18,6 @@ the :class:`~zfit.minimize.NLoptISRESV1` or :class:`~zfit.minimize.NLoptStoGOV1`
     minimize/minimizers
 
 
-Strategy
-#############
 
 Strategy to deal with NaNs and to provide callbacks.
 
@@ -32,8 +28,6 @@ Strategy to deal with NaNs and to provide callbacks.
 
 
 
-Criterion
-#############
 
 Criterion for the convergence of the minimization.
 
