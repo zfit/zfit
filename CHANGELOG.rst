@@ -11,7 +11,7 @@ Major Features and Improvements
 -------------------------------
 - Minimizers can use the new ``SimpleLoss.from_any`` method that allows other libraries to hook into the minimization.
   For example, using zfit-physics, minimizers can directly minimize RooFit ``RooNllVar`` (as created by ``createNLL`` described `here <https://root.cern.ch/doc/master/classRooAbsPdf.html#a24b1afec4fd149e08967eac4285800de>`_
-- Minimizers have now been renamed without the trailing ``V1``. The old names are still available but will be removed in the future.
+- Added the well performing ``LevenbergMarquardt`` minimizer, a new implementation of the Levenberg-Marquardt algorithm.
 - New BFGS minimizer implementation of Scipy, ``ScipyBFGS``.
 - Reactivate a few minimizers: ``ScipyDogleg``, ``ScipyNCG``, ``ScipyCOBYLA`` and ``ScipyNewtonCG``
 
@@ -35,10 +35,16 @@ Bug fixes and small changes
 - Use ``kanah`` sum for larger likelihoods by default to improve numerical stability
 - Using the same ``zfit.Parameter`` for multiple arguments (i.e. to specify a common width in a PDF with a different width
   for left and right) could cause a crash due to some internal caching. This is now fixed.
+- Minimizers have now been renamed without the trailing ``V1``. The old names are still available but will be removed in the future.
 
+Experimental
+------------
 
 Requirement changes
 -------------------
+
+Thanks
+------
 
 
 0.22.0 22 Aug 2024
