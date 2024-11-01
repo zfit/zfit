@@ -26,7 +26,7 @@ from .strategy import ZfitStrategy
 from .termination import CRITERION_NOT_AVAILABLE, ConvergenceCriterion
 
 
-class ScipyBaseMinimizerV1(BaseMinimizer):
+class ScipyBaseMinimizer(BaseMinimizer):
     _VALID_SCIPY_GRADIENT = None
     _VALID_SCIPY_HESSIAN = None
 
@@ -200,9 +200,9 @@ class ScipyBaseMinimizerV1(BaseMinimizer):
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
         if cls._VALID_SCIPY_GRADIENT is not None:
-            cls._VALID_SCIPY_GRADIENT = ScipyBaseMinimizerV1._VALID_SCIPY_GRADIENT.copy()
+            cls._VALID_SCIPY_GRADIENT = ScipyBaseMinimizer._VALID_SCIPY_GRADIENT.copy()
         if cls._VALID_SCIPY_HESSIAN is not None:
-            cls._VALID_SCIPY_HESSIAN = ScipyBaseMinimizerV1._VALID_SCIPY_HESSIAN.copy()
+            cls._VALID_SCIPY_HESSIAN = ScipyBaseMinimizer._VALID_SCIPY_HESSIAN.copy()
 
     @minimize_supports(init=True)
     def _minimize(self, loss, params, init: FitResult):
@@ -382,7 +382,7 @@ class ScipyBaseMinimizerV1(BaseMinimizer):
         )
 
 
-class ScipyLBFGSBV1(ScipyBaseMinimizerV1):
+class ScipyLBFGSB(ScipyBaseMinimizer):
     def __init__(
         self,
         tol: float | None = None,
@@ -393,7 +393,7 @@ class ScipyLBFGSBV1(ScipyBaseMinimizerV1):
         maxiter: int | str | None = None,
         criterion: ConvergenceCriterion | None = None,
         strategy: ZfitStrategy | None = None,
-        name: str = "SciPy L-BFGS-B V1",
+        name: str = "SciPy L-BFGS-B ",
     ) -> None:
         """Local, gradient based quasi-Newton algorithm using the limited-memory BFGS approximation.
 
@@ -505,7 +505,7 @@ class ScipyLBFGSBV1(ScipyBaseMinimizerV1):
         )
 
 
-ScipyLBFGSBV1._add_derivative_methods(
+ScipyLBFGSB._add_derivative_methods(
     gradient=[
         "2-point",
         "3-point",
@@ -518,7 +518,7 @@ ScipyLBFGSBV1._add_derivative_methods(
 )
 
 
-class ScipyBFGS(ScipyBaseMinimizerV1):
+class ScipyBFGS(ScipyBaseMinimizer):
     def __init__(
         self,
         tol: float | None = None,
@@ -678,7 +678,7 @@ ScipyBFGS._add_derivative_methods(
 )
 
 
-class ScipyTrustKrylovV1(ScipyBaseMinimizerV1):
+class ScipyTrustKrylov(ScipyBaseMinimizer):
     @warn_experimental_feature
     def __init__(
         self,
@@ -690,7 +690,7 @@ class ScipyTrustKrylovV1(ScipyBaseMinimizerV1):
         maxiter: int | str | None = None,
         criterion: ConvergenceCriterion | None = None,
         strategy: ZfitStrategy | None = None,
-        name: str = "SciPy trust-krylov V1",
+        name: str = "SciPy trust-krylov ",
     ) -> None:
         """PERFORMS POORLY! Local, gradient based (nearly) exact trust-region algorithm using matrix vector products
         with the hessian.
@@ -806,7 +806,7 @@ class ScipyTrustKrylovV1(ScipyBaseMinimizerV1):
         )
 
 
-ScipyTrustKrylovV1._add_derivative_methods(
+ScipyTrustKrylov._add_derivative_methods(
     gradient=[
         "2-point",
         "3-point",
@@ -828,7 +828,7 @@ ScipyTrustKrylovV1._add_derivative_methods(
 )
 
 
-class ScipyTrustNCGV1(ScipyBaseMinimizerV1):
+class ScipyTrustNCG(ScipyBaseMinimizer):
     @warn_experimental_feature
     def __init__(
         self,
@@ -842,7 +842,7 @@ class ScipyTrustNCGV1(ScipyBaseMinimizerV1):
         maxiter: int | str | None = None,
         criterion: ConvergenceCriterion | None = None,
         strategy: ZfitStrategy | None = None,
-        name: str = "SciPy trust-ncg V1",
+        name: str = "SciPy trust-ncg ",
     ) -> None:
         """PERFORMS POORLY! Local Newton conjugate gradient trust-region algorithm.
 
@@ -973,9 +973,10 @@ class ScipyTrustNCGV1(ScipyBaseMinimizerV1):
         )
 
 
-ScipyTrustNCGV1._add_derivative_methods(
+ScipyTrustNCG._add_derivative_methods(
     gradient=[
-        # '2-point', '3-point',
+        "2-point",
+        "3-point",
         # 'cs'  # works badly
         None,
         # True,
@@ -983,9 +984,11 @@ ScipyTrustNCGV1._add_derivative_methods(
         "zfit",
     ],
     hessian=[
-        # '2-point', '3-point',
+        "2-point",
+        "3-point",
         # 'cs',
-        # scipy.optimize.BFGS, scipy.optimize.SR1,
+        scipy.optimize.BFGS,
+        scipy.optimize.SR1,
         None,
         # True,
         False,
@@ -994,7 +997,7 @@ ScipyTrustNCGV1._add_derivative_methods(
 )
 
 
-class ScipyTrustConstrV1(ScipyBaseMinimizerV1):
+class ScipyTrustConstr(ScipyBaseMinimizer):
     def __init__(
         self,
         tol: float | None = None,
@@ -1005,7 +1008,7 @@ class ScipyTrustConstrV1(ScipyBaseMinimizerV1):
         maxiter: int | str | None = None,
         criterion: ConvergenceCriterion | None = None,
         strategy: ZfitStrategy | None = None,
-        name: str = "SciPy trust-constr V1",
+        name: str = "SciPy trust-constr ",
     ) -> None:
         """Trust-region based local minimizer.
 
@@ -1161,7 +1164,7 @@ class ScipyTrustConstrV1(ScipyBaseMinimizerV1):
         )
 
 
-ScipyTrustConstrV1._add_derivative_methods(
+ScipyTrustConstr._add_derivative_methods(
     gradient=[
         "2-point",
         "3-point",
@@ -1185,7 +1188,7 @@ ScipyTrustConstrV1._add_derivative_methods(
 )
 
 
-class ScipyNewtonCGV1(ScipyBaseMinimizerV1):
+class ScipyNewtonCG(ScipyBaseMinimizer):
     @warn_experimental_feature
     def __init__(
         self,
@@ -1196,7 +1199,7 @@ class ScipyNewtonCGV1(ScipyBaseMinimizerV1):
         maxiter: int | str | None = None,
         criterion: ConvergenceCriterion | None = None,
         strategy: ZfitStrategy | None = None,
-        name: str = "SciPy Newton-CG V1",
+        name: str = "SciPy Newton-CG ",
     ) -> None:
         """WARNING! This algorithm seems unstable and may does not perform well!
 
@@ -1323,7 +1326,7 @@ class ScipyNewtonCGV1(ScipyBaseMinimizerV1):
         )
 
 
-ScipyNewtonCGV1._add_derivative_methods(
+ScipyNewtonCG._add_derivative_methods(
     gradient=[
         "2-point",
         "3-point",
@@ -1347,7 +1350,7 @@ ScipyNewtonCGV1._add_derivative_methods(
 )
 
 
-class ScipyTruncNCV1(ScipyBaseMinimizerV1):
+class ScipyTruncNC(ScipyBaseMinimizer):
     def __init__(
         self,
         tol: float | None = None,
@@ -1360,7 +1363,7 @@ class ScipyTruncNCV1(ScipyBaseMinimizerV1):
         maxiter: int | str | None = None,
         criterion: ConvergenceCriterion | None = None,
         strategy: ZfitStrategy | None = None,
-        name: str = "SciPy Truncated Newton Conjugate V1",
+        name: str = "SciPy Truncated Newton Conjugate ",
     ) -> None:
         """Local, gradient based minimization algorithm using a truncated Newton method.
 
@@ -1475,7 +1478,7 @@ class ScipyTruncNCV1(ScipyBaseMinimizerV1):
         )
 
 
-ScipyTruncNCV1._add_derivative_methods(
+ScipyTruncNC._add_derivative_methods(
     gradient=[
         "2-point",
         "3-point",
@@ -1488,7 +1491,7 @@ ScipyTruncNCV1._add_derivative_methods(
 )
 
 
-class ScipyDoglegV1(ScipyBaseMinimizerV1):
+class ScipyDogleg(ScipyBaseMinimizer):
     def __init__(
         self,
         tol: float | None = None,
@@ -1499,7 +1502,7 @@ class ScipyDoglegV1(ScipyBaseMinimizerV1):
         maxiter: int | str | None = None,
         criterion: ConvergenceCriterion | None = None,
         strategy: ZfitStrategy | None = None,
-        name: str = "SciPy Dogleg V1",
+        name: str = "SciPy Dogleg ",
     ) -> None:
         """This minimizer requires the hessian and gradient to be provided by the loss itself.
 
@@ -1572,10 +1575,10 @@ class ScipyDoglegV1(ScipyBaseMinimizerV1):
         )
 
 
-ScipyDoglegV1._add_derivative_methods(gradient=["zfit"], hessian=["zfit"])
+ScipyDogleg._add_derivative_methods(gradient=["zfit"], hessian=["zfit"])
 
 
-class ScipyPowellV1(ScipyBaseMinimizerV1):
+class ScipyPowell(ScipyBaseMinimizer):
     def __init__(
         self,
         tol: float | None = None,
@@ -1583,7 +1586,7 @@ class ScipyPowellV1(ScipyBaseMinimizerV1):
         maxiter: int | str | None = None,
         criterion: ConvergenceCriterion | None = None,
         strategy: ZfitStrategy | None = None,
-        name: str = "SciPy Powell V1",
+        name: str = "SciPy Powell ",
     ) -> None:
         """Local minimizer using the modified Powell algorithm.
 
@@ -1657,7 +1660,7 @@ class ScipyPowellV1(ScipyBaseMinimizerV1):
         )
 
 
-class ScipySLSQPV1(ScipyBaseMinimizerV1):
+class ScipySLSQP(ScipyBaseMinimizer):
     def __init__(
         self,
         tol: float | None = None,
@@ -1666,7 +1669,7 @@ class ScipySLSQPV1(ScipyBaseMinimizerV1):
         maxiter: int | str | None = None,
         criterion: ConvergenceCriterion | None = None,
         strategy: ZfitStrategy | None = None,
-        name: str = "SciPy SLSQP V1",
+        name: str = "SciPy SLSQP ",
     ) -> None:
         """Local, gradient-based minimizer using tho  Sequential Least Squares Programming algorithm.name.
 
@@ -1755,7 +1758,7 @@ class ScipySLSQPV1(ScipyBaseMinimizerV1):
         )
 
 
-ScipySLSQPV1._add_derivative_methods(
+ScipySLSQP._add_derivative_methods(
     gradient=[
         "2-point",
         "3-point",
@@ -1768,7 +1771,7 @@ ScipySLSQPV1._add_derivative_methods(
 )
 
 
-class ScipyCOBYLAV1(ScipyBaseMinimizerV1):
+class ScipyCOBYLA(ScipyBaseMinimizer):
     @warn_experimental_feature
     def __init__(
         self,
@@ -1777,7 +1780,7 @@ class ScipyCOBYLAV1(ScipyBaseMinimizerV1):
         maxiter: int | str | None = None,
         criterion: ConvergenceCriterion | None = None,
         strategy: ZfitStrategy | None = None,
-        name: str = "SciPy COBYLA V1",
+        name: str = "SciPy COBYLA ",
     ) -> None:
         """UNSTABLE! Local gradient-free dowhhill simplex-like method with an implicit linear approximation.
 
@@ -1846,7 +1849,7 @@ class ScipyCOBYLAV1(ScipyBaseMinimizerV1):
         )
 
 
-class ScipyNelderMeadV1(ScipyBaseMinimizerV1):
+class ScipyNelderMead(ScipyBaseMinimizer):
     def __init__(
         self,
         tol: float | None = None,
@@ -1855,7 +1858,7 @@ class ScipyNelderMeadV1(ScipyBaseMinimizerV1):
         maxiter: int | str | None = None,
         criterion: ConvergenceCriterion | None = None,
         strategy: ZfitStrategy | None = None,
-        name: str = "SciPy Nelder-Mead V1",
+        name: str = "SciPy Nelder-Mead ",
     ) -> None:
         """Local gradient-free dowhhill simplex method.py.
 

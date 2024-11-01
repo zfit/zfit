@@ -31,7 +31,7 @@ from .strategy import ZfitStrategy
 from .termination import CRITERION_NOT_AVAILABLE, EDM, ConvergenceCriterion
 
 
-class NLoptBaseMinimizerV1(BaseMinimizer):
+class NLoptBaseMinimizer(BaseMinimizer):
     _ALL_NLOPT_TOL = (
         # 'fatol',
         "ftol",
@@ -51,7 +51,7 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
         verbosity: int | None = None,
         strategy: ZfitStrategy | None = None,
         criterion: ConvergenceCriterion | None = None,
-        name: str = "NLopt Base Minimizer V1",
+        name: str = "NLopt Base Minimizer ",
     ):
         """NLopt is a library that contains multiple different optimization algorithms.
 
@@ -380,7 +380,7 @@ class NLoptBaseMinimizerV1(BaseMinimizer):
                     minimizer.set_xtol_rel(xtol)  # TODO: one value or vector?
 
 
-class NLoptLBFGSV1(NLoptBaseMinimizerV1):
+class NLoptLBFGS(NLoptBaseMinimizer):
     def __init__(
         self,
         tol: float | None = None,
@@ -389,7 +389,7 @@ class NLoptLBFGSV1(NLoptBaseMinimizerV1):
         maxiter: int | str | None = None,
         strategy: ZfitStrategy | None = None,
         criterion: ConvergenceCriterion | None = None,
-        name: str = "NLopt L-BFGS V1",
+        name: str = "NLopt L-BFGS ",
     ) -> None:
         """Local, gradient-based quasi-Newton minimizer using the low storage BFGS Hessian approximation.
 
@@ -482,7 +482,7 @@ class NLoptLBFGSV1(NLoptBaseMinimizerV1):
             return self.minimizer_options.get("maxcor")
 
 
-class NLoptShiftVarV1(NLoptBaseMinimizerV1):
+class NLoptShiftVar(NLoptBaseMinimizer):
     def __init__(
         self,
         tol: float | None = None,
@@ -597,7 +597,7 @@ class NLoptShiftVarV1(NLoptBaseMinimizerV1):
             return self.minimizer_options.get("maxcor")
 
 
-class NLoptTruncNewtonV1(NLoptBaseMinimizerV1):
+class NLoptTruncNewton(NLoptBaseMinimizer):
     def __init__(
         self,
         tol: float | None = None,
@@ -694,7 +694,7 @@ class NLoptTruncNewtonV1(NLoptBaseMinimizerV1):
             return self.minimizer_options.get("maxcor")
 
 
-class NLoptSLSQPV1(NLoptBaseMinimizerV1):
+class NLoptSLSQP(NLoptBaseMinimizer):
     def __init__(
         self,
         tol: float | None = None,
@@ -804,7 +804,7 @@ class NLoptSLSQPV1(NLoptBaseMinimizerV1):
         )
 
 
-class NLoptBOBYQAV1(NLoptBaseMinimizerV1):
+class NLoptBOBYQA(NLoptBaseMinimizer):
     def __init__(
         self,
         tol: float | None = None,
@@ -899,7 +899,7 @@ class NLoptBOBYQAV1(NLoptBaseMinimizerV1):
         )
 
 
-class NLoptMMAV1(NLoptBaseMinimizerV1):
+class NLoptMMA(NLoptBaseMinimizer):
     def __init__(
         self,
         tol: float | None = None,
@@ -995,7 +995,7 @@ class NLoptMMAV1(NLoptBaseMinimizerV1):
         )
 
 
-class NLoptCCSAQV1(NLoptBaseMinimizerV1):
+class NLoptCCSAQ(NLoptBaseMinimizer):
     def __init__(
         self,
         tol: float | None = None,
@@ -1082,7 +1082,7 @@ class NLoptCCSAQV1(NLoptBaseMinimizerV1):
         )
 
 
-class NLoptCOBYLAV1(NLoptBaseMinimizerV1):
+class NLoptCOBYLA(NLoptBaseMinimizer):
     def __init__(
         self,
         tol: float | None = None,
@@ -1198,7 +1198,7 @@ class NLoptCOBYLAV1(NLoptBaseMinimizerV1):
         )
 
 
-class NLoptSubplexV1(NLoptBaseMinimizerV1):
+class NLoptSubplex(NLoptBaseMinimizer):
     def __init__(
         self,
         tol: float | None = None,
@@ -1296,7 +1296,7 @@ class NLoptSubplexV1(NLoptBaseMinimizerV1):
         )
 
 
-class NLoptMLSLV1(NLoptBaseMinimizerV1):
+class NLoptMLSL(NLoptBaseMinimizer):
     def __init__(
         self,
         tol: float | None = None,
@@ -1426,7 +1426,7 @@ class NLoptMLSLV1(NLoptBaseMinimizerV1):
         )
 
 
-class NLoptStoGOV1(NLoptBaseMinimizerV1):
+class NLoptStoGO(NLoptBaseMinimizer):
     def __init__(
         self,
         tol: float | None = None,
@@ -1527,7 +1527,7 @@ class NLoptStoGOV1(NLoptBaseMinimizerV1):
         )
 
 
-class NLoptESCHV1(NLoptBaseMinimizerV1):
+class NLoptESCH(NLoptBaseMinimizer):
     def __init__(
         self,
         tol: float | None = None,
@@ -1635,7 +1635,7 @@ class NLoptESCHV1(NLoptBaseMinimizerV1):
         )
 
 
-class NLoptISRESV1(NLoptBaseMinimizerV1):
+class NLoptISRES(NLoptBaseMinimizer):
     def __init__(
         self,
         tol: float | None = None,

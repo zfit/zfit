@@ -18,7 +18,7 @@ zfit.run.set_autograd_mode(False)
 zfit.run.set_graph_mode(False)
 
 # create our favorite minimizer
-minimizer = zfit.minimize.IpyoptV1()
+minimizer = zfit.minimize.Ipyopt()
 
 
 # minimizer = zfit.minimize.Minuit()
