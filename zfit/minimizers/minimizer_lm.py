@@ -53,6 +53,54 @@ class LevenbergMarquardt(BaseMinimizer, GraphCachable):
         :math:`\\mathbb{I}` is the identity). For a clarifying discussion of the
         LM algorithm see: Gavin, Henri 2016
         (https://msulaiman.org/onewebmedia/LM%20Method%20matlab%20codes%20and%20implementation.pdf)
+
+        Args:
+            tol: |@doc:minimizer.tol| Termination value for the
+                   convergence/stopping criterion of the algorithm
+                   in order to determine if the minimum has
+                   been found. Defaults to 1e-3. |@docend:minimizer.tol|
+            mode: The mode of the LM algorithm. The default mode (0) is the
+                simplest form of the LM algorithm. Other modes may be implemented
+                in the future.
+            rho_min: The minimum acceptable value of the ratio of the actual
+                reduction in the loss function to the expected reduction. If the
+                ratio is less than this value, the damping parameter is increased.
+            rho_max: The maximum acceptable value of the ratio of the actual
+                reduction in the loss function to the expected reduction. If the
+                ratio is greater than this value, the damping parameter is
+                decreased.
+            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10.
+              The verbosity has the meaning:
+
+               - a value of 0 means quiet and no output
+               - above 0 up to 5, information that is good to know but without
+                 flooding the user, corresponding to a "INFO" level.
+               - A value above 5 starts printing out considerably more and
+                 is used more for debugging purposes.
+               - Setting the verbosity to 10 will print out every
+                 evaluation of the loss function and gradient.
+
+               Some minimizers offer additional output which is also
+               distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
+            options: |@doc:minimizer.options||@docend:minimizer.options|
+            maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
+                   This corresponds to roughly the maximum number of
+                   evaluations of the ``value``, 'gradient`` or ``hessian``. |@docend:minimizer.maxiter|
+            criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
+                   estimated measure for the distance to the
+                   minimum and can include the relative
+                   or absolute changes of the parameters,
+                   function value, gradients and more.
+                   If the value of the criterion is smaller
+                   than ``loss.errordef * tol``, the algorithm
+                   stopps and it is assumed that the minimum
+                   has been found. |@docend:minimizer.criterion|
+            strategy: |@doc:minimizer.strategy| A class of type ``ZfitStrategy`` that takes no
+                   input arguments in the init. Determines the behavior of the minimizer in
+                   certain situations, most notably when encountering
+                   NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
+            name: |@doc:minimizer.name||@docend:minimizer.name
+
         """
 
         mode = 0 if mode is None else mode
@@ -186,8 +234,6 @@ class LevenbergMarquardt(BaseMinimizer, GraphCachable):
                 fminopt=loss_history[-1],
                 approx=approx,
             )
-            # success = (len(loss_history) < 3 or (loss_history[-3] - loss_history[-1]) / loss_history[
-            #     -1] < self.tol) and criterion.converged(tempres)
             success = criterion.converged(tempres)
             if self.verbosity >= 7:
                 print(
@@ -195,7 +241,7 @@ class LevenbergMarquardt(BaseMinimizer, GraphCachable):
                 )
             if success:
                 if self.verbosity >= 6:
-                    pass
+                    print(f"Converged with criterion: {criterion.last_value} < {self.tol}")
                 break
         else:
             msg = f"Maximum number of iterations ({self.maxiter}) reached."
@@ -214,4 +260,5 @@ class LevenbergMarquardt(BaseMinimizer, GraphCachable):
             valid=success,
             criterion=criterion,
             approx=approx,
+            evaluator=evaluator,
         )

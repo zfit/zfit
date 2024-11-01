@@ -268,6 +268,15 @@ nlopt_minimizers = [
         {"error": do_errors_most},
     ),
 ]
+zfit_minimizers = [
+    (
+        zfit.minimize.LevenbergMarquardt,
+        {
+            "verbosity": verbosity,
+        },
+        {"error": False, "longtests": bool(zfit.run.get_graph_mode())},
+    ),]
+
 if platform.system() not in ("Darwin",):
     minimizers.extend(nlopt_minimizers)
 
@@ -277,6 +286,7 @@ if platform.system() not in ("Darwin",):
 minimizers_small = [
     (zfit.minimize.ScipyTrustConstr, {}, True),
     (zfit.minimize.Minuit, {}, True),
+    (zfit.minimize.LevenbergMarquardt, {}, True),
 ]
 if sys.version_info[1] < 12 and platform.system() not in ("Darwin",):
     minimizers_small.append((zfit.minimize.NLoptLBFGS, {}, True))
@@ -326,6 +336,7 @@ if (
 # minimizers = [(zfit.minimize.NLoptShiftVarV1, {'verbosity': 7, 'rank': 2}, {'error': True, 'longtests': True})]
 # minimizers = [(zfit.minimize.Minuit, {'verbosity': 6}, True)]
 # minimizers = [(zfit.minimize.BFGS, {'verbosity': 6}, True)]
+minimizers = [(zfit.minimize.LevenbergMarquardt, {'verbosity': 6}, True)]
 
 
 # sort for xdist: https://github.com/pytest-dev/pytest-xdist/issues/432

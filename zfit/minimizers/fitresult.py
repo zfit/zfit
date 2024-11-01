@@ -415,12 +415,12 @@ class FitResult(ZfitResult):
         if message is None:
             message = "" if valid else "Invalid, unknown reason (not specified)"
 
-        info = {} if info is None else info
         approx = self._input_convert_approx(approx, evaluator, info, params)
 
         if evaluator is not None:
             niter = evaluator.niter if niter is None else niter
 
+        info = {"n_eval": niter} if info is None else info
         param_at_limit = any(param.at_limit for param in params)
         if param_at_limit:
             valid = False
