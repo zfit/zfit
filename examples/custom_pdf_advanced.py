@@ -43,8 +43,8 @@ class CustomPDF2D(zfit.pdf.BasePDF):
 
 
 # define the integral function
-def integral_full(limits, norm_range, params, model):
-    del norm_range, model  # not used here
+def integral_full(limits, norm, params, model):
+    del norm, model  # not used here
     lower, upper = limits.v1.limits
     param1 = params["super_param"]
     param2 = params["param2"]
@@ -63,8 +63,8 @@ CustomPDF2D.register_analytic_integral(func=integral_full, limits=integral_full_
 
 
 # define the partial integral function
-def integral_axis1(x, limits, norm_range, params, model):
-    del norm_range, model  # not used here
+def integral_axis1(x, limits, norm, params, model):
+    del norm, model  # not used here
 
     data_0 = x[0]  # data from axis 0
 

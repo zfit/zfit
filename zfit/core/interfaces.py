@@ -820,7 +820,7 @@ class ZfitModel(ZfitNumericParametrized, ZfitDimensional):
 
     @abstractmethod
     def integrate(self, limits: ztyping.LimitsType, norm: ztyping.LimitsType = None, *, options=None) -> ztyping.XType:
-        """Integrate the function over `limits` (normalized over `norm_range` if not False).
+        """Integrate the function over `limits` (normalized over `norm` if not False).
 
         Args:
             * ():
@@ -872,7 +872,7 @@ class ZfitModel(ZfitNumericParametrized, ZfitDimensional):
         """Partially integrate the function over the `limits` and evaluate it at `x`.
 
         Dimension of `limits` and `x` have to add up to the full dimension and be therefore equal
-        to the dimensions of `norm_range` (if not False)
+        to the dimensions of `norm` (if not False)
 
         Args:
             * ():
@@ -880,7 +880,7 @@ class ZfitModel(ZfitNumericParametrized, ZfitDimensional):
             options ():
             x: The value at which the partially integrated function will be evaluated
             limits: the limits to integrate over. Can contain only some axes
-            norm_range: the limits to normalize over. Has to have all axes
+            norm: the limits to normalize over. Has to have all axes
 
         Returns:
             The value of the partially integrated function evaluated at `x`.
@@ -949,7 +949,7 @@ class ZfitPDF(ZfitModel):
         raise NotImplementedError
 
     @abstractmethod
-    def as_func(self, norm_range: ztyping.LimitsType = False):
+    def as_func(self, norm: ztyping.LimitsType = False):
         raise NotImplementedError
 
 

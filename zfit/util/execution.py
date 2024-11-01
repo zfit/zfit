@@ -411,7 +411,7 @@ class RunManager:
         """Clear all generated graphs and effectively reset. Should not affect execution, only performance.
 
         In a simple fit scenario, this is not used. But if several fits are performed with different python objects such
-        as a scan over a range (by changing the norm_range and creating a new dataset), doing minimization and therefore
+        as a scan over a range (by changing the norm and creating a new dataset), doing minimization and therefore
         invoking the loss (by default creating a graph) will leave the graphs in the cache, even tough the already
         scanned ranges are not needed anymore.
 

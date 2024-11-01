@@ -102,7 +102,7 @@ def _unbinned_nll_tf(
     else:
         if fit_range is not None:
             data = data.with_obs(fit_range)
-            probs = model.pdf(data, norm_range=fit_range)
+            probs = model.pdf(data, norm=fit_range)
         else:
             probs = model.pdf(data)
         log_probs = znp.log(probs + znp.asarray(1e-307, dtype=znp.float64))  # minor offset to avoid NaNs from log(0)
@@ -202,9 +202,9 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         Args:
             model: The model or models to evaluate the data on
             data: Data to use
-            fit_range: The fitting range. It's the norm_range for the models (if
+            fit_range: The fitting range. It's the norm for the models (if
                 they
-                have a norm_range) and the data_range for the data.
+                have a norm) and the data_range for the data.
             constraints: A Tensor representing a loss constraint. Using
                 ``zfit.constraint.*`` allows for easy use of predefined constraints.
             options: Different options for the loss calculation.

@@ -134,13 +134,13 @@ def test_gaussexptail_generalizedgaussexptail():
     np.testing.assert_allclose(ratio_l, 1.0, rtol=5e-7)
     np.testing.assert_allclose(ratio_r, 1.0, rtol=5e-7)
 
-    kwargs = dict(limits=(-5.0, mu), norm_range=lbounds)
+    kwargs = dict(limits=(-5.0, mu), norm=lbounds)
     intl = gaussexptaill.integrate(**kwargs) - generalizedgaussexptail.integrate(**kwargs)
     assert pytest.approx(intl, abs=1e-3) == 0.0
     intl = gaussexptailr.integrate(**kwargs) - generalizedgaussexptail.integrate(**kwargs)
     assert pytest.approx(intl, abs=2e-4) != 0.0
 
-    kwargs = dict(limits=(mu, 2.0), norm_range=rbounds)
+    kwargs = dict(limits=(mu, 2.0), norm=rbounds)
     intr = gaussexptailr.integrate(**kwargs) - generalizedgaussexptail.integrate(**kwargs)
     assert pytest.approx(intr, abs=1e-3) == 0.0
     intr = gaussexptaill.integrate(**kwargs) - generalizedgaussexptail.integrate(**kwargs)

@@ -19,10 +19,10 @@ __all__ = ["tester"]
 import scipy.integrate
 
 
-def check_integrate(func, limits, norm_range):
-    if norm_range is not False:
+def check_integrate(func, limits, norm):
+    if norm is not False:
         return check_integrate(func, limits, False) / check_integrate(
-            func, norm_range, False
+            func, norm, False
         )
     lower, upper = limits.limid1d
     return scipy.integrate.quad(func, lower, upper)

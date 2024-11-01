@@ -4,8 +4,6 @@ Constraint
 
 Use Constraint to constrain your models parameters.
 
-.. todo::
-    Include more built-in Constraints.
 
 .. autosummary::
     :toctree: _generated/constraint

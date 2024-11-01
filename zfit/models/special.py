@@ -46,7 +46,7 @@ def raise_error_if_norm_range(func):
     def wrapped(*args, **kwargs):
         try:
             return func(*args, **kwargs)
-        except NormRangeNotImplemented:  # TODO: silently remove norm_range? Or loudly fail?
+        except NormRangeNotImplemented:  # TODO: silently remove norm? Or loudly fail?
             msg = "Norm_range given to Function: cannot be normalized."
             raise tf.errors.InvalidArgumentError(msg) from None
 

@@ -138,8 +138,8 @@ Major Features and Improvements
 -------------------------------
 - Parameter behavior has changed, multiple parameters with the same name can now coexist!
   The ``NameAlreadyTakenError`` has been successfully removed (yay!). The new behavior only enforces that
-  names and matching parameters *within a function/PDF/loss* are unique, as otherwise inconsistent expectations appear (for the full discussion on this, see `here <https://github.com/zfit/zfit/discussions/342>`_).
-- ``Space`` and limits have a complete overhaul in front of them, in short, these overcomplicated objects get simplified and the limits become more usable, in terms of dimensions. The full discussion and changes can be `found here <https://github.com/zfit/zfit/discussions/533>`_ .
+  names and matching parameters *within a function/PDF/loss* are unique, as otherwise inconsistent expectations appear (for the `full discussion <https://github.com/zfit/zfit/discussions/342>`_).
+- ``Space`` and limits have a complete overhaul in front of them, in short, these overcomplicated objects get simplified and the limits become more usable, in terms of dimensions. The `full discussion and changes can be found here <https://github.com/zfit/zfit/discussions/533>`_ .
 - add an unbinned ``Sampler`` to the public namespace under ``zfit.data.Sampler``: this object is returned in the ``create_sampler`` method and allows to resample from a function without recreating the compiled function, i.e. loss. It has an additional method ``update_data`` to update the data without recompiling the loss and can be created from a sample only. Useful to have a custom dataset in toys.
 - allow to use pandas DataFrame as input where zfit Data objects are expected
 - Methods of PDFs and loss functions that depend on parameters take now the value of a parameter explicitly as arguments, as a mapping of str (parameter name) to value.
@@ -150,10 +150,10 @@ Major Features and Improvements
 - add ``Voigt`` profile PDF which is a convolution of a Gaussian and a Cauchy distribution.
 - add ``TruncatedPDF`` that allows to truncate in one or multiple ranges (replaces "MultipleLimits" and "MultiSpace")
 - add ``LogNormal`` PDF, a log-normal distribution, which is a normal distribution of the logarithm of the variable.
-- add ``ChiSquared`` PDF, the standard chi2 distribution, taken from `tensorflow-probability implementation <https://www.tensorflow.org/probability/api_docs/python/tfp/distributions/Chi2>`_.
+- add ``ChiSquared`` PDF, the standard chi2 distribution, taken from `the tensorflow-probability implementation <https://www.tensorflow.org/probability/api_docs/python/tfp/distributions/Chi2>`_.
 - add ``StudentT`` PDF, the standard Student's t distribution, taken from `tensorflow-probability implementation <https://www.tensorflow.org/probability/api_docs/python/tfp/distributions/StudentT>`_.
 - add ``GaussExpTail`` and ``GeneralizedGaussExpTail`` PDFs, which are a Gaussian with an exponential tail on one side and a Gaussian with different sigmas on each side and different exponential tails on each side respectively.
-- add ``QGauss`` PDF, a distribution that arises from the maximization of the Tsallis entropy under appropriate constraints, see `here <https://en.wikipedia.org/wiki/Q-Gaussian_distribution>`_.
+- add ``QGauss`` PDF, a distribution that arises from the maximization of the Tsallis entropy under appropriate constraints, `see here <https://en.wikipedia.org/wiki/Q-Gaussian_distribution>`_.
 - add ``BifurGauss`` PDF, a Gaussian distribution with different sigmas on each side of the mean.
 - add ``Bernstein`` PDF, which is a PDF defined by a linear combination of Bernstein polynomials given their coefficients.
 - add ``Gamma`` PDF, the Gamma distribution.

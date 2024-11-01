@@ -45,15 +45,13 @@ class Minuit(BaseMinimizer, GraphCachable):
         ncall=None,
         minimizer_options=None,
     ):
-        """Minuit is a longstanding and well proven algorithm of the L-BFGS-B class implemented in `iminuit`_.
+        """Minuit is a longstanding and well proven algorithm of the L-BFGS-B class implemented in iminuit.
 
-        The package iminuit is the fast, interactive minimizer based on the Minuit2 C++ library; the latter is
+        The `iminuit <https://iminuit.readthedocs.io/en/stable/>`_ package is a fast, time-proven
+        minimizer based on the Minuit2 C++ library; the latter is
         maintained by CERN's ROOT team. It is an especially robust minimizer that finds the global minimum
         quiet reliably. It is however, like all local minimizers, still rather dependent on close enough
         initial values.
-
-        .. _iminuit: https://iminuit.readthedocs.io/en/stable/.
-
 
         Args:
             tol:  |@doc:minimizer.tol| Termination value for the
