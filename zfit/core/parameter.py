@@ -922,7 +922,7 @@ class ConstantParameter(OverloadableMixin, ZfitParameterMixin, BaseParameter, Se
         """
         super().__init__(name=name, params={}, dtype=ztypes.float, label=label)
         self._value_np = tf.get_static_value(value, partial=True)
-        self._value = tf.guarantee_const(tf.convert_to_tensor(value, dtype=self.dtype))
+        self._value = tf.guarantee_const(znp.array(value, dtype=self.dtype))
 
     @property
     def shape(self):

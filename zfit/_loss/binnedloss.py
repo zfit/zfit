@@ -433,7 +433,7 @@ class BinnedNLL(BaseBinned):
         self._errordef = 0.5
         super().__init__(model=model, data=data, constraints=constraints, options=options)
         extended_pdfs = [pdf for pdf in self.model if pdf.is_extended]
-        if extended_pdfs and type(self) == BinnedNLL:
+        if extended_pdfs and type(self) is BinnedNLL:
             warn_advanced_feature(
                 f"Extended PDFs ({extended_pdfs}) are given to a normal BinnedNLL. "
                 f" This won't take the yield "
@@ -625,7 +625,7 @@ class BinnedChi2(BaseBinned):
             options["errors"] = "data"
         super().__init__(model=model, data=data, constraints=constraints, options=options)
         extended_pdfs = [pdf for pdf in self.model if pdf.is_extended]
-        if extended_pdfs and type(self) == BinnedChi2:
+        if extended_pdfs and type(self) is BinnedChi2:
             warn_advanced_feature(
                 f"Extended PDFs ({extended_pdfs}) are given to a normal BinnedChi2. "
                 f" This won't take the yield "

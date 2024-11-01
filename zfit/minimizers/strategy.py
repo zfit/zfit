@@ -41,7 +41,7 @@ class BaseStrategy(ZfitStrategy):
         self.error = None
         super().__init__()
 
-    def minimize_nan(self, loss: ZfitLoss, params: ztyping.ParamTypeInput, values: Optional[Mapping] = None) -> float:
+    def minimize_nan(self, loss: ZfitLoss, params: ztyping.ParamTypeInput, values: Optional[Mapping] = None) -> float:  # noqa: ARG002
         raise FailMinimizeNaN()
 
     def callback(self, value, gradient, hessian, params, loss):

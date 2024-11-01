@@ -969,6 +969,7 @@ class Bernstein(BasePDF, SerializableMixin):
 
     @supports(norm=False)
     def _pdf(self, x, norm, params):
+        del norm
         x = x[0]
         x = self._polynomials_rescale(x)
         return self._poly_func(x=x, params=params)
