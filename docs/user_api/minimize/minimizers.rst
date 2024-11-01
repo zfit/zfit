@@ -30,6 +30,14 @@ Minuit
 
     zfit.minimize.Minuit
 
+Levenberg-Marquardt
+:::::::::::::::::::::
+
+.. autosummary::
+    :toctree: _generated/minimizers
+
+    zfit.minimize.LevenbergMarquardt
+
 
 Ipyopt
 :::::::
