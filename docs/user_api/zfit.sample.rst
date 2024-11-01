@@ -1,7 +1,7 @@
 Sample
 ------
 
-.. todo:: Fill overview page
+
 
 .. autosummary::
     :toctree: _generated/sample
