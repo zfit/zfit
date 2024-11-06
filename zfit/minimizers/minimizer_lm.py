@@ -218,7 +218,7 @@ class LevenbergMarquardt(BaseMinimizer, GraphCachable):
         paramvals = znp.asarray(params)
         step = None
         approx = None
-        iterator = range(self.maxiter)
+        iterator = range(self.get_maxiter(n=len(params)))
         for _niter in iterator:
             try:
                 new_point = self._mode0_step(evaluator, paramvals, L)

@@ -748,7 +748,7 @@ class FitResult(ZfitResult):
         if evaluator is not None:
             valid = valid and not evaluator.maxiter_reached
         if values is None:
-            values = (res.value for res in params_result)
+            values = tuple(res.value for res in params_result)
         params = dict(zip(params, values))
         return cls(
             params=params,

@@ -497,7 +497,6 @@ def test_new_minimum(minimizer_class_and_kwargs):
             params=params_dict,
             edm=result.edm,
             fminopt=result.fminopt,
-            info=result.info,
             loss=loss,
             status=result.status,
             converged=result.converged,
