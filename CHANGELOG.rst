@@ -9,7 +9,7 @@ Develop
 
 Major Features and Improvements
 -------------------------------
-
+- add Landau distribution
 Breaking changes
 ------------------
 
