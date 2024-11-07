@@ -20,6 +20,7 @@ progressbar2
 pydata-sphinx-theme>=0.9  # new dark theme configuration
 pygit2
 pyhf>=0.7.0  # for comparison of correctness
+pylandau
 pytest-benchmark
 pytest-cases
 pytest-helpers-namespace

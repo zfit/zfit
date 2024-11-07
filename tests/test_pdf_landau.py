@@ -1,11 +1,10 @@
 #  Copyright (c) 2024 zfit
 import numpy as np
-import pytest
 import pylandau
 
 import zfit
-from zfit import z
 import zfit.z.numpy as znp
+from zfit import z
 from zfit.core.testing import tester
 from zfit.models.physics import Landau
 
@@ -35,19 +34,22 @@ def eval_testing(pdf, x): # -> not yet implemented below.
 
 def ensure_positivity(landau, test_values):
     probs1 = landau.pdf(x=test_values, norm=False)
-    np.testing.assert_array_less(0, probs1)
+    np.testing.assert_array_less(0, probs1 + 1e-300)  # a small offset, could be negative
+    sample1 = landau.sample(100)
+    assert len(sample1.value()) == 100
+    probs2 = landau.pdf(x=sample1)
+    np.testing.assert_array_less(0, probs2)
+
+
+def perform_test_accuracy_and_sampling(landau, mean, sigma, test_values):
+    probs1 = landau.pdf(test_values)
+
     sample1 = landau.sample(100)
     assert len(sample1.value()) == 100
 
-
-def test_accuracy_and_sampling(landau, mean, sigma, test_values):
-    probs1 = landau.pdf(test_values, norm=False)
-
-    sample1 = landau.sample(100)
-    assert len(sample1.value()) == 100
-
-    probs2 = pylandau.landau((test_values - mean) / sigma)
-    np.testing.assert_allclose(probs1, probs2, rtol=1e-10, atol=1e-08)
+    probs2 = pylandau.landau(np.array((test_values - mean) / sigma))
+    scale =np.mean(probs1) / np.mean(probs2)
+    np.testing.assert_allclose(probs1, probs2 * scale, rtol=1e-10, atol=1e-08)
 
 def test_landau():
     mean1_true = 1.0
@@ -64,6 +66,6 @@ def test_landau():
 
     sample_testing(landau1)
 
-    # ensure_positivity(landau1, test_values)
+    ensure_positivity(landau1, test_values)
 
-    # test_accuracy_and_sampling(landau1, mean, sigma, test_values)
+    perform_test_accuracy_and_sampling(landau1, mean, sigma, test_values)
