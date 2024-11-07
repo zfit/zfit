@@ -60,7 +60,7 @@ init(autoreset=True)
 class Approximations:
     def __init__(
         self,
-        params: list[ZfitParameter],
+        params: list[ZfitParameter] | tuple[ZfitParameter],
         gradient: np.ndarray | None = None,
         hessian: np.ndarray | None = None,
         inv_hessian: np.ndarray | None = None,
@@ -73,6 +73,35 @@ class Approximations:
             hessian: Hessian Matrix
             inv_hessian: Inverse of the Hessian Matrix
         """
+        if isinstance(params, dict):
+            params = list(params)
+        if not isinstance(params, (list, tuple)):
+            msg = f"params has to be a list or tuple, not {type(params)}"
+            raise TypeError(msg)
+        if gradient is not None:
+            if gradient.ndim > 1:
+                msg = f"Gradient has to be a 1D array, not {gradient.shape}"
+                raise ValueError(msg)
+            if gradient.shape[0] != len(params):
+                msg = f"Gradient has to have the same length as params, {gradient.shape[0]} != {len(params)}"
+                raise ValueError(msg)
+
+        if hessian is not None:
+            if hessian.ndim != 2:
+                msg = f"Hessian has to be a 2D array, not {hessian.shape}"
+                raise ValueError(msg)
+            if hessian.shape[0] != len(params) or hessian.shape[1] != len(params):
+                msg = f"Hessian has to have the same length as params, {hessian.shape} != {len(params)}"
+                raise ValueError(msg)
+
+        if inv_hessian is not None:
+            if inv_hessian.ndim != 2:
+                msg = f"Inverse Hessian has to be a 2D array, not {inv_hessian.shape}"
+                raise ValueError(msg)
+            if inv_hessian.shape[0] != len(params) or inv_hessian.shape[1] != len(params):
+                msg = f"Inverse Hessian has to have the same length as params, {inv_hessian.shape} != {len(params)}"
+                raise ValueError(msg)
+
         self._params = params
         self._gradient = gradient
         self._hessian = hessian
@@ -386,12 +415,12 @@ class FitResult(ZfitResult):
         if message is None:
             message = "" if valid else "Invalid, unknown reason (not specified)"
 
-        info = {} if info is None else info
         approx = self._input_convert_approx(approx, evaluator, info, params)
 
         if evaluator is not None:
             niter = evaluator.niter if niter is None else niter
 
+        info = {"n_eval": niter} if info is None else info
         param_at_limit = any(param.at_limit for param in params)
         if param_at_limit:
             valid = False
@@ -719,7 +748,7 @@ class FitResult(ZfitResult):
         if evaluator is not None:
             valid = valid and not evaluator.maxiter_reached
         if values is None:
-            values = (res.value for res in params_result)
+            values = tuple(res.value for res in params_result)
         params = dict(zip(params, values))
         return cls(
             params=params,

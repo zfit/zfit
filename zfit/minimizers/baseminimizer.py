@@ -215,7 +215,7 @@ class BaseMinimizer(ZfitMinimizer):
 
         self._strategy = strategy
         self._state = None
-        self.maxiter = self._DEFAULTS["maxiter"] if maxiter is None else maxiter
+        self._maxiter = self._DEFAULTS["maxiter"] if maxiter is None else maxiter
         self.name = repr(self.__class__)[:-2].split(".")[-1] if name is None else name
 
     @classmethod
@@ -577,12 +577,16 @@ class BaseMinimizer(ZfitMinimizer):
             else:
                 msg = "n cannot be None if not called within minimize"
                 raise ValueError(msg)
-        maxiter = self.maxiter
+        maxiter = self._maxiter
         if callable(maxiter):
             maxiter = maxiter(n)
         elif maxiter == "auto":
             maxiter = self._n_iter_per_param * n
         return maxiter
+
+    @property
+    def maxiter(self):
+        return self.get_maxiter()
 
     def create_evaluator(
         self,
