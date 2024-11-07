@@ -131,6 +131,11 @@ class FFTConvPDFV1(BaseFunctor, SerializableMixin):
                :py:class:`~zfit.pdf.BinnedFromUnbinnedPDF`, equivalent to
                calling :py:meth:`~zfit.pdf.BasePDF.to_binned`.
 
+               If the observables are binned and the model is unbinned, the
+               model will be a binned model, by wrapping the model in a
+               :py:class:`~zfit.pdf.BinnedFromUnbinnedPDF`, equivalent to
+               calling :py:meth:`~zfit.pdf.BasePDF.to_binned`.
+
                The observables are not equal to the domain as it does not restrict or
                truncate the model outside this range. |@docend:pdf.init.obs|
                If not specified, automatically taken from `func`

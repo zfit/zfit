@@ -111,15 +111,15 @@ class ShapeIncompatibleError(IncompatibleError):
     pass
 
 
-class ObsIncompatibleError(IncompatibleError):
-    pass
-
-
-class AxesIncompatibleError(IncompatibleError):
-    pass
-
-
 class CoordinatesIncompatibleError(IncompatibleError):
+    pass
+
+
+class ObsIncompatibleError(CoordinatesIncompatibleError):
+    pass
+
+
+class AxesIncompatibleError(CoordinatesIncompatibleError):
     pass
 
 
@@ -226,7 +226,7 @@ class AnalyticSamplingNotImplemented(AnalyticNotImplemented):
 
 # PDF class internal handling errors
 class NormNotImplemented(StandardControlFlow):
-    """Indicates that a function does not support the normalization range argument `norm_range`."""
+    """Indicates that a function does not support the normalization range argument `norm`."""
 
 
 NormRangeNotImplemented = NormNotImplemented  # legacy

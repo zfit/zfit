@@ -127,7 +127,6 @@ def test_truncated_pdf_sample(pdf, limits):
     all_inside = (samples >= -1) * (samples <= 1) + (samples >= 2) * (samples <= 3)
     np.testing.assert_array_equal(all_inside, np.ones(n, dtype=bool))
 
-
 def test_dynamic_truncated_yield():
     import numpy as np
 
@@ -168,7 +167,7 @@ def test_dynamic_truncated_yield():
     nll2 = zfit.loss.ExtendedUnbinnedNLL(model=gauss2_trunc, data=data2)
     nll_simultaneous2 = nll1 + nll2
 
-    minimizer = zfit.minimize.Minuit(tol=1e-3, gradient='zfit')
+    minimizer = zfit.minimize.Minuit(tol=1e-4, gradient='zfit')
     result = minimizer.minimize(nll_simultaneous2)
     result.hesse()
 

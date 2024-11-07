@@ -1,7 +1,10 @@
+Minimizers
+###########
+
 zfit supplies wrappers for different minimizers from multiple libraries. Most of the are local
-minimizers (such as :class:`~zfit.minimize.Minuit`, :class:`~zfit.minimize.IpyoptV1` or
-:class:`~zfit.minimize.ScipyLBFGSBV1` are) while there are also a few global ones such as
-the :class:`~zfit.minimize.NLoptISRESV1` or :class:`~zfit.minimize.NLoptStoGOV1`.
+minimizers (such as :class:`~zfit.minimize.Minuit`, :class:`~zfit.minimize.Ipyopt` or
+:class:`~zfit.minimize.ScipyLBFGSB` are) while there are also a few global ones such as
+the :class:`~zfit.minimize.NLoptISRES` or :class:`~zfit.minimize.NLoptStoGO`.
 
 While the former are usually faster and preferred, they depend more on the initial values than
 the latter. Especially in higher dimensions, a global search of the parameters
@@ -20,38 +23,54 @@ which takes a loss, parameters and (optionally) a :class:`~zfit.result.FitResult
 take information to have a better start into the minimization.
 
 Minuit
-======
+:::::::
 
 .. autosummary::
     :toctree: _generated/minimizers
 
     zfit.minimize.Minuit
 
+Levenberg-Marquardt
+:::::::::::::::::::::
+
+.. autosummary::
+    :toctree: _generated/minimizers
+
+    zfit.minimize.LevenbergMarquardt
+
+
 Ipyopt
-======
+:::::::
 
 
 .. autosummary::
     :toctree: _generated/minimizers
 
-    zfit.minimize.IpyoptV1
+    zfit.minimize.Ipyopt
 
 
 Scipy
-=====
+::::::
 
 .. autosummary::
     :toctree: _generated/minimizers
 
-    zfit.minimize.ScipyLBFGSBV1
-    zfit.minimize.ScipyTrustConstrV1
-    zfit.minimize.ScipyPowellV1
-    zfit.minimize.ScipySLSQPV1
-    zfit.minimize.ScipyTruncNCV1
+    zfit.minimize.ScipyBFGS
+    zfit.minimize.ScipyLBFGSB
+    zfit.minimize.ScipyTrustConstr
+    zfit.minimize.ScipyPowell
+    zfit.minimize.ScipySLSQP
+    zfit.minimize.ScipyTruncNC
+    zfit.minimize.ScipyCOBYLA
+    zfit.minimize.ScipyTrustNCG
+    zfit.minimize.ScipyDogleg
+    zfit.minimize.ScipyTrustKrylov
+
+
 
 
 NLopt
-=====
+::::::
 
 .. autosummary::
     :toctree: _generated/minimizers
@@ -69,13 +88,3 @@ NLopt
     zfit.minimize.NLoptISRESV1
     zfit.minimize.NLoptESCHV1
     zfit.minimize.NLoptShiftVarV1
-
-
-
-Tensorflow
-======================
-
-.. autosummary::
-    :toctree: _generated/minimizers
-
-    zfit.minimize.Adam

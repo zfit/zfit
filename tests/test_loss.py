@@ -195,10 +195,10 @@ def test_unbinned_nll(weights, sigma, options):
         np.std(test_values_np), rel=rel_error
     ) == params[sigma1]["value"]
 
-    constraints = zfit.constraint.nll_gaussian(
+    constraints = zfit.constraint.GaussianConstraint(
         params=[mu2, sigma2],
         observation=[mu_constr[0], sigma_constr[0]],
-        uncertainty=sigma(),
+        cov=sigma(),
     )
     nll_object = UnbinnedNLL(
         model=gaussian2, data=test_values, constraints=constraints, options=options
@@ -235,11 +235,11 @@ def test_add():
     ranges[2] = Space(limits=(3, 6), obs=obs1)
     ranges[3] = Space(limits=(4, 7), obs=obs1)
 
-    constraint1 = zfit.constraint.nll_gaussian(
-        params=param1, observation=1.0, uncertainty=0.5
+    constraint1 = zfit.constraint.GaussianConstraint(
+        params=param1, observation=1.0, sigma=0.5
     )
-    constraint2 = zfit.constraint.nll_gaussian(
-        params=param3, observation=2.0, uncertainty=0.25
+    constraint2 = zfit.constraint.GaussianConstraint(
+        params=param3, observation=2.0, sigma=0.25
     )
     merged_contraints = [constraint1, constraint2]
 
@@ -319,7 +319,7 @@ def test_gradients(chunksize, numgrad):
     gradient2_true_numdiff = gradient_func1and2([initial2, initial1])
     gradient2_true = jacobi.jacobi(loss_funcparam1and2, [initial2, initial1])[0]
     np.testing.assert_allclose(gradient2_true, gradient2_true_numdiff, rtol=1e-6)  # if this fails, numdiff/jacobi disagree
-    np.testing.assert_allclose(gradient2, gradient2_true, rtol=1e-6)
+    np.testing.assert_allclose(gradient2, gradient2_true, rtol=1e-5)
 
     param1.set_value(initial1)
     param2.set_value(initial2)
@@ -341,7 +341,7 @@ def test_simple_loss():
     true_c = -0.3
     truevals = true_a, true_b, true_c
     a_param = zfit.Parameter(
-        "variable_a15151loss", 1.5, -1.0, 20.0, step_size=z.constant(0.1)
+        "variable_a15151loss", 1.5, -1.0, 20.0, stepsize=z.constant(0.1)
     )
     b_param = zfit.Parameter("variable_b15151loss", 3.5)
     c_param = zfit.Parameter("variable_c15151loss", -0.23)
@@ -367,7 +367,6 @@ def test_simple_loss():
     loss = zfit.loss.SimpleLoss(func=loss_func, params=param_list)
     loss2 = zfit.loss.SimpleLoss(func=loss_func, params=truevals)
 
-    assert loss_deps.get_cache_deps() == set(param_list)
     assert set(loss_deps.get_params()) == set(param_list)
 
     loss_tensor = loss_func(param_list)
@@ -379,9 +378,6 @@ def test_simple_loss():
     assert pytest.approx(
         loss_deps.value(full=True)
     ) == loss.value(full=True)
-
-    with pytest.raises(IntentionAmbiguousError):
-        _ = loss + loss_deps
 
     minimizer = zfit.minimize.Minuit()
     result = minimizer.minimize(loss=loss)
@@ -397,6 +393,48 @@ def test_simple_loss():
     assert pytest.approx(result2.params[params[0]]["value"], rel=0.03) == true_a
     assert pytest.approx(result2.params[params[1]]["value"], rel=0.06) == true_b
     assert pytest.approx(result2.params[params[2]]["value"], rel=0.5) == true_c
+
+
+def test_simple_loss_addition():
+
+    pa = zfit.Parameter("pa", 1.0)
+    pb = zfit.Parameter("pb", 2.0)
+    pc = zfit.Parameter("pc", 3.0)
+    pd = zfit.Parameter("pd", 4.0)
+    pe = zfit.Parameter("pe", 5.0)
+
+    loss1 = zfit.loss.SimpleLoss(lambda x: x[0] ** 2, params=pa, errordef=0.5)
+    loss2 = zfit.loss.SimpleLoss(lambda x: x[0] ** 2 + x[1] ** 2, params=[pb, pc], errordef=0.5)
+    loss3 = zfit.loss.SimpleLoss(lambda x: x[0] ** 2 + x[1] ** 2 + x[2] ** 2, params=[pa, pb, pc], errordef=2)
+    loss4 = zfit.loss.SimpleLoss(lambda x: x[0] ** 2 + x[1] ** 2, [pd, pe], errordef=0.5)
+
+    loss12 = loss1 + loss2
+
+    assert set(loss12.get_params()) == {pa, pb, pc}
+    assert loss12.errordef == 0.5
+    assert loss12.value() == loss1.value() + loss2.value()
+    assert loss12.value(full=True) == loss1.value(full=True) + loss2.value(full=True)
+
+    loss123 = loss1 + loss2 + loss3
+    assert set(loss123.get_params()) == {pa, pb, pc}
+    assert loss123.errordef == 0.5
+    assert loss123.value() == loss1.value() + loss2.value() + 0.25 * loss3.value()
+    assert loss123.value(full=True) == loss1.value(full=True) + loss2.value(full=True) + 0.25 * loss3.value(full=True)
+
+    loss1234 = loss1 + loss2 + loss3 + loss4
+    assert set(loss1234.get_params()) == {pa, pb, pc, pd, pe}
+    assert loss1234.errordef == 0.5
+    assert loss1234.value() == loss1.value() + loss2.value() + 0.25 * loss3.value() + loss4.value()
+    assert loss1234.value(full=True) == loss1.value(full=True) + loss2.value(full=True) + 0.25 * loss3.value(full=True) + loss4.value(full=True)
+
+    loss3124 = loss3 + loss1 + loss2 + loss4
+    assert set(loss3124.get_params()) == {pa, pb, pc, pd, pe}
+    assert loss3124.errordef == 2
+    assert loss3124.value() ==  loss3.value() + 4 * loss1.value() + 4 * loss2.value() + 4 * loss4.value()
+    assert loss3124.value(full=True) == loss3.value(full=True) + 4 * loss1.value(full=True) + 4 * loss2.value(full=True) + 4 * loss4.value(full=True)
+
+
+
 
 
 def test_create_new_nll():

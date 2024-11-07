@@ -4,20 +4,21 @@
 %TAG ! tag:stsci.edu:asdf/
 --- !core/asdf-1.1.0
 asdf_library: !core/software-1.0.0 {author: The ASDF Developers, homepage: 'http://github.com/asdf-format/asdf',
-  name: asdf, version: 3.2.0}
+  name: asdf, version: 3.5.0}
 history:
   extensions:
   - !core/extension_metadata-1.0.0
     extension_class: asdf.extension._manifest.ManifestExtension
     extension_uri: asdf://asdf-format.org/core/extensions/core-1.5.0
-    software: !core/software-1.0.0 {name: asdf, version: 3.2.0}
+    manifest_software: !core/software-1.0.0 {name: asdf_standard, version: 1.1.1}
+    software: !core/software-1.0.0 {name: asdf, version: 3.5.0}
 constraints:
 - observation: [0.1, 1.2]
   params:
-  - {floating: true, max: 1.0, min: -1.0, name: mu, step_size: 0.01, type: Parameter,
+  - {floating: true, label: mu, max: 1.0, min: -1.0, name: mu, stepsize: 0.01, type: Parameter,
     value: 0.1}
-  - {floating: true, max: 10.0, min: 0.0, name: sigma, step_size: 0.01, type: Parameter,
-    value: 1.0}
+  - {floating: true, label: sigma, max: 10.0, min: 0.0, name: sigma, stepsize: 0.01,
+    type: Parameter, value: 1.0}
   type: LogNormalConstraint
   uncertainty: [0.1, 0.5]
 data:
@@ -32,12 +33,29 @@ data:
 model:
 - extended: false
   fracs:
-  - {floating: true, max: 1.0, min: -1.0, name: frac_sum3_0, step_size: 0.01, type: Parameter,
-    value: 0.1}
-  - {floating: true, max: 1.0, min: -1.0, name: frac_sum3_1, step_size: 0.01, type: Parameter,
-    value: 0.1}
-  - {floating: true, max: 1.0, min: -1.0, name: frac_sum3_2, step_size: 0.01, type: Parameter,
-    value: 0.1}
+  - {floating: true, label: frac_sum3_0, max: 1.0, min: -1.0, name: frac_sum3_0, stepsize: 0.01,
+    type: Parameter, value: 0.1}
+  - {floating: true, label: frac_sum3_1, max: 1.0, min: -1.0, name: frac_sum3_1, stepsize: 0.01,
+    type: Parameter, value: 0.1}
+  - {floating: true, label: frac_sum3_2, max: 1.0, min: -1.0, name: frac_sum3_2, stepsize: 0.01,
+    type: Parameter, value: 0.1}
+  - func: 800495d1010000000000008c0a64696c6c2e5f64696c6c948c105f6372656174655f66756e6374696f6e9493942868008c0c5f6372656174655f636f6465949394284b014b004b004b014b064a53000001432274006a01640174026a0364028d027400a00474057c00a006a1008301a10118005300944e473ff00000000000008c0564747970659485948794288c027466948c08636f6e7374616e74948c067a7479706573948c05666c6f6174948c056164645f6e948c046c697374948c0676616c7565739474948c06706172616d739485948c582f686f6d652f6a6f6e61732f446f63756d656e74732f706879736963732f736f6674776172652f7a6669745f70726f6a6563742f7a6669745f7265706f2f7a6669742f6d6f64656c732f6261736566756e63746f722e7079948c1372656d61696e696e675f667261635f66756e63944bc44302000194292974945294637a6669742e6d6f64656c732e6261736566756e63746f720a5f5f646963745f5f0a68144e4e749452947d947d94288c0f5f5f616e6e6f746174696f6e735f5f947d948c0c5f5f7175616c6e616d655f5f948c315f70726570726f636573735f696e69745f73756d2e3c6c6f63616c733e2e72656d61696e696e675f667261635f66756e6394758694622e
+    internal_params:
+      frac_0: {floating: true, label: frac_sum3_0, max: 1.0, min: -1.0, name: frac_sum3_0,
+        stepsize: 0.01, type: Parameter, value: 0.1}
+      frac_1: {floating: true, label: frac_sum3_1, max: 1.0, min: -1.0, name: frac_sum3_1,
+        stepsize: 0.01, type: Parameter, value: 0.1}
+      frac_2: {floating: true, label: frac_sum3_2, max: 1.0, min: -1.0, name: frac_sum3_2,
+        stepsize: 0.01, type: Parameter, value: 0.1}
+    name: Composed_autoparam_11
+    params:
+      frac_0: {floating: true, label: frac_sum3_0, max: 1.0, min: -1.0, name: frac_sum3_0,
+        stepsize: 0.01, type: Parameter, value: 0.1}
+      frac_1: {floating: true, label: frac_sum3_1, max: 1.0, min: -1.0, name: frac_sum3_1,
+        stepsize: 0.01, type: Parameter, value: 0.1}
+      frac_2: {floating: true, label: frac_sum3_2, max: 1.0, min: -1.0, name: frac_sum3_2,
+        stepsize: 0.01, type: Parameter, value: 0.1}
+    type: ComposedParameter
   name: complicatedpdf
   pdfs:
   - data: &id002 !core/ndarray-1.0.0
@@ -74,208 +92,236 @@ model:
     pdfs:
     - apply_scaling: true
       coeffs:
-        c_0: {floating: false, name: FIXED_autoparam_5, type: ConstantParameter, value: 1.0}
-        c_1: {floating: true, max: .inf, min: -.inf, name: coeff0_laguerre, step_size: 0.01,
-          type: Parameter, value: 0.1}
-        c_2: {floating: true, max: .inf, min: -.inf, name: coeff1_laguerre, step_size: 0.01,
-          type: Parameter, value: 0.1}
-        c_3: {floating: true, max: .inf, min: -.inf, name: coeff2_laguerre, step_size: 0.01,
-          type: Parameter, value: 0.1}
-        c_4: {floating: true, max: .inf, min: -.inf, name: coeff3_laguerre, step_size: 0.01,
-          type: Parameter, value: 0.1}
-        c_5: {floating: true, max: .inf, min: -.inf, name: coeff4_laguerre, step_size: 0.01,
-          type: Parameter, value: 0.1}
+        c_0: {floating: false, label: FIXED_autoparam_5, name: FIXED_autoparam_5,
+          type: ConstantParameter, value: 1.0}
+        c_1: {floating: true, label: coeff0_laguerre, max: .inf, min: -.inf, name: coeff0_laguerre,
+          stepsize: 0.01, type: Parameter, value: 0.1}
+        c_2: {floating: true, label: coeff1_laguerre, max: .inf, min: -.inf, name: coeff1_laguerre,
+          stepsize: 0.01, type: Parameter, value: 0.1}
+        c_3: {floating: true, label: coeff2_laguerre, max: .inf, min: -.inf, name: coeff2_laguerre,
+          stepsize: 0.01, type: Parameter, value: 0.1}
+        c_4: {floating: true, label: coeff3_laguerre, max: .inf, min: -.inf, name: coeff3_laguerre,
+          stepsize: 0.01, type: Parameter, value: 0.1}
+        c_5: {floating: true, label: coeff4_laguerre, max: .inf, min: -.inf, name: coeff4_laguerre,
+          stepsize: 0.01, type: Parameter, value: 0.1}
       name: Laguerre
       type: Laguerre
       x: {max: 3.0, min: -2.1, name: obs, type: Space}
     - apply_scaling: true
       coeffs:
-        c_0: {floating: false, name: FIXED_autoparam_6, type: ConstantParameter, value: 1.0}
-        c_1: {floating: true, max: 1.0, min: -1.0, name: coeff0_cheby2, step_size: 0.01,
-          type: Parameter, value: 0.1}
-        c_2: {floating: true, max: 1.0, min: -1.0, name: coeff1_cheby2, step_size: 0.01,
-          type: Parameter, value: 0.1}
-        c_3: {floating: true, max: 1.0, min: -1.0, name: coeff2_cheby2, step_size: 0.01,
-          type: Parameter, value: 0.1}
-        c_4: {floating: true, max: 1.0, min: -1.0, name: coeff3_cheby2, step_size: 0.01,
-          type: Parameter, value: 0.1}
-        c_5: {floating: true, max: 1.0, min: -1.0, name: coeff4_cheby2, step_size: 0.01,
-          type: Parameter, value: 0.1}
+        c_0: {floating: false, label: FIXED_autoparam_6, name: FIXED_autoparam_6,
+          type: ConstantParameter, value: 1.0}
+        c_1: {floating: true, label: coeff0_cheby2, max: 1.0, min: -1.0, name: coeff0_cheby2,
+          stepsize: 0.01, type: Parameter, value: 0.1}
+        c_2: {floating: true, label: coeff1_cheby2, max: 1.0, min: -1.0, name: coeff1_cheby2,
+          stepsize: 0.01, type: Parameter, value: 0.1}
+        c_3: {floating: true, label: coeff2_cheby2, max: 1.0, min: -1.0, name: coeff2_cheby2,
+          stepsize: 0.01, type: Parameter, value: 0.1}
+        c_4: {floating: true, label: coeff3_cheby2, max: 1.0, min: -1.0, name: coeff3_cheby2,
+          stepsize: 0.01, type: Parameter, value: 0.1}
+        c_5: {floating: true, label: coeff4_cheby2, max: 1.0, min: -1.0, name: coeff4_cheby2,
+          stepsize: 0.01, type: Parameter, value: 0.1}
       name: Chebyshev2
       type: Chebyshev2
       x: {max: 3.0, min: -2.1, name: obs, type: Space}
     - apply_scaling: true
       coeffs:
-        c_0: {floating: false, name: FIXED_autoparam_7, type: ConstantParameter, value: 1.0}
-        c_1: {floating: true, max: 1.0, min: -1.0, name: coeff0_cheby, step_size: 0.01,
-          type: Parameter, value: 0.1}
-        c_2: {floating: true, max: 1.0, min: -1.0, name: coeff1_cheby, step_size: 0.01,
-          type: Parameter, value: 0.1}
-        c_3: {floating: true, max: 1.0, min: -1.0, name: coeff2_cheby, step_size: 0.01,
-          type: Parameter, value: 0.1}
-        c_4: {floating: true, max: 1.0, min: -1.0, name: coeff3_cheby, step_size: 0.01,
-          type: Parameter, value: 0.1}
-        c_5: {floating: true, max: 1.0, min: -1.0, name: coeff4_cheby, step_size: 0.01,
-          type: Parameter, value: 0.1}
+        c_0: {floating: false, label: FIXED_autoparam_7, name: FIXED_autoparam_7,
+          type: ConstantParameter, value: 1.0}
+        c_1: {floating: true, label: coeff0_cheby, max: 1.0, min: -1.0, name: coeff0_cheby,
+          stepsize: 0.01, type: Parameter, value: 0.1}
+        c_2: {floating: true, label: coeff1_cheby, max: 1.0, min: -1.0, name: coeff1_cheby,
+          stepsize: 0.01, type: Parameter, value: 0.1}
+        c_3: {floating: true, label: coeff2_cheby, max: 1.0, min: -1.0, name: coeff2_cheby,
+          stepsize: 0.01, type: Parameter, value: 0.1}
+        c_4: {floating: true, label: coeff3_cheby, max: 1.0, min: -1.0, name: coeff3_cheby,
+          stepsize: 0.01, type: Parameter, value: 0.1}
+        c_5: {floating: true, label: coeff4_cheby, max: 1.0, min: -1.0, name: coeff4_cheby,
+          stepsize: 0.01, type: Parameter, value: 0.1}
       name: Chebyshev
       type: Chebyshev
       x: {max: 3.0, min: -2.1, name: obs, type: Space}
     - apply_scaling: true
       coeffs:
-        c_0: {floating: true, max: 1.0, min: 0.0, name: coeff0_bernstein, step_size: 0.01,
-          type: Parameter, value: 0.1}
-        c_1: {floating: true, max: 1.0, min: 0.0, name: coeff1_bernstein, step_size: 0.01,
-          type: Parameter, value: 0.1}
-        c_2: {floating: true, max: 1.0, min: 0.0, name: coeff2_bernstein, step_size: 0.01,
-          type: Parameter, value: 0.1}
-        c_3: {floating: true, max: 1.0, min: 0.0, name: coeff3_bernstein, step_size: 0.01,
-          type: Parameter, value: 0.1}
-        c_4: {floating: true, max: 1.0, min: 0.0, name: coeff4_bernstein, step_size: 0.01,
-          type: Parameter, value: 0.1}
+        c_0: {floating: true, label: coeff0_bernstein, max: 1.0, min: 0.0, name: coeff0_bernstein,
+          stepsize: 0.01, type: Parameter, value: 0.1}
+        c_1: {floating: true, label: coeff1_bernstein, max: 1.0, min: 0.0, name: coeff1_bernstein,
+          stepsize: 0.01, type: Parameter, value: 0.1}
+        c_2: {floating: true, label: coeff2_bernstein, max: 1.0, min: 0.0, name: coeff2_bernstein,
+          stepsize: 0.01, type: Parameter, value: 0.1}
+        c_3: {floating: true, label: coeff3_bernstein, max: 1.0, min: 0.0, name: coeff3_bernstein,
+          stepsize: 0.01, type: Parameter, value: 0.1}
+        c_4: {floating: true, label: coeff4_bernstein, max: 1.0, min: 0.0, name: coeff4_bernstein,
+          stepsize: 0.01, type: Parameter, value: 0.1}
       name: Bernstein
       type: Bernstein
       x: {max: 3.0, min: -2.1, name: obs, type: Space}
     - apply_scaling: true
       coeffs:
-        c_0: {floating: false, name: FIXED_autoparam_8, type: ConstantParameter, value: 1.0}
-        c_1: {floating: true, max: 1.0, min: -1.0, name: coeff0_legendre, step_size: 0.01,
-          type: Parameter, value: 0.1}
-        c_2: {floating: true, max: 1.0, min: -1.0, name: coeff1_legendre, step_size: 0.01,
-          type: Parameter, value: 0.1}
-        c_3: {floating: true, max: 1.0, min: -1.0, name: coeff2_legendre, step_size: 0.01,
-          type: Parameter, value: 0.1}
-        c_4: {floating: true, max: 1.0, min: -1.0, name: coeff3_legendre, step_size: 0.01,
-          type: Parameter, value: 0.1}
-        c_5: {floating: true, max: 1.0, min: -1.0, name: coeff4_legendre, step_size: 0.01,
-          type: Parameter, value: 0.1}
+        c_0: {floating: false, label: FIXED_autoparam_8, name: FIXED_autoparam_8,
+          type: ConstantParameter, value: 1.0}
+        c_1: {floating: true, label: coeff0_legendre, max: 1.0, min: -1.0, name: coeff0_legendre,
+          stepsize: 0.01, type: Parameter, value: 0.1}
+        c_2: {floating: true, label: coeff1_legendre, max: 1.0, min: -1.0, name: coeff1_legendre,
+          stepsize: 0.01, type: Parameter, value: 0.1}
+        c_3: {floating: true, label: coeff2_legendre, max: 1.0, min: -1.0, name: coeff2_legendre,
+          stepsize: 0.01, type: Parameter, value: 0.1}
+        c_4: {floating: true, label: coeff3_legendre, max: 1.0, min: -1.0, name: coeff3_legendre,
+          stepsize: 0.01, type: Parameter, value: 0.1}
+        c_5: {floating: true, label: coeff4_legendre, max: 1.0, min: -1.0, name: coeff4_legendre,
+          stepsize: 0.01, type: Parameter, value: 0.1}
       name: Legendre
       type: Legendre
       x: {max: 3.0, min: -2.1, name: obs, type: Space}
-    - alphal: {floating: true, max: 1.0, min: -1.0, name: alphaL_generalizedgaussexptail,
-        step_size: 0.01, type: Parameter, value: 0.1}
-      alphar: {floating: true, max: 1.0, min: -1.0, name: alphaR_generalizedgaussexptail,
-        step_size: 0.01, type: Parameter, value: 0.1}
-      mu: {floating: true, max: 1.0, min: -1.0, name: mu_generalizedgaussexptail,
-        step_size: 0.01, type: Parameter, value: 0.1}
+    - delta: {floating: true, label: delta_johnsonsu, max: 1.0, min: 0.0, name: delta_johnsonsu,
+        stepsize: 0.01, type: Parameter, value: 0.1}
+      gamma: {floating: true, label: gamma_johnsonsu, max: 1.0, min: 0.0, name: gamma_johnsonsu,
+        stepsize: 0.01, type: Parameter, value: 0.1}
+      lambd: {floating: true, label: lambda_johnsonsu, max: 1.0, min: 0.0, name: lambda_johnsonsu,
+        stepsize: 0.01, type: Parameter, value: 0.1}
+      mu: {floating: true, label: mu_johnsonsu, max: 1.0, min: -1.0, name: mu_johnsonsu,
+        stepsize: 0.01, type: Parameter, value: 0.1}
+      name: JohnsonSU
+      type: JohnsonSU
+      x: {max: 3.0, min: -2.1, name: obs, type: Space}
+    - alphal: {floating: true, label: alphaL_generalizedgaussexptail, max: 1.0, min: -1.0,
+        name: alphaL_generalizedgaussexptail, stepsize: 0.01, type: Parameter, value: 0.1}
+      alphar: {floating: true, label: alphaR_generalizedgaussexptail, max: 1.0, min: -1.0,
+        name: alphaR_generalizedgaussexptail, stepsize: 0.01, type: Parameter, value: 0.1}
+      mu: {floating: true, label: mu_generalizedgaussexptail, max: 1.0, min: -1.0,
+        name: mu_generalizedgaussexptail, stepsize: 0.01, type: Parameter, value: 0.1}
       name: GeneralizedGaussExpTail
-      sigmal: {floating: true, max: 1.0, min: 0.0, name: sigmaL_generalizedgaussexptail,
-        step_size: 0.01, type: Parameter, value: 0.1}
-      sigmar: {floating: true, max: 1.0, min: 0.0, name: sigmaR_generalizedgaussexptail,
-        step_size: 0.01, type: Parameter, value: 0.1}
+      sigmal: {floating: true, label: sigmaL_generalizedgaussexptail, max: 1.0, min: 0.0,
+        name: sigmaL_generalizedgaussexptail, stepsize: 0.01, type: Parameter, value: 0.1}
+      sigmar: {floating: true, label: sigmaR_generalizedgaussexptail, max: 1.0, min: 0.0,
+        name: sigmaR_generalizedgaussexptail, stepsize: 0.01, type: Parameter, value: 0.1}
       type: GeneralizedGaussExpTail
       x: {max: 3.0, min: -2.1, name: obs, type: Space}
-    - alpha: {floating: true, max: 1.0, min: -1.0, name: alpha_gaussexptail, step_size: 0.01,
-        type: Parameter, value: 0.1}
-      mu: {floating: true, max: 1.0, min: -1.0, name: mu_gaussexptail, step_size: 0.01,
-        type: Parameter, value: 0.1}
+    - alpha: {floating: true, label: alpha_gaussexptail, max: 1.0, min: -1.0, name: alpha_gaussexptail,
+        stepsize: 0.01, type: Parameter, value: 0.1}
+      mu: {floating: true, label: mu_gaussexptail, max: 1.0, min: -1.0, name: mu_gaussexptail,
+        stepsize: 0.01, type: Parameter, value: 0.1}
       name: GaussExpTail
-      sigma: {floating: true, max: 1.0, min: 0.0, name: sigma_gaussexptail, step_size: 0.01,
-        type: Parameter, value: 0.1}
+      sigma: {floating: true, label: sigma_gaussexptail, max: 1.0, min: 0.0, name: sigma_gaussexptail,
+        stepsize: 0.01, type: Parameter, value: 0.1}
       type: GaussExpTail
       x: {max: 3.0, min: -2.1, name: obs, type: Space}
-    - alphal: {floating: true, max: 1.0, min: -1.0, name: alphaL_gcb, step_size: 0.01,
+    - alphal: {floating: true, label: alphaL_gcb, max: 1.0, min: -1.0, name: alphaL_gcb,
+        stepsize: 0.01, type: Parameter, value: 0.1}
+      alphar: {floating: true, label: alphaR_gcb, max: 1.0, min: -1.0, name: alphaR_gcb,
+        stepsize: 0.01, type: Parameter, value: 0.1}
+      mu: {floating: true, label: mu_gcb, max: 1.0, min: -1.0, name: mu_gcb, stepsize: 0.01,
         type: Parameter, value: 0.1}
-      alphar: {floating: true, max: 1.0, min: -1.0, name: alphaR_gcb, step_size: 0.01,
-        type: Parameter, value: 0.1}
-      mu: {floating: true, max: 1.0, min: -1.0, name: mu_gcb, step_size: 0.01, type: Parameter,
-        value: 0.1}
       name: GeneralizedCB
-      nl: {floating: true, max: 1.0, min: 0.0, name: nL_gcb, step_size: 0.01, type: Parameter,
-        value: 0.1}
-      nr: {floating: true, max: 1.0, min: 0.0, name: nR_gcb, step_size: 0.01, type: Parameter,
-        value: 0.1}
-      sigmal: {floating: true, max: 1.0, min: 0.0, name: sigmaL_gcb, step_size: 0.01,
+      nl: {floating: true, label: nL_gcb, max: 1.0, min: 0.0, name: nL_gcb, stepsize: 0.01,
         type: Parameter, value: 0.1}
-      sigmar: {floating: true, max: 1.0, min: 0.0, name: sigmaR_gcb, step_size: 0.01,
+      nr: {floating: true, label: nR_gcb, max: 1.0, min: 0.0, name: nR_gcb, stepsize: 0.01,
         type: Parameter, value: 0.1}
+      sigmal: {floating: true, label: sigmaL_gcb, max: 1.0, min: 0.0, name: sigmaL_gcb,
+        stepsize: 0.01, type: Parameter, value: 0.1}
+      sigmar: {floating: true, label: sigmaR_gcb, max: 1.0, min: 0.0, name: sigmaR_gcb,
+        stepsize: 0.01, type: Parameter, value: 0.1}
       type: GeneralizedCB
       x: {max: 3.0, min: -2.1, name: obs, type: Space}
-    - alphal: {floating: true, max: 1.0, min: -1.0, name: alphaL_dcb, step_size: 0.01,
+    - alphal: {floating: true, label: alphaL_dcb, max: 1.0, min: -1.0, name: alphaL_dcb,
+        stepsize: 0.01, type: Parameter, value: 0.1}
+      alphar: {floating: true, label: alphaR_dcb, max: 1.0, min: -1.0, name: alphaR_dcb,
+        stepsize: 0.01, type: Parameter, value: 0.1}
+      mu: {floating: true, label: mu_dcb, max: 1.0, min: -1.0, name: mu_dcb, stepsize: 0.01,
         type: Parameter, value: 0.1}
-      alphar: {floating: true, max: 1.0, min: -1.0, name: alphaR_dcb, step_size: 0.01,
-        type: Parameter, value: 0.1}
-      mu: {floating: true, max: 1.0, min: -1.0, name: mu_dcb, step_size: 0.01, type: Parameter,
-        value: 0.1}
       name: DoubleCB
-      nl: {floating: true, max: 1.0, min: 0.0, name: nL_dcb, step_size: 0.01, type: Parameter,
-        value: 0.1}
-      nr: {floating: true, max: 1.0, min: 0.0, name: nR_dcb, step_size: 0.01, type: Parameter,
-        value: 0.1}
-      sigma: {floating: true, max: 1.0, min: 0.0, name: sigma_dcb, step_size: 0.01,
+      nl: {floating: true, label: nL_dcb, max: 1.0, min: 0.0, name: nL_dcb, stepsize: 0.01,
         type: Parameter, value: 0.1}
+      nr: {floating: true, label: nR_dcb, max: 1.0, min: 0.0, name: nR_dcb, stepsize: 0.01,
+        type: Parameter, value: 0.1}
+      sigma: {floating: true, label: sigma_dcb, max: 1.0, min: 0.0, name: sigma_dcb,
+        stepsize: 0.01, type: Parameter, value: 0.1}
       type: DoubleCB
       x: {max: 3.0, min: -2.1, name: obs, type: Space}
-    - alpha: {floating: true, max: 1.0, min: -1.0, name: alphacb, step_size: 0.01,
+    - alpha: {floating: true, label: alphacb, max: 1.0, min: -1.0, name: alphacb,
+        stepsize: 0.01, type: Parameter, value: 0.1}
+      mu: {floating: true, label: mucb, max: 1.0, min: -1.0, name: mucb, stepsize: 0.01,
         type: Parameter, value: 0.1}
-      mu: {floating: true, max: 1.0, min: -1.0, name: mucb, step_size: 0.01, type: Parameter,
-        value: 0.1}
-      n: {floating: true, max: 1.0, min: 0.0, name: ncb, step_size: 0.01, type: Parameter,
-        value: 0.1}
+      n: {floating: true, label: ncb, max: 1.0, min: 0.0, name: ncb, stepsize: 0.01,
+        type: Parameter, value: 0.1}
       name: CrystalBall
-      sigma: {floating: true, max: 1.0, min: 0.0, name: sigmacb, step_size: 0.01,
+      sigma: {floating: true, label: sigmacb, max: 1.0, min: 0.0, name: sigmacb, stepsize: 0.01,
         type: Parameter, value: 0.1}
       type: CrystalBall
       x: {max: 3.0, min: -2.1, name: obs, type: Space}
-    - mu: {floating: true, max: 1.0, min: -1.0, name: mu_studentt, step_size: 0.01,
-        type: Parameter, value: 0.1}
+    - mu: {floating: true, label: mu_studentt, max: 1.0, min: -1.0, name: mu_studentt,
+        stepsize: 0.01, type: Parameter, value: 0.1}
       name: StudentT
-      ndof: {floating: true, max: 10.0, min: 1.0, name: ndof_studentt, step_size: 0.01,
-        type: Parameter, value: 4.0}
-      sigma: {floating: true, max: 1.0, min: 0.0, name: sigma_studentt, step_size: 0.01,
-        type: Parameter, value: 0.1}
+      ndof: {floating: true, label: ndof_studentt, max: 10.0, min: 1.0, name: ndof_studentt,
+        stepsize: 0.01, type: Parameter, value: 4.0}
+      sigma: {floating: true, label: sigma_studentt, max: 1.0, min: 0.0, name: sigma_studentt,
+        stepsize: 0.01, type: Parameter, value: 0.1}
       type: StudentT
       x: {max: 3.0, min: -2.1, name: obs, type: Space}
-    - lam: {floating: true, max: 1.0, min: -1.0, name: lambda_exp, step_size: 0.01,
-        type: Parameter, value: 0.1}
+    - lam: {floating: true, label: lambda_exp, max: 1.0, min: -1.0, name: lambda_exp,
+        stepsize: 0.01, type: Parameter, value: 0.1}
       name: Exponential
       type: Exponential
       x: {max: 3.0, min: -2.1, name: obs, type: Space}
-    - gamma: {floating: true, max: 1.0, min: 0.0, name: gamma_voigt, step_size: 0.01,
+    - gamma: {floating: true, label: gamma_voigt, max: 1.0, min: 0.0, name: gamma_voigt,
+        stepsize: 0.01, type: Parameter, value: 0.1}
+      m: {floating: true, label: m_voigt, max: 1.0, min: -1.0, name: m_voigt, stepsize: 0.01,
         type: Parameter, value: 0.1}
-      m: {floating: true, max: 1.0, min: -1.0, name: m_voigt, step_size: 0.01, type: Parameter,
-        value: 0.1}
       name: Voigt
-      sigma: {floating: true, max: 1.0, min: 0.0, name: sigma_voigt, step_size: 0.01,
-        type: Parameter, value: 0.1}
+      sigma: {floating: true, label: sigma_voigt, max: 1.0, min: 0.0, name: sigma_voigt,
+        stepsize: 0.01, type: Parameter, value: 0.1}
       type: Voigt
       x: {max: 3.0, min: -2.1, name: obs, type: Space}
-    - gamma: {floating: true, max: 1.0, min: 0.0, name: gamma_cauchy, step_size: 0.01,
+    - gamma: {floating: true, label: gamma_cauchy, max: 1.0, min: 0.0, name: gamma_cauchy,
+        stepsize: 0.01, type: Parameter, value: 0.1}
+      m: {floating: true, label: m_cauchy, max: 1.0, min: -1.0, name: m_cauchy, stepsize: 0.01,
         type: Parameter, value: 0.1}
-      m: {floating: true, max: 1.0, min: -1.0, name: m_cauchy, step_size: 0.01, type: Parameter,
-        value: 0.1}
       name: Cauchy
       type: Cauchy
       x: {max: 3.0, min: -2.1, name: obs, type: Space}
-    - mu: {floating: true, max: 1.0, min: -1.0, name: mu_bifurgauss, step_size: 0.01,
-        type: Parameter, value: 0.1}
+    - mu: {floating: true, label: mu_bifurgauss, max: 1.0, min: -1.0, name: mu_bifurgauss,
+        stepsize: 0.01, type: Parameter, value: 0.1}
       name: BifurGauss
-      sigmal: {floating: true, max: 1.0, min: 0.0, name: sigmaL_bifurgauss, step_size: 0.01,
-        type: Parameter, value: 0.1}
-      sigmar: {floating: true, max: 1.0, min: 0.0, name: sigmaR_bifurgauss, step_size: 0.01,
-        type: Parameter, value: 0.1}
+      sigmal: {floating: true, label: sigmaL_bifurgauss, max: 1.0, min: 0.0, name: sigmaL_bifurgauss,
+        stepsize: 0.01, type: Parameter, value: 0.1}
+      sigmar: {floating: true, label: sigmaR_bifurgauss, max: 1.0, min: 0.0, name: sigmaR_bifurgauss,
+        stepsize: 0.01, type: Parameter, value: 0.1}
       type: BifurGauss
       x: {max: 3.0, min: -2.1, name: obs, type: Space}
-    - mu: {floating: true, max: 1.0, min: -1.0, name: mu_qgauss, step_size: 0.01,
-        type: Parameter, value: 0.1}
+    - mu: {floating: true, label: mu_qgauss, max: 1.0, min: -1.0, name: mu_qgauss,
+        stepsize: 0.01, type: Parameter, value: 0.1}
       name: QGauss
-      q: {floating: true, max: 3.0, min: 1.0, name: q_qgauss, step_size: 0.01, type: Parameter,
-        value: 2.0}
-      sigma: {floating: true, max: 1.0, min: 0.0, name: sigma_qgauss, step_size: 0.01,
-        type: Parameter, value: 0.1}
+      q: {floating: true, label: q_qgauss, max: 3.0, min: 1.0, name: q_qgauss, stepsize: 0.01,
+        type: Parameter, value: 2.0}
+      sigma: {floating: true, label: sigma_qgauss, max: 1.0, min: 0.0, name: sigma_qgauss,
+        stepsize: 0.01, type: Parameter, value: 0.1}
       type: QGauss
       x: {max: 3.0, min: -2.1, name: obs, type: Space}
-    - mu: {floating: true, max: 1.0, min: -1.0, name: mu_gauss, step_size: 0.01, type: Parameter,
-        value: 0.1}
-      name: MyGaussName
-      sigma: {floating: true, max: 1.0, min: 0.0, name: sigma_gauss, step_size: 0.01,
+    - mu: {floating: true, label: mu_gauss, max: 1.0, min: -1.0, name: mu_gauss, stepsize: 0.01,
         type: Parameter, value: 0.1}
+      name: MyGaussName
+      sigma: {floating: true, label: sigma_gauss, max: 1.0, min: 0.0, name: sigma_gauss,
+        stepsize: 0.01, type: Parameter, value: 0.1}
       type: Gauss
       x: {max: 3.0, min: -2.1, name: obs, type: Space}
     - fracs:
-      - {floating: true, max: 1.0, min: -1.0, name: frac_sum2_0, step_size: 0.01,
-        type: Parameter, value: 0.1}
-      - {floating: true, max: 1.0, min: -1.0, name: frac_sum2_1, step_size: 0.01,
-        type: Parameter, value: 0.1}
+      - {floating: true, label: frac_sum2_0, max: 1.0, min: -1.0, name: frac_sum2_0,
+        stepsize: 0.01, type: Parameter, value: 0.1}
+      - {floating: true, label: frac_sum2_1, max: 1.0, min: -1.0, name: frac_sum2_1,
+        stepsize: 0.01, type: Parameter, value: 0.1}
+      - func: 800495d1010000000000008c0a64696c6c2e5f64696c6c948c105f6372656174655f66756e6374696f6e9493942868008c0c5f6372656174655f636f6465949394284b014b004b004b014b064a53000001432274006a01640174026a0364028d027400a00474057c00a006a1008301a10118005300944e473ff00000000000008c0564747970659485948794288c027466948c08636f6e7374616e74948c067a7479706573948c05666c6f6174948c056164645f6e948c046c697374948c0676616c7565739474948c06706172616d739485948c582f686f6d652f6a6f6e61732f446f63756d656e74732f706879736963732f736f6674776172652f7a6669745f70726f6a6563742f7a6669745f7265706f2f7a6669742f6d6f64656c732f6261736566756e63746f722e7079948c1372656d61696e696e675f667261635f66756e63944bc44302000194292974945294637a6669742e6d6f64656c732e6261736566756e63746f720a5f5f646963745f5f0a68144e4e749452947d947d94288c0f5f5f616e6e6f746174696f6e735f5f947d948c0c5f5f7175616c6e616d655f5f948c315f70726570726f636573735f696e69745f73756d2e3c6c6f63616c733e2e72656d61696e696e675f667261635f66756e6394758694622e
+        internal_params:
+          frac_0: {floating: true, label: frac_sum2_0, max: 1.0, min: -1.0, name: frac_sum2_0,
+            stepsize: 0.01, type: Parameter, value: 0.1}
+          frac_1: {floating: true, label: frac_sum2_1, max: 1.0, min: -1.0, name: frac_sum2_1,
+            stepsize: 0.01, type: Parameter, value: 0.1}
+        name: Composed_autoparam_10
+        params:
+          frac_0: {floating: true, label: frac_sum2_0, max: 1.0, min: -1.0, name: frac_sum2_0,
+            stepsize: 0.01, type: Parameter, value: 0.1}
+          frac_1: {floating: true, label: frac_sum2_1, max: 1.0, min: -1.0, name: frac_sum2_1,
+            stepsize: 0.01, type: Parameter, value: 0.1}
+        type: ComposedParameter
       name: SumPDF
       pdfs:
       - data: *id001
@@ -284,26 +330,39 @@ model:
         type: KDE1DimExact
       - apply_scaling: true
         coeffs:
-          c_0: {floating: false, name: FIXED_autoparam_4, type: ConstantParameter,
-            value: 1.0}
-          c_1: {floating: true, max: 1.0, min: -1.0, name: coeff0_hermite, step_size: 0.01,
-            type: Parameter, value: 0.1}
-          c_2: {floating: true, max: 1.0, min: -1.0, name: coeff1_hermite, step_size: 0.01,
-            type: Parameter, value: 0.1}
-          c_3: {floating: true, max: 1.0, min: -1.0, name: coeff2_hermite, step_size: 0.01,
-            type: Parameter, value: 0.1}
-          c_4: {floating: true, max: 1.0, min: -1.0, name: coeff3_hermite, step_size: 0.01,
-            type: Parameter, value: 0.1}
-          c_5: {floating: true, max: 1.0, min: -1.0, name: coeff4_hermite, step_size: 0.01,
-            type: Parameter, value: 0.1}
+          c_0: {floating: false, label: FIXED_autoparam_4, name: FIXED_autoparam_4,
+            type: ConstantParameter, value: 1.0}
+          c_1: {floating: true, label: coeff0_hermite, max: 1.0, min: -1.0, name: coeff0_hermite,
+            stepsize: 0.01, type: Parameter, value: 0.1}
+          c_2: {floating: true, label: coeff1_hermite, max: 1.0, min: -1.0, name: coeff1_hermite,
+            stepsize: 0.01, type: Parameter, value: 0.1}
+          c_3: {floating: true, label: coeff2_hermite, max: 1.0, min: -1.0, name: coeff2_hermite,
+            stepsize: 0.01, type: Parameter, value: 0.1}
+          c_4: {floating: true, label: coeff3_hermite, max: 1.0, min: -1.0, name: coeff3_hermite,
+            stepsize: 0.01, type: Parameter, value: 0.1}
+          c_5: {floating: true, label: coeff4_hermite, max: 1.0, min: -1.0, name: coeff4_hermite,
+            stepsize: 0.01, type: Parameter, value: 0.1}
         name: Hermite
         type: Hermite
         x: {max: 3.0, min: -2.1, name: obs, type: Space}
       - fracs:
-        - {floating: true, max: 1.0, min: -1.0, name: frac_sum1_0, step_size: 0.01,
-          type: Parameter, value: 0.1}
-        - {floating: true, max: 1.0, min: -1.0, name: frac_sum1_1, step_size: 0.01,
-          type: Parameter, value: 0.1}
+        - {floating: true, label: frac_sum1_0, max: 1.0, min: -1.0, name: frac_sum1_0,
+          stepsize: 0.01, type: Parameter, value: 0.1}
+        - {floating: true, label: frac_sum1_1, max: 1.0, min: -1.0, name: frac_sum1_1,
+          stepsize: 0.01, type: Parameter, value: 0.1}
+        - func: 800495d1010000000000008c0a64696c6c2e5f64696c6c948c105f6372656174655f66756e6374696f6e9493942868008c0c5f6372656174655f636f6465949394284b014b004b004b014b064a53000001432274006a01640174026a0364028d027400a00474057c00a006a1008301a10118005300944e473ff00000000000008c0564747970659485948794288c027466948c08636f6e7374616e74948c067a7479706573948c05666c6f6174948c056164645f6e948c046c697374948c0676616c7565739474948c06706172616d739485948c582f686f6d652f6a6f6e61732f446f63756d656e74732f706879736963732f736f6674776172652f7a6669745f70726f6a6563742f7a6669745f7265706f2f7a6669742f6d6f64656c732f6261736566756e63746f722e7079948c1372656d61696e696e675f667261635f66756e63944bc44302000194292974945294637a6669742e6d6f64656c732e6261736566756e63746f720a5f5f646963745f5f0a68144e4e749452947d947d94288c0f5f5f616e6e6f746174696f6e735f5f947d948c0c5f5f7175616c6e616d655f5f948c315f70726570726f636573735f696e69745f73756d2e3c6c6f63616c733e2e72656d61696e696e675f667261635f66756e6394758694622e
+          internal_params:
+            frac_0: {floating: true, label: frac_sum1_0, max: 1.0, min: -1.0, name: frac_sum1_0,
+              stepsize: 0.01, type: Parameter, value: 0.1}
+            frac_1: {floating: true, label: frac_sum1_1, max: 1.0, min: -1.0, name: frac_sum1_1,
+              stepsize: 0.01, type: Parameter, value: 0.1}
+          name: Composed_autoparam_9
+          params:
+            frac_0: {floating: true, label: frac_sum1_0, max: 1.0, min: -1.0, name: frac_sum1_0,
+              stepsize: 0.01, type: Parameter, value: 0.1}
+            frac_1: {floating: true, label: frac_sum1_1, max: 1.0, min: -1.0, name: frac_sum1_1,
+              stepsize: 0.01, type: Parameter, value: 0.1}
+          type: ComposedParameter
         name: SumPDF
         pdfs:
         - data:
@@ -390,10 +449,10 @@ DÅø+â?Çõ$LÐ¿<â‘¦Åç¿Ò
 ’6 @ûKûÊ@]$8sE<Ò¿XË}ˆAÔ?‘óÓÃ^#ö?4”h((å?grvŸ ;é?¯C§%â×?¦N‡¬¢uå¿S y¥‚ö?6xÌôí?¯R=Ò'pï¿`Ít]"IÂ¿	pÜÛò?‹½UR‡·?#ASDF BLOCK INDEX
 %YAML 1.1
 ---
-- 15330
-- 15552
-- 15774
-- 15996
-- 16218
-- 16440
+- 23260
+- 23482
+- 23704
+- 23926
+- 24148
+- 24370
 ...

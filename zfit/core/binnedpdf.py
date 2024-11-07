@@ -213,16 +213,17 @@ class BaseBinnedPDF(
         self.add_cache_deps(value)
         self._yield = value
 
-    def _get_dependencies(self) -> ztyping.DependentsType:
-        return super()._get_dependencies()
-
     def _get_params(
         self,
-        floating: bool | None = True,
-        is_yield: bool | None = None,
-        extract_independent: bool | None = True,
+        floating: bool | None,
+        is_yield: bool | None,
+        extract_independent: bool | None,
+        *,
+        autograd: bool | None = None,
     ) -> set[ZfitParameter]:
-        params = super()._get_params(floating, is_yield=is_yield, extract_independent=extract_independent)
+        params = super()._get_params(
+            floating, is_yield=is_yield, extract_independent=extract_independent, autograd=autograd
+        )
 
         if is_yield is not False:
             if self.is_extended:
@@ -231,8 +232,11 @@ class BaseBinnedPDF(
                     floating=floating,
                     extract_independent=extract_independent,
                 )
-                yield_params.update(params)  # putting the yields at the beginning
-                params = yield_params
+                # we care if it supports autograd or not
+                if autograd is None or (autograd is False and "yield" not in self._autograd_params):
+                    params = yield_params | params
+
+                assert autograd is not True, "autograd should either be None or False, internal error"
             elif is_yield is True:
                 msg = "PDF is not extended but only yield parameters were requested."
                 raise NotExtendedPDFError(msg)
@@ -659,7 +663,6 @@ class BaseBinnedPDF(
     def _normalization(self, limits, *, options, params=None):  # noqa: ARG002
         raise SpecificFunctionNotImplemented
 
-    @deprecated_args(None, "Use `norm` instead.", "limits")
     def normalization(self, norm=None, *, params=None, options=None, limits=None) -> ztyping.NumericalTypeReturn:
         """Normalization of the PDF. For a binned PDF, this is the sum over the counts or the integral over the density.
 
@@ -682,7 +685,8 @@ class BaseBinnedPDF(
         Returns:
         """
         if limits is not None:
-            norm = limits
+            msg = "Use `norm` instead of `limits`."
+            raise BreakingAPIChangeError(msg)
         if options is None:
             options = {}
         norm = self._check_convert_norm(norm)
@@ -1004,7 +1008,7 @@ class BaseBinnedPDF(
         msg = "Integration options not available for BinnedPDF"
         raise RuntimeError(msg)
 
-    def as_func(self, norm_range: ztyping.LimitsType = False):  # noqa: ARG002
+    def as_func(self, norm: ztyping.LimitsType = False):  # noqa: ARG002
         msg = "as_func not yet available for BinnedPDF"
         raise WorkInProgressError(msg)
 

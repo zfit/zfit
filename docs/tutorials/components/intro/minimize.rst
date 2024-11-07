@@ -37,6 +37,1078 @@ to the different nature of problem that they usually intend to solve, their perf
     >>> # One of the NLopt minimizer
     >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
     >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGS()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSBV1()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.Ipyopt()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGS()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSBV1()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGS()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGS()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSBV1()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGS()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGS()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSBV1()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSBV1()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGS()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSBV1()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.Ipyopt()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGS()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSBV1()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGS()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGS()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSBV1()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGS()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGS()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSBV1()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSBV1()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGS()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSBV1()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.Ipyopt()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.Ipyopt()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGS()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSBV1()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGS()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGS()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSBV1()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGS()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGS()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSBV1()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSBV1()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGS()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSBV1()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.Ipyopt()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.Ipyopt()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGS()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSBV1()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGS()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGS()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSBV1()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGS()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGS()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSBV1()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSBV1()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.Ipyopt()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGS()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSBV1()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.Ipyopt()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.Ipyopt()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGS()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSBV1()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGS()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGS()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSBV1()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGS()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGS()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSBV1()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSBV1()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.Ipyopt()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGS()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSBV1()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.Ipyopt()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.Ipyopt()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGS()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSBV1()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGS()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGS()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSBV1()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGS()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGS()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSBV1()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSBV1()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.Ipyopt()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.Ipyopt()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGS()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSBV1()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.Ipyopt()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.Ipyopt()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGS()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSBV1()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGS()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGS()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSBV1()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGS()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGS()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSBV1()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSBV1()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.Ipyopt()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.Ipyopt()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGS()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSBV1()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.Ipyopt()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.Ipyopt()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGS()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSBV1()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGS()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGS()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSBV1()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGS()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGS()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSBV1()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSBV1()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGS()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSBV1()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGS()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSBV1()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGS()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGS()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSBV1()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGS()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGS()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSBV1()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
+    >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSB()
+    >>> # Minuit minimizer
+    >>> minimizer_minuit = zfit.minimize.Minuit()
+    >>> # Ipyopt minimizer
+    >>> minimizer_ipyopt = zfit.minimize.IpyoptV1()
+    >>> # One of the NLopt minimizer
+    >>> minimizer_nloptbfgs = zfit.minimize.NLoptLBFGSV1()
+    >>> # One of the SciPy minimizer
     >>> minimizer_scipybfgs = zfit.minimize.ScipyLBFGSBV1()
 
 .. note:: Why the "V1" at the end of the name?

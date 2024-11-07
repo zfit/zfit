@@ -96,6 +96,7 @@ ignore = [
     "PLW2901",  # "for loop overwritten by assignment" -> we use this to update the loop variable
     "PD013",    # "melt over stack": df function, but triggers on tensors
     "NPY002",   # "Use rnd generator in numpy" -> we use np.random for some legacy stuff but do use the new one where we can
+    "T201",    # "print used" -> we use print for displaying information in verbose mode
 
 ]
 isort.required-imports = ["from __future__ import annotations"]

@@ -136,6 +136,11 @@ pdf.init.obs: |1+
                 :py:class:`~zfit.pdf.BinnedFromUnbinnedPDF`, equivalent to
                 calling :py:meth:`~zfit.pdf.BasePDF.to_binned`.
 
+                If the observables are binned and the model is unbinned, the
+                model will be a binned model, by wrapping the model in a
+                :py:class:`~zfit.pdf.BinnedFromUnbinnedPDF`, equivalent to
+                calling :py:meth:`~zfit.pdf.BasePDF.to_binned`.
+
                 The observables are not equal to the domain as it does not restrict or
                 truncate the model outside this range.
 
@@ -460,6 +465,21 @@ minimizer.maxcor: |1+
                     the memory requirements but may speed up the convergence.
 minimizer.init.maxls: |1+
     Maximum number of linesearch points.
+
+minimizer.init.c1: |1+
+    The coefficient for the Wolfe condition for the Armijo rule.
+                    The Armijo rule is a line search method that ensures that the step size
+                    is not too large. This is also called the sufficient decrease condition,
+                    which effectively provides an upper bound to the step size.
+                    The value is constrained to be 0 < c1 < c2 < 1.
+                    Defaults to 1e-4.
+minimizer.init.c2: |1+
+    The coefficient for the Wolfe condition for the curvature rule.
+                    The curvature rule is a line search method that ensures that the step size
+                    is not too small. This is also called the curvature condition,
+                    which effectively provides a lower bound to the step size.
+                    The value is constrained to be 0 < c1 < c2 < 1.
+                    Defaults to 0.4.
 
 minimizer.scipy.gradient: |1+
     Define the method to use for the gradient computation

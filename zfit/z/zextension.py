@@ -19,7 +19,6 @@ import tensorflow as tf
 import zfit.z.numpy as znp
 
 from ..settings import run, ztypes
-from ..util.exception import BreakingAPIChangeError
 from ..util.warnings import warn_advanced_feature
 
 
@@ -155,6 +154,10 @@ def run_no_nan(func, x):
     )
 
 
+class DoNotCompile(Exception):
+    """Raise this error if the function is being jitted but should not be (yet)."""
+
+
 class FunctionWrapperRegistry:
     registries = WeakSet()
     allow_jit = True
@@ -177,15 +180,24 @@ class FunctionWrapperRegistry:
     def __init__(
         self,
         wraps=None,
+        *,
         stateless_args=None,
         cachesize=None,
         keepalive=None,
+        force_eager=None,
         **kwargs_user,
     ) -> None:
         """`tf.function`-like decorator with additional cache-invalidation functionality.
 
         Args:
-            keepalive:
+            wraps: name of the function/type that is wrapped. Can be used to toggle specific types to be jitted or not.
+            stateless_args: If true, assume that all arguments are stateless, i.e. aren't `zfit.Parameters` or similar.
+            force_eager: Forces the execution of the function (and functions that have called this function) to be
+                executed eagerly, that is, Python-like (and not jitted).
+                This can significantly reduce the performance, however, normal
+                Python syntax and control flow can be used also on values.
+            cachesize: OLD
+            keepalive: OLD
             **kwargs_user: arguments to `tf.function`
         """
         super().__init__()
@@ -194,13 +206,14 @@ class FunctionWrapperRegistry:
         if stateless_args is None:
             stateless_args = False
         if keepalive is None:
-            keepalive = False
+            keepalive = True
         self._initial_user_kwargs = kwargs_user
         self._deleted_cachers = collections.Counter()
 
         self.registries.add(self)  # TODO: remove?
         self.python_func = None
         self.wrapped_func = None
+        self.force_eager = force_eager if force_eager is not None else False
 
         if wraps not in self.do_jit_types:
             from ..settings import run
@@ -217,7 +230,7 @@ class FunctionWrapperRegistry:
 
     @property
     def do_jit(self):
-        return self.do_jit_types[self.wraps] and self.allow_jit
+        return self.do_jit_types[self.wraps] and self.allow_jit and not self.force_eager
 
     def reset(self, **kwargs_user):
         kwargs = {"autograph": False, "reduce_retracing": True}
@@ -250,11 +263,14 @@ class FunctionWrapperRegistry:
         from ..util.cache import FunctionCacheHolder
 
         def concrete_func(*args, **kwargs):
+            if self.force_eager and not run.executing_eagerly():
+                raise DoNotCompile
             if not self.do_jit or func in self.currently_traced or not run.executing_eagerly():
                 return func(*args, **kwargs)
 
             self.currently_traced.add(func)
             nonlocal wrapped_func
+
             # todo: we could return the function here? Need still registry to avoid deadlock in TF
             # try:
             #     value = wrapped_func(*args, **kwargs)
@@ -308,10 +324,25 @@ class FunctionWrapperRegistry:
                     del popped_holder
                 cache.append(function_holder)
             else:
-                func_to_run = cache[func_holder_index].wrapped_func
+                function_holder = cache[func_holder_index]
+                func_to_run = function_holder.execute_func
 
             try:
-                result = func_to_run(*args, **kwargs)
+                try:
+                    result = func_to_run(*args, **kwargs)
+                except KeyError as error:
+                    warnings.warn(
+                        f"An error occurred while running a jitted function. The error was: {error}."
+                        f" The function will be recompiled",
+                        RuntimeWarning,
+                        stacklevel=3,
+                    )
+                    result = func_to_run(*args, **kwargs)
+            except DoNotCompile:
+                function_holder.do_jit = False
+                if not run.executing_eagerly():
+                    raise
+                result = function_holder.execute_func(*args, **kwargs)
             finally:
                 self.currently_traced.remove(func)
             return result
@@ -343,18 +374,6 @@ def function(func=None, *, stateless_args=None, cachesize=None, **kwargs):
         raise ValueError(msg)
 
     return FunctionWrapperRegistry(**kwargs, cachesize=cachesize, stateless_args=stateless_args)
-
-
-# legacy, remove 0.6
-def function_tf_input(*_, **__):
-    msg = "This function has been removed. Use `z.function(wraps='zfit_tensor') or your" "own category"
-    raise BreakingAPIChangeError(msg)
-
-
-# legacy, remove 0.6
-def function_sampling(*_, **__):
-    msg = "This function has been removed. Use `z.function(wraps='zfit_sampling') or your" "own category"
-    raise BreakingAPIChangeError(msg)
 
 
 @functools.wraps(tf.py_function)

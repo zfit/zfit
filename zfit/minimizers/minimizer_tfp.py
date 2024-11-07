@@ -108,7 +108,7 @@ class BFGS(BaseMinimizer):
             gradient = znp.stack(gradient)
             return value, gradient
 
-        initial_inv_hessian_est = tf.linalg.tensor_diag([p.step_size for p in params])
+        initial_inv_hessian_est = tf.linalg.tensor_diag([p.stepsize for p in params])
 
         minimizer_kwargs = {
             "initial_position": znp.stack(params),

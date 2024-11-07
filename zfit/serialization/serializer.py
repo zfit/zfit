@@ -466,7 +466,7 @@ class Serializer:
                     "name": None,
                     "min": None,
                     "max": None,
-                    "step_size": None,
+                    "stepsize": None,
                 }  # do not replace spaces, they can have different limits
             )
             replace_forward_param = {parameter: lambda x: x["name"]}

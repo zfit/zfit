@@ -142,14 +142,14 @@ def test_cb_dcb(doublecb):
     )  # shape should be same
     np.testing.assert_allclose(ratio_r, ones * ratio_r[0], rtol=5e-7, atol=5e-7)
 
-    kwargs = dict(limits=(-5.0, mu), norm_range=lbounds)
+    kwargs = dict(limits=(-5.0, mu), norm=lbounds)
     intl = cbl.integrate(**kwargs) - dcb.integrate(**kwargs)
     assert pytest.approx(intl, abs=1e-3) == 0.0
     intl = cbr.integrate(**kwargs) - dcb.integrate(**kwargs)
     assert pytest.approx(intl, abs=1e-3) != 0
 
     # TODO: update test to fixed DCB integral
-    kwargs = dict(limits=(mu, 2.0), norm_range=rbounds)
+    kwargs = dict(limits=(mu, 2.0), norm=rbounds)
     dcb_integr1 = dcb.integrate(**kwargs)
     intr = cbr.integrate(**kwargs) - dcb_integr1
     assert pytest.approx(intr, abs=1e-3) == 0.0

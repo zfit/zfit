@@ -32,14 +32,14 @@ Let's create an instance and some example data
 Now we can get the probability
 >>> probs = gauss.pdf(example_data)  # ``norm`` specifies over which range to normalize
 Or the integral
->>> integral = gauss.integrate(limits=(-5, 3.1),norm=False)  # norm_range is False -> return unnormalized
+>>> integral = gauss.integrate(limits=(-5, 3.1),norm=False)  # norm is False -> return unnormalized
 integral
 Or directly sample from it
 >>> sample = gauss.sample(n_draws=1000, limits=(-10, 10))  # draw 1000 samples within (-10, 10)
 
-We can create an extended PDF, which will result in anything using a ``norm_range`` to not return the
+We can create an extended PDF, which will result in anything using a ``norm`` to not return the
 probability but the number probability (the function will be normalized to ``yield`` instead of 1 inside
-the ``norm_range``)
+the ``norm``)
 >>> yield1 = Parameter("yield1", 100, 0, 1000)
 >>> gauss_extended = gauss.create_extended(yield1)
 >>> gauss.is_extended
@@ -56,8 +56,6 @@ also the advanced models in `zfit models <https://github.com/zfit/zfit-tutorials
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Iterable, Optional
-
-from tensorflow.python.util.deprecation import deprecated_args
 
 from ..util.plotter import PDFPlotter
 from ..util.ztyping import ExtendedInputType, NormInputType
@@ -85,7 +83,6 @@ from ..util.exception import (
     NotExtendedPDFError,
     SpecificFunctionNotImplemented,
 )
-from ..util.temporary import TemporarilySet
 from .basemodel import BaseModel
 from .baseobject import extract_filter_params
 from .interfaces import ZfitParameter, ZfitPDF, ZfitSpace
@@ -136,10 +133,10 @@ class PDFMeta(type):
         if binned:
             pdf = pdf.to_binned(
                 binned_obs,
-                extended=kwargs.get("extended", None),
-                norm=kwargs.get("norm", None),
-                name=kwargs.get("name", None),
-                label=kwargs.get("label", None),
+                extended=kwargs.get("extended"),
+                norm=kwargs.get("norm"),
+                name=kwargs.get("name"),
+                label=kwargs.get("label"),
             )
 
         return pdf
@@ -163,7 +160,7 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
 
         super().__init__(obs=obs, dtype=dtype, name=name, params=params, **kwargs)
         self._label = label or self.name
-        self._norm = norm
+        self._norm = self._check_init_norm(norm)
         if extended is not False and extended is not None:
             self._set_yield(extended)
 
@@ -177,6 +174,17 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
             methods_to_check=_BasePDF_USER_IMPL_METHODS_TO_CHECK,
             wrapper_not_overwritten=_BasePDF_register_check_support,
         )
+
+    def _check_init_norm(self, norm):
+        if not isinstance(norm, ZfitSpace):
+            norm = self.space if norm is None else self.space.with_limits(norm)
+
+        elif set(norm.obs) != set(self.obs):
+            msg = "The normalization space has to be the same as the observation space."
+            raise ValueError(msg)
+        else:
+            norm = norm.with_coords(self.space)
+        return norm
 
     def _check_input_norm(self, norm, none_is_error=False):
         if norm is None:
@@ -194,7 +202,7 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
 
     @property
     def label(self):
-        return self._label
+        return self._label if self._label is not None else self.name
 
     @property
     @deprecated(None, "Use the `norm` attribute instead.")
@@ -219,28 +227,19 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
         return norm
 
     @invalidate_graph
-    @deprecated(None, "Prefer to create a new PDF with `norm` set or wrap the existing in a `TruncatedPDF`.")
-    def set_norm_range(self, norm: ztyping.LimitsTypeInput):
+    def set_norm_range(self, _: ztyping.LimitsTypeInput):
         """Set the normalization range (temporarily if used with contextmanager).
 
         Args:
             norm:
         """
-        norm = self._check_input_norm(norm)
-
-        def setter(value):
-            self._norm = value
-
-        def getter():
-            return self._norm
-
-        return TemporarilySet(value=norm, setter=setter, getter=getter)
+        msg = "Setting the norm range is not supported anymore. Use `norm` argument instead or create a new PDF."
+        raise BreakingAPIChangeError(msg)
 
     @_BasePDF_register_check_support(True)
     def _normalization(self, norm, options, *, params=None):  # noqa: ARG002
         raise SpecificFunctionNotImplemented
 
-    @deprecated_args(None, "Use `norm` instead.", "limits")
     def normalization(
         self,
         norm: ztyping.LimitsType = None,
@@ -266,13 +265,16 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
         Returns:
             The normalization value
         """
-        del limits
+        if limits is not None:
+            msg = "Use `norm` instead of `limits`."
+            raise BreakingAPIChangeError(msg)
         if options is None:
             options = {}
         norm = self._check_input_norm(norm)
         with self._check_set_input_params(params=params):
             return self._single_hook_normalization(norm=norm, options=options)
 
+    @z.function(wraps="model")
     def _single_hook_normalization(self, norm, options):  # TODO(Mayou36): add yield?
         return self._hook_normalization(norm=norm, options=options)
 
@@ -303,8 +305,8 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
         Returns:
             1-dimensional :py:class:`tf.Tensor` containing the unnormalized pdf.
         """
-        with self._convert_sort_x(x) as x:
-            return self._single_hook_unnormalized_pdf(x)
+        with self._convert_sort_x(x) as xclean:
+            return self._single_hook_unnormalized_pdf(xclean)
 
     def _single_hook_unnormalized_pdf(self, x):
         return self._call_unnormalized_pdf(x=x)
@@ -323,7 +325,7 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
         *,
         params: ztyping.ParamsTypeOpt = None,
     ) -> ztyping.XType:
-        """Probability density function scaled by yield, normalized over ``norm_range``.
+        """Probability density function scaled by yield, normalized over ``norm``.
 
         Args:
           x: |@doc:pdf.param.x| Data to evaluate the method on. Should be ``ZfitData``
@@ -347,9 +349,10 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
         if not self.is_extended:
             msg = f"{self} is not extended, cannot call `ext_pdf`"
             raise NotExtendedPDFError(msg)
-        with self._convert_sort_x(x) as x, self._check_set_input_params(params=params):
-            return self._call_ext_pdf(x, norm)
+        with self._convert_sort_x(x) as xclean, self._check_set_input_params(params=params):
+            return self._call_ext_pdf(xclean, norm)
 
+    @z.function(wraps="model")
     def _call_ext_pdf(self, x, norm):
         with suppress(SpecificFunctionNotImplemented):
             return self._auto_ext_pdf(x, norm)
@@ -370,7 +373,6 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
     def _ext_pdf(self, x, norm, *, norm_range=None, params=None):  # noqa: ARG002
         raise SpecificFunctionNotImplemented  # TODO: implement properly
 
-    @z.function(wraps="model")
     @deprecated_norm_range
     def ext_log_pdf(
         self,
@@ -379,7 +381,7 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
         *,
         params: ztyping.ParamsTypeOpt = None,
     ) -> ztyping.XType:
-        """Log of probability density function scaled by yield, normalized over ``norm_range``.
+        """Log of probability density function scaled by yield, normalized over ``norm``.
 
         Args:
           x: |@doc:pdf.param.x| Data to evaluate the method on. Should be ``ZfitData``
@@ -404,9 +406,10 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
         if not self.is_extended:
             msg = f"{self} is not extended, cannot call `ext_pdf`"
             raise NotExtendedPDFError(msg)
-        with self._convert_sort_x(x) as x, self._check_set_input_params(params=params):
-            return self._call_ext_log_pdf(x, norm)
+        with self._convert_sort_x(x) as xclean, self._check_set_input_params(params=params):
+            return self._call_ext_log_pdf(xclean, norm)
 
+    @z.function(wraps="model")
     def _call_ext_log_pdf(self, x, norm):
         with suppress(SpecificFunctionNotImplemented):
             return self._auto_ext_log_pdf(x, norm)
@@ -431,7 +434,6 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
     def _pdf(self, x, norm, *, norm_range=None, params=None):  # noqa: ARG002
         raise SpecificFunctionNotImplemented
 
-    @z.function(wraps="model")
     @deprecated_norm_range
     def pdf(
         self,
@@ -460,12 +462,13 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
           :py:class:`tf.Tensor` of type `self.dtype`.
         """
         norm = self._check_input_norm(norm, none_is_error=True)
-        with self._convert_sort_x(x) as x, self._check_set_input_params(params=params):
-            value = self._single_hook_pdf(x=x, norm=norm)
+        with self._convert_sort_x(x) as xclean, self._check_set_input_params(params=params):
+            value = self._single_hook_pdf(x=xclean, norm=norm)
         if run.numeric_checks:
             z.check_numerics(value, message="Check if pdf output contains any NaNs of Infs")
         return znp.atleast_1d(znp.asarray(z.to_real(value)))
 
+    @z.function(wraps="model")
     def _single_hook_pdf(self, x, norm):
         return self._hook_pdf(x=x, norm=norm)
 
@@ -476,7 +479,7 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
         try:
             return self._call_pdf(x=x, norm=norm)
         except NormNotImplemented:
-            unnormed_pdf = self._call_pdf(x=x, norm=False)
+            unnormed_pdf = self._call_pdf(x=x, norm=norm.with_limits(False))
             normalization = self.normalization(norm)
             return unnormed_pdf / normalization
 
@@ -510,7 +513,7 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
         *,
         params: ztyping.ParamsTypeOpt = None,
     ) -> ztyping.XType:
-        """Log probability density function normalized over ``norm_range``.
+        """Log probability density function normalized over ``norm``.
 
         Args:
             x: |@doc:pdf.param.x| Data to evaluate the method on. Should be ``ZfitData``
@@ -530,9 +533,10 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
           A ``Tensor`` of type ``self.dtype``.
         """
         norm = self._check_input_norm(norm)
-        with self._convert_sort_x(x) as x, self._check_set_input_params(params=params):
-            return znp.asarray(z.to_real(self._single_hook_log_pdf(x=x, norm=norm)))
+        with self._convert_sort_x(x) as xclean, self._check_set_input_params(params=params):
+            return znp.asarray(z.to_real(self._single_hook_log_pdf(x=xclean, norm=norm)))
 
+    @z.function(wraps="model")
     def _single_hook_log_pdf(self, x, norm):
         return self._hook_log_pdf(x=x, norm=norm)
 
@@ -592,6 +596,7 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
         with self._check_set_input_params(params=params):
             return self._single_hook_log_normalization(norm=norm, options=options)
 
+    @z.function(wraps="model")
     def _single_hook_log_normalization(self, norm, options):  # TODO(Mayou36): add yield?
         return self._hook_normalization(norm=norm, options=options)
 
@@ -607,7 +612,6 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
     def _fallback_log_normalization(self, norm, options):
         return znp.log(self._hook_normalization(norm=norm, options=options))
 
-    @z.function(wraps="model")
     @deprecated_norm_range
     def ext_integrate(
         self,
@@ -617,7 +621,7 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
         options=None,
         params: ztyping.ParamsTypeOpt = None,
     ) -> ztyping.XType:
-        """Integrate the function over ``limits`` (normalized over ``norm_range`` if not False).
+        """Integrate the function over ``limits`` (normalized over ``norm`` if not False).
 
         Args:
             limits: |@doc:pdf.integrate.limits| Limits of the integration. |@docend:pdf.integrate.limits|
@@ -656,8 +660,7 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
                 value *= self.get_yield()
         return value
 
-    @deprecated(None, "Use the public `set_yield` instead.")
-    def _set_yield_inplace(self, value: ZfitParameter | float | None):
+    def _set_yield_inplace(self, *_, **__):
         """Make the model extended by setting a yield.
 
         This does not alter the general behavior of the PDF. If there is a
@@ -667,7 +670,8 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
         Args:
             value:
         """
-        self._set_yield(value=value)
+        msg = "Setting the yield inplace is not supported anymore. Use the   `create_extended` method instead or create a new PDF."
+        raise BreakingAPIChangeError(msg)
 
     def create_extended(
         self,
@@ -721,6 +725,7 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
         new_pdf.set_yield(value=yield_)
         return new_pdf
 
+    @deprecated(None, "Use `create_extended` instead or `extended=yield` when creating the PDF.")
     def set_yield(self, value):
         """Make the model extended **inplace** by setting a yield. If possible, prefer to use ``create_extended``.
 
@@ -801,11 +806,15 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
 
     def _get_params(
         self,
-        floating: bool | None = True,
-        is_yield: bool | None = None,
-        extract_independent: bool | None = True,
+        floating: bool | None,
+        is_yield: bool | None,
+        extract_independent: bool | None,
+        *,
+        autograd: bool | None = None,
     ) -> set[ZfitParameter]:
-        params = super()._get_params(floating, is_yield=is_yield, extract_independent=extract_independent)
+        params = super()._get_params(
+            floating, is_yield=is_yield, extract_independent=extract_independent, autograd=autograd
+        )
 
         if is_yield is not False:
             if self.is_extended:
@@ -814,11 +823,27 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
                     floating=floating,
                     extract_independent=extract_independent,
                 )
-                yield_params.update(params)  # putting the yields at the beginning
+                # we care if it supports autograd or not
+                if autograd is False:
+                    if "yield" not in self._autograd_params:  # it doesn't support autograd
+                        yield_params.update(params)
+                    else:
+                        yield_params = params
+                elif autograd is None:
+                    yield_params.update(params)
+                else:
+                    msg = "autograd should either be None or False, internal error"
+                    raise AssertionError(msg)
                 params = yield_params
             elif is_yield is True:
                 msg = "PDF is not extended but only yield parameters were requested."
                 raise NotExtendedPDFError(msg)
+        return params
+
+    def _get_autograd_params(self):
+        params = super()._get_autograd_params()
+        if self.is_extended and "yield" in self._autograd_params:
+            params.update(self.get_params(floating=None, is_yield=True, extract_independent=True))
         return params
 
     def create_projection_pdf(
@@ -845,6 +870,10 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
                - type: one of (``bins``)
                  This hints that bins are integrated. A method that is vectorizable,
                  non-dynamic and therefore less suitable for complicated functions is chosen. |@docend:pdf.integrate.options|
+            name: Name of the new PDF. If not given, it is created from the original name.
+            label: Label of the new PDF. If not given, it is created from the original label.
+            extended: If the new PDF should be extended. If not given, it is the same as the original PDF.
+            norm: If the new PDF should be normalized. If not given, it is the same as the original PDF.
 
         Returns:
             A pdf without the dimensions from ``limits``.
@@ -924,7 +953,7 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
         from ..models.kde import GaussianKDE1DimV1
         from ..models.polynomials import RecursivePolynomial
 
-        if type(self) == WrapDistribution:  # NOT isinstance! Because e.g. Gauss wraps that and takes different args
+        if type(self) is WrapDistribution:  # NOT isinstance! Because e.g. Gauss wraps that and takes different args
             parameters = {"distribution": self._distribution, "dist_params": self.dist_params}
         else:
             # HACK END
@@ -934,7 +963,7 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
             if lam is not None:
                 parameters["lam"] = lam
 
-        if type(self) == GaussianKDE1DimV1:
+        if type(self) is GaussianKDE1DimV1:
             msg = (
                 "Cannot copy `GaussianKDE1DimV1` (yet). If you tried to make it extended, use "
                 "`set_yield`"
@@ -1007,7 +1036,15 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
         name: Optional[str] = None,
         label: Optional[str] = None,
     ):
-        """Convert to binned pdf, returns self if already binned."""
+        """Convert to binned pdf, returns self if already binned.
+
+        Args:
+            space: The space to bin the pdf in.
+            extended: If the new PDF should be extended. If not given, it is the same as the original PDF.
+            norm: If the new PDF should be normalized. If not given, it is the same as the original PDF.
+            name: Name of the new PDF. If not given, it is created from the original name.
+            label: Label of the new PDF. If not given, it is created from the original label.
+        """
         from ..models.tobinned import BinnedFromUnbinnedPDF
 
         return BinnedFromUnbinnedPDF(pdf=self, space=space, extended=extended, norm=norm, name=name, label=label)
@@ -1036,6 +1073,11 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
 
                The default space is used for example in the sample method: if no
                sampling limits are given, the default space is used.
+
+               If the observables are binned and the model is unbinned, the
+               model will be a binned model, by wrapping the model in a
+               :py:class:`~zfit.pdf.BinnedFromUnbinnedPDF`, equivalent to
+               calling :py:meth:`~zfit.pdf.BasePDF.to_binned`.
 
                If the observables are binned and the model is unbinned, the
                model will be a binned model, by wrapping the model in a

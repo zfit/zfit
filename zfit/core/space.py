@@ -130,19 +130,19 @@ class V1Space:
         self.space = space
 
     @property
-    def lower(self):
+    def lower(self) -> np.ndarray:
         return znp.atleast_1d(self.space.lower[0])
 
     @property
-    def upper(self):
+    def upper(self) -> np.ndarray:
         return znp.atleast_1d(self.space.upper[0])
 
     @property
-    def limits(self):
+    def limits(self) -> tuple[np.ndarray, np.ndarray]:
         return self.lower, self.upper
 
     @property
-    def volume(self):
+    def volume(self) -> np.ndarray:
         return znp.atleast_1d(self.space._legacy_area())
 
     def area(self):
@@ -1271,7 +1271,7 @@ class Space(
         Observables are like the columns of a spreadsheet/dataframe, and are therefore needed for any object that does
         numerical operations or holds data in order to match the right axes. On object creation, the observables are
         assigned using a `Space`. This is often used as the default space of an object and can be used as the
-        default `norm_range`, sampling limits etc.
+        default `norm`, sampling limits etc.
 
         Axes are the same concept as observables, but numbers, indexes, and are used *inside* an object. There,
         axes 0 corresponds to the 0th data column we get (which corresponds to a certain observable).
@@ -2537,11 +2537,45 @@ def less_equal_space(space1, space2, allow_graph=True):
 
 
 def equal_space(space1, space2, allow_graph=True):
-    return compare_multispace(
-        space1=space1,
-        space2=space2,
-        comparator=lambda limit1, limit2: limit1.equal(limit2, allow_graph=allow_graph),
-    )
+    has_any = True
+    with suppress(Exception):
+        has_any = np.any(space1.ANY in np.array(space1.v1.limits)) or np.any(space2.ANY in np.array(space2.v1.limits))
+
+    if has_any or allow_graph or isinstance(space1, MultiSpace) or isinstance(space2, MultiSpace):
+        return compare_multispace(
+            space1=space1,
+            space2=space2,
+            comparator=lambda limit1, limit2: limit1.equal(limit2, allow_graph=allow_graph),
+        )
+    else:
+        return compare_spaces_equal_static(space1, space2)
+
+
+def compare_spaces_equal_static(space1: Space, space2: Space):
+    """Compare two spaces if they have the same obs, axes, and, if a comparator is given, limits.
+
+    It is automatically checked if the limits are set resp. are False
+
+    Args:
+        space1:
+        space2:
+        comparator:
+
+    Returns:
+    """
+    try:
+        space2obs1 = space2.with_coords(space1, allow_superset=False, allow_subset=False)
+    except CoordinatesIncompatibleError:
+        return False
+
+    try:
+        limits1 = np.array(space1.v1.limits)
+        limits2 = np.array(space2obs1.v1.limits)
+        diff = np.abs(limits1 - limits2)
+    except Exception:
+        return False
+
+    return np.all(diff < 1e-8)
 
 
 def compare_multispace(space1: ZfitSpace, space2: ZfitSpace, comparator: Callable):

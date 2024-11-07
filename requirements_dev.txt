@@ -5,8 +5,9 @@ coverage-lcov
 # coverage-lcov  # reactivate once https://github.com/TheCleric/coverage-lcov/issues/6 resolved (remove it CI)
 docformatter
 flake8>=3.5.0
-jax
+jax<=0.4.28  # we need to pin jax, otherwise jaxlib won't be compatible
 jaxlib
+jaxlib<=0.4.28  # yes, needed, both! Otherwise, it fails with "jaxlib" not in list...
 Jinja2
 jupyter-sphinx
 matplotlib  # docs, tests
@@ -28,15 +29,14 @@ setupext-janitor
 setuptools>=30.3.0
 setuptools_scm[toml]>=3.4
 setuptools_scm_git_archive
-Sphinx>=3.5.4
+Sphinx>=5.0.0
 sphinx-autodoc-typehints
 sphinx-copybutton
 sphinx-panels
 sphinx_togglebutton
-sphinxcontrib-applehelp<1.0.8  # needs sphinx>=0.5, why are we still stuck at <0.5?
+sphinxcontrib-applehelp>1.0.8
 sphinxcontrib-bibtex
-sphinxcontrib-images
-sphinxcontrib-youtube>=1.0.0,<1.2.0
+sphinxcontrib-youtube>=1.0.0
 tox>=2.9.1
 twine>=1.10.0
 watchdog>=0.8.3

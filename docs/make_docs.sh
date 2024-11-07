@@ -14,6 +14,6 @@ MAKE_DOCS_PATH=$( dirname -- "$0"; )
 #ls ${MAKE_DOCS_PATH}
 make clean
 bash "${MAKE_DOCS_PATH}/prepare_apidocs.sh"
-make -C "${MAKE_DOCS_PATH}" clean && make -C "${MAKE_DOCS_PATH}" html -j2 &&
+make -C "${MAKE_DOCS_PATH}" clean && make -C "${MAKE_DOCS_PATH}" html -j12 &&
   echo "Documentation successfully built!" || echo "FAILED to build Documentation"
 popd >/dev/null || exit

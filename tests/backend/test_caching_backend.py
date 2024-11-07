@@ -1,8 +1,10 @@
 #  Copyright (c) 2024 zfit
 import pytest
 import tensorflow as tf
+
 import zfit
 from zfit import z
+
 
 # this works now also for tensorflow, as all variables given as args, effectively Params, have a
 # custom tf retracing behavior on their identity
@@ -19,8 +21,8 @@ def test_parameter_caching(function):
     def one_plus(x):
         return x + 1
 
-    cx1 = zfit.ComposedParameter("cx1", one_plus, dependents=[x1])
-    cx2 = zfit.ComposedParameter("cx2", one_plus, dependents=[x2])
+    cx1 = zfit.ComposedParameter("cx1", one_plus, params=[x1])
+    cx2 = zfit.ComposedParameter("cx2", one_plus, params=[x2])
 
     ncompile1 = 0
     ncompile2 = 0
@@ -118,3 +120,51 @@ def test_parameter_caching(function):
 
     assert pytest.approx(y[0], 1e-5) == y_jit[0]
     assert pytest.approx(y[1], 1e-5) == y_jit[1]
+
+def test_same_params_dont_fail():
+
+    low, high = 0, 1
+    obs = zfit.Space('obs', low, high)
+
+    sigma = zfit.Parameter('sigma', 2.)
+    alpha = zfit.Parameter('alpha', 5.)
+
+    pdf = zfit.pdf.GeneralizedGaussExpTail(
+        obs=obs,
+        mu=0,
+        sigmar=sigma,
+        sigmal=sigma,
+        alphar=alpha,
+        alphal=alpha
+    )
+    value = pdf.integrate([low, high])  # should not raise an error
+    assert pytest.approx(value.numpy(), rel=1e-5) == 1.0
+
+    @tf.function(autograph=False)
+    def test(x, y):
+        return x + y
+
+    var1 =  tf.Variable(1.0, name='var1')
+    var2 =  tf.Variable(3.0, name='var2')
+
+    value = test(var1, var2)
+    assert value == 4.0
+    value = test(var2, var2)
+    assert value == 6.0
+    value = test(sigma, alpha)
+    assert value == 7.0
+    value = test(sigma, sigma)  # this should not raise an error
+    assert value == 4.0
+
+
+    @z.function(autograph=False)
+    def testz(x, y):
+        return x + y
+
+    value = testz(var1, var2)
+    assert value == 4.0
+    value = testz(var2, var2)
+    assert value == 6.0
+    value = testz(sigma, alpha)
+    assert value == 7.0
+    value = testz(sigma, sigma)  # this should not raise an error

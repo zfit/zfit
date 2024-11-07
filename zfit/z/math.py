@@ -6,6 +6,8 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
+from ..util.exception import BreakingAPIChangeError
+
 if TYPE_CHECKING:
     import zfit
 
@@ -198,7 +200,7 @@ def autodiff_gradient(func: Callable, params: Iterable[zfit.Parameter]) -> tf.Te
         Returns:
             Gradient
     """
-    return autodiff_value_gradients(func, params)[1]
+    return autodiff_value_gradient(func, params)[1]
 
 
 def _extract_tfparams(
@@ -260,9 +262,9 @@ def autodiff_value_gradient(func: Callable, params: Iterable[zfit.Parameter]) ->
     return value, gradients
 
 
-@deprecated(None, "Use `autodiff_value_gradient` instead.")
-def autodiff_value_gradients(*args, **kwargs):
-    return autodiff_value_gradient(*args, **kwargs)
+def autodiff_value_gradients(*args, **kwargs):  # noqa: ARG001
+    msg = "Use `autodiff_value_gradient` instead."
+    raise BreakingAPIChangeError(msg)
 
 
 def autodiff_hessian(func: Callable, params: Iterable[zfit.Parameter], hessian=None) -> tf.Tensor:
@@ -281,7 +283,7 @@ def autodiff_hessian(func: Callable, params: Iterable[zfit.Parameter], hessian=N
             Hessian matrix
     """
 
-    return automatic_value_gradients_hessian(func, params, hessian=hessian)[2]
+    return automatic_value_gradient_hessian(func, params, hessian=hessian)[2]
 
 
 def automatic_value_gradient_hessian(
@@ -292,7 +294,7 @@ def automatic_value_gradient_hessian(
 ) -> [tf.Tensor, tf.Tensor, tf.Tensor]:
     """Calculate using autodiff the gradients and hessian matrix of ``func()`` wrt ``params``; also return ``func()``.
 
-    Automatic differentiation (autodiff) is a way of retreiving the derivative of x wrt y. It works by consecutively
+    Automatic differentiation (autodiff) is a way of retrieving the derivative of x wrt y. It works by consecutively
     applying the chain rule. All that is needed is that every operation knows its own derivative.
     TensorFlow implements this and anything using ``tf.*`` operations only can use this technique.
 
@@ -313,15 +315,15 @@ def automatic_value_gradient_hessian(
 
     from .. import z
 
-    persistant = hessian == "diag" or tf.executing_eagerly()  # currently needed, TODO: can we better parallelize that?
     # TODO(WrappedVariable): this is needed if we want to use wrapped Variables
     # params = _extract_tfparams(params)
-    with tf.GradientTape(persistent=persistant, watch_accessed_variables=False) as tape:
+    # persistant is needed for jacobian later, which fails otherwise if we try again without the vectorization
+    with tf.GradientTape(persistent=True, watch_accessed_variables=False) as tape:
         tape.watch(params)
         if callable(value_grad_func):
             loss, gradients = value_grad_func(params)
         else:
-            loss, gradients = autodiff_value_gradients(func=func, params=params)
+            loss, gradients = autodiff_value_gradient(func=func, params=params)
         if hessian == "diag":
             gradients = tf.unstack(gradients)
             # gradients_tf = znp.stack(gradients)
@@ -330,20 +332,28 @@ def automatic_value_gradient_hessian(
         # gradfunc = lambda par_grad: tape.gradient(par_grad[0], sources=par_grad[1])
         # computed_hessian = tf.vectorized_map(gradfunc, zip(params, gradients))
     else:
-        computed_hessian = z.convert_to_tensor(
-            tape.jacobian(
-                gradients,
-                sources=params,
-                experimental_use_pfor=True,  # causes TF bug? Slow..
-            )
-        )
+        for usepfor in [True, False]:
+            try:
+                computed_hessian = z.convert_to_tensor(
+                    tape.jacobian(
+                        gradients,
+                        sources=params,
+                        experimental_use_pfor=usepfor,  # causes TF bug? Slow..
+                    )
+                )
+            except ValueError as error:
+                if "Encountered an exception while vectorizing the jacobian computation." in str(error):
+                    continue
+                raise
+            else:
+                break
     del tape
     return loss, gradients, computed_hessian
 
 
-@deprecated(None, "Use `automatic_value_gradient_hessian` instead.")
-def automatic_value_gradients_hessian(*args, **kwargs):
-    return automatic_value_gradient_hessian(*args, **kwargs)
+def automatic_value_gradients_hessian(*args, **kwargs):  # noqa: ARG001
+    msg = "Use `automatic_value_gradient_hessian` instead."
+    raise BreakingAPIChangeError(msg)
 
 
 # @z.function  # TODO: circular import, improve?

@@ -15,7 +15,7 @@ from .strategy import ZfitStrategy
 from .termination import CRITERION_NOT_AVAILABLE, EDM, ConvergenceCriterion
 
 
-class IpyoptV1(BaseMinimizer):
+class Ipyopt(BaseMinimizer):
     _ALL_IPOPT_TOL = (
         "tiny_step_tol",  # xatol
         "tiny_step_y_tol",  # fatol
@@ -32,7 +32,7 @@ class IpyoptV1(BaseMinimizer):
         maxiter: int | str | None = None,
         criterion: ConvergenceCriterion | None = None,
         strategy: ZfitStrategy | None = None,
-        name: str | None = "IpyoptV1",
+        name: str | None = "Ipyopt",
     ) -> None:
         """Ipopt is a gradient-based minimizer that performs large scale nonlinear optimization of continuous systems.
 

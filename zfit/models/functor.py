@@ -52,10 +52,10 @@ class BaseFunctor(FunctorMixin, BasePDF):
         norm = super().norm
         if not norm.limits_are_set:
             norm = extract_daughter_input_obs(obs=norm, spaces=[model.space for model in self.models])
-            self.set_norm_range(norm)
         if not norm.limits_are_set:
             msg = f"Daughter pdfs {self.pdfs} do not agree on a `norm` and/or no `norm`" "has been explicitly set."
             raise NormRangeUnderdefinedError(msg)
+        self._norm = norm
 
     @property
     def pdfs_extended(self):
@@ -103,6 +103,11 @@ class SumPDF(BaseFunctor, SerializableMixin):  # TODO: add extended argument
 
                The default space is used for example in the sample method: if no
                sampling limits are given, the default space is used.
+
+               If the observables are binned and the model is unbinned, the
+               model will be a binned model, by wrapping the model in a
+               :py:class:`~zfit.pdf.BinnedFromUnbinnedPDF`, equivalent to
+               calling :py:meth:`~zfit.pdf.BasePDF.to_binned`.
 
                If the observables are binned and the model is unbinned, the
                model will be a binned model, by wrapping the model in a
@@ -172,9 +177,10 @@ class SumPDF(BaseFunctor, SerializableMixin):  # TODO: add extended argument
         else:
             return super()._apply_yield(value=value, norm=norm, log=log)
 
-    def _unnormalized_pdf(self, x):  # NOT _pdf, as the normalization range can differ
+    @supports()
+    def _unnormalized_pdf(self, x, params):  # NOT _pdf, as the normalization range can differ
         pdfs = self.pdfs
-        fracs = self.params.values()
+        fracs = params.values()
         probs = [pdf.pdf(x) * frac for pdf, frac in zip(pdfs, fracs)]
         prob = sum(probs)  # to keep the broadcasting ability
         return z.convert_to_tensor(prob)
@@ -220,9 +226,9 @@ class SumPDF(BaseFunctor, SerializableMixin):  # TODO: add extended argument
             raise SpecificFunctionNotImplemented
         pdfs = self.pdfs
         # TODO(SUM): why was this needed?
-        # assert norm_range not in (None, False), "Bug, who requested an unnormalized integral?"
+        # assert norm not in (None, False), "Bug, who requested an unnormalized integral?"
         integrals = [
-            pdf.ext_integrate(limits=limits, options=options)  # do NOT propagate the norm_range!
+            pdf.ext_integrate(limits=limits, options=options)  # do NOT propagate the norm!
             for pdf in pdfs
         ]
         return znp.sum(integrals, axis=0)
@@ -234,7 +240,7 @@ class SumPDF(BaseFunctor, SerializableMixin):  # TODO: add extended argument
         fracs = self.fracs
         try:
             integrals = [
-                frac * pdf.analytic_integrate(limits=limits)  # do NOT propagate the norm_range!
+                frac * pdf.analytic_integrate(limits=limits)  # do NOT propagate the norm!
                 for pdf, frac in zip(pdfs, fracs)
             ]
         except AnalyticIntegralNotImplemented as error:
@@ -253,7 +259,7 @@ class SumPDF(BaseFunctor, SerializableMixin):  # TODO: add extended argument
         pdfs = self.pdfs
         fracs = self.fracs
 
-        # do NOT propagate the norm_range!
+        # do NOT propagate the norm!
         partial_integral = [
             pdf.partial_integrate(x=x, limits=limits, options=options) * frac for pdf, frac in zip(pdfs, fracs)
         ]
@@ -268,7 +274,7 @@ class SumPDF(BaseFunctor, SerializableMixin):  # TODO: add extended argument
         try:
             partial_integral = [
                 pdf.partial_analytic_integrate(x=x, limits=limits) * frac
-                # do NOT propagate the norm_range!
+                # do NOT propagate the norm!
                 for pdf, frac in zip(pdfs, fracs)
             ]
         except AnalyticIntegralNotImplemented as error:
@@ -335,6 +341,11 @@ class ProductPDF(BaseFunctor, SerializableMixin):
 
                The default space is used for example in the sample method: if no
                sampling limits are given, the default space is used.
+
+               If the observables are binned and the model is unbinned, the
+               model will be a binned model, by wrapping the model in a
+               :py:class:`~zfit.pdf.BinnedFromUnbinnedPDF`, equivalent to
+               calling :py:meth:`~zfit.pdf.BasePDF.to_binned`.
 
                If the observables are binned and the model is unbinned, the
                model will be a binned model, by wrapping the model in a
@@ -446,7 +457,7 @@ class ProductPDF(BaseFunctor, SerializableMixin):
             else:
                 has_data_but_no_limits = (not intersection_limits) and intersection_data
                 assert has_data_but_no_limits, "Something slipped, the logic is flawed."
-                values.append(pdf.pdf(x, norm_range=norm))
+                values.append(pdf.pdf(x, norm=norm))
         values = functools.reduce(operator.mul, values)
         return z.convert_to_tensor(values)
 

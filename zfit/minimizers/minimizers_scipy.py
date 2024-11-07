@@ -26,7 +26,7 @@ from .strategy import ZfitStrategy
 from .termination import CRITERION_NOT_AVAILABLE, ConvergenceCriterion
 
 
-class ScipyBaseMinimizerV1(BaseMinimizer):
+class ScipyBaseMinimizer(BaseMinimizer):
     _VALID_SCIPY_GRADIENT = None
     _VALID_SCIPY_HESSIAN = None
 
@@ -100,8 +100,8 @@ class ScipyBaseMinimizerV1(BaseMinimizer):
 
         if initializer is None:
 
-            def initializer(options, init, step_size):
-                del init, step_size
+            def initializer(options, init, stepsize):
+                del init, stepsize
                 return options
 
         if not callable(initializer):
@@ -200,9 +200,9 @@ class ScipyBaseMinimizerV1(BaseMinimizer):
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
         if cls._VALID_SCIPY_GRADIENT is not None:
-            cls._VALID_SCIPY_GRADIENT = ScipyBaseMinimizerV1._VALID_SCIPY_GRADIENT.copy()
+            cls._VALID_SCIPY_GRADIENT = ScipyBaseMinimizer._VALID_SCIPY_GRADIENT.copy()
         if cls._VALID_SCIPY_HESSIAN is not None:
-            cls._VALID_SCIPY_HESSIAN = ScipyBaseMinimizerV1._VALID_SCIPY_HESSIAN.copy()
+            cls._VALID_SCIPY_HESSIAN = ScipyBaseMinimizer._VALID_SCIPY_HESSIAN.copy()
 
     @minimize_supports(init=True)
     def _minimize(self, loss, params, init: FitResult):
@@ -218,6 +218,8 @@ class ScipyBaseMinimizerV1(BaseMinimizer):
         minimizer_options = self.minimizer_options.copy()
 
         minimizer_options["bounds"] = limits
+
+        eval_func = evaluator.value
 
         use_gradient = "grad" in minimizer_options
         if use_gradient:
@@ -236,13 +238,13 @@ class ScipyBaseMinimizerV1(BaseMinimizer):
             init_scale = "auto"
             # get possible initial step size from previous minimizer
 
-        approx_step_sizes = None
+        approx_stepsizes = None
         if init:
             approx_init_hesse = result_prelim.hesse(params=params, method="approx", name="approx")
             if approx_init_hesse:
-                approx_step_sizes = [val["error"] for val in approx_init_hesse.values()] or None
-        if approx_step_sizes is None:
-            approx_step_sizes = np.array([0.1 if p.step_size is None else p.step_size for p in params])
+                approx_stepsizes = [val["error"] for val in approx_init_hesse.values()] or None
+        if approx_stepsizes is None:
+            approx_stepsizes = np.array([0.1 if p.stepsize is None else p.stepsize for p in params])
 
         if (maxiter := self.get_maxiter(len(params))) is not None:
             # stop 3 iterations earlier than we
@@ -271,13 +273,13 @@ class ScipyBaseMinimizerV1(BaseMinimizer):
             minimizer_options["options"] = self._scipy_initializer(
                 minimizer_options["options"],
                 init=result_prelim,
-                step_size=approx_step_sizes,
+                stepsize=approx_stepsizes,
             )
 
             # update from previous run/result
             if use_hessian and is_update_strat:
                 if not isinstance(init_scale, str):
-                    init_scale = np.mean([approx for approx in approx_step_sizes if approx is not None])
+                    init_scale = np.mean([approx for approx in approx_stepsizes if approx is not None])
                 if i == 0:
                     hessian_updater = hessian(init_scale=init_scale)
                     minimizer_options["hess"] = hessian_updater
@@ -289,7 +291,7 @@ class ScipyBaseMinimizerV1(BaseMinimizer):
             # perform minimization
             optim_result = None
             try:
-                optim_result = self._minimize_func(fun=evaluator.value, x0=init_values, **minimizer_options)
+                optim_result = self._minimize_func(fun=eval_func, x0=init_values, **minimizer_options)
             except MaximumIterationReached as error:
                 if optim_result is None:  # it didn't even run once
                     msg = (
@@ -327,7 +329,7 @@ class ScipyBaseMinimizerV1(BaseMinimizer):
                 n_paramatlim += 1
             approx_init_hesse = result_prelim.hesse(params=params, method="approx", name="approx")
             if approx_init_hesse:
-                approx_step_sizes = [val["error"] for val in approx_init_hesse.values()] or None
+                approx_stepsizes = [val["error"] for val in approx_init_hesse.values()] or None
             converged = criterion.converged(result_prelim)
             valid = converged
             edm = criterion.last_value
@@ -344,7 +346,7 @@ class ScipyBaseMinimizerV1(BaseMinimizer):
 
             if math.isclose(old_edm, edm, rel_tol=1e-4, abs_tol=1e-12):
                 if nrandom < self._nrandom_max:  # in order not to start too close
-                    rnd_range = np.ones_like(values) if approx_step_sizes is None else approx_step_sizes
+                    rnd_range = np.ones_like(values) if approx_stepsizes is None else approx_stepsizes
                     rnd_range_no_nan = np.nan_to_num(rnd_range, nan=1.0)
                     values += np.random.uniform(low=-rnd_range_no_nan, high=rnd_range_no_nan) / 5
                     nrandom += 1
@@ -380,7 +382,7 @@ class ScipyBaseMinimizerV1(BaseMinimizer):
         )
 
 
-class ScipyLBFGSBV1(ScipyBaseMinimizerV1):
+class ScipyLBFGSB(ScipyBaseMinimizer):
     def __init__(
         self,
         tol: float | None = None,
@@ -391,7 +393,7 @@ class ScipyLBFGSBV1(ScipyBaseMinimizerV1):
         maxiter: int | str | None = None,
         criterion: ConvergenceCriterion | None = None,
         strategy: ZfitStrategy | None = None,
-        name: str = "SciPy L-BFGS-B V1",
+        name: str = "SciPy L-BFGS-B ",
     ) -> None:
         """Local, gradient based quasi-Newton algorithm using the limited-memory BFGS approximation.
 
@@ -503,7 +505,7 @@ class ScipyLBFGSBV1(ScipyBaseMinimizerV1):
         )
 
 
-ScipyLBFGSBV1._add_derivative_methods(
+ScipyLBFGSB._add_derivative_methods(
     gradient=[
         "2-point",
         "3-point",
@@ -516,7 +518,167 @@ ScipyLBFGSBV1._add_derivative_methods(
 )
 
 
-class ScipyTrustKrylovV1(ScipyBaseMinimizerV1):
+class ScipyBFGS(ScipyBaseMinimizer):
+    def __init__(
+        self,
+        tol: float | None = None,
+        c1: float | None = None,
+        c2: float | None = None,
+        verbosity: int | None = None,
+        gradient: Callable | str | None = None,
+        maxiter: int | str | None = None,
+        criterion: ConvergenceCriterion | None = None,
+        strategy: ZfitStrategy | None = None,
+        name: str | None = None,
+    ) -> None:
+        """Local, gradient based quasi-Newton algorithm using the BFGS algorithm.
+
+        BFGS, named after Broyden, Fletcher, Goldfarb, and Shanno, is a quasi-Newton method
+        that approximates the Hessian matrix of the loss function using the gradients of the loss function.
+        It stores an approximation of the inverse Hessian matrix and updates it at each iteration.
+        For a limited memory version, which doesn't store the full matrix, see L-BFGS-B.
+
+
+
+        |@doc:minimizer.scipy.info| This implenemtation wraps the minimizers in
+        `SciPy optimize <https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.minimize.html>`_. |@docend:minimizer.scipy.info|
+
+        Args:
+            tol: |@doc:minimizer.tol| Termination value for the
+                   convergence/stopping criterion of the algorithm
+                   in order to determine if the minimum has
+                   been found. Defaults to 1e-3. |@docend:minimizer.tol|
+            c1: |@doc:minimizer.init.c1| The coefficient for the Wolfe condition for the Armijo rule.
+                   The Armijo rule is a line search method that ensures that the step size
+                   is not too large. This is also called the sufficient decrease condition,
+                   which effectively provides an upper bound to the step size.
+                   The value is constrained to be 0 < c1 < c2 < 1.
+                   Defaults to 1e-4. |@docend:minimizer.init.c1|
+            c2: |@doc:minimizer.init.c2| The coefficient for the Wolfe condition for the curvature rule.
+                   The curvature rule is a line search method that ensures that the step size
+                   is not too small. This is also called the curvature condition,
+                   which effectively provides a lower bound to the step size.
+                   The value is constrained to be 0 < c1 < c2 < 1.
+                   Defaults to 0.4. |@docend:minimizer.init.c2|
+
+            verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10.
+              The verbosity has the meaning:
+
+               - a value of 0 means quiet and no output
+               - above 0 up to 5, information that is good to know but without
+                 flooding the user, corresponding to a "INFO" level.
+               - A value above 5 starts printing out considerably more and
+                 is used more for debugging purposes.
+               - Setting the verbosity to 10 will print out every
+                 evaluation of the loss function and gradient.
+
+               Some minimizers offer additional output which is also
+               distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
+
+              Increasing the verbosity will gradually increase the output.
+            gradient: |@doc:minimizer.scipy.gradient| Define the method to use for the gradient computation
+                   that the minimizer should use. This can be the
+                   gradient provided by the loss itself or
+                   method from the minimizer.
+                   In general, using the zfit provided automatic gradient is
+                   more precise and needs less computation time for the
+                   evaluation compared to a numerical method, but it may not always be
+                   possible. In this case, zfit switches to a generic, numerical gradient
+                   which in general performs worse than if the minimizer has its own
+                   numerical gradient.
+                   The following are possible choices:
+
+                   If set to ``False`` or ``'zfit'`` (or ``None``; default), the
+                   gradient of the loss (usually the automatic gradient) will be used;
+                   the minimizer won't use an internal algorithm. |@docend:minimizer.scipy.gradient|
+                   |@doc:minimizer.scipy.gradient.internal| ``True`` tells the minimizer to use its default internal
+                   gradient estimation. This can be specified more clearly using the
+                   arguments ``'2-point'`` and ``'3-point'``, which specify the
+                   numerical algorithm the minimizer should use in order to
+                   estimate the gradient. |@docend:minimizer.scipy.gradient.internal|
+            maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
+                   This corresponds to roughly the maximum number of
+                   evaluations of the ``value``, 'gradient`` or ``hessian``. |@docend:minimizer.maxiter|
+            criterion: |@doc:minimizer.criterion| Criterion of the minimum. This is an
+                   estimated measure for the distance to the
+                   minimum and can include the relative
+                   or absolute changes of the parameters,
+                   function value, gradients and more.
+                   If the value of the criterion is smaller
+                   than ``loss.errordef * tol``, the algorithm
+                   stopps and it is assumed that the minimum
+                   has been found. |@docend:minimizer.criterion|
+            strategy: |@doc:minimizer.strategy| A class of type ``ZfitStrategy`` that takes no
+                   input arguments in the init. Determines the behavior of the minimizer in
+                   certain situations, most notably when encountering
+                   NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
+            name: |@doc:minimizer.name| Human-readable name of the minimizer. |@docend:minimizer.name|
+        """
+        if name is None:
+            name = "SciPy BFGS"
+        options = {}
+
+        if c1 is None:
+            c1 = 1e-4
+        options["c1"] = c1
+        if c2 is None:
+            c2 = 0.4
+        options["c2"] = c2
+
+        minimizer_options = {}
+        if options:
+            minimizer_options["options"] = options
+
+        def verbosity_setter(options, verbosity):
+            options["disp"] = bool(verbosity - 6) >= 0  # start printing at 6
+            return options
+
+        scipy_tols = {
+            "gtol": None,
+            # 'xrtol': None
+        }
+
+        def initializer(options, init: FitResult, stepsize, **_):
+            hess_inv0 = None
+            if init is not None:
+                hess_inv0 = init.approx.inv_hessian()
+            elif stepsize is not None:
+                hess_inv0 = np.diag(np.array(stepsize) ** 2)
+            if False:
+                options["hess_inv0"] = hess_inv0
+            return options
+
+        super().__init__(
+            method="BFGS",
+            internal_tol=scipy_tols,
+            gradient=gradient,
+            hessian=NOT_SUPPORTED,
+            minimizer_options=minimizer_options,
+            initializer=initializer,
+            tol=tol,
+            verbosity=verbosity,
+            maxiter=maxiter,
+            verbosity_setter=verbosity_setter,
+            strategy=strategy,
+            criterion=criterion,
+            name=name,
+        )
+
+
+ScipyBFGS._add_derivative_methods(
+    gradient=[
+        "2-point",
+        "3-point",
+        # 'cs'  # works badly
+        None,
+        True,
+        False,
+        "zfit",
+    ]
+)
+
+
+class ScipyTrustKrylov(ScipyBaseMinimizer):
     @warn_experimental_feature
     def __init__(
         self,
@@ -528,7 +690,7 @@ class ScipyTrustKrylovV1(ScipyBaseMinimizerV1):
         maxiter: int | str | None = None,
         criterion: ConvergenceCriterion | None = None,
         strategy: ZfitStrategy | None = None,
-        name: str = "SciPy trust-krylov V1",
+        name: str = "SciPy trust-krylov ",
     ) -> None:
         """PERFORMS POORLY! Local, gradient based (nearly) exact trust-region algorithm using matrix vector products
         with the hessian.
@@ -644,7 +806,7 @@ class ScipyTrustKrylovV1(ScipyBaseMinimizerV1):
         )
 
 
-ScipyTrustKrylovV1._add_derivative_methods(
+ScipyTrustKrylov._add_derivative_methods(
     gradient=[
         "2-point",
         "3-point",
@@ -666,7 +828,7 @@ ScipyTrustKrylovV1._add_derivative_methods(
 )
 
 
-class ScipyTrustNCGV1(ScipyBaseMinimizerV1):
+class ScipyTrustNCG(ScipyBaseMinimizer):
     @warn_experimental_feature
     def __init__(
         self,
@@ -680,7 +842,7 @@ class ScipyTrustNCGV1(ScipyBaseMinimizerV1):
         maxiter: int | str | None = None,
         criterion: ConvergenceCriterion | None = None,
         strategy: ZfitStrategy | None = None,
-        name: str = "SciPy trust-ncg V1",
+        name: str = "SciPy trust-ncg ",
     ) -> None:
         """PERFORMS POORLY! Local Newton conjugate gradient trust-region algorithm.
 
@@ -776,12 +938,12 @@ class ScipyTrustNCGV1(ScipyBaseMinimizerV1):
         if init_trust_radius is not None:
             options["initial_trust_radius"] = init_trust_radius
 
-        def initializer(options, init, step_size, **_):
+        def initializer(options, init, stepsize, **_):
             trust_radius = None
             if init is not None:
                 trust_radius = init.info.get("tr_radius")
-            elif step_size is not None:
-                trust_radius = np.mean(step_size)
+            elif stepsize is not None:
+                trust_radius = np.mean(stepsize)
             if trust_radius is not None:
                 options["initial_trust_radius"] = trust_radius
             return options
@@ -811,9 +973,10 @@ class ScipyTrustNCGV1(ScipyBaseMinimizerV1):
         )
 
 
-ScipyTrustNCGV1._add_derivative_methods(
+ScipyTrustNCG._add_derivative_methods(
     gradient=[
-        # '2-point', '3-point',
+        "2-point",
+        "3-point",
         # 'cs'  # works badly
         None,
         # True,
@@ -821,9 +984,11 @@ ScipyTrustNCGV1._add_derivative_methods(
         "zfit",
     ],
     hessian=[
-        # '2-point', '3-point',
+        "2-point",
+        "3-point",
         # 'cs',
-        # scipy.optimize.BFGS, scipy.optimize.SR1,
+        scipy.optimize.BFGS,
+        scipy.optimize.SR1,
         None,
         # True,
         False,
@@ -832,7 +997,7 @@ ScipyTrustNCGV1._add_derivative_methods(
 )
 
 
-class ScipyTrustConstrV1(ScipyBaseMinimizerV1):
+class ScipyTrustConstr(ScipyBaseMinimizer):
     def __init__(
         self,
         tol: float | None = None,
@@ -843,7 +1008,7 @@ class ScipyTrustConstrV1(ScipyBaseMinimizerV1):
         maxiter: int | str | None = None,
         criterion: ConvergenceCriterion | None = None,
         strategy: ZfitStrategy | None = None,
-        name: str = "SciPy trust-constr V1",
+        name: str = "SciPy trust-constr ",
     ) -> None:
         """Trust-region based local minimizer.
 
@@ -951,12 +1116,12 @@ class ScipyTrustConstrV1(ScipyBaseMinimizerV1):
         if init_trust_radius is not None:
             options["initial_tr_radius"] = init_trust_radius
 
-        def initializer(options, init, step_size, **_):
+        def initializer(options, init, stepsize, **_):
             trust_radius = None
             if init is not None:
                 trust_radius = init.info.get("tr_radius")
-            elif step_size is not None:
-                trust_radius = np.mean(step_size)
+            elif stepsize is not None:
+                trust_radius = np.mean(stepsize)
             if trust_radius is not None:
                 options["initial_tr_radius"] = trust_radius
             return options
@@ -999,7 +1164,7 @@ class ScipyTrustConstrV1(ScipyBaseMinimizerV1):
         )
 
 
-ScipyTrustConstrV1._add_derivative_methods(
+ScipyTrustConstr._add_derivative_methods(
     gradient=[
         "2-point",
         "3-point",
@@ -1023,7 +1188,7 @@ ScipyTrustConstrV1._add_derivative_methods(
 )
 
 
-class ScipyNewtonCGV1(ScipyBaseMinimizerV1):
+class ScipyNewtonCG(ScipyBaseMinimizer):
     @warn_experimental_feature
     def __init__(
         self,
@@ -1034,7 +1199,7 @@ class ScipyNewtonCGV1(ScipyBaseMinimizerV1):
         maxiter: int | str | None = None,
         criterion: ConvergenceCriterion | None = None,
         strategy: ZfitStrategy | None = None,
-        name: str = "SciPy Newton-CG V1",
+        name: str = "SciPy Newton-CG ",
     ) -> None:
         """WARNING! This algorithm seems unstable and may does not perform well!
 
@@ -1161,7 +1326,7 @@ class ScipyNewtonCGV1(ScipyBaseMinimizerV1):
         )
 
 
-ScipyNewtonCGV1._add_derivative_methods(
+ScipyNewtonCG._add_derivative_methods(
     gradient=[
         "2-point",
         "3-point",
@@ -1185,7 +1350,7 @@ ScipyNewtonCGV1._add_derivative_methods(
 )
 
 
-class ScipyTruncNCV1(ScipyBaseMinimizerV1):
+class ScipyTruncNC(ScipyBaseMinimizer):
     def __init__(
         self,
         tol: float | None = None,
@@ -1198,7 +1363,7 @@ class ScipyTruncNCV1(ScipyBaseMinimizerV1):
         maxiter: int | str | None = None,
         criterion: ConvergenceCriterion | None = None,
         strategy: ZfitStrategy | None = None,
-        name: str = "SciPy Truncated Newton Conjugate V1",
+        name: str = "SciPy Truncated Newton Conjugate ",
     ) -> None:
         """Local, gradient based minimization algorithm using a truncated Newton method.
 
@@ -1289,9 +1454,9 @@ class ScipyTruncNCV1(ScipyBaseMinimizerV1):
         if options:
             minimizer_options["options"] = options
 
-        def initializer(options, step_size, **_):
-            if step_size is not None:
-                options["scale"] = step_size
+        def initializer(options, stepsize, **_):
+            if stepsize is not None:
+                options["scale"] = stepsize
             return options
 
         scipy_tols = {"xtol": None, "ftol": None, "gtol": None}
@@ -1313,7 +1478,7 @@ class ScipyTruncNCV1(ScipyBaseMinimizerV1):
         )
 
 
-ScipyTruncNCV1._add_derivative_methods(
+ScipyTruncNC._add_derivative_methods(
     gradient=[
         "2-point",
         "3-point",
@@ -1326,7 +1491,7 @@ ScipyTruncNCV1._add_derivative_methods(
 )
 
 
-class ScipyDoglegV1(ScipyBaseMinimizerV1):
+class ScipyDogleg(ScipyBaseMinimizer):
     def __init__(
         self,
         tol: float | None = None,
@@ -1337,7 +1502,7 @@ class ScipyDoglegV1(ScipyBaseMinimizerV1):
         maxiter: int | str | None = None,
         criterion: ConvergenceCriterion | None = None,
         strategy: ZfitStrategy | None = None,
-        name: str = "SciPy Dogleg V1",
+        name: str = "SciPy Dogleg ",
     ) -> None:
         """This minimizer requires the hessian and gradient to be provided by the loss itself.
 
@@ -1410,10 +1575,10 @@ class ScipyDoglegV1(ScipyBaseMinimizerV1):
         )
 
 
-ScipyDoglegV1._add_derivative_methods(gradient=["zfit"], hessian=["zfit"])
+ScipyDogleg._add_derivative_methods(gradient=["zfit"], hessian=["zfit"])
 
 
-class ScipyPowellV1(ScipyBaseMinimizerV1):
+class ScipyPowell(ScipyBaseMinimizer):
     def __init__(
         self,
         tol: float | None = None,
@@ -1421,7 +1586,7 @@ class ScipyPowellV1(ScipyBaseMinimizerV1):
         maxiter: int | str | None = None,
         criterion: ConvergenceCriterion | None = None,
         strategy: ZfitStrategy | None = None,
-        name: str = "SciPy Powell V1",
+        name: str = "SciPy Powell ",
     ) -> None:
         """Local minimizer using the modified Powell algorithm.
 
@@ -1495,7 +1660,7 @@ class ScipyPowellV1(ScipyBaseMinimizerV1):
         )
 
 
-class ScipySLSQPV1(ScipyBaseMinimizerV1):
+class ScipySLSQP(ScipyBaseMinimizer):
     def __init__(
         self,
         tol: float | None = None,
@@ -1504,7 +1669,7 @@ class ScipySLSQPV1(ScipyBaseMinimizerV1):
         maxiter: int | str | None = None,
         criterion: ConvergenceCriterion | None = None,
         strategy: ZfitStrategy | None = None,
-        name: str = "SciPy SLSQP V1",
+        name: str = "SciPy SLSQP ",
     ) -> None:
         """Local, gradient-based minimizer using tho  Sequential Least Squares Programming algorithm.name.
 
@@ -1593,7 +1758,7 @@ class ScipySLSQPV1(ScipyBaseMinimizerV1):
         )
 
 
-ScipySLSQPV1._add_derivative_methods(
+ScipySLSQP._add_derivative_methods(
     gradient=[
         "2-point",
         "3-point",
@@ -1606,7 +1771,7 @@ ScipySLSQPV1._add_derivative_methods(
 )
 
 
-class ScipyCOBYLAV1(ScipyBaseMinimizerV1):
+class ScipyCOBYLA(ScipyBaseMinimizer):
     @warn_experimental_feature
     def __init__(
         self,
@@ -1615,7 +1780,7 @@ class ScipyCOBYLAV1(ScipyBaseMinimizerV1):
         maxiter: int | str | None = None,
         criterion: ConvergenceCriterion | None = None,
         strategy: ZfitStrategy | None = None,
-        name: str = "SciPy COBYLA V1",
+        name: str = "SciPy COBYLA ",
     ) -> None:
         """UNSTABLE! Local gradient-free dowhhill simplex-like method with an implicit linear approximation.
 
@@ -1684,7 +1849,7 @@ class ScipyCOBYLAV1(ScipyBaseMinimizerV1):
         )
 
 
-class ScipyNelderMeadV1(ScipyBaseMinimizerV1):
+class ScipyNelderMead(ScipyBaseMinimizer):
     def __init__(
         self,
         tol: float | None = None,
@@ -1693,7 +1858,7 @@ class ScipyNelderMeadV1(ScipyBaseMinimizerV1):
         maxiter: int | str | None = None,
         criterion: ConvergenceCriterion | None = None,
         strategy: ZfitStrategy | None = None,
-        name: str = "SciPy Nelder-Mead V1",
+        name: str = "SciPy Nelder-Mead ",
     ) -> None:
         """Local gradient-free dowhhill simplex method.py.
 

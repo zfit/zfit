@@ -39,7 +39,6 @@ extensions = [
     "sphinx.ext.autosummary",
     "sphinx.ext.viewcode",
     "sphinx.ext.intersphinx",
-    "sphinxcontrib.images",
     "sphinx.ext.coverage",
     "sphinx.ext.mathjax",
     "sphinxcontrib.bibtex",

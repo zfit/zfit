@@ -10,7 +10,6 @@ import zfit.z.numpy as znp
 
 from ..core.basefunc import BaseFuncV1
 from ..core.basemodel import SimpleModelSubclassMixin
-from ..core.dependents import _extract_dependencies
 from ..core.interfaces import ZfitFunc
 from ..core.space import supports
 from ..models.basefunctor import FunctorMixin
@@ -55,11 +54,6 @@ class BaseFunctorFuncV1(FunctorMixin, BaseFuncV1):
         self.funcs = funcs
         super().__init__(name=name, models=self.funcs, params=params, **kwargs)
         self._models = self.funcs
-
-    def _get_dependencies(self):  # TODO: change recursive to `only_floating`?
-        dependents = super()._get_dependencies()  # get the own parameter dependents
-        func_dependents = _extract_dependencies(self.funcs)  # flatten
-        return dependents.union(func_dependents)
 
 
 class SumFunc(BaseFunctorFuncV1):

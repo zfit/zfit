@@ -116,3 +116,7 @@ class IpyoptPicklingError(TypeError):
 
 class OutsideLimitsError(Exception):
     pass
+
+
+class AutogradNotSupported(Exception):
+    pass

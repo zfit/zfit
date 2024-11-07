@@ -132,7 +132,7 @@ class PDF(Func, ZfitPDF):
             return self.integrate(limits=var, norm=norm, options=options)
         return self._call_pdf(var=var, norm=norm, options=options)
         # with self._convert_sort_x(var) as var:
-        #     value = self._single_hook_pdf(x=var, norm_range=norm)
+        #     value = self._single_hook_pdf(x=var, norm=norm)
         #     if run.numeric_checks:
         #         z.check_numerics(value, message="Check if pdf output contains any NaNs of Infs")
         #     return z.to_real(value)

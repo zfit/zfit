@@ -35,4 +35,7 @@ nll2 = zfit.loss.UnbinnedNLL(model=gauss2, data=data2)
 nll_simultaneous2 = nll1 + nll2
 
 minimizer = zfit.minimize.Minuit()
-minimizer.minimize(nll_simultaneous2).update_params()
+result = minimizer.minimize(nll_simultaneous2).update_params()
+result.hesse()
+result.errors()
+print(result)

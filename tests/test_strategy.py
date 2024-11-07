@@ -35,12 +35,12 @@ def test_fail_on_nan_strategy():
 def minimizers():
     minimizers = [
         zfit.minimize.Adam,
-        zfit.minimize.IpyoptV1,
+        zfit.minimize.Ipyopt,
         zfit.minimize.Minuit,
-        zfit.minimize.ScipySLSQPV1,
+        zfit.minimize.ScipySLSQP,
     ]
     if sys.version_info[1] < 12 and platform.system() == "Linux":
-        minimizers.append(zfit.minimize.NLoptMMAV1)
+        minimizers.append(zfit.minimize.NLoptMMA)
     return minimizers
 
 
@@ -59,7 +59,7 @@ def test_callback(minimizer_cls):
         def callback(*args, **kwargs):
             raise MyError
 
-    minimizer = zfit.minimize.ScipySLSQPV1(strategy=MyStrategy)
+    minimizer = zfit.minimize.ScipySLSQP(strategy=MyStrategy)
     loss = lambda *args, **kwargs: 42.0
     loss.errordef = 0.5
     with pytest.raises(MyError):

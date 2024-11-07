@@ -56,6 +56,14 @@ class RunManager:
             return self.MAX_CHUNK_SIZE
 
     @property
+    def check_numerics(self):
+        return self.numeric_checks
+
+    @check_numerics.setter
+    def check_numerics(self, value):
+        self.numeric_checks = value
+
+    @property
     def n_cpu(self):
         return len(self._cpu)
 
@@ -403,7 +411,7 @@ class RunManager:
         """Clear all generated graphs and effectively reset. Should not affect execution, only performance.
 
         In a simple fit scenario, this is not used. But if several fits are performed with different python objects such
-        as a scan over a range (by changing the norm_range and creating a new dataset), doing minimization and therefore
+        as a scan over a range (by changing the norm and creating a new dataset), doing minimization and therefore
         invoking the loss (by default creating a graph) will leave the graphs in the cache, even tough the already
         scanned ranges are not needed anymore.
 

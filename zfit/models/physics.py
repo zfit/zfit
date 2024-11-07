@@ -77,7 +77,6 @@ def crystalball_integral(limits, params, model):
 
 
 @z.function(wraps="tensor", keepalive=True)
-# @tf.function  # BUG? TODO: problem with tf.function and input signature
 def crystalball_integral_func(mu, sigma, alpha, n, lower, upper):
     sqrt_pi_over_two = np.sqrt(np.pi / 2)
     sqrt2 = np.sqrt(2)
@@ -164,7 +163,7 @@ def double_crystalball_mu_integral(limits, params, model):
     )
 
 
-# @z.function(wraps="tensor")  # TODO: this errors, fro whatever reason?
+@z.function(wraps="tensor")  # TODO: this errors, fro whatever reason?
 def double_crystalball_mu_integral_func(mu, sigma, alphal, nl, alphar, nr, lower, upper):
     # mu_broadcast =
     upper_of_lowerint = znp.minimum(mu, upper)
@@ -209,7 +208,7 @@ def generalized_crystalball_mu_integral(limits, params, model):
     )
 
 
-# @z.function(wraps="tensor")  # TODO: this errors, for whatever reason, when running example/signal_bkg_mass_extended_fit_binned.py
+@z.function(wraps="tensor")
 def generalized_crystalball_mu_integral_func(mu, sigmal, alphal, nl, sigmar, alphar, nr, lower, upper):
     # mu_broadcast =
     upper_of_lowerint = znp.minimum(mu, upper)
@@ -272,6 +271,11 @@ class CrystalBall(BasePDF, SerializableMixin):
 
                The default space is used for example in the sample method: if no
                sampling limits are given, the default space is used.
+
+               If the observables are binned and the model is unbinned, the
+               model will be a binned model, by wrapping the model in a
+               :py:class:`~zfit.pdf.BinnedFromUnbinnedPDF`, equivalent to
+               calling :py:meth:`~zfit.pdf.BasePDF.to_binned`.
 
                If the observables are binned and the model is unbinned, the
                model will be a binned model, by wrapping the model in a
@@ -387,6 +391,11 @@ class DoubleCB(BasePDF, SerializableMixin):
                :py:class:`~zfit.pdf.BinnedFromUnbinnedPDF`, equivalent to
                calling :py:meth:`~zfit.pdf.BasePDF.to_binned`.
 
+               If the observables are binned and the model is unbinned, the
+               model will be a binned model, by wrapping the model in a
+               :py:class:`~zfit.pdf.BinnedFromUnbinnedPDF`, equivalent to
+               calling :py:meth:`~zfit.pdf.BasePDF.to_binned`.
+
                The observables are not equal to the domain as it does not restrict or
                truncate the model outside this range. |@docend:pdf.init.obs|
             extended: |@doc:pdf.init.extended| The overall yield of the PDF.
@@ -414,14 +423,16 @@ class DoubleCB(BasePDF, SerializableMixin):
         }
         super().__init__(obs=obs, name=name, params=params, extended=extended, norm=norm, label=label)
 
-    def _unnormalized_pdf(self, x):
-        mu = self.params["mu"].value()
-        sigma = self.params["sigma"].value()
-        alphal = self.params["alphal"].value()
-        nl = self.params["nl"].value()
-        alphar = self.params["alphar"].value()
-        nr = self.params["nr"].value()
-        x = x.unstack_x()
+    @supports(norm=False)
+    def _pdf(self, x, norm, params):
+        assert norm is False, "Norm cannot be a space"
+        mu = params["mu"]
+        sigma = params["sigma"]
+        alphal = params["alphal"]
+        nl = params["nl"]
+        alphar = params["alphar"]
+        nr = params["nr"]
+        x = x[0]
         return double_crystalball_func(
             x=x,
             mu=mu,
@@ -514,6 +525,11 @@ class GeneralizedCB(BasePDF, SerializableMixin):
                :py:class:`~zfit.pdf.BinnedFromUnbinnedPDF`, equivalent to
                calling :py:meth:`~zfit.pdf.BasePDF.to_binned`.
 
+               If the observables are binned and the model is unbinned, the
+               model will be a binned model, by wrapping the model in a
+               :py:class:`~zfit.pdf.BinnedFromUnbinnedPDF`, equivalent to
+               calling :py:meth:`~zfit.pdf.BasePDF.to_binned`.
+
                The observables are not equal to the domain as it does not restrict or
                truncate the model outside this range. |@docend:pdf.init.obs|
             extended: |@doc:pdf.init.extended| The overall yield of the PDF.
@@ -542,15 +558,17 @@ class GeneralizedCB(BasePDF, SerializableMixin):
         }
         super().__init__(obs=obs, name=name, params=params, extended=extended, norm=norm, label=label)
 
-    def _unnormalized_pdf(self, x):
-        mu = self.params["mu"].value()
-        sigmal = self.params["sigmal"].value()
-        alphal = self.params["alphal"].value()
-        sigmar = self.params["sigmar"].value()
-        nl = self.params["nl"].value()
-        alphar = self.params["alphar"].value()
-        nr = self.params["nr"].value()
-        x = x.unstack_x()
+    @supports(norm=False)
+    def _pdf(self, x, norm, params):
+        assert norm is False, "Norm has to be False"
+        mu = params["mu"]
+        sigmal = params["sigmal"]
+        alphal = params["alphal"]
+        sigmar = params["sigmar"]
+        nl = params["nl"]
+        alphar = params["alphar"]
+        nr = params["nr"]
+        x = x[0]
         return generalized_crystalball_func(
             x=x,
             mu=mu,
@@ -737,6 +755,11 @@ class GaussExpTail(BasePDF, SerializableMixin):
                :py:class:`~zfit.pdf.BinnedFromUnbinnedPDF`, equivalent to
                calling :py:meth:`~zfit.pdf.BasePDF.to_binned`.
 
+               If the observables are binned and the model is unbinned, the
+               model will be a binned model, by wrapping the model in a
+               :py:class:`~zfit.pdf.BinnedFromUnbinnedPDF`, equivalent to
+               calling :py:meth:`~zfit.pdf.BasePDF.to_binned`.
+
                The observables are not equal to the domain as it does not restrict or
                truncate the model outside this range. |@docend:pdf.init.obs|
             extended: |@doc:pdf.init.extended| The overall yield of the PDF.
@@ -757,11 +780,13 @@ class GaussExpTail(BasePDF, SerializableMixin):
         params = {"mu": mu, "sigma": sigma, "alpha": alpha}
         super().__init__(obs=obs, name=name, params=params, extended=extended, norm=norm, label=label)
 
-    def _unnormalized_pdf(self, x):
-        mu = self.params["mu"].value()
-        sigma = self.params["sigma"].value()
-        alpha = self.params["alpha"].value()
-        x = z.unstack_x(x)
+    @supports(norm=False)
+    def _pdf(self, x, norm, params):
+        assert norm is False, "Norm has to be False"
+        mu = params["mu"]
+        sigma = params["sigma"]
+        alpha = params["alpha"]
+        x = x[0]
         return gaussexptail_func(x=x, mu=mu, sigma=sigma, alpha=alpha)
 
 
@@ -831,6 +856,11 @@ class GeneralizedGaussExpTail(BasePDF, SerializableMixin):
                :py:class:`~zfit.pdf.BinnedFromUnbinnedPDF`, equivalent to
                calling :py:meth:`~zfit.pdf.BasePDF.to_binned`.
 
+               If the observables are binned and the model is unbinned, the
+               model will be a binned model, by wrapping the model in a
+               :py:class:`~zfit.pdf.BinnedFromUnbinnedPDF`, equivalent to
+               calling :py:meth:`~zfit.pdf.BasePDF.to_binned`.
+
                The observables are not equal to the domain as it does not restrict or
                truncate the model outside this range. |@docend:pdf.init.obs|
             extended: |@doc:pdf.init.extended| The overall yield of the PDF.
@@ -857,13 +887,15 @@ class GeneralizedGaussExpTail(BasePDF, SerializableMixin):
         }
         super().__init__(obs=obs, name=name, params=params, extended=extended, norm=norm, label=label)
 
-    def _unnormalized_pdf(self, x):
-        mu = self.params["mu"].value()
-        sigmal = self.params["sigmal"].value()
-        alphal = self.params["alphal"].value()
-        sigmar = self.params["sigmar"].value()
-        alphar = self.params["alphar"].value()
-        x = z.unstack_x(x)
+    @supports(norm=False)
+    def _pdf(self, x, norm, params):
+        assert norm is False, "Norm has to be False"
+        mu = params["mu"]
+        sigmal = params["sigmal"]
+        alphal = params["alphal"]
+        sigmar = params["sigmar"]
+        alphar = params["alphar"]
+        x = x[0]
         return generalized_gaussexptail_func(
             x=x,
             mu=mu,

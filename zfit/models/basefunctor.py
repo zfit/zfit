@@ -9,7 +9,6 @@ import pydantic.v1 as pydantic
 import tensorflow as tf
 
 from ..core.coordinates import convert_to_obs_str
-from ..core.dependents import _extract_dependencies
 from ..core.dimension import get_same_obs
 from ..core.interfaces import ZfitFunctorMixin, ZfitModel, ZfitParameter, ZfitSpace
 from ..core.parameter import convert_to_parameter
@@ -80,25 +79,20 @@ class FunctorMixin(ZfitFunctorMixin):
         floating: bool | None = True,
         is_yield: bool | None = None,
         extract_independent: bool | None = True,
+        *,
+        autograd: bool | None = None,
     ) -> set[ZfitParameter]:
-        params = super()._get_params(floating, is_yield, extract_independent)
+        params = super()._get_params(floating, is_yield, extract_independent, autograd=autograd)
         if is_yield is not True:
             params = params.union(
                 *(
                     model.get_params(
-                        floating=floating,
-                        is_yield=False,
-                        extract_independent=extract_independent,
+                        floating=floating, is_yield=False, extract_independent=extract_independent, autograd=autograd
                     )
                     for model in self.models
                 )
             )
         return params
-
-    def _get_dependencies(self):
-        dependents = super()._get_dependencies()  # get the own parameter dependents
-        model_dependents = _extract_dependencies(self.get_models())
-        return dependents.union(model_dependents)
 
     @property
     def models(self) -> list[ZfitModel]:

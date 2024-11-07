@@ -45,7 +45,7 @@ def test_roofit_vs_zfit(toy_data):
     # Perform fit with zfit
     obs = zfit.Space("x", limits=(0, 10))
     mean = zfit.Parameter("mean", 5, 0, 10)
-    sigma = zfit.Parameter("sigma", 1, 0, 5, step_size=0.01)
+    sigma = zfit.Parameter("sigma", 1, 0, 5, stepsize=0.01)
     fraction = zfit.Parameter("fraction", 0.5, 0, 1)
     gauss = zfit.pdf.Gauss(obs=obs, mu=mean, sigma=sigma)
     expo = zfit.pdf.Exponential(obs=obs, lambda_=zfit.Parameter("lambda", -0.3))

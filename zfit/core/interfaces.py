@@ -16,7 +16,6 @@ import tensorflow as tf
 from uhi.typing.plottable import PlottableHistogram
 
 from ..util import ztyping
-from ..util.deprecation import deprecated
 
 
 class ZfitObject:
@@ -623,29 +622,15 @@ class ZfitSpace(ZfitLimit, ZfitOrderableDimensional, ZfitObject, metaclass=ABCMe
         raise NotImplementedError
 
 
-class ZfitDependenciesMixin:
-    @abstractmethod
-    def get_cache_deps(self, only_floating: bool = True) -> ztyping.DependentsType:
-        raise NotImplementedError
-
-    @deprecated(
-        date=None,
-        instructions="Use `get_params` instead if you want to retrieve the "
-        "independent parameters or `get_cache_deps` in case you need "
-        "the numerical cache dependents (advanced).",
-    )
-    def get_dependencies(self, only_floating: bool = True) -> ztyping.DependentsType:
-        # raise BreakingAPIChangeError
-        return self.get_cache_deps(only_floating=only_floating)
-
-
-class ZfitParametrized(ZfitDependenciesMixin, ZfitObject):
+class ZfitParametrized(ZfitObject):
     @abstractmethod
     def get_params(
         self,
         floating: bool | None = True,
         is_yield: bool | None = None,
         extract_independent: bool | None = True,
+        *,
+        autograd: bool | None = None,
     ) -> set[ZfitParameter]:
         """Recursively collect parameters that this object depends on according to the filter criteria.
 
@@ -657,6 +642,7 @@ class ZfitParametrized(ZfitDependenciesMixin, ZfitObject):
             only parameters that are not floating.
 
         Args:
+
             floating: if a parameter is floating, e.g. if :py:meth:`~ZfitParameter.floating` returns `True`
             is_yield: if a parameter is a yield of the _current_ model. This won't be applied recursively, but may include
                yields if they do also represent a parameter parametrizing the shape. So if the yield of the current
@@ -664,6 +650,9 @@ class ZfitParametrized(ZfitDependenciesMixin, ZfitObject):
                depend on a yield (as their yield) and it is not correlated to the output of our model, they won't be
                included.
             extract_independent: If the parameter is an independent parameter, i.e. if it is a `ZfitIndependentParameter`.
+            autograd: Selection criteria if the parameter supports automatic differentiation. If `None`, no filtering
+                is done. If `True`, only parameters that support autograd are returned, if `False`, only parameters
+                that do not support autograd are returned.
         """
         raise NotImplementedError
 
@@ -761,13 +750,13 @@ class ZfitIndependentParameter(ZfitParameter, metaclass=ABCMeta):
         raise NotImplementedError
 
     @property
-    def step_size(self) -> tf.Tensor:
+    def stepsize(self) -> tf.Tensor:
         """Step size of the parameter, the estimated order of magnitude of the uncertainty.
 
-        This can be crucial to tune for the minimization. A too large `step_size` can produce NaNs, a too small won't
+        This can be crucial to tune for the minimization. A too large `stepsize` can produce NaNs, a too small won't
         converge.
 
-        If the step size is not set, the `DEFAULT_STEP_SIZE` is used.
+        If the step size is not set, the `DEFAULT_stepsize` is used.
 
         Returns:
             The step size
@@ -831,7 +820,7 @@ class ZfitModel(ZfitNumericParametrized, ZfitDimensional):
 
     @abstractmethod
     def integrate(self, limits: ztyping.LimitsType, norm: ztyping.LimitsType = None, *, options=None) -> ztyping.XType:
-        """Integrate the function over `limits` (normalized over `norm_range` if not False).
+        """Integrate the function over `limits` (normalized over `norm` if not False).
 
         Args:
             * ():
@@ -883,7 +872,7 @@ class ZfitModel(ZfitNumericParametrized, ZfitDimensional):
         """Partially integrate the function over the `limits` and evaluate it at `x`.
 
         Dimension of `limits` and `x` have to add up to the full dimension and be therefore equal
-        to the dimensions of `norm_range` (if not False)
+        to the dimensions of `norm` (if not False)
 
         Args:
             * ():
@@ -891,7 +880,7 @@ class ZfitModel(ZfitNumericParametrized, ZfitDimensional):
             options ():
             x: The value at which the partially integrated function will be evaluated
             limits: the limits to integrate over. Can contain only some axes
-            norm_range: the limits to normalize over. Has to have all axes
+            norm: the limits to normalize over. Has to have all axes
 
         Returns:
             The value of the partially integrated function evaluated at `x`.
@@ -960,7 +949,7 @@ class ZfitPDF(ZfitModel):
         raise NotImplementedError
 
     @abstractmethod
-    def as_func(self, norm_range: ztyping.LimitsType = False):
+    def as_func(self, norm: ztyping.LimitsType = False):
         raise NotImplementedError
 
 

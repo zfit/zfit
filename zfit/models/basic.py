@@ -20,7 +20,7 @@ from zfit import z
 
 from ..core.basepdf import BasePDF
 from ..core.serialmixin import SerializableMixin
-from ..core.space import ANY_LOWER, ANY_UPPER, Space
+from ..core.space import ANY_LOWER, ANY_UPPER, Space, supports
 from ..serialization import Serializer, SpaceRepr
 from ..serialization.pdfrepr import BasePDFRepr
 from ..util import ztyping
@@ -56,6 +56,11 @@ class Exponential(BasePDF, SerializableMixin):
 
                The default space is used for example in the sample method: if no
                sampling limits are given, the default space is used.
+
+               If the observables are binned and the model is unbinned, the
+               model will be a binned model, by wrapping the model in a
+               :py:class:`~zfit.pdf.BinnedFromUnbinnedPDF`, equivalent to
+               calling :py:meth:`~zfit.pdf.BasePDF.to_binned`.
 
                If the observables are binned and the model is unbinned, the
                model will be a binned model, by wrapping the model in a
@@ -101,8 +106,9 @@ class Exponential(BasePDF, SerializableMixin):
             )
         self._set_numerics_data_shift(self.space)
 
-    def _unnormalized_pdf(self, x):
-        lambda_ = self.params["lambda"].value()
+    @supports()
+    def _unnormalized_pdf(self, x, params):
+        lambda_ = params["lambda"]
         x = x.unstack_x()
         probs = znp.exp(lambda_ * (self._shift_x(x)))
         tf.debugging.assert_all_finite(
@@ -296,6 +302,11 @@ class Voigt(BasePDF, SerializableMixin):
                :py:class:`~zfit.pdf.BinnedFromUnbinnedPDF`, equivalent to
                calling :py:meth:`~zfit.pdf.BasePDF.to_binned`.
 
+               If the observables are binned and the model is unbinned, the
+               model will be a binned model, by wrapping the model in a
+               :py:class:`~zfit.pdf.BinnedFromUnbinnedPDF`, equivalent to
+               calling :py:meth:`~zfit.pdf.BasePDF.to_binned`.
+
                The observables are not equal to the domain as it does not restrict or
                truncate the model outside this range. |@docend:pdf.init.obs|
             extended: |@doc:pdf.init.extended| The overall yield of the PDF.
@@ -316,10 +327,11 @@ class Voigt(BasePDF, SerializableMixin):
         params = {"m": m, "sigma": sigma, "gamma": gamma}
         super().__init__(obs, name=name, params=params, extended=extended, norm=norm, label=label)
 
-    def _unnormalized_pdf(self, x):
-        m = self.params["m"]
-        sigma = self.params["sigma"]
-        gamma = self.params["gamma"]
+    @supports()
+    def _unnormalized_pdf(self, x, params):
+        m = params["m"]
+        sigma = params["sigma"]
+        gamma = params["gamma"]
         x = z.unstack_x(x)
         x = znp.asarray(znp.atleast_1d(x) - m, dtype=znp.complex128)
         gamma_complex = znp.asarray(gamma, dtype=znp.complex128)

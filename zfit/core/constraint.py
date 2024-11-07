@@ -23,7 +23,6 @@ from ..util.container import convert_to_container
 from ..util.deprecation import deprecated_args
 from ..util.exception import ShapeIncompatibleError
 from .baseobject import BaseNumeric
-from .dependents import _extract_dependencies
 from .interfaces import ZfitConstraint, ZfitParameter
 from .serialmixin import SerializableMixin
 
@@ -60,9 +59,6 @@ class BaseConstraint(ZfitConstraint, BaseNumeric):
     @abc.abstractmethod
     def _value(self):
         raise NotImplementedError
-
-    def _get_dependencies(self) -> ztyping.DependentsType:
-        return _extract_dependencies(self.get_params(floating=None))
 
 
 # TODO: improve arbitrary constraints, should we allow only functions that have a `params` argument?
@@ -158,9 +154,6 @@ class ProbabilityConstraint(BaseConstraint):
     @abc.abstractmethod
     def _value(self):
         raise NotImplementedError
-
-    def _get_dependencies(self) -> ztyping.DependentsType:
-        return _extract_dependencies(self.get_params())
 
     def sample(self, n):
         """Sample ``n`` points from the probability density function for the observed value of the parameters.

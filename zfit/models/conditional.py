@@ -132,8 +132,10 @@ class ConditionalPDFV1(BaseFunctor):
         floating: bool | None = True,
         is_yield: bool | None = None,
         extract_independent: bool | None = True,
+        *,
+        autograd: bool | None = None,
     ) -> set[ZfitParameter]:
-        params = super()._get_params(floating, is_yield, extract_independent)
+        params = super()._get_params(floating, is_yield, extract_independent, autograd=autograd)
         params -= set(self._cond)
         return params
 

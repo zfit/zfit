@@ -16,10 +16,8 @@ from ordered_set import OrderedSet
 from ..minimizers.interface import ZfitResult
 from ..util import ztyping
 from ..util.cache import GraphCachable
-from ..util.checks import NotSpecified
 from ..util.container import convert_to_container
-from ..util.exception import BreakingAPIChangeError, ParamNameNotUniqueError
-from .dependents import BaseDependentsMixin
+from ..util.exception import ParamNameNotUniqueError
 from .interfaces import (
     ZfitIndependentParameter,
     ZfitNumericParametrized,
@@ -82,6 +80,7 @@ def convert_param_values(params: Union[Mapping[Union[str, ztyping.ParamType], fl
         params = {}
     elif isinstance(params, ZfitResult):
         params = params.values
+
     elif not isinstance(params, Mapping):
         msg = f"`params` has to be a mapping (dict-like) or a `ZfitResult`, is {params} of type {type(params)}."
         raise TypeError(msg)
@@ -89,13 +88,28 @@ def convert_param_values(params: Union[Mapping[Union[str, ztyping.ParamType], fl
 
 
 class BaseParametrized(BaseObject, ZfitParametrized):
-    def __init__(self, params, **kwargs) -> None:
+    def __init__(self, params, autograd_params=None, **kwargs) -> None:
         super().__init__(**kwargs)
         from zfit.core.parameter import convert_to_parameter
 
         params = params or {}
-        # params = dict(sorted((n, convert_to_parameter(p)) for n, p in params.items()))
         params = {n: convert_to_parameter(p) for n, p in params.items()}  # why sorted?
+
+        if autograd_params is None:
+            autograd_params = True
+        if autograd_params is True:
+            autograd_params = (*params, "yield")
+        elif isinstance(autograd_params, Iterable):
+            nonexisting_params = set(autograd_params) - set(params)
+            nonexisting_params -= {"yield"}  # yield is not part of params, so needs to be removed
+            if nonexisting_params:
+                msg = f"Parameters {nonexisting_params} are not in the parameters of {self}: {params}."
+                raise ValueError(msg)
+        else:
+            msg = f"Invalid value for `autograd_params`: {autograd_params}"
+            raise ValueError(msg)
+
+        self._autograd_params = autograd_params
 
         # parameters = dict(sorted(parameters))  # to always have a consistent order
         self._params = params
@@ -123,7 +137,8 @@ class BaseParametrized(BaseObject, ZfitParametrized):
         floating: bool | None = True,
         is_yield: bool | None = None,
         extract_independent: bool | None = True,
-        only_floating=NotSpecified,
+        *,
+        autograd: bool | None = None,
     ) -> set[ZfitParameter]:
         """Recursively collect parameters that this object depends on according to the filter criteria.
 
@@ -141,27 +156,41 @@ class BaseParametrized(BaseObject, ZfitParametrized):
                model depends on other yields (or also non-yields), this will be included. If, however, just submodels
                depend on a yield (as their yield) and it is not correlated to the output of our model, they won't be
                included.
-            extract_independent: If the parameter is an independent parameter, i.e. if it is a ``ZfitIndependentParameter``.
+            extract_independent: If the parameter is an independent parameter,
+                i.e. if it is a ``ZfitIndependentParameter``.
         """
-        if only_floating is not NotSpecified:
-            msg = "The argument `only_floating` has been renamed to `floating`."
-            raise BreakingAPIChangeError(msg)
-        return self._get_params(
-            floating=floating,
-            is_yield=is_yield,
-            extract_independent=extract_independent,
-        )
+        if autograd is True:
+            allparams = self._get_params(
+                floating=floating, is_yield=is_yield, extract_independent=extract_independent, autograd=None
+            )
+            nograd_params = self._get_params(
+                floating=None, is_yield=None, extract_independent=None, autograd=False
+            )  # we want to get *any* param that is not autograd
+            params = allparams - nograd_params
+        else:
+            params = self._get_params(
+                floating=floating, is_yield=is_yield, extract_independent=extract_independent, autograd=autograd
+            )
+        return params
 
     def _get_params(
         self,
         floating: bool | None,
         is_yield: bool | None,
         extract_independent: bool | None,
+        *,
+        autograd: bool | None = None,
     ) -> set[ZfitParameter]:
+        assert autograd is not True, "This should never be True, it's only for internal use."
         if is_yield is True:  # we want exclusively yields, we don't have them by default
             params = OrderedSet()
         else:
-            params = self.params.values()
+            params = []
+            for name, p in self.params.items():
+                # we either collect _all_ params or only the ones that do not support autograd
+                if autograd is None or (autograd is False and name not in self._autograd_params):
+                    params.append(p)
+
             params = extract_filter_params(params, floating=floating, extract_independent=extract_independent)
         return params
 
@@ -210,7 +239,6 @@ class BaseParametrized(BaseObject, ZfitParametrized):
 
 class BaseNumeric(
     GraphCachable,
-    BaseDependentsMixin,
     BaseParametrized,
     ZfitNumericParametrized,
     BaseObject,
@@ -232,16 +260,16 @@ class BaseNumeric(
 
 
 def extract_filter_params(
-    params: Iterable[ZfitParametrized],
+    params: Iterable[ZfitParametrized] | ZfitParametrized,
     floating: bool | None = True,
     extract_independent: bool | None = True,
-) -> set[ZfitParameter]:
+) -> OrderedSet[ZfitParameter]:
     params = convert_to_container(params, container=OrderedSet)
 
     if extract_independent is not False:
         params_indep = OrderedSet(
             itertools.chain.from_iterable(
-                param.get_params(floating=floating, extract_independent=True, is_yield=None) for param in params
+                param.get_params(floating=floating, is_yield=None, extract_independent=True) for param in params
             )
         )
         if extract_independent is True:

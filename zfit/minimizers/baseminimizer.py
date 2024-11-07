@@ -1,5 +1,4 @@
 #  Copyright (c) 2024 zfit
-"""Definition of minimizers, wrappers etc."""
 
 from __future__ import annotations
 
@@ -216,7 +215,7 @@ class BaseMinimizer(ZfitMinimizer):
 
         self._strategy = strategy
         self._state = None
-        self.maxiter = self._DEFAULTS["maxiter"] if maxiter is None else maxiter
+        self._maxiter = self._DEFAULTS["maxiter"] if maxiter is None else maxiter
         self.name = repr(self.__class__)[:-2].split(".")[-1] if name is None else name
 
     @classmethod
@@ -306,17 +305,9 @@ class BaseMinimizer(ZfitMinimizer):
 
         # convert the function to a SimpleLoss
         if not isinstance(loss, ZfitLoss):
-            if not callable(loss):
-                msg = "Given Loss has to  be a ZfitLoss or a callable."
-                raise TypeError(msg)
-            if params is None:
-                msg = "If the loss is a callable, the params cannot be None."
-                raise ValueError(msg)
-
             from zfit.loss import SimpleLoss
 
-            convert_to_parameters(params, prefer_constant=False)
-            loss = SimpleLoss(func=loss, params=params)
+            loss = SimpleLoss.from_any(loss, params=params)
 
         if isinstance(params, (tuple, list)) and not any(isinstance(p, ZfitParameter) for p in params):
             loss_params = loss.get_params()
@@ -433,7 +424,7 @@ class BaseMinimizer(ZfitMinimizer):
                     - ``name``: list of unique names of the parameters.
                     - ``lower``: array-like lower limits of the parameters,
                     - ``upper``: array-like upper limits of the parameters,
-                    - ``step_size``: array-like initial step size of the parameters (approximately the expected
+                    - ``stepsize``: array-like initial step size of the parameters (approximately the expected
                       uncertainty)
 
                 This will create internally a single parameter for each value that can be accessed in the `FitResult`
@@ -586,12 +577,16 @@ class BaseMinimizer(ZfitMinimizer):
             else:
                 msg = "n cannot be None if not called within minimize"
                 raise ValueError(msg)
-        maxiter = self.maxiter
+        maxiter = self._maxiter
         if callable(maxiter):
             maxiter = maxiter(n)
         elif maxiter == "auto":
             maxiter = self._n_iter_per_param * n
         return maxiter
+
+    @property
+    def maxiter(self):
+        return self.get_maxiter()
 
     def create_evaluator(
         self,

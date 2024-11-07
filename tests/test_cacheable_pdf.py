@@ -21,7 +21,7 @@ class TestPDF(zfit.pdf.BaseFunctor):
         self.integrate_call_counter = tf.Variable(0)
 
     @supports(norm="space")
-    def _pdf(self, x, norm, *, norm_range=None):
+    def _pdf(self, x, norm):
         self.pdf_call_counter.assign_add(1)
         return self.pdfs[0].pdf(x)
 

@@ -16,7 +16,7 @@ Recommended way of importing:
 >>> Import zfit.z.numpy as znp
 """
 
-#  Copyright (c) 2022 zfit
+#  Copyright (c) 2024 zfit
 
 # TODO: dymamic imports?
 # import tensorflow.experimental.numpy as _tnp  # this way we do get the autocompletion
@@ -44,8 +44,6 @@ from .zextension import (
     abs_square,
     constant,
     function as function,
-    function_sampling,
-    function_tf_input,
     nth_pow,
     pi,
     py_function,
@@ -55,6 +53,7 @@ from .zextension import (
     to_complex,
     to_real,
     unstack_x,
+    DoNotCompile,
 )
 
 # numpy = _tnp

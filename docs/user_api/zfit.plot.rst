@@ -10,6 +10,8 @@ plotting library.
 
 The plotting is based on ``matplotlib`` and integrates closely with it.
 
+To use the functions more easily, you can use ``pdf.plot.plotpdf(...)``.
+
 .. autosummary::
     :toctree: _generated/plot
 

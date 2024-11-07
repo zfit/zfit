@@ -15,6 +15,7 @@ import zfit.z.numpy as znp
 from ..util import ztyping
 from ..util.exception import (
     BreakingAPIChangeError,
+    FunctionNotImplemented,
     IntentionAmbiguousError,
     ModelIncompatibleError,
 )
@@ -42,7 +43,8 @@ def multiply(object1: ztyping.BaseObjectType, object2: ztyping.BaseObjectType) -
         elif isinstance(object2, ZfitFunc):
             new_object = multiply_param_func(param=object1, func=object2)
         elif isinstance(object2, ZfitPDF):
-            new_object = multiply_param_pdf(param=object1, pdf=object2)
+            msg = "Not supported since a while"
+            raise BreakingAPIChangeError(msg)
         else:
             msg = "This code should never be reached due to logical reasons. Mistakes happen..."
             raise AssertionError(msg)
@@ -97,24 +99,6 @@ def multiply_func_func(func1: ZfitFunc, func2: ZfitFunc, name: str = "multiply_f
     return ProdFunc(funcs=[func1, func2], name=name)
 
 
-def multiply_param_pdf(param: ZfitParameter, pdf: ZfitPDF) -> ZfitPDF:  # noqa: ARG001
-    # TODO(SUM): remove it completely?
-    msg = (
-        "Unfortunately, it is not allowed anymore to multiply pdfs with `frac * pdf + other_pdf` syntax"
-        "due to ambiguity. Use the `zfit.pdf.SumPDF([pdf, other_pdf], frac)` syntax instead."
-    )
-    raise BreakingAPIChangeError(msg)
-
-    # if not (isinstance(param, ZfitParameter) and isinstance(pdf, ZfitPDF)):
-    #     raise TypeError("`param` and `model` need to be `ZfitParameter` resp. `ZfitPDF` and not "
-    #                     "{}, {}".format(param, pdf))
-    # if pdf.is_extended:
-    #     raise AlreadyExtendedPDFError()
-    #
-    # new_pdf = pdf.create_extended(param, name_addition="_autoextended")
-    # return new_pdf
-
-
 def multiply_param_func(param: ZfitParameter, func: ZfitFunc) -> ZfitFunc:
     if not (isinstance(param, ZfitParameter) and isinstance(func, ZfitFunc)):
         msg = "`param` and `func` need to be `ZfitParameter` resp. `ZfitFunc` and not " f"{param}, {func}"
@@ -147,12 +131,11 @@ def add(object1: ztyping.BaseObjectType, object2: ztyping.BaseObjectType) -> zty
     # converting the objects to known types
     object1, object2 = _convert_to_known(object1, object2)
     new_object = None
+    # convert anything we can, otherwise raise an FunctionNotImplemented error
 
     # object 1 is ZfitParameter
     if isinstance(object1, ZfitParameter):
-        if isinstance(object2, ZfitParameter):
-            new_object = add_param_param(param1=object1, param2=object2)
-        elif isinstance(object2, ZfitFunc):
+        if isinstance(object2, ZfitFunc):
             new_object = add_param_func(param=object1, func=object2)
 
     # object 1 is Function
@@ -179,7 +162,7 @@ def add(object1: ztyping.BaseObjectType, object2: ztyping.BaseObjectType) -> zty
             "properly defined. (may change the order)"
             ""
         )
-        raise TypeError(msg)
+        raise FunctionNotImplemented(msg)
     return new_object
 
 

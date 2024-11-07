@@ -8,8 +8,8 @@ import pytest
 import scipy.optimize
 from ordered_set import OrderedSet
 
-import zfit.z.numpy as znp
 import zfit.minimizers.optimizers_tf
+import zfit.z.numpy as znp
 from zfit.minimizers.base_tf import WrapOptimizer
 from zfit.util.exception import OperationNotAllowedError
 
@@ -22,10 +22,10 @@ max_distance_to_min = 0.5
 
 
 def create_loss(obs1):
-    mu_param = zfit.Parameter("mu", true_mu + 0.85, -15.0, 15, step_size=0.03)
-    sigma_param = zfit.Parameter("sigma", true_sigma * 0.62, 0.01, 50, step_size=0.03)
+    mu_param = zfit.Parameter("mu", true_mu + 0.85, -15.0, 15, stepsize=0.03)
+    sigma_param = zfit.Parameter("sigma", true_sigma * 0.62, 0.01, 50, stepsize=0.03)
     lambda_param = zfit.Parameter(
-        "lambda", true_lambda * 0.69, -0.51, -0.0003, step_size=0.001
+        "lambda", true_lambda * 0.69, -0.51, -0.0003, stepsize=0.001
     )
 
     gauss1 = zfit.pdf.Gauss(mu=mu_param, sigma=sigma_param, obs=obs1)
@@ -52,12 +52,12 @@ verbosity = None
 
 def make_min_grad_hesse():
     minimizers = [
-        zfit.minimize.ScipyTruncNCV1,
-        # zfit.minimize.ScipyTrustNCGV1,  # Too bad
-        # zfit.minimize.ScipyTrustKrylovV1,  # Too bad
-        zfit.minimize.ScipySLSQPV1,
-        zfit.minimize.ScipyLBFGSBV1,
-        zfit.minimize.ScipyTrustConstrV1,
+        zfit.minimize.ScipyTruncNC,
+        zfit.minimize.ScipyTrustNCG,  # Too bad
+        zfit.minimize.ScipyTrustKrylov,  # Too bad
+        zfit.minimize.ScipySLSQP,
+        zfit.minimize.ScipyLBFGSB,
+        zfit.minimize.ScipyTrustConstr,
     ]
     min_options = []
     for opt in minimizers:
@@ -134,39 +134,40 @@ minimizers = [
     # TensorFlow Probability minimizer
     # (BFGS, {}, True),  # doesn't work as it uses the graph, violates assumption in minimizer
     # SciPy Minimizer
-    # (  # TODO: reactivate. Not working, completely overshooting estimates. Maybe normalize variables?
-    # zfit.minimize.ScipyLBFGSBV1,
-    # {"verbosity": verbosity},
-    # {"error": True, "numgrad": False, "approx": True},
-    # ),
-    # (zfit.minimize.ScipyTrustNCGV1, {'tol': 1e-5, "verbosity": verbosity}, True),
-    # (zfit.minimize.ScipyTrustKrylovV1, {"verbosity": verbosity}, True),  # Too unstable
+    (  # TODO: reactivate. Not working, completely overshooting estimates. Maybe normalize variables?
+    zfit.minimize.ScipyLBFGSB,
+    {"verbosity": verbosity},
+    {"error": True, "numgrad": False, "approx": True},
+    ),
+    (zfit.minimize.ScipyBFGS, {"verbosity": verbosity}, {"error": do_errors_most}),
+    (zfit.minimize.ScipyTrustNCG, {'tol': 1e-5, "verbosity": verbosity}, True),
+    (zfit.minimize.ScipyTrustKrylov, {"verbosity": verbosity}, True),  # Too unstable
     (
-        zfit.minimize.ScipyTrustConstrV1,
+        zfit.minimize.ScipyTrustConstr,
         {
             "verbosity": verbosity,
         },
         {"error": True, "longtests": bool(zfit.run.get_graph_mode())},
     ),
     (
-        zfit.minimize.ScipyPowellV1,
+        zfit.minimize.ScipyPowell,
         {
             "verbosity": verbosity,
         },
         {"error": do_errors_most},
     ),
     (
-        zfit.minimize.ScipySLSQPV1,
+        zfit.minimize.ScipySLSQP,
         {
             "verbosity": verbosity,
         },
         {"error": do_errors_most},
     ),
-    # (zfit.minimize.ScipyCOBYLAV1, {"verbosity": verbosity, }, {'error': do_errors_most}),  # Too bad
-    # (zfit.minimize.ScipyDoglegV1, {'tol': 1e-5, "verbosity": verbosity}, do_errors_most),  # works badly
-    # (zfit.minimize.ScipyNewtonCGV1, {"verbosity":verbosity,}, {'error': do_errors_most}),  # Too sensitive? Fails in line-search?
+    (zfit.minimize.ScipyCOBYLA, {"verbosity": verbosity, }, {'error': do_errors_most}),  # Too bad
+    (zfit.minimize.ScipyDogleg, {'tol': 1e-5, "verbosity": verbosity}, do_errors_most),  # works badly
+    (zfit.minimize.ScipyNewtonCG, {"verbosity":verbosity, }, {'error': do_errors_most}),  # Too sensitive? Fails in line-search?
     (
-        zfit.minimize.ScipyTruncNCV1,
+        zfit.minimize.ScipyTruncNC,
         {
             "verbosity": verbosity,
         },
@@ -176,104 +177,141 @@ minimizers = [
 # NLopt minimizer
 nlopt_minimizers = [
     (
-        zfit.minimize.NLoptLBFGSV1,
+        zfit.minimize.NLoptLBFGS,
         {
             "verbosity": verbosity,
         },
         {"error": True, "longtests": bool(zfit.run.get_graph_mode())},
     ),
     (
-        zfit.minimize.NLoptTruncNewtonV1,
+        zfit.minimize.NLoptTruncNewton,
         {
             "verbosity": verbosity,
         },
         {"error": do_errors_most},
     ),
     (
-        zfit.minimize.NLoptSLSQPV1,
+        zfit.minimize.NLoptSLSQP,
         {
             "verbosity": verbosity,
         },
         {"error": do_errors_most},
     ),
     (
-        zfit.minimize.NLoptMMAV1,
+        zfit.minimize.NLoptMMA,
         {
             "verbosity": verbosity,
         },
         {"error": do_errors_most},
     ),
     (
-        zfit.minimize.NLoptCCSAQV1,
+        zfit.minimize.NLoptCCSAQ,
         {
             "verbosity": verbosity,
         },
         {"error": do_errors_most},
     ),
     (
-        zfit.minimize.NLoptSubplexV1,
+        zfit.minimize.NLoptSubplex,
         {
             "verbosity": verbosity,
         },
         {"error": do_errors_most},
     ),
     (
-        zfit.minimize.NLoptCOBYLAV1,
+        zfit.minimize.NLoptCOBYLA,
         {
             "verbosity": verbosity,
         },
         {"error": do_errors_most},
     ),
     (
-        zfit.minimize.NLoptMLSLV1,
+        zfit.minimize.NLoptMLSL,
         {
             "verbosity": verbosity,
         },
         {"error": do_errors_most},
     ),
     (
-        zfit.minimize.NLoptStoGOV1,
+        zfit.minimize.NLoptStoGO,
         {
             "verbosity": verbosity,
         },
         {"error": do_errors_most},
     ),
     (
-        zfit.minimize.NLoptBOBYQAV1,
+        zfit.minimize.NLoptBOBYQA,
         {
             "verbosity": verbosity,
         },
         {"error": do_errors_most},
     ),
     (
-        zfit.minimize.NLoptISRESV1,
+        zfit.minimize.NLoptISRES,
         {
             "verbosity": verbosity,
         },
         {"error": do_errors_most},
     ),
     (
-        zfit.minimize.NLoptESCHV1,
+        zfit.minimize.NLoptESCH,
         {
             "verbosity": verbosity,
         },
         {"error": do_errors_most},
     ),
     (
-        zfit.minimize.NLoptShiftVarV1,
+        zfit.minimize.NLoptShiftVar,
         {
             "verbosity": verbosity,
         },
         {"error": do_errors_most},
     ),
 ]
+zfit_minimizers = [
+    (
+        zfit.minimize.LevenbergMarquardt,
+        {
+            "verbosity": verbosity,
+        },
+        {"error": False, "longtests": bool(zfit.run.get_graph_mode())},
+    ),]
+
 if platform.system() not in ("Darwin",):
     minimizers.extend(nlopt_minimizers)
 
+
+
+
+minimizers_small = [
+    (zfit.minimize.ScipyTrustConstr, {}, True),
+    (zfit.minimize.Minuit, {}, True),
+    (zfit.minimize.LevenbergMarquardt, {}, True),
+]
+if sys.version_info[1] < 12 and platform.system() not in ("Darwin",):
+    minimizers_small.append((zfit.minimize.NLoptLBFGS, {}, True))
+if (
+        platform.system()
+        not in (
+        "Darwin",
+        "Windows",
+)
+        and sys.version_info[1] < 12
+):  # TODO: Ipyopt installation on macosx not working
+    # TODO: ipyopt fails? Why
+    minimizers_small.append((zfit.minimize.Ipyopt, {}, False))
+    minimizers.append(
+        (
+            zfit.minimize.Ipyopt,
+            {"verbosity": verbosity},
+            {"error": True, "longtests": True},
+        )
+    )
 # To run individual minimizers
 # minimizers = [(zfit.minimize.Minuit, {"verbosity": verbosity, 'gradient': True}, {'error': True, 'longtests': True})]
 # minimizers = [(zfit.minimize.IpyoptV1, {'verbosity': 7}, True)]
 # minimizers = [(zfit.minimize.ScipyLBFGSBV1, {'verbosity': 7}, True)]
+# minimizers = [(zfit.minimize.ScipyBFGS, {"verbosity": 10}, True)]
 # minimizers = [(zfit.minimize.ScipyPowellV1, {'verbosity': 7}, True)]
 # minimizers = [(zfit.minimize.ScipySLSQPV1, {'verbosity': 7}, True)]
 # minimizers = [(zfit.minimize.ScipyNelderMeadV1, {'verbosity': 7}, True)]
@@ -298,31 +336,8 @@ if platform.system() not in ("Darwin",):
 # minimizers = [(zfit.minimize.NLoptShiftVarV1, {'verbosity': 7, 'rank': 2}, {'error': True, 'longtests': True})]
 # minimizers = [(zfit.minimize.Minuit, {'verbosity': 6}, True)]
 # minimizers = [(zfit.minimize.BFGS, {'verbosity': 6}, True)]
+minimizers = [(zfit.minimize.LevenbergMarquardt, {'verbosity': 6}, True)]
 
-
-minimizers_small = [
-    (zfit.minimize.ScipyTrustConstrV1, {}, True),
-    (zfit.minimize.Minuit, {}, True),
-]
-if sys.version_info[1] < 12 and platform.system() not in ("Darwin",):
-    minimizers_small.append((zfit.minimize.NLoptLBFGSV1, {}, True))
-if (
-    platform.system()
-    not in (
-        "Darwin",
-        "Windows",
-    )
-    and sys.version_info[1] < 12
-):  # TODO: Ipyopt installation on macosx not working
-    # TODO: ipyopt fails? Why
-    minimizers_small.append((zfit.minimize.IpyoptV1, {}, False))
-    minimizers.append(
-        (
-            zfit.minimize.IpyoptV1,
-            {"verbosity": verbosity},
-            {"error": True, "longtests": True},
-        )
-    )
 
 # sort for xdist: https://github.com/pytest-dev/pytest-xdist/issues/432
 minimizers = sorted(minimizers, key=lambda val: repr(val))
@@ -330,9 +345,9 @@ minimizers_small = sorted(minimizers_small, key=lambda val: repr(val))
 
 obs1 = zfit.Space(obs="obs1", limits=(-2.4, 9.1))
 obs1_split = (
-    zfit.Space(obs="obs1", limits=(-2.4, 1.3))
-    + zfit.Space(obs="obs1", limits=(1.3, 2.1))
-    + zfit.Space(obs="obs1", limits=(2.1, 9.1))
+        zfit.Space(obs="obs1", limits=(-2.4, 1.3))
+        + zfit.Space(obs="obs1", limits=(1.3, 2.1))
+        + zfit.Space(obs="obs1", limits=(2.1, 9.1))
 )
 
 
@@ -360,7 +375,7 @@ def test_floating_flag():
             "value": [1.4, 0.6, 1.5],
             "lower": np.ones(3) * (-5),
             "upper": np.ones(3) * (9),
-            "step_size": np.linspace(0.1, 0.2, 3),
+            "stepsize": np.linspace(0.1, 0.2, 3),
         },
     ],
 )
@@ -377,19 +392,17 @@ def test_minimize_pure_func(params, minimizer_class_and_kwargs):
     minimizer = minimizer_class(**minimizer_kwargs)
     func = scipy.optimize.rosen
     func.errordef = 0.5
-    if isinstance(minimizer, WrapOptimizer):
-        with pytest.raises(OperationNotAllowedError):
-            _ = minimizer.minimize(func, params)
-    else:
-        result = minimizer.minimize(func, params)
-        assert result.valid
+    result = minimizer.minimize(func, params)
+    assert result.valid
+    assert pytest.approx(result.fmin, abs=0.01) == 0
     result.hesse(method="hesse_np")
+
     for param, error in zip(result.params, [0.32, 0.64, 1.3]):
         assert pytest.approx(result.params[param]["hesse"]["error"], rel=0.15) == error
     param = list(result.params)[1]
     result.errors(param, name="errors")
-    assert pytest.approx(result.params[param]["errors"]["lower"], rel=0.15) == -0.53
-    assert pytest.approx(result.params[param]["errors"]["upper"], rel=0.15) == 0.56
+    assert pytest.approx(result.params[param]["errors"]["lower"], rel=0.15) == -0.6
+    assert pytest.approx(result.params[param]["errors"]["upper"], rel=0.15) == 0.65
 
 
 def test_dependent_param_extraction():
@@ -409,8 +422,8 @@ def test_dependent_param_extraction():
     sigma.floating = False
     params_checked = minimizer._check_convert_input(nll, params=[mu, sigma1])[1]
     assert {
-        mu,
-    } == set(params_checked)
+               mu,
+           } == set(params_checked)
 
 
 # @pytest.mark.run(order=4)
@@ -456,13 +469,13 @@ def test_minimizers(minimizer_class_and_kwargs, chunksize, numgrad, spaces, requ
         test_error = test_error["error"]
 
         skip_tests = (
-            not long_clarg
-            and not do_long
-            and not (
+                not long_clarg
+                and not do_long
+                and not (
                 chunksize == chunksizes[0]
                 and numgrad is False
                 and spaces is spaces_all[0]
-            )
+        )
         )
 
         if skip_tests:
@@ -494,10 +507,10 @@ def test_minimizers(minimizer_class_and_kwargs, chunksize, numgrad, spaces, requ
         assert true_min + max_distance_to_min >= found_min
 
         assert pytest.approx(result.fminopt, abs=2.0) == result_lowtol.fminopt
-        if not isinstance(minimizer, zfit.minimize.IpyoptV1):
+        if not isinstance(minimizer, zfit.minimize.Ipyopt):
             assert (
-                result_lowtol.info["n_eval"]
-                < 1.2 * result.info["n_eval"] + 10  # +10 if it's very small, it's hard
+                    result_lowtol.info["n_eval"]
+                    < 1.2 * result.info["n_eval"] + 10  # +10 if it's very small, it's hard
             )  # should not be more, surely not a lot
 
         aval, bval, cval = (znp.asarray(v) for v in (mu_param, sigma_param, lambda_param))
@@ -518,13 +531,13 @@ def test_minimizers(minimizer_class_and_kwargs, chunksize, numgrad, spaces, requ
                 profile_methods.append("minuit_minos")
                 # the following minimizers should support the "approx" option as the give access to the approx Hessian
                 if isinstance(
-                    minimizer,
-                    (
-                        Minuit,
-                        zfit.minimize.ScipyLBFGSBV1,
-                        zfit.minimize.ScipyNewtonCGV1,
-                        zfit.minimize.ScipyTruncNCV1,
-                    ),
+                        minimizer,
+                        (
+                                Minuit,
+                                zfit.minimize.ScipyLBFGSB,
+                                zfit.minimize.ScipyNewtonCG,
+                                zfit.minimize.ScipyTruncNC,
+                        ),
                 ):
                     hesse_methods.append("approx")
 

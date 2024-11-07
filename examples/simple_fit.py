@@ -18,8 +18,8 @@ gauss = zfit.pdf.Gauss(mu=mu, sigma=sigma, obs=obs)
 # data
 data = np.random.normal(loc=2.0, scale=3.0, size=10000)
 # we can convert it to a zfit Data object to make sure the data is within the limits or use the space to filter manually
-data = obs.filter(data)  # works also for pandas DataFrame
-# data = zfit.Data.from_numpy(obs=obs, array=data)
+# data = obs.filter(data)  # works also for pandas DataFrame
+data = zfit.Data(obs=obs, data=data)
 
 # create NLL
 nll = zfit.loss.UnbinnedNLL(model=gauss, data=data)

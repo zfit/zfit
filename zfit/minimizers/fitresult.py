@@ -60,7 +60,7 @@ init(autoreset=True)
 class Approximations:
     def __init__(
         self,
-        params: list[ZfitParameter],
+        params: list[ZfitParameter] | tuple[ZfitParameter],
         gradient: np.ndarray | None = None,
         hessian: np.ndarray | None = None,
         inv_hessian: np.ndarray | None = None,
@@ -73,6 +73,35 @@ class Approximations:
             hessian: Hessian Matrix
             inv_hessian: Inverse of the Hessian Matrix
         """
+        if isinstance(params, dict):
+            params = list(params)
+        if not isinstance(params, (list, tuple)):
+            msg = f"params has to be a list or tuple, not {type(params)}"
+            raise TypeError(msg)
+        if gradient is not None:
+            if gradient.ndim > 1:
+                msg = f"Gradient has to be a 1D array, not {gradient.shape}"
+                raise ValueError(msg)
+            if gradient.shape[0] != len(params):
+                msg = f"Gradient has to have the same length as params, {gradient.shape[0]} != {len(params)}"
+                raise ValueError(msg)
+
+        if hessian is not None:
+            if hessian.ndim != 2:
+                msg = f"Hessian has to be a 2D array, not {hessian.shape}"
+                raise ValueError(msg)
+            if hessian.shape[0] != len(params) or hessian.shape[1] != len(params):
+                msg = f"Hessian has to have the same length as params, {hessian.shape} != {len(params)}"
+                raise ValueError(msg)
+
+        if inv_hessian is not None:
+            if inv_hessian.ndim != 2:
+                msg = f"Inverse Hessian has to be a 2D array, not {inv_hessian.shape}"
+                raise ValueError(msg)
+            if inv_hessian.shape[0] != len(params) or inv_hessian.shape[1] != len(params):
+                msg = f"Inverse Hessian has to have the same length as params, {inv_hessian.shape} != {len(params)}"
+                raise ValueError(msg)
+
         self._params = params
         self._gradient = gradient
         self._hessian = hessian
@@ -209,9 +238,8 @@ def _covariance_np(result, params):
             stacklevel=3,
         )
 
-    _, gradient, hessian = result.loss.value_gradient_hessian(params)
+    hessian = result.loss.hessian(params)
     covariance = znp.linalg.inv(hessian)
-
     return matrix_to_dict(params, covariance)
 
 
@@ -387,12 +415,12 @@ class FitResult(ZfitResult):
         if message is None:
             message = "" if valid else "Invalid, unknown reason (not specified)"
 
-        info = {} if info is None else info
         approx = self._input_convert_approx(approx, evaluator, info, params)
 
         if evaluator is not None:
             niter = evaluator.niter if niter is None else niter
 
+        info = {"n_eval": niter} if info is None else info
         param_at_limit = any(param.at_limit for param in params)
         if param_at_limit:
             valid = False
@@ -519,7 +547,7 @@ class FitResult(ZfitResult):
         loss: ZfitLoss,
         params: Iterable[ZfitParameter],
         problem: ipyopt.Problem,
-        minimizer: zfit.minimize.IpyoptV1,
+        minimizer: zfit.minimize.Ipyopt,
         valid: bool,
         values: np.ndarray,
         message: str | None,
@@ -720,7 +748,7 @@ class FitResult(ZfitResult):
         if evaluator is not None:
             valid = valid and not evaluator.maxiter_reached
         if values is None:
-            values = (res.value for res in params_result)
+            values = tuple(res.value for res in params_result)
         params = dict(zip(params, values))
         return cls(
             params=params,
@@ -803,7 +831,7 @@ class FitResult(ZfitResult):
         """
         result_values = result["x"]
         if niter is None:
-            niter = result.get("nit")
+            niter = result.get("nit", 0)
 
         converged = result.get("success", valid)
         status = result["status"]
@@ -1183,8 +1211,8 @@ class FitResult(ZfitResult):
                 raise ValueError(msg)
             name = "hesse"
 
-        with self._input_check_reset_params(params) as params:
-            uncached_params = self._check_get_uncached_params(params=params, method_name=name, cl=cl)
+        with self._input_check_reset_params(params) as checkedparams:
+            uncached_params = self._check_get_uncached_params(params=checkedparams, method_name=name, cl=cl)
             if uncached_params:
                 error_dict = self._hesse(params=uncached_params, method=method, cl=cl)
                 if any(val["error"] is None for val in error_dict.values()):
@@ -1196,10 +1224,10 @@ class FitResult(ZfitResult):
             else:
                 error_dict = {}
 
-        error_dict.update({p: self.params[p][name] for p in params if p not in uncached_params})
+        error_dict.update({p: self.params[p][name] for p in checkedparams if p not in uncached_params})
         if name_warning_triggered:
-            error_dict.update({p: self.params[p][method] for p in params if p not in uncached_params})
-        return {p: error_dict[p] for p in params}
+            error_dict.update({p: self.params[p][method] for p in checkedparams if p not in uncached_params})
+        return {p: error_dict[p] for p in checkedparams}
 
     def _cache_errors(self, name, errors):
         for param, error in errors.items():
@@ -1369,15 +1397,16 @@ class FitResult(ZfitResult):
             method = self._default_hesse
 
         if method not in self._covariance_dict:
-            with self._input_check_reset_params(params) as params:
+            with self._input_check_reset_params(params) as checkedparams:
                 self._covariance_dict[method] = self._covariance(method=method)
 
-        params = self._input_check_params(params)
-        covariance = {k: self._covariance_dict[method].get(k) for k in itertools.product(params, params)}
+        else:
+            checkedparams = self._input_check_params(params)
+        covariance = {k: self._covariance_dict[method].get(k) for k in itertools.product(checkedparams, checkedparams)}
 
         if as_dict:
             return covariance
-        return dict_to_matrix(params, covariance)
+        return dict_to_matrix(checkedparams, covariance)
 
     def _covariance(self, method):
         if not callable(method):

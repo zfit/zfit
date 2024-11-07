@@ -63,7 +63,7 @@ class OverloadableMixin:
         return self.value()
 
     @staticmethod
-    def _OverloadAllOperators(cls):  # pylint: disable=invalid-name
+    def _OverloadAllOperators(cls):  # noqa: PLW0211
         """Register overloads for all operators."""
         for operator in tf.Tensor.OVERLOADABLE_OPERATORS:
             cls._OverloadOperator(cls, operator)
@@ -73,7 +73,7 @@ class OverloadableMixin:
         cls.__getitem__ = array_ops._SliceHelperVar
 
     @staticmethod
-    def _OverloadOperator(cls, operator):  # pylint: disable=invalid-name
+    def _OverloadOperator(cls, operator):  # noqa: PLW0211
         """Defer an operator overload to ``ops.Tensor``.
 
         We pull the operator out of ops.Tensor dynamically to avoid ordering issues.
@@ -135,7 +135,7 @@ class OverloadableMixinValues:
         return self.values()
 
     @staticmethod
-    def _OverloadAllOperators(cls):  # pylint: disable=invalid-name
+    def _OverloadAllOperators(cls):  # noqa: PLW0211
         """Register overloads for all operators."""
         for operator in tf.Tensor.OVERLOADABLE_OPERATORS:
             cls._OverloadOperator(cls, operator)
@@ -145,7 +145,7 @@ class OverloadableMixinValues:
         cls.__getitem__ = array_ops._SliceHelperVar
 
     @staticmethod
-    def _OverloadOperator(cls, operator):  # pylint: disable=invalid-name
+    def _OverloadOperator(cls, operator):  # noqa: PLW0211
         """Defer an operator overload to ``ops.Tensor``.
 
         We pull the operator out of ops.Tensor dynamically to avoid ordering issues.
