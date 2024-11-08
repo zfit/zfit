@@ -9,6 +9,7 @@ Develop
 
 Major Features and Improvements
 -------------------------------
+- Python 3.13 support
 
 Breaking changes
 ------------------
@@ -24,6 +25,8 @@ Experimental
 
 Requirement changes
 -------------------
+- TensorFlow ~2.18
+- TensorFlow Probability ~0.25
 
 Thanks
 ------

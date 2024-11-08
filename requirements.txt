@@ -19,7 +19,7 @@ pyyaml
 scipy>=1.2
 tabulate
 tensorflow>=2.18, <2.19
-tensorflow_probability[tf]>=0.24, <0.25
+tensorflow_probability[tf]>=0.25, <0.26
 texttable
 uhi
 uproot>=4

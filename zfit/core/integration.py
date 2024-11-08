@@ -747,11 +747,6 @@ class AnalyticIntegral:
         )
         raise AssertionError(msg)
 
-        # with suppress(TypeError):
-        #     return integral_fn(x=x, limits=limits, norm=norm, params=params, model=model)
-        # with suppress(TypeError):
-        #     return integral_fn(limits=limits, norm=norm, params=params, model=model)
-
 
 class Integral:  # TODO analytic integral
     def __init__(self, func: Callable, limits: ZfitSpace, priority: int | float):
