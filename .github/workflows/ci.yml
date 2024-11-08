@@ -70,13 +70,13 @@ jobs:
           git fetch --depth=1 origin +refs/tags/*:refs/tags/*
       # do not install ROOT on windows
       - uses: mamba-org/setup-micromamba@v2
-        if: runner.os != 'Windows'
+        if: runner.os != 'Windows' and matrix.python-version != '3.13'  # not yet available in 3.13
         with:
-          environment-name: zfit
+          environment-name: zfit  # newer ROOT versions segfault
           create-args: >-  
             python=${{ matrix.python-version }}
             uv
-            root
+            root<6.32
       - uses: mamba-org/setup-micromamba@v2
         if: runner.os == 'Windows'
         with:
@@ -221,7 +221,7 @@ jobs:
           create-args: >-
             python=${{ matrix.python-version }}
             uv
-            root
+#            root  # not available in 3.13
       - name: Install dependencies
         run: |
           uv pip install .[all]
