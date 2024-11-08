@@ -6,7 +6,6 @@ from __future__ import annotations
 
 import collections
 from collections.abc import Callable
-from contextlib import suppress
 from typing import Iterable, Mapping, Optional
 
 import numpy as np
@@ -723,16 +722,29 @@ class AnalyticIntegral:
             msg = f"Integral is available for axes {axes}, but not for limits {limits}"
             raise AnalyticIntegralNotImplemented(msg)
 
-        with suppress(TypeError):
+        try:
             return integral_fn(x=x, limits=limits, norm=norm, params=params, model=model)
-        with suppress(TypeError):
-            return integral_fn(limits=limits, norm=norm, params=params, model=model)
+        except TypeError as error1:
+            error1msg = str(error1)
 
-        with suppress(TypeError):
-            return integral_fn(x=x, limits=limits, norm=norm, params=params, model=model)
-        with suppress(TypeError):
+        try:
             return integral_fn(limits=limits, norm=norm, params=params, model=model)
-        msg = "Could not integrate, unknown reason. Please fill a bug report."
+        except TypeError as error2:
+            error2msg = str(error2)
+
+        try:
+            return integral_fn(x=x, limits=limits, norm_range=norm, params=params, model=model)
+        except TypeError as error3:
+            error3msg = str(error3) + "\n Also, make sure to change `norm_range` to `norm`."
+        try:
+            return integral_fn(limits=limits, norm_range=norm, params=params, model=model)
+        except TypeError as error4:
+            error4msg = str(error4) + "\n Also, make sure to change `norm_range` to `norm`."
+        msg = (
+            f"Could not integrate, maybe an TypeError in a custom integral function? One of these errors could help:"
+            f" {error1msg}, {error2msg}, {error3msg}, {error4msg}. "
+            f"Otherwise, or if it's hard to debug, lease fill a bug report."
+        )
         raise AssertionError(msg)
 
         # with suppress(TypeError):

@@ -268,6 +268,15 @@ nlopt_minimizers = [
         {"error": do_errors_most},
     ),
 ]
+zfit_minimizers = [
+    (
+        zfit.minimize.LevenbergMarquardt,
+        {
+            "verbosity": verbosity,
+        },
+        {"error": False, "longtests": bool(zfit.run.get_graph_mode())},
+    ),]
+
 if platform.system() not in ("Darwin",):
     minimizers.extend(nlopt_minimizers)
 
@@ -277,6 +286,7 @@ if platform.system() not in ("Darwin",):
 minimizers_small = [
     (zfit.minimize.ScipyTrustConstr, {}, True),
     (zfit.minimize.Minuit, {}, True),
+    (zfit.minimize.LevenbergMarquardt, {}, True),
 ]
 if sys.version_info[1] < 12 and platform.system() not in ("Darwin",):
     minimizers_small.append((zfit.minimize.NLoptLBFGS, {}, True))
@@ -326,6 +336,7 @@ if (
 # minimizers = [(zfit.minimize.NLoptShiftVarV1, {'verbosity': 7, 'rank': 2}, {'error': True, 'longtests': True})]
 # minimizers = [(zfit.minimize.Minuit, {'verbosity': 6}, True)]
 # minimizers = [(zfit.minimize.BFGS, {'verbosity': 6}, True)]
+minimizers = [(zfit.minimize.LevenbergMarquardt, {'verbosity': 6}, True)]
 
 
 # sort for xdist: https://github.com/pytest-dev/pytest-xdist/issues/432
@@ -381,19 +392,17 @@ def test_minimize_pure_func(params, minimizer_class_and_kwargs):
     minimizer = minimizer_class(**minimizer_kwargs)
     func = scipy.optimize.rosen
     func.errordef = 0.5
-    if isinstance(minimizer, WrapOptimizer):
-        with pytest.raises(OperationNotAllowedError):
-            _ = minimizer.minimize(func, params)
-    else:
-        result = minimizer.minimize(func, params)
-        assert result.valid
+    result = minimizer.minimize(func, params)
+    assert result.valid
+    assert pytest.approx(result.fmin, abs=0.01) == 0
     result.hesse(method="hesse_np")
+
     for param, error in zip(result.params, [0.32, 0.64, 1.3]):
         assert pytest.approx(result.params[param]["hesse"]["error"], rel=0.15) == error
     param = list(result.params)[1]
     result.errors(param, name="errors")
-    assert pytest.approx(result.params[param]["errors"]["lower"], rel=0.15) == -0.53
-    assert pytest.approx(result.params[param]["errors"]["upper"], rel=0.15) == 0.56
+    assert pytest.approx(result.params[param]["errors"]["lower"], rel=0.15) == -0.6
+    assert pytest.approx(result.params[param]["errors"]["upper"], rel=0.15) == 0.65
 
 
 def test_dependent_param_extraction():

@@ -32,9 +32,9 @@ nll = zfit.loss.UnbinnedNLL(model=model, data=data)
 # create a minimizer
 minimizer = zfit.minimize.Minuit()
 zfit.run.experimental_disable_param_update()
-result = minimizer.minimize(
-    nll
-).update_params()  # forward compatibility, update_params will update the values of the parameters to the minimum
+result = minimizer.minimize(nll).update_params()
+# forward compatibility, update_params will update the values of the parameters to the minimum
+
 
 # do the error calculations, here with minos
 param_hesse = result.hesse()
