@@ -57,6 +57,17 @@ def gauss(extended=None, **kwargs):
         mu=mu, sigma=sigma, obs=obs, extended=extended, name="MyGaussName"
     )
 
+def generalizedgauss(extended=None, **kwargs):
+    import zfit
+
+    mu = zfit.Parameter("mu_generalizedgauss", 0.1, -1, 1)
+    sigma = zfit.Parameter("sigma_generalizedgauss", 0.1, 0, 1)
+    beta = zfit.Parameter("beta_generalizedgauss", 2.5, 0, 5)
+    obs = zfit.Space("obs", default_limits)
+    return zfit.pdf.GeneralizedGauss(
+        mu=mu, sigma=sigma, beta=beta, obs=obs, extended=extended, name="MyGeneralizedGaussName"
+    )
+
 
 def prod2dgauss(extended=None, **kwargs):
     import zfit
@@ -443,6 +454,7 @@ def kde1disj(pdfs=None, extended=None, **kwargs):
 
 basic_pdfs = [
     gauss,
+    generalizedgauss,
     qgauss,
     bifurgauss,
     cauchy,

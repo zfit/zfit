@@ -14,6 +14,7 @@ Major Features and Improvements
 - Minimizers have now been renamed without the trailing ``V1``. The old names are still available but will be removed in the future.
 - New BFGS minimizer implementation of Scipy, ``ScipyBFGS``.
 - Reactivate a few minimizers: ``ScipyDogleg``, ``ScipyNCG``, ``ScipyCOBYLA`` and ``ScipyNewtonCG``
+- Add ``GeneralizedGauss`` PDF, where the exponent is something else than squared, taken from `tensorflow-probability<https://www.tensorflow.org/probability/api_docs/python/tfp/distributions/GeneralizedNormal>`_.
 
 Breaking changes
 ------------------
