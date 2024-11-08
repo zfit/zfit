@@ -194,7 +194,7 @@ class Gauss(WrapDistribution, SerializableMixin):
         name: str = "Gauss",
         label=None,
     ):
-        """Gaussian or Normal distribution with a mean (mu) and a standartdeviation (sigma).
+        """Gaussian or Normal distribution with a mean (mu) and a standard deviation (sigma).
 
         The gaussian shape is defined as
 
@@ -1247,3 +1247,98 @@ class JohnsonSUPDFRepr(BasePDFRepr):
     lambd: Serializer.types.ParamTypeDiscriminated
     gamma: Serializer.types.ParamTypeDiscriminated
     delta: Serializer.types.ParamTypeDiscriminated
+
+
+class GeneralizedGauss(WrapDistribution, SerializableMixin):
+    _N_OBS = 1
+
+    def __init__(
+        self,
+        mu: ztyping.ParamTypeInput,
+        sigma: ztyping.ParamTypeInput,
+        beta: ztyping.ParamTypeInput,
+        obs: ztyping.ObsTypeInput,
+        *,
+        extended: ExtendedInputType = None,
+        norm: NormInputType = None,
+        name: str = "GeneralizedGauss",
+        label=None,
+    ):
+        """Generalized Gaussian distribution with a mean (mu), a standard deviation (sigma), and a shape parameter (beta).
+
+        The gaussian shape is defined as
+
+        .. math::
+            f(x \\mid \\mu, \\sigma, \\beta) = e^{ -\\left(\\frac{|x - \\mu|}{\\sigma}\\right)^\\beta }
+
+        with the normalization over [-inf, inf] of
+
+        .. math::
+            \\frac{1}{2 * \\beta * \\Gamma(1 + \\frac{1}{\\beta})}
+
+        The normalization changes for different normalization ranges
+
+        Args:
+            mu: Mean of the gaussian dist
+            sigma: Standard deviation or spread of the gaussian
+            beta: Shape parameter of the generalized gaussian, which determines the shape of the tails
+            obs: |@doc:pdf.init.obs| Observables of the
+               model. This will be used as the default space of the PDF and,
+               if not given explicitly, as the normalization range.
+
+               The default space is used for example in the sample method: if no
+               sampling limits are given, the default space is used.
+
+               If the observables are binned and the model is unbinned, the
+               model will be a binned model, by wrapping the model in a
+               :py:class:`~zfit.pdf.BinnedFromUnbinnedPDF`, equivalent to
+               calling :py:meth:`~zfit.pdf.BasePDF.to_binned`.
+
+               If the observables are binned and the model is unbinned, the
+               model will be a binned model, by wrapping the model in a
+               :py:class:`~zfit.pdf.BinnedFromUnbinnedPDF`, equivalent to
+               calling :py:meth:`~zfit.pdf.BasePDF.to_binned`.
+
+               The observables are not equal to the domain as it does not restrict or
+               truncate the model outside this range. |@docend:pdf.init.obs|
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+            norm: |@doc:pdf.init.norm| Normalization of the PDF.
+               By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
+            name: |@doc:pdf.init.name| Name of the PDF.
+               Maybe has implications on the serialization and deserialization of the PDF.
+               For a human-readable name, use the label. |@docend:pdf.init.name|
+            label: |@doc:pdf.init.label| Human-readable name
+               or label of
+               the PDF for a better description, to be used with plots etc.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
+        """
+        mu, sigma, beta = self._check_input_params_tfp(mu, sigma, beta)
+        params = {"mu": mu, "sigma": sigma, "beta": beta}
+
+        def dist_params():
+            return {"loc": mu.value(), "scale": sigma.value(), "power": beta.value()}
+
+        distribution = tfp.distributions.GeneralizedNormal
+        super().__init__(
+            distribution=distribution,
+            dist_params=dist_params,
+            obs=obs,
+            params=params,
+            name=name,
+            extended=extended,
+            norm=norm,
+            label=label,
+        )
+
+
+class GeneralizedGaussPDFRepr(BasePDFRepr):
+    _implementation = GeneralizedGauss
+    hs3_type: Literal["GeneralizedGauss"] = Field("GeneralizedGauss", alias="type")
+    x: SpaceRepr
+    mu: Serializer.types.ParamTypeDiscriminated
+    sigma: Serializer.types.ParamTypeDiscriminated
+    beta: Serializer.types.ParamTypeDiscriminated
