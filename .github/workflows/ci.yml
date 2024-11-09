@@ -73,17 +73,17 @@ jobs:
         if: runner.os != 'Windows' && matrix.python-version != '3.13'  # not yet available in 3.13
         with:
           environment-name: zfit  # newer ROOT versions segfault
-          create-args: >-  
+          create-args: >-
             python=${{ matrix.python-version }}
             uv
             root<6.32
       - uses: mamba-org/setup-micromamba@v2
         if: runner.os == 'Windows'
         with:
-            environment-name: zfit
-            create-args: >-  
-              python=${{ matrix.python-version }}
-              uv
+          environment-name: zfit
+          create-args: >-
+            python=${{ matrix.python-version }}
+            uv
       - name: Install dependencies
         run: |
           uv pip install coverage-lcov pytest-xdist pytest-cov
@@ -130,7 +130,7 @@ jobs:
             python=${{ matrix.python-version }}
             uv
             root
-      
+
 
       - name: Install dependencies
         run: |
@@ -221,7 +221,7 @@ jobs:
           create-args: >-
             python=${{ matrix.python-version }}
             uv
-#            root  # not available in 3.13
+      #            root  # not available in 3.13
       - name: Install dependencies
         run: |
           uv pip install .[all]
