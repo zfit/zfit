@@ -37,25 +37,25 @@ jobs:
       fail-fast: False
       matrix:
         use-graph: [ 1 ]
-        python-version: [ "3.9", "3.13" ]  # omit "3.10", "3.11" to save compute time
+        python-version: [ "3.9", "3.12" ]  # omit "3.10", "3.11" to save compute time
         os: [ ubuntu-latest ]
         #        os: [ self-hosted ]
         extras: [ alldev ]
         include:
           - os: ubuntu-latest
             extras: alldev
-            python-version: "3.13"
+            python-version: "3.12"
             use-graph: 0
           - os: macos-latest
-            python-version: "3.13"
+            python-version: "3.12"
             use-graph: 1
             extras: alldev
           - os: windows-latest
-            python-version: "3.13"
+            python-version: "3.12"
             use-graph: 1
             extras: alldev
           - os: macos-14  # Apple silicon runner
-            python-version: '3.13'
+            python-version: '3.12'
             use-graph: 1
             extras: alldev
 
@@ -70,7 +70,7 @@ jobs:
           git fetch --depth=1 origin +refs/tags/*:refs/tags/*
       # do not install ROOT on windows
       - uses: mamba-org/setup-micromamba@v2
-        if: runner.os != 'Windows' && matrix.python-version != '3.13'  # not yet available in 3.13
+        if: runner.os != 'Windows'
         with:
           environment-name: zfit  # newer ROOT versions segfault
           create-args: >-
@@ -78,7 +78,7 @@ jobs:
             uv
             root<6.32
       - uses: mamba-org/setup-micromamba@v2
-        if: runner.os == 'Windows' || matrix.python-version != '3.13'  # not yet available in 3.13
+        if: runner.os == 'Windows'
         with:
           environment-name: zfit
           create-args: >-
@@ -114,7 +114,7 @@ jobs:
     timeout-minutes: 10
     strategy:
       matrix:
-        python-version: [ "3.13" ]
+        python-version: [ "3.12" ]
     name: Testbuild docs
     steps:
       - uses: actions/checkout@v4
@@ -150,11 +150,11 @@ jobs:
       fail-fast: False
       matrix:
         use-graph: [ 1 ]
-        python-version: [ "3.9", "3.13" ]
+        python-version: [ "3.9", "3.12" ]
         include:
           - os: ubuntu-latest
             extras: all
-            python-version: "3.13"
+            python-version: "3.12"
             use-graph: 0
     name: Run tutorials, Python ${{ matrix.python-version }}, compiled = ${{ matrix.use-graph }}
     env:
@@ -200,11 +200,11 @@ jobs:
       fail-fast: False
       matrix:
         use-graph: [ 1 ]
-        python-version: [ "3.9", "3.13" ]
+        python-version: [ "3.9", "3.12" ]
         include:
           - os: ubuntu-latest
             extras: all
-            python-version: "3.13"
+            python-version: "3.12"
             use-graph: 0
     name: Run examples, Python ${{ matrix.python-version }}, compiled = ${{ matrix.use-graph }}
     env:
@@ -221,7 +221,7 @@ jobs:
           create-args: >-
             python=${{ matrix.python-version }}
             uv
-      #            root  # not available in 3.13
+      #            root  # Working, non-segfaulting version, not available in 3.12
       - name: Install dependencies
         run: |
           uv pip install .[all]
