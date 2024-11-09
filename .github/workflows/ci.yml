@@ -77,8 +77,8 @@ jobs:
             python=${{ matrix.python-version }}
             uv
             root<6.32
-      - uses: mamba-org/setup-micromamba@v2 || matrix.python-version = '3.12'
-        if: runner.os == 'Windows'
+      - uses: mamba-org/setup-micromamba@v2
+        if: runner.os == 'Windows' || matrix.python-version = '3.12'
         with:
           environment-name: zfit
           create-args: >-
