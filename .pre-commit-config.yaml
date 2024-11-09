@@ -24,7 +24,7 @@ repos:
       - id: requirements-txt-fixer
       - id: trailing-whitespace
         files: ".*\\.(?:tex|py)$"
-        args: [--markdown-linebreak-ext=md]
+        args: [ --markdown-linebreak-ext=md ]
         exclude: (^notebooks/|^tests/truth/)
       - id: detect-private-key
       - id: fix-byte-order-marker
@@ -42,11 +42,11 @@ repos:
         always_run: true
         additional_dependencies: [ pyyaml ]
 
-#  - repo: https://github.com/PyCQA/docformatter
-#    rev: v1.7.5
-#    hooks:
-#      - id: docformatter
-#        args: [ -r, --in-place, --wrap-descriptions, '120', --wrap-summaries, '120', -- ]
+  #  - repo: https://github.com/PyCQA/docformatter
+  #    rev: v1.7.5
+  #    hooks:
+  #      - id: docformatter
+  #        args: [ -r, --in-place, --wrap-descriptions, '120', --wrap-summaries, '120', -- ]
 
 
   - repo: https://github.com/pre-commit/pygrep-hooks
@@ -132,7 +132,7 @@ repos:
     hooks:
       - id: ruff
         types_or: [ python, pyi, jupyter ]
-        args: [ --fix, --unsafe-fixes, --show-fixes , --line-length=120]
+        args: [ --fix, --unsafe-fixes, --show-fixes , --line-length=120 ]
       # Run the formatter.
       - id: ruff-format
         types_or: [ python, pyi, jupyter ]
