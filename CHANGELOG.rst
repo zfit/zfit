@@ -4,32 +4,15 @@ Changelog
 
 .. _newest-changelog:
 
-Develop
-=======
+0.24.0 (10 Nov. 2024)
+=======================
 
-Major Features and Improvements
--------------------------------
-- Python 3.13 support
-
-Breaking changes
-------------------
-
-Deprecations
--------------
-
-Bug fixes and small changes
----------------------------
-
-Experimental
-------------
+Upgrade to new TF version
 
 Requirement changes
 -------------------
 - TensorFlow ~2.18
 - TensorFlow Probability ~0.25
-
-Thanks
-------
 
 0.23.0 (6 Nov. 2024)
 ======================
