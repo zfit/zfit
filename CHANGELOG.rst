@@ -4,6 +4,16 @@ Changelog
 
 .. _newest-changelog:
 
+0.24.0 (10 Nov. 2024)
+=======================
+
+Upgrade to new TF version
+
+Requirement changes
+-------------------
+- TensorFlow ~2.18
+- TensorFlow Probability ~0.25
+
 0.23.0 (6 Nov. 2024)
 ======================
 
@@ -14,6 +24,7 @@ Major Features and Improvements
 - Added the well performing ``LevenbergMarquardt`` minimizer, a new implementation of the Levenberg-Marquardt algorithm.
 - New BFGS minimizer implementation of Scipy, ``ScipyBFGS``.
 - Reactivate a few minimizers: ``ScipyDogleg``, ``ScipyNCG``, ``ScipyCOBYLA`` and ``ScipyNewtonCG``
+- Add ``GeneralizedGauss`` PDF, where the exponent is something else than squared, taken from `tensorflow-probability<https://www.tensorflow.org/probability/api_docs/python/tfp/distributions/GeneralizedNormal>`_.
 
 Breaking changes
 ------------------

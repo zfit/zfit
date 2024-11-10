@@ -70,20 +70,20 @@ jobs:
           git fetch --depth=1 origin +refs/tags/*:refs/tags/*
       # do not install ROOT on windows
       - uses: mamba-org/setup-micromamba@v2
-        if: runner.os != 'Windows'
+        if: runner.os != 'Windows' && matrix.python-version != '3.12'  # root not yet available in 3.12
         with:
-          environment-name: zfit
-          create-args: >-  
+          environment-name: zfit  # newer ROOT versions segfault
+          create-args: >-
             python=${{ matrix.python-version }}
             uv
-            root
+            root<6.32
       - uses: mamba-org/setup-micromamba@v2
-        if: runner.os == 'Windows'
+        if: runner.os == 'Windows' || matrix.python-version == '3.12'
         with:
-            environment-name: zfit
-            create-args: >-  
-              python=${{ matrix.python-version }}
-              uv
+          environment-name: zfit
+          create-args: >-
+            python=${{ matrix.python-version }}
+            uv
       - name: Install dependencies
         run: |
           uv pip install coverage-lcov pytest-xdist pytest-cov
@@ -114,7 +114,7 @@ jobs:
     timeout-minutes: 10
     strategy:
       matrix:
-        python-version: [ "3.12" ]
+        python-version: [ "3.9" ]
     name: Testbuild docs
     steps:
       - uses: actions/checkout@v4
@@ -130,7 +130,7 @@ jobs:
             python=${{ matrix.python-version }}
             uv
             root
-      
+
 
       - name: Install dependencies
         run: |
@@ -174,7 +174,7 @@ jobs:
           create-args: >-
             python=${{ matrix.python-version }}
             uv
-            root
+#            root
 
       - name: Clone Tutorials
         run: |
@@ -221,7 +221,7 @@ jobs:
           create-args: >-
             python=${{ matrix.python-version }}
             uv
-            root
+      #            root  # Working, non-segfaulting version, not available in 3.12
       - name: Install dependencies
         run: |
           uv pip install .[all]

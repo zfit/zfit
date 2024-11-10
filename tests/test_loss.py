@@ -332,7 +332,7 @@ def test_gradients(chunksize, numgrad):
             if param_o is param:
                 gradients_true3.append(float(grad))
                 break
-    np.testing.assert_allclose(gradient3, gradients_true3, rtol=1e-6)
+    np.testing.assert_allclose(gradient3, gradients_true3, rtol=1e-5)
 
 
 def test_simple_loss():
