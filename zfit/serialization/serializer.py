@@ -24,6 +24,7 @@ import numpy as np
 import pydantic.v1 as pydantic
 import tensorflow as tf
 from frozendict import frozendict
+from ordered_set import OrderedSet
 from pydantic.v1 import Field
 
 from zfit.core.interfaces import (
@@ -319,7 +320,7 @@ class Serializer:
                     all_objs["constraints"].extend(loss.constraints)
                     all_objs["data"].extend(loss.data)
                     all_objs["loss"].append(loss)
-            all_objs = {key: set(val) for key, val in all_objs.items()}
+            all_objs = {key: OrderedSet(val) for key, val in all_objs.items()}
             all_objs_cleaned = {key: {} for key in all_objs}
             # give all of the objects unique names
             for key, val in all_objs.items():

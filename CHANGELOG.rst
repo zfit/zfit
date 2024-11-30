@@ -18,6 +18,7 @@ Deprecations
 
 Bug fixes and small changes
 ---------------------------
+- remain order of some internal parameters to increase full reproducibility
 
 Experimental
 ------------
