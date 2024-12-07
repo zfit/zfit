@@ -249,3 +249,19 @@ def test_binneddata_with_variance_method():
     data4obs = data4.with_obs(obs=space2 * space1 * space3)
     assert data4obs.space == space2 * space1 * space3
     np.testing.assert_allclose(data4obs.values(), np.moveaxis(sample, [0, 1, 2], [1, 0, 2]))
+
+
+# refers to issue https://github.com/zfit/zfit/issues/602
+def test_binned_from_numpy_issue602():
+    import zfit
+    import numpy as np
+
+    low, high = -5, 10
+    binning = zfit.binned.RegularBinning(15, low, high, name="obs") # Define the binning for the observable
+    obs = zfit.Space(obs='obs', binning=binning)                    # Create the observable space
+
+    size_normal = 10_000                                            # Set the size of the normal distribution data
+    data_normal_np = np.random.normal(size=size_normal, scale=2)    # Generate normal distribution data
+
+    data_normal = zfit.Data(data_normal_np, obs=obs)                # Create a zfit Data object with the normal distribution data
+    assert data_normal_np.shape[0] >= data_normal.nevents           # Check that the number of events in the data is correct

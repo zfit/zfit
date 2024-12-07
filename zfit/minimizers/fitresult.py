@@ -735,8 +735,8 @@ class FitResult(ZfitResult):
             "minuit": minuit,
             "original": fmin_object,
         }
-        if fmin_object.has_covariance:
-            info["inv_hessian"] = np.array(minuit.covariance)
+        if fmin_object.has_covariance and (minuitcov := np.array(minuit.covariance)) is not None:
+            info["inv_hessian"] = minuitcov
 
         edm = fmin_object.edm if edm is None else edm
         if criterion is None:
