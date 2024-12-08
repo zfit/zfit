@@ -945,8 +945,10 @@ def test_data_dumpload(data_factory, request):
     np.testing.assert_allclose(true_weigths, data_tree2.pop("weights", 1))
 
     true_data = data_truth_tree.pop("data")
-    np.testing.assert_allclose(true_data, data_tree.pop("data"))
-    np.testing.assert_allclose(true_data, data_tree2.pop("data"))
+    testdata = data_tree.pop("data")
+    np.testing.assert_allclose(true_data, testdata)
+    testdata2 = data_tree2.pop("data")
+    np.testing.assert_allclose(true_data, testdata2)
     np.testing.assert_allclose(data.value(), data_loaded1.value())
     np.testing.assert_allclose(data.value(), data_loaded2.value())
     assert (data.weights is None) == (data_loaded1.weights is None)

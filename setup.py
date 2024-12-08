@@ -25,7 +25,7 @@ ipyopt_req = "ipyopt>=0.12"
 extras_require = {
     "ipyopt": [ipyopt_req],
     "nlopt": [nlopt_req],
-    "hs3": ["asdf"],
+    "hs3": ["asdf<4.0.0"],
     "uproot": ["awkward-pandas"],
 }
 allreq = functools.reduce(operator.iadd, extras_require.values(), [])
