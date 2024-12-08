@@ -19,6 +19,7 @@ Deprecations
 Bug fixes and small changes
 ---------------------------
 - remain order of some internal parameters to increase full reproducibility
+- minuit minimizer could have no covariance albeit being advertised, lead to error in some cases
 
 Experimental
 ------------
