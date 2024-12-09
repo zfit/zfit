@@ -4,6 +4,30 @@ Changelog
 
 .. _newest-changelog:
 
+Develop
+=======
+
+Major Features and Improvements
+-------------------------------
+
+Breaking changes
+------------------
+
+Deprecations
+-------------
+
+Bug fixes and small changes
+---------------------------
+
+Experimental
+------------
+
+Requirement changes
+-------------------
+
+Thanks
+------
+
 0.24.1 (8 Dec. 2024)
 =====================
 
