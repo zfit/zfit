@@ -805,7 +805,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
                 """Temporary partial integration function."""
                 return self._hook_partial_analytic_integrate(x=x, limits=sublimits, norm=norm)
 
-            axes = list(set(limits.axes) - set(max_axes))
+            axes = [ax for ax in limits.axes if ax not in max_axes]
             limits = limits.get_subspace(axes=axes)
         else:
             part_int = self._func_to_integrate

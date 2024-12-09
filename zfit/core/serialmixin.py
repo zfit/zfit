@@ -55,7 +55,7 @@ class SerializableMixin(ZfitSerializable):
             msg = "The asdf module is not installed. Please install zfit with the extra `hs3` (i.e. `pip install zfit[sh3]` or asdf directry to use this feature."
             raise ImportError(msg) from error
 
-        return asdf.AsdfFile(self.to_dict())
+        return asdf.AsdfFile(self.to_dict(), memmap=False)
 
     @classmethod
     @warn_experimental_feature

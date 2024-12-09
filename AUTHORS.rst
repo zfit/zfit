@@ -24,3 +24,4 @@ Contributors
 | Johannes Lade <johannes.lade@yahoo.com>
 | Anja Beck <anja.x.beck@gmail.com>
 | Connor Stone <connorstone628@gmail.com>
+| Fabrizio Chinu <fabrizio.chinu@cern.ch>

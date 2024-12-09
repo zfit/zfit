@@ -4,6 +4,14 @@ Changelog
 
 .. _newest-changelog:
 
+0.24.1 (8 Dec. 2024)
+=====================
+
+Bug fixes and small changes
+---------------------------
+- remain order of some internal parameters to increase full reproducibility
+- minuit minimizer could have no covariance albeit being advertised, lead to error in some cases
+
 0.24.0 (10 Nov. 2024)
 =======================
 
