@@ -4,6 +4,14 @@ Changelog
 
 .. _newest-changelog:
 
+0.24.2 (11 Dec. 2024)
+======================
+
+Bug fixes and small changes
+---------------------------
+- fix upgraded iminuit version compatibility for covariance matrix non-existing
+
+
 0.24.1 (8 Dec. 2024)
 =====================
 
