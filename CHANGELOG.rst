@@ -18,6 +18,7 @@ Deprecations
 
 Bug fixes and small changes
 ---------------------------
+- fix upgraded iminuit version compatibility for covariance matrix non-existing
 
 Experimental
 ------------
