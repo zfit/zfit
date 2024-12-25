@@ -781,8 +781,8 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
             msg = "`n` is a string and not 'extended'. Other options are currently not implemented."
             raise ValueError(msg)
         elif n is None:
-            msg = "`n` cannot be `None` if pdf is not extended."
-            raise tf.errors.InvalidArgumentError(msg)
+            msg = "`n` (number of samples) cannot be `None` (only if pdf is extended)."
+            raise ValueError(msg)
         else:
             samples = super()._hook_sample(limits=limits, n=n)
         return samples
