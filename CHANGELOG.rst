@@ -26,6 +26,8 @@ Experimental
 Requirement changes
 -------------------
 
+Relax TF requirement to > 2.16 (instead of 2.18) and equivalent TensorFlow-Probability to > 0.24 (instead of 0.25)
+
 Thanks
 ------
 
