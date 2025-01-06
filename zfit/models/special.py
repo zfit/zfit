@@ -8,8 +8,6 @@ from __future__ import annotations
 
 import functools
 
-import tensorflow as tf
-
 from ..core.basemodel import SimpleModelSubclassMixin
 from ..core.basepdf import BasePDF
 from ..core.space import supports
@@ -48,7 +46,7 @@ def raise_error_if_norm_range(func):
             return func(*args, **kwargs)
         except NormRangeNotImplemented:  # TODO: silently remove norm? Or loudly fail?
             msg = "Norm_range given to Function: cannot be normalized."
-            raise tf.errors.InvalidArgumentError(msg) from None
+            raise ValueError(msg) from None
 
     return wrapped
 

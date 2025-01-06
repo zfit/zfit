@@ -1185,7 +1185,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             limits = self.space
             if not limits.has_limits:
                 msg = "limits are False/None, have to be specified"
-                raise tf.errors.InvalidArgumentError(msg)
+                raise ValueError(msg)
         limits = self._check_input_limits(limits=limits, none_is_error=True)
 
         def run_tf(n, limits, x):  # todo: add params
