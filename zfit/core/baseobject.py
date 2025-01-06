@@ -46,7 +46,7 @@ class BaseObject(ZfitObject):
     def copy(self, deep: bool = False, name: str | None = None, **overwrite_params) -> ZfitObject:
         return self._copy(deep=deep, name=name, overwrite_params=overwrite_params)
 
-    def _copy(self, deep, name, overwrite_params):  # noqa: ARG002
+    def _copy(self, deep, name, overwrite_params):
         msg = "This copy should not be used."
         raise NotImplementedError(msg)
 

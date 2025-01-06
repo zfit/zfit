@@ -5,16 +5,14 @@ import collections
 import contextlib
 import copy
 import functools
+from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 from enum import Enum
 from typing import (
     Annotated,
     Any,
     ClassVar,
-    Iterable,
-    List,
     Literal,
-    Mapping,
     Optional,
     TypeVar,
     Union,
@@ -109,7 +107,7 @@ class Types:
 
     @property
     def ListParamTypeDiscriminated(self):
-        return List[self.ParamTypeDiscriminated]
+        return list[self.ParamTypeDiscriminated]
 
     @property
     def ParamInputTypeDiscriminated(self):
@@ -117,7 +115,7 @@ class Types:
 
     @property
     def ListParamInputTypeDiscriminated(self):
-        return List[self.ParamInputTypeDiscriminated]
+        return list[self.ParamInputTypeDiscriminated]
 
     def register_repr(self, repr: ZfitPDF | ZfitParameter) -> None:
         """Register a repr to be used in the serialization such as PDF or Parameter.
@@ -217,7 +215,7 @@ class Serializer:
         if not cls.is_initialized:
             cls.types.block_forward_refs = False
             for repr in cls.constructor_repr.values():
-                repr.update_forward_refs(Union=Union, List=List, Literal=Literal)
+                repr.update_forward_refs(Union=Union, List=list, Literal=Literal)
             cls.is_initialized = True
 
         # create list of parameters that will be filled during loading

@@ -6,19 +6,19 @@ from ._variables.axis import RegularBinning, VariableBinning
 from .core.data import Data, SamplerData, concat, convert_to_data
 
 __all__ = [
-    "Data",
     "BinnedData",
-    "RegularBinning",
-    "VariableBinning",
-    "convert_to_data",
-    "SamplerData",
     "BinnedSamplerData",
+    "Data",
+    "RegularBinning",
+    "SamplerData",
+    "VariableBinning",
     "concat",
+    "convert_to_data",
+    "from_binned_tensor",
+    "from_hist",
     "from_numpy",
     "from_pandas",
     "from_root",
-    "from_binned_tensor",
-    "from_hist",
 ]
 
 # create aliases for class constructors

@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     import zfit
 
 import abc
-from typing import Mapping
+from collections.abc import Mapping
 
 import tensorflow as tf
 

@@ -11,10 +11,10 @@ from .util import ztyping
 from .util.deprecation import deprecated
 
 __all__ = [
-    "SimpleConstraint",
     "GaussianConstraint",
-    "PoissonConstraint",
     "LogNormalConstraint",
+    "PoissonConstraint",
+    "SimpleConstraint",
 ]
 
 

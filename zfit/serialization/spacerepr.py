@@ -1,7 +1,7 @@
 #  Copyright (c) 2024 zfit
 from __future__ import annotations
 
-from typing import Literal, Optional, Tuple, Union
+from typing import Literal, Optional, Union
 
 from pydantic.v1 import Field, root_validator, validator
 
@@ -11,7 +11,7 @@ from .serializer import BaseRepr
 
 NumericTyped = Union[float, int]
 
-NameObsTyped = Optional[Union[Tuple[str], str]]
+NameObsTyped = Optional[Union[tuple[str], str]]
 
 
 class SpaceRepr(BaseRepr):

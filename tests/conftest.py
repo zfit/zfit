@@ -28,7 +28,7 @@ init_modules = sys.modules.keys()
 
 
 @pytest.fixture(autouse=True)
-def setup_teardown():  # noqa: PT004
+def setup_teardown():
     import zfit
 
     old_chunksize = zfit.run.chunking.max_n_points
