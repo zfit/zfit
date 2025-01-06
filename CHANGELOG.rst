@@ -5,31 +5,12 @@ Changelog
 .. _newest-changelog:
 
 
-Develop
-=======
 
-Major Features and Improvements
--------------------------------
 
-Breaking changes
-------------------
+0.24.3 (6 Jan. 2025)
+======================
 
-Deprecations
--------------
-
-Bug fixes and small changes
----------------------------
-
-Experimental
-------------
-
-Requirement changes
--------------------
-
-Relax TF requirement to > 2.16 (instead of 2.18) and equivalent TensorFlow-Probability to > 0.24 (instead of 0.25)
-
-Thanks
-------
+Relax TF requirement to >= 2.16 (instead of 2.18) and equivalent TensorFlow-Probability to >= 0.24 (instead of 0.25)
 
 0.24.2 (11 Dec. 2024)
 ======================
