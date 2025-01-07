@@ -17,7 +17,7 @@
 
 from __future__ import annotations
 
-from typing import List, Tuple, Union
+from typing import Union
 
 import numpy as np
 import tensorflow as tf
@@ -39,8 +39,8 @@ Number = Union[
 ]
 
 TensorLike = Union[
-    List[Union[Number, list]],
-    Tuple,
+    list[Union[Number, list]],
+    tuple,
     Number,
     np.ndarray,
     tf.Tensor,

@@ -15,15 +15,15 @@ from .core.interfaces import (
 )
 
 __all__ = [
+    "ZfitBinnedData",
+    "ZfitBinnedPDF",
+    "ZfitBinning",
     "ZfitData",
-    "ZfitModel",
+    "ZfitIndependentParameter",
     "ZfitLoss",
+    "ZfitModel",
+    "ZfitPDF",
     "ZfitParameter",
     "ZfitSpace",
     "ZfitUnbinnedData",
-    "ZfitIndependentParameter",
-    "ZfitBinning",
-    "ZfitBinnedPDF",
-    "ZfitBinnedData",
-    "ZfitPDF",
 ]
