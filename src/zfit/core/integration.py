@@ -19,11 +19,12 @@ import tensorflow_probability as tfp
 
 import zfit.z.numpy as znp
 from zfit import z
-from .interfaces import ZfitModel, ZfitSpace
-from .space import MultiSpace, convert_to_space, supports
+
 from ..settings import ztypes
 from ..util import ztyping
 from ..util.exception import AnalyticIntegralNotImplemented, WorkInProgressError
+from .interfaces import ZfitModel, ZfitSpace
+from .space import MultiSpace, convert_to_space, supports
 
 
 def auto_integrate(
