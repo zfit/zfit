@@ -1,8 +1,9 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2025 zfit
 
 from __future__ import annotations
 
 import warnings
+from enum import Enum
 from typing import TYPE_CHECKING
 
 import jacobi
@@ -38,6 +39,13 @@ class FailEvalLossNaN(Exception):
 class RootFound(Exception):
     """Exception class for cases where a root is found, since SciPy root solvers don't really respect tol or xtol on
     initial evaluation."""
+
+
+# make enum of WeightCorr
+class WeightCorr(Enum):
+    ASYMPTOTIC: str = "asymptotic"
+    EFFSIZE: str = "effsize"  # effective sample size, rescaled by sum(w)/sum(w**2)
+    FALSE: bool = False
 
 
 def compute_errors(
@@ -322,9 +330,12 @@ def autodiff_pdf_jacobian(func, params):
     return z.convert_to_tensor(columns)
 
 
-def covariance_with_weights(method, result, params):
+# TODO: refactor below, exctract separate methods
+def covariance_with_weights(hinv, result, params, *, method: WeightCorr = None):
     """Compute the covariance matrix of the parameters with weights."""
     from .. import run
+
+    method = WeightCorr.ASYMPTOTIC if method is None else WeightCorr(method)
 
     run.assert_executing_eagerly()
     loss = result.loss
@@ -341,18 +352,34 @@ def covariance_with_weights(method, result, params):
 
     old_vals = np.asarray(params)
 
-    Hinv_dict = method(result=result, params=params)  # inverse of the hessian matrix
+    Hinv_dict = hinv(result=result, params=params)  # inverse of the hessian matrix
     if not Hinv_dict:
         return {}
     Hinv = dict_to_matrix(params, Hinv_dict)
 
+    if method == WeightCorr.ASYMPTOTIC:
+        corrfactor = 1.0
+    elif method == WeightCorr.EFFSIZE:
+        allweigths = znp.concatenate(
+            [
+                d.weights if d.has_weights else znp.ones((data.nevents,))  # sum(ones_nevents ** 2) = nevents
+                for d in data
+            ]
+        )
+        corrfactor = znp.sum(allweigths) / znp.sum(allweigths**2)
+        del allweigths
+    else:
+        msg = f"Unknown method {method}, has to be one of {WeightCorr}"
+        raise ValueError(msg)
+
     def func():
         values = []
+
         for i, (m, d) in enumerate(zip(model, data)):
             v = m.log_pdf(d)
             weights = d.weights
             if weights is not None:
-                v *= weights
+                v *= weights * corrfactor
             values.append(v)
             if yields is not None:
                 yi = yields[i]
@@ -368,28 +395,30 @@ def covariance_with_weights(method, result, params):
         return znp.concatenate(values, axis=0)
 
     params_dict = {p.name: p for p in params}
+    if method == WeightCorr.ASYMPTOTIC:
+        if run.get_autograd_mode():
+            try:
+                jacobian = autodiff_pdf_jacobian(func=func, params=params_dict)
+            except ValueError as error:
+                msg = (
+                    "The autodiff could not be performed for the jacobian matrix. This can have a natural cause (see error above)"
+                    " or be a bug in the autodiff. In the latter case, you can try to use the numerical jacobian instead using:\n"
+                    "with zfit.run.set_autograd_mode(False):\n"
+                    "    # calculate here, i.e. result.errors()"
+                )
+                raise ValueError(msg) from error
+        else:
 
-    if run.get_autograd_mode():
-        try:
-            jacobian = autodiff_pdf_jacobian(func=func, params=params_dict)
-        except ValueError as error:
-            msg = (
-                "The autodiff could not be performed for the jacobian matrix. This can have a natural cause (see error above)"
-                " or be a bug in the autodiff. In the latter case, you can try to use the numerical jacobian instead using:\n"
-                "with zfit.run.set_autograd_mode(False):\n"
-                "    # calculate here, i.e. result.errors()"
-            )
-            raise ValueError(msg) from error
-    else:
+            def wrapped_func(values):
+                assign_values(list(params_dict.values()), values)
+                return np.array(func())
 
-        def wrapped_func(values):
-            assign_values(list(params_dict.values()), values)
-            return np.array(func())
+            jacobian = numerical_pdf_jacobian(func=wrapped_func, params=params_dict)
 
-        jacobian = numerical_pdf_jacobian(func=wrapped_func, params=params_dict)
-
-    C = znp.matmul(jacobian, znp.transpose(jacobian))
-    covariance = np.asarray(znp.matmul(Hinv, znp.matmul(C, Hinv)))
+        C = znp.matmul(jacobian, znp.transpose(jacobian))
+        covariance = np.asarray(znp.matmul(Hinv, znp.matmul(C, Hinv)))
+    elif method == WeightCorr.EFFSIZE:
+        covariance = Hinv
     assign_values(params, old_vals)
     return matrix_to_dict(params, covariance)
 
