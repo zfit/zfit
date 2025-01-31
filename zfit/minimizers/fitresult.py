@@ -1,4 +1,4 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2025 zfit
 
 from __future__ import annotations
 
@@ -46,6 +46,7 @@ from ..util.warnings import ExperimentalFeatureWarning
 from ..util.ztyping import ParamsTypeOpt
 from ..z import numpy as znp
 from .errors import (
+    WeightCorr,
     compute_errors,
     covariance_with_weights,
     dict_to_matrix,
@@ -1379,6 +1380,8 @@ class FitResult(ZfitResult):
         params: ParamsTypeOpt = None,
         method: str | Callable | None = None,
         as_dict: bool = False,
+        *,
+        weightcorr: WeightCorr = None,
     ):
         """Calculate the covariance matrix for `params`.
 
@@ -1395,10 +1398,13 @@ class FitResult(ZfitResult):
         """
         if method is None:
             method = self._default_hesse
+        if weightcorr is None:
+            weightcorr = WeightCorr.ASYMPTOTIC
+        weightcorr = WeightCorr(weightcorr)
 
         if method not in self._covariance_dict:
             with self._input_check_reset_params(params) as checkedparams:
-                self._covariance_dict[method] = self._covariance(method=method)
+                self._covariance_dict[method] = self._covariance(method=method, weightcorr=weightcorr)
 
         else:
             checkedparams = self._input_check_params(params)
@@ -1408,7 +1414,7 @@ class FitResult(ZfitResult):
             return covariance
         return dict_to_matrix(checkedparams, covariance)
 
-    def _covariance(self, method):
+    def _covariance(self, method, *, weightcorr: WeightCorr = None):
         if not callable(method):
             if method not in self._hesse_methods:
                 msg = f"The following method is not a valid, implemented method: {method}. Use one of {self._hesse_methods.keys()}"
@@ -1416,8 +1422,10 @@ class FitResult(ZfitResult):
             method = self._hesse_methods[method]
         params = list(self.params.keys())
 
-        if any(isinstance(data, ZfitData) and data.weights is not None for data in self.loss.data):
-            return covariance_with_weights(method=method, result=self, params=params)
+        if (weightcorr != weightcorr.FALSE) and any(
+            isinstance(data, ZfitData) and data.weights is not None for data in self.loss.data
+        ):
+            return covariance_with_weights(hinv=method, result=self, params=params, method=weightcorr)
 
         return method(result=self, params=params)
 
