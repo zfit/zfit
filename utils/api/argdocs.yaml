@@ -635,8 +635,6 @@ loss.init.explain.simultaneous: |1+
 
          where :math:`\theta_i` is a set of parameters and
          a subset of :math:`\theta`
-
-
 loss.init.explain.negativelog: |1+
     For optimization purposes, it is often easier
          to minimize a function and to use a log transformation. The actual loss is given by
@@ -651,7 +649,6 @@ loss.init.explain.spdtransform: |1+
          used as described by Bohm and Zech, NIMA 748 (2014) 1-6 if the variance
          of the data is not ``None``. The scaling is forced to be >= 1 in order
          to avoid issues with empty bins.
-
 loss.init.explain.weightednll: |1+
     If the dataset has weights, a weighted likelihood will be constructed instead
 
@@ -661,7 +658,6 @@ loss.init.explain.weightednll: |1+
          Note that this is not a real likelihood anymore! Calculating uncertainties
          can be done with hesse (as it has a correction) but will yield wrong
          results with profiling methods. The minimum is however fully valid.
-
 loss.init.binned.explain.chi2zeros: |1+
     If the dataset has empty bins, the errors
          will be zero and :math:`\chi^2` is undefined. Two possibilities are available and
@@ -670,7 +666,6 @@ loss.init.binned.explain.chi2zeros: |1+
          - "empty": "ignore" will ignore all bins with zero entries and won't count to the loss
          - "errors": "expected" will use the expected counts from the model
            with a Poissonian uncertainty
-
 loss.init.options: |1+
     Additional options (as a dict) for the loss.
                 Current possibilities include:
@@ -698,21 +693,18 @@ loss.init.options: |1+
                 same under the same data, make sure to use ``create_new`` instead of instantiating
                 a new loss as the former will automatically overtake any relevant constants
                 and behavior.
-
 loss.args.params: |1+
     Mapping of the parameter names to the actual
                 values. The parameter names refer to the names of the parameters,
                 typically :py:class:`~zfit.Parameter`, that is returned by
                 `get_params()`. If no params are given, the current default
                 values of the parameters are used.
-
 loss.value.full: |1+
     If True, return the full loss value, otherwise
                 allow for the removal of constants and only return
                 the part that depends on the parameters. Constants
                 don't matter for the task of optimization, but
                 they can greatly help with the numerical stability of the loss function.
-
 loss.args.numgrad: |1+
     If ``True``, calculate the numerical gradient/Hessian
                 instead of using the automatic one. This is
@@ -720,7 +712,6 @@ loss.args.numgrad: |1+
                 be used if the automatic gradient fails (e.g. if
                 the model is not differentiable, written not in znp.* etc).
                 Default will fall back to what the loss is set to.
-
 result.init.loss: |1+
     The loss function that was minimized.
                 Usually, but not necessary, contains
@@ -729,7 +720,6 @@ result.init.params: |1+
     Result of the fit where each
                 :py:class:`~zfit.Parameter` key has the
                 value from the minimum found by the minimizer.
-
 result.init.minimizer: |1+
     Minimizer that was used to obtain this ``FitResult`` and will be used to
                     calculate certain errors. If the minimizer
@@ -802,7 +792,6 @@ result.init.evaluator: |1+
 result.init.values: |1+
     Values of the parameters at the
                     found minimum.
-
 result.hesse.weightcorr.method: |1+
     Method to correct the estimation of the covariance matrix/hesse error
                     for a weighted likelihood. The following methods are available, for a comparison and
@@ -817,7 +806,6 @@ result.hesse.weightcorr.method: |1+
                      .. [langenbruch1] Langenbruch, C. Parameter uncertainties in weighted unbinned maximum
                         likelihood fits. Eur. Phys. J. C 82, 393 (2022).
                         https://doi.org/10.1140/epjc/s10052-022-10254-8
-
 hs3.ini.reuse_params: |1+
     If parameters, the parameters
                     will be reused if they are given.
@@ -831,7 +819,6 @@ hs3.explain: |1+
                     It is a JSON/YAML-based serialization that is a
                     coordinated effort of the HEP community to standardize the serialization of statistical models. The standard
                     is still in development and is not yet finalized. This function is experimental and may change in the future.
-
 hs3.layout.explain: |1+
     The keys in the HS3 format are:
                      - 'distributions': list of PDFs
