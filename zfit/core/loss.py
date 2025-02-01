@@ -1,4 +1,4 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2025 zfit
 
 from __future__ import annotations
 
@@ -55,7 +55,16 @@ from ..z.math import (
 )
 from .baseobject import BaseNumeric, extract_filter_params
 from .constraint import BaseConstraint
-from .interfaces import ZfitBinnedData, ZfitData, ZfitIndependentParameter, ZfitLoss, ZfitParameter, ZfitPDF, ZfitSpace
+from .interfaces import (
+    ZfitBinnedData,
+    ZfitData,
+    ZfitIndependentParameter,
+    ZfitLoss,
+    ZfitParameter,
+    ZfitPDF,
+    ZfitSpace,
+    ZfitUnbinnedData,
+)
 from .parameter import convert_to_parameters, set_values
 
 DEFAULT_FULL_ARG = True
@@ -236,6 +245,10 @@ class BaseLoss(ZfitLoss, BaseNumeric):
 
         # not ideal, should be in parametrized. But we don't have too many base classes, so this should work
         self._assert_params_unique()
+
+    @property
+    def is_weighted(self):
+        return any(data.has_weights for data in self.data if isinstance(data, ZfitUnbinnedData))
 
     @property
     def is_precompiled(self):

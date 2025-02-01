@@ -101,7 +101,6 @@ def compute_errors(
     else:
         msg = "Cannot specify both sigma and cl."
         raise ValueError(msg)
-    # TODO: how to name things, sigma or cl?
 
     params = convert_to_container(params)
     new_result = None
@@ -330,12 +329,32 @@ def autodiff_pdf_jacobian(func, params):
     return z.convert_to_tensor(columns)
 
 
-# TODO: refactor below, exctract separate methods
-def covariance_with_weights(hinv, result, params, *, method: WeightCorr = None):
-    """Compute the covariance matrix of the parameters with weights."""
+# TODO: refactor below, extract separate methods
+def covariance_with_weights(hinv, result, params, *, weightcorr: WeightCorr = None):
+    """Compute the covariance matrix of the parameters with weights.
+
+    Args:
+        hinv: The inverse of the Hessian matrix.
+        result: The fit result.
+        params: The parameters for which the covariance matrix is to be calculated.
+        weightcorr: |@doc:result.hesse.weightcorr.method| Method to correct the estimation of the covariance matrix/hesse error
+                   for a weighted likelihood. The following methods are available, for a comparison and
+                   the derivation of the methods, see [langenbruch1]_:
+                    - `False`: no correction, the covariance matrix is calculated as if the likelihood
+                      was unweighted. This will generally underestimate the errors.
+                    - `asymptotic`: the covariance matrix is corrected by the asymptotic formula
+                      for the weighted likelihood. This is the default, yet computationally most
+                      expensive method.
+                    - `effsize`: the covariance matrix is corrected by the effective sample size.
+                      This is the fastest method but won't yield asymptotically correct results.
+
+                    .. [langenbruch1] Langenbruch, C. Parameter uncertainties in weighted unbinned maximum
+                       likelihood fits. Eur. Phys. J. C 82, 393 (2022).
+                       https://doi.org/10.1140/epjc/s10052-022-10254-8 |@docend:result.hesse.weightcorr.method|
+    """
     from .. import run
 
-    method = WeightCorr.ASYMPTOTIC if method is None else WeightCorr(method)
+    weightcorr = WeightCorr.ASYMPTOTIC if weightcorr is None else WeightCorr(weightcorr)
 
     run.assert_executing_eagerly()
     loss = result.loss
@@ -357,9 +376,9 @@ def covariance_with_weights(hinv, result, params, *, method: WeightCorr = None):
         return {}
     Hinv = dict_to_matrix(params, Hinv_dict)
 
-    if method == WeightCorr.ASYMPTOTIC:
+    if weightcorr == WeightCorr.ASYMPTOTIC:
         corrfactor = 1.0
-    elif method == WeightCorr.EFFSIZE:
+    elif weightcorr == WeightCorr.EFFSIZE:
         allweigths = znp.concatenate(
             [
                 d.weights if d.has_weights else znp.ones((data.nevents,))  # sum(ones_nevents ** 2) = nevents
@@ -369,7 +388,7 @@ def covariance_with_weights(hinv, result, params, *, method: WeightCorr = None):
         corrfactor = znp.sum(allweigths) / znp.sum(allweigths**2)
         del allweigths
     else:
-        msg = f"Unknown method {method}, has to be one of {WeightCorr}"
+        msg = f"Unknown method {weightcorr}, has to be one of {WeightCorr}"
         raise ValueError(msg)
 
     def func():
@@ -395,7 +414,7 @@ def covariance_with_weights(hinv, result, params, *, method: WeightCorr = None):
         return znp.concatenate(values, axis=0)
 
     params_dict = {p.name: p for p in params}
-    if method == WeightCorr.ASYMPTOTIC:
+    if weightcorr == WeightCorr.ASYMPTOTIC:
         if run.get_autograd_mode():
             try:
                 jacobian = autodiff_pdf_jacobian(func=func, params=params_dict)
@@ -417,7 +436,7 @@ def covariance_with_weights(hinv, result, params, *, method: WeightCorr = None):
 
         C = znp.matmul(jacobian, znp.transpose(jacobian))
         covariance = np.asarray(znp.matmul(Hinv, znp.matmul(C, Hinv)))
-    elif method == WeightCorr.EFFSIZE:
+    elif weightcorr == WeightCorr.EFFSIZE:
         covariance = Hinv
     assign_values(params, old_vals)
     return matrix_to_dict(params, covariance)
