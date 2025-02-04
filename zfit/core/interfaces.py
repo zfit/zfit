@@ -1,4 +1,4 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2025 zfit
 
 from __future__ import annotations
 
@@ -810,6 +810,11 @@ class ZfitLoss(ZfitObject, metaclass=ABCMeta):
 
     @abstractmethod
     def create_new(self, **kwargs):
+        pass
+
+    @property
+    @abstractmethod
+    def is_weighted(self):
         pass
 
 
