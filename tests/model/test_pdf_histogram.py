@@ -1,4 +1,4 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2025 zfit
 import hist
 import numpy as np
 import pytest
@@ -86,11 +86,11 @@ def test_pdf_formhist():
 
     # test sample
     sample = ext_pdf.sample(n=1_000)
-    assert sample.nevents == 1_000
+    assert sample.samplesize == 1_000.
     assert sample.rank == 2
 
     sample = pdf.sample(n=1_000)
-    assert sample.nevents == 1_000
+    assert sample.samplesize == 1_000.
     assert sample.rank == 2
 
     # test integral

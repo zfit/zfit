@@ -1,4 +1,4 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2025 zfit
 
 import copy
 
@@ -407,18 +407,18 @@ def test_multidim_data_range():
     assert len(yxdata) == 2
     assert tf.is_tensor(yxdata[0])
     assert xdata.shape == (neventstrue1,)
-    assert dataset.nevents == 6
+    assert dataset.num_entries == 6
     datasetnew1 = dataset.with_obs(obs=obs1)
-    assert datasetnew1.nevents == 6
-    assert dataset.nevents == 6
+    assert datasetnew1.num_entries == 6
+    assert dataset.num_entries == 6
     datasetnew2 = dataset.with_obs(obs=obs2)
-    assert datasetnew2.nevents == 6
+    assert datasetnew2.num_entries == 6
     np.testing.assert_allclose(data_true, datasetnew2.value()[:, 0])
 
     data2 = np.linspace((0, 5), (10, 15), num=11)[:, 1]
     data_range = zfit.Space([obs1], limits=(5, 15))
     dataset = zfit.Data.from_numpy(array=data2, obs=data_range)
-    assert dataset.nevents == 11
+    assert dataset.num_entries == 11
 
 
 def test_data_hashing(space2d):
@@ -429,7 +429,7 @@ def test_data_hashing(space2d):
     testhashpdf = TestHashPDF(obs=space2d, lasthash=data1.hashint)
     assert testhashpdf.lasthash == data1.hashint
     oldhashint = data1.hashint
-    data1 = data1.with_weights(np.random.uniform(size=data1.nevents))
+    data1 = data1.with_weights(np.random.uniform(size=data1.num_entries))
     assert data1.hashint is not None
     assert oldhashint != data1.hashint
     assert data1.hashint != testhashpdf.lasthash
@@ -442,7 +442,7 @@ def test_data_hashing(space2d):
             True
     ):  # meaning integration is now done in graph and has "None"
         oldhashint = data1.hashint
-        data2 = data1.with_weights(np.random.uniform(size=data1.nevents))
+        data2 = data1.with_weights(np.random.uniform(size=data1.num_entries))
         testhashpdf.pdf(data2)
         assert oldhashint != testhashpdf.lasthash
 

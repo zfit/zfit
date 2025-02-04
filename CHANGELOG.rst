@@ -18,6 +18,11 @@ Deprecations
 
 Bug fixes and small changes
 ---------------------------
+- allow the usage of ``ZfitData`` objects (binned and unbinned version respectively) in ``update_data`` method of sampler objects
+  ``zfit.data.SamplerData`` and ``zfit.data.BinnedSamplerData``
+  (for example, the objects that are returned by ``create_sampler``)
+- add an attribute ``num_entries`` to the ``Data`` object that returns the number of entries in the data and an attribute ``samplesize`` reflecting the sum of the weights, deprecating the ambiguous ``nevents`` attribute.
+  The former can be used to define the array shape, the latter matters in statistical tests.
 
 Experimental
 ------------
@@ -27,6 +32,7 @@ Requirement changes
 
 Thanks
 ------
+- @fsouzade for finding the bug in the ``update_data`` method of the sampler objects
 
 
 0.24.3 (6 Jan. 2025)

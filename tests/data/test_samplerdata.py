@@ -1,4 +1,4 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2025 zfit
 import numpy as np
 import pytest
 
@@ -7,15 +7,16 @@ import pytest
 def test_update_data_sampler(weights):
     import zfit
     from zfit.data import SamplerData
-    sample = np.random.normal(0, 1, size=(1000, 3))
-    sample2 = np.random.normal(0, 1, size=(1000, 3))
-    sample3 = np.random.normal(0, 1, size=(1000, 3))
-
+    sample1 = np.random.uniform(-10, 30, size=(1000, 3))
+    sample2 = np.random.uniform(-10, 30, size=(1000, 3))
+    sample3 = np.random.uniform(-10, 30, size=(1000, 3))
     obs = zfit.Space('obs1', limits=(-100, 100)) * zfit.Space('obs2', limits=(-200, 200)) * zfit.Space('obs3', limits=(-150, 150))
-    data = SamplerData.from_sampler(obs=obs, sample_and_weights_func=lambda n, params: (sample, weights), n=1000)
+    data1 = zfit.Data(sample1, obs=obs, weights=weights)
+
+    data = SamplerData.from_sampler(obs=obs, sample_and_weights_func=lambda n, params: (sample1, weights), n=1000)
     if weights is not None:
         assert np.allclose(data.weights, weights)
-    assert np.allclose(data.value(), sample)
+    assert np.allclose(data.value(), sample1)
     if weights is not None:
         with pytest.raises(ValueError):
             data.update_data(sample2, weights=None)
@@ -27,3 +28,10 @@ def test_update_data_sampler(weights):
     else:
         data.update_data(sample3, weights=weights)
         assert np.allclose(data.value(), sample3)
+
+    data.update_data(data1)
+    assert np.allclose(data.value(), sample1)
+    if weights is not None:
+        assert np.allclose(data.weights, weights)
+    else:
+        assert data.weights is None

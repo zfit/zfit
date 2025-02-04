@@ -1,4 +1,4 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2025 zfit
 
 from __future__ import annotations
 
@@ -253,7 +253,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
 
     def _check_init_options(self, options, data):
         try:
-            nevents = sum(d.nevents for d in data)
+            nevents = sum(d.num_entries for d in data)
         except RuntimeError:  # can happen if not yet sampled. What to do? Approx_nevents?
             nevents = 150_000  # sensible default
         options = {} if options is None else copy.copy(options)

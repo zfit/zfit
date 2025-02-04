@@ -1,4 +1,4 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2025 zfit
 import boost_histogram as bh
 import hist
 import numpy as np
@@ -264,4 +264,4 @@ def test_binned_from_numpy_issue602():
     data_normal_np = np.random.normal(size=size_normal, scale=2)    # Generate normal distribution data
 
     data_normal = zfit.Data(data_normal_np, obs=obs)                # Create a zfit Data object with the normal distribution data
-    assert data_normal_np.shape[0] >= data_normal.nevents           # Check that the number of events in the data is correct
+    assert data_normal_np.shape[0] >= data_normal.num_entries           # Check that the number of events in the data is correct
