@@ -108,10 +108,10 @@ Example in short
     gauss = zfit.pdf.Gauss(obs=obs, mu=mu, sigma=sigma)
 
     # load the data
-    data_np = np.random.normal(size=10000)
+    data_np = np.random.normal(size=10_000)
     data = zfit.Data(obs=obs, data=data_np)
     # or sample from model
-    data = gauss.sample()
+    data = gauss.sample(10_000)
 
     # build the loss
     nll = zfit.loss.UnbinnedNLL(model=gauss, data=data)

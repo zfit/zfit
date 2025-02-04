@@ -1180,6 +1180,50 @@ class ExtendedUnbinnedNLL(BaseUnbinnedNLL):
         Note that this is not a real likelihood anymore! Calculating uncertainties
         can be done with hesse (as it has a correction) but will yield wrong
         results with profiling methods. The minimum is however fully valid. |@docend:loss.init.explain.weightednll|
+
+
+        Args:
+            model: |@doc:loss.init.model| PDFs that return the normalized probability for
+               *data* under the given parameters.
+               If multiple model and data are given, they will be used
+               in the same order to do a simultaneous fit. |@docend:loss.init.model|
+            data: |@doc:loss.init.data| Dataset that will be given to the *model*.
+               If multiple model and data are given, they will be used
+               in the same order to do a simultaneous fit.
+               If the data is not a ``ZfitData`` object, i.e. it doesn't have ha space
+               it has to be withing the limits of the model, otherwise, an
+               :py:class:`~zfit.exception.IntentionAmbiguousError` will be raised. |@docend:loss.init.data|
+            constraints: |@doc:loss.init.constraints| Auxiliary measurements ("constraints")
+               that add a likelihood term to the loss.
+
+               .. math::
+                 \mathcal{L}(\theta) = \mathcal{L}_{unconstrained} \prod_{i} f_{constr_i}(\theta)
+
+               Usually, an auxiliary measurement -- by its very nature -S  should only be added once
+               to the loss. zfit does not automatically deduplicate constraints if they are given
+               multiple times, leaving the freedom for arbitrary constructs.
+
+               Constraints can also be used to restrict the loss by adding any kinds of penalties. |@docend:loss.init.constraints|
+            options: If not given, the current one will be used.
+                |@doc:loss.init.options| Additional options (as a dict) for the loss.
+               Current possibilities include:
+
+               - 'subtr_const' (default True): subtract from each points
+                 log probability density a constant that
+                 is approximately equal to the average log probability
+                 density in the very first evaluation before
+                 the summation. This brings the initial loss value closer to 0 and increases,
+                 especially for large datasets, the numerical stability.
+
+                 The value will be stored ith 'subtr_const_value' and can also be given
+                 directly.
+
+                 The subtraction should not affect the minimum as the absolute
+                 value of the NLL is meaningless. However,
+                 with this switch on, one cannot directly compare
+                 different likelihoods absolute value as the constant
+                 may differ! Use
+
         """
         super().__init__(
             model=model,

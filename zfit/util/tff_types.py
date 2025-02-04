@@ -23,7 +23,7 @@ from typing import TypeVar
 import numpy as np
 import tensorflow as tf
 
-__all__ = ["BoolTensor", "IntTensor", "RealTensor", "ComplexTensor", "StringTensor"]
+__all__ = ["BoolTensor", "ComplexTensor", "IntTensor", "RealTensor", "StringTensor"]
 
 tensor_like = (np.ndarray, tf.Tensor, tf.TensorSpec)
 

@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import abc
 import collections
-from collections.abc import Callable
-from typing import Iterable, Literal, Mapping, Optional
+from collections.abc import Callable, Iterable, Mapping
+from typing import Literal, Optional
 
 import numpy as np
 import pydantic.v1 as pydantic

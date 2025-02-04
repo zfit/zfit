@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from ordered_set import OrderedSet
+
 from ..util.ztyping import ExtendedInputType, NormInputType
 
 if TYPE_CHECKING:
@@ -136,7 +138,7 @@ class ConditionalPDFV1(BaseFunctor):
         autograd: bool | None = None,
     ) -> set[ZfitParameter]:
         params = super()._get_params(floating, is_yield, extract_independent, autograd=autograd)
-        params -= set(self._cond)
+        params -= OrderedSet(self._cond)
         return params
 
     @z.function(wraps="conditional_pdf")

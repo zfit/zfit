@@ -1512,16 +1512,16 @@ class Space(
         self, obs: ztyping.ObsTypeInput = None, axes: ztyping.AxesTypeInput = None
     ) -> ztyping.LimitsDictWithCoords | ztyping.LimitsDictNoCoords:
         return_dict = {}
-        both_none_or_true = obs is None and axes is None or obs is True and axes is True
+        both_none_or_true = (obs is None and axes is None) or (obs is True and axes is True)
 
-        if obs is True and axes is None or both_none_or_true:
+        if (obs is True and axes is None) or both_none_or_true:
             if not self.obs:
                 if obs is True:
                     msg = "Obs are not defined for this instance, no limits set for obs."
                     raise ObsIncompatibleError(msg)
             else:
                 return_dict["obs"] = self._limits_dict["obs"].copy()
-        if axes is True and obs is None or both_none_or_true:
+        if (axes is True and obs is None) or both_none_or_true:
             if not self.axes:
                 if axes is True:
                     msg = "Axes are not defined for this instance, no limits set for axes."

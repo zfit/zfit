@@ -32,6 +32,28 @@ Requirement changes
 Thanks
 ------
 
+
+0.24.3 (6 Jan. 2025)
+======================
+
+Relax TF requirement to >= 2.16 (instead of 2.18) and equivalent TensorFlow-Probability to >= 0.24 (instead of 0.25)
+
+0.24.2 (11 Dec. 2024)
+======================
+
+Bug fixes and small changes
+---------------------------
+- fix upgraded iminuit version compatibility for covariance matrix non-existing
+
+
+0.24.1 (8 Dec. 2024)
+=====================
+
+Bug fixes and small changes
+---------------------------
+- remain order of some internal parameters to increase full reproducibility
+- minuit minimizer could have no covariance albeit being advertised, lead to error in some cases
+
 0.24.0 (10 Nov. 2024)
 =======================
 

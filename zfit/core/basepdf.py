@@ -55,7 +55,8 @@ also the advanced models in `zfit models <https://github.com/zfit/zfit-tutorials
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Iterable, Optional
+from collections.abc import Iterable
+from typing import TYPE_CHECKING, Optional
 
 from ..util.plotter import PDFPlotter
 from ..util.ztyping import ExtendedInputType, NormInputType
@@ -781,8 +782,8 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
             msg = "`n` is a string and not 'extended'. Other options are currently not implemented."
             raise ValueError(msg)
         elif n is None:
-            msg = "`n` cannot be `None` if pdf is not extended."
-            raise tf.errors.InvalidArgumentError(msg)
+            msg = "`n` (number of samples) cannot be `None` (only if pdf is extended)."
+            raise ValueError(msg)
         else:
             samples = super()._hook_sample(limits=limits, n=n)
         return samples

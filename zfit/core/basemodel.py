@@ -13,9 +13,9 @@ import contextlib
 import inspect
 import math
 import warnings
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from contextlib import suppress
-from typing import Mapping, Optional
+from typing import Optional
 
 import tensorflow as tf
 from dotmap import DotMap
@@ -752,8 +752,9 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         norm = self._check_input_norm(norm=norm)
         limits = self._check_input_limits(limits=limits)
         fallback_obs = [obs for obs in self.obs if obs not in limits.obs]  # keep order
-        with self._convert_sort_x(x, partial=True, fallback_obs=fallback_obs) as xclean, self._check_set_input_params(
-            params=params
+        with (
+            self._convert_sort_x(x, partial=True, fallback_obs=fallback_obs) as xclean,
+            self._check_set_input_params(params=params),
         ):
             return self._single_hook_partial_integrate(x=xclean, limits=limits, norm=norm, options=options)
 
@@ -805,7 +806,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
                 """Temporary partial integration function."""
                 return self._hook_partial_analytic_integrate(x=x, limits=sublimits, norm=norm)
 
-            axes = list(set(limits.axes) - set(max_axes))
+            axes = [ax for ax in limits.axes if ax not in max_axes]
             limits = limits.get_subspace(axes=axes)
         else:
             part_int = self._func_to_integrate
@@ -857,8 +858,9 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         norm = self._check_input_norm(norm=norm)
         limits = self._check_input_limits(limits=limits)
         fallback_obs = [obs for obs in self.obs if obs not in limits.obs]  # keep order
-        with self._convert_sort_x(x, partial=True, fallback_obs=fallback_obs) as xclean, self._check_set_input_params(
-            params=params
+        with (
+            self._convert_sort_x(x, partial=True, fallback_obs=fallback_obs) as xclean,
+            self._check_set_input_params(params=params),
         ):
             return self._single_hook_partial_analytic_integrate(x=xclean, limits=limits, norm=norm)
 
@@ -956,8 +958,9 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         norm = self._check_input_norm(norm)
         limits = self._check_input_limits(limits=limits)
         fallback_obs = [obs for obs in self.obs if obs not in limits.obs]  # keep order
-        with self._convert_sort_x(x, partial=True, fallback_obs=fallback_obs) as clean, self._check_set_input_params(
-            params=params
+        with (
+            self._convert_sort_x(x, partial=True, fallback_obs=fallback_obs) as clean,
+            self._check_set_input_params(params=params),
         ):
             return self._single_hook_partial_numeric_integrate(x=clean, limits=limits, norm=norm)
 
@@ -1185,7 +1188,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             limits = self.space
             if not limits.has_limits:
                 msg = "limits are False/None, have to be specified"
-                raise tf.errors.InvalidArgumentError(msg)
+                raise ValueError(msg)
         limits = self._check_input_limits(limits=limits, none_is_error=True)
 
         def run_tf(n, limits, x):  # todo: add params

@@ -13,19 +13,22 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 
-try:
-    import pytest_randomly
-except ImportError:
-    pass
-else:
-    import zfit
+# try:
+#     import pytest_randomly
+# except ImportError:
+#     pass
+# else:
+#     import zfit
+#
+#     pytest_randomly.random_seeder = [zfit.settings.set_seed]
+import zfit
 
-    pytest_randomly.random_seeder = [zfit.settings.set_seed]
+zfit.settings.set_seed(519)
 init_modules = sys.modules.keys()
 
 
 @pytest.fixture(autouse=True)
-def setup_teardown():  # noqa: PT004
+def setup_teardown():
     import zfit
 
     old_chunksize = zfit.run.chunking.max_n_points
@@ -213,8 +216,8 @@ def get_truth(folder, filename, request, newval=None):
     elif filepath.suffix == ".asdf":
         import asdf
 
-        with asdf.open(filepath, copy_arrays=True) as f:
-            return asdf.AsdfFile(f.tree, copy_arrays=True)
+        with asdf.open(filepath, memmap=False) as f:
+            return asdf.AsdfFile(f.tree, memmap=False)
     else:
         msg = f"Filetype {filepath.suffix} not supported"
         raise ValueError(msg)

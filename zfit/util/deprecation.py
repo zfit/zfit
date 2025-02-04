@@ -5,7 +5,7 @@ import functools
 
 from tensorflow.python.util.deprecation import deprecated, deprecated_args
 
-__all__ = ["deprecated", "deprecated_args", "deprecate_norm_range"]  # noqa: F822
+__all__ = ["deprecate_norm_range", "deprecated", "deprecated_args"]  # noqa: F822
 
 
 def deprecated_norm_range(func):

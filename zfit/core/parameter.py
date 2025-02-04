@@ -10,10 +10,10 @@ import copy
 import functools
 import typing
 import weakref
-from collections.abc import Callable, Iterable
+from collections.abc import Callable, Iterable, Mapping
 from contextlib import suppress
 from inspect import signature
-from typing import Literal, Mapping, Optional, Union
+from typing import Literal, Optional, Union
 from weakref import WeakSet
 
 import dill
@@ -1068,7 +1068,7 @@ class ComposedParameter(SerializableMixin, BaseComposedParameter):
             if isinstance(params, ZfitParameter):
                 params = [params]
                 unpack_params = True
-            elif len(parameters) == 1 and (len(params) > 1) or "params" in parameters:
+            elif (len(parameters) == 1 and (len(params) > 1)) or "params" in parameters:
                 unpack_params = False
             elif len(parameters) - len(params) >= 0:
                 unpack_params = True
