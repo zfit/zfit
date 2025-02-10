@@ -212,7 +212,7 @@ class Data(
         self._permutation_indices_data = None
         self._next_batch = None
         self._dtype = dtype
-        self._nevents = None
+        self._nentries = None
         self._weights = None
         self._label = label if label is not None else (name if name is not None else "Data")
 
@@ -247,11 +247,23 @@ class Data(
         return self._label
 
     @property
+    def num_entries(self):
+        nentries = self._nentries
+        if nentries is None:
+            nentries = self._get_nentries()
+        return nentries
+
+    @property
+    @deprecated(
+        None, "Use `nentries` (for an int) or `samplesize` for a float corresponding to the sum of weights) instead."
+    )
     def nevents(self):
-        nevents = self._nevents
-        if nevents is None:
-            nevents = self._get_nevents()
-        return nevents
+        return self.num_entries
+
+    @property
+    def samplesize(self) -> float:
+        samplesize = znp.sum(self.weights) if self.has_weights else self.num_entries
+        return znp.asarray(samplesize, dtype=ztypes.float)
 
     def enable_hashing(self):
         """Enable hashing for this data object if it was disabled.
@@ -275,11 +287,11 @@ class Data(
 
     @property
     def _approx_nevents(self):
-        return self.nevents
+        return self.num_entries
 
     @property
     def n_events(self):
-        return self.nevents
+        return self.num_entries
 
     @property
     def has_weights(self):
@@ -366,7 +378,7 @@ class Data(
             if weights.shape.ndims != 1:
                 msg = "Weights have to be 1-Dim objects."
                 raise ValueError(msg)
-            if weights.shape[0] != self.nevents:
+            if weights.shape[0] != self.num_entries:
                 msg = "Weights have to have the same length as the data."
                 raise ValueError(msg)
         return self.copy(weights=weights, guarantee_limits=True)
@@ -967,7 +979,7 @@ class Data(
 
     @property
     def shape(self):
-        return self.dataset.nevents
+        return self.dataset.num_entries
 
     def to_numpy(self) -> np.ndarray:
         """Return the data as a numpy array.
@@ -1040,8 +1052,8 @@ class Data(
             space = space.with_coords(self.space, allow_subset=True)
         return space
 
-    def _get_nevents(self):
-        return self.dataset.nevents
+    def _get_nentries(self):
+        return self.dataset.num_entries
 
     def to_binned(
         self,
@@ -1084,7 +1096,7 @@ class Data(
         )
 
     def __len__(self):
-        return self.nevents
+        return self.num_entries
 
     def __getitem__(self, item):
         if isinstance(item, int):
@@ -1104,7 +1116,7 @@ class Data(
         return f"zfit.Data: {self.label} obs={self.obs} array={self.value()}"
 
     def __repr__(self) -> str:
-        nevents = self.nevents
+        nevents = self.num_entries
         try:
             nevents = int(round(float(nevents), ndigits=2))
         except Exception:
@@ -1489,12 +1501,14 @@ class SamplerData(Data):
             dtype=dtype,
         )
 
-    def update_data(self, sample: TensorLike, weights: TensorLike | None = None, guarantee_limits: bool = False):
+    def update_data(
+        self, sample: TensorLike | ZfitUnbinnedData, weights: TensorLike | None = None, guarantee_limits: bool = False
+    ):
         """Load a new sample into the dataset, presumably similar to the previous one.
 
         Args:
             sample: The new sample to load. Has to have the same number of observables as the `obs` of the `SamplerData` but
-                can have a different number of events.
+                can have a different number of events. When a `ZfitUnbinnedData` is given, the weights from it are used.
             weights: The weights of the new sample. If `None`, the weights are not changed. If the `SamplerData` was
                 initialized with weights, this has to be given. If the `SamplerData` was initialized without weights,
                 this cannot be given.
@@ -1503,6 +1517,14 @@ class SamplerData(Data):
                possibly because it was already cut before. This can lead to a performance
                improvement as the data does not have to be checked. |@docend:data.init.guarantee_limits|
         """
+        if isinstance(sample, ZfitUnbinnedData):
+            if weights is not None:
+                msg = "Cannot set weights if `sample` is an `UnbinnedData` object. Create a weighted dataset (i.e. use `with_weights`)."
+                raise ValueError(msg)
+            sample = sample.with_obs(self.space)
+            weights = sample.weights
+            sample = sample.value()
+
         sample = znp.asarray(sample, dtype=self.dtype)
 
         if sample.shape.rank == 1:
@@ -1573,7 +1595,7 @@ class SamplerData(Data):
         self.update_data(sample=new_sample, weights=new_weight, guarantee_limits=self._sampler_guarantee_limits)
 
     def __str__(self) -> str:
-        return f"<SamplerData: {self.label} obs={self.obs} size={int(self.nevents)} weighted={self.has_weights} array={self.value()}>"
+        return f"<SamplerData: {self.label} obs={self.obs} size={int(self.num_entries)} weighted={self.has_weights} array={self.value()}>"
 
     @classmethod
     def get_repr(cls):  # acts as data object once serialized
@@ -1785,7 +1807,7 @@ class LightDataset:
         return self
 
     @property
-    def nevents(self):
+    def num_entries(self):
         return (
             tf.shape(self._tensor)[0] if self._tensor is not None else tf.shape(next(iter(self._tensormap.values())))[0]
         )

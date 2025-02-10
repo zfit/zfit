@@ -1,4 +1,4 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2025 zfit
 
 from __future__ import annotations
 
@@ -8,9 +8,11 @@ from typing import TYPE_CHECKING, Optional
 import numpy as np
 import xxhash
 from tensorflow.python.util.deprecation import deprecated
+from uhi.typing.plottable import PlottableHistogram
 from zfit_interface.typing import TensorLike
 
 from ..core.baseobject import convert_param_values
+from ..settings import ztypes
 
 if TYPE_CHECKING:
     pass
@@ -25,6 +27,32 @@ from .._variables.axis import binning_to_histaxes, histaxes_to_binning
 from ..core.interfaces import ZfitBinnedData, ZfitData, ZfitSpace
 from ..util import ztyping
 from ..util.exception import BreakingAPIChangeError, ShapeIncompatibleError
+
+
+def convert_hist2binneddata(data: ZfitBinnedData | PlottableHistogram, *, none_if_fail=None) -> ZfitBinnedData:
+    """Convert a data object to a binned data object or fail.
+
+    Args:
+        data: Data object to convert.
+        none_if_fail: If True, return None if the conversion fails. If False, raise an exception.
+
+    Raises:
+        TypeError: If the conversion fails and `none_if_fail` is False.
+
+    Returns:
+        ZfitBinnedData: The converted data object.
+    """
+    if none_if_fail is None:
+        none_if_fail = False
+    if isinstance(data, ZfitBinnedData):
+        return data
+    elif isinstance(data, PlottableHistogram):
+        return BinnedData.from_hist(data)
+    else:
+        if none_if_fail:
+            return None
+        msg = "data must be of type PlottableHistogram (UHI) or ZfitBinnedData"
+        raise TypeError(msg)
 
 
 # @tfp.experimental.auto_composite_tensor()
@@ -375,12 +403,21 @@ class BinnedData(
         return self.space
 
     @property
+    def num_entries(self):  # TODO: is this needed for histograms? If so, what's the puprose of it?
+        return self.values().shape.num_elements()
+
+    @property
+    def samplesize(self) -> float:
+        return znp.asarray(znp.sum(self.values()), dtype=ztypes.float)
+
+    @property
+    @deprecated(None, "Use `num_entries` (for the int) or `samplesize` (for a total sum of all weights) instead.")
     def nevents(self):
-        return znp.sum(self.values())
+        return self.num_entries
 
     @property
     def n_events(self):  # LEGACY, what should be the name?
-        return self.nevents
+        return self.num_entries
 
     @property
     def _approx_nevents(self):
@@ -647,9 +684,17 @@ class BinnedSamplerData(BinnedData):
             variances: The new variances. Can only be provided if the sampler was initialized with variances and *must* be
                 provided if the sampler was initialized with variances.
         """
-        sample = znp.asarray(sample)
-        if variances is not None:
-            variances = znp.asarray(variances)
+        sampledata = convert_hist2binneddata(data=sample, none_if_fail=True)
+        if sampledata is None:
+            sample = znp.asarray(sample)
+            if variances is not None:
+                variances = znp.asarray(variances)
+        else:  # it is a hist/ZfitBinnedData
+            sample = sampledata.values()
+            if variances is not None:
+                msg = "Cannot provide variances if sample is a hist/ZfitBinnedData is provided. Set it on the data."
+                raise ValueError(msg)
+            variances = sampledata.variances()
         self._sample_holder.assign(sample, read_value=False)
         if variances is not None:
             if self._variances_holder is None:

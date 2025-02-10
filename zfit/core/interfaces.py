@@ -233,8 +233,17 @@ class ZfitData(ZfitDimensional):
 class ZfitUnbinnedData(ZfitData):
     @property
     @abstractmethod
-    def nevents(self) -> int:
+    def num_entries(self) -> int:
         raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def samplesize(self) -> float:
+        raise NotImplementedError
+
+    @property
+    def shape(self) -> tuple:
+        return self.num_entries, self.n_obs
 
     @property
     @abstractmethod

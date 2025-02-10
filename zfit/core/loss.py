@@ -266,7 +266,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
 
     def _check_init_options(self, options, data):
         try:
-            nevents = sum(d.nevents for d in data)
+            nevents = sum(d.num_entries for d in data)
         except RuntimeError:  # can happen if not yet sampled. What to do? Approx_nevents?
             nevents = 150_000  # sensible default
         options = {} if options is None else copy.copy(options)
@@ -1250,8 +1250,7 @@ class ExtendedUnbinnedNLL(BaseUnbinnedNLL):
             if not mod.is_extended:
                 msg = f"The pdf {mod} is not extended but has to be (for an extended fit)"
                 raise NotExtendedPDFError(msg)
-            nevents = dat.n_events if dat.weights is None else z.reduce_sum(dat.weights)
-            nevents = znp.asarray(nevents, tf.float64)
+            nevents = znp.asarray(dat.samplesize, tf.float64)
             nevents_collected.append(nevents)
             yields.append(znp.atleast_1d(mod.get_yield()))
         yields = znp.concatenate(yields, axis=0)

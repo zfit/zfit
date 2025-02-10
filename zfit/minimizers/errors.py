@@ -401,7 +401,7 @@ def covariance_with_weights(hinv, result, params, *, weightcorr: WeightCorr = No
             values.append(v)
             if yields is not None:
                 yi = yields[i]
-                nevents_collected = tf.reduce_sum(weights) if weights is not None else d.nevents
+                nevents_collected = d.samplesize
                 term_new = tf.nn.log_poisson_loss(nevents_collected, znp.log(yi), compute_full_loss=True)[
                     ..., None
                 ]  # make it an array like the others

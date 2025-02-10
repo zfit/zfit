@@ -1,4 +1,4 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2025 zfit
 import numpy as np
 import pytest
 import zfit
@@ -34,7 +34,7 @@ def test_gamma_pdf():
 
     sample = gamma.sample(10_00)
     assert np.all(np.isfinite(sample.value())), "Some samples from the gamma PDF are NaN or infinite"
-    assert sample.n_events == 1000
+    assert sample.num_entries == 1000
     ones_like = np.ones_like(sample.value())
     np.testing.assert_array_less(1 * ones_like, sample.value())
     np.testing.assert_array_less(sample.value(), ones_like * 10)

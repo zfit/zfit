@@ -1,6 +1,7 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2025 zfit
 import numpy as np
 import pytest
+
 import zfit
 
 
@@ -13,18 +14,19 @@ def test_binnedsampler_update_data(variances):
     size = (bins1, bins2, bins3)
     if variances is not None:
         variances = variances(size)
-    sample = np.random.uniform(100, 10000, size=size)
-    sample2 = np.random.uniform(100, 10000, size=size)
-    sample3 = np.random.uniform(100, 10000, size=size)
-
     space1 = zfit.Space('obs1', limits=(-100, 100), binning=bins1)
     space2 = zfit.Space('obs2', limits=(-200, 100), binning=bins2)
     space3 = zfit.Space('obs3', limits=(-150, 350), binning=bins3)
     obs = space1 * space2 * space3
-    sampler = zfit.data.BinnedSamplerData.from_sampler(obs=obs, sample_and_variances_func=lambda n, params: (sample, variances), n=10000)
+    sample1 = np.random.uniform(100, 10000, size=size)
+    sample2 = np.random.uniform(100, 10000, size=size)
+    sample3 = np.random.uniform(100, 10000, size=size)
+    hist1 = zfit.data.BinnedData.from_tensor(space=obs, values=sample1, variances=variances)
+
+    sampler = zfit.data.BinnedSamplerData.from_sampler(obs=obs, sample_and_variances_func=lambda n, params: (sample1, variances), n=10000)
     if variances is not None:
         assert np.allclose(sampler.variances(), variances)
-    assert np.allclose(sampler.values(), sample)
+    assert np.allclose(sampler.values(), sample1)
     if variances is not None:
         with pytest.raises(ValueError):
             sampler.update_data(sample2, variances=None)
@@ -50,3 +52,10 @@ def test_binnedsampler_update_data(variances):
         np.testing.assert_allclose(binneddata.variances(), variances_new)
     else:
         assert binneddata.variances() is None
+
+    sampler.update_data(hist1)
+    assert np.allclose(sampler.values(), sample1)
+    if variances is not None:
+        assert np.allclose(sampler.variances(), variances)
+    else:
+        assert sampler.variances() is None
