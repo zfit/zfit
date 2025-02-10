@@ -378,6 +378,11 @@ def test_data_range(weights_factory):
     np.testing.assert_equal(cut_data1, value_cut)
     if dataset_cut.has_weights:
         np.testing.assert_equal(cut_weights, dataset_cut.weights)
+        samplesize = np.sum(cut_weights)
+    else:
+        samplesize = 2.
+    assert pytest.approx(samplesize) == dataset_cut.samplesize
+    assert dataset_cut.num_entries == 2
     np.testing.assert_equal(
         data1, value_uncut
     )  # check  that the original did NOT change
