@@ -1,4 +1,4 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2025 zfit
 import copy
 
 import numpy as np
@@ -166,7 +166,7 @@ def test_bernstein(coeffs, obs):
 
     sample = bernstein.sample(1000)
     assert all(np.isfinite(sample.value())), "Some samples from the Bernstein PDF are NaN or infinite"
-    assert sample.n_events == 1000
+    assert sample.num_entries == 1000
     assert all(tf.logical_and(lower <= sample.value(), sample.value() <= upper))
 
 

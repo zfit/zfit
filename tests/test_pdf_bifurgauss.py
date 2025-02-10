@@ -1,4 +1,4 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2025 zfit
 import numpy as np
 import pytest
 import zfit
@@ -44,7 +44,7 @@ def test_bifurgauss_pdf():
 
     sample = bifurgauss.sample(1000)
     assert np.all(np.isfinite(sample.value())), "Some samples from the bifurgauss PDF are NaN or infinite"
-    assert sample.n_events == 1000
+    assert sample.num_entries == 1000
     assert np.all(tf.logical_and(-5 <= sample.value(), sample.value() <= 5))
 
 
