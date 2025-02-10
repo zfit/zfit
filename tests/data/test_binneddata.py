@@ -122,12 +122,13 @@ def test_binned_data_from_unbinned():
         storage=hist.storage.Weight(),
     )
 
-    x2 = np.random.randn(1_000)
-    y2 = 0.5 * np.random.randn(1_000)
+    num_entries = 1_000
+    x2 = np.random.randn(num_entries)
+    y2 = 0.5 * np.random.randn(num_entries)
 
     h3.fill(x=x2, y=y2)
 
-    from zfit._data.binneddatav1 import BinnedData
+    from zfit.data import BinnedData
 
     xobs = zfit.Space("x", binning=axis1)
     yobs = zfit.Space("y", binning=axis2)
@@ -141,6 +142,7 @@ def test_binned_data_from_unbinned():
     np.testing.assert_allclose(binned_data.variances(), h3.variances())
     np.testing.assert_allclose(binned_data_init.values(), h3.values())
     np.testing.assert_allclose(binned_data_init.variances(), h3.variances())
+    assert pytest.approx(data.samplesize) == binned_data_init.samplesize
 
 
 

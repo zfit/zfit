@@ -31,7 +31,12 @@ def test_update_data_sampler(weights):
 
     data.update_data(data1)
     assert np.allclose(data.value(), sample1)
-    if weights is not None:
-        assert np.allclose(data.weights, weights)
-    else:
+    if weights is None:
         assert data.weights is None
+        samplesize = float(data.num_entries)
+    else:
+        assert np.allclose(data.weights, weights)
+        samplesize = np.sum(weights)
+
+    assert pytest.approx(data.samplesize) == samplesize
+    assert data.num_entries == data.value().shape[0]
