@@ -821,6 +821,11 @@ class ZfitLoss(ZfitObject, metaclass=ABCMeta):
     def create_new(self, **kwargs):
         pass
 
+    @property
+    @abstractmethod
+    def is_weighted(self):
+        pass
+
 
 class ZfitModel(ZfitNumericParametrized, ZfitDimensional):
     @abstractmethod
