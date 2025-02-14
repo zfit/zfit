@@ -1,4 +1,4 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2025 zfit
 from __future__ import annotations
 
 import abc
@@ -67,6 +67,14 @@ def calculate_edm(grad, inv_hesse):
     return grad @ inv_hesse @ grad / 2
 
 
+def calculate_edm_hesse(grad, hessian):
+    invhessgrad = np.linalg.solve(
+        hessian,
+        grad,
+    )
+    return grad @ invhessgrad / 2
+
+
 class EDM(ConvergenceCriterion):
     def __init__(
         self,
@@ -105,10 +113,17 @@ class EDM(ConvergenceCriterion):
         inv_hessian = result.approx.inv_hessian(invert=True)
         if inv_hessian is None:
             hessian = loss.hessian(params)
-            inv_hessian = np.linalg.inv(hessian)
-        edm = calculate_edm(grad, inv_hessian)
+            try:
+                edm = calculate_edm_hesse(grad, hessian)  # more efficient, uses solve
+            except np.linalg.LinAlgError:  # singular matrix
+                edm = 999_999
+        else:
+            try:
+                edm = calculate_edm(grad, inv_hessian)
+            except np.linalg.LinAlgError:  # singular matrix
+                edm = 999_999
         if edm < 0:
-            edm = 999
+            edm = 999_999
         return edm
 
 

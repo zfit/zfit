@@ -1222,7 +1222,15 @@ class ExtendedUnbinnedNLL(BaseUnbinnedNLL):
                  value of the NLL is meaningless. However,
                  with this switch on, one cannot directly compare
                  different likelihoods absolute value as the constant
-                 may differ! Use
+                 may differ! Use ``create_new`` in order to have a comparable likelihood
+                 between different losses or use the ``full`` argument in the value function
+                 to calculate the full loss with all constants.
+
+
+               These settings may extend over time. In order to make sure that a loss is the
+               same under the same data, make sure to use ``create_new`` instead of instantiating
+               a new loss as the former will automatically overtake any relevant constants
+               and behavior. |@docend:loss.init.options|
 
         """
         super().__init__(
