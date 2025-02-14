@@ -27,6 +27,10 @@ Bug fixes and small changes
   (for example, the objects that are returned by ``create_sampler``)
 - add an attribute ``num_entries`` to the ``Data`` object that returns the number of entries in the data and an attribute ``samplesize`` reflecting the sum of the weights, deprecating the ambiguous ``nevents`` attribute.
   The former can be used to define the array shape, the latter matters in statistical tests.
+- The EDM calculation was optimized; additionally,it would error if the matrix was singular.
+  The behavior is now changed to return 999'999 in this case.
+  Could be reconsidered in the future to provide a "best fit" instead.
+- A simple bug in the LevenbergMarquardt minimizer was fixed that would error due to a wrong return shape of an internal result.
 
 Experimental
 ------------
