@@ -72,7 +72,9 @@ class BinnedFromUnbinnedPDF(BaseBinnedFunctorPDF):
                the PDF for a better description, to be used with plots etc.
                Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
         """
-        self._use_vectorized_map = None
+        if vectorized is None:
+            vectorized = False
+        self._use_vectorized_map = vectorized
         if pdf.is_extended:
             if extended is not None:
                 warn_advanced_feature(
