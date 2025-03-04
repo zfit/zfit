@@ -37,10 +37,11 @@ Experimental
 
 Requirement changes
 -------------------
+- relax TF and TFP requirement to include 2.19 and 0.26, respectively
 
 Thanks
 ------
-- @fsouzade for finding the bug in the ``update_data`` method of the sampler objects
+- @fsouzade for finding a bug in the ``update_data`` method of the sampler objects
 
 
 0.24.3 (6 Jan. 2025)
