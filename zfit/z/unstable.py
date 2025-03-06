@@ -1,4 +1,4 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2025 zfit
 from __future__ import annotations
 
 import numpy as np
@@ -52,10 +52,10 @@ def allclose_anyaware(x, y, rtol=1e-5, atol=1e-8):
     return allclose
 
 
-def broadcast_to(input, shape):
-    if not SWITCH_ON or is_tensor(input):
-        return tf.broadcast_to(input, shape)
-    return np.broadcast_to(input, shape)
+def broadcast_to(array, shape):
+    if not SWITCH_ON or is_tensor(array):
+        return znp.broadcast_to(array, shape)
+    return np.broadcast_to(array, shape)
 
 
 def expand_dims(input, axis):

@@ -1,4 +1,4 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2025 zfit
 
 from __future__ import annotations
 
@@ -128,14 +128,14 @@ def numerical_hessian(func: Callable | None, params: Iterable[zfit.Parameter], h
     if hessian == "diag":
         hesse_func = numdifftools.Hessdiag(
             wrapped_func,
-            order=3,
+            order=2,
             # TODO: maybe add step to remove numerical problems?
             base_step=1e-1,
         )
     else:
         hesse_func = numdifftools.Hessian(
             wrapped_func,
-            order=3,
+            order=2,
             base_step=1e-1,
         )
     if tf.executing_eagerly():
@@ -325,7 +325,7 @@ def automatic_value_gradient_hessian(
         else:
             loss, gradients = autodiff_value_gradient(func=func, params=params)
         if hessian == "diag":
-            gradients = tf.unstack(gradients)
+            gradients = znp.unstack(gradients)
             # gradients_tf = znp.stack(gradients)
     if hessian == "diag":
         computed_hessian = znp.stack([tape.gradient(grad, sources=param) for param, grad in zip(params, gradients)])

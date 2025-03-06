@@ -1,4 +1,4 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2025 zfit
 
 from __future__ import annotations
 
@@ -30,7 +30,7 @@ class UniformSampleAndWeights:
             prng = z.random.get_prng()
         rnd_samples = []
         thresholds_unscaled_list = []
-        weights = tf.broadcast_to(z.constant(1.0, shape=(1,)), shape=(n_to_produce,))
+        weights = znp.broadcast_to(1.0, shape=(n_to_produce,))
         n_produced = tf.constant(0, tf.int64)
         for i, space in enumerate(limits):
             lower, upper = space.v0.limits  # TODO: remove new space
@@ -424,7 +424,7 @@ def accept_reject_sample(
             current_sampled = tf.sparse.to_dense(
                 tf.SparseTensor(
                     indices=indices,
-                    values=tf.broadcast_to(input=(True,), shape=(n_accepted,)),
+                    values=znp.broadcast_to(array=(True,), shape=(n_accepted,)),
                     dense_shape=(znp.asarray(n, dtype=tf.int64),),
                 ),
                 default_value=False,

@@ -1,4 +1,4 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2025 zfit
 
 from __future__ import annotations
 
@@ -145,13 +145,11 @@ class CachedPDF(BaseFunctor, SerializableMixin):
                 validate_shape=False,
                 dtype=ztypes.float,
             )
-        x_same = tf.math.reduce_all(znp.abs(x - self._cached_x) < self._cache_tolerance)
+        x_same = znp.all(znp.abs(x - self._cached_x) < self._cache_tolerance)
         pdf_params = list(self.pdfs[0].get_params())
         if hasparams := len(pdf_params) > 0:
             stacked_pdf_params = tf.stack(pdf_params)
-            params_same = tf.math.reduce_all(
-                znp.abs(stacked_pdf_params - self._cached_pdf_params) < self._cache_tolerance
-            )
+            params_same = znp.all(znp.abs(stacked_pdf_params - self._cached_pdf_params) < self._cache_tolerance)
 
             same_args = tf.math.logical_and(params_same, x_same)
         else:
@@ -186,14 +184,12 @@ class CachedPDF(BaseFunctor, SerializableMixin):
             )
 
         stacked_integral_limits = tf.stack(limits.v1.limits)
-        limits_same = tf.math.reduce_all(
-            znp.abs(stacked_integral_limits - self._cached_integral_limits) < self._cache_tolerance
-        )
+        limits_same = znp.all(znp.abs(stacked_integral_limits - self._cached_integral_limits) < self._cache_tolerance)
 
         params = list(self.pdfs[0].get_params(floating=None))
         if hasparams := len(params) > 0:
             stacked_pdf_params = tf.stack(params)
-            params_same = tf.math.reduce_all(
+            params_same = znp.all(
                 znp.abs(stacked_pdf_params - self._cached_pdf_params_for_integration) < self._cache_tolerance
             )
 

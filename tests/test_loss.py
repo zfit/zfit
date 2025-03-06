@@ -1,4 +1,4 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2025 zfit
 import jacobi
 import numpy as np
 import pytest
@@ -7,8 +7,8 @@ import tensorflow as tf
 import zfit.core.basepdf
 import zfit.models.dist_tfp
 import zfit.settings
-from zfit import z
 import zfit.z.numpy as znp
+from zfit import z
 from zfit.core.loss import UnbinnedNLL
 from zfit.core.space import Space
 from zfit.minimize import Minuit
@@ -269,7 +269,7 @@ def test_add():
     assert simult_nll.fit_range == ranges
 
     def eval_constraint(constraints):
-        return z.reduce_sum([c.value() for c in constraints])
+        return znp.sum([c.value() for c in constraints])
 
     assert eval_constraint(simult_nll.constraints) == eval_constraint(merged_contraints)
     assert set(simult_nll.get_params()) == {param1, param2, param3}
@@ -291,8 +291,8 @@ def test_gradients(chunksize, numgrad):
     gauss1 = Gauss(param1, 4, obs=obs1)
     gauss2 = Gauss(param2, 5, obs=obs1)
 
-    data1 = zfit.Data.from_tensor(obs=obs1, tensor=z.constant(1.0, shape=(100,)))
-    data2 = zfit.Data.from_tensor(obs=obs1, tensor=z.constant(1.0, shape=(100,)))
+    data1 = zfit.Data.from_tensor(obs=obs1, tensor=znp.ones(shape=(100,), dtype=znp.float64))
+    data2 = zfit.Data.from_tensor(obs=obs1, tensor=znp.ones(shape=(100,), dtype=znp.float64))
 
     nll = UnbinnedNLL(model=[gauss1, gauss2], data=[data1, data2])
 
@@ -357,7 +357,7 @@ def test_simple_loss():
             )
             + 0.42
         )
-        return tf.reduce_sum(input_tensor=tf.math.log(probs))
+        return znp.sum(znp.log(probs))
 
     with pytest.raises(ValueError):
         _ = zfit.loss.SimpleLoss(func=loss_func, params=param_list)

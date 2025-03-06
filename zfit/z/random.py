@@ -1,4 +1,4 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2025 zfit
 
 from __future__ import annotations
 
@@ -96,7 +96,7 @@ def counts_multinomial(
     total_count = _znp.asarray(total_count, dtype=float_dtype)
 
     # needed since otherwise shape of sample will be (1, n_probs)
-    # total_count = tf.broadcast_to(total_count, shape=probs_logits_shape)
+    # total_count = znp.broadcast_to(total_count, shape=probs_logits_shape)
 
     return _wrapped_multinomial_func(dtype, logits, probs, total_count)
 

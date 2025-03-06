@@ -1,4 +1,4 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2025 zfit
 
 from __future__ import annotations
 
@@ -212,7 +212,7 @@ class TFProbabilityConstraint(ProbabilityConstraint):
     def _value(self):
         array = znp.asarray(self._params_array, ztypes.float)
         value = -self.distribution.log_prob(array)
-        return tf.reduce_sum(value)
+        return znp.sum(value)
 
     def _sample(self, n):
         return self.distribution.sample(n)
