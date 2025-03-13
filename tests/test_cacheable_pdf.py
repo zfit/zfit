@@ -1,4 +1,4 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2025 zfit
 
 import numpy as np
 import pytest
@@ -43,7 +43,7 @@ def test_cached_pdf_equals_pdf_without_cache():
     assert xhashed.hashint is not None
     xunhashed = zfit.data.Data.from_numpy(obs=obs, array=x, use_hash=False)
     assert xunhashed.hashint is None
-    assert tf.math.reduce_all(tf.equal(gauss.pdf(xhashed), cached_gauss.pdf(xhashed)))
+    assert znp.all(tf.equal(gauss.pdf(xhashed), cached_gauss.pdf(xhashed)))
     # hash not yet used inside cached pdf
     # with pytest.raises(ValueError):
     #     _ = gauss.pdf(xunhashed)
@@ -121,9 +121,7 @@ def test_cached_integrate_equals_integrate_without_cache():
     gauss = zfit.pdf.Gauss(mu=mu, sigma=sigma, obs=obs)
     cached_gauss = CachedPDF(gauss)
 
-    assert tf.math.reduce_all(
-        tf.equal(gauss.integrate(limits=obs), cached_gauss.integrate(limits=obs))
-    )
+    assert pytest.approx(gauss.integrate(limits=obs)) == cached_gauss.integrate(limits=obs)
 
 
 def test_integrate_cache_is_used():

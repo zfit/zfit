@@ -1,6 +1,6 @@
 """Example test for a pdf or function."""
 
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2025 zfit
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -265,17 +265,17 @@ def test_conv_2D_simple():
     x_tensor = z.random.uniform((n_points, 2), start, stop)
     x_tensor = znp.reshape(x_tensor, (-1, 2))
     linspace = tf.linspace(start, stop, num=n_points)
-    linspace = tf.transpose(tf.meshgrid(*tf.unstack(linspace, axis=-1)))
+    linspace = tf.transpose(tf.meshgrid(*znp.unstack(linspace, axis=-1)))
     linspace_func = znp.reshape(linspace, (-1, 2))
 
     # linspace_full = tf.linspace((-8, -8), (12, 12), num=n_points)
-    # linspace_full = tf.transpose(tf.meshgrid(*tf.unstack(linspace_full, axis=-1)))
+    # linspace_full = tf.transpose(tf.meshgrid(*znp.unstack(linspace_full, axis=-1)))
     # linspace_full = znp.reshape(linspace_full, (-1, 2))
 
     linspace_kernel = tf.linspace(
         obskernel.v1.lower, obskernel.v1.upper, num=n_points
     )
-    linspace_kernel = tf.transpose(tf.meshgrid(*tf.unstack(linspace_kernel, axis=-1)))
+    linspace_kernel = tf.transpose(tf.meshgrid(*znp.unstack(linspace_kernel, axis=-1)))
     linspace_kernel = znp.reshape(linspace_kernel, (-1, 2))
     # linspace_kernel = obskernel.filter(linspace_full)
     # linspace_func = obs_func.filter(linspace_full)

@@ -1,11 +1,11 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2025 zfit
 from __future__ import annotations
 
 import matplotlib.pyplot as plt
 import pytest
-import tensorflow as tf
 
 import zfit
+import zfit.z.numpy as znp
 
 
 def plot_conv_comparison():
@@ -22,7 +22,7 @@ def plot_conv_comparison():
     conv_lin = zfit.pdf.FFTConvPDFV1(func=func, kernel=gauss1, n=n_points_conv, interpolation="linear")
     conv_spline = zfit.pdf.FFTConvPDFV1(func=func, kernel=gauss1, n=n_points_conv, interpolation="spline")
 
-    x = tf.linspace(-5.0, 3.0, n_point_plotting)
+    x = znp.linspace(-5.0, 3.0, n_point_plotting)
     probs_lin = conv_lin.pdf(x=x)
     probs_spline = conv_spline.pdf(x=x)
 

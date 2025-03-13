@@ -1,4 +1,4 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2025 zfit
 from __future__ import annotations
 
 import warnings
@@ -108,7 +108,7 @@ def unbinned_to_binindex(data, space, flow=False):
     stacked_bins = znp.stack(bins, axis=-1)
     if flow:
         stacked_bins += 1
-        bin_is_nan = tf.math.is_nan(stacked_bins)
+        bin_is_nan = znp.isnan(stacked_bins)
         zeros = znp.zeros_like(stacked_bins)
         binindices = znp.where(bin_is_nan, zeros, stacked_bins)
         stacked_bins = znp.asarray(binindices, dtype=znp.int32)

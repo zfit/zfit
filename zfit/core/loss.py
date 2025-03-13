@@ -136,7 +136,7 @@ def _nll_calc_unbinned_tf(log_probs, weights, log_offset, kahan=False):
     if log_offset is not False:
         log_probs -= log_offset
     if kahan:
-        nll, corr = tfp.math.reduce_kahan_sum(input_tensor=log_probs, axis=0)
+        nll, corr = tfp.math.reduce_kahan_sum(log_probs, axis=0)
     else:
         nll, corr = (znp.sum(log_probs, axis=0), tf.constant(0.0, dtype=log_probs.dtype))
     return -nll, -corr
@@ -1106,7 +1106,7 @@ class UnbinnedNLL(BaseUnbinnedNLL):
             model=model, data=data, fit_range=fit_range, log_offset=log_offset, kahan=kahan
         )
         if constraints:
-            constraints = z.reduce_sum([c.value() for c in constraints])
+            constraints = znp.sum([c.value() for c in constraints])
             nll += constraints
         return nll - nll_corr
 
@@ -1248,7 +1248,7 @@ class ExtendedUnbinnedNLL(BaseUnbinnedNLL):
             model=model, data=data, fit_range=fit_range, log_offset=log_offset, kahan=kahan
         )
         if constraints:
-            constraints = z.reduce_sum([c.value() for c in constraints])
+            constraints = znp.sum([c.value() for c in constraints])
             nll += constraints
 
         yields = []

@@ -1,4 +1,4 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2025 zfit
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ from typing import Callable, Optional
 import numpy as np
 import tensorflow as tf
 
+from ..z import numpy as znp
 from . import tff_types as types
 from .tff_dataclasses import dataclass as tff_dataclass
 
@@ -174,7 +175,7 @@ def _should_stop(state, stopping_policy_fn):
     Returns:
       A boolean value indicating whether the overall search should continue.
     """
-    return tf.convert_to_tensor(stopping_policy_fn(state.finished), name="should_stop", dtype=tf.bool)
+    return znp.array(stopping_policy_fn(state.finished), name="should_stop", dtype=tf.bool)
 
 
 # This is a direct translation of the Brent root-finding method.
@@ -218,7 +219,7 @@ def _brent_loop_body(state, params, constants):
     replace_best_estimate = tf.where(
         finished,
         constants.false,
-        tf.math.abs(value_at_contrapoint) < tf.math.abs(value_at_best_estimate),
+        znp.abs(value_at_contrapoint) < znp.abs(value_at_best_estimate),
     )
 
     last_estimate = tf.where(replace_best_estimate, best_estimate, last_estimate)
@@ -231,9 +232,7 @@ def _brent_loop_body(state, params, constants):
 
     # Compute the tolerance used to control root search at the current position
     # and the step size corresponding to the bisection method.
-    root_tolerance = 0.5 * (
-        params.absolute_root_tolerance + params.relative_root_tolerance * tf.math.abs(best_estimate)
-    )
+    root_tolerance = 0.5 * (params.absolute_root_tolerance + params.relative_root_tolerance * znp.abs(best_estimate))
     bisection_step = 0.5 * (contrapoint - best_estimate)
 
     # Mark the search as finished if either:
@@ -244,9 +243,9 @@ def _brent_loop_body(state, params, constants):
     # both Brent's original algorithm and the SciPy implementation.
     finished |= (
         (num_iterations >= params.max_iterations)
-        | (tf.math.abs(bisection_step) < root_tolerance)
-        | (~tf.math.is_finite(value_at_best_estimate))
-        | (tf.math.abs(value_at_best_estimate) <= params.function_tolerance)
+        | (znp.abs(bisection_step) < root_tolerance)
+        | (~znp.isfinite(value_at_best_estimate))
+        | (znp.abs(value_at_best_estimate) <= params.function_tolerance)
     )
 
     # Determine whether interpolation or extrapolation are worth performing at
@@ -254,8 +253,8 @@ def _brent_loop_body(state, params, constants):
     compute_short_step = tf.where(
         finished,
         constants.false,
-        (root_tolerance < tf.math.abs(step_to_last_estimate))
-        & (tf.math.abs(value_at_best_estimate) < tf.math.abs(value_at_last_estimate)),
+        (root_tolerance < znp.abs(step_to_last_estimate))
+        & (znp.abs(value_at_best_estimate) < znp.abs(value_at_last_estimate)),
     )
 
     short_step = tf.where(
@@ -295,10 +294,10 @@ def _brent_loop_body(state, params, constants):
     # `compute_short_step`.
     use_short_step = tf.where(
         compute_short_step,
-        2 * tf.math.abs(short_step)
+        2 * znp.abs(short_step)
         < tf.minimum(
-            3 * tf.math.abs(bisection_step) - root_tolerance,
-            tf.math.abs(step_to_last_estimate),
+            3 * znp.abs(bisection_step) - root_tolerance,
+            znp.abs(step_to_last_estimate),
         ),
         constants.false,
     )
@@ -313,7 +312,7 @@ def _brent_loop_body(state, params, constants):
         finished,
         constants.zero,
         tf.where(
-            root_tolerance < tf.math.abs(step_to_best_estimate),
+            root_tolerance < znp.abs(step_to_best_estimate),
             step_to_best_estimate,
             tf.where(bisection_step > 0, root_tolerance, -root_tolerance),
         ),
@@ -409,34 +408,34 @@ def _prepare_brent_args(
         `left_bracket` (each denoting whether the search is finished for each
         starting point), and returning a scalar boolean `Tensor` (indicating
         whether the overall search should stop). Typical values are
-        `tf.reduce_all` (which returns only when the search is finished for all
+        `znp.all` (which returns only when the search is finished for all
         pairs of points), and `tf.reduce_any` (which returns as soon as the search
         is finished for any pair of points).
-        Default value: `None` which translates to `tf.reduce_all`.
+        Default value: `None` which translates to `znp.all`.
 
     Returns:
       A tuple of 3 Python objects containing the state, parameters, and constants
       to use for the search.
     """
-    stopping_policy_fn = stopping_policy_fn or tf.reduce_all
+    stopping_policy_fn = stopping_policy_fn or znp.all
     if not callable(stopping_policy_fn):
         msg = "stopping_policy_fn must be callable"
         raise ValueError(msg)
 
-    left_bracket = tf.convert_to_tensor(left_bracket, name="left_bracket")
-    right_bracket = tf.convert_to_tensor(right_bracket, name="right_bracket", dtype=left_bracket.dtype)
+    left_bracket = znp.array(left_bracket, name="left_bracket")
+    right_bracket = znp.array(right_bracket, name="right_bracket", dtype=left_bracket.dtype)
 
     if value_at_left_bracket is None:
         value_at_left_bracket = objective_fn(left_bracket)
     if value_at_right_bracket is None:
         value_at_right_bracket = objective_fn(right_bracket)
 
-    value_at_left_bracket = tf.convert_to_tensor(
+    value_at_left_bracket = znp.array(
         value_at_left_bracket,
         name="value_at_left_bracket",
         dtype=left_bracket.dtype.base_dtype,
     )
-    value_at_right_bracket = tf.convert_to_tensor(
+    value_at_right_bracket = znp.array(
         value_at_right_bracket,
         name="value_at_right_bracket",
         dtype=left_bracket.dtype.base_dtype,
@@ -445,40 +444,39 @@ def _prepare_brent_args(
     if relative_root_tolerance is None:
         relative_root_tolerance = default_relative_root_tolerance(left_bracket.dtype.base_dtype)
 
-    absolute_root_tolerance = tf.convert_to_tensor(
+    absolute_root_tolerance = znp.array(
         absolute_root_tolerance,
         name="absolute_root_tolerance",
         dtype=left_bracket.dtype,
     )
-    relative_root_tolerance = tf.convert_to_tensor(
+    relative_root_tolerance = znp.array(
         relative_root_tolerance,
         name="relative_root_tolerance",
         dtype=left_bracket.dtype,
     )
-    function_tolerance = tf.convert_to_tensor(function_tolerance, name="function_tolerance", dtype=left_bracket.dtype)
+    function_tolerance = znp.array(function_tolerance, name="function_tolerance", dtype=left_bracket.dtype)
 
-    max_iterations = tf.broadcast_to(
-        tf.convert_to_tensor(max_iterations),
-        name="max_iterations",
+    max_iterations = znp.broadcast_to(
+        znp.array(max_iterations),
         shape=left_bracket.shape,
     )
-    num_iterations = tf.zeros_like(max_iterations)
+    num_iterations = znp.zeros_like(max_iterations)
 
     false = tf.constant(False, shape=left_bracket.shape)
 
-    zero = tf.zeros_like(left_bracket)
+    zero = znp.zeros_like(left_bracket)
     contrapoint = zero
     step_to_last_estimate = zero
     step_to_best_estimate = zero
 
-    zero_value = tf.zeros_like(value_at_left_bracket)
+    zero_value = znp.zeros_like(value_at_left_bracket)
     value_at_contrapoint = zero_value
 
     # Select the best root estimates from the inputs.
     # If no search is performed (e.g. `max_iterations` is `zero`), the estimate
     # computed this way will be returned. This differs slightly from the SciPy
     # implementation which always returns the `right_bracket`.
-    swap_positions = tf.math.abs(value_at_left_bracket) < tf.math.abs(value_at_right_bracket)
+    swap_positions = znp.abs(value_at_left_bracket) < znp.abs(value_at_right_bracket)
     best_estimate, last_estimate = _swap_where(swap_positions, right_bracket, left_bracket)
     value_at_best_estimate, value_at_last_estimate = _swap_where(
         swap_positions, value_at_right_bracket, value_at_left_bracket
@@ -489,9 +487,9 @@ def _prepare_brent_args(
     # Brent's original algorithm and the SciPy implementation.
     finished = (
         (num_iterations >= max_iterations)
-        | (~tf.math.is_finite(value_at_last_estimate))
-        | (~tf.math.is_finite(value_at_best_estimate))
-        | (tf.math.abs(value_at_best_estimate) <= function_tolerance)
+        | (~znp.isfinite(value_at_last_estimate))
+        | (~znp.isfinite(value_at_best_estimate))
+        | (znp.abs(value_at_best_estimate) <= function_tolerance)
     )
 
     return (
@@ -601,10 +599,10 @@ def _brent(
         `left_bracket` (each denoting whether the search is finished for each
         starting point), and returning a scalar boolean `Tensor` (indicating
         whether the overall search should stop). Typical values are
-        `tf.reduce_all` (which returns only when the search is finished for all
+        `znp.all` (which returns only when the search is finished for all
         pairs of points), and `tf.reduce_any` (which returns as soon as the search
         is finished for any pair of points).
-        Default value: `None` which translates to `tf.reduce_all`.
+        Default value: `None` which translates to `znp.all`.
       validate_args: Python `bool` indicating whether to validate arguments such
         as `left_bracket`, `right_bracket`, `absolute_root_tolerance`,
         `relative_root_tolerance`, `function_tolerance`, and `max_iterations`.
@@ -648,23 +646,23 @@ def _brent(
         if validate_args:
             assertions += [
                 tf.Assert(
-                    tf.reduce_all(state.value_at_last_estimate * state.value_at_best_estimate <= constants.zero_value),
+                    znp.all(state.value_at_last_estimate * state.value_at_best_estimate <= constants.zero_value),
                     [state.value_at_last_estimate, state.value_at_best_estimate],
                 ),
                 tf.Assert(
-                    tf.reduce_all(params.absolute_root_tolerance > constants.zero),
+                    znp.all(params.absolute_root_tolerance > constants.zero),
                     [params.absolute_root_tolerance],
                 ),
                 tf.Assert(
-                    tf.reduce_all(params.relative_root_tolerance > constants.zero),
+                    znp.all(params.relative_root_tolerance > constants.zero),
                     [params.relative_root_tolerance],
                 ),
                 tf.Assert(
-                    tf.reduce_all(params.function_tolerance >= constants.zero),
+                    znp.all(params.function_tolerance >= constants.zero),
                     [params.function_tolerance],
                 ),
                 tf.Assert(
-                    tf.reduce_all(params.max_iterations >= state.num_iterations),
+                    znp.all(params.max_iterations >= state.num_iterations),
                     [params.max_iterations],
                 ),
             ]
@@ -681,7 +679,7 @@ def _brent(
             )
 
     state = result[0]
-    converged = tf.math.abs(state.value_at_best_estimate) <= function_tolerance
+    converged = znp.abs(state.value_at_best_estimate) <= function_tolerance
 
     return BrentResults(
         estimated_root=state.best_estimate,
@@ -846,10 +844,10 @@ def brentq(
         `left_bracket` (each denoting whether the search is finished for each
         starting point), and returning a scalar boolean `Tensor` (indicating
         whether the overall search should stop). Typical values are
-        `tf.reduce_all` (which returns only when the search is finished for all
+        `znp.all` (which returns only when the search is finished for all
         pairs of points), and `tf.reduce_any` (which returns as soon as the search
         is finished for any pair of points).
-        Default value: `None` which translates to `tf.reduce_all`.
+        Default value: `None` which translates to `znp.all`.
       validate_args: Python `bool` indicating whether to validate arguments such
         as `left_bracket`, `right_bracket`, `absolute_root_tolerance`,
         `relative_root_tolerance`, `function_tolerance`, and `max_iterations`.

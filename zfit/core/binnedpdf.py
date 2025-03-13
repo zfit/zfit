@@ -1,4 +1,4 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2025 zfit
 
 from __future__ import annotations
 
@@ -765,7 +765,7 @@ class BaseBinnedPDF(
             integrals = []  # TODO: map?
             for sub_limits in limits:
                 integrals.append(self._auto_integrate(limits=sub_limits, norm=norm, options=options))
-            integral = z.reduce_sum(integrals, axis=0)  # TODO: remove stack?
+            integral = znp.sum(integrals, axis=0)  # TODO: remove stack?
         return integral
 
     @deprecated_norm_range
@@ -830,7 +830,7 @@ class BaseBinnedPDF(
             integrals = []  # TODO: map?
             for sub_limits in limits:
                 integrals.append(self._auto_integrate(limits=sub_limits, norm=norm, options=options))
-            integral = z.reduce_sum(integrals, axis=0)  # TODO: remove stack?
+            integral = znp.sum(integrals, axis=0)  # TODO: remove stack?
         return integral
 
     @_BinnedPDF_register_check_support(True)
@@ -1443,7 +1443,7 @@ def binned_rect_integration(
         # binareas_uncut = znp.prod(binwidths_unscaled, axis=0)
         binareas /= binareas_uncut
     values_cut *= binareas
-    return tf.reduce_sum(values_cut, axis=axis)
+    return znp.sum(values_cut, axis=axis)
 
 
 @z.function(wraps="tensor", keepalive=True)

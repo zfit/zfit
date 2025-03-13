@@ -1,9 +1,8 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2025 zfit
 from __future__ import annotations
 
-import tensorflow as tf
-
 import zfit
+import zfit.z.numpy as znp
 from zfit import z
 
 
@@ -36,7 +35,7 @@ class CustomPDF2D(zfit.pdf.BasePDF):
         param3 = params["param3"]
 
         # just a fantasy function
-        return param1 * tf.cos(energy**2) + tf.math.log(param2 * momentum**2) + param3
+        return param1 * znp.cos(energy**2) + znp.log(param2 * momentum**2) + param3
 
 
 # add an analytic integral
@@ -51,7 +50,7 @@ def integral_full(limits, norm, params, model):
     param3 = params["param3"]
 
     # calculate the integral here, dummy integral, wrong!
-    return param1 * param2 * param3 + z.reduce_sum([lower, upper])
+    return param1 * param2 * param3 + znp.sum([lower, upper])
 
 
 # define the space over which it is defined. Here, we use the axes
@@ -77,7 +76,7 @@ def integral_axis1(x, limits, norm, params, model):
     upper = z.convert_to_tensor(upper)
 
     # calculate the integral here, dummy integral
-    return data_0**2 * param1 * param2 * param3 + z.reduce_sum([lower, upper])
+    return data_0**2 * param1 * param2 * param3 + znp.sum([lower, upper])
     # notice that the returned shape will be in the same as data_0, e.g. the number of events given in x
 
 

@@ -8,7 +8,7 @@ way of importing:
 >>> import zfit.z.numpy as znp
 """
 
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2025 zfit
 from __future__ import annotations
 
 import numpy as np
@@ -16,6 +16,19 @@ import tensorflow as tf
 from tensorflow.experimental.numpy import *  # noqa: F403
 
 # ruff: noqa: F405
+try:
+    unstack  # noqa: B018
+except NameError:  # unstack is not in the TF numpy api but in the Numpy 2+ API
+    try:
+        import tensorflow as tf
+    except ImportError:
+
+        def unstack(a, axis=0):
+            return moveaxis(a, axis, 0)
+    else:
+        unstack = tf.unstack
+
+concat = concatenate
 
 
 class linalg:

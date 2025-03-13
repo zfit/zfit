@@ -5,7 +5,7 @@ This may has some overhead in the beginning and won't be instantly fast compared
 Copyright (c) 2021 zfit
 """
 
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2025 zfit
 from __future__ import annotations
 
 import numpy as np
@@ -39,7 +39,7 @@ def func(x):
 # @tf.function
 # def func(x):
 #     x = tf.convert_to_tensor(x)  # make sure it's an array
-#     return tf.reduce_sum((x - 0.1) ** 2 + x[1] ** 4)
+#     return znp.sum((x - 0.1) ** 2 + x[1] ** 4)
 
 
 # we can also use a more complicated function instead

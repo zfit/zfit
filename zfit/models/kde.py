@@ -1,4 +1,4 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2025 zfit
 
 from __future__ import annotations
 
@@ -444,7 +444,7 @@ def calc_kernel_probs(size, weights):
     if weights is not None:
         return weights / znp.sum(weights)
     else:
-        return tf.broadcast_to(1 / size, shape=(znp.asarray(size, tf.int32),))
+        return znp.broadcast_to(1 / size, shape=(znp.asarray(size, tf.int32),))
 
 
 class KDEHelper:

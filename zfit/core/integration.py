@@ -1,6 +1,6 @@
 """This module contains functions for the numeric as well as the analytic (partial) integration."""
 
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2025 zfit
 
 from __future__ import annotations
 
@@ -253,7 +253,7 @@ def mc_integrate(
 
         @z.function(wraps="tensor")
         def part_integrate_func(x):  # TODO: improve? as_tensormap or similar?
-            x = dict(zip(data_obs, tf.unstack(x, axis=0)))
+            x = dict(zip(data_obs, znp.unstack(x, axis=0)))
             return mc_integrate(
                 func=func,
                 limits=limits,
@@ -330,7 +330,7 @@ def mc_integrate(
                 if xfixed is not None:
                     shape = tf.shape(samples)[0]
                     xfixed_shaped = {key: znp.broadcast_to(val, shape) for key, val in xfixed.items()}
-                    samples_named = dict(zip(space.obs, tf.unstack(samples, axis=1)))
+                    samples_named = dict(zip(space.obs, znp.unstack(samples, axis=1)))
                     samples_tot = {**samples_named, **xfixed_shaped}
                     obstot, samplestot = zip(*samples_tot.items())
                     samplestot = tf.stack(samplestot, axis=-1)
@@ -395,7 +395,7 @@ def mc_integrate(
                 tf.cond(error > tol, print_none_return, lambda: None)
         integral = avg * znp.asarray(z.convert_to_tensor(space.area()), dtype=avg.dtype)
         integrals.append(integral)
-    integral = z.reduce_sum(integrals, axis=0)
+    integral = znp.sum(integrals, axis=0)
     return znp.atleast_1d(integral)
 
 
