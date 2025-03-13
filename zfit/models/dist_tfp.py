@@ -6,7 +6,7 @@ enough to be easily wrapped.
 Therefore, a convenient wrapper as well as a lot of implementations are provided.
 """
 
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2025 zfit
 from __future__ import annotations
 
 from typing import Literal
@@ -1264,7 +1264,8 @@ class GeneralizedGauss(WrapDistribution, SerializableMixin):
         name: str = "GeneralizedGauss",
         label=None,
     ):
-        """Generalized Gaussian distribution with a mean (mu), a standard deviation (sigma), and a shape parameter (beta).
+        """Generalized Gaussian distribution with a mean (mu), a standard deviation (sigma), and a shape parameter
+        (beta).
 
         The gaussian shape is defined as
 
