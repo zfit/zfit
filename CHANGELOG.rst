@@ -4,8 +4,8 @@ Changelog
 
 .. _newest-changelog:
 
-Develop
-=======
+0.25.0 (14 Mar 2025)
+======================
 
 Major Features and Improvements
 -------------------------------
@@ -14,11 +14,6 @@ Major Features and Improvements
   and ``"effsize"`` (new correction). effsize scales the uncertainties by the "effective size" of the dataset, a significantly
   faster, yet not asymptotically correct method. Useful for a quick estimate of the uncertainties.
 
-Breaking changes
-------------------
-
-Deprecations
--------------
 
 Bug fixes and small changes
 ---------------------------
@@ -32,8 +27,6 @@ Bug fixes and small changes
   Could be reconsidered in the future to provide a "best fit" instead.
 - A simple bug in the LevenbergMarquardt minimizer was fixed that would error due to a wrong return shape of an internal result.
 
-Experimental
-------------
 
 Requirement changes
 -------------------
