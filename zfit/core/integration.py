@@ -5,8 +5,8 @@
 from __future__ import annotations
 
 import collections
-from collections.abc import Callable
-from typing import Iterable, Mapping, Optional
+from collections.abc import Callable, Iterable, Mapping
+from typing import Optional
 
 import numpy as np
 import tensorflow as tf

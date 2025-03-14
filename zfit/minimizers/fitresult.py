@@ -1,4 +1,4 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2025 zfit
 
 from __future__ import annotations
 
@@ -38,6 +38,7 @@ from ..core.interfaces import (
     ZfitIndependentParameter,
     ZfitLoss,
     ZfitParameter,
+    ZfitUnbinnedData,
 )
 from ..core.parameter import set_values
 from ..util.container import convert_to_container
@@ -46,6 +47,7 @@ from ..util.warnings import ExperimentalFeatureWarning
 from ..util.ztyping import ParamsTypeOpt
 from ..z import numpy as znp
 from .errors import (
+    WeightCorr,
     compute_errors,
     covariance_with_weights,
     dict_to_matrix,
@@ -511,20 +513,31 @@ class FitResult(ZfitResult):
     def _input_convert_params(self, params):
         return ParamHolder((p, {"value": v}) for p, v in params.items())
 
-    def _check_get_uncached_params(self, params, method_name, cl):
+    def _check_get_uncached_params(self, params, method_name, cl, weightcorr=None):
         uncached = []
         for p in params:
             errordict = self.params[p].get(method_name)
             # cl is < 1 and gets very close. The closer, the more it matters -> scale tolerance by it
-            if errordict is not None and not math.isclose(errordict["cl"], cl, abs_tol=3e-3 * (1 - cl)):
-                msg = (
-                    f"Error with name {method_name} already exists in {self!r} with a different"
-                    f" convidence level of {errordict['cl']} instead of the requested {cl}."
-                    f" Use a different name."
-                )
-                raise NameError(
-                    msg,
-                )
+            if errordict is not None:
+                if not math.isclose(errordict["cl"], cl, abs_tol=3e-3 * (1 - cl)):
+                    msg = (
+                        f"Error with name {method_name} already exists in {self!r} with a different"
+                        f" convidence level of {errordict['cl']} instead of the requested {cl}."
+                        f" Use a different name."
+                    )
+                    raise NameError(
+                        msg,
+                    )
+                if weightcorr is not None and weightcorr != errordict.get("weightcorr", WeightCorr.FALSE):
+                    msg = (
+                        f"Error with name {method_name} already exists in {self!r} with a different"
+                        f" weight correction of {errordict['weightcorr']} instead of the requested {weightcorr}."
+                        f" Use a different name."
+                    )
+                    raise NameError(
+                        msg,
+                    )
+
             uncached.append(p)
         return uncached
 
@@ -707,8 +720,8 @@ class FitResult(ZfitResult):
                    etc. which can serve as approximations. |@docend:result.init.evaluator|
 
 
-        Returns:
-            ``zfit.minimize.FitResult``: A `FitResult` as if zfit Minuit was used.
+            Returns:
+                ``zfit.minimize.FitResult``: A `FitResult` as if zfit Minuit was used.
         """
         from .minimizer_minuit import Minuit
         from .termination import EDM
@@ -1145,8 +1158,10 @@ class FitResult(ZfitResult):
         self,
         params: ParamsTypeOpt = None,
         method: str | Callable | None = None,
+        *,
         cl: float | None = None,
         name: str | bool | None = None,
+        weightcorr: WeightCorr | None = None,
         # DEPRECATED
         error_name: str | None = None,
     ) -> dict[ZfitIndependentParameter, dict]:
@@ -1158,13 +1173,10 @@ class FitResult(ZfitResult):
         another method, "zfit_error" or "minuit_minos" should be used.
 
         **Weights**
-        Weighted likelihoods are a special class of likelihoods as they are not an actual likelihood. However, the
+        Weighted likelihoods are a special class of likelihoods as they are not an actual likelihood. The
         minimum is still valid, however the profile is not a proper likelihood. Therefore, corrections
-        will be automatically applied to the Hessian uncertainty estimation in order to correct for the effects
-        in the weights. The corrections used are "asymptotically correct" and are described in
-        `Parameter uncertainties in weighted unbinned maximum likelihood fits`<https://doi.org/10.1140/epjc/s10052-022-10254-8>`
-        by Christoph Langenbruch.
-        Since this method uses the jacobian matrix, it takes significantly longer to calculate than witout weights.
+        will be automatically applied to the Hessian uncertainty estimation in order to take the effects
+        of the weights into account. Various corrections are available, some faster, others more correct.
 
 
         Args:
@@ -1172,11 +1184,24 @@ class FitResult(ZfitResult):
                 Hessian symmetric error. If None, use all parameters.
             method: the method to calculate the covariance matrix. Can be
                 {'minuit_hesse', 'hesse_np', 'approx'} or a callable.
-            cl: Confidence level for the error. If None, use the default value of 0.68.
+            cl: Confidence level for the error. If None, use the default value of 0.683.
             name: The name for the error in the dictionary. This will be added to
                 the information collected in params under ``params[p][name]`` where
                 p is a Parameter. If the name is `False`, it won't be added and only
-                returned. Defaulst to `'hesse'`.
+                returned. Defaults to `'hesse'`.
+            weightcorr: |@doc:result.hesse.weightcorr.method| Method to correct the estimation of the covariance matrix/hesse error
+                   for a weighted likelihood. The following methods are available, for a comparison and
+                   the derivation of the methods, see [langenbruch1]_:
+                    - `False`: no correction, the covariance matrix is calculated as if the likelihood
+                      was unweighted. This will generally underestimate the errors.
+                    - `asymptotic`: the covariance matrix is corrected by the asymptotic formula
+                      for the weighted likelihood. This is the default, yet computationally most
+                      expensive method.
+                    - `effsize`: the covariance matrix is corrected by the effective sample size.
+                      This is the fastest method but won't yield asymptotically correct results.
+                    .. [langenbruch1] Langenbruch, C. Parameter uncertainties in weighted unbinned maximum
+                       likelihood fits. Eur. Phys. J. C 82, 393 (2022).
+                       https://doi.org/10.1140/epjc/s10052-022-10254-8 |@docend:result.hesse.weightcorr.method|
 
         Returns:
             Result of the hessian (symmetric) error as dict with each parameter holding
@@ -1211,14 +1236,25 @@ class FitResult(ZfitResult):
                 raise ValueError(msg)
             name = "hesse"
 
+        if weightcorr is None:
+            weightcorr = WeightCorr.ASYMPTOTIC if self.loss.is_weighted else WeightCorr.FALSE
+        else:
+            weightcorr = WeightCorr(weightcorr)
+        if weightcorr != WeightCorr.FALSE and not self.loss.is_weighted:
+            msg = "Weight correction is only available for weighted likelihoods, weightcorr cannot be given."
+            raise ValueError(msg)
+
         with self._input_check_reset_params(params) as checkedparams:
-            uncached_params = self._check_get_uncached_params(params=checkedparams, method_name=name, cl=cl)
+            uncached_params = self._check_get_uncached_params(
+                params=checkedparams, method_name=name, cl=cl, weightcorr=weightcorr
+            )
             if uncached_params:
-                error_dict = self._hesse(params=uncached_params, method=method, cl=cl)
+                error_dict = self._hesse(params=uncached_params, method=method, cl=cl, weightcorr=weightcorr)
                 if any(val["error"] is None for val in error_dict.values()):
                     return {}
                 for p in error_dict:
                     error_dict[p]["cl"] = cl
+                    error_dict[p]["weightcorr"] = weightcorr
                 if name:
                     self._cache_errors(name=name, errors=error_dict)
             else:
@@ -1233,10 +1269,10 @@ class FitResult(ZfitResult):
         for param, error in errors.items():
             self.params[param][name] = error
 
-    def _hesse(self, params, method, cl):
+    def _hesse(self, params, method, cl, weightcorr):
         pseudo_sigma = scipy.stats.chi2(1).ppf(cl) ** 0.5
 
-        covariance_dict = self.covariance(params, method, as_dict=True)
+        covariance_dict = self.covariance(params, method, as_dict=True, weightcorr=weightcorr)
         return {
             p: {
                 "error": (
@@ -1379,6 +1415,8 @@ class FitResult(ZfitResult):
         params: ParamsTypeOpt = None,
         method: str | Callable | None = None,
         as_dict: bool = False,
+        *,
+        weightcorr: WeightCorr = None,
     ):
         """Calculate the covariance matrix for `params`.
 
@@ -1388,6 +1426,19 @@ class FitResult(ZfitResult):
             method: The method to use to calculate the covariance matrix. Valid choices are
                 {'minuit_hesse', 'hesse_np'} or a Callable.
             as_dict: Default `False`. If `True` then returns a dictionnary.
+            weightcorr: |@doc:result.hesse.weightcorr.method| Method to correct the estimation of the covariance matrix/hesse error
+                   for a weighted likelihood. The following methods are available, for a comparison and
+                   the derivation of the methods, see [langenbruch1]_:
+                    - `False`: no correction, the covariance matrix is calculated as if the likelihood
+                      was unweighted. This will generally underestimate the errors.
+                    - `asymptotic`: the covariance matrix is corrected by the asymptotic formula
+                      for the weighted likelihood. This is the default, yet computationally most
+                      expensive method.
+                    - `effsize`: the covariance matrix is corrected by the effective sample size.
+                      This is the fastest method but won't yield asymptotically correct results.
+                    .. [langenbruch1] Langenbruch, C. Parameter uncertainties in weighted unbinned maximum
+                       likelihood fits. Eur. Phys. J. C 82, 393 (2022).
+                       https://doi.org/10.1140/epjc/s10052-022-10254-8 |@docend:result.hesse.weightcorr.method|
 
         Returns:
             2D `numpy.array` of shape (N, N);
@@ -1395,10 +1446,13 @@ class FitResult(ZfitResult):
         """
         if method is None:
             method = self._default_hesse
+        if weightcorr is None:
+            weightcorr = WeightCorr.ASYMPTOTIC
+        weightcorr = WeightCorr(weightcorr)
 
         if method not in self._covariance_dict:
             with self._input_check_reset_params(params) as checkedparams:
-                self._covariance_dict[method] = self._covariance(method=method)
+                self._covariance_dict[method] = self._covariance(method=method, weightcorr=weightcorr)
 
         else:
             checkedparams = self._input_check_params(params)
@@ -1408,7 +1462,7 @@ class FitResult(ZfitResult):
             return covariance
         return dict_to_matrix(checkedparams, covariance)
 
-    def _covariance(self, method):
+    def _covariance(self, method, *, weightcorr: WeightCorr = None):
         if not callable(method):
             if method not in self._hesse_methods:
                 msg = f"The following method is not a valid, implemented method: {method}. Use one of {self._hesse_methods.keys()}"
@@ -1416,8 +1470,10 @@ class FitResult(ZfitResult):
             method = self._hesse_methods[method]
         params = list(self.params.keys())
 
-        if any(isinstance(data, ZfitData) and data.weights is not None for data in self.loss.data):
-            return covariance_with_weights(method=method, result=self, params=params)
+        if (weightcorr != weightcorr.FALSE) and any(
+            isinstance(data, ZfitUnbinnedData) and data.has_weights for data in self.loss.data
+        ):
+            return covariance_with_weights(hinv=method, result=self, params=params, weightcorr=weightcorr)
 
         return method(result=self, params=params)
 

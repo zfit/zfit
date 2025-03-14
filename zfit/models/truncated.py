@@ -1,7 +1,8 @@
 #  Copyright (c) 2024 zfit
 from __future__ import annotations
 
-from typing import Iterable, Literal, Union
+from collections.abc import Iterable
+from typing import Literal, Union
 
 import numpy as np
 import pydantic.v1 as pydantic

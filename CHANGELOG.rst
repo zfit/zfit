@@ -4,7 +4,37 @@ Changelog
 
 .. _newest-changelog:
 
+0.25.0 (14 Mar 2025)
+======================
 
+Major Features and Improvements
+-------------------------------
+- New weighted corrections for Hesse uncertainty calculation. The corrections are now selectable by specifying
+  ``weighcorr=...``, allowing for (currently) three values: ``"asymptotic"`` (current, and default), ``False`` (no correction),
+  and ``"effsize"`` (new correction). effsize scales the uncertainties by the "effective size" of the dataset, a significantly
+  faster, yet not asymptotically correct method. Useful for a quick estimate of the uncertainties.
+
+
+Bug fixes and small changes
+---------------------------
+- allow the usage of ``ZfitData`` objects (binned and unbinned version respectively) in ``update_data`` method of sampler objects
+  ``zfit.data.SamplerData`` and ``zfit.data.BinnedSamplerData``
+  (for example, the objects that are returned by ``create_sampler``)
+- add an attribute ``num_entries`` to the ``Data`` object that returns the number of entries in the data and an attribute ``samplesize`` reflecting the sum of the weights, deprecating the ambiguous ``nevents`` attribute.
+  The former can be used to define the array shape, the latter matters in statistical tests.
+- The EDM calculation was optimized; additionally,it would error if the matrix was singular.
+  The behavior is now changed to return 999'999 in this case.
+  Could be reconsidered in the future to provide a "best fit" instead.
+- A simple bug in the LevenbergMarquardt minimizer was fixed that would error due to a wrong return shape of an internal result.
+
+
+Requirement changes
+-------------------
+- relax TF and TFP requirement to include 2.19 and 0.26, respectively
+
+Thanks
+------
+- @fsouzade for finding a bug in the ``update_data`` method of the sampler objects
 
 
 0.24.3 (6 Jan. 2025)

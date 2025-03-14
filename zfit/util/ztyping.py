@@ -1,15 +1,12 @@
 #  Copyright (c) 2024 zfit
 from __future__ import annotations
 
+from collections.abc import Iterable, Mapping
+
 # ruff: noqa: F821
 from typing import (
     Callable,
-    Dict,
-    Iterable,
-    List,
-    Mapping,
     Optional,
-    Tuple,
     TypeVar,
     Union,
 )
@@ -25,7 +22,7 @@ from tensorflow.python.types.core import TensorLike
 # as documented, such that sphinx will document them.
 from uhi.typing.plottable import PlottableHistogram
 
-LowerTypeInput = Union[tf.Tensor, np.ndarray, Tuple[float], List[float], float]  #:
+LowerTypeInput = Union[tf.Tensor, np.ndarray, tuple[float], list[float], float]  #:
 LowerTypeReturn = Union[np.ndarray, tf.Tensor, None, bool]  #:
 
 UpperTypeInput = LowerTypeInput  #:
@@ -40,31 +37,31 @@ UpperRectTypeReturn = LowerTypeReturn  #:
 
 RectLowerReturnType = Union[np.ndarray, tf.Tensor, float]  #:
 RectUpperReturnType = RectLowerReturnType  #:
-RectLimitsReturnType = Tuple[RectLowerReturnType, RectUpperReturnType]  #:
-RectLimitsTFReturnType = Tuple[tf.Tensor, tf.Tensor]  #:
-RectLimitsNPReturnType = Tuple[np.ndarray, np.ndarray]  #:
+RectLimitsReturnType = tuple[RectLowerReturnType, RectUpperReturnType]  #:
+RectLimitsTFReturnType = tuple[tf.Tensor, tf.Tensor]  #:
+RectLimitsNPReturnType = tuple[np.ndarray, np.ndarray]  #:
 
 RectLimitsInputType = Union[LowerRectTypeInput, UpperRectTypeInput]  #:
 
-LimitsType = Union[Tuple[Tuple[float, ...]], Tuple[float, ...], bool, "zfit.Space"]  #:
-LimitsTypeSimpleInput = Union[Tuple[float, float], bool]  #:
-LimitsTypeInput = Union[Tuple[Tuple[Tuple[float, ...]]], Tuple[float, float], bool]  #:
-LimitsTypeReturn = Union[Tuple[Tuple[Tuple[float, ...]], Tuple[Tuple[float, ...]]], None, bool]  #:
+LimitsType = Union[tuple[tuple[float, ...]], tuple[float, ...], bool, "zfit.Space"]  #:
+LimitsTypeSimpleInput = Union[tuple[float, float], bool]  #:
+LimitsTypeInput = Union[tuple[tuple[tuple[float, ...]]], tuple[float, float], bool]  #:
+LimitsTypeReturn = Union[tuple[tuple[tuple[float, ...]], tuple[tuple[float, ...]]], None, bool]  #:
 
 NumericalType = Union[int, float, np.ndarray, TensorLike]  #:
 LimitsTypeInput = Union["zfit.core.interfaces.ZfitLimit", RectLimitsInputType, bool, None]  #:
 LimitsTypeInputV1 = Union[Iterable[NumericalType], NumericalType, bool, None]  #:
 LimitsFuncTypeInput = Union[LimitsTypeInput, Callable]  #:
-LimitsTypeReturn = Union[Tuple[np.ndarray, np.ndarray], None, bool]  #:
+LimitsTypeReturn = Union[tuple[np.ndarray, np.ndarray], None, bool]  #:
 
-_IterLimitsTypeReturn = Union[Tuple["zfit.Space"], Tuple[Tuple[Tuple[float]]], Tuple[Tuple[float]]]  #:
+_IterLimitsTypeReturn = Union[tuple["zfit.Space"], tuple[tuple[tuple[float]]], tuple[tuple[float]]]  #:
 
 AxesTypeInput = Union[int, Iterable[int]]  #:
-AxesTypeReturn = Union[Tuple[int], None]  #:
+AxesTypeReturn = Union[tuple[int], None]  #:
 
 ObsTypeInput = Union[str, Iterable[str], "zfit.Space"]  #:
-ObsTypeReturn = Union[Tuple[str, ...], None]  #:
-ObsType = Tuple[str]  #:
+ObsTypeReturn = Union[tuple[str, ...], None]  #:
+ObsType = tuple[str]  #:
 
 # Space
 SpaceOrSpacesTypeInput = Union["zfit.Space", Iterable["zfit.Space"]]  #:
@@ -111,9 +108,9 @@ ConstraintsTypeInput = Optional[
 
 # Parameter
 ParamsTypeOpt = Optional[Iterable["zfit.core.interfaces.ZfitParameter"]]  #:
-ParamsNameOpt = Optional[Union[str, List[str]]]  #:
+ParamsNameOpt = Optional[Union[str, list[str]]]  #:
 ParamsOrNameType = Optional[Union[ParamsTypeOpt, Iterable[str]]]  #:
-ParameterType = TypeVar("ParameterType", bound=Dict[str, "zfit.core.interfaces.ZfitParameter"])  #:
+ParameterType = TypeVar("ParameterType", bound=dict[str, "zfit.core.interfaces.ZfitParameter"])  #:
 ParametersType = Iterable[ParameterType]
 ParamTypeInput = TypeVar("ParamTypeInput", "zfit.core.interfaces.ZfitParameter", NumericalScalarType)  #:
 ParamsTypeInput = Mapping[Union[str, "zfit.core.interfaces.ZfitParameter"], ParamTypeInput]  #:
@@ -134,10 +131,10 @@ CacherOrCachersType = Union[
     Iterable["zfit.core.interfaces.ZfitGraphCachable"],
 ]  #:
 
-LimitsDictAxes = Dict[Tuple[int], "zfit.core.interfaces.ZfitLimit"]  #:
-LimitsDictObs = Dict[Tuple[str], "zfit.core.interfaces.ZfitLimit"]  #:
+LimitsDictAxes = dict[tuple[int], "zfit.core.interfaces.ZfitLimit"]  #:
+LimitsDictObs = dict[tuple[str], "zfit.core.interfaces.ZfitLimit"]  #:
 LimitsDictNoCoords = Union[LimitsDictAxes, LimitsDictObs]  #:
-LimitsDictWithCoords = Dict[str, LimitsDictNoCoords]  #:
+LimitsDictWithCoords = dict[str, LimitsDictNoCoords]  #:
 
 BinningTypeInput = Union[Iterable["ZfitBinning"], "ZfitBinning", int]  #:
 OptionsInputType = Optional[Mapping[str, object]]  #:

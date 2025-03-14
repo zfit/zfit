@@ -1,8 +1,9 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2025 zfit
 
 from __future__ import annotations
 
 import warnings
+from enum import Enum
 from typing import TYPE_CHECKING
 
 import jacobi
@@ -38,6 +39,13 @@ class FailEvalLossNaN(Exception):
 class RootFound(Exception):
     """Exception class for cases where a root is found, since SciPy root solvers don't really respect tol or xtol on
     initial evaluation."""
+
+
+# make enum of WeightCorr
+class WeightCorr(Enum):
+    ASYMPTOTIC: str = "asymptotic"
+    EFFSIZE: str = "effsize"  # effective sample size, rescaled by sum(w)/sum(w**2)
+    FALSE: bool = False
 
 
 def compute_errors(
@@ -93,7 +101,6 @@ def compute_errors(
     else:
         msg = "Cannot specify both sigma and cl."
         raise ValueError(msg)
-    # TODO: how to name things, sigma or cl?
 
     params = convert_to_container(params)
     new_result = None
@@ -322,9 +329,31 @@ def autodiff_pdf_jacobian(func, params):
     return z.convert_to_tensor(columns)
 
 
-def covariance_with_weights(method, result, params):
-    """Compute the covariance matrix of the parameters with weights."""
+# TODO: refactor below, extract separate methods
+def covariance_with_weights(hinv, result, params, *, weightcorr: WeightCorr = None):
+    """Compute the covariance matrix of the parameters with weights.
+
+    Args:
+        hinv: The inverse of the Hessian matrix.
+        result: The fit result.
+        params: The parameters for which the covariance matrix is to be calculated.
+        weightcorr: |@doc:result.hesse.weightcorr.method| Method to correct the estimation of the covariance matrix/hesse error
+                   for a weighted likelihood. The following methods are available, for a comparison and
+                   the derivation of the methods, see [langenbruch1]_:
+                    - `False`: no correction, the covariance matrix is calculated as if the likelihood
+                      was unweighted. This will generally underestimate the errors.
+                    - `asymptotic`: the covariance matrix is corrected by the asymptotic formula
+                      for the weighted likelihood. This is the default, yet computationally most
+                      expensive method.
+                    - `effsize`: the covariance matrix is corrected by the effective sample size.
+                      This is the fastest method but won't yield asymptotically correct results.
+                    .. [langenbruch1] Langenbruch, C. Parameter uncertainties in weighted unbinned maximum
+                       likelihood fits. Eur. Phys. J. C 82, 393 (2022).
+                       https://doi.org/10.1140/epjc/s10052-022-10254-8 |@docend:result.hesse.weightcorr.method|
+    """
     from .. import run
+
+    weightcorr = WeightCorr.ASYMPTOTIC if weightcorr is None else WeightCorr(weightcorr)
 
     run.assert_executing_eagerly()
     loss = result.loss
@@ -341,22 +370,38 @@ def covariance_with_weights(method, result, params):
 
     old_vals = np.asarray(params)
 
-    Hinv_dict = method(result=result, params=params)  # inverse of the hessian matrix
+    Hinv_dict = hinv(result=result, params=params)  # inverse of the hessian matrix
     if not Hinv_dict:
         return {}
     Hinv = dict_to_matrix(params, Hinv_dict)
 
+    if weightcorr == WeightCorr.ASYMPTOTIC:
+        corrfactor = 1.0
+    elif weightcorr == WeightCorr.EFFSIZE:
+        allweigths = znp.concatenate(
+            [
+                d.weights if d.has_weights else znp.ones((data.nevents,))  # sum(ones_nevents ** 2) = nevents
+                for d in data
+            ]
+        )
+        corrfactor = znp.sum(allweigths) / znp.sum(allweigths**2)
+        del allweigths
+    else:
+        msg = f"Unknown method {weightcorr}, has to be one of {WeightCorr}"
+        raise ValueError(msg)
+
     def func():
         values = []
+
         for i, (m, d) in enumerate(zip(model, data)):
             v = m.log_pdf(d)
             weights = d.weights
             if weights is not None:
-                v *= weights
+                v *= weights * corrfactor
             values.append(v)
             if yields is not None:
                 yi = yields[i]
-                nevents_collected = tf.reduce_sum(weights) if weights is not None else d.nevents
+                nevents_collected = d.samplesize
                 term_new = tf.nn.log_poisson_loss(nevents_collected, znp.log(yi), compute_full_loss=True)[
                     ..., None
                 ]  # make it an array like the others
@@ -368,28 +413,30 @@ def covariance_with_weights(method, result, params):
         return znp.concatenate(values, axis=0)
 
     params_dict = {p.name: p for p in params}
+    if weightcorr == WeightCorr.ASYMPTOTIC:
+        if run.get_autograd_mode():
+            try:
+                jacobian = autodiff_pdf_jacobian(func=func, params=params_dict)
+            except ValueError as error:
+                msg = (
+                    "The autodiff could not be performed for the jacobian matrix. This can have a natural cause (see error above)"
+                    " or be a bug in the autodiff. In the latter case, you can try to use the numerical jacobian instead using:\n"
+                    "with zfit.run.set_autograd_mode(False):\n"
+                    "    # calculate here, i.e. result.errors()"
+                )
+                raise ValueError(msg) from error
+        else:
 
-    if run.get_autograd_mode():
-        try:
-            jacobian = autodiff_pdf_jacobian(func=func, params=params_dict)
-        except ValueError as error:
-            msg = (
-                "The autodiff could not be performed for the jacobian matrix. This can have a natural cause (see error above)"
-                " or be a bug in the autodiff. In the latter case, you can try to use the numerical jacobian instead using:\n"
-                "with zfit.run.set_autograd_mode(False):\n"
-                "    # calculate here, i.e. result.errors()"
-            )
-            raise ValueError(msg) from error
-    else:
+            def wrapped_func(values):
+                assign_values(list(params_dict.values()), values)
+                return np.array(func())
 
-        def wrapped_func(values):
-            assign_values(list(params_dict.values()), values)
-            return np.array(func())
+            jacobian = numerical_pdf_jacobian(func=wrapped_func, params=params_dict)
 
-        jacobian = numerical_pdf_jacobian(func=wrapped_func, params=params_dict)
-
-    C = znp.matmul(jacobian, znp.transpose(jacobian))
-    covariance = np.asarray(znp.matmul(Hinv, znp.matmul(C, Hinv)))
+        C = znp.matmul(jacobian, znp.transpose(jacobian))
+        covariance = np.asarray(znp.matmul(Hinv, znp.matmul(C, Hinv)))
+    elif weightcorr == WeightCorr.EFFSIZE:
+        covariance = Hinv
     assign_values(params, old_vals)
     return matrix_to_dict(params, covariance)
 

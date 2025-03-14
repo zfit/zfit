@@ -1,4 +1,4 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2025 zfit
 
 from __future__ import annotations
 
@@ -233,8 +233,17 @@ class ZfitData(ZfitDimensional):
 class ZfitUnbinnedData(ZfitData):
     @property
     @abstractmethod
-    def nevents(self) -> int:
+    def num_entries(self) -> int:
         raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def samplesize(self) -> float:
+        raise NotImplementedError
+
+    @property
+    def shape(self) -> tuple:
+        return self.num_entries, self.n_obs
 
     @property
     @abstractmethod
@@ -810,6 +819,11 @@ class ZfitLoss(ZfitObject, metaclass=ABCMeta):
 
     @abstractmethod
     def create_new(self, **kwargs):
+        pass
+
+    @property
+    @abstractmethod
+    def is_weighted(self):
         pass
 
 

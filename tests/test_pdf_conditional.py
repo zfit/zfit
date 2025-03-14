@@ -1,4 +1,4 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2025 zfit
 
 import numpy as np
 import pytest
@@ -42,7 +42,7 @@ def test_conditional_pdf_simple():
         pdf=gauss, cond={mu: muobs}, use_vectorized_map=False
     )
     prob2 = cond_gauss2d.pdf(data2d)
-    assert prob2.shape[0] == data2d.nevents
+    assert prob2.shape[0] == data2d.num_entries
     assert prob2.shape.rank == 1
 
     prob_check2 = np.ones_like(prob2)
@@ -53,7 +53,7 @@ def test_conditional_pdf_simple():
 
     cond_gauss1d = zfit.pdf.ConditionalPDFV1(pdf=gauss, cond={mu: xobs})
     prob1 = cond_gauss1d.pdf(data1d)
-    assert prob1.shape[0] == data1d.nevents
+    assert prob1.shape[0] == data1d.num_entries
     assert prob1.shape.rank == 1
 
     prob_check1 = np.ones_like(prob1)
@@ -66,7 +66,7 @@ def test_conditional_pdf_simple():
         pdf=gauss, cond={mu: muobs, sigma: sigmaobs}
     )
     prob3 = cond_gauss3d.pdf(data3d)
-    assert prob3.shape[0] == data3d.nevents
+    assert prob3.shape[0] == data3d.num_entries
     assert prob3.shape.rank == 1
 
     prob_check3 = np.ones_like(prob3)
@@ -83,9 +83,9 @@ def test_conditional_pdf_simple():
     assert result.valid
 
     integrals2 = cond_gauss2d.integrate(limits=xobs, var=data2d)
-    assert integrals2.shape[0] == data2d.nevents
+    assert integrals2.shape[0] == data2d.num_entries
     assert integrals2.shape.rank == 1
     np.testing.assert_allclose(integrals2, np.ones_like(integrals2), atol=1e-5)
 
-    sample2 = cond_gauss2d.sample(n=data1dmu.nevents, limits=xobs, x=data1dmu)
-    assert sample2.value().shape == (data1dmu.nevents, cond_gauss2d.n_obs)
+    sample2 = cond_gauss2d.sample(n=data1dmu.num_entries, limits=xobs, x=data1dmu)
+    assert sample2.value().shape == (data1dmu.num_entries, cond_gauss2d.n_obs)

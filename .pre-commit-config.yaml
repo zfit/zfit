@@ -65,14 +65,14 @@ repos:
   #        args: [ --py36-plus ]  # TODO: change fro 3.8? type annotations fail...
 
   - repo: https://github.com/asottile/setup-cfg-fmt
-    rev: v2.5.0
+    rev: v2.7.0
     hooks:
       - id: setup-cfg-fmt
         args: [ --max-py-version=3.12, --include-version-classifiers ]
 
   # Notebook formatting
   - repo: https://github.com/nbQA-dev/nbQA
-    rev: 1.8.7
+    rev: 1.9.1
     hooks:
       - id: nbqa-isort
         additional_dependencies: [ isort ]
@@ -89,7 +89,7 @@ repos:
         additional_dependencies: [ setuptools-scm, setuptools-scm-git-archive ]
 
   - repo: https://github.com/kynan/nbstripout
-    rev: 0.7.1
+    rev: 0.8.1
     hooks:
       - id: nbstripout
 
@@ -113,7 +113,7 @@ repos:
 
 
   - repo: https://github.com/python-jsonschema/check-jsonschema
-    rev: 0.29.3
+    rev: 0.30.0
     hooks:
       - id: check-github-workflows
       - id: check-github-actions
@@ -128,7 +128,7 @@ repos:
 
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: "v0.6.9"
+    rev: "v0.8.6"
     hooks:
       - id: ruff
         types_or: [ python, pyi, jupyter ]

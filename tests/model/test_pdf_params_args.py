@@ -1,4 +1,4 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2025 zfit
 import numpy as np
 import pytest
 from pytest_cases import parametrize, fixture
@@ -188,7 +188,7 @@ def test_params_as_args_loss(loss):
     param1 = list(params)[0]
     loss_values = loss.value()
     assert np.isfinite(loss_values)
-    loss_values_params = loss.value(params={param1.name: param1 * 1.1})
+    loss_values_params = loss.value(params={param1.name: param1 * 1.15})
     assert abs(loss_values - loss_values_params) > 0.1
 
 @pytest.mark.parametrize('loss', losses)

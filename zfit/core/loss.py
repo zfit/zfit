@@ -1,4 +1,4 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2025 zfit
 
 from __future__ import annotations
 
@@ -55,7 +55,16 @@ from ..z.math import (
 )
 from .baseobject import BaseNumeric, extract_filter_params
 from .constraint import BaseConstraint
-from .interfaces import ZfitBinnedData, ZfitData, ZfitIndependentParameter, ZfitLoss, ZfitParameter, ZfitPDF, ZfitSpace
+from .interfaces import (
+    ZfitBinnedData,
+    ZfitData,
+    ZfitIndependentParameter,
+    ZfitLoss,
+    ZfitParameter,
+    ZfitPDF,
+    ZfitSpace,
+    ZfitUnbinnedData,
+)
 from .parameter import convert_to_parameters, set_values
 
 DEFAULT_FULL_ARG = True
@@ -238,6 +247,10 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         self._assert_params_unique()
 
     @property
+    def is_weighted(self):
+        return any(data.has_weights for data in self.data if isinstance(data, ZfitUnbinnedData))
+
+    @property
     def is_precompiled(self):
         for data, h in zip(self.data, self._precompiled_hashes):
             if data.hashint != h:
@@ -253,7 +266,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
 
     def _check_init_options(self, options, data):
         try:
-            nevents = sum(d.nevents for d in data)
+            nevents = sum(d.num_entries for d in data)
         except RuntimeError:  # can happen if not yet sampled. What to do? Approx_nevents?
             nevents = 150_000  # sensible default
         options = {} if options is None else copy.copy(options)
@@ -1209,8 +1222,15 @@ class ExtendedUnbinnedNLL(BaseUnbinnedNLL):
                  value of the NLL is meaningless. However,
                  with this switch on, one cannot directly compare
                  different likelihoods absolute value as the constant
-                 may differ! Use
+                 may differ! Use ``create_new`` in order to have a comparable likelihood
+                 between different losses or use the ``full`` argument in the value function
+                 to calculate the full loss with all constants.
 
+
+               These settings may extend over time. In order to make sure that a loss is the
+               same under the same data, make sure to use ``create_new`` instead of instantiating
+               a new loss as the former will automatically overtake any relevant constants
+               and behavior. |@docend:loss.init.options|
         """
         super().__init__(
             model=model,
@@ -1237,8 +1257,7 @@ class ExtendedUnbinnedNLL(BaseUnbinnedNLL):
             if not mod.is_extended:
                 msg = f"The pdf {mod} is not extended but has to be (for an extended fit)"
                 raise NotExtendedPDFError(msg)
-            nevents = dat.n_events if dat.weights is None else z.reduce_sum(dat.weights)
-            nevents = znp.asarray(nevents, tf.float64)
+            nevents = znp.asarray(dat.samplesize, tf.float64)
             nevents_collected.append(nevents)
             yields.append(znp.atleast_1d(mod.get_yield()))
         yields = znp.concatenate(yields, axis=0)

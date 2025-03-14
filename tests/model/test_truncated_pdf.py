@@ -1,4 +1,4 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2025 zfit
 
 import pytest
 
@@ -171,7 +171,7 @@ def test_dynamic_truncated_yield():
     result = minimizer.minimize(nll_simultaneous2)
     result.hesse()
 
-    ntrue = data1.nevents + data2.nevents
+    ntrue = data1.samplesize + data2.samplesize
     assert pytest.approx(result.params[globyield]['value'], abs=0.3) == ntrue
 
     nll_norm = zfit.loss.ExtendedUnbinnedNLL(model=gauss1, data=data)

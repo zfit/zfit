@@ -11,7 +11,7 @@ from zfit.z.random import counts_multinomial, sample_with_replacement
 
 from .util.container import convert_to_container
 
-__all__ = ["poisson", "sample_with_replacement", "counts_multinomial"]
+__all__ = ["counts_multinomial", "poisson", "sample_with_replacement"]
 
 
 def poisson(n=None, pdfs: Iterable[ZfitPDF] | None = None):

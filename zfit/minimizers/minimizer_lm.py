@@ -1,4 +1,4 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2025 zfit
 
 from __future__ import annotations
 
@@ -100,7 +100,6 @@ class LevenbergMarquardt(BaseMinimizer, GraphCachable):
                    certain situations, most notably when encountering
                    NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
             name: |@doc:minimizer.name||@docend:minimizer.name
-
         """
 
         mode = 0 if mode is None else mode
@@ -199,10 +198,10 @@ class LevenbergMarquardt(BaseMinimizer, GraphCachable):
 
         if nostep:
             # use any improvement if a safe improvement could not be found
-            if scary_best[0] is not None:
-                return scary_best
-            msg = "No step found"
-            raise OptimizeStop(msg)
+            if scary_best[0] is None:
+                msg = "No step found"
+                raise OptimizeStop(msg)
+            best = scary_best
         return {"step": best, "hessian": damped_hess, "gradient": grad[:, 0]}
 
     @minimize_supports(init=True)

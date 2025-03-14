@@ -13,12 +13,12 @@ from .core.parameter import (
 )
 
 __all__ = [
+    "ComplexParameter",
+    "ComposedParameter",
     "ConstantParameter",
     "Parameter",
-    "ComposedParameter",
-    "ComplexParameter",
+    "assign_values",
     "convert_to_parameter",
     "convert_to_parameters",
     "set_values",
-    "assign_values",
 ]

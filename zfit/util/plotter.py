@@ -1,7 +1,8 @@
 #  Copyright (c) 2024 zfit
 from __future__ import annotations
 
-from typing import Callable, Mapping, Optional
+from collections.abc import Mapping
+from typing import Callable, Optional
 
 from ..core.interfaces import ZfitPDF
 from ..core.space import convert_to_space

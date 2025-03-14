@@ -1,4 +1,4 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2025 zfit
 
 from __future__ import annotations
 
@@ -176,7 +176,7 @@ class ConditionalPDFV1(BaseFunctor):
     def _single_hook_sample(self, n, limits, x):
         tf.assert_equal(
             n,
-            x.nevents,
+            x.num_entries,
             message="Different number of n requested than x given for " "conditional sampling. Needs to agree",
         )
 
