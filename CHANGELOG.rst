@@ -4,6 +4,33 @@ Changelog
 
 .. _newest-changelog:
 
+
+Develop
+======================
+
+Major Features and Improvements
+-------------------------------
+
+Breaking changes
+------------------
+
+
+Deprecations
+-------------
+
+Bug fixes and small changes
+---------------------------
+
+Experimental
+------------
+
+Requirement changes
+-------------------
+
+Thanks
+------
+
+
 0.25.0 (14 Mar 2025)
 ======================
 
@@ -102,14 +129,6 @@ Bug fixes and small changes
   for left and right) could cause a crash due to some internal caching. This is now fixed.
 - Minimizers have now been renamed without the trailing ``V1``. The old names are still available but will be removed in the future.
 
-Experimental
-------------
-
-Requirement changes
--------------------
-
-Thanks
-------
 
 
 0.22.0 22 Aug 2024
