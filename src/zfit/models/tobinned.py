@@ -38,6 +38,7 @@ class BinnedFromUnbinnedPDF(BaseBinnedFunctorPDF):
         norm: ztyping.NormInputType = None,
         name: str | None = None,
         label: str | None = None,
+        vectorized: bool | None = None,
     ) -> None:
         """Create a binned pdf from an unbinned pdf binning in *space*.
 
@@ -76,6 +77,7 @@ class BinnedFromUnbinnedPDF(BaseBinnedFunctorPDF):
                or label of
                the PDF for a better description, to be used with plots etc.
                Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
+            vectorized
         """
         if vectorized is None:
             vectorized = False
