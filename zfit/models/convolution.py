@@ -203,9 +203,7 @@ class FFTConvPDFV1(BaseFunctor, SerializableMixin):
             interpolation, spline_order = interpolation.split(":")
             spline_order = int(spline_order)
         if interpolation not in (valid_interpolations := ("spline", "linear")):
-            msg = (
-                f"`interpolation` {interpolation} not known. Has to be one " f"of the following: {valid_interpolations}"
-            )
+            msg = f"`interpolation` {interpolation} not known. Has to be one of the following: {valid_interpolations}"
             raise ValueError(msg)
         self._conv_interpolation = interpolation
         self._conv_spline_order = spline_order

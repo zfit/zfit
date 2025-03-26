@@ -840,7 +840,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
             f"<{class_name} "
             f"model={one_two_many([model.name for model in self.model])} "
             f"data={one_two_many([data.name for data in self.data])} "
-            f'constraints={one_two_many(self.constraints, many="True")} '
+            f"constraints={one_two_many(self.constraints, many='True')} "
             f">"
         )
 
@@ -850,7 +850,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
             f"<{class_name}"
             f" model={one_two_many(list(self.model))}"
             f" data={one_two_many(list(self.data))}"
-            f' constraints={one_two_many(self.constraints, many="True")}'
+            f" constraints={one_two_many(self.constraints, many='True')}"
             f">"
         )
 

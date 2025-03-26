@@ -336,7 +336,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         if obs is None:  # for simple limits to convert them
             obs = self.obs
         elif not set(obs).intersection(self.obs):
-            msg = "The given space {obs} is not compatible with the obs of the pdfs{self.obs};" " they are disjoint."
+            msg = "The given space {obs} is not compatible with the obs of the pdfs{self.obs}; they are disjoint."
             raise SpaceIncompatibleError(msg)
         space = convert_to_space(obs=obs, axes=axes, limits=limits)
 
@@ -1218,7 +1218,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
                     axis=0,
                 )
             except AnalyticIntegralNotImplemented:
-                msg = "Cannot autohandle multiple limits as the analytic" " integral is not available."
+                msg = "Cannot autohandle multiple limits as the analytic integral is not available."
                 raise MultipleLimitsNotImplemented(msg) from error
             fracs = sub_integrals / total_integral
             n_samples = tf.unstack(z.random.counts_multinomial(n, probs=fracs), axis=0)
@@ -1331,7 +1331,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         return additional_repr
 
     def __repr__(self):  # TODO(mayou36):repr to baseobject with _repr
-        return "<zfit.{type_name} " " params=[{params}]".format(
+        return "<zfit.{type_name}  params=[{params}]".format(
             type_name=type(self),
             params=", ".join(sorted(str(p.name) for p in self.params.values())),
         )

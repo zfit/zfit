@@ -101,7 +101,7 @@ def multiply_func_func(func1: ZfitFunc, func2: ZfitFunc, name: str = "multiply_f
 
 def multiply_param_func(param: ZfitParameter, func: ZfitFunc) -> ZfitFunc:
     if not (isinstance(param, ZfitParameter) and isinstance(func, ZfitFunc)):
-        msg = "`param` and `func` need to be `ZfitParameter` resp. `ZfitFunc` and not " f"{param}, {func}"
+        msg = f"`param` and `func` need to be `ZfitParameter` resp. `ZfitFunc` and not {param}, {func}"
         raise TypeError(msg)
     from ..models.functions import SimpleFuncV1
 
@@ -173,7 +173,7 @@ def _convert_to_known(object1, object2):
             try:
                 obj = convert_to_parameter(obj)
             except TypeError as error:
-                msg = "Object is neither an instance of ZfitModel nor convertible to a Parameter: " f"{obj}"
+                msg = f"Object is neither an instance of ZfitModel nor convertible to a Parameter: {obj}"
                 raise TypeError(msg) from error
         objects.append(obj)
     object1, object2 = objects
@@ -206,7 +206,7 @@ def add_func_func(func1: ZfitFunc, func2: ZfitFunc, name: str = "add_func_func")
 
 def add_param_func(param: ZfitParameter, func: ZfitFunc) -> ZfitFunc:
     if not (isinstance(param, ZfitParameter) and isinstance(func, ZfitFunc)):
-        msg = "`param` and `func` need to be `ZfitParameter` resp. `ZfitFunc` and not " f"{param}, {func}"
+        msg = f"`param` and `func` need to be `ZfitParameter` resp. `ZfitFunc` and not {param}, {func}"
         raise TypeError(msg)
     msg = "This is not supported. Probably in the future."
     raise NotImplementedError(msg)  # TODO: implement with new parameters

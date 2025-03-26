@@ -73,7 +73,7 @@ class WrapOptimizer(BaseStepMinimizer):
             return super()._minimize(loss, params, init)
         except ValueError as error:
             if "No gradients provided for any variable" in error.args[0]:
-                msg = "Cannot use TF optimizer with" " a numerical gradient (non-TF function)"
+                msg = "Cannot use TF optimizer with a numerical gradient (non-TF function)"
                 raise OperationNotAllowedError(msg) from None
             raise
 

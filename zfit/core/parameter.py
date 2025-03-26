@@ -87,10 +87,7 @@ class OverloadableMixin(ZfitParameter):
         """Utility function for converting a Variable to a Tensor."""
         _ = name
         if dtype and not dtype.is_compatible_with(v.dtype):
-            msg = (
-                f"Incompatible type conversion requested to type '{dtype.name}' for variable "
-                f"of type '{v.dtype.name}'"
-            )
+            msg = f"Incompatible type conversion requested to type '{dtype.name}' for variable of type '{v.dtype.name}'"
             raise ValueError(msg)
         if as_ref:
             return v._ref()  # pylint: disable=protected-access
@@ -648,7 +645,7 @@ class Parameter(
             The sampled value
         """
         if not tf.executing_eagerly():
-            msg = "Randomizing values in a parameter within Graph mode is most probably not" " what is "
+            msg = "Randomizing values in a parameter within Graph mode is most probably not what is "
             raise IllegalInGraphModeError(msg)
         minval = self.lower if minval is None else znp.asarray(minval, dtype=self.dtype)
         maxval = self.upper if maxval is None else znp.asarray(maxval, dtype=self.dtype)
@@ -880,7 +877,7 @@ class BaseComposedParameter(ZfitParameterMixin, OverloadableMixin, BaseParameter
         Args:
             value:
         """
-        msg = "Cannot set value of a composed parameter." " Set the value on its components."
+        msg = "Cannot set value of a composed parameter. Set the value on its components."
         raise LogicalUndefinedOperationError(msg)
 
     def randomize(self, minval=None, maxval=None, sampler=np.random.uniform):  # noqa: ARG002
@@ -1353,7 +1350,7 @@ def convert_to_parameters(
     if all(is_param_already):
         return value
     elif any(is_param_already):
-        msg = f"value has to be either ZfitParameters or values, not mixed (currently)." f" Is {value}."
+        msg = f"value has to be either ZfitParameters or values, not mixed (currently). Is {value}."
         raise ValueError(msg)
     params_dict = {
         "value": value,
@@ -1631,7 +1628,7 @@ def check_convert_param_values_assign(params, values, allow_partial=False):
         raise TypeError(msg)
     non_independent_params = [param for param in params if not param.independent]
     if non_independent_params:
-        msg = f"trying to set value of parameters that are not independent " f"{non_independent_params}"
+        msg = f"trying to set value of parameters that are not independent {non_independent_params}"
         raise ParameterNotIndependentError(msg)
     values = znp.asarray(values, dtype=znp.float64)
     return params, values, False  # if it's empty

@@ -49,10 +49,8 @@ def get_logger(name, stdout_level=None, file_level=None, file_name=None):
         name = "zfit.{}".format(name.rstrip("."))
     if stdout_level is None:
         stdout_level = logging.WARNING
-    format_stream = (
-        "%(asctime)s - %(name)s | " "%(log_color)s%(levelname)-8s%(reset)s | " "%(log_color)s%(message)s%(reset)s"
-    )
-    format_file = "%(asctime)s - %(name)s | " "%(levelname)-8s | " "%(message)s"
+    format_stream = "%(asctime)s - %(name)s | %(log_color)s%(levelname)-8s%(reset)s | %(log_color)s%(message)s%(reset)s"
+    format_file = "%(asctime)s - %(name)s | %(levelname)-8s | %(message)s"
     logger = logging.getLogger(name)
     if not logger.handlers:
         # Add Stream handler

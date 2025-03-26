@@ -76,7 +76,7 @@ class BinnedHolder:
             tf.assert_equal(
                 variances_shape,
                 value_shape,
-                message=f"Variances and values do not have the same shape:" f" {variances_shape} vs {value_shape}",
+                message=f"Variances and values do not have the same shape: {variances_shape} vs {value_shape}",
             )
         if (binning_rank := len(space.binning.edges)) != values_rank:
             msg = f"Values and binning  differ in rank: {values_rank} vs {binning_rank}"
@@ -84,7 +84,7 @@ class BinnedHolder:
         tf.assert_equal(
             edges_shape - 1,
             value_shape,
-            message=f"Edges (minus one) and values do not have the same shape:" f" {edges_shape} vs {value_shape}",
+            message=f"Edges (minus one) and values do not have the same shape: {edges_shape} vs {value_shape}",
         )
 
     @classmethod

@@ -189,13 +189,13 @@ class Ipyopt(BaseMinimizer):
             msg = "Cannot put 'max_iter' into the options. Use `maxiter` instead.`"
             raise ValueError(msg)
         if "limited_memory_update_type" in options:
-            msg = "Cannot put 'limited_memory_update_type' into the options." " Use `hessian` instead.`"
+            msg = "Cannot put 'limited_memory_update_type' into the options. Use `hessian` instead.`"
             raise ValueError(msg)
         if "limited_memory_max_history" in options:
-            msg = "Cannot put 'limited_memory_max_history' into the options." " Use `numcor` instead.`"
+            msg = "Cannot put 'limited_memory_max_history' into the options. Use `numcor` instead.`"
             raise ValueError(msg)
         if "hessian_approximation" in options:
-            msg = "Cannot put 'hessian_approximation' into the options." " Use `hessian` instead.`"
+            msg = "Cannot put 'hessian_approximation' into the options. Use `hessian` instead.`"
             raise ValueError(msg)
         options["limited_memory_max_history"] = maxcor
 
@@ -376,7 +376,7 @@ class Ipyopt(BaseMinimizer):
                 break
 
             # prepare for next run
-            minimizer.set(**{option: "yes" for option in warm_start_options})
+            minimizer.set(**dict.fromkeys(warm_start_options, "yes"))
 
             # update the tolerances
             self._update_tol_inplace(
@@ -388,7 +388,7 @@ class Ipyopt(BaseMinimizer):
             valid_message = f"Invalid, criterion {criterion.name} is {criterion_value}, target {self.tol} not reached."
 
         # cleanup of convergence
-        minimizer.set(**{option: "no" for option in warm_start_options})
+        minimizer.set(**dict.fromkeys(warm_start_options, "no"))
         assign_values(params=params, values=xvalues)
 
         return FitResult.from_ipopt(

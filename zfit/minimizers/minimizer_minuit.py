@@ -117,7 +117,7 @@ class Minuit(BaseMinimizer, GraphCachable):
         """
         # legacy
         if isinstance(mode, float) or isinstance(tol, int):
-            msg = "mode has to be int, tol a float. The API changed, make sure you use the" " right parameters."
+            msg = "mode has to be int, tol a float. The API changed, make sure you use the right parameters."
             raise TypeError(msg)
         if minimizer_options is not None:
             options = minimizer_options
@@ -307,9 +307,9 @@ class Minuit(BaseMinimizer, GraphCachable):
         minimizer.tol = (
             self.tol / 0.002 / loss.errordef  # iminuit multiplies by default with 0.002
         )  # to account for the loss
-        assert (
-            not minimizer_setter
-        ), f"minimizer_setter is not empty, bug. Please report. minimizer_setter: {minimizer_setter}"
+        assert not minimizer_setter, (
+            f"minimizer_setter is not empty, bug. Please report. minimizer_setter: {minimizer_setter}"
+        )
         return minimizer, minimize_options, evaluator
 
     def copy(self):

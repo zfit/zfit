@@ -261,7 +261,7 @@ class BaseMinimizer(ZfitMinimizer):
                 continue  # not wrapped, no support, need no
 
             # if we reach this points, somethings was implemented wrongly
-            msg = f"Method {method_name} has not been correctly wrapped with " f"@minimize_supports "
+            msg = f"Method {method_name} has not been correctly wrapped with @minimize_supports "
             raise MinimizerSubclassingError(msg)
 
     def _check_convert_input(
@@ -364,7 +364,7 @@ class BaseMinimizer(ZfitMinimizer):
         non_floating = [param for param in params if not param.floating]
         if non_floating:  # legacy warning
             warnings.warn(
-                f"CHANGED BEHAVIOR! Non-floating parameters {non_floating} will not be used in the " f"minimization.",
+                f"CHANGED BEHAVIOR! Non-floating parameters {non_floating} will not be used in the minimization.",
                 RuntimeWarning,
                 stacklevel=2,
             )

@@ -260,7 +260,7 @@ class WorkInProgressError(Exception):
 
 class BreakingAPIChangeError(Exception):
     def __init__(self, msg, *args: object) -> None:
-        default_msg = "This item has been removed due to an API change. Instruction to update:\n" ""
+        default_msg = "This item has been removed due to an API change. Instruction to update:\n"
         msg = default_msg + str(msg)
         super().__init__(msg, *args)
 

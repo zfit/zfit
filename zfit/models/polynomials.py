@@ -733,7 +733,7 @@ def func_integral_laguerre(limits, norm, params: dict, model):
 
     # The laguerre shape makes the sum for us. setting the 0th coeff to 0, since no -1 term exists.
     coeffs_laguerre_nup = {
-        f'c_{int(n.split("_", 1)[-1]) + 1}': c for i, (n, c) in enumerate(params.items())
+        f"c_{int(n.split('_', 1)[-1]) + 1}": c for i, (n, c) in enumerate(params.items())
     }  # increase n -> n+1 of naming
     coeffs_laguerre_nup["c_0"] = tf.constant(0.0, dtype=model.dtype)
     coeffs_laguerre_nup = convert_coeffs_dict_to_list(coeffs_laguerre_nup)
