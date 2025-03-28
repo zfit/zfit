@@ -229,12 +229,9 @@ class ZfitData(ZfitDimensional):
     def weights(self):
         raise NotImplementedError
 
-
-class ZfitUnbinnedData(ZfitData):
     @property
-    @abstractmethod
-    def num_entries(self) -> int:
-        raise NotImplementedError
+    def shape(self) -> tuple:
+        return self.num_entries, self.n_obs
 
     @property
     @abstractmethod
@@ -242,9 +239,12 @@ class ZfitUnbinnedData(ZfitData):
         raise NotImplementedError
 
     @property
-    def shape(self) -> tuple:
-        return self.num_entries, self.n_obs
+    @abstractmethod
+    def num_entries(self) -> int:
+        raise NotImplementedError
 
+
+class ZfitUnbinnedData(ZfitData):
     @property
     @abstractmethod
     def has_weights(self):
