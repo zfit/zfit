@@ -133,7 +133,7 @@ class Coordinates(ZfitOrderableDimensional):
                 new_coords = type(self)(obs=obs, axes=self.axes)
             else:
                 if not set(obs).intersection(self.obs):
-                    msg = f"The requested obs {obs} are not compatible with the current obs " f"{self.obs}"
+                    msg = f"The requested obs {obs} are not compatible with the current obs {self.obs}"
                     raise ObsIncompatibleError(msg)
 
                 if frozenset(obs) != frozenset(self.obs):
@@ -205,7 +205,7 @@ class Coordinates(ZfitOrderableDimensional):
                 new_coords = type(self)(obs=self.obs, axes=axes)
             else:
                 if not set(axes).intersection(self.axes):
-                    msg = f"The requested axes {axes} are not compatible with the current axes " f"{self.axes}"
+                    msg = f"The requested axes {axes} are not compatible with the current axes {self.axes}"
                     raise AxesIncompatibleError(msg)
                 if frozenset(axes) != frozenset(self.axes):
                     if not allow_superset and set(axes) - set(self.axes):
@@ -361,8 +361,7 @@ class Coordinates(ZfitOrderableDimensional):
                 raise AssertionError(msg)
         else:
             msg = (
-                "Obs and self.obs or axes and self. axes not properly defined. Can only reorder on defined"
-                " coordinates."
+                "Obs and self.obs or axes and self. axes not properly defined. Can only reorder on defined coordinates."
             )
             raise ValueError(msg)
 

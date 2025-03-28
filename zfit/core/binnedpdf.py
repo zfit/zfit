@@ -1021,7 +1021,7 @@ class BaseBinnedPDF(
         raise RuntimeError(msg)
 
     def create_extended(self, yield_: ztyping.ParamTypeInput) -> ZfitPDF:  # noqa: ARG002
-        msg = "create_extended not available for BinnedPDF. Use `extended` in the initialization" " instead."
+        msg = "create_extended not available for BinnedPDF. Use `extended` in the initialization instead."
         raise WorkInProgressError(msg)
 
     def get_yield(self) -> ZfitParameter | None:
@@ -1056,7 +1056,7 @@ class BaseBinnedPDF(
 
     @classmethod
     def register_inverse_analytic_integral(cls, func: Callable):  # noqa: ARG003
-        msg = "inverse analytic integral not available for BinnedPDF. It's a histogram, it's already " "'analytic'"
+        msg = "inverse analytic integral not available for BinnedPDF. It's a histogram, it's already 'analytic'"
         raise RuntimeError(msg)
 
     @_BinnedPDF_register_check_support(True)
@@ -1101,7 +1101,7 @@ class BaseBinnedPDF(
         if obs is None:  # for simple limits to convert them
             obs = self.obs
         elif not set(obs).intersection(self.obs):
-            msg = "The given space {obs} is not compatible with the obs of the pdfs{self.obs};" " they are disjoint."
+            msg = "The given space {obs} is not compatible with the obs of the pdfs{self.obs}; they are disjoint."
             raise SpaceIncompatibleError(msg)
         space = convert_to_space(obs=obs, axes=axes, limits=limits)
 

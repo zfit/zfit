@@ -173,10 +173,7 @@ class Serializer:
         """
         cls = repr._implementation
         if not issubclass(cls, ZfitSerializable):
-            msg = (
-                f"{cls} is not a subclass of ZfitSerializable. Possible solution: inherit from "
-                f"the SerializableMixin"
-            )
+            msg = f"{cls} is not a subclass of ZfitSerializable. Possible solution: inherit from the SerializableMixin"
             raise TypeError(msg)
 
         if cls not in own_cls.constructor_repr:

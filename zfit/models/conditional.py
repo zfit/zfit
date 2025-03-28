@@ -177,7 +177,7 @@ class ConditionalPDFV1(BaseFunctor):
         tf.assert_equal(
             n,
             x.num_entries,
-            message="Different number of n requested than x given for " "conditional sampling. Needs to agree",
+            message="Different number of n requested than x given for conditional sampling. Needs to agree",
         )
 
         param_x_indices = {p: x.obs.index(p_space.obs[0]) for p, p_space in self._cond.items()}
@@ -204,7 +204,7 @@ class ConditionalPDFV1(BaseFunctor):
         return znp.concatenate([sample_rnd, x_values], axis=-1)
 
     def copy(self, **override_parameters) -> BasePDF:  # noqa: ARG002
-        msg = "Currently copying not possible. " "Use `set_yield` to set a yield inplace."
+        msg = "Currently copying not possible. Use `set_yield` to set a yield inplace."
         raise WorkInProgressError(msg)
 
 

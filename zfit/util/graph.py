@@ -7,7 +7,7 @@ from zfit.util.temporary import TemporarilySet
 
 class JIT:
     def _set_all(self, enable: bool = True):
-        new_values = {k: enable for k in self._get_allowed()}
+        new_values = dict.fromkeys(self._get_allowed(), enable)
 
         def getter():
             return self._get_allowed().copy()

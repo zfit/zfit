@@ -1021,10 +1021,7 @@ class Data(
     def _check_input_data_range(self, data_range):
         data_range = self._convert_sort_space(limits=data_range)
         if frozenset(self.data_range.obs) != frozenset(data_range.obs):
-            msg = (
-                f"Data range has to cover the full observable space {self.data_range.obs}, not "
-                f"only {data_range.obs}"
-            )
+            msg = f"Data range has to cover the full observable space {self.data_range.obs}, not only {data_range.obs}"
             raise ObsIncompatibleError(msg)
         return data_range
 

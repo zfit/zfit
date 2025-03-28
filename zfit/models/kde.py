@@ -746,7 +746,7 @@ class GaussianKDE1DimV1(KDEHelper, WrapDistribution):
             tf.debugging.assert_equal(
                 all_inside,
                 True,
-                message="Not all data points are inside the limits but" " a truncate kernel was chosen.",
+                message="Not all data points are inside the limits but a truncate kernel was chosen.",
             )
 
             def kernel_factory():
