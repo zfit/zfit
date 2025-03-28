@@ -18,7 +18,7 @@ mu = zfit.Parameter("mu", 1.0, -4, 6)
 sigma = zfit.Parameter("sigma", 1.0, 0.1, 10)
 nr = zfit.Parameter("nr", 2, 0, 5)
 alpha = zfit.Parameter("alpha", 1.5, 0, 5)
-n_sig = zfit.Parameter("n_sig", 5000 * 0.3)
+n_sig = zfit.Parameter("n_sig", 5000 * 0.3, stepsize=100)
 doublecb = zfit.pdf.GeneralizedCB(
     mu=mu,
     sigmal=sigma,
@@ -66,7 +66,7 @@ def plot_pdf(title):
 
 
 # set the values to a start value for the fit
-zfit.param.set_values({mu: 0.5, sigma: 1.2, nr: 2.0, alpha: 1.5, lambd: -0.05})
+zfit.param.set_values({mu: 0.5, sigma: 1.2, nr: 2.0, alpha: 1.5, lambd: -0.05, n_sig: 5300, n_bkg: 4500})
 # alternatively, we can set the values with a list/array
 # zfit.param.set_values([mu, sigma, nr, alpha, lambd], [0.5, 1.2, 2.0, 1.5, -0.05])
 
@@ -81,14 +81,11 @@ plot_pdf("before fit")
 result = minimizer.minimize(nll).update_params()
 # do the error calculations, here with hesse, than with minos
 
-param_hesse = result.hesse()
-(
-    param_errors,
-    _,
-) = result.errors()  # this returns a new FitResult if a new minimum was found
 
+param_hesse = result.hesse()
 # this returns a new FitResult if a new minimum was found
 param_errors, _ = result.errors()
+print(result)
 # plot the data and pdf
 plot_pdf("after fit")
 # uncomment to display plots

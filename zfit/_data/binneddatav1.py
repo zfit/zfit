@@ -156,21 +156,34 @@ class BinnedData(
 ):
     USE_HASH = False
 
-    def __init__(self, *, holder, use_hash=None, name: Optional[str] = None, label: Optional[str] = None):
-        """Create a binned data object from a :py:class:`~zfit.core.data.BinnedHolder`.
+    def __init__(
+        self,
+        *,
+        h: BinnedHolder | hist.NamedHist | ZfitBinnedData,
+        use_hash=None,
+        name: Optional[str] = None,
+        label: Optional[str] = None,
+    ):
+        """Create a binned data object from a histogram object.
 
         Prefer to use the constructors ``from_*`` of :py:class:`~zfit.core.data.BinnedData`
         like :py:meth:`~zfit.core.data.BinnedData.from_hist`, :py:meth:`~zfit.core.data.BinnedData.from_tensor`
         or :py:meth:`~zfit.core.data.BinnedData.from_unbinned`.
 
         Args:
-            holder:
+            h: Histogram-like object
         """
         if use_hash is None:
             use_hash = self.USE_HASH
         self._use_hash = use_hash
         self._hashint = None
-        self.holder: BinnedHolder = holder
+        if isinstance(h, hist.Hist):
+            h = BinnedHolder.from_hist(h)
+        elif isinstance(h, BinnedData):
+            h = h.holder
+        elif isinstance(h, ZfitBinnedData):
+            h = BinnedHolder.from_hist(h.to_hist())
+        self.holder: BinnedHolder = h
         self.name = name or "BinnedData"
         self.label = label or self.name
         self._update_hash()
@@ -181,7 +194,7 @@ class BinnedData(
         Args:
             variances: The new variances
         """
-        return type(self)(holder=self.holder.with_variances(variances), name=self.name, label=self.label)
+        return type(self)(h=self.holder.with_variances(variances), name=self.name, label=self.label)
 
     def enable_hashing(self):
         """Enable hashing for this data object if it was disabled.
@@ -232,7 +245,7 @@ class BinnedData(
         elif variances is not None:
             variances = znp.asarray(variances)
         return cls(
-            holder=BinnedHolder(space=space, values=values, variances=variances),
+            h=BinnedHolder(space=space, values=values, variances=variances),
             name=name,
             label=label,
             use_hash=use_hash,
@@ -281,7 +294,7 @@ class BinnedData(
             h: A NamedHist. The axes will be used as the binning in zfit.
         """
         holder = BinnedHolder.from_hist(h)
-        return cls(holder=holder)
+        return cls(h=holder)
 
     def with_obs(self, obs: ztyping.ObsTypeInput) -> BinnedData:
         """Return a subset of the data in the ordering of *obs*.
@@ -289,7 +302,7 @@ class BinnedData(
         Args:
             obs: Which obs to return
         """
-        return BinnedData(holder=self.holder.with_obs(obs), name=self.name, label=self.label)
+        return BinnedData(h=self.holder.with_obs(obs), name=self.name, label=self.label)
         # no subclass, as this allows the sampler to be the same still and not reinitiated
 
     def _update_hash(self):
@@ -336,14 +349,16 @@ class BinnedData(
         binning = binning_to_histaxes(self.holder.space.binning)
         h = hist.Hist(*binning, storage=bh.storage.Weight())
         h.view(flow=flow).value = self.values()  # TODO: flow?
-        h.view(flow=flow).variance = self.variances()  # TODO: flow?
+        if (variances := self.variances()) is not None:
+            h.view(flow=flow).variance = variances  # TODO: flow?
         return h
 
     def _to_boost_histogram_(self):
         binning = binning_to_histaxes(self.holder.space.binning)
         h = bh.Histogram(*binning, storage=bh.storage.Weight())
         h.view(flow=flow).value = self.values()  # TODO: flow?
-        h.view(flow=flow).variance = self.variances()  # TODO: flow?
+        if (variances := self.variances()) is not None:
+            h.view(flow=flow).variance = variances  # TODO: flow?
         return h
 
     @property
@@ -403,8 +418,12 @@ class BinnedData(
         return self.space
 
     @property
-    def num_entries(self):  # TODO: is this needed for histograms? If so, what's the puprose of it?
-        return self.values().shape.num_elements()
+    def num_entries(self):
+        return self.shape.num_elements()
+
+    @property
+    def shape(self):
+        return self.values().shape
 
     @property
     def samplesize(self) -> float:
@@ -467,9 +486,9 @@ class BinnedSamplerData(BinnedData):
 
     def __init__(
         self,
-        dataset: BinnedHolder,
+        h: BinnedHolder | hist.NamedHist | ZfitBinnedData,
         *,
-        sample_and_variances_func: Callable,
+        sample_and_variances_func: Callable | None = None,
         sample_holder: tf.Variable = None,
         variances_holder: tf.Variable = None,
         n: ztyping.NumericalScalarType | Callable = None,
@@ -482,7 +501,7 @@ class BinnedSamplerData(BinnedData):
         Use `from_sampler` to create a `BinnedSampler`.
 
         Args:
-            dataset: The data holder that contains the sample and the variances.
+            h: The data holder that contains the sample and the variances.
             sample_and_variances_func: A function that samples the data and returns the sample and the variances.
             sample_holder: The tensor that holds the sample.
             variances_holder: The tensor that holds the variances.
@@ -492,14 +511,12 @@ class BinnedSamplerData(BinnedData):
             name: The name of the data object.
             label: The label of the data object.
         """
-        super().__init__(holder=dataset, name=name, label=label, use_hash=True)
+        super().__init__(h=h, name=name, label=label, use_hash=True)
         params = convert_param_values(params)
 
         self._initial_resampled = False
 
         self.params = params
-        self._sample_holder = sample_holder
-        self._variances_holder = variances_holder
         self._sample_and_variances_func = sample_and_variances_func
         self.n = n
         self._n_holder = n
@@ -511,7 +528,37 @@ class BinnedSamplerData(BinnedData):
             trainable=False,
             shape=(),
         )
-        self.update_data(dataset.values, variances=dataset.variances)
+        values = self.holder.values
+        variances = self.holder.variances
+        if sample_holder is None:
+            sample_holder = tf.Variable(
+                initial_value=values,
+                dtype=values.dtype,
+                trainable=False,
+                # validate_shape=False,
+                shape=(None,) * self.space.n_obs,
+                name=f"sample_hist_holder_{type(self).get_cache_counting()}",
+            )
+            if variances_holder is not None:
+                msg = "Variances holder must be None if sample holder is None."
+                raise ValueError(msg)
+            if variances is not None:
+                if np.any(variances != 0.0):
+                    variances_holder = tf.Variable(
+                        initial_value=variances,
+                        dtype=variances.dtype,
+                        trainable=False,
+                        # validate_shape=False,
+                        shape=(None,) * self.space.n_obs,
+                        name=f"variances_hist_holder_{type(self).get_cache_counting()}",
+                    )
+                else:
+                    variances_holder = None
+            dataset = BinnedHolder(space=self.space, values=sample_holder, variances=variances_holder)
+            self.holder = dataset
+        self._sample_holder = sample_holder
+        self._variances_holder = variances_holder
+        self.update_data(values, variances=variances)
 
     @property
     @deprecated(None, "Use `params` instead.")
@@ -629,7 +676,7 @@ class BinnedSamplerData(BinnedData):
         dataset = BinnedHolder(space=obs, values=sample_holder, variances=variances_holder)
 
         return cls(
-            dataset=dataset,
+            h=dataset,
             sample_holder=sample_holder,
             sample_and_variances_func=sample_and_variances_func,
             variances_holder=variances_holder,
@@ -658,6 +705,9 @@ class BinnedSamplerData(BinnedData):
             n: the number of samples to produce. If the `SamplerData` was created with
                 anything else then a numerical or tf.Tensor, this can't be used.
         """
+        if self._sample_and_variances_func is None:
+            msg = "No sample function provided on initialisation, cannot resample."
+            raise ValueError(msg)
         if n is None:
             n = self.n
 
@@ -696,11 +746,15 @@ class BinnedSamplerData(BinnedData):
                 raise ValueError(msg)
             variances = sampledata.variances()
         self._sample_holder.assign(sample, read_value=False)
+
         if variances is not None:
-            if self._variances_holder is None:
+            if np.all(variances == 0.0):
+                variances = None
+            elif self._variances_holder is None:
                 msg = "Variances were not initialized, cannot update them."
                 raise ValueError(msg)
-            self._variances_holder.assign(variances, read_value=False)
+            else:
+                self._variances_holder.assign(variances, read_value=False)
         elif self._variances_holder is not None:
             msg = "Variances were initialized, cannot remove them."
             raise ValueError(msg)
