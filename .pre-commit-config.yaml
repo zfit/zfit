@@ -65,7 +65,7 @@ repos:
   #        args: [ --py36-plus ]  # TODO: change fro 3.8? type annotations fail...
 
   - repo: https://github.com/asottile/setup-cfg-fmt
-    rev: v2.7.0
+    rev: v2.8.0
     hooks:
       - id: setup-cfg-fmt
         args: [ --max-py-version=3.12, --include-version-classifiers ]
@@ -128,7 +128,7 @@ repos:
 
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: "v0.11.2"
+    rev: "v0.11.4"
     hooks:
       - id: ruff
         types_or: [ python, pyi, jupyter ]
