@@ -12,6 +12,7 @@ import numpy as np
 
 import zfit
 
+zfit.run.experimental_disable_param_update(True)
 # set everything to numpy mode. This is only needed if we
 # don't use
 zfit.run.set_autograd_mode(False)
@@ -65,3 +66,4 @@ result = minimizer.minimize(func, params)
 # estimate errors
 result.hesse()
 result.errors()
+print(result)

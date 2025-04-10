@@ -62,6 +62,7 @@ def plot_model_pdfV1(
     num: int | None = None,
     full: bool | None = None,
     linestyle=None,
+    label=None,
     plotkwargs=None,
 ):
     """Plot the 1 dimensional density of a model, possibly scaled by the yield if extended.
@@ -129,9 +130,9 @@ def plot_model_pdfV1(
         msg = "ax must be a matplotlib Axes object"
         raise ValueError(msg)
     plotfunc = ax.plot if plotfunc is None else plotfunc
-    if "label" not in plotkwargs and full:
+    if label is None and full:
         plotkwargs["label"] = model.label
-    plotfunc(x, y, linestyle=linestyle, **plotkwargs)
+    plotfunc(x, y, linestyle=linestyle, label=label, **plotkwargs)
     if full:
         ax.set_xlabel(obs.label)
         ylabel = "Probability density" if not extended else "Extended probability density"
@@ -164,6 +165,7 @@ class ZfitPDFPlotter:
         num: int | None = None,
         full: bool | None = None,
         linestyle=None,
+        label=None,
         plotkwargs=None,
     ):
         """Plot the 1 dimensional density of the PDF, possibly scaled by the yield if extended.
@@ -191,6 +193,7 @@ class ZfitPDFPlotter:
             num=num,
             full=full,
             linestyle=linestyle,
+            label=label,
             plotkwargs=plotkwargs,
         )
 

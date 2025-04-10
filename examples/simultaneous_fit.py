@@ -7,6 +7,8 @@ import numpy as np
 
 import zfit
 
+zfit.run.experimental_disable_param_update(True)
+
 obs = zfit.Space("x", -10, 10)
 
 # parameters

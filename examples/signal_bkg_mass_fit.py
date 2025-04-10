@@ -3,6 +3,8 @@ from __future__ import annotations
 
 import zfit
 
+zfit.run.experimental_disable_param_update(True)
+
 # create space
 obs = zfit.Space("x", -10, 10)
 

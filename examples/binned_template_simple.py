@@ -8,6 +8,7 @@ from matplotlib import pyplot as plt
 
 import zfit
 
+zfit.run.experimental_disable_param_update(True)
 # noinspection PyTypeChecker
 histos = []
 for i in range(5):

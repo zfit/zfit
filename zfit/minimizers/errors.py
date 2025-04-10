@@ -397,7 +397,7 @@ def covariance_with_weights(hinv, result, params, *, weightcorr: WeightCorr = No
             v = m.log_pdf(d)
             weights = d.weights
             if weights is not None:
-                v *= weights * corrfactor
+                v *= weights
             values.append(v)
             if yields is not None:
                 yi = yields[i]
@@ -436,7 +436,10 @@ def covariance_with_weights(hinv, result, params, *, weightcorr: WeightCorr = No
         C = znp.matmul(jacobian, znp.transpose(jacobian))
         covariance = np.asarray(znp.matmul(Hinv, znp.matmul(C, Hinv)))
     elif weightcorr == WeightCorr.EFFSIZE:
-        covariance = Hinv
+        covariance = Hinv / corrfactor
+    else:
+        msg = "Should not be here"
+        raise AssertionError(msg)
     assign_values(params, old_vals)
     return matrix_to_dict(params, covariance)
 

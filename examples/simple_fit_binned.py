@@ -5,6 +5,7 @@ import numpy as np
 
 import zfit
 
+zfit.run.experimental_disable_param_update(True)
 # create space
 obs = zfit.Space("x", -2, 3)
 

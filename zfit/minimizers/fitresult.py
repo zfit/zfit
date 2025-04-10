@@ -448,7 +448,7 @@ class FitResult(ZfitResult):
         self._loss = loss
         self._minimizer = minimizer
         self._valid = valid
-        self._covariance_dict = {}
+        self._covariance_dict = collections.defaultdict(dict)
         self._tmp_old_param_values = []
         try:
             fminfull = loss.value(full=True)
@@ -1450,13 +1450,15 @@ class FitResult(ZfitResult):
             weightcorr = WeightCorr.ASYMPTOTIC
         weightcorr = WeightCorr(weightcorr)
 
-        if method not in self._covariance_dict:
+        if method not in (covdict := self._covariance_dict) or weightcorr not in covdict[method]:
             with self._input_check_reset_params(params) as checkedparams:
-                self._covariance_dict[method] = self._covariance(method=method, weightcorr=weightcorr)
+                self._covariance_dict[method][weightcorr] = self._covariance(method=method, weightcorr=weightcorr)
 
         else:
             checkedparams = self._input_check_params(params)
-        covariance = {k: self._covariance_dict[method].get(k) for k in itertools.product(checkedparams, checkedparams)}
+        covariance = {
+            k: self._covariance_dict[method][weightcorr].get(k) for k in itertools.product(checkedparams, checkedparams)
+        }
 
         if as_dict:
             return covariance

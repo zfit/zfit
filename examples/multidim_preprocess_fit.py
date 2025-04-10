@@ -5,6 +5,8 @@ import numpy as np
 
 import zfit
 
+zfit.run.experimental_disable_param_update(True)
+
 # create space
 xobs = zfit.Space("xobs", -4, 4)
 yobs = zfit.Space("yobs", -3, 5)

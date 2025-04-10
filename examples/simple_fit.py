@@ -1,25 +1,30 @@
 #  Copyright (c) 2024 zfit
 from __future__ import annotations
 
-import numpy as np
-
 import zfit
 
-# create space
-obs = zfit.Space("x", -2, 3)
+zfit.run.experimental_disable_param_update(True)
 
-# parameters
-mu = zfit.Parameter("mu", 1.2, -4, 6)
-sigma = zfit.Parameter("sigma", 1.3, 0.5, 10)
+# Create space
+obs = zfit.Space("x", -10, 10)
 
-# model building, pdf creation
+# Define parameters
+mu = zfit.Parameter("mu", 1.0, -4, 6)
+sigma = zfit.Parameter("sigma", 1.0, 0.1, 10)
+
+# Create a PDF
 gauss = zfit.pdf.Gauss(mu=mu, sigma=sigma, obs=obs)
 
-# data
-data = np.random.normal(loc=2.0, scale=3.0, size=10000)
-# we can convert it to a zfit Data object to make sure the data is within the limits or use the space to filter manually
-# data = obs.filter(data)  # works also for pandas DataFrame
-data = zfit.Data(obs=obs, data=data)
+# Explicitly set different parameter values for sampling
+# Instead of using the current parameter values
+sampling_params = {
+    mu: 1.3,  # Slightly different from mu's initial value of 1.0
+    sigma: 1.2,  # Slightly different from sigma's initial value of 1.0
+}
+
+# Sample with explicit parameter values
+data = gauss.sample(n=1000, params=sampling_params)
+
 
 # create NLL
 nll = zfit.loss.UnbinnedNLL(model=gauss, data=data)
