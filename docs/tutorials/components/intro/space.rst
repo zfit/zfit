@@ -18,9 +18,9 @@ handle by the :py:class:`~zfit.Space` class.
 
 .. code-block::
 
-    obs = zfit.Space("x")
+    obs = zfit.Space("x", -10, 10)
     model = zfit.pdf.Gauss(obs=obs, ...)
-    data = zfit.Data.from_numpy(obs=obs, ...)
+    data = zfit.Data(data_array, obs=obs)
 
 Definitions
 -----------
@@ -48,9 +48,8 @@ This correspond for example to the default normalization range ``norm`` or sampl
 
 .. code-block::
 
-
-    obs1 = zfit.Space("x", 0, 1)
-    obs2 = zfit.Space("y", -4, 1)
+    obs1 = zfit.Space("x", 0, 1, label="First obs")
+    obs2 = zfit.Space("y", -4, 1, label="Second obs")
 
 
     model1 = zfit.pdf.Gauss(obs=obs1, ...)
@@ -71,7 +70,7 @@ to be combined with ``product`` has to be specified in the same space.
     # create the space
     combined_obs = obs1 * obs2
 
-    data = zfit.Data.from_numpy(obs=combined_obs, ...)
+    data = zfit.Data(numpy_array, obs=combined_obs)
 
 Now we have a :py:class:`~zfit.Data` object that is defined in the same domain as ``product``
 and can be used to build a loss function.
@@ -82,11 +81,14 @@ Limits
 In many places, just defining the observables is not enough and an interval, specified by its limits, is required.
 Examples are a normalization range, the limits of an integration or sampling in a certain region.
 
-
-
 Using the limits
 '''''''''''''''''
 
-To use the limits of any object, the methods :py:meth:`~zfit.Space.inside`
-(to test if values are inside or outside of the boundaries)
-and :py:meth:`~zfit.Space.filter` can be used.
+To use the limits of any object, access the v1 property:
+
+.. code-block:: python
+
+    lower, upper = obs.v1.limits  # Simplified access to limits with v1
+    lower = obs.v1.lower
+    upper = obs.v1.upper
+    volume = obs.volume  # volume is more intuitive than 'area'

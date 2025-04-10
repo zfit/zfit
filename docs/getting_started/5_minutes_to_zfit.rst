@@ -44,7 +44,7 @@ First, we have to define the parameters of the PDF and their limits using the :p
 .. jupyter-execute::
 
     mu = zfit.Parameter("mu", 2.4, -1, 5)
-    sigma = zfit.Parameter("sigma", 1.3,  0, 5)
+    sigma = zfit.Parameter("sigma", 1.3, 0, 5)
 
 With these parameters we can instantiate the Gaussian PDF from the library
 
@@ -55,8 +55,8 @@ With these parameters we can instantiate the Gaussian PDF from the library
 It is recommended to pass the arguments of the PDF as keyword arguments.
 
 The next stage is to create a dataset to be fitted. There are several ways of producing this within the
-zfit framework (see the :ref:`Data <data-section>` section). In this case, for simplicity we simply produce
-it using numpy and the :func:`Data.from_numpy <zfit.Data.from_numpy>` method:
+zfit framework (see the :ref:`Data <data-section>` section). In this case, for simplicity we directly create
+a Data object:
 
 .. jupyter-execute::
 
@@ -75,11 +75,11 @@ Conceptually this corresponds to three basic steps:
     # Stage 1: create an unbinned likelihood with the given PDF and dataset
     nll = zfit.loss.UnbinnedNLL(model=gauss, data=data)
 
-    # Stage 2: instantiate a minimiser (in this case a basic minuit minimizer)
-    minimizer = zfit.minimize.Minuit()
+    # Stage 2: instantiate a minimizer (in this case a basic minuit minimizer with gradient)
+    minimizer = zfit.minimize.Minuit(gradient="zfit")  # Added gradient
 
     # Stage 3: minimise the given negative likelihood
-    result = minimizer.minimize(nll)
+    result = minimizer.minimize(nll).update_params()  # update default values
 
 This corresponds to the most basic example where the negative likelihood is defined within the pre-determined
 observable range and all the parameters in the PDF are floated in the fit. It is often the case that we want to

@@ -2,12 +2,10 @@ Parameter
 =========
 
 Several objects in zfit, most importantly models, have one or more parameter which typically
-parametrise a function or distribution. There are two different kinds of parameters in zfit:
+parametrize a function or distribution. There are two different kinds of parameters in zfit:
 
 * Independent: can be changed in a fit (or explicitly be set to ``fixed``).
 * Dependent: **cannot** be directly changed but *may* depend on independent parameters.
-
-
 
 Independent Parameter
 ---------------------
@@ -19,9 +17,9 @@ The syntax is as follows:
 
 .. code:: python
 
-    param1 = zfit.Parameter("unique_param_name", start_value[, lower_limit, upper_limit])
+    param1 = zfit.Parameter("unique_param_name", start_value[, lower_limit, upper_limit, label="Human readable name"])
 
-Furthermore, a ``step_size`` can be specified. If not, it is set to a default value around 0.1.
+Furthermore, a ``stepsize`` can be specified. If not, it is set to a default value around 0.1.
 :py:class:`~zfit.Parameter` can have limits (tested with :py:meth:`~zfit.Parameter.has_limits`), which will
 clip the value to the limits given by :py:meth:`~zfit.Parameter.lower_limit` and
 :py:meth:`~zfit.Parameter.upper_limit`.
@@ -47,7 +45,7 @@ parameter evaluated with the new value at run-time:
 
 .. jupyter-execute::
 
-    mu = zfit.Parameter("mu_one", 1)  # no limits, but FLOATING (!)
+    mu = zfit.Parameter("mu_one", 1, label=r"$\mu_1$")  # With label, no limits, but FLOATING
     with mu.set_value(3):
         print(f'before {mu}')
 
