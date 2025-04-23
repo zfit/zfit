@@ -134,12 +134,12 @@ def _solve_interpolation(
 
     d = train_points.shape[-1]
     if d is None:
-        msg = "The dimensionality of the input points (d) must be " "statically-inferrable."
+        msg = "The dimensionality of the input points (d) must be statically-inferrable."
         raise ValueError(msg)
 
     k = train_values.shape[-1]
     if k is None:
-        msg = "The dimensionality of the output values (k) must be " "statically-inferrable."
+        msg = "The dimensionality of the output values (k) must be statically-inferrable."
         raise ValueError(msg)
 
     # First, rename variables so that the notation (c, f, w, v, A, B, etc.)

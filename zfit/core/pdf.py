@@ -44,7 +44,7 @@ class Integration:
     def register_on_object(self, var: ztyping.Variable, func: Callable, overwrite: bool = False):
         var = convert_to_container(var, frozenset)
         if var in self._analytic_integrals and not overwrite:
-            msg = f"An analytic integral for {var} is already registered and 'overwrite' is " f"set to False."
+            msg = f"An analytic integral for {var} is already registered and 'overwrite' is set to False."
             raise ValueError(msg)
         self._analytic_integrals[var] = func
 

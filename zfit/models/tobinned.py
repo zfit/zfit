@@ -76,7 +76,7 @@ class BinnedFromUnbinnedPDF(BaseBinnedFunctorPDF):
         if pdf.is_extended:
             if extended is not None:
                 warn_advanced_feature(
-                    f"PDF {pdf} is already extended, but extended also given {extended}. Will" f" use the given yield.",
+                    f"PDF {pdf} is already extended, but extended also given {extended}. Will use the given yield.",
                     identifier="extend_wrapped_extended",
                 )
             else:

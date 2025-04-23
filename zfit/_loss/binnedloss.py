@@ -529,7 +529,7 @@ def _check_small_counts_chi2(data, ignore_empty):
             msg = f"variances cannot be None for Chi2: {dat}"
             raise ValueError(msg)
         if np.any(variances <= 0) and not ignore_empty:
-            msg = f"Variances of {dat} contains zeros or negative numbers, cannot calculate chi2." f" {variances}"
+            msg = f"Variances of {dat} contains zeros or negative numbers, cannot calculate chi2. {variances}"
             raise ValueError(msg)
         if np.any(smaller_than_six):
             warn_advanced_feature(

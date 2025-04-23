@@ -100,7 +100,6 @@ class LevenbergMarquardt(BaseMinimizer, GraphCachable):
                    certain situations, most notably when encountering
                    NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
             name: |@doc:minimizer.name||@docend:minimizer.name
-
         """
 
         mode = 0 if mode is None else mode

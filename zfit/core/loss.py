@@ -394,7 +394,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
                 log_offset = self._options.get("subtr_const_value")
                 if log_offset is None:
                     run.assert_executing_eagerly()  # first time subtr
-                    nevents_tot = znp.sum([d._approx_nevents for d in self.data])
+                    nevents_tot = znp.sum([d.num_entries for d in self.data])
                     log_offset_sum = (
                         self._call_value(
                             data=self.data,
@@ -840,7 +840,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
             f"<{class_name} "
             f"model={one_two_many([model.name for model in self.model])} "
             f"data={one_two_many([data.name for data in self.data])} "
-            f'constraints={one_two_many(self.constraints, many="True")} '
+            f"constraints={one_two_many(self.constraints, many='True')} "
             f">"
         )
 
@@ -850,7 +850,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
             f"<{class_name}"
             f" model={one_two_many(list(self.model))}"
             f" data={one_two_many(list(self.data))}"
-            f' constraints={one_two_many(self.constraints, many="True")}'
+            f" constraints={one_two_many(self.constraints, many='True')}"
             f">"
         )
 
@@ -1231,7 +1231,6 @@ class ExtendedUnbinnedNLL(BaseUnbinnedNLL):
                same under the same data, make sure to use ``create_new`` instead of instantiating
                a new loss as the former will automatically overtake any relevant constants
                and behavior. |@docend:loss.init.options|
-
         """
         super().__init__(
             model=model,

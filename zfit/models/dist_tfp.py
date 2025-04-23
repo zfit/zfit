@@ -1264,7 +1264,8 @@ class GeneralizedGauss(WrapDistribution, SerializableMixin):
         name: str = "GeneralizedGauss",
         label=None,
     ):
-        """Generalized Gaussian distribution with a mean (mu), a standard deviation (sigma), and a shape parameter (beta).
+        """Generalized Gaussian distribution with a mean (mu), a standard deviation (sigma), and a shape parameter
+        (beta).
 
         The gaussian shape is defined as
 

@@ -324,7 +324,7 @@ class Limit(
                 msg = "If limits_fn is an instance of ZfitLimit, it has to be an instance of Limit (currently)"
                 raise TypeError(msg)
             if rect_limits is not None or n_obs != limit_fn.n_obs:
-                msg = "limits_fn is a ZfitLimit. rect_limits and n_obs must not be specified" "(or n_obs coincide)."
+                msg = "limits_fn is a ZfitLimit. rect_limits and n_obs must not be specified(or n_obs coincide)."
                 raise OverdefinedError(msg)
             limit = limit_fn
 
@@ -390,7 +390,7 @@ class Limit(
             msg = f"Last dimension of lower ({lower_nobs}) and upper ({upper_nobs}) have to coincide."
             raise ShapeIncompatibleError(msg)
         if n_obs is not None and lower_nobs != n_obs:
-            msg = f"Inferred last dimension ({lower_nobs}) does not coincide with " f"given n_obs ({n_obs})"
+            msg = f"Inferred last dimension ({lower_nobs}) does not coincide with given n_obs ({n_obs})"
             raise ShapeIncompatibleError(msg)
 
         if not any(is_range_definition(limit) for limit in (lower, upper)):
@@ -1066,11 +1066,11 @@ class BaseSpace(ZfitSpace, BaseObject):
             self_coord = frozenset(self_coord)
             if coord != self_coord:
                 if not allow_superset and coord.issuperset(self_coord):
-                    msg = f"Superset is not allowed, but {coord} is a superset" f" of {self_coord}"
+                    msg = f"Superset is not allowed, but {coord} is a superset of {self_coord}"
                     raise CoordinatesIncompatibleError(msg)
 
                 if not allow_subset and coord.issubset(self_coord):
-                    msg = f"subset is not allowed, but {coord} is a subset" f" of {self_coord}"
+                    msg = f"subset is not allowed, but {coord} is a subset of {self_coord}"
                     raise CoordinatesIncompatibleError(msg)
 
     def __repr__(self):
@@ -2059,7 +2059,7 @@ class Space(
                 new_space_axes = new_space_axes.with_obs(coords_obs.obs)
             new_space = new_space_axes
         else:
-            msg = f"Neither the axes nor the obs are specified in both objects" f" {self} and {coords}"
+            msg = f"Neither the axes nor the obs are specified in both objects {self} and {coords}"
             raise CoordinatesUnderdefinedError(msg)
 
         return new_space
@@ -2430,9 +2430,7 @@ def combine_spaces(*spaces: Iterable[Space]):
                 # TODO compare limits
                 any_non_equal = any(non_unique_subspaces[0] != space for space in non_unique_subspaces[1:])
                 if any_non_equal:
-                    msg = (
-                        f"Limits in coord {common_coords_non_unique} do not match for spaces" f" {non_unique_subspaces}"
-                    )
+                    msg = f"Limits in coord {common_coords_non_unique} do not match for spaces {non_unique_subspaces}"
                     raise LimitsIncompatibleError(msg)
 
                 non_unique_subspace = non_unique_subspaces[0]
@@ -2681,8 +2679,9 @@ class MultiSpace(BaseSpace):
         obs: ztyping.ObsTypeInput = None,
         binning: ztyping.BinningTypeInput = None,
         axes: ztyping.AxesTypeInput = None,
-        name: str | None = None,  # noqa: ARG003
+        name: str | None = None,
     ) -> Space | MultiSpace:
+        del name
         if binning is not None:
             msg = (
                 "Binning not yet implemented for MultiSpace, won't ever be. Use the new truncated, multidim PDF instead"
@@ -3203,7 +3202,7 @@ def convert_to_space(
                 if not (
                     limits.obs == space.obs or (limits.axes == space.axes and limits.obs is None and space.obs is None)
                 ):
-                    msg = "`obs`/`axes` is a `Space` as well as the `limits`, but the " "obs/axes of them do not match"
+                    msg = "`obs`/`axes` is a `Space` as well as the `limits`, but the obs/axes of them do not match"
                     raise IntentionAmbiguousError(msg)
                 limits = False if limits.limits_are_false else limits.limits
 
@@ -3218,7 +3217,7 @@ def convert_to_space(
             msg = "Limits more sophisticated than 1-dim cannot be auto-created from tuples. Use `Space` instead."
             raise LimitsUnderdefinedError(msg)
         if simple_limits_only and space.has_limits and space._depr_n_limits > 1:
-            msg = "Limits with multiple limits cannot be auto-created" " from tuples. Use `Space` instead."
+            msg = "Limits with multiple limits cannot be auto-created from tuples. Use `Space` instead."
             raise LimitsUnderdefinedError(msg)
     return space
 

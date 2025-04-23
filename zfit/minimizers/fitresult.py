@@ -1393,7 +1393,7 @@ class FitResult(ZfitResult):
 
                 if new_result is not None:
                     msg = "Invalid, a new minimum was found."
-                    self._cache_errors(name=name, errors={p: msg for p in params})
+                    self._cache_errors(name=name, errors=dict.fromkeys(params, msg))
                     self._valid = False
                     self._message = msg
                     new_result._cache_errors(name=name, errors=error_dict)
@@ -1607,7 +1607,7 @@ def format_value(value, highprec=True):
     if isinstance(value, dict) and "error" in value:
         value = value["error"]
         value = f"{value:> 6.2g}"
-        value = f'+/-{" " * (8 - len(value))}' + value
+        value = f"+/-{' ' * (8 - len(value))}" + value
     if isinstance(value, m_error_class) or (isinstance(value, dict) and "lower" in value and "upper" in value):
         if isinstance(value, m_error_class):
             lower = value.lower

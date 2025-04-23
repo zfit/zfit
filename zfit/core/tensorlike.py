@@ -32,10 +32,7 @@ class OverloadableMixin:
         """Utility function for converting a Variable to a Tensor."""
         _ = name
         if dtype and not dtype.is_compatible_with(v.dtype):
-            msg = (
-                f"Incompatible type conversion requested to type '{dtype.name}' for variable "
-                f"of type '{v.dtype.name}'"
-            )
+            msg = f"Incompatible type conversion requested to type '{dtype.name}' for variable of type '{v.dtype.name}'"
             raise ValueError(msg)
         if as_ref:
             return v._ref()  # pylint: disable=protected-access
@@ -104,10 +101,7 @@ class OverloadableMixinValues:
         """Utility function for converting a Variable to a Tensor."""
         _ = name
         if dtype and not dtype.is_compatible_with(v.dtype):
-            msg = (
-                f"Incompatible type conversion requested to type '{dtype.name}' for variable "
-                f"of type '{v.dtype.name}'"
-            )
+            msg = f"Incompatible type conversion requested to type '{dtype.name}' for variable of type '{v.dtype.name}'"
             raise ValueError(msg)
         if as_ref:
             return v._ref()  # pylint: disable=protected-access
