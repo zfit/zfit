@@ -5,7 +5,7 @@ A FunctorBase class is provided to make handling the models easier.
 Their implementation is often non-trivial.
 """
 
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2025 zfit
 
 from __future__ import annotations
 
@@ -16,7 +16,6 @@ from collections.abc import Iterable
 from typing import Literal, Optional
 
 import pydantic.v1 as pydantic
-import tensorflow as tf
 
 import zfit.data
 import zfit.z.numpy as znp
@@ -291,7 +290,7 @@ class SumPDF(BaseFunctor, SerializableMixin):  # TODO: add extended argument
         if isinstance(n, str):
             n = [n] * len(self.pdfs)
         else:
-            n = tf.unstack(counts_multinomial(total_count=n, probs=self.fracs), axis=0)
+            n = znp.unstack(counts_multinomial(total_count=n, probs=self.fracs), axis=0)
 
         samples = []
         for pdf, n_sample in zip(self.pdfs, n):

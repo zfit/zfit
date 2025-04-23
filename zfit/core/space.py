@@ -1,4 +1,4 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2025 zfit
 
 from __future__ import annotations
 
@@ -260,7 +260,7 @@ def _sanitize_x_input(x, n_obs):
         )
         raise ValueError(msg)
     if x.shape.ndims <= 1 and n_obs == 1:
-        x = tf.broadcast_to(x, (1, 1)) if x.shape.ndims == 0 else znp.expand_dims(x, axis=-1)
+        x = znp.broadcast_to(x, (1, 1)) if x.shape.ndims == 0 else znp.expand_dims(x, axis=-1)
     if tf.get_static_value(x.shape[-1]) != n_obs:
         msg = (
             f"n_obs ({n_obs}) and the last dim of x (shape: {x.shape}) do not agree. Assuming x has shape (..., n_obs)"
@@ -551,7 +551,7 @@ class Limit(
             msg = "Cannot call `inside` without limits defined."
             raise LimitsNotSpecifiedError(msg)
         if guarantee_limits and self.has_rect_limits:
-            return tf.broadcast_to(True, x.shape)
+            return znp.broadcast_to(True, x.shape)
         else:
             return self._inside(x, guarantee_limits)
 
@@ -892,7 +892,7 @@ class BaseSpace(ZfitSpace, BaseObject):
         """
         x = _sanitize_x_input(x, n_obs=self.n_obs)
         if self.has_rect_limits and guarantee_limits:
-            return tf.broadcast_to(True, x.shape)
+            return znp.broadcast_to(True, x.shape)
         return self._inside(x, guarantee_limits)
 
     @deprecated(
@@ -2830,7 +2830,7 @@ class MultiSpace(BaseSpace):
 
         Useful, for example, for MC integration.
         """
-        return z.reduce_sum([space._legacy_area() for space in self], axis=0)
+        return znp.sum([space._legacy_area() for space in self], axis=0)
 
     @property
     def rect_limits_are_tensors(self) -> bool:

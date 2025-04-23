@@ -1696,7 +1696,7 @@ def concat_data_obs(datasets, obs, name, label, use_hash):
             weights_new.append(data.weights)
 
     tf.debugging.assert_equal(
-        tf.reduce_all(tf.equal(nevents, nevents[0])),
+        znp.all(tf.equal(nevents, nevents[0])),
         True,
         message=f"Number of events in the datasets {datasets} have to be equal.",
     )

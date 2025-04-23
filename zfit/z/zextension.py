@@ -1,4 +1,4 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2025 zfit
 
 from __future__ import annotations
 
@@ -22,9 +22,8 @@ from ..settings import run, ztypes
 from ..util.warnings import warn_advanced_feature
 
 
-def constant(value, dtype=ztypes.float, shape=None, name="Const", verify_shape=None):
-    del verify_shape
-    return tf.constant(value, dtype=dtype, shape=shape, name=name)
+def constant(value, dtype=ztypes.float):
+    return znp.array(value, dtype=dtype)
 
 
 pi = np.float64(_mt.pi)
@@ -86,7 +85,7 @@ def unstack_x(
     try:
         return value.unstack_x(always_list=always_list)
     except AttributeError:
-        unstacked_x = tf.unstack(value=value, num=num, axis=axis, name=name)
+        unstacked_x = znp.unstack(value=value, num=num, axis=axis, name=name)
     if len(unstacked_x) == 1 and not always_list:
         assert isinstance(unstacked_x, list), (
             "unstacked_x has to be a list, otherwise this is a bug. Please report on github: "

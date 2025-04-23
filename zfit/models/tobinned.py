@@ -1,4 +1,4 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2025 zfit
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -126,7 +126,7 @@ class BinnedFromUnbinnedPDF(BaseBinnedFunctorPDF):
 
         @z.function
         def integrate_one(limits, *, obs=self.obs, pdf=pdf, options=options):
-            low, up = tf.unstack(limits)
+            low, up = znp.unstack(limits)
             limits_space = zfit.Space(obs=obs, limits=[low, up])
             return pdf.integrate(limits_space, norm=False, options=options)
 
@@ -173,7 +173,7 @@ class BinnedFromUnbinnedPDF(BaseBinnedFunctorPDF):
 
             @z.function
             def integrate_one(limits):
-                low, up = tf.unstack(limits)
+                low, up = znp.unstack(limits)
                 limits_space = zfit.Space(obs=self.obs, limits=[low, up])
                 return pdf.ext_integrate(limits_space, norm=False, options=options)
 
@@ -182,7 +182,7 @@ class BinnedFromUnbinnedPDF(BaseBinnedFunctorPDF):
 
             @z.function
             def integrate_one(limits):
-                low, up = tf.unstack(limits)
+                low, up = znp.unstack(limits)
                 limits_space = zfit.Space(obs=self.obs, limits=[low, up])
                 return pdf.integrate(limits_space, norm=False, options=options)
 

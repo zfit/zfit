@@ -1,4 +1,4 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2025 zfit
 """Recurrent polynomials."""
 
 from __future__ import annotations
@@ -229,7 +229,7 @@ def legendre_integral(
                 one_limit_integrals.append(
                     coeff * (polys[degree + 1] - polys[degree - 1]) / (2.0 * (z.convert_to_tensor(degree)) + 1)
                 )
-            return z.reduce_sum(one_limit_integrals, axis=0)
+            return znp.sum(one_limit_integrals, axis=0)
 
         integral = indefinite_integral(upper) - indefinite_integral(lower) + integral_0
         integral = znp.reshape(integral, newshape=())
@@ -472,7 +472,7 @@ def func_integral_chebyshev1(limits, norm, params, model):
                     n_float - 1
                 )
                 one_limit_integrals.append(coeff * integral)
-            return z.reduce_sum(one_limit_integrals, axis=0)
+            return znp.sum(one_limit_integrals, axis=0)
 
         integral += indefinite_integral(upper) - indefinite_integral(lower)
         integral = znp.reshape(integral, newshape=())

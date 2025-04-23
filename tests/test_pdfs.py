@@ -1,4 +1,4 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2025 zfit
 
 from __future__ import annotations
 
@@ -256,15 +256,15 @@ def test_prod_gauss_nd_mixed():
                 ),
             )
         ]
-        return tf.math.reduce_prod(true_prob, axis=0)
+        return znp.prod(true_prob, axis=0)
 
     true_unnormalized_probs = probs_4d(values=test_values)
 
     normalization_probs = limits_4d.volume * probs_4d(
         z.random.uniform(minval=low, maxval=high, shape=(40 ** 4, 4))
     )
-    true_probs = true_unnormalized_probs / tf.reduce_mean(
-        input_tensor=normalization_probs
+    true_probs = true_unnormalized_probs / znp.mean(
+        normalization_probs
     )
     assert pytest.approx(
         1.0, rel=0.33

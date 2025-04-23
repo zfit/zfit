@@ -1,4 +1,4 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2025 zfit
 from __future__ import annotations
 
 from collections.abc import Iterable
@@ -271,7 +271,7 @@ class TruncatedPDF(BaseFunctor, SerializableMixin):
             integrals = znp.concatenate([pdf.integrate(limits=limit, norm=False) for limit in limits])
             fracs = integrals / znp.sum(integrals, axis=0)  # norm
             fracs.set_shape([len(limits)])
-            counts = tf.unstack(z.random.counts_multinomial(n, probs=fracs), axis=0)
+            counts = znp.unstack(z.random.counts_multinomial(n, probs=fracs), axis=0)
         else:
             counts = [n]
         samples = [self.pdfs[0].sample(count, limits=limit).value() for count, limit in zip(counts, limits)]

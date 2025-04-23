@@ -1,4 +1,4 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2025 zfit
 import numpy as np
 import pytest
 import scipy.stats
@@ -20,7 +20,7 @@ def true_nll_gaussian(x, mu, sigma):
     if not len(x) == len(mu) == len(sigma):
         raise ValueError("params, mu and sigma have to have the same length.")
     for x_, mean, sig in zip(x, mu, sigma):
-        constraint += z.reduce_sum(z.square(x_ - mean) / (2.0 * z.square(sig)))
+        constraint += znp.sum(z.square(x_ - mean) / (2.0 * z.square(sig)))
 
     return constraint
 

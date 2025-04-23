@@ -3,7 +3,7 @@
 Handle integration and sampling
 """
 
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2025 zfit
 
 from __future__ import annotations
 
@@ -418,7 +418,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             integrals = []
             for sub_limits in limits:
                 integrals.append(self._call_integrate(limits=sub_limits, norm=norm, options=options))
-            integral = z.reduce_sum(znp.stack(integrals), axis=0)  # TODO: remove stack?
+            integral = znp.sum(znp.stack(integrals), axis=0)  # TODO: remove stack?
         return integral
 
     def _call_integrate(self, limits, norm, options):
@@ -582,7 +582,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             integrals = []
             for sub_limits in limits:
                 integrals.append(self._call_analytic_integrate(limits=sub_limits, norm=norm))
-            integral = z.reduce_sum(znp.stack(integrals), axis=0)
+            integral = znp.sum(znp.stack(integrals), axis=0)
         return integral
 
     def _call_analytic_integrate(self, limits, norm):
@@ -693,7 +693,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             integrals = []
             for sub_limits in limits:
                 integrals.append(self._call_numeric_integrate(limits=sub_limits, norm=norm, options=options))
-            integral = z.reduce_sum(znp.stack(integrals), axis=0)
+            integral = znp.sum(znp.stack(integrals), axis=0)
 
         return integral
 
@@ -782,7 +782,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             integrals = []
             for sub_limit in limits:
                 integrals.append(self._call_partial_integrate(x=x, limits=sub_limit, norm=norm, options=options))
-            integral = z.reduce_sum(znp.stack(integrals), axis=0)
+            integral = znp.sum(znp.stack(integrals), axis=0)
 
         return integral
 
@@ -898,7 +898,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             integrals = []
             for sub_limits in limits:
                 integrals.append(self._call_partial_analytic_integrate(x=x, limits=sub_limits, norm=norm))
-            integral = z.reduce_sum(znp.stack(integrals), axis=0)
+            integral = znp.sum(znp.stack(integrals), axis=0)
 
         return integral
 
@@ -987,7 +987,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             integrals = []
             for sub_limits in limits:
                 integrals.append(self._call_partial_numeric_integrate(x=x, limits=sub_limits, norm=norm))
-            integral = z.reduce_sum(znp.stack(integrals), axis=0)
+            integral = znp.sum(znp.stack(integrals), axis=0)
         return integral
 
     def _call_partial_numeric_integrate(self, x, limits, norm):
@@ -1221,7 +1221,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
                 msg = "Cannot autohandle multiple limits as the analytic integral is not available."
                 raise MultipleLimitsNotImplemented(msg) from error
             fracs = sub_integrals / total_integral
-            n_samples = tf.unstack(z.random.counts_multinomial(n, probs=fracs), axis=0)
+            n_samples = znp.unstack(z.random.counts_multinomial(n, probs=fracs), axis=0)
 
             samples = []
             for limit, n_sample in zip(limits, n_samples):

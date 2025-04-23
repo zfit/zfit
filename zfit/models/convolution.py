@@ -1,4 +1,4 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2025 zfit
 from __future__ import annotations
 
 from typing import Literal, Optional, Union
@@ -315,12 +315,12 @@ class FFTConvPDFV1(BaseFunctor, SerializableMixin):
         nbins_kernel = self._conv_limits["nbins_kernel"]
         x_kernels = tf.linspace(lower_kernel, upper_kernel, znp.asarray(nbins_kernel, tf.int32))
 
-        x_func = tf.meshgrid(*tf.unstack(x_funcs, axis=-1), indexing="ij")
+        x_func = tf.meshgrid(*znp.unstack(x_funcs, axis=-1), indexing="ij")
         x_func = znp.transpose(x_func)
         x_func_flatish = znp.reshape(x_func, (-1, self.n_obs))
         data_func = Data.from_tensor(tensor=x_func_flatish, obs=self.obs)
 
-        x_kernel = tf.meshgrid(*tf.unstack(x_kernels, axis=-1), indexing="ij")
+        x_kernel = tf.meshgrid(*znp.unstack(x_kernels, axis=-1), indexing="ij")
         x_kernel = znp.transpose(x_kernel)
         x_kernel_flatish = znp.reshape(x_kernel, (-1, self.n_obs))
         data_kernel = Data.from_tensor(tensor=x_kernel_flatish, obs=self.obs)

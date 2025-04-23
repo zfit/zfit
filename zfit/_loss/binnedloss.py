@@ -1,4 +1,4 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2025 zfit
 
 from __future__ import annotations
 
@@ -321,7 +321,7 @@ class ExtendedBinnedNLL(BaseBinned):
                 0.0 if log_offset is False else log_offset
             )  # we need to check identity, cannot do runtime conditional if jitted
             log_offset_val = znp.asarray(log_offset_val, dtype=znp.float64)
-            constraints = z.reduce_sum([c.value() - log_offset_val * len(c.get_params()) for c in constraints])
+            constraints = znp.sum([c.value() - log_offset_val * len(c.get_params()) for c in constraints])
             nll += constraints
 
         return nll
@@ -470,7 +470,7 @@ class BinnedNLL(BaseBinned):
                 0.0 if log_offset is False else log_offset
             )  # we need to check identity, cannot do runtime conditional if jitted
             log_offset_val = znp.asarray(log_offset_val, dtype=znp.float64)
-            constraints = z.reduce_sum([c.value() - log_offset_val * len(c.get_params()) for c in constraints])
+            constraints = znp.sum([c.value() - log_offset_val * len(c.get_params()) for c in constraints])
             nll += constraints
 
         return nll
@@ -681,7 +681,7 @@ class BinnedChi2(BaseBinned):
         chi2_term = znp.sum(chi2_terms)
 
         if constraints:
-            constraints = z.reduce_sum([c.value() - log_offset_val for c in constraints])
+            constraints = znp.sum([c.value() - log_offset_val for c in constraints])
             chi2_term += constraints
 
         return chi2_term
@@ -834,7 +834,7 @@ class ExtendedBinnedChi2(BaseBinned):
         chi2_term = znp.sum(chi2_terms)
 
         if constraints:
-            constraints = z.reduce_sum([c.value() - log_offset_val for c in constraints])
+            constraints = znp.sum([c.value() - log_offset_val for c in constraints])
             chi2_term += constraints
 
         return chi2_term
