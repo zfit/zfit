@@ -14,4 +14,5 @@ tmp/*
 /utils/ci/.test_examples_env/
 /utils/ci/.test_docs_env/
 /.junie/
+/examples/plots/
 /src/zfit/_version.py
