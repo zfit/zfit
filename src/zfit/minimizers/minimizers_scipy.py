@@ -204,6 +204,9 @@ class ScipyBaseMinimizer(BaseMinimizer):
         if cls._VALID_SCIPY_HESSIAN is not None:
             cls._VALID_SCIPY_HESSIAN = ScipyBaseMinimizer._VALID_SCIPY_HESSIAN.copy()
 
+    def _arguments_supports_bounds(self):
+        return True  # A false positive will only trigger a warning
+
     @minimize_supports(init=True)
     def _minimize(self, loss, params, init: FitResult):
         if init:
@@ -217,7 +220,8 @@ class ScipyBaseMinimizer(BaseMinimizer):
 
         minimizer_options = self.minimizer_options.copy()
 
-        minimizer_options["bounds"] = limits
+        if self._arguments_supports_bounds():
+            minimizer_options["bounds"] = limits
 
         eval_func = evaluator.value
 
@@ -630,7 +634,7 @@ class ScipyBFGS(ScipyBaseMinimizer):
             minimizer_options["options"] = options
 
         def verbosity_setter(options, verbosity):
-            options["disp"] = bool(verbosity - 6) >= 0  # start printing at 6
+            options["disp"] = verbosity - 6 >= 0  # start printing at 6
             return options
 
         scipy_tols = {
@@ -644,7 +648,7 @@ class ScipyBFGS(ScipyBaseMinimizer):
                 hess_inv0 = init.approx.inv_hessian()
             elif stepsize is not None:
                 hess_inv0 = np.diag(np.array(stepsize) ** 2)
-            if False:
+            if False:  # HACK
                 options["hess_inv0"] = hess_inv0
             return options
 
@@ -663,6 +667,9 @@ class ScipyBFGS(ScipyBaseMinimizer):
             criterion=criterion,
             name=name,
         )
+
+    def _arguments_supports_bounds(self):
+        return False
 
 
 ScipyBFGS._add_derivative_methods(
@@ -804,6 +811,9 @@ class ScipyTrustKrylov(ScipyBaseMinimizer):
             criterion=criterion,
             name=name,
         )
+
+    def _arguments_supports_bounds(self):
+        return False  # A false positive will only trigger a warning
 
 
 ScipyTrustKrylov._add_derivative_methods(
@@ -971,6 +981,9 @@ class ScipyTrustNCG(ScipyBaseMinimizer):
             criterion=criterion,
             name=name,
         )
+
+    def _arguments_supports_bounds(self):
+        return False  # A false positive will only trigger a warning
 
 
 ScipyTrustNCG._add_derivative_methods(
@@ -1325,6 +1338,9 @@ class ScipyNewtonCG(ScipyBaseMinimizer):
             name=name,
         )
 
+    def _arguments_supports_bounds(self):
+        return False  # A false positive will only trigger a warning
+
 
 ScipyNewtonCG._add_derivative_methods(
     gradient=[
@@ -1495,9 +1511,9 @@ class ScipyDogleg(ScipyBaseMinimizer):
     def __init__(
         self,
         tol: float | None = None,
-        init_trust_radius: int | None = None,
+        init_trust_radius: int | float | None = None,
         eta: float | None = None,
-        max_trust_radius: int | None = None,
+        max_trust_radius: int | float | None = None,
         verbosity: int | None = None,
         maxiter: int | str | None = None,
         criterion: ConvergenceCriterion | None = None,
@@ -1548,7 +1564,7 @@ class ScipyDogleg(ScipyBaseMinimizer):
         """
         options = {}
         if init_trust_radius is not None:
-            options["initial_tr_radius"] = init_trust_radius
+            options["initial_trust_radius"] = init_trust_radius
         if eta is not None:
             options["eta"] = eta
         if max_trust_radius is not None:
@@ -1573,6 +1589,9 @@ class ScipyDogleg(ScipyBaseMinimizer):
             criterion=criterion,
             name=name,
         )
+
+    def _arguments_supports_bounds(self):
+        return False
 
 
 ScipyDogleg._add_derivative_methods(gradient=["zfit"], hessian=["zfit"])

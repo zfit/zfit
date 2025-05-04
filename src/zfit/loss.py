@@ -7,6 +7,7 @@ from ._loss.binnedloss import (
     ExtendedBinnedChi2,
     ExtendedBinnedNLL,
 )
+from .core.interfaces import ZfitLoss
 from .core.loss import BaseLoss, ExtendedUnbinnedNLL, SimpleLoss, UnbinnedNLL
 
 __all__ = [
@@ -19,4 +20,5 @@ __all__ = [
     "ExtendedUnbinnedNLL",
     "SimpleLoss",
     "UnbinnedNLL",
+    "ZfitLoss",
 ]
