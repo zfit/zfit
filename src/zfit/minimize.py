@@ -9,7 +9,13 @@ from .minimizers.baseminimizer import (
     minimize_supports,
 )
 from .minimizers.ipopt import Ipyopt
-from .minimizers.minimizer_lm import LevenbergMarquardt
+from .minimizers.minimizer_lm import (
+    AdvancedLevenbergMarquardt,
+    EnhancedLevenbergMarquardt,
+    EnhancedLevenbergMarquardt2,
+    JittableLevenbergMarquardt,
+    LevenbergMarquardt,
+)
 from .minimizers.minimizer_minuit import Minuit
 from .minimizers.minimizer_nlopt import (
     NLoptBaseMinimizer,
@@ -83,11 +89,14 @@ BaseMinimizerV1 = BaseMinimizer
 __all__ = [
     "EDM",
     "Adam",
+    "AdvancedLevenbergMarquardt",
     "BaseMinimizer",
     "DefaultStrategy",
     "DefaultToyStrategy",
+    "EnhancedLevenbergMarquardt",
+    "EnhancedLevenbergMarquardt2",
     "Ipyopt",
-    "LevenbergMarquardt",
+    "JittableLevenbergMarquardt",
     "LevenbergMarquardt",
     "Minuit",
     "NLoptBOBYQA",

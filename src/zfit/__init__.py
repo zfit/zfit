@@ -2,6 +2,10 @@
 #  Copyright (c) 2025 zfit
 from __future__ import annotations
 
+import contextlib as _contextlib
+import logging as _logging
+import os as _os
+import sys as _sys
 import typing
 from importlib.metadata import version as _importlib_version
 
@@ -51,12 +55,35 @@ __all__ = [
     "supports",
     "result",
     "run",
+    "mcmc",
     "settings",
     "ztypes",
+    "prior",
+    "mcmc",
+    "Data",
+    "ztypes",
+    "param",
 ]
 
 
 #  Copyright (c) 2019 zfit
+
+
+@_contextlib.contextmanager
+def _suppress_stderr():
+    original_stderr_fd = _sys.stderr.fileno()
+    # Duplicate the original stderr file descriptor
+    saved_stderr_fd = _os.dup(original_stderr_fd)
+    try:
+        # Open /dev/null and redirect stderr to it
+        devnull_fd = _os.open(_os.devnull, _os.O_WRONLY)
+        _os.dup2(devnull_fd, original_stderr_fd)
+        _os.close(devnull_fd)
+        yield
+    finally:
+        # Restore the original stderr
+        _os.dup2(saved_stderr_fd, original_stderr_fd)
+        _os.close(saved_stderr_fd)
 
 
 def _maybe_disable_warnings() -> None:
@@ -98,6 +125,16 @@ def _maybe_disable_warnings() -> None:
     #     tf.constant(1)
 
 
+    # os.environ["KMP_AFFINITY"] = "noverbose"
+    os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
+    _logging.getLogger("absl").setLevel(_logging.ERROR)
+    _logging.getLogger("tensorflow").setLevel(_logging.FATAL)
+    # raise RuntimeError
+    with _suppress_stderr():
+        import tensorflow as tf
+    #
+    tf.get_logger().setLevel("FATAL")
+    tf.autograph.set_verbosity(0)
 
 
 _maybe_disable_warnings()
@@ -108,7 +145,6 @@ if int(_tf.__version__[0]) < 2:
     raise RuntimeError(
         f"You are using TensorFlow version {_tf.__version__}. This zfit version ({__version__}) works only with TF >= 2"
     )
-from . import z  # initialize first
 from . import (
     binned,
     constraint,
@@ -121,8 +157,10 @@ interface,
     hs3,
     loss,
     minimize,
+    mcmc,
     param,
     pdf,
+    prior,
     result,
     sample,
     settings,

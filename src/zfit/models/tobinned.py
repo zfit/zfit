@@ -32,6 +32,7 @@ class BinnedFromUnbinnedPDF(BaseBinnedFunctorPDF):
         norm: ztyping.NormInputType = None,
         name: str | None = None,
         label: str | None = None,
+        force_vectorize: bool | None = None,
     ) -> None:
         """Create a binned pdf from an unbinned pdf binning in *space*.
 
@@ -70,8 +71,10 @@ class BinnedFromUnbinnedPDF(BaseBinnedFunctorPDF):
                or label of
                the PDF for a better description, to be used with plots etc.
                Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
+            force_vectorize: If true, will use vectorization instead of a while loop. This should already happen
+                automatically if deemed save. Forcing it may leads to an exception.
         """
-        self._use_vectorized_map = None
+        self._use_vectorized_map = force_vectorize
         if pdf.is_extended:
             if extended is not None:
                 warn_advanced_feature(
@@ -141,7 +144,7 @@ class BinnedFromUnbinnedPDF(BaseBinnedFunctorPDF):
                 # also, the map_fn is slower...
                 msg = "Just stearing the eager execution"
                 raise MapNotVectorized(msg)
-            if vectorized:  # noqa: SIM108
+            if vectorized:
                 values = tf.vectorized_map(integrate_one, limits)[:, 0]
             else:
                 values = tf.map_fn(integrate_one, limits)  # this works
@@ -203,7 +206,7 @@ class BinnedFromUnbinnedPDF(BaseBinnedFunctorPDF):
                 # also, the map_fn is slower...
                 msg = "Just stearing the eager execution"
                 raise MapNotVectorized(msg)
-            if vectorized:  # noqa: SIM108
+            if vectorized:
                 values = tf.vectorized_map(integrate_one, limits)[:, 0]
             else:
                 values = tf.map_fn(integrate_one, limits)  # this works

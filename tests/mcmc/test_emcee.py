@@ -5,27 +5,27 @@ import pytest
 import numpy as np
 import zfit
 from zfit.loss import UnbinnedNLL
-from zfit.bayesian.samplers.emcee import EmceeSampler
+from zfit._mcmc.emcee import EmceeSampler
 
 
 def test_emcee_init():
     """Test EmceeSampler initialization."""
     # Test default initialization
     sampler = EmceeSampler()
-    assert sampler.n_walkers is None
+    assert sampler.nwalkers is None
     assert sampler.name == "EmceeSampler"
 
     # Test custom initialization
-    sampler = EmceeSampler(n_walkers=50, name="CustomSampler")
-    assert sampler.n_walkers == 50
+    sampler = EmceeSampler(nwalkers=50, name="CustomSampler")
+    assert sampler.nwalkers == 50
     assert sampler.name == "CustomSampler"
 
 
 def test_emcee_sampling():
     """Test basic sampling functionality."""
     # Create a simple Gaussian model
-    mu = zfit.Parameter("mu", 0.0)
-    sigma = zfit.Parameter("sigma", 1.0, 0.1, 10.0)
+    mu = zfit.Parameter("mu", 0.0, prior=zfit.prior.NormalPrior(0.0, 2.0))
+    sigma = zfit.Parameter("sigma", 1.0, 0.1, 10.0, prior=zfit.prior.HalfNormalPrior(0.1, 1.0))
 
     # Generate some test data
     n_points = 1000
@@ -38,14 +38,14 @@ def test_emcee_sampling():
     loss = UnbinnedNLL(model=model, data=dataset)
 
     # Sample
-    sampler = EmceeSampler(n_walkers=20)
+    sampler = EmceeSampler(nwalkers=20)
     n_samples = 100
     n_warmup = 50
 
     posteriors = sampler.sample(loss=loss, params=[mu, sigma], n_samples=n_samples, n_warmup=n_warmup)
 
     # Check results
-    assert posteriors.samples.shape == (n_samples * 20, 2)  # n_samples * n_walkers, n_params
+    assert posteriors.samples.shape == (n_samples * 20, 2)  # n_samples * nwalkers, n_params
     assert len(posteriors.param_names) == 2
     assert posteriors.n_warmup == n_warmup
     assert posteriors.n_samples == n_samples
@@ -54,7 +54,7 @@ def test_emcee_sampling():
 def test_emcee_parameter_limits():
     """Test sampling respects parameter limits."""
     # Create a parameter with limits
-    param = zfit.Parameter("test_param", 1.0, 0.0, 2.0)
+    param = zfit.Parameter("test_param", 1.0, 0.0, 2.0, prior=zfit.prior.UniformPrior(0.0, 2.0))
 
     # Create a simple model and loss
     obs = zfit.Space("x", limits=(-5, 5))
@@ -63,7 +63,7 @@ def test_emcee_parameter_limits():
     loss = UnbinnedNLL(model=model, data=data)
 
     # Sample
-    sampler = EmceeSampler(n_walkers=10)
+    sampler = EmceeSampler(nwalkers=10)
     posteriors = sampler.sample(loss=loss, params=[param], n_samples=50, n_warmup=20)
 
     # Check that all samples are within bounds

@@ -18,6 +18,21 @@ from ordered_set import OrderedSet
 from pydantic.v1 import Field
 from tensorflow.python.util.deprecation import deprecated
 
+from ..exception import AutogradNotSupported, OutsideLimitsError
+from ..serialization.serializer import BaseRepr, Serializer
+from .data import convert_to_data
+from .serialmixin import SerializableMixin
+
+if TYPE_CHECKING:
+    import zfit
+
+import abc
+import warnings
+from collections.abc import Callable, Iterable, Mapping
+
+import tensorflow as tf
+from ordered_set import OrderedSet
+
 import zfit.z.numpy as znp
 from zfit._interfaces import (
     ZfitBinnedData,
@@ -38,10 +53,11 @@ from ..util.checks import NONE
 from ..util.container import convert_to_container, is_container
 from ..util.deprecation import deprecated_args
 from ..util.exception import (
-    BehaviorUnderDiscussion,
     BreakingAPIChangeError,
     IntentionAmbiguousError,
     NotExtendedPDFError,
+    SpecificFunctionNotImplemented,
+    WorkInProgressError,
 )
 from ..util.warnings import warn_advanced_feature
 from ..z.math import (
@@ -500,13 +516,13 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         Returns:
             Calculated loss value as a scalar.
         """
-        if _x is None:
-            msg = (
-                "Currently, calling a loss requires to give the arguments explicitly."
-                " If you think this behavior should be changed, please open an issue"
-                " https://github.com/zfit/zfit/issues/new/choose"
-            )
-            raise BehaviorUnderDiscussion(msg)
+        # if _x is None:
+        #     msg = (
+        #         "Currently, calling a loss requires to give the arguments explicitly."
+        #         " If you think this behavior should be changed, please open an issue"
+        #         " https://github.com/zfit/zfit/issues/new/choose"
+        #     )
+        #     raise BehaviorUnderDiscussion(msg)
         if isinstance(_x, dict):
             msg = "Dicts are not supported when calling a loss, only array-like values."
             raise TypeError(msg)

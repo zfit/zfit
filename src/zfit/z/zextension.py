@@ -235,7 +235,7 @@ class FunctionWrapperRegistry:
         return self.do_jit_types[self.wraps] and self.allow_jit and not self.force_eager
 
     def reset(self, **kwargs_user):
-        kwargs = {"autograph": False, "reduce_retracing": True}
+        kwargs = {"autograph": False, "reduce_retracing": True, "jit_compile": False}
         kwargs.update(self._initial_user_kwargs)
         kwargs.update(kwargs_user)
         self.tf_function_kwargs = kwargs
@@ -265,7 +265,7 @@ class FunctionWrapperRegistry:
         from ..util.cache import FunctionCacheHolder  # noqa: PLC0415
 
         def concrete_func(*args, **kwargs):
-            if self.force_eager and not run.executing_eagerly():
+            if self.force_eager and not run.executing_eagerly():  # if we're executing eagerly, let's be graceful
                 raise DoNotCompile
             # skip JIT in certain situations
             if not self.do_jit or func in self.currently_traced or not run.executing_eagerly():
@@ -287,12 +287,7 @@ class FunctionWrapperRegistry:
                     cache.remove(function_holder)
 
             function_holder = FunctionCacheHolder(
-                func,
-                wrapped_func,
-                args,
-                kwargs,
-                deleter=deleter,
-                stateless_args=self.stateless_args,
+                func, wrapped_func, args, kwargs, deleter=deleter, stateless_args=self.stateless_args, xla=True
             )
             try:
                 func_holder_index = cache.index(function_holder)
@@ -339,6 +334,18 @@ class FunctionWrapperRegistry:
                         stacklevel=3,
                     )
                     result = func_to_run(*args, **kwargs)
+                # TODO: the following automatically tries again with XLA disabled. But currently, just rerunning will not work well.
+                # except Exception as error:
+                #     function_kwargs = self.tf_function_kwargs.copy()
+                #     if function_kwargs.get("jit_compile"):
+                #         function_kwargs["jit_compile"] = False
+                #         wrapped_func = tf.function(func, **function_kwargs)
+                #         function_holder.wrapped_func = wrapped_func
+                #         func_to_run = function_holder.execute_func
+                #         print(f"Tried to XLA, falling back {error}")
+                #         result = func_to_run(*args, **kwargs)
+                #     else:
+                #         raise
             except DoNotCompile:
                 function_holder.do_jit = False
                 if not run.executing_eagerly():

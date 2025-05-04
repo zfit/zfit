@@ -13,6 +13,7 @@ __all__ = [
     "BaseFunctor",
     "BasePDF",
     "Bernstein",
+    "Beta",
     "BifurGauss",
     "BinnedFromUnbinnedPDF",
     "BinnedSumPDF",
@@ -72,6 +73,7 @@ from .models.cache import CachedPDF
 from .models.conditional import ConditionalPDFV1
 from .models.convolution import FFTConvPDFV1
 from .models.dist_tfp import (
+    Beta,
     BifurGauss,
     Cauchy,
     ChiSquared,

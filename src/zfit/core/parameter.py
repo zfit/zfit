@@ -52,6 +52,9 @@ from ..util.exception import (
     ParameterNotIndependentError,
 )
 from ..util.temporary import TemporarilySet
+from ..util.warnings import warn_once
+from . import interfaces as zinterfaces
+from .interfaces import ZfitIndependentParameter, ZfitModel, ZfitParameter, ZfitPrior
 from ..z import numpy as znp
 from .serialmixin import SerializableMixin
 
@@ -364,6 +367,7 @@ class Parameter(
         stepsize: ztyping.NumericalScalarType | None = None,
         floating: bool = True,
         *,
+        prior: None | ZfitPrior = None,
         label: str | None = None,
         # legacy
         dtype: tf.DType = None,
@@ -404,6 +408,15 @@ class Parameter(
             self._upper_limit_neg_inf = znp.asarray(np.inf, dtype)
         value = znp.asarray(value, dtype=ztypes.float)
 
+        if prior is not None:
+            warn_once("Prior and _bayesian inference is EXPERIMENTAL and may change!", "_bayesian")
+
+            if not isinstance(prior, ZfitPrior):
+                msg = f"prior has to be a ZfitPrior, got {type(prior)}"
+                raise TypeError(msg)
+            prior._register_default_param(self)
+        self._prior = prior
+
         super().__init__(
             initial_value=value,
             dtype=dtype,
@@ -438,7 +451,7 @@ class Parameter(
         return limit
 
     @lower.setter
-    # @invalidate_graph
+    # @deprecated(None, "Do not change the limits of a parameter, create a new one instead")
     def lower(self, value):
         if value is None and self._lower_limit_neg_inf is None:
             self._lower_limit_neg_inf = znp.asarray(-np.inf, dtype=ztypes.float)
@@ -461,6 +474,10 @@ class Parameter(
         elif value is not None:
             value = znp.asarray(value, dtype=ztypes.float)
         self._upper = value
+
+    @property
+    def prior(self):
+        return self._prior
 
     @property
     def has_limits(self) -> bool:
@@ -494,8 +511,8 @@ class Parameter(
             reltol = 0.005
             abstol = 1e-5
         else:
-            reltol = 1e-5
-            abstol = 1e-7
+            reltol = 1e-7
+            abstol = 1e-15  # floats
         tol = znp.minimum(diff * reltol, abstol)  # if one limit is inf we would get inf
         if not exact:  # if exact, we wanna allow to set it slightly over the limit.
             tol = -tol  # If not, we wanna make sure it's inside
@@ -648,9 +665,9 @@ class Parameter(
         self,
         minval: ztyping.NumericalScalarType | None = None,
         maxval: ztyping.NumericalScalarType | None = None,
-        sampler: Callable = np.random.uniform,
+        sampler: Callable | None = None,
     ) -> tf.Tensor:
-        """Update the parameter with a randomised value between minval and maxval and return it.
+        """Update the parameter with a sampled value between minval and maxval and return it.
 
         Args:
             minval: The lower bound of the sampler. If not given, ``lower_limit`` is used.
@@ -660,15 +677,21 @@ class Parameter(
         Returns:
             The sampled value
         """
-        if not tf.executing_eagerly():
-            msg = "Randomizing values in a parameter within Graph mode is most probably not what is "
-            raise IllegalInGraphModeError(msg)
-        minval = self.lower if minval is None else znp.asarray(minval, dtype=self.dtype)
-        maxval = self.upper if maxval is None else znp.asarray(maxval, dtype=self.dtype)
-        if maxval is None or minval is None:
-            msg = "Cannot randomize a parameter without limits or limits given."
-            raise RuntimeError(msg)
-        value = sampler(size=self.shape, low=minval, high=maxval)
+        if sampler is None:
+            sampler = self.prior if self.prior is not None else znp.random.uniform
+
+        if isinstance(sampler, ZfitPrior):
+            value = sampler.sample(1)
+        else:
+            if not tf.executing_eagerly():
+                msg = "Randomizing values in a parameter within Graph mode is most probably not what is wanted."
+                raise IllegalInGraphModeError(msg)
+            minval = self.lower if minval is None else znp.asarray(minval, dtype=self.dtype)
+            maxval = self.upper if maxval is None else znp.asarray(maxval, dtype=self.dtype)
+            if maxval is None or minval is None:
+                msg = "Cannot randomize a parameter without limits or limits given."
+                raise RuntimeError(msg)
+            value = sampler(size=self.shape, low=minval, high=maxval)
 
         self.set_value(value=value)
         return value
@@ -879,11 +902,6 @@ class BaseComposedParameter(ZfitParameterMixin, OverloadableMixin, BaseParameter
         params = self.params
         return znp.asarray(self._func(params), dtype=self.dtype)
 
-        # return tf.convert_to_tensor(value, dtype=self.dtype)
-
-    # @deprecated(None, "Use `value` instead.")
-    # def read_value(self):  # keep! Needed by TF internally
-    #     return self.value()
 
     @property
     def shape(self):
@@ -1523,7 +1541,7 @@ def assign_values_jit(
     for i, param in enumerate(params):
         value = values[i]
         if value.dtype != param.dtype:
-            value = znp.cast(value, param.dtype)
+            value = znp.array(value, param.dtype)
         param.assign(value, read_value=False, use_locking=use_locking)
 
 

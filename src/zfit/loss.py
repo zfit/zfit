@@ -9,6 +9,7 @@ from ._loss.binnedloss import (
     ExtendedBinnedChi2,
     ExtendedBinnedNLL,
 )
+from .core.interfaces import ZfitLoss
 from .core.loss import BaseLoss, ExtendedUnbinnedNLL, SimpleLoss, UnbinnedNLL
 
 if typing.TYPE_CHECKING:
@@ -24,4 +25,5 @@ __all__ = [
     "ExtendedUnbinnedNLL",
     "SimpleLoss",
     "UnbinnedNLL",
+    "ZfitLoss",
 ]

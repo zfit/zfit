@@ -395,9 +395,9 @@ def mc_integrate(
 
             if not vectorizable:
                 tf.cond(error > tol, print_none_return, lambda: None)
-        integral = avg * znp.asarray(z.convert_to_tensor(space.area()), dtype=avg.dtype)
+        integral = avg * znp.asarray(space.volume, dtype=avg.dtype)
         integrals.append(integral)
-    integral = z.reduce_sum(integrals, axis=0)
+    integral = znp.sum(integrals, axis=0)
     return znp.atleast_1d(integral)
 
 
