@@ -13,7 +13,7 @@ Bandwidth Effect
 
 The bandwidth parameter controls the smoothness of the KDE. A smaller bandwidth captures more detail but might overfit to noise, while a larger bandwidth produces a smoother estimate but might miss important features.
 
-.. image:: _generated/pdfs/kde_bandwidth.png
+.. image:: ../../images/_generated/pdfs/kde_bandwidth.png
    :width: 80%
    :align: center
    :alt: KDE with different bandwidth values
@@ -23,7 +23,7 @@ Kernel Types
 
 Different kernel functions can be used in KDEs. The default is a Gaussian kernel, but other distributions like Student's T can be used for different tail behaviors.
 
-.. image:: _generated/pdfs/kde_kernel.png
+.. image:: ../../images/_generated/pdfs/kde_kernel.png
    :width: 80%
    :align: center
    :alt: KDE with different kernel types
@@ -38,7 +38,7 @@ zfit provides several KDE implementations with different trade-offs between accu
 - **KDE1DimFFT**: Uses Fast Fourier Transform for even faster computation
 - **KDE1DimISJ**: Uses the Improved Sheather-Jones algorithm for optimal bandwidth selection
 
-.. image:: _generated/pdfs/kde_implementations.png
+.. image:: ../../images/_generated/pdfs/kde_implementations.png
    :width: 80%
    :align: center
    :alt: Different KDE implementations

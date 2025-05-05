@@ -14,7 +14,7 @@ Histogram PDF
 
 The :py:class:`~zfit.pdf.HistogramPDF` creates a PDF from a histogram, preserving the bin structure and values.
 
-.. image:: _generated/pdfs/histogrampdf_shapes.png
+.. image:: ../../images/_generated/pdfs/histogrampdf_shapes.png
    :width: 80%
    :align: center
    :alt: HistogramPDF with different shapes
@@ -28,7 +28,7 @@ Binwise Scale Modifier
 
 The :py:class:`~zfit.pdf.BinwiseScaleModifier` allows modifying individual bins of a binned PDF with scale factors.
 
-.. image:: _generated/pdfs/binwisescalemodifier_patterns.png
+.. image:: ../../images/_generated/pdfs/binwisescalemodifier_patterns.png
    :width: 80%
    :align: center
    :alt: BinwiseScaleModifier with different scale patterns
@@ -42,7 +42,7 @@ Binned From Unbinned PDF
 
 The :py:class:`~zfit.pdf.BinnedFromUnbinnedPDF` converts an unbinned PDF to a binned representation.
 
-.. image:: _generated/pdfs/binnedfromunbinnedpdf_comparison.png
+.. image:: ../../images/_generated/pdfs/binnedfromunbinnedpdf_comparison.png
    :width: 80%
    :align: center
    :alt: BinnedFromUnbinnedPDF comparison
@@ -56,7 +56,7 @@ Spline Morphing PDF
 
 The :py:class:`~zfit.pdf.SplineMorphingPDF` creates a morphing between different template histograms using spline interpolation.
 
-.. image:: _generated/pdfs/splinemorphingpdf_morphing.png
+.. image:: ../../images/_generated/pdfs/splinemorphingpdf_morphing.png
    :width: 80%
    :align: center
    :alt: SplineMorphingPDF with different parameter values
@@ -66,11 +66,11 @@ The :py:class:`~zfit.pdf.SplineMorphingPDF` creates a morphing between different
     zfit.pdf.SplineMorphingPDF
 
 Binned Sum PDF
-----------
+------------------------------
 
 The :py:class:`~zfit.pdf.BinnedSumPDF` combines multiple binned PDFs with different fractions.
 
-.. image:: _generated/pdfs/binnedsumpdf_fractions.png
+.. image:: ../../images/_generated/pdfs/binnedsumpdf_fractions.png
    :width: 80%
    :align: center
    :alt: BinnedSumPDF with different component fractions
@@ -80,11 +80,11 @@ The :py:class:`~zfit.pdf.BinnedSumPDF` combines multiple binned PDFs with differ
     zfit.pdf.BinnedSumPDF
 
 Spline PDF
--------
+-----------------
 
 The :py:class:`~zfit.pdf.SplinePDF` creates a PDF from spline interpolation between points.
 
-.. image:: _generated/pdfs/splinepdf_shapes.png
+.. image:: ../../images/_generated/pdfs/splinepdf_shapes.png
    :width: 80%
    :align: center
    :alt: SplinePDF with different shapes
@@ -98,7 +98,7 @@ Unbinned From Binned PDF
 
 The :py:class:`~zfit.pdf.UnbinnedFromBinnedPDF` converts a binned PDF to an unbinned representation.
 
-.. image:: _generated/pdfs/unbinnedfromibinnedpdf_comparison.png
+.. image:: ../../images/_generated/pdfs/unbinnedfromibinnedpdf_comparison.png
    :width: 80%
    :align: center
    :alt: UnbinnedFromBinnedPDF comparison

@@ -10,9 +10,11 @@ from tqdm import tqdm
 import zfit
 from zfit import Parameter
 
+here = Path(__file__).absolute().parent
 # Create the output directory if it doesn't exist
-outpath = Path("../../images/_generated/pdfs")
+outpath = Path(here / "../images/_generated/pdfs").absolute().resolve()
 outpath.mkdir(parents=True, exist_ok=True)
+print(f"Saving plots to {outpath}")
 
 # Set the figure size and style
 plt.style.use("seaborn-v0_8-whitegrid")
@@ -681,7 +683,7 @@ def plot_truncatedgauss():
     sigma = Parameter("sigma", 1.0)
     ranges = [(-1.0, 1.0), (-2.0, 2.0), (-0.5, 2.0)]
 
-    for i, (low_val, high_val) in enumerate(ranges):
+    for _i, (low_val, high_val) in enumerate(ranges):
         low = Parameter("low", low_val)
         high = Parameter("high", high_val)
         truncgauss = zfit.pdf.TruncatedGauss(mu=mu, sigma=sigma, low=low, high=high, obs=obs)
@@ -799,7 +801,7 @@ def plot_bernstein():
 
     # Plot with different degrees
     plt.figure()
-    degrees = [2, 3, 5]
+    degrees = [2, 3, 5, 6]
 
     for degree in degrees:
         # Create coefficients for a simple shape
@@ -826,6 +828,8 @@ def plot_bernstein():
         [1.0, 0.2, 0.2, 1.0],  # U-shape
         [0.2, 1.0, 1.0, 0.2],  # Inverted U-shape
         [0.2, 0.5, 1.0, 0.2],  # Increasing then decreasing
+        [0.5, 0.5, 0.5, 0.5],  # Flat
+        [1.0, 0.7, 0.4, 0.1],  # Decreasing
     ]
 
     for i, pattern in enumerate(patterns):
@@ -833,7 +837,7 @@ def plot_bernstein():
         bernstein = zfit.pdf.Bernstein(obs=obs, coeffs=coeffs)
         x = np.linspace(0, 1, 1000)
         y = bernstein.pdf(x)
-        plt.plot(x, y, label=f"Pattern {i + 1}")
+        plt.plot(x, y, label=f"Coeffs: {pattern}")
 
     plt.xlabel("x")
     plt.ylabel("Probability density")
@@ -848,7 +852,7 @@ def plot_chebyshev():
 
     # Plot with different degrees
     plt.figure()
-    degrees = [2, 3, 5]
+    degrees = [2, 3, 5, 6]
 
     for degree in degrees:
         # Create coefficients
@@ -876,6 +880,7 @@ def plot_chebyshev():
         [1.0, 0.5, 0.0, 0.0],  # Linear trend
         [1.0, 0.0, 0.5, 0.0],  # Quadratic
         [1.0, 0.0, 0.0, 0.5],  # Cubic
+        [1.0, 0.3, 0.3, 0.3],  # Mixed
     ]
 
     for i, pattern in enumerate(patterns):
@@ -883,7 +888,7 @@ def plot_chebyshev():
         chebyshev = zfit.pdf.Chebyshev(obs=obs, coeffs=coeffs)
         x = np.linspace(-1, 1, 1000)
         y = chebyshev.pdf(x)
-        plt.plot(x, y, label=f"Pattern {i + 1}")
+        plt.plot(x, y, label=f"Coeffs: {pattern}")
 
     plt.xlabel("x")
     plt.ylabel("Probability density")
@@ -898,7 +903,7 @@ def plot_legendre():
 
     # Plot with different degrees
     plt.figure()
-    degrees = [2, 3, 5]
+    degrees = [2, 3, 5, 6]
 
     for degree in degrees:
         # Create coefficients
@@ -926,6 +931,7 @@ def plot_legendre():
         [1.0, 0.5, 0.0, 0.0],  # Linear trend
         [1.0, 0.0, 0.5, 0.0],  # Quadratic
         [1.0, 0.0, 0.0, 0.5],  # Cubic
+        [1.0, 0.2, 0.2, 0.2],  # Mixed
     ]
 
     for i, pattern in enumerate(patterns):
@@ -933,7 +939,7 @@ def plot_legendre():
         legendre = zfit.pdf.Legendre(obs=obs, coeffs=coeffs)
         x = np.linspace(-1, 1, 1000)
         y = legendre.pdf(x)
-        plt.plot(x, y, label=f"Pattern {i + 1}")
+        plt.plot(x, y, label=f"Coeffs: {pattern}")
 
     plt.xlabel("x")
     plt.ylabel("Probability density")
@@ -948,7 +954,7 @@ def plot_chebyshev2():
 
     # Plot with different degrees
     plt.figure()
-    degrees = [2, 3, 5]
+    degrees = [2, 3, 5, 6]
 
     for degree in degrees:
         # Create coefficients
@@ -976,6 +982,7 @@ def plot_chebyshev2():
         [1.0, 0.5, 0.0, 0.0],  # Linear trend
         [1.0, 0.0, 0.5, 0.0],  # Quadratic
         [1.0, 0.0, 0.0, 0.5],  # Cubic
+        [1.0, 0.2, 0.3, 0.4],  # Increasing
     ]
 
     for i, pattern in enumerate(patterns):
@@ -983,7 +990,7 @@ def plot_chebyshev2():
         chebyshev2 = zfit.pdf.Chebyshev2(obs=obs, coeffs=coeffs)
         x = np.linspace(-1, 1, 1000)
         y = chebyshev2.pdf(x)
-        plt.plot(x, y, label=f"Pattern {i + 1}")
+        plt.plot(x, y, label=f"Coeffs: {pattern}")
 
     plt.xlabel("x")
     plt.ylabel("Probability density")
@@ -998,7 +1005,7 @@ def plot_hermite():
 
     # Plot with different degrees
     plt.figure()
-    degrees = [2, 3, 5]
+    degrees = [2, 3, 5, 6]
 
     for degree in degrees:
         # Create coefficients
@@ -1026,6 +1033,7 @@ def plot_hermite():
         [1.0, 0.5, 0.0, 0.0],  # Linear trend
         [1.0, 0.0, 0.5, 0.0],  # Quadratic
         [1.0, 0.0, 0.0, 0.5],  # Cubic
+        [1.0, 0.4, 0.4, 0.0],  # Mixed
     ]
 
     for i, pattern in enumerate(patterns):
@@ -1033,7 +1041,7 @@ def plot_hermite():
         hermite = zfit.pdf.Hermite(obs=obs, coeffs=coeffs)
         x = np.linspace(-5, 5, 1000)
         y = hermite.pdf(x)
-        plt.plot(x, y, label=f"Pattern {i + 1}")
+        plt.plot(x, y, label=f"Coeffs: {pattern}")
 
     plt.xlabel("x")
     plt.ylabel("Probability density")
@@ -1048,7 +1056,7 @@ def plot_laguerre():
 
     # Plot with different degrees
     plt.figure()
-    degrees = [2, 3, 5]
+    degrees = [2, 3, 5, 6]
 
     for degree in degrees:
         # Create coefficients
@@ -1076,6 +1084,7 @@ def plot_laguerre():
         [1.0, 0.5, 0.0, 0.0],  # Linear trend
         [1.0, 0.0, 0.5, 0.0],  # Quadratic
         [1.0, 0.0, 0.0, 0.5],  # Cubic
+        [1.0, 0.3, 0.0, 0.3],  # Mixed
     ]
 
     for i, pattern in enumerate(patterns):
@@ -1083,7 +1092,7 @@ def plot_laguerre():
         laguerre = zfit.pdf.Laguerre(obs=obs, coeffs=coeffs)
         x = np.linspace(0, 10, 1000)
         y = laguerre.pdf(x)
-        plt.plot(x, y, label=f"Pattern {i + 1}")
+        plt.plot(x, y, label=f"Coeffs: {pattern}")
 
     plt.xlabel("x")
     plt.ylabel("Probability density")
@@ -1098,7 +1107,7 @@ def plot_recursivepolynomial():
 
     # Plot with different degrees
     plt.figure()
-    degrees = [2, 3, 5]
+    degrees = [2, 3, 5, 6]
 
     for degree in degrees:
         # Create coefficients
@@ -1126,6 +1135,7 @@ def plot_recursivepolynomial():
         [1.0, 0.5, 0.0, 0.0],  # Linear trend
         [1.0, 0.0, 0.5, 0.0],  # Quadratic
         [1.0, 0.0, 0.0, 0.5],  # Cubic
+        [1.0, 0.2, 0.2, 0.5],  # Mixed
     ]
 
     for i, pattern in enumerate(patterns):
@@ -1133,7 +1143,7 @@ def plot_recursivepolynomial():
         recpoly = zfit.pdf.RecursivePolynomial(obs=obs, coeffs=coeffs)
         x = np.linspace(-1, 1, 1000)
         y = recpoly.pdf(x)
-        plt.plot(x, y, label=f"Pattern {i + 1}")
+        plt.plot(x, y, label=f"Coeffs: {pattern}")
 
     plt.xlabel("x")
     plt.ylabel("Probability density")
@@ -1417,7 +1427,7 @@ def plot_histogrampdf():
     """Plot histogram PDFs with different shapes."""
     try:
         # Create the observable
-        obs = zfit.Space("x", limits=(0, 10))
+        zfit.Space("x", limits=(0, 10))
 
         # Create dummy plots if we encounter errors
         # This ensures the documentation build doesn't fail
@@ -1541,7 +1551,7 @@ def plot_binwisescalemodifier():
     """Plot BinwiseScaleModifier with different scale patterns."""
     try:
         # Create the observable
-        obs = zfit.Space("x", limits=(0, 10))
+        zfit.Space("x", limits=(0, 10))
 
         # Create dummy plots if we encounter errors
         # This ensures the documentation build doesn't fail
@@ -1656,7 +1666,7 @@ def plot_binnedfromunbinnedpdf():
 
 def plot_splinemorphingpdf():
     # Create the observable
-    obs = zfit.Space("x", limits=(-5, 5))
+    zfit.Space("x", limits=(-5, 5))
 
     # Create template histograms with different parameters
     plt.figure()
@@ -1720,7 +1730,7 @@ def plot_splinemorphingpdf():
 
 def plot_binnedsumpdf():
     # Create the observable
-    obs = zfit.Space("x", limits=(0, 10))
+    zfit.Space("x", limits=(0, 10))
 
     # Create different histogram components
     plt.figure()
@@ -1775,7 +1785,7 @@ def plot_binnedsumpdf():
     # Plot with different fractions
     frac_sets = [(0.8, 0.1), (0.4, 0.4), (0.2, 0.7)]
 
-    for i, (f1, f2) in enumerate(frac_sets):
+    for _i, (f1, f2) in enumerate(frac_sets):
         frac1.set_value(f1)
         frac2.set_value(f2)
         y_sum_alt = binned_sum.pdf(x)
@@ -1852,7 +1862,7 @@ def plot_splinepdf():
 
 def plot_unbinnedfromibinnedpdf():
     # Create the observable
-    obs = zfit.Space("x", limits=(0, 10))
+    zfit.Space("x", limits=(0, 10))
 
     # Create a histogram and convert it to unbinned
     plt.figure()
@@ -1961,7 +1971,7 @@ def plot_sumpdf():
     # Plot with different fractions
     frac_sets = [(0.8, 0.1), (0.4, 0.4), (0.2, 0.7)]
 
-    for i, (f1, f2) in enumerate(frac_sets):
+    for _i, (f1, f2) in enumerate(frac_sets):
         frac1.set_value(f1)
         frac2.set_value(f2)
         y_sum_alt = sum_pdf.pdf(x)

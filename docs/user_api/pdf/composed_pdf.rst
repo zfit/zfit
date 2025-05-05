@@ -12,7 +12,7 @@ Sum PDF
 The :py:class:`~zfit.pdf.SumPDF` allows combining multiple PDFs with different fractions.
 This is useful for creating mixture models, such as signal plus background.
 
-.. image:: _generated/pdfs/sumpdf_fractions.png
+.. image:: ../../images/_generated/pdfs/sumpdf_fractions.png
    :width: 80%
    :align: center
    :alt: SumPDF with different component fractions
@@ -27,12 +27,12 @@ Product PDF
 The :py:class:`~zfit.pdf.ProductPDF` multiplies PDFs together, useful for creating joint distributions.
 This is commonly used when variables are independent or when creating multi-dimensional models.
 
-.. image:: _generated/pdfs/productpdf_2d_gaussian.png
+.. image:: ../../images/_generated/pdfs/productpdf_2d_gaussian.png
    :width: 80%
    :align: center
    :alt: ProductPDF: 2D Gaussian
 
-.. image:: _generated/pdfs/productpdf_asymmetric.png
+.. image:: ../../images/_generated/pdfs/productpdf_asymmetric.png
    :width: 80%
    :align: center
    :alt: ProductPDF: Asymmetric 2D Gaussian
@@ -47,12 +47,12 @@ FFT Convolution PDF
 The :py:class:`~zfit.pdf.FFTConvPDFV1` performs convolution of PDFs using Fast Fourier Transform.
 This is useful for modeling detector resolution effects or other convolution operations.
 
-.. image:: _generated/pdfs/fftconvpdf_resolutions.png
+.. image:: ../../images/_generated/pdfs/fftconvpdf_resolutions.png
    :width: 80%
    :align: center
    :alt: FFTConvPDFV1: Gaussian convolved with different resolutions
 
-.. image:: _generated/pdfs/fftconvpdf_signals.png
+.. image:: ../../images/_generated/pdfs/fftconvpdf_signals.png
    :width: 80%
    :align: center
    :alt: FFTConvPDFV1: Different signals convolved with Gaussian
@@ -67,12 +67,12 @@ Conditional PDF
 The :py:class:`~zfit.pdf.ConditionalPDFV1` creates conditional probability distributions.
 This allows for modeling dependencies between variables.
 
-.. image:: _generated/pdfs/conditionalpdf_gaussian.png
+.. image:: ../../images/_generated/pdfs/conditionalpdf_gaussian.png
    :width: 80%
    :align: center
    :alt: ConditionalPDFV1: Gaussian with mean depending on x
 
-.. image:: _generated/pdfs/conditionalpdf_width.png
+.. image:: ../../images/_generated/pdfs/conditionalpdf_width.png
    :width: 80%
    :align: center
    :alt: ConditionalPDFV1: Gaussian with width depending on x
@@ -87,12 +87,12 @@ Truncated PDF
 The :py:class:`~zfit.pdf.TruncatedPDF` restricts a PDF to a specific range.
 This is useful when you need to limit the domain of a PDF without changing its shape within that domain.
 
-.. image:: _generated/pdfs/truncatedpdf_gaussian.png
+.. image:: ../../images/_generated/pdfs/truncatedpdf_gaussian.png
    :width: 80%
    :align: center
    :alt: TruncatedPDF: Gaussian with different truncation ranges
 
-.. image:: _generated/pdfs/truncatedpdf_various.png
+.. image:: ../../images/_generated/pdfs/truncatedpdf_various.png
    :width: 80%
    :align: center
    :alt: TruncatedPDF: Different PDFs truncated to [-2, 2]
