@@ -16,7 +16,7 @@ The general parameter structure includes the `coeff`, which is a list of coeffic
 To change the overall normalization, use the `extended` parameter.
 
 Bernstein Polynomials
---------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 :py:class:`~zfit.pdf.Bernstein` polynomials are a basis for the space of polynomials defined on the interval [0, 1].
 They are particularly useful for modeling smooth shapes with good numerical stability.
@@ -36,7 +36,7 @@ They are particularly useful for modeling smooth shapes with good numerical stab
     zfit.pdf.Bernstein
 
 Chebyshev Polynomials
--------------------
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 :py:class:`~zfit.pdf.Chebyshev` polynomials are a sequence of orthogonal polynomials defined on the interval [-1, 1].
 They are particularly useful for approximating functions with minimal maximum error.
@@ -56,7 +56,7 @@ They are particularly useful for approximating functions with minimal maximum er
     zfit.pdf.Chebyshev
 
 Legendre Polynomials
------------------
+--------------------------------------------------
 
 :py:class:`~zfit.pdf.Legendre` polynomials are a sequence of orthogonal polynomials defined on the interval [-1, 1].
 They are often used in physics for solving differential equations.
@@ -76,7 +76,7 @@ They are often used in physics for solving differential equations.
     zfit.pdf.Legendre
 
 Chebyshev2 Polynomials
--------------------
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 :py:class:`~zfit.pdf.Chebyshev2` polynomials are a sequence of orthogonal polynomials of the second kind defined on the interval [-1, 1].
 
@@ -95,7 +95,7 @@ Chebyshev2 Polynomials
     zfit.pdf.Chebyshev2
 
 Hermite Polynomials
----------------
+------------------------------------------------
 
 :py:class:`~zfit.pdf.Hermite` polynomials are a sequence of orthogonal polynomials that arise in probability, quantum mechanics, and other fields.
 
@@ -114,7 +114,7 @@ Hermite Polynomials
     zfit.pdf.Hermite
 
 Laguerre Polynomials
-----------------
+-------------------------------------------------
 
 :py:class:`~zfit.pdf.Laguerre` polynomials are a sequence of orthogonal polynomials associated with the Gamma distribution.
 
@@ -133,7 +133,7 @@ Laguerre Polynomials
     zfit.pdf.Laguerre
 
 RecursivePolynomial
-----------------
+-------------------------------------------------
 
 :py:class:`~zfit.pdf.RecursivePolynomial` provides a general framework for defining polynomials through recursive relations.
 

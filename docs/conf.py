@@ -93,10 +93,12 @@ pygit2.clone_repository("https://github.com/zfit/zfit-tutorials", zfit_tutorials
 # pygit2.clone_repository("https://github.com/zfit/zfit-physics", zfit_physics_path)
 
 zfit_images_path = project_dir.joinpath("docs", "images")
+project_images_path = project_dir.joinpath("images")
 docs_images_path = project_dir.joinpath("docs", "_static", "images")
 atexit.register(lambda path=docs_images_path: shutil.rmtree(path))
 docs_images_path.mkdir(parents=True, exist_ok=True)
 shutil.copytree(zfit_images_path, docs_images_path, dirs_exist_ok=True)
+shutil.copytree(project_images_path, docs_images_path, dirs_exist_ok=True)
 
 nb_execution_in_temp = True
 
@@ -106,7 +108,7 @@ templates_path = ["_templates"]
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
 
-source_suffix = {".ipynb": "myst-nb", ".myst": "myst-nb", ".rst": "restructuredtext"}
+source_suffix = {".rst": "restructuredtext", ".ipynb": "myst-nb", ".myst": "myst-nb"}
 
 # The master toctree document.
 master_doc = "index"
@@ -259,7 +261,7 @@ html_theme_options = {
     "navigation_depth": 3,
     "search_bar_text": "Search zfit...",
     "navigation_with_keys": True,
-    "search_bar_position": "sidebar",
+    # "search_bar_position": "sidebar",
     "icon_links": [{}],  # temporary fix for https://github.com/pydata/pydata-sphinx-theme/issues/1220
     # "repository_url": "https://github.com/zfit/zfit",  # adding jupyter book somehow?
     # "repository_branch": "develop",
@@ -347,4 +349,5 @@ intersphinx_mapping = {
     "matplotlib": ("https://matplotlib.org/stable/", None),
     "pandas": ("https://pandas.pydata.org/docs/", None),
     "numpy": ("https://numpy.org/doc/stable/", None),
+    "scipy": ("https://docs.scipy.org/doc/scipy/", None),
 }

@@ -9,7 +9,7 @@ An extensive introduction and explanation can be found in
 Below are visualizations of KDEs with different parameter values to help understand their behavior and choose appropriate settings.
 
 Bandwidth Effect
----------------
+--------------------------------------------------------------------------------------------
 
 The bandwidth parameter controls the smoothness of the KDE. A smaller bandwidth captures more detail but might overfit to noise, while a larger bandwidth produces a smoother estimate but might miss important features.
 
@@ -19,7 +19,7 @@ The bandwidth parameter controls the smoothness of the KDE. A smaller bandwidth 
    :alt: KDE with different bandwidth values
 
 Kernel Types
------------
+----------------------------------------------------------------------------------------
 
 Different kernel functions can be used in KDEs. The default is a Gaussian kernel, but other distributions like Student's T can be used for different tail behaviors.
 
@@ -29,7 +29,7 @@ Different kernel functions can be used in KDEs. The default is a Gaussian kernel
    :alt: KDE with different kernel types
 
 KDE Implementations
-----------------
+---------------------------------------------------------------------------------------------
 
 zfit provides several KDE implementations with different trade-offs between accuracy and computational efficiency:
 

@@ -11,7 +11,7 @@ Below are visualizations of some common PDFs with different parameter values to 
 understand their shapes and choose appropriate initial parameter values.
 
 Gaussian PDF
------------
+----------------------
 
 The :py:class:`~zfit.pdf.Gauss` (or Normal) distribution is characterized by its mean (``mu``) and standard deviation (``sigma``).
 
@@ -30,7 +30,7 @@ The :py:class:`~zfit.pdf.Gauss` (or Normal) distribution is characterized by its
     zfit.pdf.Gauss
 
 Exponential PDF
---------------
+-------------------------
 
 The :py:class:`~zfit.pdf.Exponential` distribution is characterized by its decay parameter (``lambda``).
 
@@ -92,7 +92,7 @@ The :py:class:`~zfit.pdf.Voigt` profile is a convolution of a Gaussian and a Lor
    :align: center
    :alt: Voigt PDF with different gamma values
 
-.. image:: _generated/pdfs/voigt_u.png
+.. image:: _generated/pdfs/voigt_m.png
    :width: 80%
    :align: center
    :alt: Voigt PDF with different u values
@@ -102,7 +102,7 @@ The :py:class:`~zfit.pdf.Voigt` profile is a convolution of a Gaussian and a Lor
     zfit.pdf.Voigt
 
 CrystalBall PDF
--------------
+------------------------
 
 The :py:class:`~zfit.pdf.CrystalBall` function is a Gaussian with a power-law tail.
 
@@ -131,7 +131,7 @@ The :py:class:`~zfit.pdf.CrystalBall` function is a Gaussian with a power-law ta
     zfit.pdf.CrystalBall
 
 LogNormal PDF
------------
+----------------------
 
 The :py:class:`~zfit.pdf.LogNormal` distribution is the distribution of a random variable whose logarithm follows a normal distribution.
 
@@ -149,7 +149,7 @@ The :py:class:`~zfit.pdf.LogNormal` distribution is the distribution of a random
 
     zfit.pdf.LogNormal
 ChiSquared PDF
-------------
+-----------------------
 
 The :py:class:`~zfit.pdf.ChiSquared` distribution is the distribution of a sum of the squares of k independent standard normal random variables.
 
@@ -196,7 +196,7 @@ The :py:class:`~zfit.pdf.Gamma` distribution is a two-parameter family of contin
     zfit.pdf.Gamma
 
 BifurGauss PDF
------------
+----------------------
 
 The :py:class:`~zfit.pdf.BifurGauss` distribution is a Gaussian with different widths on the left and right sides.
 
@@ -205,12 +205,12 @@ The :py:class:`~zfit.pdf.BifurGauss` distribution is a Gaussian with different w
    :align: center
    :alt: BifurGauss PDF with different mu values
 
-.. image:: _generated/pdfs/bifurgauss_sigma_left.png
+.. image:: _generated/pdfs/bifurgauss_sigmal.png
    :width: 80%
    :align: center
    :alt: BifurGauss PDF with different sigma_left values
 
-.. image:: _generated/pdfs/bifurgauss_sigma_right.png
+.. image:: _generated/pdfs/bifurgauss_sigmar.png
    :width: 80%
    :align: center
    :alt: BifurGauss PDF with different sigma_right values
@@ -282,7 +282,7 @@ The :py:class:`~zfit.pdf.JohnsonSU` distribution is a four-parameter family of p
     zfit.pdf.JohnsonSU
 
 GeneralizedGauss PDF
-----------------
+---------------------------
 
 The :py:class:`~zfit.pdf.GeneralizedGauss` distribution is a generalization of the normal distribution with an additional shape parameter.
 
@@ -306,7 +306,7 @@ The :py:class:`~zfit.pdf.GeneralizedGauss` distribution is a generalization of t
     zfit.pdf.GeneralizedGauss
 
 TruncatedGauss PDF
---------------
+-------------------------
 
 The :py:class:`~zfit.pdf.TruncatedGauss` distribution is a Gaussian distribution that is truncated to a specified range.
 

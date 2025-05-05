@@ -10,7 +10,7 @@ that is provided `boost-histogram <https://boost-histogram.readthedocs.io/en/lat
 Below are the available binned PDFs:
 
 Histogram PDF
------------
+----------------------
 
 The :py:class:`~zfit.pdf.HistogramPDF` creates a PDF from a histogram, preserving the bin structure and values.
 
@@ -24,7 +24,7 @@ The :py:class:`~zfit.pdf.HistogramPDF` creates a PDF from a histogram, preservin
     zfit.pdf.HistogramPDF
 
 Binwise Scale Modifier
-------------------
+-----------------------------
 
 The :py:class:`~zfit.pdf.BinwiseScaleModifier` allows modifying individual bins of a binned PDF with scale factors.
 
@@ -38,7 +38,7 @@ The :py:class:`~zfit.pdf.BinwiseScaleModifier` allows modifying individual bins 
     zfit.pdf.BinwiseScaleModifier
 
 Binned From Unbinned PDF
---------------------
+-------------------------------
 
 The :py:class:`~zfit.pdf.BinnedFromUnbinnedPDF` converts an unbinned PDF to a binned representation.
 
@@ -52,7 +52,7 @@ The :py:class:`~zfit.pdf.BinnedFromUnbinnedPDF` converts an unbinned PDF to a bi
     zfit.pdf.BinnedFromUnbinnedPDF
 
 Spline Morphing PDF
----------------
+--------------------------
 
 The :py:class:`~zfit.pdf.SplineMorphingPDF` creates a morphing between different template histograms using spline interpolation.
 
@@ -94,7 +94,7 @@ The :py:class:`~zfit.pdf.SplinePDF` creates a PDF from spline interpolation betw
     zfit.pdf.SplinePDF
 
 Unbinned From Binned PDF
--------------------
+------------------------------
 
 The :py:class:`~zfit.pdf.UnbinnedFromBinnedPDF` converts a binned PDF to an unbinned representation.
 

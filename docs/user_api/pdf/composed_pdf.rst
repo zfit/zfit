@@ -42,7 +42,7 @@ This is commonly used when variables are independent or when creating multi-dime
     zfit.pdf.ProductPDF
 
 FFT Convolution PDF
-----------------
+-------------------------------------------------
 
 The :py:class:`~zfit.pdf.FFTConvPDFV1` performs convolution of PDFs using Fast Fourier Transform.
 This is useful for modeling detector resolution effects or other convolution operations.
@@ -62,7 +62,7 @@ This is useful for modeling detector resolution effects or other convolution ope
     zfit.pdf.FFTConvPDFV1
 
 Conditional PDF
-------------
+---------------------------------------------
 
 The :py:class:`~zfit.pdf.ConditionalPDFV1` creates conditional probability distributions.
 This allows for modeling dependencies between variables.
@@ -82,7 +82,7 @@ This allows for modeling dependencies between variables.
     zfit.pdf.ConditionalPDFV1
 
 Truncated PDF
------------
+--------------------------------------------
 
 The :py:class:`~zfit.pdf.TruncatedPDF` restricts a PDF to a specific range.
 This is useful when you need to limit the domain of a PDF without changing its shape within that domain.

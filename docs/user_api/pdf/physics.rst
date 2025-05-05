@@ -13,7 +13,7 @@ Below are visualizations of physics PDFs with different parameter values to help
 understand their shapes and choose appropriate initial parameter values.
 
 CrystalBall PDF
--------------
+----------------------------------------------
 
 The :py:class:`~zfit.pdf.CrystalBall` function is a Gaussian with a power-law tail, commonly used to model
 energy loss and detector resolution effects in particle physics.
@@ -44,7 +44,7 @@ energy loss and detector resolution effects in particle physics.
 
 
 GaussExpTail PDF
--------------
+----------------------------------------------
 
 The :py:class:`~zfit.pdf.GaussExpTail` combines a Gaussian core with an exponential tail,
 useful for modeling detector resolution effects with asymmetric tails.
@@ -64,7 +64,7 @@ useful for modeling detector resolution effects with asymmetric tails.
     zfit.pdf.GaussExpTail
 
 GeneralizedCB PDF
---------------
+-----------------------------------------------
 
 The :py:class:`~zfit.pdf.GeneralizedCB` extends the Crystal Ball function with additional parameters
 for more flexible modeling of asymmetric peaks with power-law tails.
@@ -89,7 +89,7 @@ for more flexible modeling of asymmetric peaks with power-law tails.
     zfit.pdf.GeneralizedCB
 
 GeneralizedGaussExpTail PDF
-------------------------
+------------------------------------------------------------------------------------------
 
 The :py:class:`~zfit.pdf.GeneralizedGaussExpTail` extends the GaussExpTail function with additional
 parameters for more flexible modeling of asymmetric distributions.
@@ -138,7 +138,7 @@ The following PDFs are available in the separate `zfit_physics` package:
 
 
 Argus
-------------------
+---------------------------------------------------
 
 The :py:class:`~zfit_physics.pdf.Argus` PDF is commonly used to model background distributions in B physics, particularly for describing the kinematic threshold behavior.
 
@@ -157,7 +157,7 @@ The :py:class:`~zfit_physics.pdf.Argus` PDF is commonly used to model background
     zfit_physics.pdf.Argus
 
 RelativisticBreitWigner
-----------------------------
+----------------------------------------------------------------------------------------------
 
 The :py:class:`~zfit_physics.pdf.RelativisticBreitWigner` PDF describes the mass distribution of unstable particles, taking into account relativistic effects.
 
@@ -176,7 +176,7 @@ The :py:class:`~zfit_physics.pdf.RelativisticBreitWigner` PDF describes the mass
     zfit_physics.pdf.RelativisticBreitWigner
 
 CMSShape
-------------------
+---------------------------------------------------
 
 The :py:class:`~zfit_physics.pdf.CMSShape` PDF is used to model background distributions in CMS analyses.
 
@@ -195,7 +195,7 @@ The :py:class:`~zfit_physics.pdf.CMSShape` PDF is used to model background distr
     zfit_physics.pdf.CMSShape
 
 Cruijff
-------------------
+---------------------------------------------------
 
 The :py:class:`~zfit_physics.pdf.Cruijff` PDF is an asymmetric Gaussian with different widths and tails on each side, often used to model detector resolution effects.
 
@@ -214,7 +214,7 @@ The :py:class:`~zfit_physics.pdf.Cruijff` PDF is an asymmetric Gaussian with dif
     zfit_physics.pdf.Cruijff
 
 ErfExp
-------------------
+---------------------------------------------------
 
 The :py:class:`~zfit_physics.pdf.ErfExp` PDF combines an error function with an exponential, useful for modeling backgrounds with a turn-on effect.
 
@@ -233,7 +233,7 @@ The :py:class:`~zfit_physics.pdf.ErfExp` PDF combines an error function with an 
     zfit_physics.pdf.ErfExp
 
 Novosibirsk
-------------------
+---------------------------------------------------
 
 The :py:class:`~zfit_physics.pdf.Novosibirsk` PDF is used to model asymmetric peaks with a Gaussian-like core and exponential tails.
 
@@ -252,7 +252,7 @@ The :py:class:`~zfit_physics.pdf.Novosibirsk` PDF is used to model asymmetric pe
     zfit_physics.pdf.Novosibirsk
 
 Tsallis
-------------------
+---------------------------------------------------
 
 The :py:class:`~zfit_physics.pdf.Tsallis` PDF is used in high-energy physics to model particle production spectra.
 
@@ -265,6 +265,11 @@ The :py:class:`~zfit_physics.pdf.Tsallis` PDF is used in high-energy physics to 
    :width: 80%
    :align: center
    :alt: Tsallis PDF with different n values
+
+.. image:: _generated/pdfs/tsallis_t.png
+   :width: 80%
+   :align: center
+   :alt: Tsallis PDF with different t values
 
 .. autosummary::
 
