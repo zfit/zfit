@@ -1,16 +1,18 @@
 #  Copyright (c) 2025 zfit
 from __future__ import annotations
 
-import os
+from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
+from tqdm import tqdm
 
 import zfit
 from zfit import Parameter
 
 # Create the output directory if it doesn't exist
-os.makedirs("../images/pdfs", exist_ok=True)
+outpath = Path("../images/_generated/pdfs")
+outpath.mkdir(parents=True, exist_ok=True)
 
 # Set the figure size and style
 plt.style.use("seaborn-v0_8-whitegrid")
@@ -21,7 +23,7 @@ plt.rcParams["font.size"] = 12
 def save_plot(filename):
     """Save the current plot to the specified filename."""
     plt.tight_layout()
-    plt.savefig(f"images/pdfs/{filename}", dpi=100, bbox_inches="tight")
+    plt.savefig(outpath / f"{filename}", dpi=100, bbox_inches="tight")
     plt.close()
 
 
@@ -333,6 +335,350 @@ def plot_lognormal():
     save_plot("lognormal_sigma.png")
 
 
+# BifurGauss PDF
+def plot_bifurgauss():
+    # Create the observable
+    obs = zfit.Space("x", limits=(-5, 5))
+
+    # Plot with different mu values
+    plt.figure()
+    mu_values = [-1.0, 0.0, 1.0]
+    sigmal = Parameter("sigmal", 1.0)
+    sigmar = Parameter("sigmar", 1.0)
+
+    for mu_val in mu_values:
+        mu = Parameter("mu", mu_val)
+        bifurgauss = zfit.pdf.BifurGauss(mu=mu, sigmal=sigmal, sigmar=sigmar, obs=obs)
+        x = np.linspace(-5, 5, 1000)
+        y = bifurgauss.pdf(x)
+        plt.plot(x, y, label=f"μ = {mu_val}")
+
+    plt.xlabel("x")
+    plt.ylabel("Probability density")
+    plt.title("BifurGauss PDF with different μ values")
+    plt.legend()
+    save_plot("bifurgauss_mu.png")
+
+    # Plot with different sigmal values
+    plt.figure()
+    mu = Parameter("mu", 0.0)
+    sigmal_values = [0.5, 1.0, 1.5]
+    sigmar = Parameter("sigmar", 1.0)
+
+    for sigmal_val in sigmal_values:
+        sigmal = Parameter("sigmal", sigmal_val)
+        bifurgauss = zfit.pdf.BifurGauss(mu=mu, sigmal=sigmal, sigmar=sigmar, obs=obs)
+        x = np.linspace(-5, 5, 1000)
+        y = bifurgauss.pdf(x)
+        plt.plot(x, y, label=f"σ_left = {sigmal_val}")
+
+    plt.xlabel("x")
+    plt.ylabel("Probability density")
+    plt.title("BifurGauss PDF with different σ_left values")
+    plt.legend()
+    save_plot("bifurgauss_sigmal.png")
+
+    # Plot with different sigmar values
+    plt.figure()
+    mu = Parameter("mu", 0.0)
+    sigmal = Parameter("sigmal", 1.0)
+    sigmar_values = [0.5, 1.0, 1.5]
+
+    for sigmar_val in sigmar_values:
+        sigmar = Parameter("sigmar", sigmar_val)
+        bifurgauss = zfit.pdf.BifurGauss(mu=mu, sigmal=sigmal, sigmar=sigmar, obs=obs)
+        x = np.linspace(-5, 5, 1000)
+        y = bifurgauss.pdf(x)
+        plt.plot(x, y, label=f"σ_right = {sigmar_val}")
+
+    plt.xlabel("x")
+    plt.ylabel("Probability density")
+    plt.title("BifurGauss PDF with different σ_right values")
+    plt.legend()
+    save_plot("bifurgauss_sigmar.png")
+
+
+# Poisson PDF
+def plot_poisson():
+    # Create the observable
+    obs = zfit.Space("x", limits=(0, 20))
+
+    # Plot with different lambda values
+    plt.figure()
+    lambda_values = [1.0, 5.0, 10.0]
+
+    for lambda_val in lambda_values:
+        lambda_param = Parameter("lambda", lambda_val)
+        poisson = zfit.pdf.Poisson(lam=lambda_param, obs=obs)
+        x = np.arange(0, 20)
+        y = poisson.pdf(x)
+        plt.step(x, y, where="mid", label=f"λ = {lambda_val}")
+
+    plt.xlabel("x")
+    plt.ylabel("Probability mass")
+    plt.title("Poisson PDF with different λ values")
+    plt.legend()
+    save_plot("poisson_lambda.png")
+
+
+# QGauss PDF
+def plot_qgauss():
+    # Create the observable
+    obs = zfit.Space("x", limits=(-5, 5))
+
+    # Plot with different mu values
+    plt.figure()
+    mu_values = [-1.0, 0.0, 1.0]
+    sigma = Parameter("sigma", 1.0)
+    q = Parameter("q", 0.7)
+
+    for mu_val in mu_values:
+        mu = Parameter("mu", mu_val)
+        qgauss = zfit.pdf.QGauss(mu=mu, sigma=sigma, q=q, obs=obs)
+        x = np.linspace(-5, 5, 1000)
+        y = qgauss.pdf(x)
+        plt.plot(x, y, label=f"μ = {mu_val}")
+
+    plt.xlabel("x")
+    plt.ylabel("Probability density")
+    plt.title("QGauss PDF with different μ values")
+    plt.legend()
+    save_plot("qgauss_mu.png")
+
+    # Plot with different sigma values
+    plt.figure()
+    mu = Parameter("mu", 0.0)
+    sigma_values = [0.5, 1.0, 1.5]
+    q = Parameter("q", 0.7)
+
+    for sigma_val in sigma_values:
+        sigma = Parameter("sigma", sigma_val)
+        qgauss = zfit.pdf.QGauss(mu=mu, sigma=sigma, q=q, obs=obs)
+        x = np.linspace(-5, 5, 1000)
+        y = qgauss.pdf(x)
+        plt.plot(x, y, label=f"σ = {sigma_val}")
+
+    plt.xlabel("x")
+    plt.ylabel("Probability density")
+    plt.title("QGauss PDF with different σ values")
+    plt.legend()
+    save_plot("qgauss_sigma.png")
+
+    # Plot with different q values
+    plt.figure()
+    mu = Parameter("mu", 0.0)
+    sigma = Parameter("sigma", 1.0)
+    q_values = [0.5, 0.7, 0.9]
+
+    for q_val in q_values:
+        q = Parameter("q", q_val)
+        qgauss = zfit.pdf.QGauss(mu=mu, sigma=sigma, q=q, obs=obs)
+        x = np.linspace(-5, 5, 1000)
+        y = qgauss.pdf(x)
+        plt.plot(x, y, label=f"q = {q_val}")
+
+    plt.xlabel("x")
+    plt.ylabel("Probability density")
+    plt.title("QGauss PDF with different q values")
+    plt.legend()
+    save_plot("qgauss_q.png")
+
+
+# JohnsonSU PDF
+def plot_johnsonsu():
+    # Create the observable
+    obs = zfit.Space("x", limits=(-5, 5))
+
+    # Plot with different mu values
+    plt.figure()
+    mu_values = [-1.0, 0.0, 1.0]
+    sigma = Parameter("sigma", 1.0)
+    gamma = Parameter("gamma", 1.0)
+    delta = Parameter("delta", 1.0)
+
+    for mu_val in mu_values:
+        mu = Parameter("mu", mu_val)
+        johnsonsu = zfit.pdf.JohnsonSU(mu=mu, sigma=sigma, gamma=gamma, delta=delta, obs=obs)
+        x = np.linspace(-5, 5, 1000)
+        y = johnsonsu.pdf(x)
+        plt.plot(x, y, label=f"μ = {mu_val}")
+
+    plt.xlabel("x")
+    plt.ylabel("Probability density")
+    plt.title("JohnsonSU PDF with different μ values")
+    plt.legend()
+    save_plot("johnsonsu_mu.png")
+
+    # Plot with different gamma values
+    plt.figure()
+    mu = Parameter("mu", 0.0)
+    sigma = Parameter("sigma", 1.0)
+    gamma_values = [0.0, 1.0, 2.0]
+    delta = Parameter("delta", 1.0)
+
+    for gamma_val in gamma_values:
+        gamma = Parameter("gamma", gamma_val)
+        johnsonsu = zfit.pdf.JohnsonSU(mu=mu, sigma=sigma, gamma=gamma, delta=delta, obs=obs)
+        x = np.linspace(-5, 5, 1000)
+        y = johnsonsu.pdf(x)
+        plt.plot(x, y, label=f"γ = {gamma_val}")
+
+    plt.xlabel("x")
+    plt.ylabel("Probability density")
+    plt.title("JohnsonSU PDF with different γ values")
+    plt.legend()
+    save_plot("johnsonsu_gamma.png")
+
+    # Plot with different delta values
+    plt.figure()
+    mu = Parameter("mu", 0.0)
+    sigma = Parameter("sigma", 1.0)
+    gamma = Parameter("gamma", 1.0)
+    delta_values = [0.5, 1.0, 2.0]
+
+    for delta_val in delta_values:
+        delta = Parameter("delta", delta_val)
+        johnsonsu = zfit.pdf.JohnsonSU(mu=mu, sigma=sigma, gamma=gamma, delta=delta, obs=obs)
+        x = np.linspace(-5, 5, 1000)
+        y = johnsonsu.pdf(x)
+        plt.plot(x, y, label=f"δ = {delta_val}")
+
+    plt.xlabel("x")
+    plt.ylabel("Probability density")
+    plt.title("JohnsonSU PDF with different δ values")
+    plt.legend()
+    save_plot("johnsonsu_delta.png")
+
+
+# GeneralizedGauss PDF
+def plot_generalizedgauss():
+    # Create the observable
+    obs = zfit.Space("x", limits=(-5, 5))
+
+    # Plot with different mu values
+    plt.figure()
+    mu_values = [-1.0, 0.0, 1.0]
+    alpha = Parameter("alpha", 1.0)
+    p = Parameter("p", 2.0)
+
+    for mu_val in mu_values:
+        mu = Parameter("mu", mu_val)
+        gengauss = zfit.pdf.GeneralizedGauss(mu=mu, alpha=alpha, p=p, obs=obs)
+        x = np.linspace(-5, 5, 1000)
+        y = gengauss.pdf(x)
+        plt.plot(x, y, label=f"μ = {mu_val}")
+
+    plt.xlabel("x")
+    plt.ylabel("Probability density")
+    plt.title("GeneralizedGauss PDF with different μ values")
+    plt.legend()
+    save_plot("generalizedgauss_mu.png")
+
+    # Plot with different alpha values
+    plt.figure()
+    mu = Parameter("mu", 0.0)
+    alpha_values = [0.5, 1.0, 2.0]
+    p = Parameter("p", 2.0)
+
+    for alpha_val in alpha_values:
+        alpha = Parameter("alpha", alpha_val)
+        gengauss = zfit.pdf.GeneralizedGauss(mu=mu, alpha=alpha, p=p, obs=obs)
+        x = np.linspace(-5, 5, 1000)
+        y = gengauss.pdf(x)
+        plt.plot(x, y, label=f"α = {alpha_val}")
+
+    plt.xlabel("x")
+    plt.ylabel("Probability density")
+    plt.title("GeneralizedGauss PDF with different α values")
+    plt.legend()
+    save_plot("generalizedgauss_alpha.png")
+
+    # Plot with different p values
+    plt.figure()
+    mu = Parameter("mu", 0.0)
+    alpha = Parameter("alpha", 1.0)
+    p_values = [1.0, 2.0, 4.0]
+
+    for p_val in p_values:
+        p = Parameter("p", p_val)
+        gengauss = zfit.pdf.GeneralizedGauss(mu=mu, alpha=alpha, p=p, obs=obs)
+        x = np.linspace(-5, 5, 1000)
+        y = gengauss.pdf(x)
+        plt.plot(x, y, label=f"p = {p_val}")
+
+    plt.xlabel("x")
+    plt.ylabel("Probability density")
+    plt.title("GeneralizedGauss PDF with different p values")
+    plt.legend()
+    save_plot("generalizedgauss_p.png")
+
+
+# TruncatedGauss PDF
+def plot_truncatedgauss():
+    # Create the observable
+    obs = zfit.Space("x", limits=(-5, 5))
+
+    # Plot with different mu values
+    plt.figure()
+    mu_values = [-1.0, 0.0, 1.0]
+    sigma = Parameter("sigma", 1.0)
+    low = Parameter("low", -2.0)
+    high = Parameter("high", 2.0)
+
+    for mu_val in mu_values:
+        mu = Parameter("mu", mu_val)
+        truncgauss = zfit.pdf.TruncatedGauss(mu=mu, sigma=sigma, low=low, high=high, obs=obs)
+        x = np.linspace(-5, 5, 1000)
+        y = truncgauss.pdf(x)
+        plt.plot(x, y, label=f"μ = {mu_val}")
+
+    plt.xlabel("x")
+    plt.ylabel("Probability density")
+    plt.title("TruncatedGauss PDF with different μ values")
+    plt.legend()
+    save_plot("truncatedgauss_mu.png")
+
+    # Plot with different sigma values
+    plt.figure()
+    mu = Parameter("mu", 0.0)
+    sigma_values = [0.5, 1.0, 1.5]
+    low = Parameter("low", -2.0)
+    high = Parameter("high", 2.0)
+
+    for sigma_val in sigma_values:
+        sigma = Parameter("sigma", sigma_val)
+        truncgauss = zfit.pdf.TruncatedGauss(mu=mu, sigma=sigma, low=low, high=high, obs=obs)
+        x = np.linspace(-5, 5, 1000)
+        y = truncgauss.pdf(x)
+        plt.plot(x, y, label=f"σ = {sigma_val}")
+
+    plt.xlabel("x")
+    plt.ylabel("Probability density")
+    plt.title("TruncatedGauss PDF with different σ values")
+    plt.legend()
+    save_plot("truncatedgauss_sigma.png")
+
+    # Plot with different truncation ranges
+    plt.figure()
+    mu = Parameter("mu", 0.0)
+    sigma = Parameter("sigma", 1.0)
+    ranges = [(-1.0, 1.0), (-2.0, 2.0), (-0.5, 2.0)]
+
+    for i, (low_val, high_val) in enumerate(ranges):
+        low = Parameter("low", low_val)
+        high = Parameter("high", high_val)
+        truncgauss = zfit.pdf.TruncatedGauss(mu=mu, sigma=sigma, low=low, high=high, obs=obs)
+        x = np.linspace(-5, 5, 1000)
+        y = truncgauss.pdf(x)
+        plt.plot(x, y, label=f"Range: [{low_val}, {high_val}]")
+
+    plt.xlabel("x")
+    plt.ylabel("Probability density")
+    plt.title("TruncatedGauss PDF with different truncation ranges")
+    plt.legend()
+    save_plot("truncatedgauss_range.png")
+
+
 # ChiSquared PDF
 def plot_chisquared():
     # Create the observable
@@ -579,6 +925,206 @@ def plot_legendre():
     save_plot("legendre_patterns.png")
 
 
+def plot_chebyshev2():
+    # Create the observable
+    obs = zfit.Space("x", limits=(-1, 1))
+
+    # Plot with different degrees
+    plt.figure()
+    degrees = [2, 3, 5]
+
+    for degree in degrees:
+        # Create coefficients
+        coeffs = []
+        for i in range(degree + 1):
+            # First coefficient is 1, others are smaller
+            val = 1.0 if i == 0 else 0.3
+            coeffs.append(Parameter(f"c{i}", val))
+
+        chebyshev2 = zfit.pdf.Chebyshev2(obs=obs, coeffs=coeffs)
+        x = np.linspace(-1, 1, 1000)
+        y = chebyshev2.pdf(x)
+        plt.plot(x, y, label=f"Degree {degree}")
+
+    plt.xlabel("x")
+    plt.ylabel("Probability density")
+    plt.title("Chebyshev2 PDF with different degrees")
+    plt.legend()
+    save_plot("chebyshev2_degree.png")
+
+    # Plot with different coefficient patterns for degree 3
+    plt.figure()
+    patterns = [
+        [1.0, 0.0, 0.0, 0.0],  # Constant
+        [1.0, 0.5, 0.0, 0.0],  # Linear trend
+        [1.0, 0.0, 0.5, 0.0],  # Quadratic
+        [1.0, 0.0, 0.0, 0.5],  # Cubic
+    ]
+
+    for i, pattern in enumerate(patterns):
+        coeffs = [Parameter(f"c{j}", val) for j, val in enumerate(pattern)]
+        chebyshev2 = zfit.pdf.Chebyshev2(obs=obs, coeffs=coeffs)
+        x = np.linspace(-1, 1, 1000)
+        y = chebyshev2.pdf(x)
+        plt.plot(x, y, label=f"Pattern {i + 1}")
+
+    plt.xlabel("x")
+    plt.ylabel("Probability density")
+    plt.title("Chebyshev2 PDF (degree 3) with different coefficient patterns")
+    plt.legend()
+    save_plot("chebyshev2_patterns.png")
+
+
+def plot_hermite():
+    # Create the observable
+    obs = zfit.Space("x", limits=(-5, 5))
+
+    # Plot with different degrees
+    plt.figure()
+    degrees = [2, 3, 5]
+
+    for degree in degrees:
+        # Create coefficients
+        coeffs = []
+        for i in range(degree + 1):
+            # First coefficient is 1, others are smaller
+            val = 1.0 if i == 0 else 0.3
+            coeffs.append(Parameter(f"c{i}", val))
+
+        hermite = zfit.pdf.Hermite(obs=obs, coeffs=coeffs)
+        x = np.linspace(-5, 5, 1000)
+        y = hermite.pdf(x)
+        plt.plot(x, y, label=f"Degree {degree}")
+
+    plt.xlabel("x")
+    plt.ylabel("Probability density")
+    plt.title("Hermite PDF with different degrees")
+    plt.legend()
+    save_plot("hermite_degree.png")
+
+    # Plot with different coefficient patterns for degree 3
+    plt.figure()
+    patterns = [
+        [1.0, 0.0, 0.0, 0.0],  # Constant
+        [1.0, 0.5, 0.0, 0.0],  # Linear trend
+        [1.0, 0.0, 0.5, 0.0],  # Quadratic
+        [1.0, 0.0, 0.0, 0.5],  # Cubic
+    ]
+
+    for i, pattern in enumerate(patterns):
+        coeffs = [Parameter(f"c{j}", val) for j, val in enumerate(pattern)]
+        hermite = zfit.pdf.Hermite(obs=obs, coeffs=coeffs)
+        x = np.linspace(-5, 5, 1000)
+        y = hermite.pdf(x)
+        plt.plot(x, y, label=f"Pattern {i + 1}")
+
+    plt.xlabel("x")
+    plt.ylabel("Probability density")
+    plt.title("Hermite PDF (degree 3) with different coefficient patterns")
+    plt.legend()
+    save_plot("hermite_patterns.png")
+
+
+def plot_laguerre():
+    # Create the observable
+    obs = zfit.Space("x", limits=(0, 10))
+
+    # Plot with different degrees
+    plt.figure()
+    degrees = [2, 3, 5]
+
+    for degree in degrees:
+        # Create coefficients
+        coeffs = []
+        for i in range(degree + 1):
+            # First coefficient is 1, others are smaller
+            val = 1.0 if i == 0 else 0.3
+            coeffs.append(Parameter(f"c{i}", val))
+
+        laguerre = zfit.pdf.Laguerre(obs=obs, coeffs=coeffs)
+        x = np.linspace(0, 10, 1000)
+        y = laguerre.pdf(x)
+        plt.plot(x, y, label=f"Degree {degree}")
+
+    plt.xlabel("x")
+    plt.ylabel("Probability density")
+    plt.title("Laguerre PDF with different degrees")
+    plt.legend()
+    save_plot("laguerre_degree.png")
+
+    # Plot with different coefficient patterns for degree 3
+    plt.figure()
+    patterns = [
+        [1.0, 0.0, 0.0, 0.0],  # Constant
+        [1.0, 0.5, 0.0, 0.0],  # Linear trend
+        [1.0, 0.0, 0.5, 0.0],  # Quadratic
+        [1.0, 0.0, 0.0, 0.5],  # Cubic
+    ]
+
+    for i, pattern in enumerate(patterns):
+        coeffs = [Parameter(f"c{j}", val) for j, val in enumerate(pattern)]
+        laguerre = zfit.pdf.Laguerre(obs=obs, coeffs=coeffs)
+        x = np.linspace(0, 10, 1000)
+        y = laguerre.pdf(x)
+        plt.plot(x, y, label=f"Pattern {i + 1}")
+
+    plt.xlabel("x")
+    plt.ylabel("Probability density")
+    plt.title("Laguerre PDF (degree 3) with different coefficient patterns")
+    plt.legend()
+    save_plot("laguerre_patterns.png")
+
+
+def plot_recursivepolynomial():
+    # Create the observable
+    obs = zfit.Space("x", limits=(-1, 1))
+
+    # Plot with different degrees
+    plt.figure()
+    degrees = [2, 3, 5]
+
+    for degree in degrees:
+        # Create coefficients
+        coeffs = []
+        for i in range(degree + 1):
+            # First coefficient is 1, others are smaller
+            val = 1.0 if i == 0 else 0.3
+            coeffs.append(Parameter(f"c{i}", val))
+
+        recpoly = zfit.pdf.RecursivePolynomial(obs=obs, coeffs=coeffs)
+        x = np.linspace(-1, 1, 1000)
+        y = recpoly.pdf(x)
+        plt.plot(x, y, label=f"Degree {degree}")
+
+    plt.xlabel("x")
+    plt.ylabel("Probability density")
+    plt.title("RecursivePolynomial PDF with different degrees")
+    plt.legend()
+    save_plot("recursivepolynomial_degree.png")
+
+    # Plot with different coefficient patterns for degree 3
+    plt.figure()
+    patterns = [
+        [1.0, 0.0, 0.0, 0.0],  # Constant
+        [1.0, 0.5, 0.0, 0.0],  # Linear trend
+        [1.0, 0.0, 0.5, 0.0],  # Quadratic
+        [1.0, 0.0, 0.0, 0.5],  # Cubic
+    ]
+
+    for i, pattern in enumerate(patterns):
+        coeffs = [Parameter(f"c{j}", val) for j, val in enumerate(pattern)]
+        recpoly = zfit.pdf.RecursivePolynomial(obs=obs, coeffs=coeffs)
+        x = np.linspace(-1, 1, 1000)
+        y = recpoly.pdf(x)
+        plt.plot(x, y, label=f"Pattern {i + 1}")
+
+    plt.xlabel("x")
+    plt.ylabel("Probability density")
+    plt.title("RecursivePolynomial PDF (degree 3) with different coefficient patterns")
+    plt.legend()
+    save_plot("recursivepolynomial_patterns.png")
+
+
 # ========================
 # Physics PDFs
 # ========================
@@ -685,6 +1231,145 @@ def plot_gaussexptail():
     save_plot("gaussexptail_sigma.png")
 
 
+def plot_generalizedcb():
+    # Create the observable
+    obs = zfit.Space("x", limits=(-5, 5))
+
+    # Plot with different alpha values
+    plt.figure()
+    mu = Parameter("mu", 0.0)
+    sigma = Parameter("sigma", 1.0)
+    n = Parameter("n", 2.0)
+    t = Parameter("t", 3.0)
+
+    alpha_values = [0.5, 1.0, 2.0]
+
+    for alpha_val in alpha_values:
+        alpha = Parameter("alpha", alpha_val)
+        gencb = zfit.pdf.GeneralizedCB(mu=mu, sigma=sigma, alpha=alpha, n=n, t=t, obs=obs)
+        x = np.linspace(-5, 5, 1000)
+        y = gencb.pdf(x)
+        plt.plot(x, y, label=f"α = {alpha_val}")
+
+    plt.xlabel("x")
+    plt.ylabel("Probability density")
+    plt.title("GeneralizedCB PDF with different α values")
+    plt.legend()
+    save_plot("generalizedcb_alpha.png")
+
+    # Plot with different n values
+    plt.figure()
+    mu = Parameter("mu", 0.0)
+    sigma = Parameter("sigma", 1.0)
+    alpha = Parameter("alpha", 1.0)
+    t = Parameter("t", 3.0)
+
+    n_values = [1.0, 2.0, 5.0]
+
+    for n_val in n_values:
+        n = Parameter("n", n_val)
+        gencb = zfit.pdf.GeneralizedCB(mu=mu, sigma=sigma, alpha=alpha, n=n, t=t, obs=obs)
+        x = np.linspace(-5, 5, 1000)
+        y = gencb.pdf(x)
+        plt.plot(x, y, label=f"n = {n_val}")
+
+    plt.xlabel("x")
+    plt.ylabel("Probability density")
+    plt.title("GeneralizedCB PDF with different n values")
+    plt.legend()
+    save_plot("generalizedcb_n.png")
+
+    # Plot with different t values
+    plt.figure()
+    mu = Parameter("mu", 0.0)
+    sigma = Parameter("sigma", 1.0)
+    alpha = Parameter("alpha", 1.0)
+    n = Parameter("n", 2.0)
+
+    t_values = [1.0, 3.0, 5.0]
+
+    for t_val in t_values:
+        t = Parameter("t", t_val)
+        gencb = zfit.pdf.GeneralizedCB(mu=mu, sigma=sigma, alpha=alpha, n=n, t=t, obs=obs)
+        x = np.linspace(-5, 5, 1000)
+        y = gencb.pdf(x)
+        plt.plot(x, y, label=f"t = {t_val}")
+
+    plt.xlabel("x")
+    plt.ylabel("Probability density")
+    plt.title("GeneralizedCB PDF with different t values")
+    plt.legend()
+    save_plot("generalizedcb_t.png")
+
+
+def plot_generalizedgaussexptail():
+    # Create the observable
+    obs = zfit.Space("x", limits=(-5, 5))
+
+    # Plot with different alpha values
+    plt.figure()
+    mu = Parameter("mu", 0.0)
+    sigma = Parameter("sigma", 1.0)
+    k = Parameter("k", 1.0)
+
+    alpha_values = [0.5, 1.0, 2.0]
+
+    for alpha_val in alpha_values:
+        alpha = Parameter("alpha", alpha_val)
+        gengaussexptail = zfit.pdf.GeneralizedGaussExpTail(mu=mu, sigma=sigma, alpha=alpha, k=k, obs=obs)
+        x = np.linspace(-5, 5, 1000)
+        y = gengaussexptail.pdf(x)
+        plt.plot(x, y, label=f"α = {alpha_val}")
+
+    plt.xlabel("x")
+    plt.ylabel("Probability density")
+    plt.title("GeneralizedGaussExpTail PDF with different α values")
+    plt.legend()
+    save_plot("generalizedgaussexptail_alpha.png")
+
+    # Plot with different k values
+    plt.figure()
+    mu = Parameter("mu", 0.0)
+    sigma = Parameter("sigma", 1.0)
+    alpha = Parameter("alpha", 1.0)
+
+    k_values = [0.5, 1.0, 2.0]
+
+    for k_val in k_values:
+        k = Parameter("k", k_val)
+        gengaussexptail = zfit.pdf.GeneralizedGaussExpTail(mu=mu, sigma=sigma, alpha=alpha, k=k, obs=obs)
+        x = np.linspace(-5, 5, 1000)
+        y = gengaussexptail.pdf(x)
+        plt.plot(x, y, label=f"k = {k_val}")
+
+    plt.xlabel("x")
+    plt.ylabel("Probability density")
+    plt.title("GeneralizedGaussExpTail PDF with different k values")
+    plt.legend()
+    save_plot("generalizedgaussexptail_k.png")
+
+    # Plot with different sigma values
+    plt.figure()
+    mu = Parameter("mu", 0.0)
+    alpha = Parameter("alpha", 1.0)
+    k = Parameter("k", 1.0)
+
+    sigma_values = [0.5, 1.0, 2.0]
+
+    for sigma_val in sigma_values:
+        sigma = Parameter("sigma", sigma_val)
+        gengaussexptail = zfit.pdf.GeneralizedGaussExpTail(mu=mu, sigma=sigma, alpha=alpha, k=k, obs=obs)
+        x = np.linspace(-5, 5, 1000)
+        y = gengaussexptail.pdf(x)
+        plt.plot(x, y, label=f"σ = {sigma_val}")
+
+    plt.xlabel("x")
+    plt.ylabel("Probability density")
+    plt.title("GeneralizedGaussExpTail PDF with different σ values")
+    plt.legend()
+    save_plot("generalizedgaussexptail_sigma.png")
+
+
 # ========================
 # Main function
 # ========================
@@ -695,26 +1380,39 @@ def main():
     print("Generating PDF plots...")
 
     # Basic PDFs
-    plot_gaussian()
-    plot_exponential()
-    plot_uniform()
-    plot_cauchy()
-    plot_voigt()
-    plot_crystalball()
-    plot_lognormal()
-    plot_chisquared()
-    plot_studentt()
-    plot_gamma()
-
-    # Polynomial PDFs
-    plot_bernstein()
-    plot_chebyshev()
-    plot_legendre()
-
-    # Physics PDFs
-    plot_doublecb()
-    plot_gaussexptail()
-
+    allpdfs = [
+        plot_gaussian,
+        plot_exponential,
+        plot_uniform,
+        plot_cauchy,
+        plot_voigt,
+        plot_crystalball,
+        plot_lognormal,
+        plot_chisquared,
+        plot_studentt,
+        plot_gamma,
+        plot_bifurgauss,
+        plot_poisson,
+        plot_qgauss,
+        plot_johnsonsu,
+        plot_generalizedgauss,
+        plot_truncatedgauss,
+        # Polynomial PDFs
+        plot_bernstein,
+        plot_chebyshev,
+        plot_legendre,
+        plot_chebyshev2,
+        plot_hermite,
+        plot_laguerre,
+        plot_recursivepolynomial,
+        # Physics PDFs
+        plot_doublecb,
+        plot_gaussexptail,
+        plot_generalizedcb,
+        plot_generalizedgaussexptail,
+    ]
+    for pdfplot in tqdm(allpdfs, desc="Generating PDF plots"):
+        pdfplot()
     print("Done generating PDF plots.")
 
 

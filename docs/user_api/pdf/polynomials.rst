@@ -18,15 +18,15 @@ To change the overall normalization, use the `extended` parameter.
 Bernstein Polynomials
 --------------------
 
-Bernstein polynomials are a basis for the space of polynomials defined on the interval [0, 1].
+:py:class:`~zfit.pdf.Bernstein` polynomials are a basis for the space of polynomials defined on the interval [0, 1].
 They are particularly useful for modeling smooth shapes with good numerical stability.
 
-.. image:: /images/pdfs/bernstein_degree.png
+.. image:: _generated/pdfs/bernstein_degree.png
    :width: 80%
    :align: center
    :alt: Bernstein PDF with different degrees
 
-.. image:: /images/pdfs/bernstein_patterns.png
+.. image:: _generated/pdfs/bernstein_patterns.png
    :width: 80%
    :align: center
    :alt: Bernstein PDF with different coefficient patterns
@@ -34,15 +34,15 @@ They are particularly useful for modeling smooth shapes with good numerical stab
 Chebyshev Polynomials
 -------------------
 
-Chebyshev polynomials are a sequence of orthogonal polynomials defined on the interval [-1, 1].
+:py:class:`~zfit.pdf.Chebyshev` polynomials are a sequence of orthogonal polynomials defined on the interval [-1, 1].
 They are particularly useful for approximating functions with minimal maximum error.
 
-.. image:: /images/pdfs/chebyshev_degree.png
+.. image:: _generated/pdfs/chebyshev_degree.png
    :width: 80%
    :align: center
    :alt: Chebyshev PDF with different degrees
 
-.. image:: /images/pdfs/chebyshev_patterns.png
+.. image:: _generated/pdfs/chebyshev_patterns.png
    :width: 80%
    :align: center
    :alt: Chebyshev PDF with different coefficient patterns
@@ -50,18 +50,78 @@ They are particularly useful for approximating functions with minimal maximum er
 Legendre Polynomials
 -----------------
 
-Legendre polynomials are a sequence of orthogonal polynomials defined on the interval [-1, 1].
+:py:class:`~zfit.pdf.Legendre` polynomials are a sequence of orthogonal polynomials defined on the interval [-1, 1].
 They are often used in physics for solving differential equations.
 
-.. image:: /images/pdfs/legendre_degree.png
+.. image:: _generated/pdfs/legendre_degree.png
    :width: 80%
    :align: center
    :alt: Legendre PDF with different degrees
 
-.. image:: /images/pdfs/legendre_patterns.png
+.. image:: _generated/pdfs/legendre_patterns.png
    :width: 80%
    :align: center
    :alt: Legendre PDF with different coefficient patterns
+
+Chebyshev2 Polynomials
+-------------------
+
+:py:class:`~zfit.pdf.Chebyshev2` polynomials are a sequence of orthogonal polynomials of the second kind defined on the interval [-1, 1].
+
+.. image:: _generated/pdfs/chebyshev2_degree.png
+   :width: 80%
+   :align: center
+   :alt: Chebyshev2 PDF with different degrees
+
+.. image:: _generated/pdfs/chebyshev2_patterns.png
+   :width: 80%
+   :align: center
+   :alt: Chebyshev2 PDF with different coefficient patterns
+
+Hermite Polynomials
+---------------
+
+:py:class:`~zfit.pdf.Hermite` polynomials are a sequence of orthogonal polynomials that arise in probability, quantum mechanics, and other fields.
+
+.. image:: _generated/pdfs/hermite_degree.png
+   :width: 80%
+   :align: center
+   :alt: Hermite PDF with different degrees
+
+.. image:: _generated/pdfs/hermite_patterns.png
+   :width: 80%
+   :align: center
+   :alt: Hermite PDF with different coefficient patterns
+
+Laguerre Polynomials
+----------------
+
+:py:class:`~zfit.pdf.Laguerre` polynomials are a sequence of orthogonal polynomials associated with the Gamma distribution.
+
+.. image:: _generated/pdfs/laguerre_degree.png
+   :width: 80%
+   :align: center
+   :alt: Laguerre PDF with different degrees
+
+.. image:: _generated/pdfs/laguerre_patterns.png
+   :width: 80%
+   :align: center
+   :alt: Laguerre PDF with different coefficient patterns
+
+RecursivePolynomial
+----------------
+
+:py:class:`~zfit.pdf.RecursivePolynomial` provides a general framework for defining polynomials through recursive relations.
+
+.. image:: _generated/pdfs/recursivepolynomial_degree.png
+   :width: 80%
+   :align: center
+   :alt: RecursivePolynomial PDF with different degrees
+
+.. image:: _generated/pdfs/recursivepolynomial_patterns.png
+   :width: 80%
+   :align: center
+   :alt: RecursivePolynomial PDF with different coefficient patterns
 
 .. autosummary::
     :toctree: _generated/polynomials
