@@ -291,15 +291,15 @@ The :py:class:`~zfit.pdf.GeneralizedGauss` distribution is a generalization of t
    :align: center
    :alt: GeneralizedGauss PDF with different mu values
 
-.. image:: _generated/pdfs/generalizedgauss_alpha.png
+.. image:: _generated/pdfs/generalizedgauss_sigma.png
    :width: 80%
    :align: center
-   :alt: GeneralizedGauss PDF with different alpha values
+   :alt: GeneralizedGauss PDF with different sigma values
 
-.. image:: _generated/pdfs/generalizedgauss_p.png
+.. image:: _generated/pdfs/generalizedgauss_beta.png
    :width: 80%
    :align: center
-   :alt: GeneralizedGauss PDF with different p values
+   :alt: GeneralizedGauss PDF with different beta values
 
 .. autosummary::
 

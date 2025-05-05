@@ -31,6 +31,10 @@ They are particularly useful for modeling smooth shapes with good numerical stab
    :align: center
    :alt: Bernstein PDF with different coefficient patterns
 
+.. autosummary::
+
+    zfit.pdf.Bernstein
+
 Chebyshev Polynomials
 -------------------
 
@@ -46,6 +50,10 @@ They are particularly useful for approximating functions with minimal maximum er
    :width: 80%
    :align: center
    :alt: Chebyshev PDF with different coefficient patterns
+
+.. autosummary::
+
+    zfit.pdf.Chebyshev
 
 Legendre Polynomials
 -----------------
@@ -63,6 +71,10 @@ They are often used in physics for solving differential equations.
    :align: center
    :alt: Legendre PDF with different coefficient patterns
 
+.. autosummary::
+
+    zfit.pdf.Legendre
+
 Chebyshev2 Polynomials
 -------------------
 
@@ -77,6 +89,10 @@ Chebyshev2 Polynomials
    :width: 80%
    :align: center
    :alt: Chebyshev2 PDF with different coefficient patterns
+
+.. autosummary::
+
+    zfit.pdf.Chebyshev2
 
 Hermite Polynomials
 ---------------
@@ -93,6 +109,10 @@ Hermite Polynomials
    :align: center
    :alt: Hermite PDF with different coefficient patterns
 
+.. autosummary::
+
+    zfit.pdf.Hermite
+
 Laguerre Polynomials
 ----------------
 
@@ -108,20 +128,14 @@ Laguerre Polynomials
    :align: center
    :alt: Laguerre PDF with different coefficient patterns
 
+.. autosummary::
+
+    zfit.pdf.Laguerre
+
 RecursivePolynomial
 ----------------
 
 :py:class:`~zfit.pdf.RecursivePolynomial` provides a general framework for defining polynomials through recursive relations.
-
-.. image:: _generated/pdfs/recursivepolynomial_degree.png
-   :width: 80%
-   :align: center
-   :alt: RecursivePolynomial PDF with different degrees
-
-.. image:: _generated/pdfs/recursivepolynomial_patterns.png
-   :width: 80%
-   :align: center
-   :alt: RecursivePolynomial PDF with different coefficient patterns
 
 .. autosummary::
     :toctree: _generated/polynomials
