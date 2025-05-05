@@ -1,20 +1,21 @@
 #!/usr/bin/env python
 
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2025 zfit
 
-#
-#
-# zfit documentation build configuration file, created by
-# sphinx-quickstart on Fri Jun  9 13:47:02 2017.
 from __future__ import annotations
 
 import atexit
+
+# disable gpu for TensorFlow
+import os
 import shutil
 import sys
 from pathlib import Path
 
 import pygit2
 import yaml
+
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
 import zfit
 
@@ -58,16 +59,14 @@ panels_add_bootstrap_css = False  # for sphinx_panel, use custom css from theme,
 # releases_document_name = "../CHANGELOG.rst"
 
 # nb_execution_mode = "force"  # use if needed and cache should be ignored
-nb_execution_mode = "cache"
+nb_execution_mode = "off"
+# nb_execution_mode = "cache"
 if nb_execution_mode == "cache":
     jupyter_cache_path = project_dir.joinpath("docs", ".cache", "myst-nb")
     jupyter_cache_path.mkdir(parents=True, exist_ok=True)
     nb_execution_cache_path = str(jupyter_cache_path)
 
-source_suffix = {
-    ".ipynb": "myst-nb",
-    ".myst": "myst-nb",
-}
+
 myst_enable_extensions = [
     "amsmath",
     "colon_fence",
@@ -77,6 +76,12 @@ myst_enable_extensions = [
 ]
 
 bibtex_bibfiles = [str(project_dir.joinpath("docs", "refs.bib"))]
+
+# run the generate_pdf_plots.py script to generate the pdf plots
+plotscript = project_dir / "docs" / "utils" / "generate_pdf_plots.py"
+import subprocess
+
+subprocess.run(["python", str(plotscript)], check=True)
 
 zfit_tutorials_path = project_dir.joinpath("docs", "_tmp", "zfit-tutorials")
 atexit.register(lambda path=zfit_tutorials_path: shutil.rmtree(path))
@@ -100,7 +105,8 @@ templates_path = ["_templates"]
 
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
-source_suffix = ".rst"
+
+source_suffix = {".ipynb": "myst-nb", ".myst": "myst-nb", ".rst": "restructuredtext"}
 
 # The master toctree document.
 master_doc = "index"

@@ -1,4 +1,8 @@
+Composed PDFs
+#############################
+
 Composed PDFs build on top of others and provide sums, products and more.
+
 
 .. autosummary::
     :toctree: _generated/composed_pdf

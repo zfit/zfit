@@ -15,6 +15,7 @@ insufficient!
     :maxdepth: 3
 
     zfit.dimension
+    zfit.binned
     zfit.data
     zfit.param
     zfit.func
@@ -26,6 +27,7 @@ insufficient!
     zfit.result
     zfit.settings
     zfit.hs3
+    zfit.dill
     zfit.exception
     zfit.run
     zfit.plot
