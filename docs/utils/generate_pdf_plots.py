@@ -1029,11 +1029,11 @@ def plot_hermite():
     # Plot with different coefficient patterns for degree 3
     plt.figure()
     patterns = [
-        [1.0, 0.0, 0.0, 0.0],  # Constant
-        [1.0, 0.5, 0.0, 0.0],  # Linear trend
-        [1.0, 0.0, 0.5, 0.0],  # Quadratic
-        [1.0, 0.0, 0.0, 0.5],  # Cubic
-        [1.0, 0.4, 0.4, 0.0],  # Mixed
+        [0.0, 0.0, 0.0],  # Constant
+        [0.5, 0.0, 0.0],  # Linear trend
+        [0.0, 0.5, 0.0],  # Quadratic
+        [0.0, 0.0, 0.5],  # Cubic
+        [0.4, 0.4, 0.0],  # Mixed
     ]
 
     for i, pattern in enumerate(patterns):
@@ -1080,11 +1080,11 @@ def plot_laguerre():
     # Plot with different coefficient patterns for degree 3
     plt.figure()
     patterns = [
-        [1.0, 0.0, 0.0, 0.0],  # Constant
-        [1.0, 0.5, 0.0, 0.0],  # Linear trend
-        [1.0, 0.0, 0.5, 0.0],  # Quadratic
-        [1.0, 0.0, 0.0, 0.5],  # Cubic
-        [1.0, 0.3, 0.0, 0.3],  # Mixed
+        [0.0, 0.0, 0.0],  # Constant
+        [0.5, 0.0, 0.0],  # Linear trend
+        [0.0, 0.5, 0.0],  # Quadratic
+        [0.0, 0.0, 0.5],  # Cubic
+        [0.3, 0.0, 0.3],  # Mixed
     ]
 
     for i, pattern in enumerate(patterns):
