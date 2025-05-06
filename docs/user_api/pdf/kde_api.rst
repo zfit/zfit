@@ -5,5 +5,3 @@ KDEs (Kernel Density Estimations) provide a means of non-parametric density esti
 
 An extensive introduction and explanation can be found in
 :ref:`sec-kernel-density-estimation`.
-
-

@@ -26,4 +26,3 @@ clean:
 	@rm -rf user_api/_generated
 	@rm -rf user_api/minimize/_generated
 	@rm -rf user_api/pdf/_generated
-
