@@ -147,10 +147,15 @@ The :py:class:`~zfit_physics.pdf.Argus` PDF is commonly used to model background
    :align: center
    :alt: Argus PDF with different c values
 
-.. image:: ../../images/_generated/pdfs/argus_chi.png
+.. image:: ../../images/_generated/pdfs/argus_m0.png
    :width: 80%
    :align: center
-   :alt: Argus PDF with different chi values
+   :alt: Argus PDF with different m0 values
+
+.. image:: ../../images/_generated/pdfs/argus_p.png
+   :width: 80%
+   :align: center
+   :alt: Argus PDF with different p values
 
 .. autosummary::
 
@@ -180,7 +185,7 @@ CMSShape
 
 The :py:class:`~zfit_physics.pdf.CMSShape` PDF is used to model background distributions in CMS analyses.
 
-.. image:: ../../images/_generated/pdfs/cms_alpha.png
+.. image:: ../../images/_generated/pdfs/cms_m.png
    :width: 80%
    :align: center
    :alt: CMSShape PDF with different alpha values
@@ -189,6 +194,11 @@ The :py:class:`~zfit_physics.pdf.CMSShape` PDF is used to model background distr
    :width: 80%
    :align: center
    :alt: CMSShape PDF with different beta values
+
+.. image:: ../../images/_generated/pdfs/cms_gamma.png
+   :width: 80%
+   :align: center
+   :alt: CMSShape PDF with different gamma values
 
 .. autosummary::
 
@@ -199,15 +209,30 @@ Cruijff
 
 The :py:class:`~zfit_physics.pdf.Cruijff` PDF is an asymmetric Gaussian with different widths and tails on each side, often used to model detector resolution effects.
 
+.. image:: ../../images/_generated/pdfs/cruijff_mu.png
+   :width: 80%
+   :align: center
+   :alt: Cruijff PDF with different mu values
+
 .. image:: ../../images/_generated/pdfs/cruijff_sigmal.png
    :width: 80%
    :align: center
    :alt: Cruijff PDF with different sigmaL values
 
+.. image:: ../../images/_generated/pdfs/cruijff_sigmar.png
+   :width: 80%
+   :align: center
+   :alt: Cruijff PDF with different sigmaR values
+
 .. image:: ../../images/_generated/pdfs/cruijff_alphal.png
    :width: 80%
    :align: center
    :alt: Cruijff PDF with different alphaL values
+
+.. image:: ../../images/_generated/pdfs/cruijff_alphar.png
+   :width: 80%
+   :align: center
+   :alt: Cruijff PDF with different alphaR values
 
 .. autosummary::
 
@@ -218,15 +243,25 @@ ErfExp
 
 The :py:class:`~zfit_physics.pdf.ErfExp` PDF combines an error function with an exponential, useful for modeling backgrounds with a turn-on effect.
 
-.. image:: ../../images/_generated/pdfs/erfexp_c.png
+.. image:: ../../images/_generated/pdfs/erfexp_mu.png
    :width: 80%
    :align: center
-   :alt: ErfExp PDF with different c values
+   :alt: ErfExp PDF with different mu values
 
-.. image:: ../../images/_generated/pdfs/erfexp_sigma.png
+.. image:: ../../images/_generated/pdfs/erfexp_beta.png
    :width: 80%
    :align: center
-   :alt: ErfExp PDF with different sigma values
+   :alt: ErfExp PDF with different beta values
+
+.. image:: ../../images/_generated/pdfs/erfexp_gamma.png
+   :width: 80%
+   :align: center
+   :alt: ErfExp PDF with different gamma values
+
+.. image:: ../../images/_generated/pdfs/erfexp_n.png
+   :width: 80%
+   :align: center
+   :alt: ErfExp PDF with different n values
 
 .. autosummary::
 
@@ -237,15 +272,20 @@ Novosibirsk
 
 The :py:class:`~zfit_physics.pdf.Novosibirsk` PDF is used to model asymmetric peaks with a Gaussian-like core and exponential tails.
 
-.. image:: ../../images/_generated/pdfs/novo_width.png
+.. image:: ../../images/_generated/pdfs/novo_mu.png
    :width: 80%
    :align: center
-   :alt: Novosibirsk PDF with different width values
+   :alt: Novosibirsk PDF with different mu values
 
-.. image:: ../../images/_generated/pdfs/novo_tail.png
+.. image:: ../../images/_generated/pdfs/novo_sigma.png
    :width: 80%
    :align: center
-   :alt: Novosibirsk PDF with different tail values
+   :alt: Novosibirsk PDF with different sigma values
+
+.. image:: ../../images/_generated/pdfs/novo_lambd.png
+   :width: 80%
+   :align: center
+   :alt: Novosibirsk PDF with different lambd values
 
 .. autosummary::
 
