@@ -134,7 +134,7 @@ of the Gaussian core, providing more flexibility for modeling asymmetric peaks.
     zfit.pdf.DoubleCB
 
 
-The following PDFs are available in the separate `zfit_physics` package:
+The following PDFs are available in the separate ``zfit_physics`` package:
 
 
 Argus

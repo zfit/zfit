@@ -1,7 +1,8 @@
 """This script generates visualization plots for different minimizers in zfit.
 
-It creates plots showing how different minimizers perform on a complex version of the Rosenbrock function,
-tracking their paths and metrics like number of function evaluations and gradient calculations.
+It creates both static and animated plots showing how different minimizers perform
+on a complex version of the Rosenbrock function, tracking their paths and metrics
+like number of function evaluations and gradient calculations.
 """
 
 #  Copyright (c) 2025 zfit
@@ -14,9 +15,13 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
+import ray
+import tensorflow as tf
+from matplotlib import animation
 from tqdm import tqdm
 
 import zfit
+import zfit.z.numpy as znp
 
 # Get the directory of this script
 here = Path(__file__).parent.absolute()
@@ -33,12 +38,17 @@ plt.rcParams["font.size"] = 12
 
 
 def save_plot(filename):
-    """Save the current plot to the specified filename."""
+    """Save the current plot to the specified filename with '_static' appended."""
+    # Append '_static' to the filename before the extension
+    base_name, ext = filename.rsplit(".", 1)
+    static_filename = f"{base_name}_static.{ext}"
+
     plt.tight_layout()
-    plt.savefig(outpath / f"{filename}", dpi=100, bbox_inches="tight")
+    plt.savefig(outpath / static_filename, dpi=160, bbox_inches="tight")
     plt.close()
 
 
+# @z.function
 def complex_rosenbrock(x, a=1.0, b=100.0, c=0.5, d=0.1):
     """A more complex version of the Rosenbrock function.
 
@@ -52,64 +62,89 @@ def complex_rosenbrock(x, a=1.0, b=100.0, c=0.5, d=0.1):
     Returns:
         The function value at x
     """
-    x = np.asarray(x)
-    result = 0
+    x = znp.asarray(x)
 
     # Standard Rosenbrock terms
-    for i in range(len(x) - 1):
-        result += b * (x[i + 1] - x[i] ** 2) ** 2 + (a - x[i]) ** 2
+    result = b * (x[1] - x[0] ** 2) ** 2 + (a - x[0]) ** 2
 
     # Additional complexity
-    for i in range(len(x)):
-        result += c * np.sin(d * x[i]) ** 2
+    result += c * znp.sin(d * x[0]) ** 2
+    result += c * znp.sin(d * x[1]) ** 2
 
     return result
 
 
-class FunctionWrapper:
+MAX_EVALS = 5000  # Maximum number of function evaluations
+
+
+class MaxNumberOfEvaluations(Exception):
+    pass
+
+
+class FunctionWrapper(zfit.loss.SimpleLoss):
     """Wrapper for the function to track evaluations and gradients."""
 
-    def __init__(self, func, name="Function"):
+    def __init__(self, func, params):
         """Initialize the wrapper.
 
         Args:
             func: The function to wrap
             name: Name of the function for display
         """
+        super().__init__(func, params=params, jit=False, gradient="zfit", hessian="zfit", errordef=0.5)
         self.func = func
-        self.name = name
         self.evaluations = 0
         self.gradient_calls = 0
+        self.hessian_calls = 0
         self.history = []
 
-    def __call__(self, x):
-        """Call the function and track the evaluation."""
+    # def __call__(self, *args, **kwargs):
+    #     """Call the function and track the evaluation."""
+    #
+    def value(self, *args, **kwargs):
+        if self.evaluations > MAX_EVALS:
+            msg = "Maximum number of evaluations exceeded."
+            raise MaxNumberOfEvaluations(msg)
         self.evaluations += 1
-        result = self.func(x)
-        self.history.append((np.copy(x), result))
+        x = np.array(self.get_params())
+        result = super().value(*args, **kwargs)
+        self.history.append((x, result))
         return result
 
-    def gradient(self, x):
+    def gradient(self, *args, **kwargs):
         """Calculate the gradient using finite differences."""
         self.gradient_calls += 1
-        eps = 1e-8
-        grad = np.zeros_like(x)
+        return super().gradient(*args, **kwargs)
 
-        for i in range(len(x)):
-            x_plus = np.copy(x)
-            x_plus[i] += eps
-            x_minus = np.copy(x)
-            x_minus[i] -= eps
+    def value_gradient(self, *args, **kwargs) -> tuple[tf.Tensor, tf.Tensor]:
+        self.gradient_calls += 1
+        return super().value_gradient(*args, **kwargs)
+        # eps = 1e-8
+        # grad = np.zeros_like(x)
+        #
+        # for i in range(len(x)):
+        #     x_plus = np.copy(x)
+        #     x_plus[i] += eps
+        #     x_minus = np.copy(x)
+        #     x_minus[i] -= eps
+        #
+        #     grad[i] = (self.func(x_plus) - self.func(x_minus)) / (2 * eps)
+        #
+        # return grad
 
-            grad[i] = (self.func(x_plus) - self.func(x_minus)) / (2 * eps)
-
-        return grad
+    def hessian(self, *args, **kwargs):
+        self.hessian_calls += 1
+        return super().hessian(*args, **kwargs)
 
     def reset(self):
         """Reset the tracking counters and history."""
         self.evaluations = 0
         self.gradient_calls = 0
+        self.hessian_calls = 0
         self.history = []
+
+    def _check_assert_autograd(self, params):
+        pass
 
 
 def plot_minimizer_paths(minimizer_classes, starting_points, func_wrapper, title, filename, pbar):
@@ -152,6 +187,13 @@ def plot_minimizer_paths(minimizer_classes, starting_points, func_wrapper, title
     colors = plt.cm.tab10.colors
     markers = ["x", "s", "^", "d", "v"]
 
+    # Store paths for animation
+    all_paths = []
+    all_colors = []
+    all_labels = []
+    all_markers = []
+    all_start_points = []
+
     for i, minimizer_class in enumerate(minimizer_classes):
         minimizer_name = minimizer_class.__name__
         color = colors[i % len(colors)]
@@ -165,21 +207,49 @@ def plot_minimizer_paths(minimizer_classes, starting_points, func_wrapper, title
             # Reset the function wrapper
             func_wrapper.reset()
 
-            # Set the errordef
-            func_wrapper.errordef = 0.5
+            # # Set the errordef
+            # func_wrapper.errordef = 0.5
 
             # Create a copy of the starting point
-            params = [zfit.Parameter(f"x{i}", start_point[i], stepsize=0.1) for i in range(len(start_point))]
+            params = func_wrapper.get_params()
 
             # Minimize the function
             try:
+                for param, value in zip(params, start_point):
+                    param.set_value(value)
                 start_time = time.time()
+                #     # Start bar as a process
+                #     p = multiprocessing.Process(target=lambda min=minimizer, p=params, f=func_wrapper: min.minimize(f, p))
+                #     p.start()
+                #     # Wait for 30 seconds or until process finishes
+                #     p.join(30)
+                #
+                #     # If thread is still active
+                #     if p.is_alive():
+                #         print(f"{minimizer_name} from {start_point} took too long (more than 30s), terminating...")
+                #
+                #         # Terminate - may not work if process is stuck for good
+                #         p.terminate()
+                #         # OR Kill - will work for sure, no chance for process to finish nicely however
+                #         # p.kill()
+                #
+                #         p.join()
                 result = minimizer.minimize(func_wrapper, params)
                 end_time = time.time()
+
+                converged = result.valid
 
                 # Extract the path from the history
                 path = np.array([point[0] for point in func_wrapper.history])
 
+                # Store path data for animation
+                all_paths.append(path)
+                all_colors.append(color)
+                all_labels.append(f"{minimizer_name}")
+                all_markers.append(marker)
+                all_start_points.append(start_point)
+
+                minlabel = f"{minimizer_name}" if j == 0 else None
                 # Plot the path
                 ax.plot(
                     path[:, 0],
@@ -188,7 +258,7 @@ def plot_minimizer_paths(minimizer_classes, starting_points, func_wrapper, title
                     color=color,
                     alpha=0.4,
                     linewidth=1.1,
-                    label=f"{minimizer_name}",
+                    label=minlabel,
                 )
                 label = None
                 if j == 0:
@@ -211,7 +281,11 @@ def plot_minimizer_paths(minimizer_classes, starting_points, func_wrapper, title
                     "Starting point\n"
                     f"Evals: {func_wrapper.evaluations}\n"
                     f"Grads: {func_wrapper.gradient_calls}\n"
-                    f"Time: {end_time - start_time:.2f}s",
+                    f"Hess: {func_wrapper.hessian_calls}\n"
+                    f"Time: {end_time - start_time:.2f}s"
+                    f"\nNot converged"
+                    if not converged
+                    else "",
                     xy=(path[0, 0], path[0, 1]),
                     xytext=(10, 0),
                     textcoords="offset points",
@@ -220,6 +294,8 @@ def plot_minimizer_paths(minimizer_classes, starting_points, func_wrapper, title
                     alpha=0.9,
                 )
 
+            except MaxNumberOfEvaluations:
+                print(f"Maximum number of evaluations exceeded for {minimizer_name} from {start_point}")
             except Exception as e:
                 print(f"Error with {minimizer_name} from {start_point}: {e}")
             finally:
@@ -237,28 +313,191 @@ def plot_minimizer_paths(minimizer_classes, starting_points, func_wrapper, title
     # Add legend
     ax.legend(loc="upper left")
 
-    # Save the plot
+    # Save the static plot
     save_plot(filename)
 
+    # Create and save the animation
+    if all_paths:
+        return create_animation.remote(
+            X,
+            Y,
+            Z,
+            true_minimum,
+            all_paths,
+            all_colors,
+            all_labels,
+            all_markers,
+            all_start_points,
+            x,
+            y,
+            title,
+            filename,
+        )
+    else:
+        return create_fake_animation.remote(filename=filename)
 
+
+@ray.remote
+def create_fake_animation(*args, filename, **kwargs):
+    """Create a fake animation for testing purposes."""
+    base_name, ext = filename.rsplit(".", 1)
+    savepath = outpath / f"{base_name}.gif"
+
+    # create a fake animation with a static image
+
+    fig, ax = plt.subplots(figsize=(12, 10))
+    ax.text(0.5, 0.5, "Error when running this minimizer", fontsize=20, ha="center", va="center")
+    ax.axis("off")
+
+    def init():
+        return (ax,)
+
+    def update(frame):
+        return (ax,)
+
+    anim = animation.FuncAnimation(fig, update, frames=1, init_func=init, blit=True, interval=200)
+    anim.save(savepath, writer="pillow", fps=1, dpi=160)
+    plt.close(fig)
+
+
+@ray.remote
+def create_animation(
+    X, Y, Z, true_minimum, all_paths, all_colors, all_labels, all_markers, all_start_points, x, y, title, filename
+):
+    """Create and save an animation of the minimization process.
+
+    Args:
+        X, Y, Z: Meshgrid arrays for contour plot
+        true_minimum: True minimum of the function
+        all_paths: List of paths taken by the minimizers
+        all_colors: List of colors for each path
+        all_labels: List of labels for each path
+        all_markers: List of markers for each starting point
+        all_start_points: List of starting points
+        x, y: Axis limits
+        title: Title for the plot
+        filename: Filename to save the animation
+    """
+    # Find the maximum path length
+    max_len = max(len(path) for path in all_paths)
+
+    # Create the figure
+    fig, ax = plt.subplots(figsize=(12, 10))
+
+    # Plot the contour
+    contour = ax.contourf(X, Y, Z, levels=50, cmap="viridis", alpha=0.7)
+    fig.colorbar(contour, ax=ax, label="Function value")
+
+    # Plot the true minimum
+    ax.plot(
+        true_minimum[0],
+        true_minimum[1],
+        "o",
+        color="green",
+        markersize=15,
+        markeredgewidth=2,
+        alpha=1.0,
+        label="True Min",
+    )
+
+    # Set reasonable axis limits
+    ax.set_xlim(x.min(), x.max())
+    ax.set_ylim(y.min(), y.max())
+
+    # Add labels and title
+    ax.set_xlabel("x")
+    ax.set_ylabel("y")
+    ax.set_title(title + " (Animation)")
+
+    # Plot all starting points
+    for i, start_point in enumerate(all_start_points):
+        ax.plot(
+            start_point[0],
+            start_point[1],
+            all_markers[i],
+            color=all_colors[i % len(all_colors)],
+            markersize=10,
+            alpha=0.8,
+        )
+
+    # Initialize line objects for each path
+    lines = []
+    points = []
+
+    for i, _path in enumerate(all_paths):
+        (line,) = ax.plot([], [], "--", color=all_colors[i], alpha=0.6, linewidth=1.5)
+        (point,) = ax.plot([], [], "o", color=all_colors[i], alpha=0.9, markersize=6)
+        lines.append(line)
+        points.append(point)
+
+    # Create a legend with unique labels
+    unique_labels = list(set(all_labels))
+    handles = [
+        plt.Line2D([0], [0], color=all_colors[all_labels.index(label)], linestyle="--", label=label)
+        for label in unique_labels
+    ]
+    handles.append(plt.Line2D([0], [0], marker="o", color="green", linestyle="", markersize=10, label="True Minimum"))
+    ax.legend(handles=handles, loc="upper left")
+
+    # Animation initialization function
+    def init():
+        for line, point in zip(lines, points):
+            line.set_data([], [])
+            point.set_data([], [])
+        return lines + points
+
+    # Animation update function
+    def update(frame):
+        for _i, (line, point, path) in enumerate(zip(lines, points, all_paths)):
+            if frame < len(path):
+                line.set_data(path[: frame + 1, 0], path[: frame + 1, 1])
+                point.set_data([path[frame, 0]], [path[frame, 1]])
+            else:
+                # If this path is shorter than the current frame, show the entire path
+                line.set_data(path[:, 0], path[:, 1])
+                if len(path) > 0:
+                    point.set_data([path[-1, 0]], [path[-1, 1]])
+        return lines + points
+
+    fps = 5
+    # Create the animation
+    anim = animation.FuncAnimation(
+        fig,
+        update,
+        frames=min(max_len, 500),  # Limit to 100 frames for efficiency
+        init_func=init,
+        blit=True,
+        interval=1000 / fps,  # ms
+    )
+
+    # Save the animation
+    base_name, ext = filename.rsplit(".", 1)
+    anim.save(outpath / f"{base_name}.gif", writer="pillow", fps=fps, dpi=160)
+    plt.close()
+
+
+from functools import lru_cache
+
+
+@lru_cache
 def create_meshgrid_arrays(func_wrapper):
     # Create a grid of x and y values for the contour plot
-    x = np.linspace(-1.5, 1.5, 100)  # Set reasonable bounds
-    y = np.linspace(-1.0, 1.5, 100)  # Set reasonable bounds
-    X, Y = np.meshgrid(x, y)
+    x = znp.linspace(-1.5, 1.5, 100)  # Set reasonable bounds
+    y = znp.linspace(-1.0, 1.5, 100)  # Set reasonable bounds
+    X, Y = znp.meshgrid(x, y)
     Z = np.zeros_like(X)
     # Calculate function values for the contour plot
     for i in range(len(x)):
         for j in range(len(y)):
             Z[j, i] = func_wrapper.func([X[j, i], Y[j, i]])
-    return X, Y, Z, x, y
+    return np.array(X), np.array(Y), np.array(Z), np.array(x), np.array(y)
 
 
 def plot_minimizers():
     """Generate plots for different minimizers."""
+    ray.init()
     # Define the function to minimize
-    func = lambda x: complex_rosenbrock(x)
-    func_wrapper = FunctionWrapper(func, name="Complex Rosenbrock")
+    func = complex_rosenbrock
 
     # Define the minimizers to test
     # Group minimizers by category
@@ -266,6 +505,7 @@ def plot_minimizers():
 
     levenberg_marquardt_minimizers = [zfit.minimize.LevenbergMarquardt]
 
+    # ipyopt_minimizers = [zfit.minimize.Ipyopt]
     ipyopt_minimizers = [zfit.minimize.Ipyopt]
 
     scipy_minimizers = [
@@ -308,8 +548,8 @@ def plot_minimizers():
         [-0.5, 1.2],  # Top left
         [1.2, 1.2],  # Top right
         [0.0, -0.0],  # Center
-        [-0.5, -0.5],  # Bottom left
-        [0.5, -0.5],  # Bottom right
+        [-0.5, -0.4],  # Bottom left
+        [0.5, -0.6],  # Bottom right
     ]
     pbar = tqdm(
         enumerate(minimizer_classes),
@@ -329,69 +569,104 @@ def plot_minimizers():
     # Plot individual minimizer paths for each category
 
     # Minuit minimizers
-    print("Generating Minuit minimizer plots...")
-    for minimizer_class in minuit_minimizers:
+    print("Generating all minimizer plots...")
+    params = [zfit.Parameter(f"x{i}", starting_points[0][i], stepsize=0.1) for i in range(len(starting_points[0]))]
+    func_wrapper = FunctionWrapper(func, params=params)
+    remotes = []
+    for minimizer_class in minimizer_classes:
         func_wrapper.reset()
-        plot_minimizer_paths_pbar(
+        future = plot_minimizer_paths_pbar(
             [minimizer_class],
             starting_points,
             func_wrapper,
             f"{minimizer_class.__name__} Paths on Complex Rosenbrock Function",
             f"{minimizer_class.__name__.lower()}_paths.png",
         )
+        remotes.append(future)
 
-    # Levenberg-Marquardt minimizers
-    print("Generating Levenberg-Marquardt minimizer plots...")
-    for minimizer_class in levenberg_marquardt_minimizers:
-        func_wrapper.reset()
-        plot_minimizer_paths_pbar(
-            [minimizer_class],
-            starting_points,
-            func_wrapper,
-            f"{minimizer_class.__name__} Paths on Complex Rosenbrock Function",
-            f"{minimizer_class.__name__.lower()}_paths.png",
-        )
+    # Minuit minimizers
+    # print("Generating Minuit minimizer plots...")
+    # remotes = []
+    # for minimizer_class in minuit_minimizers:
+    #     func_wrapper.reset()
+    #     future = plot_minimizer_paths_pbar(
+    #         [minimizer_class],
+    #         starting_points,
+    #         func_wrapper,
+    #         f"{minimizer_class.__name__} Paths on Complex Rosenbrock Function",
+    #         f"{minimizer_class.__name__.lower()}_paths.png",
+    #     )
+    #     remotes.append(future)
+    #
+    # # Levenberg-Marquardt minimizers
+    # print("Generating Levenberg-Marquardt minimizer plots...")
+    # for minimizer_class in levenberg_marquardt_minimizers:
+    #     func_wrapper.reset()
+    #     future = plot_minimizer_paths_pbar(
+    #         [minimizer_class],
+    #         starting_points,
+    #         func_wrapper,
+    #         f"{minimizer_class.__name__} Paths on Complex Rosenbrock Function",
+    #         f"{minimizer_class.__name__.lower()}_paths.png",
+    #     )
+    #     remotes.append(future)
+    #
+    # # Ipyopt minimizers
+    # print("Generating Ipyopt minimizer plots...")
+    # for minimizer_class in ipyopt_minimizers:
+    #     func_wrapper.reset()
+    #     future = plot_minimizer_paths_pbar(
+    #         [minimizer_class],
+    #         starting_points,
+    #         func_wrapper,
+    #         f"{minimizer_class.__name__} Paths on Complex Rosenbrock Function",
+    #         f"{minimizer_class.__name__.lower()}_paths.png",
+    #     )
+    #     remotes.append(future)
+    #
+    # # Scipy minimizers
+    # print("Generating Scipy minimizer plots...")
+    # for minimizer_class in scipy_minimizers:
+    #     func_wrapper.reset()
+    #     future = plot_minimizer_paths_pbar(
+    #         [minimizer_class],
+    #         starting_points,
+    #         func_wrapper,
+    #         f"{minimizer_class.__name__} Paths on Complex Rosenbrock Function",
+    #         f"{minimizer_class.__name__.lower()}_paths.png",
+    #     )
+    #     remotes.append(future)
+    #
+    # # NLopt minimizers
+    # print("Generating NLopt minimizer plots...")
+    # for minimizer_class in nlopt_minimizers:
+    #     func_wrapper.reset()
+    #     future = plot_minimizer_paths_pbar(
+    #         [minimizer_class],
+    #         starting_points,
+    #         func_wrapper,
+    #         f"{minimizer_class.__name__} Paths on Complex Rosenbrock Function",
+    #         f"{minimizer_class.__name__.lower()}_paths.png",
+    #     )
+    #     remotes.append(future)
 
-    # Ipyopt minimizers
-    print("Generating Ipyopt minimizer plots...")
-    for minimizer_class in ipyopt_minimizers:
-        func_wrapper.reset()
-        plot_minimizer_paths_pbar(
-            [minimizer_class],
-            starting_points,
-            func_wrapper,
-            f"{minimizer_class.__name__} Paths on Complex Rosenbrock Function",
-            f"{minimizer_class.__name__.lower()}_paths.png",
-        )
+    # check all ray remote returns and make sure they all finish
+    print("Waiting for all minimizer plots to finish...")
+    all_data = []
+    ntot = len(remotes)
+    for _ in tqdm(range(ntot), desc="Waiting for minimizer plots to finish"):
+        finished, remotes = ray.wait(remotes)
+        data = ray.get(finished)
+        all_data.extend(data)
 
-    # Scipy minimizers
-    print("Generating Scipy minimizer plots...")
-    for minimizer_class in scipy_minimizers:
-        func_wrapper.reset()
-        plot_minimizer_paths_pbar(
-            [minimizer_class],
-            starting_points,
-            func_wrapper,
-            f"{minimizer_class.__name__} Paths on Complex Rosenbrock Function",
-            f"{minimizer_class.__name__.lower()}_paths.png",
-        )
-
-    # NLopt minimizers
-    print("Generating NLopt minimizer plots...")
-    for minimizer_class in nlopt_minimizers:
-        func_wrapper.reset()
-        plot_minimizer_paths_pbar(
-            [minimizer_class],
-            starting_points,
-            func_wrapper,
-            f"{minimizer_class.__name__} Paths on Complex Rosenbrock Function",
-            f"{minimizer_class.__name__.lower()}_paths.png",
-        )
+    print("All minimizer plots finished.")
 
 
 def main():
     """Generate all minimizer plots."""
     print("Generating minimizer plots...")
+    print("Static plots will have '_static' appended to their filenames.")
+    print("Animated plots will be saved as GIFs with the original filenames.")
 
     # Generate the plots
     plot_minimizers()
