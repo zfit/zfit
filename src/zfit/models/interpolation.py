@@ -93,6 +93,6 @@ class SplinePDF(BaseFunctor):
             train_points=centers,
             train_values=density[None, :, None],
             query_points=x.value()[None, ...],
-            order=3,
+            order=2,
         )
         return probs[0, ..., 0]
