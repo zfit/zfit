@@ -30,16 +30,6 @@ Each minimizer starts from 5 different initial points (marked with symbols) and 
 The contour plot represents the function values, with darker colors indicating lower values.
 For each minimizer, the plot shows the number of function evaluations, gradient calculations, and execution time.
 
-.. image:: ../../images/_generated/minimizers/minimizer_paths.png
-   :width: 100%
-   :alt: Comparison of different minimizers on a complex Rosenbrock function
-
-This visualization helps to understand the behavior of different minimizers:
-
-* Some minimizers may converge faster but might be more sensitive to the starting point
-* Others may take more iterations but be more robust to different starting conditions
-* The number of function evaluations and gradient calculations can vary significantly between minimizers
-* Some minimizers may get stuck in local minima depending on the starting point
 
 Minuit
 :::::::
