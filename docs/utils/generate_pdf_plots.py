@@ -852,7 +852,7 @@ def plot_chebyshev():
 
     # Plot with different degrees
     plt.figure()
-    degrees = [2, 3, 5, 6]
+    degrees = [2, 3, 5, 6, 7, 8]  # Added degrees 7 and 8
 
     for degree in degrees:
         # Create coefficients
@@ -876,11 +876,11 @@ def plot_chebyshev():
     # Plot with different coefficient patterns for degree 3
     plt.figure()
     patterns = [
-        [1.0, 0.0, 0.0, 0.0],  # Constant
-        [1.0, 0.5, 0.0, 0.0],  # Linear trend
-        [1.0, 0.0, 0.5, 0.0],  # Quadratic
-        [1.0, 0.0, 0.0, 0.5],  # Cubic
-        [1.0, 0.3, 0.3, 0.3],  # Mixed
+        [0.0, 0.0, 0.0],  # Constant (first coefficient 1.0 is automatic)
+        [0.5, 0.0, 0.0],  # Linear trend
+        [0.0, 0.5, 0.0],  # Quadratic
+        [0.0, 0.0, 0.5],  # Cubic
+        [0.3, 0.3, 0.3],  # Mixed
     ]
 
     for i, pattern in enumerate(patterns):
@@ -903,7 +903,7 @@ def plot_legendre():
 
     # Plot with different degrees
     plt.figure()
-    degrees = [2, 3, 5, 6]
+    degrees = [2, 3, 5, 6, 7, 8]  # Added degrees 7 and 8
 
     for degree in degrees:
         # Create coefficients
@@ -927,11 +927,11 @@ def plot_legendre():
     # Plot with different coefficient patterns for degree 3
     plt.figure()
     patterns = [
-        [1.0, 0.0, 0.0, 0.0],  # Constant
-        [1.0, 0.5, 0.0, 0.0],  # Linear trend
-        [1.0, 0.0, 0.5, 0.0],  # Quadratic
-        [1.0, 0.0, 0.0, 0.5],  # Cubic
-        [1.0, 0.2, 0.2, 0.2],  # Mixed
+        [0.0, 0.0, 0.0],  # Constant (first coefficient 1.0 is automatic)
+        [0.5, 0.0, 0.0],  # Linear trend
+        [0.0, 0.5, 0.0],  # Quadratic
+        [0.0, 0.0, 0.5],  # Cubic
+        [0.2, 0.2, 0.2],  # Mixed
     ]
 
     for i, pattern in enumerate(patterns):
@@ -954,7 +954,7 @@ def plot_chebyshev2():
 
     # Plot with different degrees
     plt.figure()
-    degrees = [2, 3, 5, 6]
+    degrees = [2, 3, 5, 6, 7, 8]  # Added degrees 7 and 8
 
     for degree in degrees:
         # Create coefficients
@@ -978,11 +978,11 @@ def plot_chebyshev2():
     # Plot with different coefficient patterns for degree 3
     plt.figure()
     patterns = [
-        [1.0, 0.0, 0.0, 0.0],  # Constant
-        [1.0, 0.5, 0.0, 0.0],  # Linear trend
-        [1.0, 0.0, 0.5, 0.0],  # Quadratic
-        [1.0, 0.0, 0.0, 0.5],  # Cubic
-        [1.0, 0.2, 0.3, 0.4],  # Increasing
+        [0.0, 0.0, 0.0],  # Constant (first coefficient 1.0 is automatic)
+        [0.5, 0.0, 0.0],  # Linear trend
+        [0.0, 0.5, 0.0],  # Quadratic
+        [0.0, 0.0, 0.5],  # Cubic
+        [0.2, 0.3, 0.4],  # Increasing
     ]
 
     for i, pattern in enumerate(patterns):
@@ -1686,7 +1686,7 @@ def plot_splinemorphingpdf():
         templates.append(values)
 
         # Create a binned data object
-        from zfit._data.binneddatav1 import BinnedData
+        from zfit.data import BinnedData
 
         binned_space = zfit.Space("x", binning=zfit.binned.RegularBinning(len(bin_centers), -5, 5, name="x"))
         binned_data = BinnedData.from_tensor(space=binned_space, values=values)
@@ -2043,6 +2043,48 @@ def plot_productpdf():
     plt.title("ProductPDF: Asymmetric 2D Gaussian")
     plt.axis("equal")
     save_plot("productpdf_asymmetric.png")
+
+
+def plot_productpdf_1d():
+    """Create an example of multiplying two PDFs in the same 1-dimensional space."""
+    # Create observable for a 1D PDF
+    obs = zfit.Space("x", limits=(-5, 5))
+
+    # Create component PDFs
+    plt.figure()
+
+    # Create a Gaussian PDF
+    mu = Parameter("mu", 0.0)
+    sigma = Parameter("sigma", 1.0)
+    gauss = zfit.pdf.Gauss(mu=mu, sigma=sigma, obs=obs)
+
+    # Create an exponential PDF
+    lambda_param = Parameter("lambda", 0.5)
+    expo = zfit.pdf.Exponential(lambda_=lambda_param, obs=obs)
+
+    # Create a product PDF
+    prod_pdf = zfit.pdf.ProductPDF([gauss, expo])
+
+    # Create points for visualization
+    x = np.linspace(-5, 5, 1000)
+
+    # Evaluate the individual PDFs
+    y_gauss = gauss.pdf(x)
+    y_expo = expo.pdf(x)
+
+    # Evaluate the product PDF
+    y_prod = prod_pdf.pdf(x)
+
+    # Plot the distributions
+    plt.plot(x, y_gauss, label="Gaussian PDF")
+    plt.plot(x, y_expo, label="Exponential PDF")
+    plt.plot(x, y_prod, label="Product PDF")
+
+    plt.xlabel("x")
+    plt.ylabel("Probability density")
+    plt.title("ProductPDF: Multiplying PDFs in the same dimension")
+    plt.legend()
+    save_plot("productpdf_1d_multiplication.png")
 
 
 def plot_fftconvpdf():
@@ -2977,6 +3019,7 @@ def main():
     composed_pdfs = [
         plot_sumpdf,
         plot_productpdf,
+        plot_productpdf_1d,
         plot_fftconvpdf,
         plot_conditionalpdf,
         plot_truncatedpdf,

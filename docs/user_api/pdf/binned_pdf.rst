@@ -56,7 +56,7 @@ Spline Morphing PDF
 
 The :py:class:`~zfit.pdf.SplineMorphingPDF` creates a morphing between different template histograms using spline interpolation.
 
-.. image:: ../../images/_generated/pdfs/splinemorphingpdf_morphing.png
+.. image:: ../../images/_generated/pdfs/splinemorphingpdf_morphing.pngIGNORE
    :width: 80%
    :align: center
    :alt: SplineMorphingPDF with different parameter values
@@ -84,7 +84,7 @@ Spline PDF
 
 The :py:class:`~zfit.pdf.SplinePDF` creates a PDF from spline interpolation between points.
 
-.. image:: ../../images/_generated/pdfs/splinepdf_shapes.png
+.. image:: ../../images/_generated/pdfs/splinepdf_shapes.pngIGNORE
    :width: 80%
    :align: center
    :alt: SplinePDF with different shapes

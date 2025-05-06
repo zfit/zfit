@@ -24,8 +24,13 @@ This is useful for creating mixture models, such as signal plus background.
 Product PDF
 ---------
 
-The :py:class:`~zfit.pdf.ProductPDF` multiplies PDFs together, useful for creating joint distributions.
+The :py:class:`~zfit.pdf.ProductPDF` multiplies PDFs together, useful for creating joint distributions or in the same dimension.
 This is commonly used when variables are independent or when creating multi-dimensional models.
+
+.. image:: ../../images/_generated/pdfs/productpdf_1d_multiplication.png
+   :width: 80%
+   :align: center
+   :alt: ProductPDF: Multiplying PDFs in the same dimension
 
 .. image:: ../../images/_generated/pdfs/productpdf_2d_gaussian.png
    :width: 80%
