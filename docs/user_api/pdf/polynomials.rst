@@ -11,9 +11,9 @@ backgrounds or for creating flexible parametric shapes.
 Below are visualizations of polynomial PDFs with different parameter values to help
 understand their shapes and choose appropriate initial parameter values.
 
-The general parameter structure includes the `coeff`, which is a list of coefficients starting at the SECOND coefficient. Since the PDF is normalized, the first coefficient is set to constant 1.0 by default; this *can* be changed using the `coeff0` parameter -- it is rarely if ever needed.
+The general parameter structure includes the ``coeff``, which is a list of coefficients starting at the SECOND coefficient. Since the PDF is normalized, the first coefficient is set to constant 1.0 by default; this *can* be changed using the ``coeff0`` parameter -- it is rarely if ever needed.
 
-To change the overall normalization, use the `extended` parameter.
+To change the overall normalization, use the ``extended`` parameter.
 
 Bernstein Polynomials
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

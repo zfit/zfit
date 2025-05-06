@@ -9,6 +9,7 @@ import atexit
 # disable gpu for TensorFlow
 import os
 import shutil
+import subprocess
 import sys
 from pathlib import Path
 
@@ -80,7 +81,6 @@ bibtex_bibfiles = [str(project_dir.joinpath("docs", "refs.bib"))]
 # run the generate_pdf_plots.py script to generate the pdf plots
 plotscript = project_dir / "docs" / "utils" / "generate_pdf_plots.py"
 minimizerscript = project_dir / "docs" / "utils" / "generate_minimizer_plots.py"
-import subprocess
 
 subprocess.run(["python", str(plotscript)], check=True)
 subprocess.run(["python", str(minimizerscript)], check=True)

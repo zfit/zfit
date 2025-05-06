@@ -10,7 +10,7 @@ like number of function evaluations and gradient calculations.
 from __future__ import annotations
 
 import time
-from functools import partial
+from functools import lru_cache, partial
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -338,7 +338,7 @@ def plot_minimizer_paths(minimizer_classes, starting_points, func_wrapper, title
 
 
 @ray.remote
-def create_fake_animation(*args, filename, **kwargs):
+def create_fake_animation(filename):
     """Create a fake animation for testing purposes."""
     base_name, ext = filename.rsplit(".", 1)
     savepath = outpath / f"{base_name}.gif"
@@ -352,7 +352,7 @@ def create_fake_animation(*args, filename, **kwargs):
     def init():
         return (ax,)
 
-    def update(frame):
+    def update(_):
         return (ax,)
 
     anim = animation.FuncAnimation(fig, update, frames=1, init_func=init, blit=True, interval=200)
@@ -474,9 +474,6 @@ def create_animation(
     base_name, ext = filename.rsplit(".", 1)
     anim.save(outpath / f"{base_name}.gif", writer="pillow", fps=fps, dpi=160)
     plt.close()
-
-
-from functools import lru_cache
 
 
 @lru_cache

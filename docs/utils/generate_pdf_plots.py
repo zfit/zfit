@@ -125,8 +125,8 @@ def plot_gaussian():
         "Gaussian PDF",
         (-5, 5),
         [
-            ("mu", [-2, 0, 2], {"sigma": 1.0}, "μ", lambda v: f"μ = {v}"),
-            ("sigma", [0.5, 1.0, 2.0], {"mu": 0.0}, "σ", lambda v: f"σ = {v}"),
+            ("mu", [-2, 0, 2], {"sigma": 1.0}, "$\mu$", lambda v: f"$\mu$ = {v}"),
+            ("sigma", [0.5, 1.0, 2.0], {"mu": 0.0}, "$\sigma$", lambda v: f"$\sigma$ = {v}"),
         ],
     )
     plot_multiple_configs(configs, obs)
@@ -175,7 +175,7 @@ def plot_cauchy():
         (-10, 10),
         [
             ("m", [-2, 0, 2], {"gamma": 1.0}, "m", None),
-            ("gamma", [0.5, 1.0, 2.0], {"m": 0.0}, "γ", lambda v: f"γ = {v}"),
+            ("gamma", [0.5, 1.0, 2.0], {"m": 0.0}, "$\gamma$", lambda v: f"$\gamma$ = {v}"),
         ],
     )
     plot_multiple_configs(configs, obs)
@@ -189,8 +189,8 @@ def plot_voigt():
         "Voigt PDF",
         (-10, 10),
         [
-            ("sigma", [0.5, 1.0, 2.0], {"m": 0.0, "gamma": 1.0}, "σ", lambda v: f"σ = {v}"),
-            ("gamma", [0.5, 1.0, 2.0], {"m": 0.0, "sigma": 1.0}, "γ", lambda v: f"γ = {v}"),
+            ("sigma", [0.5, 1.0, 2.0], {"m": 0.0, "gamma": 1.0}, "$\sigma$", lambda v: f"$\sigma$ = {v}"),
+            ("gamma", [0.5, 1.0, 2.0], {"m": 0.0, "sigma": 1.0}, "$\gamma$", lambda v: f"$\gamma$ = {v}"),
             ("m", [-2, 0, 2], {"sigma": 1.0, "gamma": 1.0}, "m", None),
         ],
     )
@@ -205,10 +205,10 @@ def plot_crystalball():
         "CrystalBall PDF",
         (-5, 5),
         [
-            ("alpha", [0.5, 1.0, 2.0], {"mu": 0.0, "sigma": 1.0, "n": 2.0}, "α", lambda v: f"α = {v}"),
+            ("alpha", [0.5, 1.0, 2.0], {"mu": 0.0, "sigma": 1.0, "n": 2.0}, "$\alpha$", lambda v: f"$\alpha$ = {v}"),
             ("n", [1.0, 2.0, 5.0], {"mu": 0.0, "sigma": 1.0, "alpha": 1.0}, "n", None),
-            ("mu", [-1.0, 0.0, 1.0], {"sigma": 1.0, "alpha": 1.0, "n": 2.0}, "μ", lambda v: f"μ = {v}"),
-            ("sigma", [0.5, 1.0, 1.5], {"mu": 0.0, "alpha": 1.0, "n": 2.0}, "σ", lambda v: f"σ = {v}"),
+            ("mu", [-1.0, 0.0, 1.0], {"sigma": 1.0, "alpha": 1.0, "n": 2.0}, "$\mu$", lambda v: f"$\mu$ = {v}"),
+            ("sigma", [0.5, 1.0, 1.5], {"mu": 0.0, "alpha": 1.0, "n": 2.0}, "$\sigma$", lambda v: f"$\sigma$ = {v}"),
         ],
     )
     plot_multiple_configs(configs, obs)
@@ -222,8 +222,8 @@ def plot_lognormal():
         "LogNormal PDF",
         (0.1, 10),
         [
-            ("mu", [-0.5, 0.0, 0.5], {"sigma": 0.5}, "μ", lambda v: f"μ = {v}"),
-            ("sigma", [0.2, 0.5, 1.0], {"mu": 0.0}, "σ", lambda v: f"σ = {v}"),
+            ("mu", [-0.5, 0.0, 0.5], {"sigma": 0.5}, "$\mu$", lambda v: f"$\mu$ = {v}"),
+            ("sigma", [0.2, 0.5, 1.0], {"mu": 0.0}, "$\sigma$", lambda v: f"$\sigma$ = {v}"),
         ],
     )
     plot_multiple_configs(configs, obs)
@@ -237,9 +237,15 @@ def plot_bifurgauss():
         "BifurGauss PDF",
         (-5, 5),
         [
-            ("mu", [-1.0, 0.0, 1.0], {"sigmal": 1.0, "sigmar": 1.0}, "μ", lambda v: f"μ = {v}"),
-            ("sigmal", [0.5, 1.0, 1.5], {"mu": 0.0, "sigmar": 1.0}, "σ_left", lambda v: f"σ_left = {v}"),
-            ("sigmar", [0.5, 1.0, 1.5], {"mu": 0.0, "sigmal": 1.0}, "σ_right", lambda v: f"σ_right = {v}"),
+            ("mu", [-1.0, 0.0, 1.0], {"sigmal": 1.0, "sigmar": 1.0}, "$\mu$", lambda v: f"$\mu$ = {v}"),
+            ("sigmal", [0.5, 1.0, 1.5], {"mu": 0.0, "sigmar": 1.0}, "$\sigma$_left", lambda v: f"$\sigma$_left = {v}"),
+            (
+                "sigmar",
+                [0.5, 1.0, 1.5],
+                {"mu": 0.0, "sigmal": 1.0},
+                "$\sigma$_right",
+                lambda v: f"$\sigma$_right = {v}",
+            ),
         ],
     )
     plot_multiple_configs(configs, obs)
@@ -254,11 +260,11 @@ def plot_poisson():
     for lambda_val in [1.0, 5.0, 10.0]:
         poisson = zfit.pdf.Poisson(lam=Parameter("lambda", lambda_val), obs=obs)
         y = poisson.pdf(x)
-        plt.step(x, y, where="mid", label=f"λ = {lambda_val}")
+        plt.step(x, y, where="mid", label=f"$\lambda$ = {lambda_val}")
 
     plt.xlabel("x")
     plt.ylabel("Probability mass")
-    plt.title("Poisson PDF with different λ values")
+    plt.title("Poisson PDF with different $\lambda$ values")
     plt.legend()
     save_plot("poisson_lambda.png")
 
@@ -271,8 +277,8 @@ def plot_qgauss():
         "QGauss PDF",
         (-5, 5),
         [
-            ("mu", [-1.0, 0.0, 1.0], {"sigma": 1.0, "q": 1.5}, "μ", lambda v: f"μ = {v}"),
-            ("sigma", [0.5, 1.0, 1.5], {"mu": 0.0, "q": 1.5}, "σ", lambda v: f"σ = {v}"),
+            ("mu", [-1.0, 0.0, 1.0], {"sigma": 1.0, "q": 1.5}, "$\mu$", lambda v: f"$\mu$ = {v}"),
+            ("sigma", [0.5, 1.0, 1.5], {"mu": 0.0, "q": 1.5}, "$\sigma$", lambda v: f"$\sigma$ = {v}"),
             ("q", [1.1, 1.5, 2.0], {"mu": 0.0, "sigma": 1.0}, "q", None),
         ],
     )
@@ -287,9 +293,21 @@ def plot_johnsonsu():
         "JohnsonSU PDF",
         (-5, 5),
         [
-            ("mu", [-1.0, 0.0, 1.0], {"lambd": 1.0, "gamma": 1.0, "delta": 1.0}, "μ", lambda v: f"μ = {v}"),
-            ("gamma", [0.0, 1.0, 2.0], {"mu": 0.0, "lambd": 1.0, "delta": 1.0}, "γ", lambda v: f"γ = {v}"),
-            ("delta", [0.5, 1.0, 2.0], {"mu": 0.0, "lambd": 1.0, "gamma": 1.0}, "δ", lambda v: f"δ = {v}"),
+            ("mu", [-1.0, 0.0, 1.0], {"lambd": 1.0, "gamma": 1.0, "delta": 1.0}, "$\mu$", lambda v: f"$\mu$ = {v}"),
+            (
+                "gamma",
+                [0.0, 1.0, 2.0],
+                {"mu": 0.0, "lambd": 1.0, "delta": 1.0},
+                "$\gamma$",
+                lambda v: f"$\gamma$ = {v}",
+            ),
+            (
+                "delta",
+                [0.5, 1.0, 2.0],
+                {"mu": 0.0, "lambd": 1.0, "gamma": 1.0},
+                "$\delta$",
+                lambda v: f"$\delta$ = {v}",
+            ),
         ],
     )
     plot_multiple_configs(configs, obs)
@@ -303,9 +321,9 @@ def plot_generalizedgauss():
         "GeneralizedGauss PDF",
         (-5, 5),
         [
-            ("mu", [-1.0, 0.0, 1.0], {"sigma": 1.0, "beta": 2.0}, "μ", lambda v: f"μ = {v}"),
-            ("sigma", [0.5, 1.0, 2.0], {"mu": 0.0, "beta": 2.0}, "σ", lambda v: f"σ = {v}"),
-            ("beta", [1.0, 2.0, 4.0], {"mu": 0.0, "sigma": 1.0}, "β", lambda v: f"β = {v}"),
+            ("mu", [-1.0, 0.0, 1.0], {"sigma": 1.0, "beta": 2.0}, "$\mu$", lambda v: f"$\mu$ = {v}"),
+            ("sigma", [0.5, 1.0, 2.0], {"mu": 0.0, "beta": 2.0}, "$\sigma$", lambda v: f"$\sigma$ = {v}"),
+            ("beta", [1.0, 2.0, 4.0], {"mu": 0.0, "sigma": 1.0}, "$\beta$", lambda v: f"$\beta$ = {v}"),
         ],
     )
     plot_multiple_configs(configs, obs)
@@ -322,8 +340,8 @@ def plot_truncatedgauss():
         "TruncatedGauss PDF",
         (-5, 5),
         [
-            ("mu", [-1.0, 0.0, 1.0], {"sigma": 1.0, "low": -2.0, "high": 2.0}, "μ", lambda v: f"μ = {v}"),
-            ("sigma", [0.5, 1.0, 1.5], {"mu": 0.0, "low": -2.0, "high": 2.0}, "σ", lambda v: f"σ = {v}"),
+            ("mu", [-1.0, 0.0, 1.0], {"sigma": 1.0, "low": -2.0, "high": 2.0}, "$\mu$", lambda v: f"$\mu$ = {v}"),
+            ("sigma", [0.5, 1.0, 1.5], {"mu": 0.0, "low": -2.0, "high": 2.0}, "$\sigma$", lambda v: f"$\sigma$ = {v}"),
         ],
     )
     plot_multiple_configs(configs, obs)
@@ -384,8 +402,8 @@ def plot_gamma():
         "Gamma PDF",
         (0.1, 10),
         [
-            ("gamma", [1.0, 2.0, 5.0], {"mu": 0.0, "beta": 1.0}, "γ", lambda v: f"γ = {v}"),
-            ("beta", [0.5, 1.0, 2.0], {"mu": 0.0, "gamma": 2.0}, "β", lambda v: f"β = {v}"),
+            ("gamma", [1.0, 2.0, 5.0], {"mu": 0.0, "beta": 1.0}, "$\gamma$", lambda v: f"$\gamma$ = {v}"),
+            ("beta", [0.5, 1.0, 2.0], {"mu": 0.0, "gamma": 2.0}, "$\beta$", lambda v: f"$\beta$ = {v}"),
         ],
     )
     plot_multiple_configs(configs, obs)
@@ -535,15 +553,15 @@ def plot_doublecb():
                 "alphal",
                 [0.5, 1.0, 2.0],
                 {"mu": 0.0, "sigma": 1.0, "nl": 2.0, "alphar": 1.0, "nr": 2.0},
-                "αL",
-                lambda v: f"αL = {v}",
+                "$\alpha$L",
+                lambda v: f"$\alpha$L = {v}",
             ),
             (
                 "alphar",
                 [0.5, 1.0, 2.0],
                 {"mu": 0.0, "sigma": 1.0, "nl": 2.0, "alphal": 1.0, "nr": 2.0},
-                "αR",
-                lambda v: f"αR = {v}",
+                "$\alpha$R",
+                lambda v: f"$\alpha$R = {v}",
             ),
         ],
     )
@@ -558,8 +576,8 @@ def plot_gaussexptail():
         "GaussExpTail PDF",
         (-5, 5),
         [
-            ("alpha", [0.5, 1.0, 2.0], {"mu": 0.0, "sigma": 1.0}, "α", lambda v: f"α = {v}"),
-            ("sigma", [0.5, 1.0, 2.0], {"mu": 0.0, "alpha": 1.0}, "σ", lambda v: f"σ = {v}"),
+            ("alpha", [0.5, 1.0, 2.0], {"mu": 0.0, "sigma": 1.0}, "$\alpha$", lambda v: f"$\alpha$ = {v}"),
+            ("sigma", [0.5, 1.0, 2.0], {"mu": 0.0, "alpha": 1.0}, "$\sigma$", lambda v: f"$\sigma$ = {v}"),
         ],
     )
     plot_multiple_configs(configs, obs)
@@ -577,8 +595,8 @@ def plot_generalizedcb():
                 "alphal",
                 [0.5, 1.0, 2.0],
                 {"mu": 0.0, "sigmal": 1.0, "nl": 2.0, "sigmar": 1.0, "alphar": 1.0, "nr": 2.0},
-                "αL",
-                lambda v: f"αL = {v}",
+                "$\alpha$L",
+                lambda v: f"$\alpha$L = {v}",
             ),
             (
                 "nl",
@@ -591,8 +609,8 @@ def plot_generalizedcb():
                 "alphar",
                 [0.5, 1.0, 2.0],
                 {"mu": 0.0, "sigmal": 1.0, "alphal": 1.0, "nl": 2.0, "sigmar": 1.0, "nr": 2.0},
-                "αR",
-                lambda v: f"αR = {v}",
+                "$\alpha$R",
+                lambda v: f"$\alpha$R = {v}",
             ),
         ],
     )
@@ -611,22 +629,22 @@ def plot_generalizedgaussexptail():
                 "alphal",
                 [0.5, 1.0, 2.0],
                 {"mu": 0.0, "sigmal": 1.0, "sigmar": 1.0, "alphar": 1.0},
-                "αL",
-                lambda v: f"αL = {v}",
+                "$\alpha$L",
+                lambda v: f"$\alpha$L = {v}",
             ),
             (
                 "alphar",
                 [0.5, 1.0, 2.0],
                 {"mu": 0.0, "sigmal": 1.0, "alphal": 1.0, "sigmar": 1.0},
-                "αR",
-                lambda v: f"αR = {v}",
+                "$\alpha$R",
+                lambda v: f"$\alpha$R = {v}",
             ),
             (
                 "sigmal",
                 [0.5, 1.0, 2.0],
                 {"mu": 0.0, "alphal": 1.0, "sigmar": 1.0, "alphar": 1.0},
-                "σL",
-                lambda v: f"σL = {v}",
+                "$\sigma$L",
+                lambda v: f"$\sigma$L = {v}",
             ),
         ],
     )
@@ -1012,7 +1030,7 @@ def plot_fftconvpdf():
 
             conv = zfit.pdf.FFTConvPDFV1(signal, resolution)
             y_conv = conv.pdf(x)
-            plt.plot(x, y_conv, label=f"Convolution with σ_res = {sigma_res_val}")
+            plt.plot(x, y_conv, label=f"Convolution with $\sigma$_res = {sigma_res_val}")
 
         plt.xlabel("x")
         plt.ylabel("Probability density")
