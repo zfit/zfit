@@ -114,7 +114,7 @@ parameters for more flexible modeling of asymmetric distributions.
     zfit.pdf.GeneralizedGaussExpTail
 
 DoubleCB PDF
----------
+---------------------------------------------------------
 
 The :py:class:`~zfit.pdf.DoubleCB` function extends the Crystal Ball by having power-law tails on both sides
 of the Gaussian core, providing more flexibility for modeling asymmetric peaks.

@@ -45,7 +45,7 @@ class Minuit(BaseMinimizer, GraphCachable):
         ncall=None,
         minimizer_options=None,
     ):
-        """Minuit is a longstanding and well proven algorithm of the L-BFGS-B class implemented in iminuit.
+        """Minuit is a longstanding and well proven algorithm of the BFG class implemented in iminuit.
 
         The `iminuit <https://iminuit.readthedocs.io/en/stable/>`_ package is a fast, time-proven
         minimizer based on the Minuit2 C++ library; the latter is

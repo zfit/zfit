@@ -22,7 +22,7 @@ This is useful for creating mixture models, such as signal plus background.
     zfit.pdf.SumPDF
 
 Product PDF
----------
+-------------------
 
 The :py:class:`~zfit.pdf.ProductPDF` multiplies PDFs together, useful for creating joint distributions or in the same dimension.
 This is commonly used when variables are independent or when creating multi-dimensional models.

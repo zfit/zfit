@@ -296,6 +296,7 @@ class Ipyopt(BaseMinimizer):
         else:
             ipopt_options["hessian_approximation"] = "limited-memory"
             ipopt_options["limited_memory_update_type"] = hessian
+            ipopt_options["limited_memory_max_history"] = minimizer_options.pop("limited_memory_max_history", 8)
         # ipopt_options['dual_inf_tol'] = TODO?
 
         minimizer = ipyopt.Problem(**minimizer_kwargs)
@@ -313,8 +314,8 @@ class Ipyopt(BaseMinimizer):
         valid_message = ""
 
         warm_start_options = (  # TODO: what exactly here?
-            # "warm_start_init_point",
-            # 'warm_start_same_structure',
+            "warm_start_init_point",
+            "warm_start_same_structure",
             "warm_start_entire_iterate",
         )
         # minimizer.set_intermediate_callback(lambda *a, **k: print(a, k) or True)

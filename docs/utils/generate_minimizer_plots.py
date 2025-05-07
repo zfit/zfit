@@ -33,8 +33,9 @@ print(f"Saving plots to {outpath}")
 
 # Set the figure size and style
 plt.style.use("seaborn-v0_8-whitegrid")
-plt.rcParams["figure.figsize"] = (10, 6)
+plt.rcParams["figure.figsize"] = (12, 10)
 plt.rcParams["font.size"] = 12
+plt.rcParams["figure.autolayout"] = True
 
 
 def save_plot(filename):
@@ -44,7 +45,7 @@ def save_plot(filename):
     static_filename = f"{base_name}_static.{ext}"
 
     plt.tight_layout()
-    plt.savefig(outpath / static_filename, dpi=160, bbox_inches="tight")
+    plt.savefig(outpath / static_filename, dpi=160)
     plt.close()
 
 
@@ -282,10 +283,7 @@ def plot_minimizer_paths(minimizer_classes, starting_points, func_wrapper, title
                     f"Evals: {func_wrapper.evaluations}\n"
                     f"Grads: {func_wrapper.gradient_calls}\n"
                     f"Hess: {func_wrapper.hessian_calls}\n"
-                    f"Time: {end_time - start_time:.2f}s"
-                    f"\nNot converged"
-                    if not converged
-                    else "",
+                    f"Time: {end_time - start_time:.2f}s" + ("\nNot converged" if not converged else ""),
                     xy=(path[0, 0], path[0, 1]),
                     xytext=(10, 0),
                     textcoords="offset points",
@@ -383,6 +381,7 @@ def create_animation(
 
     # Create the figure
     fig, ax = plt.subplots(figsize=(12, 10))
+    fig.set_tight_layout(True)
 
     # Plot the contour
     contour = ax.contourf(X, Y, Z, levels=50, cmap="viridis", alpha=0.7)
@@ -464,7 +463,7 @@ def create_animation(
     anim = animation.FuncAnimation(
         fig,
         update,
-        frames=min(max_len, 500),  # Limit to 100 frames for efficiency
+        frames=min(max_len, 500),  # Limit to certain frames for efficiency
         init_func=init,
         blit=True,
         interval=1000 / fps,  # ms

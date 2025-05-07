@@ -95,12 +95,10 @@ pygit2.clone_repository("https://github.com/zfit/zfit-tutorials", zfit_tutorials
 # pygit2.clone_repository("https://github.com/zfit/zfit-physics", zfit_physics_path)
 
 zfit_images_path = project_dir.joinpath("docs", "images")
-project_images_path = project_dir.joinpath("images")
 docs_images_path = project_dir.joinpath("docs", "_static", "images")
 atexit.register(lambda path=docs_images_path: shutil.rmtree(path))
 docs_images_path.mkdir(parents=True, exist_ok=True)
 shutil.copytree(zfit_images_path, docs_images_path, dirs_exist_ok=True)
-shutil.copytree(project_images_path, docs_images_path, dirs_exist_ok=True)
 
 nb_execution_in_temp = True
 
