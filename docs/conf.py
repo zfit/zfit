@@ -83,11 +83,26 @@ bibtex_default_style = "plain"
 docsdir = project_dir / "docs"
 plotscript = docsdir / "utils" / "generate_pdf_plots.py"
 minimizerscript = docsdir / "utils" / "generate_minimizer_plots.py"
+plot_output_dir = docsdir / "_static" / "plots"
+plot_output_dir.mkdir(parents=True, exist_ok=True)
 
-# TODO: add cache option
-subprocess.run([sys.executable, str(plotscript)], check=True, stdout=subprocess.PIPE)
-subprocess.run([sys.executable, str(minimizerscript)], check=True, stdout=subprocess.PIPE)
+def is_up_to_date(script, output_dir):
+    """Check if the output directory is up-to-date with the script."""
+    if not output_dir.exists() or not any(output_dir.iterdir()):
+        return False
+    script_mtime = script.stat().st_mtime
+    for file in output_dir.iterdir():
+        if file.stat().st_mtime < script_mtime:
+            return False
+    return True
 
+if not is_up_to_date(plotscript, plot_output_dir):
+    subprocess.run([sys.executable, str(plotscript)], check=True, stdout=subprocess.PIPE)
+
+minimizer_output_dir = docsdir / "_static" / "minimizer_plots"
+minimizer_output_dir.mkdir(parents=True, exist_ok=True)
+if not is_up_to_date(minimizerscript, minimizer_output_dir):
+    subprocess.run([sys.executable, str(minimizerscript)], check=True, stdout=subprocess.PIPE)
 zfit_tutorials_path = project_dir.joinpath("docs", "_tmp", "zfit-tutorials")
 atexit.register(lambda path=zfit_tutorials_path: shutil.rmtree(path))
 pygit2.clone_repository("https://github.com/zfit/zfit-tutorials", zfit_tutorials_path)
