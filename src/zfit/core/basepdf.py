@@ -581,7 +581,7 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
                By default, this is the ``norm`` of the PDF (which by default is the same as
                the space of the PDF). Should be ``ZfitSpace`` to define the space
                to normalize over. |@docend:pdf.param.norm|
-            options: |@doc:pdf.param.options||@docend:pdf.param.options|
+            options: Additional options for the normalization.
             params: |@doc:model.args.params| Mapping of the parameter names to the actual
                values. The parameter names refer to the names of the parameters,
                typically :py:class:`~zfit.Parameter`, that

@@ -159,6 +159,13 @@ pdf.param.norm: |1+
                 the space of the PDF). Should be ``ZfitSpace`` to define the space
                 to normalize over.
 
+pdf.param.options: |1+
+    Options for the PDF.
+                Additional options for the PDF. Currently supported options are:
+                - type: one of (``bins``)
+                  This hints that bins are integrated. A method that is vectorizable,
+                  non-dynamic and therefore less suitable for complicated functions is chosen.
+
 pdf.param.x: |1+
     Data to evaluate the method on. Should be ``ZfitData``
                 or a mapping of *obs* to numpy-like arrays.
