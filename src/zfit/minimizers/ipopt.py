@@ -180,7 +180,25 @@ class Ipyopt(BaseMinimizer):
 
         if hessian is None:
             hessian = "bfgs"
-        options = {} if options is None else options
+
+        # adjusted for the problems of ~1 K parameters
+        default_options = {
+            # "mu_strategy": "adaptive",  # Dynamically adjusts barrier parameter
+            # "mu_oracle": "quality-function",  # Controls how barrier parameter is computed
+            # "mu_init": 0.1,  # Higher values promote more exploration
+            # "mu_max": 1e3,  # Allow larger barrier values for exploration
+            # # Hessian regularization
+            # "max_hessian_perturbation": 100.0,  # Lower than default to allow larger steps
+            # "perturb_inc_fact_first": 20.0,  # Controls first perturbation increase
+            # "perturb_inc_fact": 3.0,  # Increase factor for perturbations
+            # "perturb_dec_fact": 0.6,  # Decrease factor for perturbations
+            # # Line search settings
+            # "alpha_red_factor": 0.8,  # Higher value for more cautious steps
+            # "max_soc": 8,  # Increase second-order correction steps
+            # "watchdog_shortened_iter_trigger": 5,  # Trigger watchdog procedure earlier
+            "nlp_scaling_method": "gradient-based",  # Use gradient-based scaling
+        }
+        options = default_options if options is None else (default_options | options)
         minimizer_options["hessian"] = hessian
         if "tol" in options:
             msg = "Cannot put 'tol' into the options. Use `tol` in the init instead"
@@ -197,6 +215,8 @@ class Ipyopt(BaseMinimizer):
         if "hessian_approximation" in options:
             msg = "Cannot put 'hessian_approximation' into the options. Use `hessian` instead.`"
             raise ValueError(msg)
+        if maxcor is None:
+            maxcor = 15
         options["limited_memory_max_history"] = maxcor
 
         minimizer_options["ipopt"] = options
@@ -297,7 +317,6 @@ class Ipyopt(BaseMinimizer):
         else:
             ipopt_options["hessian_approximation"] = "limited-memory"
             ipopt_options["limited_memory_update_type"] = hessian
-            ipopt_options["limited_memory_max_history"] = minimizer_options.pop("limited_memory_max_history", 8)
             ipopt_options["limited_memory_initialization"] = "scalar2"
             # ipopt_options["limited_memory_init_val"] = 0.1  # (np.min(stepsize) + np.mean(stepsize)) / 2
         # ipopt_options['dual_inf_tol'] = TODO?

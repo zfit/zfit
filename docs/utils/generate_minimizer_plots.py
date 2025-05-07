@@ -536,7 +536,9 @@ def plot_minimizers():
 
     # Combine all minimizers for the combined plot
     minimizer_classes = (
-        minuit_minimizers + levenberg_marquardt_minimizers + ipyopt_minimizers + scipy_minimizers + nlopt_minimizers
+        minuit_minimizers + levenberg_marquardt_minimizers + ipyopt_minimizers
+        # + scipy_minimizers
+        # + nlopt_minimizers
     )
 
     # Define the starting points within reasonable bounds
