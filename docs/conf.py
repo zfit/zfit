@@ -82,8 +82,8 @@ bibtex_bibfiles = [str(project_dir.joinpath("docs", "refs.bib"))]
 plotscript = project_dir / "docs" / "utils" / "generate_pdf_plots.py"
 minimizerscript = project_dir / "docs" / "utils" / "generate_minimizer_plots.py"
 
-subprocess.run(["python", str(plotscript)], check=True)
-subprocess.run(["python", str(minimizerscript)], check=True)
+subprocess.run([sys.executable, str(plotscript)], check=True, stdout=subprocess.PIPE)
+subprocess.run([sys.executable, str(minimizerscript)], check=True, stdout=subprocess.PIPE)
 
 zfit_tutorials_path = project_dir.joinpath("docs", "_tmp", "zfit-tutorials")
 atexit.register(lambda path=zfit_tutorials_path: shutil.rmtree(path))

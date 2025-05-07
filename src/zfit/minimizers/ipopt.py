@@ -244,6 +244,7 @@ class Ipyopt(BaseMinimizer):
         # get and set the limits
         lower = np.array([p.lower for p in params])
         upper = np.array([p.upper for p in params])
+        stepsize = np.array([p.stepsize if p.stepsize is not None else 1.0 for p in params])
         nconstraints = 0
         empty_array = np.array([])
         nparams = len(params)
@@ -297,6 +298,8 @@ class Ipyopt(BaseMinimizer):
             ipopt_options["hessian_approximation"] = "limited-memory"
             ipopt_options["limited_memory_update_type"] = hessian
             ipopt_options["limited_memory_max_history"] = minimizer_options.pop("limited_memory_max_history", 8)
+            ipopt_options["limited_memory_initialization"] = "scalar2"
+            # ipopt_options["limited_memory_init_val"] = 0.1  # (np.min(stepsize) + np.mean(stepsize)) / 2
         # ipopt_options['dual_inf_tol'] = TODO?
 
         minimizer = ipyopt.Problem(**minimizer_kwargs)

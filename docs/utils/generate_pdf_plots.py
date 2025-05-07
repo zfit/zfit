@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Callable, Dict, List, Tuple, Type
+from typing import Callable
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -27,13 +27,13 @@ plt.rcParams["font.size"] = 12
 class PDFConfig:
     """Configuration for plotting a PDF."""
 
-    pdf_class: Type
+    pdf_class: type
     param_name: str
-    param_values: List[float]
+    param_values: list[float]
     title: str
     filename: str
-    x_range: Tuple[float, float]
-    fixed_params: Dict[str, float] = field(default_factory=dict)
+    x_range: tuple[float, float]
+    fixed_params: dict[str, float] = field(default_factory=dict)
     label_fn: Callable[[float], str] = None
 
 
@@ -136,7 +136,7 @@ def plot_exponential():
     obs = zfit.Space("x", limits=(0, 5))
     config = PDFConfig(
         pdf_class=zfit.pdf.Exponential,
-        param_name="lambda",
+        param_name="lam",
         param_values=[0.5, 1.0, 2.0],
         title=r"Exponential PDF with different λ values",
         filename="exponential_lambda.png",
@@ -396,8 +396,10 @@ def plot_gamma():
 # ========================
 
 
-def plot_polynomial(pdf_class, name, x_range, degree_values=[2, 3, 5, 6]):
+def plot_polynomial(pdf_class, name, x_range, degree_values=None):
     """Generic function to plot polynomial PDFs."""
+    if degree_values is None:
+        degree_values = [2, 3, 5, 6]
     try:
         # Create the observable
         obs = zfit.Space("x", limits=x_range)
@@ -678,7 +680,7 @@ def plot_histogrampdf():
         from zfit._data.binneddatav1 import BinnedData
 
         # Create the observable
-        obs = zfit.Space("x", limits=(0, 10))
+        zfit.Space("x", limits=(0, 10))
 
         plt.figure()
 
@@ -742,7 +744,7 @@ def plot_binwisescalemodifier():
         from zfit._data.binneddatav1 import BinnedData
 
         # Create the observable
-        obs = zfit.Space("x", limits=(0, 10))
+        zfit.Space("x", limits=(0, 10))
 
         plt.figure()
 
@@ -795,7 +797,7 @@ def plot_splinemorphingpdf():
         from zfit.data import BinnedData
 
         # Create the observable
-        obs = zfit.Space("x", limits=(-5, 5))
+        zfit.Space("x", limits=(-5, 5))
 
         plt.figure()
 
@@ -855,7 +857,7 @@ def plot_binnedsumpdf():
         from zfit._data.binneddatav1 import BinnedData
 
         # Create the observable
-        obs = zfit.Space("x", limits=(0, 10))
+        zfit.Space("x", limits=(0, 10))
 
         plt.figure()
 
@@ -967,7 +969,7 @@ def plot_unbinnedfromibinnedpdf():
         from zfit._data.binneddatav1 import BinnedData
 
         # Create the observable
-        obs = zfit.Space("x", limits=(0, 10))
+        zfit.Space("x", limits=(0, 10))
 
         plt.figure()
 
@@ -1481,7 +1483,7 @@ def plot_physics_pdfs():
 
         # Plot each PDF with its variations
         for pdf_info in physics_pdfs:
-            for param_name, values, fixed, label, label_fn, filename in pdf_info["params"]:
+            for param_name, values, fixed, _label, label_fn, filename in pdf_info["params"]:
                 try:
                     # Create specific title for each plot
                     title = f"{pdf_info['name']} PDF with different {param_name} values"
