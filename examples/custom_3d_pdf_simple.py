@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import tensorflow as tf
-
 import zfit
 
 # IMPORTANT! The communication of which axis corresponds to which data point happens here. So the user knows now that

@@ -4,9 +4,8 @@ from __future__ import annotations
 import hist
 import mplhep
 import numpy as np
-from matplotlib import pyplot as plt
-
 import zfit
+from matplotlib import pyplot as plt
 
 # noinspection PyTypeChecker
 histos = []

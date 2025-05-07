@@ -4,7 +4,6 @@ from __future__ import annotations
 import matplotlib.pyplot as plt
 import mplhep
 import numpy as np
-
 import zfit
 
 plt.style.use(mplhep.style.LHCb2)

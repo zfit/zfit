@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import tensorflow as tf
-
 import zfit
 from zfit import z
 

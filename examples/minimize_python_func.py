@@ -9,7 +9,6 @@ Copyright (c) 2021 zfit
 from __future__ import annotations
 
 import numpy as np
-
 import zfit
 
 # set everything to numpy mode. This is only needed if we

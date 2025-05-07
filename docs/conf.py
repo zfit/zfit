@@ -15,7 +15,6 @@ from pathlib import Path
 
 import pygit2
 import yaml
-
 import zfit
 
 project_dir = Path(__file__).parents[1]
