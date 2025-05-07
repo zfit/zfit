@@ -17,6 +17,6 @@ cd "${MAKE_DOCS_PATH}" || exit 1
 make clean
 bash "${MAKE_DOCS_PATH}/prepare_apidocs.sh"
 make -C "${MAKE_DOCS_PATH}" clean && make -C "${MAKE_DOCS_PATH}" html -j12 &&
-  echo "Documentation successfully built!" || echo "FAILED to build Documentation" && cd "${CURRENT_DIR}" && exit 1
+  (echo "Documentation successfully built!") || (echo "FAILED to build Documentation" && cd "${CURRENT_DIR}" && exit 1)
 cd "${CURRENT_DIR}" || exit 1
 popd >/dev/null || exit
