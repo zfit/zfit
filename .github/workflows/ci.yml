@@ -40,24 +40,24 @@ jobs:
         python-version: [ "3.9", "3.12" ]  # omit "3.10", "3.11" to save compute time
         os: [ ubuntu-latest ]
         #        os: [ self-hosted ]
-        extras: [ alldev ]
+        extras: [ dev ]
         include:
           - os: ubuntu-latest
-            extras: alldev
+            extras: dev
             python-version: "3.12"
             use-graph: 0
           - os: macos-latest
             python-version: "3.12"
             use-graph: 1
-            extras: alldev
+            extras: dev
           - os: windows-latest
             python-version: "3.12"
             use-graph: 1
-            extras: alldev
+            extras: dev
           - os: macos-14  # Apple silicon runner
             python-version: '3.12'
             use-graph: 1
-            extras: alldev
+            extras: dev
 
     steps:
       - name: Get number of CPU cores

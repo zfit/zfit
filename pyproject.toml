@@ -97,30 +97,15 @@ tests = [
     "matplotlib",
 ]
 
-# Platform-specific extras
-all-linux = [
-    "ipyopt>=0.12",
-    "nlopt>=2.7.1",
-    "asdf<4.0.0",
-    "awkward-pandas",
-]
-all-darwin = [
-    "nlopt>=2.7.1",
-    "asdf<4.0.0",
-    "awkward-pandas",
-]
-all-windows = [
-    "nlopt>=2.7.1",
-    "asdf<4.0.0",
-    "awkward-pandas",
-]
-all-silicon = [
-    "asdf<4.0.0",
-    "awkward-pandas",
+# Additional extras with platform-specific markers
+all = [
+    "zfit[uproot]",
+    "zfit[hs3]",
+    "ipyopt>=0.12 ; sys_platform == 'linux'",
+    "nlopt>=2.7.1 ; sys_platform == 'linux' or sys_platform == 'darwin' and platform_machine != 'arm64' or sys_platform == 'win32'",
 ]
 
-# Platform-specific test extras
-tests-linux = [
+test = [
     "pytest>=3.4.2",
     "pytest-runner>=2.11.1",
     "pytest-rerunfailures>=6",
@@ -130,76 +115,56 @@ tests-linux = [
     "scikit-hep-testdata",
     "pytest-timeout>=1",
     "matplotlib",
-    "nlopt>=2.7.1",
-    "ipyopt>=0.12",
-]
-tests-darwin = [
-    "pytest>=3.4.2",
-    "pytest-runner>=2.11.1",
-    "pytest-rerunfailures>=6",
-    "pytest-xdist",
-    "pytest-ordering",
-    "pytest-randomly",
-    "scikit-hep-testdata",
-    "pytest-timeout>=1",
-    "matplotlib",
-    "nlopt>=2.7.1",
-]
-tests-windows = [
-    "pytest>=3.4.2",
-    "pytest-runner>=2.11.1",
-    "pytest-rerunfailures>=6",
-    "pytest-xdist",
-    "pytest-ordering",
-    "pytest-randomly",
-    "scikit-hep-testdata",
-    "pytest-timeout>=1",
-    "matplotlib",
-    "nlopt>=2.7.1",
-]
-tests-silicon = [
-    "pytest>=3.4.2",
-    "pytest-runner>=2.11.1",
-    "pytest-rerunfailures>=6",
-    "pytest-xdist",
-    "pytest-ordering",
-    "pytest-randomly",
-    "scikit-hep-testdata",
-    "pytest-timeout>=1",
-    "matplotlib",
+    "zfit[all]",
 ]
 
 # Development dependencies
 dev = [
+    # Include all dependencies
+    "zfit[all]",
+    # Include test dependencies
+    "zfit[test]",
+    # Include docs dependencies
+    "zfit[docs]",
+
+    # Additional dev-specific dependencies
     "bumpversion>=0.5.3",
     "check-manifest",
     "coverage>=4.5.1",
     "coverage-lcov",
     "docformatter",
     "flake8>=3.5.0",
-    "jax<=0.4.28",
-    "jaxlib<=0.4.28",
-    "Jinja2",
-    "jupyter-sphinx",
-    "matplotlib",
-    "mplhep",
-    "myst-nb",
+    "jax ; sys_platform != 'win32'",
+    "jaxlib ; sys_platform != 'win32'",
     "numba-stats",
     "pip>=9.0.1",
     "pre-commit",
     "progressbar2",
-    "pydata-sphinx-theme>=0.9",
     "pygit2",
     "pyhf>=0.7.0",
     "pytest-benchmark",
     "pytest-cases",
     "pytest-helpers-namespace",
     "pyyaml",
-    "seed_intersphinx_mapping",
     "setupext-janitor",
     "setuptools>=30.3.0",
     "setuptools_scm[toml]>=3.4",
     "setuptools_scm_git_archive",
+    "tox>=2.9.1",
+    "twine>=1.10.0",
+    "watchdog>=0.8.3",
+    "wheel>=0.29.0",
+]
+
+# Documentation dependencies
+docs = [
+    "Jinja2",
+    "jupyter-sphinx",
+    "matplotlib",
+    "mplhep",
+    "myst-nb",
+    "pydata-sphinx-theme>=0.9",
+    "seed_intersphinx_mapping",
     "Sphinx>=5.0.0",
     "sphinx-autodoc-typehints",
     "sphinx-copybutton",
@@ -208,26 +173,10 @@ dev = [
     "sphinxcontrib-applehelp>1.0.8",
     "sphinxcontrib-bibtex",
     "sphinxcontrib-youtube>=1.0.0",
-    "tox>=2.9.1",
-    "twine>=1.10.0",
-    "watchdog>=0.8.3",
-    "wheel>=0.29.0",
     "zfit-physics>=0.6.0",
 ]
 
-# Combined extras
-dev-linux = ["dev", "tests-linux"]
-dev-darwin = ["dev", "tests-darwin"]
-dev-windows = ["dev", "tests-windows"]
-dev-silicon = ["dev", "tests-silicon"]
-
-alldev-linux = ["all-linux", "dev-linux"]
-alldev-darwin = ["all-darwin", "dev-darwin"]
-alldev-windows = ["all-windows", "dev-windows"]
-alldev-silicon = ["all-silicon", "dev-silicon"]
-
-# Default platform-specific extras
-all = ["all-linux"]
+alldev = ["zfit[dev]"]  # backwards compatibility
 
 [tool.setuptools]
 include-package-data = true
