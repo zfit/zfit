@@ -86,15 +86,14 @@ minimizerscript = docsdir / "utils" / "generate_minimizer_plots.py"
 plot_output_dir = docsdir / "_static" / "plots"
 plot_output_dir.mkdir(parents=True, exist_ok=True)
 
+
 def is_up_to_date(script, output_dir):
     """Check if the output directory is up-to-date with the script."""
     if not output_dir.exists() or not any(output_dir.iterdir()):
         return False
     script_mtime = script.stat().st_mtime
-    for file in output_dir.iterdir():
-        if file.stat().st_mtime < script_mtime:
-            return False
-    return True
+    return all(file.stat().st_mtime >= script_mtime for file in output_dir.iterdir())
+
 
 if not is_up_to_date(plotscript, plot_output_dir):
     subprocess.run([sys.executable, str(plotscript)], check=True, stdout=subprocess.PIPE)
