@@ -9,7 +9,6 @@ import atexit
 # disable gpu for TensorFlow
 import os
 import shutil
-import subprocess
 import sys
 from pathlib import Path
 
@@ -85,8 +84,8 @@ plotscript = docsdir / "utils" / "generate_pdf_plots.py"
 minimizerscript = docsdir / "utils" / "generate_minimizer_plots.py"
 
 # TODO: add cache option
-subprocess.run([sys.executable, str(plotscript)], check=True, stdout=subprocess.PIPE)
-subprocess.run([sys.executable, str(minimizerscript)], check=True, stdout=subprocess.PIPE)
+# subprocess.run([sys.executable, str(plotscript)], check=True, stdout=subprocess.PIPE)
+# subprocess.run([sys.executable, str(minimizerscript)], check=True, stdout=subprocess.PIPE)
 
 zfit_tutorials_path = project_dir.joinpath("docs", "_tmp", "zfit-tutorials")
 atexit.register(lambda path=zfit_tutorials_path: shutil.rmtree(path))

@@ -22,3 +22,4 @@ General settings for zfit
 
 .. automodule:: zfit.settings
     :members:
+    :no-index:
