@@ -9,7 +9,7 @@ requires = [
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools_scm]
-write_to = "zfit/_version.py"
+write_to = "src/zfit/_version.py"
 
 [project]
 name = "zfit"
@@ -183,7 +183,7 @@ include-package-data = true
 zip-safe = false
 
 [tool.setuptools.packages.find]
-where = ["."]
+where = ["src"]
 exclude = []
 namespaces = false
 
