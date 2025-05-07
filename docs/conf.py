@@ -80,9 +80,11 @@ bibtex_bibfiles = ["refs.bib"]  # str(project_dir.joinpath("docs", "refs.bib"))]
 bibtex_default_style = "plain"
 
 # run the generate_pdf_plots.py script to generate the pdf plots
-plotscript = project_dir / "docs" / "utils" / "generate_pdf_plots.py"
-minimizerscript = project_dir / "docs" / "utils" / "generate_minimizer_plots.py"
+docsdir = project_dir / "docs"
+plotscript = docsdir / "utils" / "generate_pdf_plots.py"
+minimizerscript = docsdir / "utils" / "generate_minimizer_plots.py"
 
+# TODO: add cache option
 subprocess.run([sys.executable, str(plotscript)], check=True, stdout=subprocess.PIPE)
 subprocess.run([sys.executable, str(minimizerscript)], check=True, stdout=subprocess.PIPE)
 
@@ -95,8 +97,8 @@ pygit2.clone_repository("https://github.com/zfit/zfit-tutorials", zfit_tutorials
 # atexit.register(lambda path=zfit_physics_path: shutil.rmtree(path))
 # pygit2.clone_repository("https://github.com/zfit/zfit-physics", zfit_physics_path)
 
-zfit_images_path = project_dir.joinpath("docs", "images")
-docs_images_path = project_dir.joinpath("docs", "_static", "images")
+zfit_images_path = docsdir / "images"
+docs_images_path = docsdir / "_static" / "images"
 atexit.register(lambda path=docs_images_path: shutil.rmtree(path))
 docs_images_path.mkdir(parents=True, exist_ok=True)
 shutil.copytree(zfit_images_path, docs_images_path, dirs_exist_ok=True)
