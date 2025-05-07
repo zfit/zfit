@@ -98,7 +98,7 @@ Unbinned From Binned PDF
 
 The :py:class:`~zfit.pdf.UnbinnedFromBinnedPDF` converts a binned PDF to an unbinned representation.
 
-.. image:: ../../images/_generated/pdfs/unbinnedfromibinnedpdf_comparison.png
+.. image:: ../../images/_generated/pdfs/unbinnedfrombinnedpdf_comparison.png
    :width: 80%
    :align: center
    :alt: UnbinnedFromBinnedPDF comparison
