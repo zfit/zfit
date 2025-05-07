@@ -196,7 +196,7 @@ class Ipyopt(BaseMinimizer):
             # "alpha_red_factor": 0.8,  # Higher value for more cautious steps
             # "max_soc": 8,  # Increase second-order correction steps
             # "watchdog_shortened_iter_trigger": 5,  # Trigger watchdog procedure earlier
-            "nlp_scaling_method": "gradient-based",  # Use gradient-based scaling
+            # "nlp_scaling_method": "gradient-based",  # Use gradient-based scaling
         }
         options = default_options if options is None else (default_options | options)
         minimizer_options["hessian"] = hessian
@@ -216,7 +216,7 @@ class Ipyopt(BaseMinimizer):
             msg = "Cannot put 'hessian_approximation' into the options. Use `hessian` instead.`"
             raise ValueError(msg)
         if maxcor is None:
-            maxcor = 15
+            maxcor = 10
         options["limited_memory_max_history"] = maxcor
 
         minimizer_options["ipopt"] = options
