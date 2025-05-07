@@ -501,8 +501,68 @@ def plot_minimizers():
 
     levenberg_marquardt_minimizers = [zfit.minimize.LevenbergMarquardt]
 
-    # ipyopt_minimizers = [zfit.minimize.Ipyopt]
     ipyopt_minimizers = [zfit.minimize.Ipyopt]
+
+    # scipy_minimizers = [
+    #     zfit.minimize.ScipyBFGS,
+    #     zfit.minimize.ScipyLBFGSB,
+    #     zfit.minimize.ScipyTrustConstr,
+    #     zfit.minimize.ScipyPowell,
+    #     zfit.minimize.ScipySLSQP,
+    #     zfit.minimize.ScipyTruncNC,
+    #     zfit.minimize.ScipyCOBYLA,
+    #     zfit.minimize.ScipyTrustNCG,
+    #     zfit.minimize.ScipyDogleg,
+    #     zfit.minimize.ScipyTrustKrylov,
+    #     zfit.minimize.ScipyNewtonCG,
+    # ]
+    #
+    # nlopt_minimizers = [
+    #     zfit.minimize.NLoptLBFGSV1,
+    #     zfit.minimize.NLoptTruncNewtonV1,
+    #     zfit.minimize.NLoptSLSQPV1,
+    #     zfit.minimize.NLoptMMAV1,
+    #     zfit.minimize.NLoptCCSAQV1,
+    #     zfit.minimize.NLoptSubplexV1,
+    #     zfit.minimize.NLoptCOBYLAV1,
+    #     zfit.minimize.NLoptMLSLV1,
+    #     zfit.minimize.NLoptStoGOV1,
+    #     zfit.minimize.NLoptBOBYQAV1,
+    #     zfit.minimize.NLoptISRESV1,
+    #     zfit.minimize.NLoptESCHV1,
+    #     zfit.minimize.NLoptShiftVarV1,
+    # ]
+# scipy_minimizers
+scipy_minimizers = [
+    zfit.minimize.ScipyBFGS,
+    zfit.minimize.ScipyLBFGSB,
+    zfit.minimize.ScipyTrustConstr,
+    zfit.minimize.ScipyPowell,
+    zfit.minimize.ScipySLSQP,
+    zfit.minimize.ScipyTruncNC,
+    zfit.minimize.ScipyCOBYLA,
+    zfit.minimize.ScipyTrustNCG,
+    zfit.minimize.ScipyDogleg,
+    zfit.minimize.ScipyTrustKrylov,
+    zfit.minimize.ScipyNewtonCG,
+]
+
+# nlopt_minimizers
+nlopt_minimizers = [
+    zfit.minimize.NLoptLBFGSV1,
+    zfit.minimize.NLoptTruncNewtonV1,
+    zfit.minimize.NLoptSLSQPV1,
+    zfit.minimize.NLoptMMAV1,
+    zfit.minimize.NLoptCCSAQV1,
+    zfit.minimize.NLoptSubplexV1,
+    zfit.minimize.NLoptCOBYLAV1,
+    zfit.minimize.NLoptMLSLV1,
+    zfit.minimize.NLoptStoGOV1,
+    zfit.minimize.NLoptBOBYQAV1,
+    zfit.minimize.NLoptISRESV1,
+    zfit.minimize.NLoptESCHV1,
+    zfit.minimize.NLoptShiftVarV1,
+]
 
     # Combine all minimizers for the combined plot
     minimizer_classes = (

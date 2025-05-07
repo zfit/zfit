@@ -30,7 +30,7 @@ For conda/mamba, use
 Cutting edge version
 -----------------------
 
-The cutting edge development version (unstable) can be installed from the `Github repo`_ with
+The cutting edge development version (unstable) can be installed from the `zfit Github repo`_ with
 
 .. code-block:: console
 
@@ -46,5 +46,5 @@ You can either clone the public repository:
 
 
 
-.. _Github repo: https://github.com/zfit/zfit
+.. _zfit Github repo: https://github.com/zfit/zfit
 .. _tarball: https://github.com/zfit/zfit/tarball/master

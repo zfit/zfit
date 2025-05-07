@@ -28,6 +28,7 @@ The following analysis have used zfit
 
 
 .. _section-citing:
+
 Citing
 ======
 
