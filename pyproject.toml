@@ -8,6 +8,236 @@ requires = [
 
 build-backend = "setuptools.build_meta"
 
+[tool.setuptools_scm]
+write_to = "zfit/_version.py"
+
+[project]
+name = "zfit"
+description = "scalable pythonic model fitting for high energy physics"
+readme = "README.rst"
+requires-python = ">=3.9, <3.13"
+license = {text = "BSD-3-Clause"}
+authors = [
+    {name = "Jonas Eschle", email = "Jonas.Eschle@cern.ch"},
+    {name = "Albert Puig", email = "apuignav@gmail.com"},
+    {name = "Rafael Silva Coutinho", email = "rsilvaco@cern.ch"},
+    {name = "Matthieu Marinangeli", email = "matthieu.marinangeli@cern.ch"}
+]
+maintainers = [
+    {name = "zfit", email = "zfit@physik.uzh.ch"}
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Natural Language :: English",
+    "Operating System :: MacOS",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: Unix",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Physics"
+]
+keywords = ["TensorFlow", "model", "fitting", "scalable", "HEP", "likelihood"]
+dynamic = ["version"]
+
+dependencies = [
+    "attrs",
+    "boost-histogram",
+    "colorama",
+    "colored",
+    "colorlog",
+    "deprecated",
+    "dill",
+    "dotmap",
+    "frozendict",
+    "hist",
+    "iminuit>=2.3",
+    "jacobi",
+    "numdifftools",
+    "numpy>=1.16",
+    "ordered-set",
+    "pandas",
+    "pydantic>=2.0.0",
+    "pyyaml",
+    "scipy>=1.2",
+    "tabulate",
+    "tensorflow>=2.16.2, <2.20",
+    "tensorflow-probability[tf]>=0.24, <0.27",
+    "texttable",
+    "uhi",
+    "uproot>=4",
+    "xxhash",
+    "zfit_interface"
+]
+
+[project.urls]
+Homepage = "https://github.com/zfit/zfit"
+
+[project.optional-dependencies]
+# Basic extras
+ipyopt = ["ipyopt>=0.12"]
+nlopt = ["nlopt>=2.7.1"]
+hs3 = ["asdf<4.0.0"]
+uproot = ["awkward-pandas"]
+
+# Test requirements
+tests = [
+    "pytest>=3.4.2",
+    "pytest-runner>=2.11.1",
+    "pytest-rerunfailures>=6",
+    "pytest-xdist",
+    "pytest-ordering",
+    "pytest-randomly",
+    "scikit-hep-testdata",
+    "pytest-timeout>=1",
+    "matplotlib",
+]
+
+# Platform-specific extras
+all-linux = [
+    "ipyopt>=0.12",
+    "nlopt>=2.7.1",
+    "asdf<4.0.0",
+    "awkward-pandas",
+]
+all-darwin = [
+    "nlopt>=2.7.1",
+    "asdf<4.0.0",
+    "awkward-pandas",
+]
+all-windows = [
+    "nlopt>=2.7.1",
+    "asdf<4.0.0",
+    "awkward-pandas",
+]
+all-silicon = [
+    "asdf<4.0.0",
+    "awkward-pandas",
+]
+
+# Platform-specific test extras
+tests-linux = [
+    "pytest>=3.4.2",
+    "pytest-runner>=2.11.1",
+    "pytest-rerunfailures>=6",
+    "pytest-xdist",
+    "pytest-ordering",
+    "pytest-randomly",
+    "scikit-hep-testdata",
+    "pytest-timeout>=1",
+    "matplotlib",
+    "nlopt>=2.7.1",
+    "ipyopt>=0.12",
+]
+tests-darwin = [
+    "pytest>=3.4.2",
+    "pytest-runner>=2.11.1",
+    "pytest-rerunfailures>=6",
+    "pytest-xdist",
+    "pytest-ordering",
+    "pytest-randomly",
+    "scikit-hep-testdata",
+    "pytest-timeout>=1",
+    "matplotlib",
+    "nlopt>=2.7.1",
+]
+tests-windows = [
+    "pytest>=3.4.2",
+    "pytest-runner>=2.11.1",
+    "pytest-rerunfailures>=6",
+    "pytest-xdist",
+    "pytest-ordering",
+    "pytest-randomly",
+    "scikit-hep-testdata",
+    "pytest-timeout>=1",
+    "matplotlib",
+    "nlopt>=2.7.1",
+]
+tests-silicon = [
+    "pytest>=3.4.2",
+    "pytest-runner>=2.11.1",
+    "pytest-rerunfailures>=6",
+    "pytest-xdist",
+    "pytest-ordering",
+    "pytest-randomly",
+    "scikit-hep-testdata",
+    "pytest-timeout>=1",
+    "matplotlib",
+]
+
+# Development dependencies
+dev = [
+    "bumpversion>=0.5.3",
+    "check-manifest",
+    "coverage>=4.5.1",
+    "coverage-lcov",
+    "docformatter",
+    "flake8>=3.5.0",
+    "jax<=0.4.28",
+    "jaxlib<=0.4.28",
+    "Jinja2",
+    "jupyter-sphinx",
+    "matplotlib",
+    "mplhep",
+    "myst-nb",
+    "numba-stats",
+    "pip>=9.0.1",
+    "pre-commit",
+    "progressbar2",
+    "pydata-sphinx-theme>=0.9",
+    "pygit2",
+    "pyhf>=0.7.0",
+    "pytest-benchmark",
+    "pytest-cases",
+    "pytest-helpers-namespace",
+    "pyyaml",
+    "seed_intersphinx_mapping",
+    "setupext-janitor",
+    "setuptools>=30.3.0",
+    "setuptools_scm[toml]>=3.4",
+    "setuptools_scm_git_archive",
+    "Sphinx>=5.0.0",
+    "sphinx-autodoc-typehints",
+    "sphinx-copybutton",
+    "sphinx-panels",
+    "sphinx_togglebutton",
+    "sphinxcontrib-applehelp>1.0.8",
+    "sphinxcontrib-bibtex",
+    "sphinxcontrib-youtube>=1.0.0",
+    "tox>=2.9.1",
+    "twine>=1.10.0",
+    "watchdog>=0.8.3",
+    "wheel>=0.29.0",
+    "zfit-physics>=0.6.0",
+]
+
+# Combined extras
+dev-linux = ["dev", "tests-linux"]
+dev-darwin = ["dev", "tests-darwin"]
+dev-windows = ["dev", "tests-windows"]
+dev-silicon = ["dev", "tests-silicon"]
+
+alldev-linux = ["all-linux", "dev-linux"]
+alldev-darwin = ["all-darwin", "dev-darwin"]
+alldev-windows = ["all-windows", "dev-windows"]
+alldev-silicon = ["all-silicon", "dev-silicon"]
+
+# Default platform-specific extras
+all = ["all-linux"]
+
+[tool.setuptools]
+include-package-data = true
+zip-safe = false
+
+[tool.setuptools.packages.find]
+where = ["."]
+exclude = []
+namespaces = false
+
 [tool.pytest.ini_options]
 minversion = "6.0"
 addopts = "-Wd -ra -q"
@@ -49,6 +279,20 @@ ignore_errors = true
 
 [tool.coverage.html]
 directory = "coverage_html_report"
+
+[tool.flake8]
+exclude = [
+    "docs",
+    "examples",
+    "dist",
+    "building",
+    "build",
+    "legacy",
+    "utils"
+]
+max-line-length = 110
+statistics = true
+max-complexity = 30
 
 [tool.ruff]
 #src = ["src"]
