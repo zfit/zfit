@@ -7,7 +7,7 @@ These PDFs allow for creating complex models by combining simpler components.
 Below are the available composed PDFs with descriptions of their functionality:
 
 Sum PDF
-------
+----------
 
 The :py:class:`~zfit.pdf.SumPDF` allows combining multiple PDFs with different fractions.
 This is useful for creating mixture models, such as signal plus background.
