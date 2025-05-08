@@ -16,12 +16,12 @@ from pathlib import Path
 import pygit2
 import yaml
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"  # disable GPU for TensorFlow
 
 import zfit
 
 project_dir = Path(__file__).parents[1]
-sys.path.insert(0, str(project_dir))
+# sys.path.insert(0, str(project_dir))
 
 # -- General configuration ---------------------------------------------
 
@@ -49,7 +49,6 @@ extensions = [
     "sphinx_copybutton",
     "sphinxcontrib.youtube",
     "sphinx_panels",
-    "seed_intersphinx_mapping",
     "myst_nb",
     "sphinx_togglebutton",
 ]
@@ -95,12 +94,15 @@ def is_up_to_date(script, output_dir):
     return all(file.stat().st_mtime >= script_mtime for file in output_dir.iterdir())
 
 
-if not is_up_to_date(plotscript, plot_output_dir):
+plotrerun = False
+
+
+if (plotrerun and not is_up_to_date(plotscript, plot_output_dir)) or plotrerun == "force":
     subprocess.run([sys.executable, str(plotscript)], check=True, stdout=subprocess.PIPE)
 
 minimizer_output_dir = docsdir / "_static" / "minimizer_plots"
 minimizer_output_dir.mkdir(parents=True, exist_ok=True)
-if not is_up_to_date(minimizerscript, minimizer_output_dir):
+if (plotrerun and not is_up_to_date(minimizerscript, minimizer_output_dir)) or plotrerun == "force":
     subprocess.run([sys.executable, str(minimizerscript)], check=True, stdout=subprocess.PIPE)
 zfit_tutorials_path = project_dir.joinpath("docs", "_tmp", "zfit-tutorials")
 atexit.register(lambda path=zfit_tutorials_path: shutil.rmtree(path))
@@ -350,7 +352,8 @@ primary_domain = "py"
 # nitpick_ignore = [
 #     ("py:class", "tensorflow.keras.losses.Loss"),
 # ]
-# Example configuration for intersphinx: refer to the Python standard library.
+
+
 intersphinx_mapping = {
     # 'numdifftools': ('https://numdifftools.readthedocs.io/en/latest/index.html', None),
     "tensorflow": (

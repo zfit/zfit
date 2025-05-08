@@ -146,7 +146,6 @@ docs = [
     "mplhep",
     "myst-nb",
     "pydata-sphinx-theme>=0.9",
-    "seed_intersphinx_mapping",
     "Sphinx>=5.0.0",
     "sphinx-autodoc-typehints",
     "sphinx-copybutton",
