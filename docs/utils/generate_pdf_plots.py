@@ -1333,10 +1333,12 @@ def plot_kde():
         kde_exact = zfit.pdf.KDE1DimExact(data=data, bandwidth=0.3, obs=obs)
         kde_grid = zfit.pdf.KDE1DimGrid(data=data, bandwidth=0.3, obs=obs, num_grid_points=100)
         kde_fft = zfit.pdf.KDE1DimFFT(data=data, bandwidth=0.3, obs=obs, num_grid_points=100)
+        kde_gaussian = zfit.pdf.GaussianKDE1DimV1(obs=obs, data=data, bandwidth=0.3)
 
         plt.plot(x, kde_exact.pdf(x), label="KDE1DimExact")
         plt.plot(x, kde_grid.pdf(x), label="KDE1DimGrid")
         plt.plot(x, kde_fft.pdf(x), label="KDE1DimFFT")
+        plt.plot(x, kde_gaussian.pdf(x), label="GaussianKDE1DimV1")
 
         plt.xlabel("x")
         plt.ylabel("Probability density")
@@ -1344,11 +1346,59 @@ def plot_kde():
         plt.legend()
         save_plot("kde_implementations.png")
 
-        # Create a dummy plot for kernel types
+        # Plot KDE1DimISJ implementation
         plt.figure()
         plt.hist(samples, bins=30, density=True, alpha=0.3, label="Data histogram")
         plt.plot(x, true_pdf, "k--", label="True distribution")
-        plt.plot(x, kde_exact.pdf(x), label="Gaussian kernel")
+
+        kde_isj = zfit.pdf.KDE1DimISJ(data=data, obs=obs)
+        plt.plot(x, kde_isj.pdf(x), label="KDE1DimISJ")
+
+        plt.xlabel("x")
+        plt.ylabel("Probability density")
+        plt.title("KDE1DimISJ implementation")
+        plt.legend()
+        save_plot("kde_isj.png")
+
+        # Plot KDEs with different bandwidth methods
+        plt.figure()
+        plt.hist(samples, bins=30, density=True, alpha=0.3, label="Data histogram")
+        plt.plot(x, true_pdf, "k--", label="True distribution")
+
+        kde_scott = zfit.pdf.KDE1DimExact(data=data, bandwidth="scott", obs=obs)
+        kde_silverman = zfit.pdf.KDE1DimExact(data=data, bandwidth="silverman", obs=obs)
+        kde_isj_method = zfit.pdf.KDE1DimExact(data=data, bandwidth="isj", obs=obs)
+        kde_adaptive = zfit.pdf.GaussianKDE1DimV1(obs=obs, data=data, bandwidth="adaptive")
+
+        plt.plot(x, kde_scott.pdf(x), label="Scott's rule")
+        plt.plot(x, kde_silverman.pdf(x), label="Silverman's rule")
+        plt.plot(x, kde_isj_method.pdf(x), label="ISJ method")
+        plt.plot(x, kde_adaptive.pdf(x), label="Adaptive method")
+
+        plt.xlabel("x")
+        plt.ylabel("Probability density")
+        plt.title("KDE with different bandwidth methods")
+        plt.legend()
+        save_plot("kde_bandwidth_methods.png")
+
+        # Plot KDEs with different kernel types
+        plt.figure()
+        plt.hist(samples, bins=30, density=True, alpha=0.3, label="Data histogram")
+        plt.plot(x, true_pdf, "k--", label="True distribution")
+
+        import tensorflow_probability as tfp
+        tfd = tfp.distributions
+
+        # Create KDEs with different kernel types
+        kde_normal = zfit.pdf.KDE1DimExact(data=data, bandwidth=0.3, kernel=tfd.Normal, obs=obs)
+        kde_laplace = zfit.pdf.KDE1DimExact(data=data, bandwidth=0.3, kernel=tfd.Laplace, obs=obs)
+        kde_triangular = zfit.pdf.KDE1DimExact(data=data, bandwidth=0.3, kernel=tfd.Triangular, obs=obs)
+        kde_logistic = zfit.pdf.KDE1DimExact(data=data, bandwidth=0.3, kernel=tfd.Logistic, obs=obs)
+
+        plt.plot(x, kde_normal.pdf(x), label="Normal kernel")
+        plt.plot(x, kde_laplace.pdf(x), label="Laplace kernel")
+        plt.plot(x, kde_triangular.pdf(x), label="Triangular kernel")
+        plt.plot(x, kde_logistic.pdf(x), label="Logistic kernel")
 
         plt.xlabel("x")
         plt.ylabel("Probability density")
@@ -1360,6 +1410,8 @@ def plot_kde():
         handle_error("KDE", e, "kde_bandwidth.png")
         create_dummy_plot("KDE with different kernel types", "kde_kernel.png")
         create_dummy_plot("Different KDE implementations", "kde_implementations.png")
+        create_dummy_plot("KDE1DimISJ implementation", "kde_isj.png")
+        create_dummy_plot("KDE with different bandwidth methods", "kde_bandwidth_methods.png")
 
 
 # ========================
