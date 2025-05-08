@@ -94,7 +94,7 @@ def is_up_to_date(script, output_dir):
     return all(file.stat().st_mtime >= script_mtime for file in output_dir.iterdir())
 
 
-plotrerun = False
+plotrerun = True
 
 
 if (plotrerun and not is_up_to_date(plotscript, plot_output_dir)) or plotrerun == "force":
