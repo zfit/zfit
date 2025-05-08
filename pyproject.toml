@@ -76,18 +76,7 @@ nlopt = ["nlopt>=2.7.1"]
 hs3 = ["asdf<4.0.0"]
 uproot = ["awkward-pandas"]
 
-# Test requirements
-tests = [
-    "pytest>=3.4.2",
-    "pytest-runner>=2.11.1",
-    "pytest-rerunfailures>=6",
-    "pytest-xdist",
-    "pytest-ordering",
-    "pytest-randomly",
-    "scikit-hep-testdata",
-    "pytest-timeout>=1",
-    "matplotlib",
-]
+
 
 # Additional extras with platform-specific markers
 all = [
@@ -109,6 +98,7 @@ test = [
     "matplotlib",
     "zfit[all]",
 ]
+tests = ['zfit[test]']  # backwards compatibility
 
 # Development dependencies
 dev = [
@@ -166,6 +156,7 @@ docs = [
     "sphinxcontrib-bibtex",
     "sphinxcontrib-youtube>=1.0.0",
     "zfit-physics>=0.6.0",
+    "ray",
 ]
 
 alldev = ["zfit[dev]"]  # backwards compatibility
