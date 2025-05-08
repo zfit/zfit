@@ -76,6 +76,13 @@ nlopt = ["nlopt>=2.7.1"]
 hs3 = ["asdf<4.0.0"]
 uproot = ["awkward-pandas"]
 
+emcee = ["emcee>=3.0.0"]
+nuts = ["pymc"]
+ultranest = ["ultranest"]
+pt = ["ptemcee"]
+
+bayesian = ["zfit[emcee]", "zfit[nuts]", "zfit[ultranest]", "zfit[pt]"]
+
 # Test requirements
 tests = [
     "pytest>=3.4.2",
@@ -95,6 +102,7 @@ all = [
     "zfit[hs3]",
     "ipyopt>=0.12 ; sys_platform == 'linux'",
     "nlopt>=2.7.1 ; sys_platform == 'linux' or sys_platform == 'darwin' and platform_machine != 'arm64' or sys_platform == 'win32'",
+    "zfit[bayesian]",
 ]
 
 test = [
