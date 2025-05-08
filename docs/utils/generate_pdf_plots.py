@@ -1387,6 +1387,7 @@ def plot_kde():
         plt.plot(x, true_pdf, "k--", label="True distribution")
 
         import tensorflow_probability as tfp
+
         tfd = tfp.distributions
 
         # Create KDEs with different kernel types
