@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import numpy as np
+
 import zfit
 
 obs = zfit.Space("x", -10, 10)
