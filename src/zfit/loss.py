@@ -14,12 +14,12 @@ __all__ = [
     "BaseLoss",
     "BinnedChi2",
     "BinnedNLL",
+    # general losses
+    "Chi2",
     "ExtendedBinnedChi2",
     "ExtendedBinnedNLL",
     "ExtendedBinnedNLL",
     "ExtendedUnbinnedNLL",
     "SimpleLoss",
     "UnbinnedNLL",
-    # general losses
-    "Chi2",
 ]
