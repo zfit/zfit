@@ -1,12 +1,182 @@
 [build-system]
-requires = [
-    "setuptools>=42",
-    "setuptools_scm[toml]>=3.4",
-    "setuptools_scm_git_archive",
-    "wheel"
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
+
+
+[project]
+name = "zfit"
+description = "scalable pythonic model fitting for high energy physics"
+readme = "README.rst"
+requires-python = ">=3.9, <3.13"
+license = {text = "BSD-3-Clause"}
+authors = [
+    {name = "Jonas Eschle", email = "Jonas.Eschle@cern.ch"},
+    {name = "Albert Puig", email = "apuignav@gmail.com"},
+    {name = "Rafael Silva Coutinho", email = "rsilvaco@cern.ch"},
+    {name = "Matthieu Marinangeli", email = "matthieu.marinangeli@cern.ch"}
+]
+maintainers = [
+    {name = "zfit", email = "zfit@physik.uzh.ch"}
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Natural Language :: English",
+    "Operating System :: MacOS",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: Unix",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Physics"
+]
+keywords = ["TensorFlow", "model", "fitting", "scalable", "HEP", "likelihood"]
+dynamic = ["version"]
+
+dependencies = [
+    "attrs",
+    "boost-histogram",
+    "colorama",
+    "colored",
+    "colorlog",
+    "deprecated",
+    "dill",
+    "dotmap",
+    "frozendict",
+    "hist",
+    "iminuit>=2.3",
+    "jacobi",
+    "numdifftools",
+    "numpy>=1.16",
+    "ordered-set",
+    "pandas",
+    "pydantic>=2.0.0",
+    "pyyaml",
+    "scipy>=1.2",
+    "tabulate",
+    "tensorflow>=2.16.2, <2.20",
+    "tensorflow-probability[tf]>=0.24, <0.27",
+    "texttable",
+    "uhi",
+    "uproot>=4",
+    "xxhash",
+    "zfit_interface"
 ]
 
-build-backend = "setuptools.build_meta"
+[project.urls]
+Homepage = "https://github.com/zfit/zfit"
+
+[project.optional-dependencies]
+# Basic extras
+ipyopt = ["ipyopt>=0.12"]
+nlopt = ["nlopt>=2.7.1"]
+hs3 = ["asdf<4.0.0"]
+uproot = ["awkward-pandas"]
+
+# Test requirements
+tests = [
+    "pytest>=3.4.2",
+    "pytest-runner>=2.11.1",
+    "pytest-rerunfailures>=6",
+    "pytest-xdist",
+    "pytest-ordering",
+    "pytest-randomly",
+    "scikit-hep-testdata",
+    "pytest-timeout>=1",
+    "matplotlib",
+]
+
+# Additional extras with platform-specific markers
+all = [
+    "zfit[uproot]",
+    "zfit[hs3]",
+    "ipyopt>=0.12 ; sys_platform == 'linux'",
+    "nlopt>=2.7.1 ; sys_platform == 'linux' or sys_platform == 'darwin' and platform_machine != 'arm64' or sys_platform == 'win32'",
+]
+
+test = [
+    "pytest>=3.4.2",
+    "pytest-runner>=2.11.1",
+    "pytest-rerunfailures>=6",
+    "pytest-xdist",
+    "pytest-ordering",
+    "pytest-randomly",
+    "scikit-hep-testdata",
+    "pytest-timeout>=1",
+    "matplotlib",
+    "zfit[all]",
+]
+
+# Development dependencies
+dev = [
+    # Include all dependencies
+    "zfit[all]",
+    # Include test dependencies
+    "zfit[test]",
+    # Include docs dependencies
+    "zfit[docs]",
+
+    # Additional dev-specific dependencies
+    "bumpversion>=0.5.3",
+    "check-manifest",
+    "coverage>=4.5.1",
+    "coverage-lcov",
+    "docformatter",
+    "flake8>=3.5.0",
+    "jax ; sys_platform != 'win32'",
+    "jaxlib ; sys_platform != 'win32'",
+    "numba-stats",
+    "pip>=9.0.1",
+    "pre-commit",
+    "progressbar2",
+    "pygit2",
+    "pyhf>=0.7.0",
+    "pytest-benchmark",
+    "pytest-cases",
+    "pytest-helpers-namespace",
+    "pyyaml",
+    "setupext-janitor",
+    "setuptools>=30.3.0",
+    "setuptools_scm[toml]>=3.4",
+    "setuptools_scm_git_archive",
+    "tox>=2.9.1",
+    "twine>=1.10.0",
+    "watchdog>=0.8.3",
+    "wheel>=0.29.0",
+]
+
+# Documentation dependencies
+docs = [
+    "Jinja2",
+    "jupyter-sphinx",
+    "matplotlib",
+    "mplhep",
+    "myst-nb",
+    "pydata-sphinx-theme>=0.9",
+    "seed_intersphinx_mapping",
+    "Sphinx>=5.0.0",
+    "sphinx-autodoc-typehints",
+    "sphinx-copybutton",
+    "sphinx-panels",
+    "sphinx_togglebutton",
+    "sphinxcontrib-applehelp>1.0.8",
+    "sphinxcontrib-bibtex",
+    "sphinxcontrib-youtube>=1.0.0",
+    "zfit-physics>=0.6.0",
+]
+
+alldev = ["zfit[dev]"]  # backwards compatibility
+
+[tool.hatch]
+version.source = "vcs"
+build.hooks.vcs.version-file = "src/zfit/_version.py"
+
+[tool.hatch.envs.default]
+features = ["test"]
+scripts.test = "pytest {args}"
 
 [tool.pytest.ini_options]
 minversion = "6.0"
@@ -49,6 +219,20 @@ ignore_errors = true
 
 [tool.coverage.html]
 directory = "coverage_html_report"
+
+[tool.flake8]
+exclude = [
+    "docs",
+    "examples",
+    "dist",
+    "building",
+    "build",
+    "legacy",
+    "utils"
+]
+max-line-length = 110
+statistics = true
+max-complexity = 30
 
 [tool.ruff]
 #src = ["src"]

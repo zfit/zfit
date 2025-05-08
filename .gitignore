@@ -13,3 +13,4 @@ zfit.egg-info/
 tmp/*
 /utils/ci/.test_examples_env/
 /utils/ci/.test_docs_env/
+/src/zfit/_version.py
