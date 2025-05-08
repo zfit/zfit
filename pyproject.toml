@@ -75,6 +75,32 @@ ipyopt = ["ipyopt>=0.12 ; sys_platform == 'linux'"]
 nlopt = ["nlopt>=2.7.1 ; sys_platform == 'linux' or sys_platform == 'darwin' and platform_machine != 'arm64' or sys_platform == 'win32'"]
 hs3 = ["asdf<4.0.0"]
 uproot = ["awkward-pandas"]
+
+emcee = ["emcee>=3.0.0"]
+# the following implementations don't work currently
+#nuts = ["pymc"]
+#ultranest = ["ultranest"]
+#pt = ["ptemcee"]
+
+bayes = [
+    "zfit[emcee]",
+    "zfit[nuts]",
+    "zfit[ultranest]",
+    "zfit[pt]"
+]
+
+# Test requirements
+tests = [
+    "pytest>=3.4.2",
+    "pytest-runner>=2.11.1",
+    "pytest-rerunfailures>=6",
+    "pytest-xdist",
+    "pytest-ordering",
+    "pytest-randomly",
+    "scikit-hep-testdata",
+    "pytest-timeout>=1",
+    "matplotlib",
+]
 plot = ["matplotlib", "mplhep"]
 
 # Additional extras with platform-specific markers
@@ -84,6 +110,7 @@ all = [
     "zfit[ipyopt]",
     "zfit[nlopt]",
     "zfit[plot]",
+    "zfit[bayes]",
 ]
 
 test = [
