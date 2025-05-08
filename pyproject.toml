@@ -1,15 +1,7 @@
 [build-system]
-requires = [
-    "setuptools>=42",
-    "setuptools_scm[toml]>=3.4",
-    "setuptools_scm_git_archive",
-    "wheel"
-]
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
 
-build-backend = "setuptools.build_meta"
-
-[tool.setuptools_scm]
-write_to = "src/zfit/_version.py"
 
 [project]
 name = "zfit"
@@ -178,14 +170,13 @@ docs = [
 
 alldev = ["zfit[dev]"]  # backwards compatibility
 
-[tool.setuptools]
-include-package-data = true
-zip-safe = false
+[tool.hatch]
+version.source = "vcs"
+build.hooks.vcs.version-file = "src/zfit/_version.py"
 
-[tool.setuptools.packages.find]
-where = ["src"]
-exclude = []
-namespaces = false
+[tool.hatch.envs.default]
+features = ["test"]
+scripts.test = "pytest {args}"
 
 [tool.pytest.ini_options]
 minversion = "6.0"
