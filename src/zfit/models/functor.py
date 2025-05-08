@@ -13,7 +13,7 @@ import functools
 import operator
 from collections import Counter
 from collections.abc import Iterable
-from typing import Literal, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal, Optional
 
 if TYPE_CHECKING:
     import zfit

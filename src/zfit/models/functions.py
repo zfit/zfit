@@ -6,7 +6,7 @@ from collections.abc import Callable, Iterable
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    import zfit
+    pass
 
 import tensorflow as tf
 

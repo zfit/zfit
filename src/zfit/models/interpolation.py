@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 import zfit.z.numpy as znp
 
 if TYPE_CHECKING:
-    import zfit
+    pass
 
 from ..core.interfaces import ZfitBinnedPDF
 from ..core.space import supports

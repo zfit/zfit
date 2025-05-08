@@ -9,10 +9,10 @@ Therefore, a convenient wrapper as well as a lot of implementations are provided
 #  Copyright (c) 2025 zfit
 from __future__ import annotations
 
-from typing import Literal, TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
 if TYPE_CHECKING:
-    import zfit
+    pass
 
 import tensorflow as tf
 import tensorflow_probability as tfp
@@ -38,7 +38,7 @@ from ..util.ztyping import ExtendedInputType, NormInputType
 # TODO: improve? while loop over `.sample`? Maybe as a fallback if not implemented?
 
 
-def tfd_analytic_sample(n: int, dist: tfd.Distribution, limits: "ztyping.ObsTypeInput"):
+def tfd_analytic_sample(n: int, dist: tfd.Distribution, limits: ztyping.ObsTypeInput):
     """Sample analytically with a `tfd.Distribution` within the limits. No preprocessing.
 
     Args:

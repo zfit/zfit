@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Union
 from uhi.typing.plottable import PlottableHistogram
 
 if TYPE_CHECKING:
-    import zfit
+    pass
 
 from .. import z
 from ..core.binnedpdf import BaseBinnedPDF

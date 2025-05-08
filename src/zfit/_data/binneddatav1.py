@@ -15,7 +15,7 @@ from ..core.baseobject import convert_param_values
 from ..settings import ztypes
 
 if TYPE_CHECKING:
-    import zfit
+    pass
 
 import boost_histogram as bh
 import hist

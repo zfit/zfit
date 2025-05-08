@@ -6,7 +6,7 @@ from collections.abc import Mapping
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    import zfit
+    pass
 
 import iminuit
 import numpy as np

@@ -9,10 +9,10 @@ from __future__ import annotations
 
 #  Copyright (c) 2023 zfit
 import contextlib
-from typing import Literal, TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
 if TYPE_CHECKING:
-    import zfit
+    pass
 
 import numpy as np
 import tensorflow as tf

@@ -13,7 +13,7 @@ from zfit import z
 from zfit.core.binnedpdf import BaseBinnedPDF
 
 if TYPE_CHECKING:
-    import zfit
+    pass
 
 from ..core import parameter
 from ..core.interfaces import ZfitBinnedPDF

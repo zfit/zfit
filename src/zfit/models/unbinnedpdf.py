@@ -7,7 +7,7 @@ import pydantic.v1 as pydantic
 import tensorflow as tf
 
 if TYPE_CHECKING:
-    import zfit
+    pass
 
 from zfit import z
 from zfit.core.binning import unbinned_to_binindex
