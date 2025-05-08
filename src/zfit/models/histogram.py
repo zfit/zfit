@@ -2,9 +2,13 @@
 from __future__ import annotations
 
 import numpy as np
+from typing import TYPE_CHECKING
 from uhi.typing.plottable import PlottableHistogram
 
 import zfit.z.numpy as znp
+
+if TYPE_CHECKING:
+    import zfit
 
 from ..core.binnedpdf import BaseBinnedPDF
 from ..core.interfaces import ZfitBinnedData

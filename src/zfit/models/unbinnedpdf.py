@@ -1,8 +1,13 @@
 #  Copyright (c) 2025 zfit
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import pydantic.v1 as pydantic
 import tensorflow as tf
+
+if TYPE_CHECKING:
+    import zfit
 
 from zfit import z
 from zfit.core.binning import unbinned_to_binindex

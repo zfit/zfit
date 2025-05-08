@@ -22,6 +22,7 @@ Bug fixes and small changes
 ---------------------------
 - Allow BinnedSamplerData to be instantiated from a histogram and fix variance handling if not given.
 - Enhance the precision of binned loss functions
+- make adaptive bandwidth default in KDE
 
 Experimental
 ------------

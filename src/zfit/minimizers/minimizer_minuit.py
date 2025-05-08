@@ -3,6 +3,10 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import zfit
 
 import iminuit
 import numpy as np

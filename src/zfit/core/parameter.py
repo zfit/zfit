@@ -13,7 +13,10 @@ import weakref
 from collections.abc import Callable, Iterable, Mapping
 from contextlib import suppress
 from inspect import signature
-from typing import Literal, Optional, Union
+from typing import Literal, Optional, Union, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import zfit
 from weakref import WeakSet
 
 import dill

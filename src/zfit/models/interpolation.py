@@ -1,7 +1,12 @@
 #  Copyright (c) 2025 zfit
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import zfit.z.numpy as znp
+
+if TYPE_CHECKING:
+    import zfit
 
 from ..core.interfaces import ZfitBinnedPDF
 from ..core.space import supports

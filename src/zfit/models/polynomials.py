@@ -31,7 +31,7 @@ from ..util.container import convert_to_container
 from ..util.exception import SpecificFunctionNotImplemented
 
 
-def rescale_minus_plus_one(x: tf.Tensor, limits: zfit.Space) -> tf.Tensor:
+def rescale_minus_plus_one(x: tf.Tensor, limits: "zfit.Space") -> tf.Tensor:
     """Rescale and shift *x* as *limits* were rescaled and shifted to be in (-1, 1). Useful for orthogonal polynomials.
 
     Args:

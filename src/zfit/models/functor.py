@@ -13,7 +13,10 @@ import functools
 import operator
 from collections import Counter
 from collections.abc import Iterable
-from typing import Literal, Optional
+from typing import Literal, Optional, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import zfit
 
 import pydantic.v1 as pydantic
 import tensorflow as tf

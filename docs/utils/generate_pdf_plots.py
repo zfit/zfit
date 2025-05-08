@@ -1292,26 +1292,27 @@ def plot_truncatedpdf():
 
 def plot_kde():
     """Plot KDEs with different parameters."""
+    # Create the observable
+    obs = zfit.Space("x", limits=(-5, 5))
+
+    # Generate sample data
+    np.random.seed(42)
+    n_samples = 1000
+    samples1 = np.random.normal(-1.5, 0.5, size=int(0.4 * n_samples))
+    samples2 = np.random.normal(1.0, 0.7, size=int(0.6 * n_samples))
+    samples = np.concatenate([samples1, samples2])
+    data = zfit.Data.from_numpy(obs=obs, array=samples[:, np.newaxis])
+
+    # Prepare the x values and true PDF for plotting
+    x = np.linspace(-5, 5, 1000)
+    true_pdf = 0.4 * np.exp(-0.5 * ((x + 1.5) / 0.5) ** 2) / (0.5 * np.sqrt(2 * np.pi)) + 0.6 * np.exp(
+        -0.5 * ((x - 1.0) / 0.7) ** 2
+    ) / (0.7 * np.sqrt(2 * np.pi))
+
+    # Plot KDEs with different bandwidths
     try:
-        # Create the observable
-        obs = zfit.Space("x", limits=(-5, 5))
-
-        # Generate sample data
-        np.random.seed(42)
-        n_samples = 1000
-        samples1 = np.random.normal(-1.5, 0.5, size=int(0.4 * n_samples))
-        samples2 = np.random.normal(1.0, 0.7, size=int(0.6 * n_samples))
-        samples = np.concatenate([samples1, samples2])
-        data = zfit.Data.from_numpy(obs=obs, array=samples[:, np.newaxis])
-
-        # Plot KDEs with different bandwidths
         plt.figure()
         plt.hist(samples, bins=30, density=True, alpha=0.3, label="Data histogram")
-
-        x = np.linspace(-5, 5, 1000)
-        true_pdf = 0.4 * np.exp(-0.5 * ((x + 1.5) / 0.5) ** 2) / (0.5 * np.sqrt(2 * np.pi)) + 0.6 * np.exp(
-            -0.5 * ((x - 1.0) / 0.7) ** 2
-        ) / (0.7 * np.sqrt(2 * np.pi))
         plt.plot(x, true_pdf, "k--", label="True distribution")
 
         for bw in [0.1, 0.3, 0.8]:
@@ -1324,8 +1325,11 @@ def plot_kde():
         plt.title("KDE with different bandwidth values")
         plt.legend()
         save_plot("kde_bandwidth.png")
+    except Exception as e:
+        handle_error("KDE bandwidth comparison", e, "kde_bandwidth.png")
 
-        # Plot different KDE implementations
+    # Plot different KDE implementations
+    try:
         plt.figure()
         plt.hist(samples, bins=30, density=True, alpha=0.3, label="Data histogram")
         plt.plot(x, true_pdf, "k--", label="True distribution")
@@ -1345,8 +1349,11 @@ def plot_kde():
         plt.title("Different KDE implementations")
         plt.legend()
         save_plot("kde_implementations.png")
+    except Exception as e:
+        handle_error("KDE implementations", e, "kde_implementations.png")
 
-        # Plot KDE1DimISJ implementation
+    # Plot KDE1DimISJ implementation
+    try:
         plt.figure()
         plt.hist(samples, bins=30, density=True, alpha=0.3, label="Data histogram")
         plt.plot(x, true_pdf, "k--", label="True distribution")
@@ -1359,8 +1366,11 @@ def plot_kde():
         plt.title("KDE1DimISJ implementation")
         plt.legend()
         save_plot("kde_isj.png")
+    except Exception as e:
+        handle_error("KDE1DimISJ", e, "kde_isj.png")
 
-        # Plot KDEs with different bandwidth methods
+    # Plot KDEs with different bandwidth methods
+    try:
         plt.figure()
         plt.hist(samples, bins=30, density=True, alpha=0.3, label="Data histogram")
         plt.plot(x, true_pdf, "k--", label="True distribution")
@@ -1368,20 +1378,27 @@ def plot_kde():
         kde_scott = zfit.pdf.KDE1DimExact(data=data, bandwidth="scott", obs=obs)
         kde_silverman = zfit.pdf.KDE1DimExact(data=data, bandwidth="silverman", obs=obs)
         kde_isj_method = zfit.pdf.KDE1DimExact(data=data, bandwidth="isj", obs=obs)
-        kde_adaptive = zfit.pdf.GaussianKDE1DimV1(obs=obs, data=data, bandwidth="adaptive")
+        kde_adaptive_geom = zfit.pdf.KDE1DimExact(data=data, bandwidth="adaptive_geom", obs=obs)
+        kde_adaptive_std = zfit.pdf.KDE1DimExact(data=data, bandwidth="adaptive_std", obs=obs)
+        kde_adaptive_zfit = zfit.pdf.KDE1DimExact(data=data, bandwidth="adaptive_zfit", obs=obs)
 
         plt.plot(x, kde_scott.pdf(x), label="Scott's rule")
         plt.plot(x, kde_silverman.pdf(x), label="Silverman's rule")
         plt.plot(x, kde_isj_method.pdf(x), label="ISJ method")
-        plt.plot(x, kde_adaptive.pdf(x), label="Adaptive method")
+        plt.plot(x, kde_adaptive_geom.pdf(x), label="Adaptive (geom)")
+        plt.plot(x, kde_adaptive_std.pdf(x), label="Adaptive (std)")
+        plt.plot(x, kde_adaptive_zfit.pdf(x), label="Adaptive (zfit)")
 
         plt.xlabel("x")
         plt.ylabel("Probability density")
         plt.title("KDE with different bandwidth methods")
         plt.legend()
         save_plot("kde_bandwidth_methods.png")
+    except Exception as e:
+        handle_error("KDE bandwidth methods", e, "kde_bandwidth_methods.png")
 
-        # Plot KDEs with different kernel types
+    # Plot KDEs with different kernel types
+    try:
         plt.figure()
         plt.hist(samples, bins=30, density=True, alpha=0.3, label="Data histogram")
         plt.plot(x, true_pdf, "k--", label="True distribution")
@@ -1393,12 +1410,10 @@ def plot_kde():
         # Create KDEs with different kernel types
         kde_normal = zfit.pdf.KDE1DimExact(data=data, bandwidth=0.3, kernel=tfd.Normal, obs=obs)
         kde_laplace = zfit.pdf.KDE1DimExact(data=data, bandwidth=0.3, kernel=tfd.Laplace, obs=obs)
-        kde_triangular = zfit.pdf.KDE1DimExact(data=data, bandwidth=0.3, kernel=tfd.Triangular, obs=obs)
         kde_logistic = zfit.pdf.KDE1DimExact(data=data, bandwidth=0.3, kernel=tfd.Logistic, obs=obs)
 
         plt.plot(x, kde_normal.pdf(x), label="Normal kernel")
         plt.plot(x, kde_laplace.pdf(x), label="Laplace kernel")
-        plt.plot(x, kde_triangular.pdf(x), label="Triangular kernel")
         plt.plot(x, kde_logistic.pdf(x), label="Logistic kernel")
 
         plt.xlabel("x")
@@ -1406,13 +1421,8 @@ def plot_kde():
         plt.title("KDE with different kernel types")
         plt.legend()
         save_plot("kde_kernel.png")
-
     except Exception as e:
-        handle_error("KDE", e, "kde_bandwidth.png")
-        create_dummy_plot("KDE with different kernel types", "kde_kernel.png")
-        create_dummy_plot("Different KDE implementations", "kde_implementations.png")
-        create_dummy_plot("KDE1DimISJ implementation", "kde_isj.png")
-        create_dummy_plot("KDE with different bandwidth methods", "kde_bandwidth_methods.png")
+        handle_error("KDE kernel types", e, "kde_kernel.png")
 
 
 # ========================
