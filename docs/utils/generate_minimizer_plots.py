@@ -15,6 +15,7 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
+import psutil
 import ray
 import tensorflow as tf
 from matplotlib import animation
@@ -489,9 +490,6 @@ def create_meshgrid_arrays(func):
         for j in range(len(y)):
             Z[j, i] = func([X[j, i], Y[j, i]])
     return np.array(X), np.array(Y), np.array(Z), np.array(x), np.array(y)
-
-
-import psutil
 
 
 def plot_minimizers():
