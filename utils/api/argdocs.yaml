@@ -844,12 +844,12 @@ hs3.explain: |1+
                     coordinated effort of the HEP community to standardize the serialization of statistical models. The standard
                     is still in development and is not yet finalized. This function is experimental and may change in the future.
 hs3.layout.explain: |1+
-    The keys in the HS3 format are:
+    The keys in the HS3 format
+                    are:
     
-                     - 'distributions': list of PDFs
-                     - 'variables': list of variables, i.e. ``zfit.Space`` and ``zfit.Parameter`` (or more generally parameters)
-                     - 'loss': list of losses
-                     - 'data': list of data
-                     - 'metadata': contains the version of the HS3 format and the
+                    - 'distributions': list of PDFs
+                    - 'variables': list of variables, i.e. ``zfit.Space`` and ``zfit.Parameter`` (or more generally parameters)
+                    - 'loss': list of losses
+                    - 'data': list of data
+                    - 'metadata': contains the version of the HS3 format and the
                        zfit version used to create the file
-    
