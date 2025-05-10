@@ -1,4 +1,4 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2025 zfit
 from __future__ import annotations
 
 import matplotlib.pyplot as plt

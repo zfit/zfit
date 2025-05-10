@@ -685,6 +685,7 @@ loss.init.binned.explain.chi2zeros: |1+
          - "empty": "ignore" will ignore all bins with zero entries and won't count to the loss
          - "errors": "expected" will use the expected counts from the model
            with a Poissonian uncertainty
+
 loss.init.options: |1+
     Additional options (as a dict) for the loss.
                 Current possibilities include:
@@ -794,6 +795,7 @@ result.init.info: |1+
                       by the minimizer used internally.
                     - *optimizer*: the actual instance of the wrapped
                       optimizer (if available)
+
 result.init.approx: |1+
     Collection of approximations found during
                     the minimization process such as gradient and hessian.
@@ -823,6 +825,7 @@ result.hesse.weightcorr.method: |1+
                        expensive method.
                      - `effsize`: the covariance matrix is corrected by the effective sample size.
                        This is the fastest method but won't yield asymptotically correct results.
+    
                      .. [langenbruch1] Langenbruch, C. Parameter uncertainties in weighted unbinned maximum
                         likelihood fits. Eur. Phys. J. C 82, 393 (2022).
                         https://doi.org/10.1140/epjc/s10052-022-10254-8
@@ -848,3 +851,4 @@ hs3.layout.explain: |1+
                      - 'data': list of data
                      - 'metadata': contains the version of the HS3 format and the
                        zfit version used to create the file
+    
