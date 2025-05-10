@@ -1213,7 +1213,7 @@ class FitResult(ZfitResult):
                    represents errors.
 
                     .. [langenbruch1] Langenbruch, C. Parameter uncertainties in weighted unbinned maximum
-                       likelihood fits.
+                       likelihood fits
                        `Eur. Phys. J. C 82, 393 (2022). <https://doi.org/10.1140/epjc/s10052-022-10254-8>`_. |@docend:result.hesse.weightcorr.method|
 
         Returns:
@@ -1455,7 +1455,7 @@ class FitResult(ZfitResult):
                    represents errors.
 
                     .. [langenbruch1] Langenbruch, C. Parameter uncertainties in weighted unbinned maximum
-                       likelihood fits.
+                       likelihood fits
                        `Eur. Phys. J. C 82, 393 (2022). <https://doi.org/10.1140/epjc/s10052-022-10254-8>`_. |@docend:result.hesse.weightcorr.method|
 
         Returns:
