@@ -86,7 +86,7 @@ repos:
     hooks:
       - id: check-manifest
         args: [ --update, --no-build-isolation ]
-        additional_dependencies: [ setuptools-scm, setuptools-scm-git-archive ]
+        additional_dependencies: [ hatchling, hatch-vcs ]
 
   - repo: https://github.com/kynan/nbstripout
     rev: 0.8.1
