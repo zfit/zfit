@@ -382,7 +382,9 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
 
                * type: one of (``bins``)
                  This hints that bins are integrated. A method that is vectorizable,
-                 non-dynamic and therefore less suitable for complicated functions is chosen. |@docend:pdf.integrate.options|
+                 non-dynamic and therefore less suitable for complicated functions is chosen.
+
+               Other options *may* be available in the future. |@docend:pdf.integrate.options|
             params: |@doc:model.args.params| Mapping of the parameter names to the actual
                values. The parameter names refer to the names of the parameters,
                typically :py:class:`~zfit.Parameter`, that
@@ -659,7 +661,9 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
 
                * type: one of (``bins``)
                  This hints that bins are integrated. A method that is vectorizable,
-                 non-dynamic and therefore less suitable for complicated functions is chosen. |@docend:pdf.integrate.options|
+                 non-dynamic and therefore less suitable for complicated functions is chosen.
+
+               Other options *may* be available in the future. |@docend:pdf.integrate.options|
             params: |@doc:model.args.params| Mapping of the parameter names to the actual
                values. The parameter names refer to the names of the parameters,
                typically :py:class:`~zfit.Parameter`, that
@@ -745,7 +749,9 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
 
                * type: one of (``bins``)
                  This hints that bins are integrated. A method that is vectorizable,
-                 non-dynamic and therefore less suitable for complicated functions is chosen. |@docend:pdf.integrate.options|
+                 non-dynamic and therefore less suitable for complicated functions is chosen.
+
+               Other options *may* be available in the future. |@docend:pdf.integrate.options|
             params: |@doc:model.args.params| Mapping of the parameter names to the actual
                values. The parameter names refer to the names of the parameters,
                typically :py:class:`~zfit.Parameter`, that
