@@ -4,12 +4,16 @@
 
 from __future__ import annotations
 
+import atexit
+
 # disable gpu for TensorFlow
 import os
+import shutil
 import subprocess
 import sys
 from pathlib import Path
 
+import pygit2
 import yaml
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"  # disable GPU for TensorFlow
@@ -90,7 +94,7 @@ def is_up_to_date(script, output_dir):
     return all(file.stat().st_mtime >= script_mtime for file in output_dir.iterdir())
 
 
-plotrerun = False
+plotrerun = True
 
 
 if (plotrerun and not is_up_to_date(plotscript, plot_output_dir)) or plotrerun == "force":
@@ -101,9 +105,9 @@ minimizer_output_dir.mkdir(parents=True, exist_ok=True)
 if (plotrerun and not is_up_to_date(minimizerscript, minimizer_output_dir)) or plotrerun == "force":
     subprocess.run([sys.executable, str(minimizerscript)], check=True, stdout=subprocess.PIPE)
 # Temporarily disabled for faster build
-# zfit_tutorials_path = project_dir.joinpath("docs", "_tmp", "zfit-tutorials")
-# atexit.register(lambda path=zfit_tutorials_path: shutil.rmtree(path))
-# pygit2.clone_repository("https://github.com/zfit/zfit-tutorials", zfit_tutorials_path)
+zfit_tutorials_path = project_dir.joinpath("docs", "_tmp", "zfit-tutorials")
+atexit.register(lambda path=zfit_tutorials_path: shutil.rmtree(path))
+pygit2.clone_repository("https://github.com/zfit/zfit-tutorials", zfit_tutorials_path)
 
 # todo: do we need it and connect?
 # zfit_physics_path = project_dir / "docs" / "_tmp" / "zfit-physics"
@@ -111,11 +115,11 @@ if (plotrerun and not is_up_to_date(minimizerscript, minimizer_output_dir)) or p
 # pygit2.clone_repository("https://github.com/zfit/zfit-physics", zfit_physics_path)
 
 # Temporarily disabled for faster build
-# zfit_images_path = docsdir / "images"
-# docs_images_path = docsdir / "_static" / "images"
-# atexit.register(lambda path=docs_images_path: shutil.rmtree(path))
-# docs_images_path.mkdir(parents=True, exist_ok=True)
-# shutil.copytree(zfit_images_path, docs_images_path, dirs_exist_ok=True)
+zfit_images_path = docsdir / "images"
+docs_images_path = docsdir / "_static" / "images"
+atexit.register(lambda path=docs_images_path: shutil.rmtree(path))
+docs_images_path.mkdir(parents=True, exist_ok=True)
+shutil.copytree(zfit_images_path, docs_images_path, dirs_exist_ok=True)
 
 nb_execution_in_temp = True
 
