@@ -1209,9 +1209,12 @@ class FitResult(ZfitResult):
                     - `effsize`: the covariance matrix is corrected by the effective sample size.
                       This is the fastest method but won't yield asymptotically correct results.
 
+                   This is not (yet) guaranteed to fully work for binned fits and maybe under/over
+                   represents errors.
+
                     .. [langenbruch1] Langenbruch, C. Parameter uncertainties in weighted unbinned maximum
-                       likelihood fits. Eur. Phys. J. C 82, 393 (2022).
-                       https://doi.org/10.1140/epjc/s10052-022-10254-8 |@docend:result.hesse.weightcorr.method|
+                       likelihood fits. 
+                       `Eur. Phys. J. C 82, 393 (2022). <https://doi.org/10.1140/epjc/s10052-022-10254-8>`_. |@docend:result.hesse.weightcorr.method|
 
         Returns:
             Result of the hessian (symmetric) error as dict with each parameter holding
@@ -1448,9 +1451,12 @@ class FitResult(ZfitResult):
                     - `effsize`: the covariance matrix is corrected by the effective sample size.
                       This is the fastest method but won't yield asymptotically correct results.
 
+                   This is not (yet) guaranteed to fully work for binned fits and maybe under/over
+                   represents errors.
+
                     .. [langenbruch1] Langenbruch, C. Parameter uncertainties in weighted unbinned maximum
-                       likelihood fits. Eur. Phys. J. C 82, 393 (2022).
-                       https://doi.org/10.1140/epjc/s10052-022-10254-8 |@docend:result.hesse.weightcorr.method|
+                       likelihood fits. 
+                       `Eur. Phys. J. C 82, 393 (2022). <https://doi.org/10.1140/epjc/s10052-022-10254-8>`_. |@docend:result.hesse.weightcorr.method|
 
         Returns:
             2D `numpy.array` of shape (N, N);

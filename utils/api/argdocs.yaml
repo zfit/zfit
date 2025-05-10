@@ -162,7 +162,7 @@ pdf.param.norm: |1+
 pdf.param.options: |1+
     Options for the PDF.
                 Additional options for the PDF. Currently supported options are:
-    
+
                 - type: one of (``bins``)
                   This hints that bins are integrated. A method that is vectorizable,
                   non-dynamic and therefore less suitable for complicated functions is chosen.
@@ -200,11 +200,11 @@ pdf.integrate.norm: |1+
 pdf.integrate.options: |1+
     Options for the integration.
                 Additional options for the integration. Currently supported options are:
-    
+
                 * type: one of (``bins``)
                   This hints that bins are integrated. A method that is vectorizable,
                   non-dynamic and therefore less suitable for complicated functions is chosen.
-    
+
                 Other options *may* be available in the future.
 pdf.param.yield: |1+
     Yield (expected number of events) of the PDF.
@@ -468,7 +468,7 @@ minimizer.name: |1+
     Human-readable name of the minimizer.
 
 minimizer.init.name:
-    Name of the minimizer.
+  Name of the minimizer.
 
 minimizer.maxcor: |1+
     Maximum number of memory history to keep
@@ -818,7 +818,7 @@ result.hesse.weightcorr.method: |1+
     Method to correct the estimation of the covariance matrix/hesse error
                     for a weighted likelihood. The following methods are available, for a comparison and
                     the derivation of the methods, see [langenbruch1]_:
-    
+
                      - `False`: no correction, the covariance matrix is calculated as if the likelihood
                        was unweighted. This will generally underestimate the errors.
                      - `asymptotic`: the covariance matrix is corrected by the asymptotic formula
@@ -826,10 +826,14 @@ result.hesse.weightcorr.method: |1+
                        expensive method.
                      - `effsize`: the covariance matrix is corrected by the effective sample size.
                        This is the fastest method but won't yield asymptotically correct results.
-    
+
+                    This is not (yet) guaranteed to fully work for binned fits and maybe under/over
+                    represents errors.
+
                      .. [langenbruch1] Langenbruch, C. Parameter uncertainties in weighted unbinned maximum
-                        likelihood fits. Eur. Phys. J. C 82, 393 (2022).
-                        https://doi.org/10.1140/epjc/s10052-022-10254-8
+                        likelihood fits. 
+                        `Eur. Phys. J. C 82, 393 (2022). <https://doi.org/10.1140/epjc/s10052-022-10254-8>`_.
+
 hs3.ini.reuse_params: |1+
     If parameters, the parameters
                     will be reused if they are given.
@@ -846,7 +850,7 @@ hs3.explain: |1+
 hs3.layout.explain: |1+
     The keys in the HS3 format
                     are:
-    
+
                     - 'distributions': list of PDFs
                     - 'variables': list of variables, i.e. ``zfit.Space`` and ``zfit.Parameter`` (or more generally parameters)
                     - 'loss': list of losses
