@@ -1200,7 +1200,7 @@ class FitResult(ZfitResult):
             weightcorr: |@doc:result.hesse.weightcorr.method| Method to correct the estimation of the covariance matrix/hesse error
                    for a weighted likelihood. The following methods are available, for a comparison and
                    the derivation of the methods, see [langenbruch1]_:
-   
+
                     - `False`: no correction, the covariance matrix is calculated as if the likelihood
                       was unweighted. This will generally underestimate the errors.
                     - `asymptotic`: the covariance matrix is corrected by the asymptotic formula
@@ -1208,6 +1208,7 @@ class FitResult(ZfitResult):
                       expensive method.
                     - `effsize`: the covariance matrix is corrected by the effective sample size.
                       This is the fastest method but won't yield asymptotically correct results.
+
                     .. [langenbruch1] Langenbruch, C. Parameter uncertainties in weighted unbinned maximum
                        likelihood fits. Eur. Phys. J. C 82, 393 (2022).
                        https://doi.org/10.1140/epjc/s10052-022-10254-8 |@docend:result.hesse.weightcorr.method|
@@ -1438,7 +1439,7 @@ class FitResult(ZfitResult):
             weightcorr: |@doc:result.hesse.weightcorr.method| Method to correct the estimation of the covariance matrix/hesse error
                    for a weighted likelihood. The following methods are available, for a comparison and
                    the derivation of the methods, see [langenbruch1]_:
-   
+
                     - `False`: no correction, the covariance matrix is calculated as if the likelihood
                       was unweighted. This will generally underestimate the errors.
                     - `asymptotic`: the covariance matrix is corrected by the asymptotic formula
@@ -1446,6 +1447,7 @@ class FitResult(ZfitResult):
                       expensive method.
                     - `effsize`: the covariance matrix is corrected by the effective sample size.
                       This is the fastest method but won't yield asymptotically correct results.
+
                     .. [langenbruch1] Langenbruch, C. Parameter uncertainties in weighted unbinned maximum
                        likelihood fits. Eur. Phys. J. C 82, 393 (2022).
                        https://doi.org/10.1140/epjc/s10052-022-10254-8 |@docend:result.hesse.weightcorr.method|

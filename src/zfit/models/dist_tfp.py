@@ -10,10 +10,6 @@ Therefore, a convenient wrapper as well as a lot of implementations are provided
 from __future__ import annotations
 
 import typing
-
-
-
-import typing
 from typing import Literal
 
 if typing.TYPE_CHECKING:

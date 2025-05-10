@@ -239,7 +239,13 @@ def plot_bifurgauss():
         [
             ("mu", [-1.5, -0.75, 0.0, 0.75, 1.5], {"sigmal": 1.0, "sigmar": 1.0}, r"μ", lambda v: rf"μ = {v}"),
             ("sigmal", [0.5, 0.75, 1.0, 1.25, 1.5], {"mu": 0.0, "sigmar": 1.0}, r"σ_left", lambda v: rf"σ_left = {v}"),
-            ("sigmar", [0.5, 0.75, 1.0, 1.25, 1.5], {"mu": 0.0, "sigmal": 1.0}, r"σ_right", lambda v: rf"σ_right = {v}"),
+            (
+                "sigmar",
+                [0.5, 0.75, 1.0, 1.25, 1.5],
+                {"mu": 0.0, "sigmal": 1.0},
+                r"σ_right",
+                lambda v: rf"σ_right = {v}",
+            ),
         ],
     )
     plot_multiple_configs(configs, obs)
@@ -287,7 +293,13 @@ def plot_johnsonsu():
         "JohnsonSU PDF",
         (-5, 5),
         [
-            ("mu", [-1.5, -0.75, 0.0, 0.75, 1.5], {"lambd": 1.0, "gamma": 1.0, "delta": 1.0}, r"μ", lambda v: rf"μ = {v}"),
+            (
+                "mu",
+                [-1.5, -0.75, 0.0, 0.75, 1.5],
+                {"lambd": 1.0, "gamma": 1.0, "delta": 1.0},
+                r"μ",
+                lambda v: rf"μ = {v}",
+            ),
             ("gamma", [0.0, 0.5, 1.0, 1.5, 2.0], {"mu": 0.0, "lambd": 1.0, "delta": 1.0}, r"γ", lambda v: rf"γ = {v}"),
             ("delta", [0.5, 0.75, 1.0, 1.5, 2.0], {"mu": 0.0, "lambd": 1.0, "gamma": 1.0}, r"δ", lambda v: rf"δ = {v}"),
         ],
@@ -322,7 +334,13 @@ def plot_truncatedgauss():
         "TruncatedGauss PDF",
         (-5, 5),
         [
-            ("mu", [-1.5, -0.75, 0.0, 0.75, 1.5], {"sigma": 1.0, "low": -2.0, "high": 2.0}, r"μ", lambda v: rf"μ = {v}"),
+            (
+                "mu",
+                [-1.5, -0.75, 0.0, 0.75, 1.5],
+                {"sigma": 1.0, "low": -2.0, "high": 2.0},
+                r"μ",
+                lambda v: rf"μ = {v}",
+            ),
             ("sigma", [0.5, 0.75, 1.0, 1.25, 1.5], {"mu": 0.0, "low": -2.0, "high": 2.0}, r"σ", lambda v: rf"σ = {v}"),
         ],
     )

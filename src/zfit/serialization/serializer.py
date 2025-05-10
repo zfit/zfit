@@ -241,31 +241,32 @@ class Serializer:
     ) -> Mapping[str, Any]:
         """Serialize a PDF or a list of PDFs to a JSON string according to the HS3 standard.
 
-        .. warning::
-            This is an experimental feature and the API might change in the future. DO NOT RELY ON THE OUTPUT FOR
-            ANYTHING ELSE THAN TESTING.
+            .. warning::
+                This is an experimental feature and the API might change in the future. DO NOT RELY ON THE OUTPUT FOR
+                ANYTHING ELSE THAN TESTING.
 
-        THIS FUNCTION DOESN'T YET ADHERE TO HS3 (but just as a proxy).
+            THIS FUNCTION DOESN'T YET ADHERE TO HS3 (but just as a proxy).
 
-        |@doc:hs3.explain| The `HEP Statistics Serialization Standard <https://github.com/hep-statistics-serialization-standard/hep-statistics-serialization-standard>`_,
-                   or in short, :math:`\text{HS}^3`, is a serialization format for statistical models.
-                   It is a JSON/YAML-based serialization that is a
-                   coordinated effort of the HEP community to standardize the serialization of statistical models. The standard
-                   is still in development and is not yet finalized. This function is experimental and may change in the future. |@docend:hs3.explain|
+            |@doc:hs3.explain| The `HEP Statistics Serialization Standard <https://github.com/hep-statistics-serialization-standard/hep-statistics-serialization-standard>`_,
+                       or in short, :math:`\text{HS}^3`, is a serialization format for statistical models.
+                       It is a JSON/YAML-based serialization that is a
+                       coordinated effort of the HEP community to standardize the serialization of statistical models. The standard
+                       is still in development and is not yet finalized. This function is experimental and may change in the future. |@docend:hs3.explain|
 
-        Args:
-            obj: The PDF or list of PDFs to be serialized.
+            Args:
+                obj: The PDF or list of PDFs to be serialized.
 
-        Returns:
-            mapping: The serialized objects as a mapping.
-                     |@doc:hs3.layout.explain| The keys in the HS3 format are:
-   
-                    - 'distributions': list of PDFs
-                    - 'variables': list of variables, i.e. ``zfit.Space`` and ``zfit.Parameter`` (or more generally parameters)
-                    - 'loss': list of losses
-                    - 'data': list of data
-                    - 'metadata': contains the version of the HS3 format and the
-                      zfit version used to create the file |@docend:hs3.layout.explain|
+            Returns:
+                mapping: The serialized objects as a mapping.
+                         |@doc:hs3.layout.explain| The keys in the HS3 format are:
+
+                        - 'distributions': list of PDFs
+                        - 'variables': list of variables, i.e. ``zfit.Space`` and ``zfit.Parameter`` (or more generally parameters)
+                        - 'loss': list of losses
+                        - 'data': list of data
+                        - 'metadata': contains the version of the HS3 format and the
+                          zfit version used to create the file
+        |@docend:hs3.layout.explain|
         """
 
         with cls.initialize():
@@ -371,35 +372,36 @@ class Serializer:
     ) -> Mapping[str, ZfitPDF | ZfitParameter]:
         """Load a PDF or a list of PDFs from a JSON string according to the HS3 standard.
 
-        .. warning::
-            This is an experimental feature and the API might change in the future. DO NOT RELY ON THE OUTPUT FOR
-            ANYTHING ELSE THAN TESTING.
+            .. warning::
+                This is an experimental feature and the API might change in the future. DO NOT RELY ON THE OUTPUT FOR
+                ANYTHING ELSE THAN TESTING.
 
-        THIS FUNCTION DOESN'T YET ADHERE TO HS3 (but just as a proxy).
+            THIS FUNCTION DOESN'T YET ADHERE TO HS3 (but just as a proxy).
 
-        |@doc:hs3.explain| The `HEP Statistics Serialization Standard <https://github.com/hep-statistics-serialization-standard/hep-statistics-serialization-standard>`_,
-                   or in short, :math:`\text{HS}^3`, is a serialization format for statistical models.
-                   It is a JSON/YAML-based serialization that is a
-                   coordinated effort of the HEP community to standardize the serialization of statistical models. The standard
-                   is still in development and is not yet finalized. This function is experimental and may change in the future. |@docend:hs3.explain|
+            |@doc:hs3.explain| The `HEP Statistics Serialization Standard <https://github.com/hep-statistics-serialization-standard/hep-statistics-serialization-standard>`_,
+                       or in short, :math:`\text{HS}^3`, is a serialization format for statistical models.
+                       It is a JSON/YAML-based serialization that is a
+                       coordinated effort of the HEP community to standardize the serialization of statistical models. The standard
+                       is still in development and is not yet finalized. This function is experimental and may change in the future. |@docend:hs3.explain|
 
-        Args:
-            load: The serialized objects as a mapping. |@doc:hs3.layout.explain| The keys in the HS3 format are:
-   
-                    - 'distributions': list of PDFs
-                    - 'variables': list of variables, i.e. ``zfit.Space`` and ``zfit.Parameter`` (or more generally parameters)
-                    - 'loss': list of losses
-                    - 'data': list of data
-                    - 'metadata': contains the version of the HS3 format and the
-                      zfit version used to create the file |@docend:hs3.layout.explain|
-            reuse_params: |@doc:hs3.ini.reuse_params| If parameters, the parameters
-                   will be reused if they are given.
-                   If a parameter is given, it will be used as the parameter
-                   with the same name. If a parameter is not given, a new
-                   parameter will be created. |@docend:hs3.ini.reuse_params|
+            Args:
+                load: The serialized objects as a mapping. |@doc:hs3.layout.explain| The keys in the HS3 format are:
 
-        Returns:
-            mapping: The PDFs and variables as a mapping to the original keys.
+                        - 'distributions': list of PDFs
+                        - 'variables': list of variables, i.e. ``zfit.Space`` and ``zfit.Parameter`` (or more generally parameters)
+                        - 'loss': list of losses
+                        - 'data': list of data
+                        - 'metadata': contains the version of the HS3 format and the
+                          zfit version used to create the file
+        |@docend:hs3.layout.explain|
+                reuse_params: |@doc:hs3.ini.reuse_params| If parameters, the parameters
+                       will be reused if they are given.
+                       If a parameter is given, it will be used as the parameter
+                       with the same name. If a parameter is not given, a new
+                       parameter will be created. |@docend:hs3.ini.reuse_params|
+
+            Returns:
+                mapping: The PDFs and variables as a mapping to the original keys.
         """
         with cls.initialize(reuse_params=reuse_params):
             # sanity checks, TODO

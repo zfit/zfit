@@ -19,7 +19,7 @@ import operator
 import typing
 from collections import Counter
 from collections.abc import Iterable
-from typing import TYPE_CHECKING, Literal, Optional
+from typing import Literal, Optional
 
 if typing.TYPE_CHECKING:
     import zfit

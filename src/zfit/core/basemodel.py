@@ -379,7 +379,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
                ``False`` means no normalization and returns the unnormed integral. |@docend:pdf.integrate.norm|
             options: |@doc:pdf.integrate.options| Options for the integration.
                Additional options for the integration. Currently supported options are:
-   
+
                * type: one of (``bins``)
                  This hints that bins are integrated. A method that is vectorizable,
                  non-dynamic and therefore less suitable for complicated functions is chosen. |@docend:pdf.integrate.options|
@@ -656,7 +656,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
                ``False`` means no normalization and returns the unnormed integral. |@docend:pdf.integrate.norm|
             options: |@doc:pdf.integrate.options| Options for the integration.
                Additional options for the integration. Currently supported options are:
-   
+
                * type: one of (``bins``)
                  This hints that bins are integrated. A method that is vectorizable,
                  non-dynamic and therefore less suitable for complicated functions is chosen. |@docend:pdf.integrate.options|
@@ -742,7 +742,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
                ``False`` means no normalization and returns the unnormed integral. |@docend:pdf.integrate.norm|
             options: |@doc:pdf.integrate.options| Options for the integration.
                Additional options for the integration. Currently supported options are:
-   
+
                * type: one of (``bins``)
                  This hints that bins are integrated. A method that is vectorizable,
                  non-dynamic and therefore less suitable for complicated functions is chosen. |@docend:pdf.integrate.options|
