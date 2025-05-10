@@ -2,6 +2,11 @@
 
 from __future__ import annotations
 
+import typing
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
+
 from collections.abc import Callable
 from typing import ClassVar, Literal, Optional, Union
 
@@ -481,18 +486,19 @@ class KDEHelper:
         return data, size, weights, bandwidth
 
     def _convert_input_bandwidth(self, bandwidth, data, **kwargs):
-        if bandwidth is None:
-            bandwidth = "adaptive"
+        if bandwidth is None and (bandwidth := "adaptive") not in self._bandwidth_methods:
+            bandwidth = "silverman"
         # estimate bandwidth
         bandwidth_param = bandwidth
         if isinstance(bandwidth, str):
-            bandwidth = self._bandwidth_methods.get(bandwidth)
+            newbandwidth = self._bandwidth_methods.get(bandwidth)
             if bandwidth is None:
                 msg = (
                     f"Cannot use {bandwidth} as a bandwidth method. Use a numerical value or one of"
                     f" the defined methods: {list(self._bandwidth_methods.keys())}"
                 )
                 raise ValueError(msg)
+            bandwidth = newbandwidth
         if (not isinstance(bandwidth, ZfitParameter)) and callable(bandwidth):
             bandwidth = bandwidth(constructor=type(self), data=data, **kwargs)
         is_arraylike = bw_is_arraylike(bandwidth_param, allow1d=True)

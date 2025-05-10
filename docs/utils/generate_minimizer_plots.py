@@ -148,13 +148,13 @@ class FunctionWrapper(zfit.loss.SimpleLoss):
         pass
 
 
-def plot_minimizer_paths(minimizer_classes, starting_points, func_wrapper, title, filename, pbar):
+def plot_minimizer_paths(minimizer_classes, starting_points, meshgrid_arrays, func, title, filename, pbar=None):
     """Plot the paths taken by different minimizers.
 
     Args:
         minimizer_classes: List of minimizer classes to test
         starting_points: List of starting points for minimization
-        func_wrapper: Function wrapper object
+        func: Function wrapper object
         title: Title for the plot
         filename: Filename to save the plot
     """
@@ -162,8 +162,9 @@ def plot_minimizer_paths(minimizer_classes, starting_points, func_wrapper, title
     # For the complex Rosenbrock function, the true minimum is close to (1, 1)
     # but might be slightly different due to the additional terms
     true_minimum = [1.0, 1.0]  # Approximate true minimum for the Rosenbrock function
-
-    X, Y, Z, x, y = create_meshgrid_arrays(func_wrapper)
+    params = [zfit.Parameter(f"x{i}", starting_points[0][i], stepsize=0.1) for i in range(len(starting_points[0]))]
+    func_wrapper = FunctionWrapper(func, params=params)
+    X, Y, Z, x, y = meshgrid_arrays
 
     # Create the figure
     fig, ax = plt.subplots(figsize=(12, 10))
@@ -297,7 +298,8 @@ def plot_minimizer_paths(minimizer_classes, starting_points, func_wrapper, title
             except Exception as e:
                 print(f"Error with {minimizer_name} from {start_point}: {e}")
             finally:
-                pbar.update(1)
+                if pbar is not None:
+                    pbar.update(1)
 
     # Set reasonable axis limits
     ax.set_xlim(x.min(), x.max())
@@ -476,7 +478,7 @@ def create_animation(
 
 
 @lru_cache
-def create_meshgrid_arrays(func_wrapper):
+def create_meshgrid_arrays(func):
     # Create a grid of x and y values for the contour plot
     x = znp.linspace(-1.5, 1.5, 100)  # Set reasonable bounds
     y = znp.linspace(-1.0, 1.5, 100)  # Set reasonable bounds
@@ -485,13 +487,19 @@ def create_meshgrid_arrays(func_wrapper):
     # Calculate function values for the contour plot
     for i in range(len(x)):
         for j in range(len(y)):
-            Z[j, i] = func_wrapper.func([X[j, i], Y[j, i]])
+            Z[j, i] = func([X[j, i], Y[j, i]])
     return np.array(X), np.array(Y), np.array(Z), np.array(x), np.array(y)
+
+
+import psutil
 
 
 def plot_minimizers():
     """Generate plots for different minimizers."""
-    ray.init()
+    n_physical_cpus = psutil.cpu_count(logical=False)
+
+    ray.init(num_cpus=n_physical_cpus)
+    # ray.init(local_mode=True)
     # Define the function to minimize
     func = complex_rosenbrock
 
@@ -551,9 +559,10 @@ def plot_minimizers():
         desc="Generating minimizer plots",
         total=len(minimizer_classes) * len(starting_points),
     )
-    plot_minimizer_paths_pbar = partial(plot_minimizer_paths, pbar=pbar)
+    plot_minimizer_paths_remote = partial(plot_minimizer_paths, pbar=pbar)
+    # plot_minimizer_paths_remote = ray.remote(plot_minimizer_paths).remote
     # # Plot the combined minimizer paths
-    # plot_minimizer_paths_pbar(
+    # plot_minimizer_paths_remote(
     #     minimizer_classes,
     #     starting_points,
     #     func_wrapper,
@@ -565,17 +574,33 @@ def plot_minimizers():
 
     # Minuit minimizers
     print("Generating all minimizer plots...")
-    params = [zfit.Parameter(f"x{i}", starting_points[0][i], stepsize=0.1) for i in range(len(starting_points[0]))]
-    func_wrapper = FunctionWrapper(func, params=params)
+
+    @lru_cache
+    def create_meshgrid_arrays(func):
+        # Create a grid of x and y values for the contour plot
+        x = znp.linspace(-1.5, 1.5, 100)  # Set reasonable bounds
+        y = znp.linspace(-1.0, 1.5, 100)  # Set reasonable bounds
+        X, Y = znp.meshgrid(x, y)
+        Z = np.zeros_like(X)
+        # Calculate function values for the contour plot
+        for i in range(len(x)):
+            for j in range(len(y)):
+                Z[j, i] = func([X[j, i], Y[j, i]])
+        return np.array(X), np.array(Y), np.array(Z), np.array(x), np.array(y)
+
+    # Create the meshgrid arrays for the contour plot
+    meshgrid_arrays = create_meshgrid_arrays(func)
+
     remotes = []
     for minimizer_class in minimizer_classes:
-        func_wrapper.reset()
-        future = plot_minimizer_paths_pbar(
+        # func_wrapper.reset()
+        future = plot_minimizer_paths_remote(
             [minimizer_class],
             starting_points,
-            func_wrapper,
-            f"{minimizer_class.__name__} Paths on Complex Rosenbrock Function",
-            f"{minimizer_class.__name__.lower()}_paths.png",
+            meshgrid_arrays=meshgrid_arrays,
+            func=func,
+            title=f"{minimizer_class.__name__} Paths on Complex Rosenbrock Function",
+            filename=f"{minimizer_class.__name__.lower()}_paths.png",
         )
         remotes.append(future)
 
@@ -584,7 +609,7 @@ def plot_minimizers():
     # remotes = []
     # for minimizer_class in minuit_minimizers:
     #     func_wrapper.reset()
-    #     future = plot_minimizer_paths_pbar(
+    #     future = plot_minimizer_paths_remote(
     #         [minimizer_class],
     #         starting_points,
     #         func_wrapper,
@@ -597,7 +622,7 @@ def plot_minimizers():
     # print("Generating Levenberg-Marquardt minimizer plots...")
     # for minimizer_class in levenberg_marquardt_minimizers:
     #     func_wrapper.reset()
-    #     future = plot_minimizer_paths_pbar(
+    #     future = plot_minimizer_paths_remote(
     #         [minimizer_class],
     #         starting_points,
     #         func_wrapper,
@@ -610,7 +635,7 @@ def plot_minimizers():
     # print("Generating Ipyopt minimizer plots...")
     # for minimizer_class in ipyopt_minimizers:
     #     func_wrapper.reset()
-    #     future = plot_minimizer_paths_pbar(
+    #     future = plot_minimizer_paths_remote(
     #         [minimizer_class],
     #         starting_points,
     #         func_wrapper,
@@ -623,7 +648,7 @@ def plot_minimizers():
     # print("Generating Scipy minimizer plots...")
     # for minimizer_class in scipy_minimizers:
     #     func_wrapper.reset()
-    #     future = plot_minimizer_paths_pbar(
+    #     future = plot_minimizer_paths_remote(
     #         [minimizer_class],
     #         starting_points,
     #         func_wrapper,
@@ -636,7 +661,7 @@ def plot_minimizers():
     # print("Generating NLopt minimizer plots...")
     # for minimizer_class in nlopt_minimizers:
     #     func_wrapper.reset()
-    #     future = plot_minimizer_paths_pbar(
+    #     future = plot_minimizer_paths_remote(
     #         [minimizer_class],
     #         starting_points,
     #         func_wrapper,
@@ -646,10 +671,10 @@ def plot_minimizers():
     #     remotes.append(future)
 
     # check all ray remote returns and make sure they all finish
-    print("Waiting for all minimizer plots to finish...")
+    print("Waiting for all minimizer to finish...")
     all_data = []
     ntot = len(remotes)
-    for _ in tqdm(range(ntot), desc="Waiting for minimizer plots to finish"):
+    for _ in tqdm(range(ntot), desc="Waiting for minimizers to finish"):
         finished, remotes = ray.wait(remotes)
         data = ray.get(finished)
         all_data.extend(data)

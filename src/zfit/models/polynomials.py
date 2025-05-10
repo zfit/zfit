@@ -3,6 +3,11 @@
 
 from __future__ import annotations
 
+import typing
+
+if typing.TYPE_CHECKING:
+    import zfit
+
 from typing import TYPE_CHECKING, Literal, Optional
 
 import pydantic.v1 as pydantic

@@ -1,6 +1,11 @@
 #  Copyright (c) 2025 zfit
 from __future__ import annotations
 
+import typing
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
+
 from typing import Literal, Optional, Union
 
 from pydantic.v1 import Field, root_validator, validator

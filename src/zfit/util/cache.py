@@ -50,6 +50,11 @@ Example with a pdf that caches the normalization:
 
 from __future__ import annotations
 
+import typing
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
+
 import collections.abc
 import functools
 import gc

@@ -7,6 +7,11 @@ Gauss, exponential... that can be used together with Functors to build larger mo
 
 from __future__ import annotations
 
+import typing
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
+
 #  Copyright (c) 2023 zfit
 import contextlib
 from typing import TYPE_CHECKING, Literal

@@ -162,6 +162,7 @@ pdf.param.norm: |1+
 pdf.param.options: |1+
     Options for the PDF.
                 Additional options for the PDF. Currently supported options are:
+    
                 - type: one of (``bins``)
                   This hints that bins are integrated. A method that is vectorizable,
                   non-dynamic and therefore less suitable for complicated functions is chosen.
@@ -199,7 +200,8 @@ pdf.integrate.norm: |1+
 pdf.integrate.options: |1+
     Options for the integration.
                 Additional options for the integration. Currently supported options are:
-                - type: one of (``bins``)
+    
+                * type: one of (``bins``)
                   This hints that bins are integrated. A method that is vectorizable,
                   non-dynamic and therefore less suitable for complicated functions is chosen.
 
@@ -463,6 +465,10 @@ minimizer.maxiter: |1+
                     evaluations of the ``value``, 'gradient`` or ``hessian``.
 minimizer.name: |1+
     Human-readable name of the minimizer.
+
+minimizer.init.name:
+    Name of the minimizer.
+
 minimizer.maxcor: |1+
     Maximum number of memory history to keep
                     when using a quasi-Newton update formula such as BFGS.
@@ -487,6 +493,12 @@ minimizer.init.c2: |1+
                     which effectively provides a lower bound to the step size.
                     The value is constrained to be 0 < c1 < c2 < 1.
                     Defaults to 0.4.
+
+minimizer.init.options: |1+
+    Additional options for the minimizer.
+                    This is a dictionary of options that are passed to the minimizer.
+                    The options depend on the minimizer and are not always available.
+                    See the documentation of the minimizer for more information.
 
 minimizer.scipy.gradient: |1+
     Define the method to use for the gradient computation
@@ -803,6 +815,7 @@ result.hesse.weightcorr.method: |1+
     Method to correct the estimation of the covariance matrix/hesse error
                     for a weighted likelihood. The following methods are available, for a comparison and
                     the derivation of the methods, see [langenbruch1]_:
+    
                      - `False`: no correction, the covariance matrix is calculated as if the likelihood
                        was unweighted. This will generally underestimate the errors.
                      - `asymptotic`: the covariance matrix is corrected by the asymptotic formula
@@ -828,6 +841,7 @@ hs3.explain: |1+
                     is still in development and is not yet finalized. This function is experimental and may change in the future.
 hs3.layout.explain: |1+
     The keys in the HS3 format are:
+    
                      - 'distributions': list of PDFs
                      - 'variables': list of variables, i.e. ``zfit.Space`` and ``zfit.Parameter`` (or more generally parameters)
                      - 'loss': list of losses

@@ -4,16 +4,12 @@
 
 from __future__ import annotations
 
-import atexit
-
 # disable gpu for TensorFlow
 import os
-import shutil
 import subprocess
 import sys
 from pathlib import Path
 
-import pygit2
 import yaml
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"  # disable GPU for TensorFlow
@@ -104,20 +100,22 @@ minimizer_output_dir = docsdir / "_static" / "minimizer_plots"
 minimizer_output_dir.mkdir(parents=True, exist_ok=True)
 if (plotrerun and not is_up_to_date(minimizerscript, minimizer_output_dir)) or plotrerun == "force":
     subprocess.run([sys.executable, str(minimizerscript)], check=True, stdout=subprocess.PIPE)
-zfit_tutorials_path = project_dir.joinpath("docs", "_tmp", "zfit-tutorials")
-atexit.register(lambda path=zfit_tutorials_path: shutil.rmtree(path))
-pygit2.clone_repository("https://github.com/zfit/zfit-tutorials", zfit_tutorials_path)
+# Temporarily disabled for faster build
+# zfit_tutorials_path = project_dir.joinpath("docs", "_tmp", "zfit-tutorials")
+# atexit.register(lambda path=zfit_tutorials_path: shutil.rmtree(path))
+# pygit2.clone_repository("https://github.com/zfit/zfit-tutorials", zfit_tutorials_path)
 
 # todo: do we need it and connect?
 # zfit_physics_path = project_dir / "docs" / "_tmp" / "zfit-physics"
 # atexit.register(lambda path=zfit_physics_path: shutil.rmtree(path))
 # pygit2.clone_repository("https://github.com/zfit/zfit-physics", zfit_physics_path)
 
-zfit_images_path = docsdir / "images"
-docs_images_path = docsdir / "_static" / "images"
-atexit.register(lambda path=docs_images_path: shutil.rmtree(path))
-docs_images_path.mkdir(parents=True, exist_ok=True)
-shutil.copytree(zfit_images_path, docs_images_path, dirs_exist_ok=True)
+# Temporarily disabled for faster build
+# zfit_images_path = docsdir / "images"
+# docs_images_path = docsdir / "_static" / "images"
+# atexit.register(lambda path=docs_images_path: shutil.rmtree(path))
+# docs_images_path.mkdir(parents=True, exist_ok=True)
+# shutil.copytree(zfit_images_path, docs_images_path, dirs_exist_ok=True)
 
 nb_execution_in_temp = True
 
@@ -161,12 +159,9 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", ".cache", "README.md", "
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = "sphinx"
 
-# Automatically add substitutions to all RST files.
-with Path("subst_types.txt").open() as subst_types:
-    rst_epilog = subst_types.read()
 
 # add whitespaces to the internal commands. Maybe move to preprocessing?
-rst_epilog += """
+rst_epilog = """
 .. |wzw| unicode:: U+200B
    :trim:
 
@@ -183,6 +178,7 @@ for replacement_key in replacements:
 
 .. |@docend:{replacement_key}| replace:: |wzw|
 """
+print("replacements", replacements)
 with Path("hyperlinks.txt").open() as hyperlinks:
     rst_epilog += hyperlinks.read()
 
@@ -277,7 +273,7 @@ html_theme_options = {
     },
     "github_url": "https://github.com/zfit/zfit",
     "use_edit_page_button": True,
-    "navigation_depth": 3,
+    "navigation_depth": 2,
     "search_bar_text": "Search zfit...",
     "navigation_with_keys": True,
     # "search_bar_position": "sidebar",
@@ -285,6 +281,9 @@ html_theme_options = {
     # "repository_url": "https://github.com/zfit/zfit",  # adding jupyter book somehow?
     # "repository_branch": "develop",
     # "path_to_docs": "docs",
+    "collapse_navigation": True,
+    # "sticky_navigation": True,
+    # "navigation_depth": 4,
 }
 
 html_context = {
@@ -362,7 +361,7 @@ intersphinx_mapping = {
     ),
     "tensorflow_probability": (
         "https://www.tensorflow.org/probability/api_docs/python",
-        " https://raw.githubusercontent.com/GPflow/tensorflow-intersphinx/master/tfp_py_objects.inv",
+        "https://raw.githubusercontent.com/GPflow/tensorflow-intersphinx/master/tfp_py_objects.inv",
     ),
     "uproot": ("https://uproot.readthedocs.io/en/latest/", None),
     "python": ("https://docs.python.org/3", None),

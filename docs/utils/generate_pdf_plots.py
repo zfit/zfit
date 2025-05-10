@@ -125,8 +125,8 @@ def plot_gaussian():
         "Gaussian PDF",
         (-5, 5),
         [
-            ("mu", [-2, 0, 2], {"sigma": 1.0}, r"μ", lambda v: rf"μ = {v}"),
-            ("sigma", [0.5, 1.0, 2.0], {"mu": 0.0}, r"σ", lambda v: rf"σ = {v}"),
+            ("mu", [-3, -1.5, 0, 1.5, 3], {"sigma": 1.0}, r"μ", lambda v: rf"μ = {v}"),
+            ("sigma", [0.3, 0.7, 1.0, 1.5, 2.5], {"mu": 0.0}, r"σ", lambda v: rf"σ = {v}"),
         ],
     )
     plot_multiple_configs(configs, obs)
@@ -137,7 +137,7 @@ def plot_exponential():
     config = PDFConfig(
         pdf_class=zfit.pdf.Exponential,
         param_name="lam",
-        param_values=[0.5, 1.0, 2.0],
+        param_values=[0.3, 0.6, 1.0, 1.5, 2.5],
         title=r"Exponential PDF with different λ values",
         filename="exponential_lambda.png",
         x_range=(0, 5),
@@ -151,7 +151,7 @@ def plot_uniform():
     obs = zfit.Space("x", limits=(-5, 5))
 
     plt.figure()
-    ranges = [(-4, 4), (-2, 2), (0, 4)]
+    ranges = [(-4, 4), (-3, 3), (-2, 2), (-1, 3), (0, 4)]
 
     for low, high in ranges:
         uniform = zfit.pdf.Uniform(low=Parameter("low", low), high=Parameter("high", high), obs=obs)
@@ -174,8 +174,8 @@ def plot_cauchy():
         "Cauchy PDF",
         (-10, 10),
         [
-            ("m", [-2, 0, 2], {"gamma": 1.0}, "m", None),
-            ("gamma", [0.5, 1.0, 2.0], {"m": 0.0}, r"γ", lambda v: rf"γ = {v}"),
+            ("m", [-3, -1.5, 0, 1.5, 3], {"gamma": 1.0}, "m", None),
+            ("gamma", [0.3, 0.7, 1.0, 1.5, 2.5], {"m": 0.0}, r"γ", lambda v: rf"γ = {v}"),
         ],
     )
     plot_multiple_configs(configs, obs)
@@ -189,9 +189,9 @@ def plot_voigt():
         "Voigt PDF",
         (-10, 10),
         [
-            ("sigma", [0.5, 1.0, 2.0], {"m": 0.0, "gamma": 1.0}, r"σ", lambda v: rf"σ = {v}"),
-            ("gamma", [0.5, 1.0, 2.0], {"m": 0.0, "sigma": 1.0}, r"γ", lambda v: rf"γ = {v}"),
-            ("m", [-2, 0, 2], {"sigma": 1.0, "gamma": 1.0}, "m", None),
+            ("sigma", [0.3, 0.7, 1.0, 1.5, 2.5], {"m": 0.0, "gamma": 1.0}, r"σ", lambda v: rf"σ = {v}"),
+            ("gamma", [0.3, 0.7, 1.0, 1.5, 2.5], {"m": 0.0, "sigma": 1.0}, r"γ", lambda v: rf"γ = {v}"),
+            ("m", [-3, -1.5, 0, 1.5, 3], {"sigma": 1.0, "gamma": 1.0}, "m", None),
         ],
     )
     plot_multiple_configs(configs, obs)
@@ -205,10 +205,10 @@ def plot_crystalball():
         "CrystalBall PDF",
         (-5, 5),
         [
-            ("alpha", [0.5, 1.0, 2.0], {"mu": 0.0, "sigma": 1.0, "n": 2.0}, r"α", lambda v: rf"α = {v}"),
-            ("n", [1.0, 2.0, 5.0], {"mu": 0.0, "sigma": 1.0, "alpha": 1.0}, "n", None),
-            ("mu", [-1.0, 0.0, 1.0], {"sigma": 1.0, "alpha": 1.0, "n": 2.0}, r"μ", lambda v: rf"μ = {v}"),
-            ("sigma", [0.5, 1.0, 1.5], {"mu": 0.0, "alpha": 1.0, "n": 2.0}, r"σ", lambda v: rf"σ = {v}"),
+            ("alpha", [0.3, 0.7, 1.0, 1.5, 2.5], {"mu": 0.0, "sigma": 1.0, "n": 2.0}, r"α", lambda v: rf"α = {v}"),
+            ("n", [1.0, 1.5, 2.0, 3.5, 5.0], {"mu": 0.0, "sigma": 1.0, "alpha": 1.0}, "n", None),
+            ("mu", [-1.5, -0.75, 0.0, 0.75, 1.5], {"sigma": 1.0, "alpha": 1.0, "n": 2.0}, r"μ", lambda v: rf"μ = {v}"),
+            ("sigma", [0.5, 0.75, 1.0, 1.25, 1.5], {"mu": 0.0, "alpha": 1.0, "n": 2.0}, r"σ", lambda v: rf"σ = {v}"),
         ],
     )
     plot_multiple_configs(configs, obs)
@@ -222,8 +222,8 @@ def plot_lognormal():
         "LogNormal PDF",
         (0.1, 10),
         [
-            ("mu", [-0.5, 0.0, 0.5], {"sigma": 0.5}, r"μ", lambda v: rf"μ = {v}"),
-            ("sigma", [0.2, 0.5, 1.0], {"mu": 0.0}, r"σ", lambda v: rf"σ = {v}"),
+            ("mu", [-0.8, -0.4, 0.0, 0.4, 0.8], {"sigma": 0.5}, r"μ", lambda v: rf"μ = {v}"),
+            ("sigma", [0.2, 0.35, 0.5, 0.75, 1.0], {"mu": 0.0}, r"σ", lambda v: rf"σ = {v}"),
         ],
     )
     plot_multiple_configs(configs, obs)
@@ -237,9 +237,9 @@ def plot_bifurgauss():
         "BifurGauss PDF",
         (-5, 5),
         [
-            ("mu", [-1.0, 0.0, 1.0], {"sigmal": 1.0, "sigmar": 1.0}, r"μ", lambda v: rf"μ = {v}"),
-            ("sigmal", [0.5, 1.0, 1.5], {"mu": 0.0, "sigmar": 1.0}, r"σ_left", lambda v: rf"σ_left = {v}"),
-            ("sigmar", [0.5, 1.0, 1.5], {"mu": 0.0, "sigmal": 1.0}, r"σ_right", lambda v: rf"σ_right = {v}"),
+            ("mu", [-1.5, -0.75, 0.0, 0.75, 1.5], {"sigmal": 1.0, "sigmar": 1.0}, r"μ", lambda v: rf"μ = {v}"),
+            ("sigmal", [0.5, 0.75, 1.0, 1.25, 1.5], {"mu": 0.0, "sigmar": 1.0}, r"σ_left", lambda v: rf"σ_left = {v}"),
+            ("sigmar", [0.5, 0.75, 1.0, 1.25, 1.5], {"mu": 0.0, "sigmal": 1.0}, r"σ_right", lambda v: rf"σ_right = {v}"),
         ],
     )
     plot_multiple_configs(configs, obs)
@@ -251,7 +251,7 @@ def plot_poisson():
     plt.figure()
 
     x = np.arange(0, 20)
-    for lambda_val in [1.0, 5.0, 10.0]:
+    for lambda_val in [1.0, 3.0, 5.0, 7.0, 10.0]:
         poisson = zfit.pdf.Poisson(lam=Parameter("lambda", lambda_val), obs=obs)
         y = poisson.pdf(x)
         plt.step(x, y, where="mid", label=rf"λ = {lambda_val}")
@@ -271,9 +271,9 @@ def plot_qgauss():
         "QGauss PDF",
         (-5, 5),
         [
-            ("mu", [-1.0, 0.0, 1.0], {"sigma": 1.0, "q": 1.5}, r"μ", lambda v: rf"μ = {v}"),
-            ("sigma", [0.5, 1.0, 1.5], {"mu": 0.0, "q": 1.5}, r"σ", lambda v: rf"σ = {v}"),
-            ("q", [1.1, 1.5, 2.0], {"mu": 0.0, "sigma": 1.0}, "q", None),
+            ("mu", [-1.5, -0.75, 0.0, 0.75, 1.5], {"sigma": 1.0, "q": 1.5}, r"μ", lambda v: rf"μ = {v}"),
+            ("sigma", [0.5, 0.75, 1.0, 1.25, 1.5], {"mu": 0.0, "q": 1.5}, r"σ", lambda v: rf"σ = {v}"),
+            ("q", [1.1, 1.3, 1.5, 1.7, 2.0], {"mu": 0.0, "sigma": 1.0}, "q", None),
         ],
     )
     plot_multiple_configs(configs, obs)
@@ -287,9 +287,9 @@ def plot_johnsonsu():
         "JohnsonSU PDF",
         (-5, 5),
         [
-            ("mu", [-1.0, 0.0, 1.0], {"lambd": 1.0, "gamma": 1.0, "delta": 1.0}, r"μ", lambda v: rf"μ = {v}"),
-            ("gamma", [0.0, 1.0, 2.0], {"mu": 0.0, "lambd": 1.0, "delta": 1.0}, r"γ", lambda v: rf"γ = {v}"),
-            ("delta", [0.5, 1.0, 2.0], {"mu": 0.0, "lambd": 1.0, "gamma": 1.0}, r"δ", lambda v: rf"δ = {v}"),
+            ("mu", [-1.5, -0.75, 0.0, 0.75, 1.5], {"lambd": 1.0, "gamma": 1.0, "delta": 1.0}, r"μ", lambda v: rf"μ = {v}"),
+            ("gamma", [0.0, 0.5, 1.0, 1.5, 2.0], {"mu": 0.0, "lambd": 1.0, "delta": 1.0}, r"γ", lambda v: rf"γ = {v}"),
+            ("delta", [0.5, 0.75, 1.0, 1.5, 2.0], {"mu": 0.0, "lambd": 1.0, "gamma": 1.0}, r"δ", lambda v: rf"δ = {v}"),
         ],
     )
     plot_multiple_configs(configs, obs)
@@ -303,9 +303,9 @@ def plot_generalizedgauss():
         "GeneralizedGauss PDF",
         (-5, 5),
         [
-            ("mu", [-1.0, 0.0, 1.0], {"sigma": 1.0, "beta": 2.0}, r"μ", lambda v: rf"μ = {v}"),
-            ("sigma", [0.5, 1.0, 2.0], {"mu": 0.0, "beta": 2.0}, r"σ", lambda v: rf"σ = {v}"),
-            ("beta", [1.0, 2.0, 4.0], {"mu": 0.0, "sigma": 1.0}, r"β", lambda v: rf"β = {v}"),
+            ("mu", [-1.5, -0.75, 0.0, 0.75, 1.5], {"sigma": 1.0, "beta": 2.0}, r"μ", lambda v: rf"μ = {v}"),
+            ("sigma", [0.5, 0.75, 1.0, 1.5, 2.0], {"mu": 0.0, "beta": 2.0}, r"σ", lambda v: rf"σ = {v}"),
+            ("beta", [1.0, 1.5, 2.0, 3.0, 4.0], {"mu": 0.0, "sigma": 1.0}, r"β", lambda v: rf"β = {v}"),
         ],
     )
     plot_multiple_configs(configs, obs)
@@ -322,15 +322,15 @@ def plot_truncatedgauss():
         "TruncatedGauss PDF",
         (-5, 5),
         [
-            ("mu", [-1.0, 0.0, 1.0], {"sigma": 1.0, "low": -2.0, "high": 2.0}, r"μ", lambda v: rf"μ = {v}"),
-            ("sigma", [0.5, 1.0, 1.5], {"mu": 0.0, "low": -2.0, "high": 2.0}, r"σ", lambda v: rf"σ = {v}"),
+            ("mu", [-1.5, -0.75, 0.0, 0.75, 1.5], {"sigma": 1.0, "low": -2.0, "high": 2.0}, r"μ", lambda v: rf"μ = {v}"),
+            ("sigma", [0.5, 0.75, 1.0, 1.25, 1.5], {"mu": 0.0, "low": -2.0, "high": 2.0}, r"σ", lambda v: rf"σ = {v}"),
         ],
     )
     plot_multiple_configs(configs, obs)
 
     # Plot with different ranges
     plt.figure()
-    ranges = [(-1.0, 1.0), (-2.0, 2.0), (-0.5, 2.0)]
+    ranges = [(-1.0, 1.0), (-2.0, 2.0), (-0.5, 2.0), (-1.5, 0.5), (-0.5, 1.5)]
     mu = Parameter("mu", 0.0)
     sigma = Parameter("sigma", 1.0)
 
@@ -354,7 +354,7 @@ def plot_chisquared():
     config = PDFConfig(
         pdf_class=zfit.pdf.ChiSquared,
         param_name="ndof",
-        param_values=[1, 3, 5],
+        param_values=[1, 2, 3, 4, 5],
         title="ChiSquared PDF with different ndof values",
         filename="chisquared_ndof.png",
         x_range=(0.1, 20),
@@ -367,7 +367,7 @@ def plot_studentt():
     config = PDFConfig(
         pdf_class=zfit.pdf.StudentT,
         param_name="ndof",
-        param_values=[1, 3, 10],
+        param_values=[1, 2, 3, 5, 10],
         title="StudentT PDF with different ndof values",
         filename="studentt_ndof.png",
         x_range=(-5, 5),
@@ -384,8 +384,8 @@ def plot_gamma():
         "Gamma PDF",
         (0.1, 10),
         [
-            ("gamma", [1.0, 2.0, 5.0], {"mu": 0.0, "beta": 1.0}, r"γ", lambda v: rf"γ = {v}"),
-            ("beta", [0.5, 1.0, 2.0], {"mu": 0.0, "gamma": 2.0}, r"β", lambda v: rf"β = {v}"),
+            ("gamma", [1.0, 1.5, 2.0, 3.5, 5.0], {"mu": 0.0, "beta": 1.0}, r"γ", lambda v: rf"γ = {v}"),
+            ("beta", [0.5, 0.75, 1.0, 1.5, 2.0], {"mu": 0.0, "gamma": 2.0}, r"β", lambda v: rf"β = {v}"),
         ],
     )
     plot_multiple_configs(configs, obs)
@@ -550,14 +550,14 @@ def plot_doublecb():
         [
             (
                 "alphal",
-                [0.5, 1.0, 2.0],
+                [0.5, 0.75, 1.0, 1.5, 2.0],
                 {"mu": 0.0, "sigma": 1.0, "nl": 2.0, "alphar": 1.0, "nr": 2.0},
                 r"αL",
                 lambda v: rf"αL = {v}",
             ),
             (
                 "alphar",
-                [0.5, 1.0, 2.0],
+                [0.5, 0.75, 1.0, 1.5, 2.0],
                 {"mu": 0.0, "sigma": 1.0, "nl": 2.0, "alphal": 1.0, "nr": 2.0},
                 r"αR",
                 lambda v: rf"αR = {v}",
@@ -575,8 +575,8 @@ def plot_gaussexptail():
         "GaussExpTail PDF",
         (-5, 5),
         [
-            ("alpha", [0.5, 1.0, 2.0], {"mu": 0.0, "sigma": 1.0}, r"α", lambda v: rf"α = {v}"),
-            ("sigma", [0.5, 1.0, 2.0], {"mu": 0.0, "alpha": 1.0}, r"σ", lambda v: rf"σ = {v}"),
+            ("alpha", [0.5, 0.75, 1.0, 1.5, 2.0], {"mu": 0.0, "sigma": 1.0}, r"α", lambda v: rf"α = {v}"),
+            ("sigma", [0.5, 0.75, 1.0, 1.5, 2.0], {"mu": 0.0, "alpha": 1.0}, r"σ", lambda v: rf"σ = {v}"),
         ],
     )
     plot_multiple_configs(configs, obs)
@@ -592,21 +592,21 @@ def plot_generalizedcb():
         [
             (
                 "alphal",
-                [0.5, 1.0, 2.0],
+                [0.5, 0.75, 1.0, 1.5, 2.0],
                 {"mu": 0.0, "sigmal": 1.0, "nl": 2.0, "sigmar": 1.0, "alphar": 1.0, "nr": 2.0},
                 r"αL",
                 lambda v: rf"αL = {v}",
             ),
             (
                 "nl",
-                [1.0, 2.0, 5.0],
+                [1.0, 1.5, 2.0, 3.5, 5.0],
                 {"mu": 0.0, "sigmal": 1.0, "alphal": 1.0, "sigmar": 1.0, "alphar": 1.0, "nr": 2.0},
                 "nL",
                 lambda v: f"nL = {v}",
             ),
             (
                 "alphar",
-                [0.5, 1.0, 2.0],
+                [0.5, 0.75, 1.0, 1.5, 2.0],
                 {"mu": 0.0, "sigmal": 1.0, "alphal": 1.0, "nl": 2.0, "sigmar": 1.0, "nr": 2.0},
                 r"αR",
                 lambda v: rf"αR = {v}",
@@ -626,21 +626,21 @@ def plot_generalizedgaussexptail():
         [
             (
                 "alphal",
-                [0.5, 1.0, 2.0],
+                [0.5, 0.75, 1.0, 1.5, 2.0],
                 {"mu": 0.0, "sigmal": 1.0, "sigmar": 1.0, "alphar": 1.0},
                 r"αL",
                 lambda v: rf"αL = {v}",
             ),
             (
                 "alphar",
-                [0.5, 1.0, 2.0],
+                [0.5, 0.75, 1.0, 1.5, 2.0],
                 {"mu": 0.0, "sigmal": 1.0, "alphal": 1.0, "sigmar": 1.0},
                 r"αR",
                 lambda v: rf"αR = {v}",
             ),
             (
                 "sigmal",
-                [0.5, 1.0, 2.0],
+                [0.5, 0.75, 1.0, 1.5, 2.0],
                 {"mu": 0.0, "alphal": 1.0, "sigmar": 1.0, "alphar": 1.0},
                 r"σL",
                 lambda v: rf"σL = {v}",

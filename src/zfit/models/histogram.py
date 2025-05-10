@@ -1,15 +1,15 @@
 #  Copyright (c) 2025 zfit
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+import typing
 
 import numpy as np
 from uhi.typing.plottable import PlottableHistogram
 
 import zfit.z.numpy as znp
 
-if TYPE_CHECKING:
-    pass
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 from ..core.binnedpdf import BaseBinnedPDF
 from ..core.interfaces import ZfitBinnedData

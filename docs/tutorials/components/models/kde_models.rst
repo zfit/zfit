@@ -407,7 +407,7 @@ The best solution: providing a larger dataset than the default space the PDF is 
     obs_wide = zfit.Space('x', (-5, 5))
     data_wide = gauss.sample(1000, limits=obs_wide)
 
-    kde = zfit.pdf.KDE1DimExact(data, obs=obs)
+    kde = zfit.pdf.KDE1DimExact(data_wide, obs=obs)
 
     plt.plot(x, kde.pdf(x), label='Wide KDE')
     plt.plot(x, gauss.pdf(x, obs), label='True PDF')

@@ -2,6 +2,11 @@
 
 from __future__ import annotations
 
+import typing
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
+
 from collections.abc import Mapping
 from typing import TYPE_CHECKING
 
@@ -63,18 +68,19 @@ class Minuit(BaseMinimizer, GraphCachable):
                    in order to determine if the minimum has
                    been found. Defaults to 1e-3. |@docend:minimizer.tol|
             mode: A number used by minuit to define the internal minimization strategy, either 0, 1 or 2.
-                As `explained in the iminuit docs <https://iminuit.readthedocs.io/en/stable/faq.html#what-happens-when-i-change-the-strategy>`_
-                , they mean:
-                - 0 The fastest and the number of function calls required to minimise
-                    scales linearly with the number of fitted parameters. The Hesse matrix is not computed during the
-                    minimisation (only an approximation that is continuously updated).
-                    When the number of fitted parameters > 10, you should prefer this strategy.
-                - 1 (default with Minuit gradient) medium in speed. The number of function calls required
-                    scales quadratically with the number of fitted parameters. The different scales comes from the fact
-                     that the Hesse matrix is explicitly computed in a Newton step,
-                     if Minuit detects significant correlations between parameters.
-                - 2 same quadratic scaling as strategy 1 but is even slower. The Hesse matrix is
-                    always explicitly computed in each Newton step.
+                As `explained in the iminuit docs <https://iminuit.readthedocs.io/en/stable/faq.html#what-happens-when-i-change-the-strategy>`_,
+                they mean:
+
+                - 0: The fastest and the number of function calls required to minimise
+                  scales linearly with the number of fitted parameters. The Hesse matrix is not computed during the
+                  minimisation (only an approximation that is continuously updated).
+                  When the number of fitted parameters > 10, you should prefer this strategy.
+                - 1: (default with Minuit gradient) medium in speed. The number of function calls required
+                  scales quadratically with the number of fitted parameters. The different scales comes from the fact
+                  that the Hesse matrix is explicitly computed in a Newton step,
+                  if Minuit detects significant correlations between parameters.
+                - 2: same quadratic scaling as strategy 1 but is even slower. The Hesse matrix is
+                  always explicitly computed in each Newton step.
             gradient: If True, iminuit uses its internal numerical gradient calculation instead of the
                 (analytic/numerical) gradient provided by TensorFlow/zfit. If False or ``'zfit'``, the latter
                 is used. For smaller datasets with less stable losses, the internal Minuit gradient often performs

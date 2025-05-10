@@ -2,6 +2,11 @@
 
 from __future__ import annotations
 
+import typing
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
+
 import collections
 import copy
 import importlib
@@ -1032,6 +1037,8 @@ class NLoptCCSAQ(NLoptBaseMinimizer):
         different free optimization routines available online as well as
         original implementations of various other algorithms. |@docend:minimizer.nlopt.info|
 
+        .. _A class of globally convergent optimization methods based on conservative convex separable approximations: http://citeseer.ist.psu.edu/viewdoc/summary?doi=10.1.1.146.5196
+
         Args:
             tol: |@doc:minimizer.tol| Termination value for the
                    convergence/stopping criterion of the algorithm
@@ -1559,7 +1566,7 @@ class NLoptESCH(NLoptBaseMinimizer):
 
         -  H.-G. Beyer and H.-P. Schwefel, “Evolution Strategies: A
            Comprehensive Introduction,” *Journal Natural Computing*, **1** (1),
-           pp. 3-52 (2002_.
+           pp. 3-52 (2002).
 
         .. raw:: html
 
@@ -1656,8 +1663,8 @@ class NLoptISRES(NLoptBaseMinimizer):
          The NLopt implementation is based on the method described in:
 
          - Thomas Philip Runarsson and Xin Yao,
-          `"Search biases in constrained evolutionary optimization <http://www3.hi.is/~tpr/papers/RuYa05.pdf>"`_,
-          *IEEE Trans. on Systems, Man, and Cybernetics Part C: Applications and Reviews*,
+           `"Search biases in constrained evolutionary optimization <http://www3.hi.is/~tpr/papers/RuYa05.pdf>"`_,
+           *IEEE Trans. on Systems, Man, and Cybernetics Part C: Applications and Reviews*,
            vol. 35 (no. 2), pp. 233-243 (2005).
 
          It is a refinement of an earlier method described in:
@@ -1688,6 +1695,7 @@ class NLoptISRES(NLoptBaseMinimizer):
                    in order to determine if the minimum has
                    been found. Defaults to 1e-3. |@docend:minimizer.tol|
              population: |@doc:minimizer.nlopt.population| The population size for the evolutionary algorithm. |@docend:minimizer.nlopt.population| Defaults to :math:`20 * (n+1)` in n dimensions.
+
              verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10.
               The verbosity has the meaning:
 

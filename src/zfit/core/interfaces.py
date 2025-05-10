@@ -2,6 +2,11 @@
 
 from __future__ import annotations
 
+import typing
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
+
 from collections.abc import Callable
 from typing import TYPE_CHECKING
 
@@ -864,7 +869,7 @@ class ZfitModel(ZfitNumericParametrized, ZfitDimensional):
 
         Args:
             func:
-            limits: |limits_arg_descr|
+            limits: |@doc:pdf.integrate.limits| Limits of the integration. |@docend:pdf.integrate.limits|
             priority:
             supports_multiple_limits:
             supports_norm:

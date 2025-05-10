@@ -7,6 +7,11 @@ Handle integration and sampling
 
 from __future__ import annotations
 
+import typing
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
+
 import abc
 import builtins
 import contextlib
@@ -374,7 +379,8 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
                ``False`` means no normalization and returns the unnormed integral. |@docend:pdf.integrate.norm|
             options: |@doc:pdf.integrate.options| Options for the integration.
                Additional options for the integration. Currently supported options are:
-               - type: one of (``bins``)
+   
+               * type: one of (``bins``)
                  This hints that bins are integrated. A method that is vectorizable,
                  non-dynamic and therefore less suitable for complicated functions is chosen. |@docend:pdf.integrate.options|
             params: |@doc:model.args.params| Mapping of the parameter names to the actual
@@ -469,7 +475,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
                     * params (Dict[param_name, :py:class:`zfit.Parameters`]): The parameters of the model.
                     * model (:py:class:`~zfit.core.interfaces.ZfitModel`):The model that is being integrated.
 
-            limits: |limits_arg_descr|
+            limits: |@doc:pdf.integrate.limits| Limits of the integration. |@docend:pdf.integrate.limits|
             priority: Priority of the function. If multiple functions cover the same space, the one with the
                 highest priority will be used.
             supports_multiple_limits: If ``True``, the ``limits` given to the integration function can have
@@ -650,7 +656,8 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
                ``False`` means no normalization and returns the unnormed integral. |@docend:pdf.integrate.norm|
             options: |@doc:pdf.integrate.options| Options for the integration.
                Additional options for the integration. Currently supported options are:
-               - type: one of (``bins``)
+   
+               * type: one of (``bins``)
                  This hints that bins are integrated. A method that is vectorizable,
                  non-dynamic and therefore less suitable for complicated functions is chosen. |@docend:pdf.integrate.options|
             params: |@doc:model.args.params| Mapping of the parameter names to the actual
@@ -735,7 +742,8 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
                ``False`` means no normalization and returns the unnormed integral. |@docend:pdf.integrate.norm|
             options: |@doc:pdf.integrate.options| Options for the integration.
                Additional options for the integration. Currently supported options are:
-               - type: one of (``bins``)
+   
+               * type: one of (``bins``)
                  This hints that bins are integrated. A method that is vectorizable,
                  non-dynamic and therefore less suitable for complicated functions is chosen. |@docend:pdf.integrate.options|
             params: |@doc:model.args.params| Mapping of the parameter names to the actual

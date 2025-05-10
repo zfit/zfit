@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
 
-if TYPE_CHECKING:
-    pass  # ruff: noqa: F401
+
+import typing
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 from collections.abc import Mapping
 
