@@ -295,7 +295,7 @@ def numerical_pdf_jacobian(func, params):  # TODO: jit?
     return znp.asarray(jacobi.jacobi(func, params)[0].T)
 
 
-# @z.function(wraps="autodiff")
+@z.function(wraps="autodiff")
 def autodiff_pdf_jacobian(func, params):
     """Computes the Jacobian matrix of a function using automatic differentiation.
 
@@ -332,7 +332,7 @@ def autodiff_pdf_jacobian(func, params):
             values = func()
         columns.append(acc.jvp(values))
 
-    return z.convert_to_tensor(columns)
+    return znp.asarray(columns)
 
 
 # TODO: refactor below, extract separate methods
@@ -385,38 +385,52 @@ def covariance_with_weights(hinv, result, params, *, weightcorr: WeightCorr = No
     if not Hinv_dict:
         return {}
     Hinv = dict_to_matrix(params, Hinv_dict)
-
+    dataweights = [
+        d.weights if d.has_weights else znp.ones((data.nevents,))  # sum(ones_nevents ** 2) = nevents
+        for d in data
+    ]
+    # extendedweights = [znp.reshape(znp.sum(w), (-1,)) for w in dataweights] if yields else []
+    # extendedweights = [znp.ones((len(yields),))] if yields else []
+    constrweights = [znp.ones((len(constraints),))]  if constraints else []
+    allweights = znp.concatenate(
+        dataweights + constrweights, axis=0
+    )
+    allweights2 = allweights ** 2
+    sumw2 = znp.sum(allweights2)
+    sumw = znp.sum(allweights)
     if weightcorr == WeightCorr.ASYMPTOTIC:
         corrfactor = 1.0
     elif weightcorr == WeightCorr.EFFSIZE:
-        allweigths = znp.concatenate(
-            [
-                d.weights if d.has_weights else znp.ones((data.nevents,))  # sum(ones_nevents ** 2) = nevents
-                for d in data
-            ]
-        )
-        corrfactor = znp.sum(allweigths) / znp.sum(allweigths**2)
-        del allweigths
+        corrfactor =  sumw2 / sumw
+        del allweights
     else:
         msg = f"Unknown method {weightcorr}, has to be one of {WeightCorr}"
         raise ValueError(msg)
 
+    @z.function(wraps="weightcorrfunc")
     def func():
         values = []
 
         for i, (m, d) in enumerate(zip(model, data)):
             v = m.log_pdf(d)
-            weights = d.weights
-            if weights is not None:
-                v *= weights * corrfactor
-            values.append(v)
+            # we calculate the unweighted likelihood, correct?
+            # weights = d.weights
+            # print(f"weights: {weights}, corrfactor: {corrfactor}")
+            # if weights is not None:
+            #     print(f"weights: {weights}, corrfactor: {corrfactor}")
+            #     v *= weights
+
             if yields is not None:
                 yi = yields[i]
-                nevents_collected = d.samplesize
-                term_new = tf.nn.log_poisson_loss(nevents_collected, znp.log(yi), compute_full_loss=True)[
-                    ..., None
-                ]  # make it an array like the others
-                values.append(term_new)
+                # shouldn't the normal yield be enough? Not quite sure why not
+                # Probably because it's a sum of the weights
+                # nevents_collected = d.samplesize
+                # extendedterm = tf.nn.log_poisson_loss(nevents_collected, znp.log(yi), compute_full_loss=True)
+                # values.append(term_new)
+                extendedterm = znp.log(yi)
+                v += extendedterm
+                # values.append(extendedterm[..., None])  # make it an array like the others
+            values.append(v)
         if constraints is not None:
             for constraint in constraints:
                 values.append(znp.reshape(constraint.value(), (-1,)))
@@ -444,10 +458,15 @@ def covariance_with_weights(hinv, result, params, *, weightcorr: WeightCorr = No
 
             jacobian = numerical_pdf_jacobian(func=wrapped_func, params=params_dict)
 
-        C = znp.matmul(jacobian, znp.transpose(jacobian))
+        C = znp.matmul(jacobian
+                       * allweights2
+                       , znp.transpose(jacobian))
+
         covariance = np.asarray(znp.matmul(Hinv, znp.matmul(C, Hinv)))
     elif weightcorr == WeightCorr.EFFSIZE:
-        covariance = Hinv
+        # Not quite correct, technically. The weights should be squared in the
+        # NLL calculation
+        covariance = Hinv * corrfactor
     assign_values(params, old_vals)
     return matrix_to_dict(params, covariance)
 

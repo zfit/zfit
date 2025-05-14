@@ -4,6 +4,7 @@ from __future__ import annotations
 import pickle
 
 import zfit
+import zfit.z.numpy as znp
 
 n_bins = 50
 
@@ -23,8 +24,8 @@ exp_extended = zfit.pdf.Exponential(lambd, obs=obs, extended=n_bkg)
 
 model = zfit.pdf.SumPDF([gauss_extended, exp_extended])
 
-data = model.create_sampler(n=21200)
-data.resample()
+n = 21200
+data = model.sample(n=n)
 
 # set the values to a start value for the fit
 zfit.param.set_values({mu: 0.5, sigma: 1.2, lambd: -0.05})
@@ -45,11 +46,9 @@ param_hesse = result.hesse()
 
 # the second return value is a new FitResult if a new minimum was found
 
-(
-    param_errors,
-    _,
-) = result.errors()
+param_errors,_ = result.errors()
 
+print(result)
 # Storing the result can be achieved in many ways. Using dill (like pickle), we can dump and load the result
 result_dilled = zfit.dill.dumps(result)
 result_loaded = zfit.dill.loads(result_dilled)
