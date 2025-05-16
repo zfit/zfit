@@ -156,6 +156,7 @@ docs = [
     "sphinxcontrib-youtube>=1.0.0",
     "zfit-physics>=0.6.0",
     "ray",
+    "pygit2",
 ]
 
 alldev = ["zfit[dev]"]  # backwards compatibility
