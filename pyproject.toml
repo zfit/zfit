@@ -157,6 +157,7 @@ docs = [
     "zfit-physics>=0.6.0",
     "ray",
     "pygit2",
+    "tqdm",
 ]
 
 alldev = ["zfit[dev]"]  # backwards compatibility
