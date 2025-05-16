@@ -158,6 +158,7 @@ docs = [
     "ray",
     "pygit2",
     "tqdm",
+    "zfit[all]",
 ]
 
 alldev = ["zfit[dev]"]  # backwards compatibility
