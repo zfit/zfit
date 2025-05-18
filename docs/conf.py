@@ -288,6 +288,7 @@ html_theme_options = {
     "collapse_navigation": True,
     # "sticky_navigation": True,
     # "navigation_depth": 4,
+    "header_links_before_dropdown": 7,
 }
 
 html_context = {

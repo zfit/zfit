@@ -32,6 +32,13 @@ For each minimizer, the plot shows the number of function evaluations, gradient 
 Minuit
 :::::::
 
+Minuit is a longstanding and well proven algorithm of the BFG class implemented in iminuit.
+The `iminuit <https://iminuit.readthedocs.io/en/stable/>`_ package is a fast, time-proven
+minimizer based on the Minuit2 C++ library; the latter is
+maintained by CERN's ROOT team. It is an especially robust minimizer that finds the global minimum
+quiet reliably. It is however, like all local minimizers, still rather dependent on close enough
+initial values.
+
 .. image:: ../../images/_generated/minimizers/minuit_paths.gif
    :width: 100%
    :alt: Minuit minimizer paths on a complex Rosenbrock function
@@ -46,6 +53,17 @@ Minuit
 
 Levenberg-Marquardt
 :::::::::::::::::::::
+
+Levenberg-Marquardt minimizer for general non-linear minimization by interpolating between Gauss-Newton and
+Gradient descent optimization.
+
+LM minimizes a function by iteratively solving a locally linearized
+version of the problem. Using the gradient (g) and the Hessian (H) of
+the loss function, the algorithm determines a step (h) that minimizes
+the loss function by solving :math:`Hh = g`. This works perfectly in one
+step for linear problems, however for non-linear problems it may be
+unstable far from the minimum. Thus a scalar damping parameter (L) is
+introduced and the Hessian is modified based on this damping.
 
 .. image:: ../../images/_generated/minimizers/levenbergmarquardt_paths.gif
    :width: 100%
@@ -62,6 +80,17 @@ Levenberg-Marquardt
 
 Ipyopt
 :::::::
+
+Ipopt is a gradient-based minimizer that performs large scale nonlinear optimization of continuous systems.
+
+This implemenation uses the `IPyOpt wrapper <https://gitlab.com/g-braeunlich/ipyopt>`_
+
+`Ipopt <https://coin-or.github.io/Ipopt/index.html>`_
+(Interior Point Optimizer, pronounced "Eye-Pea-Opt") is an open source software package for
+large-scale nonlinear optimization. It can be used to solve general nonlinear programming problems
+It is written in Fortran and C and is released under the EPL (formerly CPL).
+IPOPT implements a primal-dual interior point method, and uses line searches based on
+Filter methods (Fletcher and Leyffer).
 
 .. image:: ../../images/_generated/minimizers/ipyopt_paths.gif
    :width: 100%
@@ -84,6 +113,13 @@ The following visualizations show how different Scipy minimizers perform on the 
 BFGS
 ------------------------
 
+Local, gradient based quasi-Newton algorithm using the BFGS algorithm.
+
+BFGS, named after Broyden, Fletcher, Goldfarb, and Shanno, is a quasi-Newton method
+that approximates the Hessian matrix of the loss function using the gradients of the loss function.
+It stores an approximation of the inverse Hessian matrix and updates it at each iteration.
+For a limited memory version, which doesn't store the full matrix, see L-BFGS-B.
+
 .. image:: ../../images/_generated/minimizers/scipybfgs_paths.gif
    :width: 100%
    :alt: ScipyBFGS minimizer paths on a complex Rosenbrock function
@@ -98,6 +134,15 @@ BFGS
 
 LBFGSB
 ------------------------
+
+Local, gradient based quasi-Newton algorithm using the limited-memory BFGS approximation.
+
+Limited-memory BFGS is an optimization algorithm in the family of quasi-Newton methods
+that approximates the Broyden-Fletcher-Goldfarb-Shanno algorithm (BFGS) using a limited amount of
+memory (or gradients, controlled by *maxcor*).
+
+L-BFGS borrows ideas from the trust region methods while keeping the L-BFGS update
+of the Hessian and line search algorithms.
 
 .. image:: ../../images/_generated/minimizers/scipylbfgsb_paths.gif
    :width: 100%
@@ -128,6 +173,8 @@ TrustConstr
 
 Powell
 ------------------------
+
+Local minimizer using the modified Powell algorithm.
 
 .. image:: ../../images/_generated/minimizers/scipypowell_paths.gif
    :width: 100%
@@ -174,6 +221,11 @@ TruncNC
 COBYLA
 ------------------------
 
+UNSTABLE! Local gradient-free dowhhill simplex-like method with an implicit linear approximation.
+
+COBYLA constructs successive linear approximations of the objective function and constraints via a
+simplex of n+1 points (in n dimensions), and optimizes these approximations in a trust region at each step.
+
 .. image:: ../../images/_generated/minimizers/scipycobyla_paths.gif
    :width: 100%
    :alt: ScipyCOBYLA minimizer paths on a complex Rosenbrock function
@@ -203,6 +255,8 @@ TrustNCG
 
 Dogleg
 ------------------------
+
+This minimizer requires the hessian and gradient to be provided by the loss itself.
 
 .. image:: ../../images/_generated/minimizers/scipydogleg_paths.gif
    :width: 100%
@@ -257,6 +311,13 @@ The following visualizations show how different NLopt minimizers perform on the 
 
 LBFGS
 ------
+
+Local, gradient-based quasi-Newton minimizer using the low storage BFGS Hessian approximation.
+
+This is most probably the most popular algorithm for gradient based local minimum searches and also
+the underlying algorithm in the
+`Minuit <https://www.sciencedirect.com/science/article/abs/pii/0010465575900399>`_ minimizer that is
+also available as :class:`~zfit.minimize.Minuit`.
 
 .. image:: ../../images/_generated/minimizers/nloptlbfgs_paths.gif
    :width: 100%
@@ -348,6 +409,12 @@ Subplex
 COBYLA
 ------
 
+Derivative free simplex minimizer using a linear approximation with trust region steps.
+
+COBYLA (Constrained Optimization BY Linear Approximations) constructs successive linear approximations of the
+objective function and constraints via a simplex of n+1 points (in n dimensions), and optimizes these
+approximations in a trust region at each step.
+
 .. image:: ../../images/_generated/minimizers/nloptcobyla_paths.gif
    :width: 100%
    :alt: NLoptCOBYLA minimizer paths on a complex Rosenbrock function
@@ -362,6 +429,15 @@ COBYLA
 
 MLSL
 ----
+
+Global minimizer using local optimization by randomly selecting points.
+
+"Multi-Level Single-Linkage" (MLSL) is an algorithm for global optimization by
+a sequence of local optimizations from random starting points. MLSL is
+distinguished by a "clustering" heuristic that helps it to
+avoid repeated searches of the same local optima, and has some
+theoretical guarantees of finding all local optima in a finite number of
+local minimizations.
 
 .. image:: ../../images/_generated/minimizers/nloptmlsl_paths.gif
    :width: 100%
@@ -393,6 +469,14 @@ StoGO
 BOBYQA
 ------
 
+Derivative-free local minimizer that iteratively constructed quadratic approximation for the loss.
+
+This is an algorithm derived from the BOBYQA subroutine of M. J. D.
+Powell, converted to C and modified for the NLopt stopping criteria.
+BOBYQA performs derivative-free bound-constrained optimization using an
+iteratively constructed quadratic approximation for the objective
+function.
+
 .. image:: ../../images/_generated/minimizers/nloptbobyqa_paths.gif
    :width: 100%
    :alt: NLoptBOBYQA minimizer paths on a complex Rosenbrock function
@@ -408,6 +492,13 @@ BOBYQA
 ISRES
 -----
 
+Improved Stochastic Ranking Evolution Strategy using a mutation rule and differential variation.
+
+The evolution strategy is based on a combination of a mutation rule (with a log-normal step-size update and
+exponential smoothing) and differential variation (a Nelder-Mead-like update rule).
+The fitness ranking is simply via the objective function for problems without nonlinear constraints,
+but when nonlinear constraints are included the stochastic ranking proposed by Runarsson and Yao is employed.
+
 .. image:: ../../images/_generated/minimizers/nloptisres_paths.gif
    :width: 100%
    :alt: NLoptISRES minimizer paths on a complex Rosenbrock function
@@ -422,6 +513,12 @@ ISRES
 
 ESCH
 ----
+
+Global minimizer using an evolutionary algorithm.
+
+This is a modified Evolutionary Algorithm for global optimization,
+developed by Carlos Henrique da Silva Santos's and described in the
+following paper and Ph.D thesis.
 
 .. image:: ../../images/_generated/minimizers/nloptesch_paths.gif
    :width: 100%
