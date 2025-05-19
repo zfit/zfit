@@ -160,7 +160,7 @@ def test_compare_error_methods():
 
     # Calculate parameter errors with different weight correction methods
     errors_no_corr = result.hesse(weightcorr=False, name="hesse_no_corr")
-    errors_effsize = result.hesse(weightcorr="effsize", name="hesse_effsize")
+    errors_sumw2 = result.hesse(weightcorr="sumw2", name="hesse_sumw2")
     errors_asymptotic = result.hesse(weightcorr="asymptotic", name="hesse_asymptotic")
 
     # Check that asymptotic errors are larger than no correction
@@ -172,8 +172,8 @@ def test_compare_error_methods():
         assert asymptotic_error >= no_corr_error * 0.9, f"Asymptotic error for {param_name} should be larger than uncorrected"
 
         # Effective size errors should be between no correction and asymptotic
-        effsize_error = errors_effsize[param_name]["error"]
-        assert no_corr_error * 0.9 <= effsize_error <= asymptotic_error * 1.1, \
+        sumw2_error = errors_sumw2[param_name]["error"]
+        assert no_corr_error * 0.9 <= sumw2_error <= asymptotic_error * 1.1, \
             f"Effective size error for {param_name} should be between uncorrected and asymptotic"
 
 
@@ -196,28 +196,28 @@ def test_weights_one_equals_no_weights():
     # Calculate parameter errors with different weight correction methods
     errors_no_weights = result_no_weights.hesse(name="hesse_no_weights")
     errors_weights_no_corr = result_with_weights.hesse(weightcorr=False, name="hesse_weights_no_corr")
-    errors_weights_effsize = result_with_weights.hesse(weightcorr="effsize", name="hesse_weights_effsize")
+    errors_weights_sumw2 = result_with_weights.hesse(weightcorr="sumw2", name="hesse_weights_sumw2")
     errors_weights_asymptotic = result_with_weights.hesse(weightcorr="asymptotic", name="hesse_weights_asymptotic")
 
     # All error methods should give similar results when weights are all ones
     # Create a mapping of parameter names to their errors
     no_weights_errors = {param.name: info["error"] for param, info in errors_no_weights.items()}
     weights_no_corr_errors = {param.name: info["error"] for param, info in errors_weights_no_corr.items()}
-    weights_effsize_errors = {param.name: info["error"] for param, info in errors_weights_effsize.items()}
+    weights_sumw2_errors = {param.name: info["error"] for param, info in errors_weights_sumw2.items()}
     weights_asymptotic_errors = {param.name: info["error"] for param, info in errors_weights_asymptotic.items()}
 
     # Compare errors by parameter name
     for param_name in no_weights_errors:
         no_weights_error = no_weights_errors[param_name]
         weights_no_corr_error = weights_no_corr_errors[param_name]
-        weights_effsize_error = weights_effsize_errors[param_name]
+        weights_sumw2_error = weights_sumw2_errors[param_name]
         weights_asymptotic_error = weights_asymptotic_errors[param_name]
 
         # All errors should be reasonably close to each other (within 100%)
         assert pytest.approx(no_weights_error, rel=1.0) == weights_no_corr_error, \
             f"No weights error and weights=1 no correction error differ for {param_name}"
-        assert pytest.approx(no_weights_error, rel=1.0) == weights_effsize_error, \
-            f"No weights error and weights=1 effsize error differ for {param_name}"
+        assert pytest.approx(no_weights_error, rel=1.0) == weights_sumw2_error, \
+            f"No weights error and weights=1 sumw2 error differ for {param_name}"
         assert pytest.approx(no_weights_error, rel=1.0) == weights_asymptotic_error, \
             f"No weights error and weights=1 asymptotic error differ for {param_name}"
 
@@ -473,7 +473,7 @@ def compare_roofit_zfit_three_component(weightcorr):
     # Fit with RooFit
     if weightcorr:
         # Set the weight correction method
-        if weightcorr == "effsize":
+        if weightcorr == "sumw2":
             weightcorr_r = ROOT.RooFit.SumW2Error(True)
         elif weightcorr == "asymptotic":
             weightcorr_r = ROOT.RooFit.AsymptoticError(True)
@@ -579,7 +579,7 @@ def compare_roofit_zfit_three_component(weightcorr):
 
     return resultvals
 
-@pytest.mark.parametrize("weightcorr", [False, "effsize", "asymptotic"])
+@pytest.mark.parametrize("weightcorr", [False, "sumw2", "asymptotic"])
 def test_compare_roofit_zfit_three_component_errors(weightcorr):
     """Test that zfit and RooFit errors are similar for the three-component model."""
 
@@ -597,7 +597,7 @@ def test_compare_roofit_zfit_three_component_errors(weightcorr):
         assert pytest.approx(zfit_val, rel=0.03) == roofit_val, \
             f"zfit and RooFit values differ for {param_name}: {zfit_val} vs {roofit_val}"
 
-        relerr = 0.15 if weightcorr == "effsize" else 0.03  # only approximate, it's not correct.
+        relerr = 0.15 if weightcorr == "sumw2" else 0.03  # only approximate, it's not correct.
         # we don't do the squared weights in the NLL calculation, just multiply the weights with the pdf vals
         # and then multiply by the sum of weights and divide by the sum of squares.
         assert pytest.approx(zfit_err, rel=relerr) == roofit_err, \

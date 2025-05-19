@@ -49,8 +49,8 @@ class RootFound(Exception):
 # make enum of WeightCorr
 class WeightCorr(Enum):
     ASYMPTOTIC: str = "asymptotic"
-    EFFSIZE: str = "effsize"  # effective sample size, rescaled by sum(w)/sum(w**2)
     FALSE: bool = False
+    SUMW2: str = "sumw2"  # sum of weights squared, not the sum of squares of weights
 
 
 def compute_errors(
@@ -352,7 +352,7 @@ def covariance_with_weights(hinv, result, params, *, weightcorr: WeightCorr = No
                     - `asymptotic`: the covariance matrix is corrected by the asymptotic formula
                       for the weighted likelihood. This is the default, yet computationally most
                       expensive method.
-                    - `effsize`: the covariance matrix is corrected by the effective sample size.
+                    - `sumw2`: the covariance matrix is corrected by the effective sample size.
                       This is the fastest method but won't yield asymptotically correct results.
 
                    This is not (yet) guaranteed to fully work for binned fits and maybe under/over
@@ -363,7 +363,8 @@ def covariance_with_weights(hinv, result, params, *, weightcorr: WeightCorr = No
                        `Eur. Phys. J. C 82, 393 (2022). <https://doi.org/10.1140/epjc/s10052-022-10254-8>`_. |@docend:result.hesse.weightcorr.method|
     """
     from .. import run
-
+    if weightcorr == "sumw2":
+        raise BreakingAPIChange("The 'sumw2' option has been renamed to 'sumw2'.")
     weightcorr = WeightCorr.ASYMPTOTIC if weightcorr is None else WeightCorr(weightcorr)
 
     run.assert_executing_eagerly()
@@ -398,7 +399,7 @@ def covariance_with_weights(hinv, result, params, *, weightcorr: WeightCorr = No
     sumw = znp.sum(allweights)
     if weightcorr == WeightCorr.ASYMPTOTIC:
         corrfactor = 1.0
-    elif weightcorr == WeightCorr.EFFSIZE:
+    elif weightcorr == WeightCorr.SUMW2:
         corrfactor = sumw2 / sumw
         del allweights
     else:
@@ -459,7 +460,7 @@ def covariance_with_weights(hinv, result, params, *, weightcorr: WeightCorr = No
         C = znp.matmul(jacobian * allweights2, znp.transpose(jacobian))
 
         covariance = np.asarray(znp.matmul(Hinv, znp.matmul(C, Hinv)))
-    elif weightcorr == WeightCorr.EFFSIZE:
+    elif weightcorr == WeightCorr.SUMW2:
         # Not quite correct, technically. The weights should be squared in the
         # NLL calculation
         covariance = Hinv * corrfactor
