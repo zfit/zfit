@@ -29,7 +29,7 @@ def np_data1(obs3d):
     return np.random.random(size=(7, len(obs3d)))
 
 
-class TestHashPDF(zfit.pdf.BasePDF):
+class TmpHashPDF(zfit.pdf.BasePDF):
     def __init__(self, obs, lasthash):
         super().__init__(obs=obs)
         self.lasthash = lasthash
@@ -431,7 +431,7 @@ def test_data_hashing(space2d):
     # data1 = data1.transpose()
     data1 = zfit.Data.from_numpy(obs=space2d, array=npdata1, use_hash=True)
     assert data1.hashint is not None
-    testhashpdf = TestHashPDF(obs=space2d, lasthash=data1.hashint)
+    testhashpdf = TmpHashPDF(obs=space2d, lasthash=data1.hashint)
     assert testhashpdf.lasthash == data1.hashint
     oldhashint = data1.hashint
     data1 = data1.with_weights(np.random.uniform(size=data1.num_entries))

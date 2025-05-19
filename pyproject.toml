@@ -87,63 +87,52 @@ all = [
 ]
 
 test = [
+    # comparison with other libraries
+    "jax ; sys_platform != 'win32'",
+    "jaxlib ; sys_platform != 'win32'",
+    "numba-stats",
+    "pyhf>=0.7.0",
+    "scikit-hep-testdata",
+
+    # helpers
+    "pyyaml",
+    "matplotlib",
+
+    # all aspects of zfit
+    "zfit[all]",
+
+    # pytest related
     "pytest>=3.4.2",
     "pytest-runner>=2.11.1",
     "pytest-rerunfailures>=6",
     "pytest-xdist",
     "pytest-ordering",
     "pytest-randomly",
-    "scikit-hep-testdata",
     "pytest-timeout>=1",
-    "matplotlib",
-    "zfit[all]",
-]
-tests = ['zfit[test]']  # backwards compatibility
-
-# Development dependencies
-dev = [
-    # Include all dependencies
-    "zfit[all]",
-    # Include test dependencies
-    "zfit[test]",
-    # Include docs dependencies
-    "zfit[docs]",
-
-    # Additional dev-specific dependencies
-    "bumpversion>=0.5.3",
-    "check-manifest",
-    "coverage>=4.5.1",
-    "coverage-lcov",
-    "docformatter",
-    "flake8>=3.5.0",
-    "jax ; sys_platform != 'win32'",
-    "jaxlib ; sys_platform != 'win32'",
-    "numba-stats",
-    "pip>=9.0.1",
-    "pre-commit",
-    "progressbar2",
-    "pygit2",
-    "pyhf>=0.7.0",
     "pytest-benchmark",
     "pytest-cases",
     "pytest-helpers-namespace",
-    "pyyaml",
-    "setupext-janitor",
-    "setuptools>=30.3.0",
-    "setuptools_scm[toml]>=3.4",
-    "setuptools_scm_git_archive",
-    "tox>=2.9.1",
-    "twine>=1.10.0",
-    "watchdog>=0.8.3",
-    "wheel>=0.29.0",
-]
+    "coverage>=4.5.1",
+    "coverage-lcov",
+]# Documentation dependencies
 
-# Documentation dependencies
+tests = ['zfit[test]']  # backwards compatibility
+
 docs = [
-    "Jinja2",
-    "jupyter-sphinx",
+    # plotting
     "matplotlib",
     "mplhep",
+
+    # generate
+    "zfit-physics>=0.6.0",
+    "ray",
+    "pygit2",
+    "tqdm",
+    "zfit[all]",
+
+    # sphinx website generation
+    "Jinja2",
+    "jupyter-sphinx",
     "myst-nb",
     "pydata-sphinx-theme>=0.9",
     "Sphinx>=5.0.0",
@@ -154,12 +143,27 @@ docs = [
     "sphinxcontrib-applehelp>1.0.8",
     "sphinxcontrib-bibtex",
     "sphinxcontrib-youtube>=1.0.0",
-    "zfit-physics>=0.6.0",
-    "ray",
-    "pygit2",
-    "tqdm",
-    "zfit[all]",
 ]
+doc = ['zfit[docs]']  # backwards compatibility
+# Development dependencies
+dev = [
+    # Include all dependencies
+    "zfit[all]",
+    # Include test dependencies
+    "zfit[test]",
+    # Include docs dependencies
+    "zfit[doc]",
+
+    # Additional dev-specific dependencies
+#    "docformatter",
+    "pip>=9.0.1",
+    "pre-commit",
+    "setupext-janitor",
+    "twine>=1.10.0",
+    "wheel>=0.29.0",
+]
+
+
 
 alldev = ["zfit[dev]"]  # backwards compatibility
 

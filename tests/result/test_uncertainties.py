@@ -1,7 +1,5 @@
 import pytest
 import numpy as np
-import ROOT
-from ROOT import RooFit
 import time
 
 import zfit
@@ -330,10 +328,8 @@ def compare_roofit_zfit_gaussian_mixture():
 def test_compare_roofit_zfit_errors():
     """Test that zfit and RooFit errors are similar for the same model and data."""
     # Skip test if ROOT is not available
-    try:
-        import ROOT
-    except ImportError:
-        pytest.skip("ROOT not available")
+    ROOT = pytest.importorskip("ROOT", reason="ROOT not available")
+    Roofit = ROOT.RooFit
 
     # Compare RooFit and zfit results
     results = compare_roofit_zfit_gaussian_mixture()
@@ -356,6 +352,8 @@ def test_compare_roofit_zfit_errors():
 def compare_roofit_zfit_three_component(weightcorr):
     """Create and fit a three-component model with both RooFit and zfit, then compare the results."""
     # Define the observable space
+    ROOT = pytest.importorskip("ROOT", reason="ROOT not available")
+    Roofit = ROOT.RooFit
     obs_z = zfit.Space("x", limits=(0, 10))
 
     # Create parameters for the zfit model
@@ -585,7 +583,8 @@ def compare_roofit_zfit_three_component(weightcorr):
 def test_compare_roofit_zfit_three_component_errors(weightcorr):
     """Test that zfit and RooFit errors are similar for the three-component model."""
 
-    pytest.importorskip("ROOT")
+    ROOT = pytest.importorskip("ROOT", reason="ROOT not available")
+    Roofit = ROOT.RooFit
     # Compare RooFit and zfit results
     results = compare_roofit_zfit_three_component(weightcorr=weightcorr)
 
