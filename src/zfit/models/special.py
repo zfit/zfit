@@ -6,6 +6,11 @@ One example is a normal function `Function` that allows to simply define a non-n
 #  Copyright (c) 2025 zfit
 from __future__ import annotations
 
+import typing
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
+
 import functools
 
 from ..core.basemodel import SimpleModelSubclassMixin

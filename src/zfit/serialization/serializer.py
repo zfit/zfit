@@ -5,6 +5,7 @@ import collections
 import contextlib
 import copy
 import functools
+import typing
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 from enum import Enum
@@ -36,6 +37,9 @@ from zfit.core.interfaces import (
 from zfit.core.serialmixin import ZfitSerializable
 from zfit.util.container import convert_to_container
 from zfit.util.warnings import warn_experimental_feature
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 
 @dataclass
@@ -254,12 +258,14 @@ class Serializer:
 
         Returns:
             mapping: The serialized objects as a mapping.
-                     |@doc:hs3.layout.explain| The keys in the HS3 format are:
-                    - 'distributions': list of PDFs
-                    - 'variables': list of variables, i.e. ``zfit.Space`` and ``zfit.Parameter`` (or more generally parameters)
-                    - 'loss': list of losses
-                    - 'data': list of data
-                    - 'metadata': contains the version of the HS3 format and the
+                     |@doc:hs3.layout.explain| The keys in the HS3 format
+                   are:
+
+                   - 'distributions': list of PDFs
+                   - 'variables': list of variables, i.e. ``zfit.Space`` and ``zfit.Parameter`` (or more generally parameters)
+                   - 'loss': list of losses
+                   - 'data': list of data
+                   - 'metadata': contains the version of the HS3 format and the
                       zfit version used to create the file |@docend:hs3.layout.explain|
         """
 
@@ -379,12 +385,14 @@ class Serializer:
                    is still in development and is not yet finalized. This function is experimental and may change in the future. |@docend:hs3.explain|
 
         Args:
-            load: The serialized objects as a mapping. |@doc:hs3.layout.explain| The keys in the HS3 format are:
-                    - 'distributions': list of PDFs
-                    - 'variables': list of variables, i.e. ``zfit.Space`` and ``zfit.Parameter`` (or more generally parameters)
-                    - 'loss': list of losses
-                    - 'data': list of data
-                    - 'metadata': contains the version of the HS3 format and the
+            load: The serialized objects as a mapping. |@doc:hs3.layout.explain| The keys in the HS3 format
+                   are:
+
+                   - 'distributions': list of PDFs
+                   - 'variables': list of variables, i.e. ``zfit.Space`` and ``zfit.Parameter`` (or more generally parameters)
+                   - 'loss': list of losses
+                   - 'data': list of data
+                   - 'metadata': contains the version of the HS3 format and the
                       zfit version used to create the file |@docend:hs3.layout.explain|
             reuse_params: |@doc:hs3.ini.reuse_params| If parameters, the parameters
                    will be reused if they are given.

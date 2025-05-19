@@ -2,6 +2,11 @@
 
 from __future__ import annotations
 
+import typing
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
+
 from collections.abc import Iterable
 
 import hist
@@ -10,7 +15,7 @@ import zfit_interface as zinterface
 # @tfp.experimental.auto_composite_tensor()
 # class Regular(hist.axis.Regular, tfp.experimental.AutoCompositeTensor, family='zfit'):
 #     pass
-from zfit.core.interfaces import ZfitBinning
+from ..core.interfaces import ZfitBinning
 
 
 class Variable(zinterface.variables.ZfitVar):

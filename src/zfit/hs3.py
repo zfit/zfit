@@ -10,6 +10,11 @@ The serialization is done via the :py:class:`~zfit.serializer.Serializer` class.
 
 from __future__ import annotations
 
+import typing
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
+
 from .core.serialmixin import ZfitSerializable
 from .serialization import Serializer
 from .util.exception import WorkInProgressError

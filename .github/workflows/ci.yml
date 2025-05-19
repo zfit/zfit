@@ -40,24 +40,24 @@ jobs:
         python-version: [ "3.9", "3.12" ]  # omit "3.10", "3.11" to save compute time
         os: [ ubuntu-latest ]
         #        os: [ self-hosted ]
-        extras: [ dev ]
+        extras: [ test ]
         include:
           - os: ubuntu-latest
-            extras: dev
+            extras: test
             python-version: "3.12"
             use-graph: 0
           - os: macos-latest
             python-version: "3.12"
             use-graph: 1
-            extras: dev
+            extras: test
           - os: windows-latest
             python-version: "3.12"
             use-graph: 1
-            extras: dev
+            extras: test
           - os: macos-14  # Apple silicon runner
             python-version: '3.12'
             use-graph: 1
-            extras: dev
+            extras: test
 
     steps:
       - name: Get number of CPU cores
@@ -76,7 +76,7 @@ jobs:
           create-args: >-
             python=${{ matrix.python-version }}
             uv
-            root<6.32
+            root
       - uses: mamba-org/setup-micromamba@v2
         if: runner.os == 'Windows' || matrix.python-version == '3.12'
         with:

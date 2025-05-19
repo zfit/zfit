@@ -2,14 +2,19 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+import typing
+
+if typing.TYPE_CHECKING:
+    import zfit
+
+import typing
 
 from ordered_set import OrderedSet
 
 from ..util.ztyping import ExtendedInputType, NormInputType
 
-if TYPE_CHECKING:
-    pass
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 import functools
 import warnings

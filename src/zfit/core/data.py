@@ -2,6 +2,11 @@
 
 from __future__ import annotations
 
+import typing
+
+if typing.TYPE_CHECKING:
+    import zfit
+
 from collections.abc import Iterable
 from typing import TYPE_CHECKING, Literal, Optional, Union
 
@@ -186,7 +191,7 @@ class Data(
                 of ``obs`` have already been enforced through a ``query`` on the DataFrame, the limits are guaranteed
                 to be correct and the data will not be checked again.
                 Possible speedup, should not have any effect on the result.
-            dtype: |dtype_arg_descr|
+            dtype: DType of the data. Default is `np.float64`.
             use_hash: |@doc:data.init.use_hash| If true, store a hash for caching.
                If a PDF can cache values, this option needs to be enabled for the PDF
                to be able to cache values. |@docend:data.init.use_hash|
@@ -262,6 +267,10 @@ class Data(
 
     @property
     def samplesize(self) -> float:
+        """Effective sample size, sum of weights.
+
+        To get the number of entries, use `nentries` instead.
+        """
         samplesize = znp.sum(self.weights) if self.has_weights else self.num_entries
         return znp.asarray(samplesize, dtype=ztypes.float)
 
@@ -467,7 +476,7 @@ class Data(
                 of ``obs`` have already been enforced through a ``query`` on the DataFrame, the limits are guaranteed
                 to be correct and the data will not be checked again.
                 Possible speedup, should not have any effect on the result.
-            dtype: |dtype_arg_descr|
+            dtype: DType of the data. Default is `np.float64`.
             use_hash: |@doc:data.init.use_hash| If true, store a hash for caching.
                If a PDF can cache values, this option needs to be enabled for the PDF
                to be able to cache values. |@docend:data.init.use_hash|

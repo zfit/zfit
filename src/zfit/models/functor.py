@@ -9,11 +9,20 @@ Their implementation is often non-trivial.
 
 from __future__ import annotations
 
+import typing
+
+if typing.TYPE_CHECKING:
+    import zfit
+
 import functools
 import operator
+import typing
 from collections import Counter
 from collections.abc import Iterable
 from typing import Literal, Optional
+
+if typing.TYPE_CHECKING:
+    import zfit
 
 import pydantic.v1 as pydantic
 import tensorflow as tf

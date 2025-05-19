@@ -4,6 +4,11 @@
 
 from __future__ import annotations
 
+import typing
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
+
 import collections
 from collections.abc import Callable, Iterable, Mapping
 from typing import Optional
@@ -203,7 +208,7 @@ def mc_integrate(
         n_axes: the number of total dimensions (old?)
         draws_per_dim: How many random points to draw per dimensions
         method: Which integration method to use
-        dtype: |dtype_arg_descr|
+        dtype: DType of the data. Default is `np.float64`.
         mc_sampler: A function that takes one argument (``n_draws`` or similar) and returns
             random value between 0 and 1.
         importance_sampling:
@@ -655,8 +660,9 @@ class AnalyticIntegral:
 
         Args:
             func: The integral function. Takes 1 argument.
-            axes: |dims_arg_descr|
-            limits: |limits_arg_descr| ``Limits`` can be None if ``func`` works for any
+            axes: The axes over which to integrate
+            limits: |@doc:pdf.integrate.limits| Limits of the integration. |@docend:pdf.integrate.limits|
+                ``Limits`` can be None if ``func`` works for any
             possible limits
             priority: If two or more integrals can integrate over certain limits, the one with the higher
                 priority is taken (usually around 0-100).
@@ -699,7 +705,9 @@ class AnalyticIntegral:
                 integrated function. If a full integration is performed, this should be `None`.
             limits: The limits to integrate
             axes: The dimensions to integrate over
-            norm: |norm_range_arg_descr|
+            norm: |@doc:pdf.integrate.norm| Normalization of the integration.
+               By default, this is the same as the default space of the PDF.
+               ``False`` means no normalization and returns the unnormed integral. |@docend:pdf.integrate.norm|
             params: The parameters of the function
 
 

@@ -2,6 +2,15 @@
 
 from __future__ import annotations
 
+import typing
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
+
+import typing
+
+if typing.TYPE_CHECKING:
+    pass
 from typing import Literal
 
 import numpy as np
@@ -242,23 +251,23 @@ class CrystalBall(BasePDF, SerializableMixin):
         name: str = "CrystalBall",
         label: str | None = None,
     ):
-        """Crystal Ball shaped PDF. A combination of a Gaussian with a powerlaw tail.
+        r"""Crystal Ball shaped PDF. A combination of a Gaussian with a powerlaw tail.
 
         The function is defined as follows:
 
         .. math::
-            f(x;\\mu, \\sigma, \\alpha, n) =  \\begin{cases} \\exp(- \\frac{(x - \\mu)^2}{2 \\sigma^2}),
-            & \\mbox{for }\\frac{x - \\mu}{\\sigma} \\geqslant -\\alpha \\newline
-            A \\cdot (B - \\frac{x - \\mu}{\\sigma})^{-n}, & \\mbox{for }\\frac{x - \\mu}{\\sigma}
-             < -\\alpha \\end{cases}
+            f(x;\mu, \sigma, \alpha, n) =  \begin{cases} \exp(- \frac{(x - \mu)^2}{2 \sigma^2}),
+            & \mbox{for }\frac{x - \mu}{\sigma} \geqslant -\alpha \newline
+            A \cdot (B - \frac{x - \mu}{\sigma})^{-n}, & \mbox{for }\frac{x - \mu}{\sigma}
+             < -\alpha \end{cases}
 
         with
 
         .. math::
-            A = \\left(\\frac{n}{\\left| \\alpha \\right|}\\right)^n \\cdot
-            \\exp\\left(- \\frac {\\left|\\alpha \\right|^2}{2}\\right)
+            A = \left(\frac{n}{\left| \alpha \right|}\right)^n \cdot
+            \exp\left(- \frac {\left|\alpha \right|^2}{2}\right)
 
-            B = \\frac{n}{\\left| \\alpha \\right|}  - \\left| \\alpha \\right|
+            B = \frac{n}{\left| \alpha \right|}  - \left| \alpha \right|
 
         Args:
             mu: The mean of the gaussian
@@ -348,27 +357,27 @@ class DoubleCB(BasePDF, SerializableMixin):
         name: str = "DoubleCB",
         label: str | None = None,
     ):
-        """Double-sided Crystal Ball shaped PDF. A combination of two CB using the **mu** (not a frac) on each side.
+        r"""Double-sided Crystal Ball shaped PDF. A combination of two CB using the **mu** (not a frac) on each side.
 
         The function is defined as follows:
 
         .. math::
-            f(x;\\mu, \\sigma, \\alpha_{L}, n_{L}, \\alpha_{R}, n_{R}) =  \\begin{cases}
-            A_{L} \\cdot (B_{L} - \\frac{x - \\mu}{\\sigma})^{-n_{L}},
-             & \\mbox{for }\\frac{x - \\mu}{\\sigma} < -\\alpha_{L} \\newline
-            \\exp(- \\frac{(x - \\mu)^2}{2 \\sigma^2}),
-            & \\mbox{for }-\\alpha_{L} \\leqslant \\frac{x - \\mu}{\\sigma} \\leqslant \\alpha_{R} \\newline
-            A_{R} \\cdot (B_{R} + \\frac{x - \\mu}{\\sigma})^{-n_{R}},
-             & \\mbox{for }\\frac{x - \\mu}{\\sigma} > \\alpha_{R}
-            \\end{cases}
+            f(x;\mu, \sigma, \alpha_{L}, n_{L}, \alpha_{R}, n_{R}) =  \begin{cases}
+            A_{L} \cdot (B_{L} - \frac{x - \mu}{\sigma})^{-n_{L}},
+             & \mbox{for }\frac{x - \mu}{\sigma} < -\alpha_{L} \newline
+            \exp(- \frac{(x - \mu)^2}{2 \sigma^2}),
+            & \mbox{for }-\alpha_{L} \leqslant \frac{x - \mu}{\sigma} \leqslant \alpha_{R} \newline
+            A_{R} \cdot (B_{R} + \frac{x - \mu}{\sigma})^{-n_{R}},
+             & \mbox{for }\frac{x - \mu}{\sigma} > \alpha_{R}
+            \end{cases}
 
         with
 
         .. math::
-            A_{L/R} = \\left(\\frac{n_{L/R}}{\\left| \\alpha_{L/R} \\right|}\\right)^n_{L/R} \\cdot
-            \\exp\\left(- \\frac {\\left|\\alpha_{L/R} \\right|^2}{2}\\right)
+            A_{L/R} = \left(\frac{n_{L/R}}{\left| \alpha_{L/R} \right|}\right)^n_{L/R} \cdot
+            \exp\left(- \frac {\left|\alpha_{L/R} \right|^2}{2}\right)
 
-            B_{L/R} = \\frac{n_{L/R}}{\\left| \\alpha_{L/R} \\right|}  - \\left| \\alpha_{L/R} \\right|
+            B_{L/R} = \frac{n_{L/R}}{\left| \alpha_{L/R} \right|}  - \left| \alpha_{L/R} \right|
 
         Args:
             mu: The mean of the gaussian
@@ -478,30 +487,30 @@ class GeneralizedCB(BasePDF, SerializableMixin):
         name: str = "GeneralizedCB",
         label: str | None = None,
     ):
-        """Generalized asymmetric double-sided Crystal Ball shaped PDF. A combination of two CB using the **mu** (not a
+        r"""Generalized asymmetric double-sided Crystal Ball shaped PDF. A combination of two CB using the **mu** (not a
         frac) and a different **sigma** on each side.
 
         The function is defined as follows:
 
         .. math::
-            f(x;\\mu, \\sigma_{L}, \\alpha_{L}, n_{L}, \\sigma_{R}, \\alpha_{R}, n_{R}) =  \\begin{cases}
-            A_{L} \\cdot (B_{L} - \\frac{x - \\mu}{\\sigma_{L}})^{-n_{L}},
-             & \\mbox{for }\\frac{x - \\mu}{\\sigma_{L}} < -\\alpha_{L} \\newline
-            \\exp(- \\frac{(x - \\mu)^2}{2 \\sigma_{L}^2}),
-            & \\mbox{for }-\\alpha_{L} \\leqslant \\frac{x - \\mu}{\\sigma_{L}} \\leqslant 0 \\newline
-            \\exp(- \\frac{(x - \\mu)^2}{2 \\sigma_{R}^2}),
-            & \\mbox{for }0 \\leqslant \\frac{x - \\mu}{\\sigma_{R}} \\leqslant \\alpha_{R} \\newline
-            A_{R} \\cdot (B_{R} + \\frac{x - \\mu}{\\sigma_{R}})^{-n_{R}},
-             & \\mbox{for }\\frac{x - \\mu}{\\sigma_{R}} > \\alpha_{R}
-            \\end{cases}
+            f(x;\mu, \sigma_{L}, \alpha_{L}, n_{L}, \sigma_{R}, \alpha_{R}, n_{R}) =  \begin{cases}
+            A_{L} \cdot (B_{L} - \frac{x - \mu}{\sigma_{L}})^{-n_{L}},
+             & \mbox{for }\frac{x - \mu}{\sigma_{L}} < -\alpha_{L} \newline
+            \exp(- \frac{(x - \mu)^2}{2 \sigma_{L}^2}),
+            & \mbox{for }-\alpha_{L} \leqslant \frac{x - \mu}{\sigma_{L}} \leqslant 0 \newline
+            \exp(- \frac{(x - \mu)^2}{2 \sigma_{R}^2}),
+            & \mbox{for }0 \leqslant \frac{x - \mu}{\sigma_{R}} \leqslant \alpha_{R} \newline
+            A_{R} \cdot (B_{R} + \frac{x - \mu}{\sigma_{R}})^{-n_{R}},
+             & \mbox{for }\frac{x - \mu}{\sigma_{R}} > \alpha_{R}
+            \end{cases}
 
         with
 
         .. math::
-            A_{L/R} = \\left(\\frac{n_{L/R}}{\\left| \\alpha_{L/R} \\right|}\\right)^n_{L/R} \\cdot
-            \\exp\\left(- \\frac {\\left|\\alpha_{L/R} \\right|^2}{2}\\right)
+            A_{L/R} = \left(\frac{n_{L/R}}{\left| \alpha_{L/R} \right|}\right)^n_{L/R} \cdot
+            \exp\left(- \frac {\left|\alpha_{L/R} \right|^2}{2}\right)
 
-            B_{L/R} = \\frac{n_{L/R}}{\\left| \\alpha_{L/R} \\right|}  - \\left| \\alpha_{L/R} \\right|
+            B_{L/R} = \frac{n_{L/R}}{\left| \alpha_{L/R} \right|}  - \left| \alpha_{L/R} \right|
 
         Args:
             mu: The mean of the gaussian
@@ -729,15 +738,15 @@ class GaussExpTail(BasePDF, SerializableMixin):
         name: str = "GaussExpTail",
         label: str | None = None,
     ):
-        """GaussExpTail shaped PDF. A combination of a Gaussian with an exponential tail on one side.
+        r"""GaussExpTail shaped PDF. A combination of a Gaussian with an exponential tail on one side.
 
         The function is defined as follows:
 
         .. math::
-            f(x;\\mu, \\sigma, \\alpha) =  \\begin{cases} \\exp(- \\frac{(x - \\mu)^2}{2 \\sigma^2}),
-            & \\mbox{for }\\frac{x - \\mu}{\\sigma} \\geqslant -\\alpha \\newline
-            \\exp{\\left(\\frac{|\\alpha|^2}{2} + |\\alpha|  \\left(\\frac{x - \\mu}{\\sigma}\\right)\\right)},
-            & \\mbox{for }\\frac{x - \\mu}{\\sigma} < -\\alpha \\end{cases}
+            f(x;\mu, \sigma, \alpha) =  \begin{cases} \exp(- \frac{(x - \mu)^2}{2 \sigma^2}),
+            & \mbox{for }\frac{x - \mu}{\sigma} \geqslant -\alpha \newline
+            \exp{\left(\frac{|\alpha|^2}{2} + |\alpha|  \left(\frac{x - \mu}{\sigma}\right)\right)},
+            & \mbox{for }\frac{x - \mu}{\sigma} < -\alpha \end{cases}
 
         Args:
             mu: The mean of the gaussian
@@ -821,22 +830,22 @@ class GeneralizedGaussExpTail(BasePDF, SerializableMixin):
         name: str = "GeneralizedGaussExpTail",
         label: str | None = None,
     ):
-        """GeneralizedGaussedExpTail shaped PDF which is Generalized assymetric double-sided GaussExpTail shaped PDF. A
+        r"""GeneralizedGaussedExpTail shaped PDF which is Generalized assymetric double-sided GaussExpTail shaped PDF. A
         combination of two GaussExpTail using the **mu** (not a frac) and a different **sigma** on each side.
 
         The function is defined as follows:
 
         .. math::
-            f(x;\\mu, \\sigma_{L}, \\alpha_{L}, \\sigma_{R}, \\alpha_{R}) =  \\begin{cases}
-            \\exp{\\left(\\frac{|\\alpha_{L}|^2}{2} + |\\alpha_{L}|  \\left(\\frac{x - \\mu}{\\sigma_{L}}\\right)\\right)},
-             & \\mbox{for }\\frac{x - \\mu}{\\sigma_{L}} < -\\alpha_{L} \\newline
-            \\exp(- \\frac{(x - \\mu)^2}{2 \\sigma_{L}^2}),
-            & \\mbox{for }-\\alpha_{L} \\leqslant \\frac{x - \\mu}{\\sigma_{L}} \\leqslant 0 \\newline
-            \\exp(- \\frac{(x - \\mu)^2}{2 \\sigma_{R}^2}),
-            & \\mbox{for }0 \\leqslant \\frac{x - \\mu}{\\sigma_{R}} \\leqslant \\alpha_{R} \\newline
-            \\exp{\\left(\\frac{|\\alpha_{R}|^2}{2} - |\\alpha_{R}|  \\left(\\frac{x - \\mu}{\\sigma_{R}}\\right)\\right)},
-             & \\mbox{for }\\frac{x - \\mu}{\\sigma_{R}} > \\alpha_{R}
-            \\end{cases}
+            f(x;\mu, \sigma_{L}, \alpha_{L}, \sigma_{R}, \alpha_{R}) =  \begin{cases}
+            \exp{\left(\frac{|\alpha_{L}|^2}{2} + |\alpha_{L}|  \left(\frac{x - \mu}{\sigma_{L}}\right)\right)},
+             & \mbox{for }\frac{x - \mu}{\sigma_{L}} < -\alpha_{L} \newline
+            \exp(- \frac{(x - \mu)^2}{2 \sigma_{L}^2}),
+            & \mbox{for }-\alpha_{L} \leqslant \frac{x - \mu}{\sigma_{L}} \leqslant 0 \newline
+            \exp(- \frac{(x - \mu)^2}{2 \sigma_{R}^2}),
+            & \mbox{for }0 \leqslant \frac{x - \mu}{\sigma_{R}} \leqslant \alpha_{R} \newline
+            \exp{\left(\frac{|\alpha_{R}|^2}{2} - |\alpha_{R}|  \left(\frac{x - \mu}{\sigma_{R}}\right)\right)},
+             & \mbox{for }\frac{x - \mu}{\sigma_{R}} > \alpha_{R}
+            \end{cases}
 
         Args:
             mu: The mean of the gaussian

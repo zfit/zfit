@@ -1,6 +1,11 @@
 #  Copyright (c) 2025 zfit
 from __future__ import annotations
 
+import typing
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
+
 import weakref
 
 import pydantic.v1 as pydantic
@@ -62,8 +67,7 @@ class SerializableMixin(ZfitSerializable):
     def from_asdf(cls, asdf_obj, *, reuse_params=None):
         """Load an object from an asdf file.
 
-        Args
-        ----
+        Args:
             asdf_obj: Object
             reuse_params: |@doc:hs3.ini.reuse_params| If parameters, the parameters
                    will be reused if they are given.

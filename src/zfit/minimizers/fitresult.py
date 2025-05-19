@@ -3,6 +3,11 @@
 from __future__ import annotations
 
 import typing
+
+if typing.TYPE_CHECKING:
+    import zfit
+
+import typing
 from typing import TYPE_CHECKING
 
 from ..util.exception import BreakingAPIChangeError
@@ -332,11 +337,14 @@ class FitResult(ZfitResult):
     ) -> None:
         """Create a ``FitResult`` from a minimization. Store parameter values, minimization infos and calculate errors.
 
+        .. _info-fields:
+        .. _field:
+
         Any errors calculated are saved under ``self.params`` dictionary with::
 
             {parameter: {error_name1: {'low': value, 'high': value or similar}}
 
-        The ``FitResult can be used to temporarily update the parameter values to the values found by the minimization
+        The ``FitResult`` can be used to temporarily update the parameter values to the values found by the minimization
 
         .. code-block::
 
@@ -581,7 +589,7 @@ class FitResult(ZfitResult):
             params: |@doc:result.init.params| Result of the fit where each
                :py:class:`~zfit.Parameter` key has the
                value from the minimum found by the minimizer. |@docend:result.init.params|
-            problem: |@doc:result.init.problem||@docend:result.init.problem|
+            problem: The ipopt problem instance that was used for the minimization.
             minimizer: |@doc:result.init.minimizer| Minimizer that was used to obtain this ``FitResult`` and will be used to
                    calculate certain errors. If the minimizer
                    is state-based (like "iminuit"), then this is a copy
@@ -793,7 +801,7 @@ class FitResult(ZfitResult):
         niter: int | None = None,
         evaluator: zfit.minimize.LossEval | None = None,
     ) -> FitResult:
-        """Create a ``FitResult from a SciPy `~scipy.optimize.OptimizeResult`.
+        """Create a ``FitResult`` from a SciPy ``~scipy.optimize.OptimizeResult``.
 
         Args:
             loss: |@doc:result.init.loss| The loss function that was minimized.
@@ -1192,16 +1200,21 @@ class FitResult(ZfitResult):
             weightcorr: |@doc:result.hesse.weightcorr.method| Method to correct the estimation of the covariance matrix/hesse error
                    for a weighted likelihood. The following methods are available, for a comparison and
                    the derivation of the methods, see [langenbruch1]_:
+
                     - `False`: no correction, the covariance matrix is calculated as if the likelihood
                       was unweighted. This will generally underestimate the errors.
                     - `asymptotic`: the covariance matrix is corrected by the asymptotic formula
                       for the weighted likelihood. This is the default, yet computationally most
                       expensive method.
-                    - `effsize`: the covariance matrix is corrected by the effective sample size.
+                    - `sumw2`: the covariance matrix is corrected by the effective sample size.
                       This is the fastest method but won't yield asymptotically correct results.
+
+                   This is not (yet) guaranteed to fully work for binned fits and maybe under/over
+                   represents errors.
+
                     .. [langenbruch1] Langenbruch, C. Parameter uncertainties in weighted unbinned maximum
-                       likelihood fits. Eur. Phys. J. C 82, 393 (2022).
-                       https://doi.org/10.1140/epjc/s10052-022-10254-8 |@docend:result.hesse.weightcorr.method|
+                       likelihood fits
+                       `Eur. Phys. J. C 82, 393 (2022). <https://doi.org/10.1140/epjc/s10052-022-10254-8>`_. |@docend:result.hesse.weightcorr.method|
 
         Returns:
             Result of the hessian (symmetric) error as dict with each parameter holding
@@ -1429,16 +1442,21 @@ class FitResult(ZfitResult):
             weightcorr: |@doc:result.hesse.weightcorr.method| Method to correct the estimation of the covariance matrix/hesse error
                    for a weighted likelihood. The following methods are available, for a comparison and
                    the derivation of the methods, see [langenbruch1]_:
+
                     - `False`: no correction, the covariance matrix is calculated as if the likelihood
                       was unweighted. This will generally underestimate the errors.
                     - `asymptotic`: the covariance matrix is corrected by the asymptotic formula
                       for the weighted likelihood. This is the default, yet computationally most
                       expensive method.
-                    - `effsize`: the covariance matrix is corrected by the effective sample size.
+                    - `sumw2`: the covariance matrix is corrected by the effective sample size.
                       This is the fastest method but won't yield asymptotically correct results.
+
+                   This is not (yet) guaranteed to fully work for binned fits and maybe under/over
+                   represents errors.
+
                     .. [langenbruch1] Langenbruch, C. Parameter uncertainties in weighted unbinned maximum
-                       likelihood fits. Eur. Phys. J. C 82, 393 (2022).
-                       https://doi.org/10.1140/epjc/s10052-022-10254-8 |@docend:result.hesse.weightcorr.method|
+                       likelihood fits
+                       `Eur. Phys. J. C 82, 393 (2022). <https://doi.org/10.1140/epjc/s10052-022-10254-8>`_. |@docend:result.hesse.weightcorr.method|
 
         Returns:
             2D `numpy.array` of shape (N, N);

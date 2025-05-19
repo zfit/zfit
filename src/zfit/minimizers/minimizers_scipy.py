@@ -2,6 +2,11 @@
 
 from __future__ import annotations
 
+import typing
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
+
 import copy
 import inspect
 import math
@@ -644,8 +649,8 @@ class ScipyBFGS(ScipyBaseMinimizer):
                 hess_inv0 = init.approx.inv_hessian()
             elif stepsize is not None:
                 hess_inv0 = np.diag(np.array(stepsize) ** 2)
-            if False:
-                options["hess_inv0"] = hess_inv0
+            # if False: HACK
+            options["hess_inv0"] = hess_inv0
             return options
 
         super().__init__(

@@ -6,6 +6,16 @@ TODO(Mayou36): subclassing?
 
 from __future__ import annotations
 
+import typing
+
+if typing.TYPE_CHECKING:
+    import zfit
+
+import typing
+
+if typing.TYPE_CHECKING:
+    import zfit
+
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:

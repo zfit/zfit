@@ -1,6 +1,12 @@
 #  Copyright (c) 2025 zfit
 from __future__ import annotations
 
+import typing
+
+if typing.TYPE_CHECKING:
+    import zfit
+
+import typing
 from typing import Literal, Optional, Union
 
 import pydantic.v1 as pydantic
@@ -23,6 +29,8 @@ from ..util.ztyping import ExtendedInputType, NormInputType
 from ..z.interpolate_spline import interpolate_spline
 from .functor import BaseFunctor
 
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 LimitsTypeInput = Optional[Union[ztyping.LimitsType, float]]
 
 
