@@ -38,7 +38,7 @@ from tensorflow.python.types.core import Tensor as TensorType
 import zfit.z.numpy as znp
 
 from .. import z
-from ..core.baseobject import BaseNumeric, extract_filter_params
+from ..core.baseobject import BaseNumeric, extract_filter_params, validate_preprocess_name
 from ..minimizers.interface import ZfitResult
 from ..serialization.paramrepr import make_param_constructor
 from ..serialization.serializer import BaseRepr, Serializer
@@ -267,6 +267,7 @@ class ZfitParameterMixin(BaseNumeric):
     _existing_params: typing.ClassVar = {}
 
     def __init__(self, name, label=None, **kwargs):
+        name = validate_preprocess_name(name)
         if name not in self._existing_params:
             self._existing_params[name] = WeakSet()
             # Is an alternative arg for pop needed in case it fails? Why would it fail?

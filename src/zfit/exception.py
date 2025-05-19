@@ -39,6 +39,7 @@ __all__ = [
     "FunctionNotImplemented",
     "IllegalInGraphModeError",
     "InitNotImplemented",
+    "InvalidNameError",
     "IpyoptPicklingError",
     "LogicalUndefinedOperationError",
     "MaximumIterationReached",
@@ -52,6 +53,10 @@ __all__ = [
     "SpecificFunctionNotImplemented",
     "VectorizedLimitsNotImplemented",
 ]
+
+
+class InvalidNameError(Exception):
+    """Exception raised when a name is invalid."""
 
 
 class VectorizedLimitsNotImplementedError(VectorizedLimitsNotImplemented):
