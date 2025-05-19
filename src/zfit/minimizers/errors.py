@@ -363,8 +363,10 @@ def covariance_with_weights(hinv, result, params, *, weightcorr: WeightCorr = No
                        `Eur. Phys. J. C 82, 393 (2022). <https://doi.org/10.1140/epjc/s10052-022-10254-8>`_. |@docend:result.hesse.weightcorr.method|
     """
     from .. import run
+
     if weightcorr == "sumw2":
-        raise BreakingAPIChange("The 'sumw2' option has been renamed to 'sumw2'.")
+        msg = "The 'sumw2' option has been renamed to 'sumw2'."
+        raise BreakingAPIChange(msg)
     weightcorr = WeightCorr.ASYMPTOTIC if weightcorr is None else WeightCorr(weightcorr)
 
     run.assert_executing_eagerly()
