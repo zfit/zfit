@@ -9,9 +9,12 @@ if typing.TYPE_CHECKING:
 
 from collections.abc import Iterable
 
+import tensorflow as tf
+
 from zfit import z
 from zfit.core.interfaces import ZfitPDF
 from zfit.util.exception import NotExtendedPDFError
+from zfit.util import ztyping
 from zfit.z.random import counts_multinomial, sample_with_replacement
 
 from .util.container import convert_to_container
@@ -19,7 +22,7 @@ from .util.container import convert_to_container
 __all__ = ["counts_multinomial", "poisson", "sample_with_replacement"]
 
 
-def poisson(n=None, pdfs: Iterable[ZfitPDF] | None = None):
+def poisson(n: ztyping.NumericalScalarType | None = None, pdfs: Iterable[ZfitPDF] | None = None) -> tf.Tensor:
     if n and pdfs:
         msg = "Cannot specify both, `n`, and `pdfs`, at the same time."
         raise ValueError(msg)
