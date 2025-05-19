@@ -391,17 +391,15 @@ def covariance_with_weights(hinv, result, params, *, weightcorr: WeightCorr = No
     ]
     # extendedweights = [znp.reshape(znp.sum(w), (-1,)) for w in dataweights] if yields else []
     # extendedweights = [znp.ones((len(yields),))] if yields else []
-    constrweights = [znp.ones((len(constraints),))]  if constraints else []
-    allweights = znp.concatenate(
-        dataweights + constrweights, axis=0
-    )
-    allweights2 = allweights ** 2
+    constrweights = [znp.ones((len(constraints),))] if constraints else []
+    allweights = znp.concatenate(dataweights + constrweights, axis=0)
+    allweights2 = allweights**2
     sumw2 = znp.sum(allweights2)
     sumw = znp.sum(allweights)
     if weightcorr == WeightCorr.ASYMPTOTIC:
         corrfactor = 1.0
     elif weightcorr == WeightCorr.EFFSIZE:
-        corrfactor =  sumw2 / sumw
+        corrfactor = sumw2 / sumw
         del allweights
     else:
         msg = f"Unknown method {weightcorr}, has to be one of {WeightCorr}"
@@ -458,9 +456,7 @@ def covariance_with_weights(hinv, result, params, *, weightcorr: WeightCorr = No
 
             jacobian = numerical_pdf_jacobian(func=wrapped_func, params=params_dict)
 
-        C = znp.matmul(jacobian
-                       * allweights2
-                       , znp.transpose(jacobian))
+        C = znp.matmul(jacobian * allweights2, znp.transpose(jacobian))
 
         covariance = np.asarray(znp.matmul(Hinv, znp.matmul(C, Hinv)))
     elif weightcorr == WeightCorr.EFFSIZE:

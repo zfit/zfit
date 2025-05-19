@@ -59,7 +59,7 @@ def create_three_component_data(n_samples=1000, weights=True):
 
     # Create the PDFs
     gauss = zfit.pdf.Gauss(mu=mean_gauss, sigma=sigma, obs=obs)
-    cb = zfit.pdf.GeneralizedCB(mu=mean_cb, sigmal=sigma, alphal=alphal, nl=nl, 
+    cb = zfit.pdf.GeneralizedCB(mu=mean_cb, sigmal=sigma, alphal=alphal, nl=nl,
                                sigmar=sigma, alphar=alphar, nr=nr, obs=obs)
     exp = zfit.pdf.Exponential(lam=lam, obs=obs)
 
@@ -126,7 +126,7 @@ def perform_fit(data, obs, model_type="gaussian_mixture"):
 
         # Create the PDFs
         gauss = zfit.pdf.Gauss(mu=mean_gauss, sigma=sigma, obs=obs)
-        cb = zfit.pdf.GeneralizedCB(mu=mean_cb, sigmal=sigma, alphal=alphal, nl=nl, 
+        cb = zfit.pdf.GeneralizedCB(mu=mean_cb, sigmal=sigma, alphal=alphal, nl=nl,
                                    sigmar=sigma, alphar=alphar, nr=nr, obs=obs)
         exp = zfit.pdf.Exponential(lam=lam, obs=obs)
 
@@ -305,7 +305,7 @@ def compare_roofit_zfit_gaussian_mixture():
     param_errors_z = result_z.hesse(weightcorr="asymptotic", name="hesse_zfit_compare")
 
     # Fit with RooFit
-    result_r = model_r.fitTo(data_roofit, RooFit.Save(True), RooFit.AsymptoticError(True), 
+    result_r = model_r.fitTo(data_roofit, RooFit.Save(True), RooFit.AsymptoticError(True),
                             RooFit.EvalBackend("cpu"), RooFit.Extended(True))
 
     # Return the results for comparison
@@ -485,14 +485,14 @@ def compare_roofit_zfit_three_component(weightcorr):
         weightcorr_r = ROOT.RooFit.SumW2Error(False)
     result_r = model_r.fitTo(data_roofit, RooFit.Save(True), weightcorr_r,
                             RooFit.EvalBackend("cpu"), RooFit.Extended(True))
-    
+
 
     # Print comparison of results
     # print("\nComparison of zfit and RooFit results:")
     # print("-" * 80)
     # print(f"{'Parameter':<15} {'zfit value':>12} {'zfit error':>12} {'RooFit value':>12} {'RooFit error':>12}")
     # print("-" * 80)
-    
+
     # Return the results for comparison
     resultvals = {
         "zfit": {
@@ -518,7 +518,7 @@ def compare_roofit_zfit_three_component(weightcorr):
             "lambda": (lam_r.getVal(), lam_r.getError())
         }
     }
-    
+
     # # Print the comparison
     # for param in resultvals["zfit"]:
     #     zfit_val, zfit_err = resultvals["zfit"][param]
@@ -577,8 +577,8 @@ def compare_roofit_zfit_three_component(weightcorr):
     #
     # c.Update()
     # c.Draw()
-    # 
-    
+    #
+
     return resultvals
 
 @pytest.mark.parametrize("weightcorr", [False, "effsize", "asymptotic"])

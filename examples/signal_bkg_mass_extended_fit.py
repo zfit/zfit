@@ -4,7 +4,6 @@ from __future__ import annotations
 import pickle
 
 import zfit
-import zfit.z.numpy as znp
 
 n_bins = 50
 
@@ -46,7 +45,7 @@ param_hesse = result.hesse()
 
 # the second return value is a new FitResult if a new minimum was found
 
-param_errors,_ = result.errors()
+param_errors, _ = result.errors()
 
 print(result)
 # Storing the result can be achieved in many ways. Using dill (like pickle), we can dump and load the result
