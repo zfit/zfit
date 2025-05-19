@@ -2,6 +2,11 @@
 
 from __future__ import annotations
 
+import typing
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
+
 import contextlib
 import functools
 import multiprocessing
@@ -226,11 +231,11 @@ class RunManager:
             Important: while values are usually constant, changing a :py:class:`zfit.Parameter` value with
             :py:meth:`~zfit.Parameter.set_value(...)` *will* change the value in the graph as well.
 
-                        .. code-block:: python
+            .. code-block:: python
 
                 @z.function
                 def add(x, param):
-                     return x + param
+                    return x + param
 
                 param = zfit.Parameter('param1', 36)
                 assert add_rnd(5, param) == 41
@@ -257,6 +262,7 @@ class RunManager:
 
         Args:
             graph: Policy for when to build a graph with which function. Currently allowed values are
+
               - `True`: this will make all :py:func:`zfit.z.function` decorated function to be traced. Useful
                 to have a consistent behavior overall, as e.g. a PDF may not be traced if `pdf` or `integrate` is
                 called, but may be traced when inside a loss.

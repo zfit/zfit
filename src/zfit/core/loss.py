@@ -2,6 +2,11 @@
 
 from __future__ import annotations
 
+import typing
+
+if typing.TYPE_CHECKING:
+    import zfit
+
 import copy
 import typing
 from contextlib import suppress
@@ -40,7 +45,6 @@ from ..util.exception import (
     BreakingAPIChangeError,
     IntentionAmbiguousError,
     NotExtendedPDFError,
-    WorkInProgressError,
 )
 from ..util.warnings import warn_advanced_feature
 from ..z.math import (
@@ -1422,6 +1426,7 @@ class SimpleLoss(BaseLoss):
         self._hess_fn = hessian
         params = convert_to_parameters(params, prefer_constant=False)
         self._params = params
+        self._autograd_params = [p.name for p in params]
 
     def _check_jit_or_not(self):
         if not self._do_jit:
@@ -1438,9 +1443,9 @@ class SimpleLoss(BaseLoss):
         *,
         autograd: bool | None = None,
     ) -> set[ZfitParameter]:
-        if autograd is not None:
-            msg = "Cannot distinguish currently between autograd and not autograd."
-            raise WorkInProgressError(msg)
+        # if autograd is not None:
+        #     msg = "Cannot distinguish currently between autograd and not autograd."
+        #     raise WorkInProgressError(msg)
         params = super()._get_params(floating, is_yield, extract_independent, autograd=autograd)
         own_params = extract_filter_params(self._params, floating=floating, extract_independent=extract_independent)
         return params.union(own_params)

@@ -81,12 +81,13 @@ repos:
         additional_dependencies: [ pyupgrade ]
         args: [ --py36-plus ]
 
-  - repo: https://github.com/mgedmin/check-manifest
-    rev: "0.50"
-    hooks:
-      - id: check-manifest
-        args: [ --update, --no-build-isolation ]
-        additional_dependencies: [ setuptools-scm, setuptools-scm-git-archive ]
+# not needed for hatchling? also really slow...
+#  - repo: https://github.com/mgedmin/check-manifest
+#    rev: "0.50"
+#    hooks:
+#      - id: check-manifest
+#        args: [ --update, --no-build-isolation ]
+#        additional_dependencies: [ hatchling, hatch-vcs ]
 
   - repo: https://github.com/kynan/nbstripout
     rev: 0.8.1

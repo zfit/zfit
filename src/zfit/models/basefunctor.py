@@ -2,6 +2,12 @@
 
 from __future__ import annotations
 
+import typing
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
+
+import typing
 from collections.abc import Iterable
 from typing import Optional
 
@@ -28,6 +34,9 @@ from ..util.exception import (
 )
 from ..util.warnings import warn_advanced_feature, warn_changed_feature
 from ..z import numpy as znp
+
+if typing.TYPE_CHECKING:
+    pass
 
 
 def extract_daughter_input_obs(obs: ztyping.ObsTypeInput, spaces: Iterable[ZfitSpace]) -> ZfitSpace:

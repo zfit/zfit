@@ -2,6 +2,11 @@
 
 from __future__ import annotations
 
+import typing
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
+
 from collections.abc import Mapping
 
 import numpy as np
@@ -82,7 +87,10 @@ class LevenbergMarquardt(BaseMinimizer, GraphCachable):
 
                Some minimizers offer additional output which is also
                distributed as above but may duplicate certain printed values. |@docend:minimizer.verbosity|
-            options: |@doc:minimizer.options||@docend:minimizer.options|
+            options: |@doc:minimizer.init.options| Additional options for the minimizer.
+                   This is a dictionary of options that are passed to the minimizer.
+                   The options depend on the minimizer and are not always available.
+                   See the documentation of the minimizer for more information. |@docend:minimizer.init.options|
             maxiter: |@doc:minimizer.maxiter| Approximate number of iterations.
                    This corresponds to roughly the maximum number of
                    evaluations of the ``value``, 'gradient`` or ``hessian``. |@docend:minimizer.maxiter|
@@ -99,7 +107,8 @@ class LevenbergMarquardt(BaseMinimizer, GraphCachable):
                    input arguments in the init. Determines the behavior of the minimizer in
                    certain situations, most notably when encountering
                    NaNs. It can also implement a callback function. |@docend:minimizer.strategy|
-            name: |@doc:minimizer.name||@docend:minimizer.name
+            name: |@doc:minimizer.init.name| Human-readable name of the minimizer. |@docend:minimizer.name|
+            name: |@doc:minimizer.init.name||@docend:minimizer.name
         """
 
         mode = 0 if mode is None else mode

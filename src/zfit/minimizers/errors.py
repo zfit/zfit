@@ -2,6 +2,11 @@
 
 from __future__ import annotations
 
+import typing
+
+if typing.TYPE_CHECKING:
+    import zfit
+
 import warnings
 from enum import Enum
 from typing import TYPE_CHECKING
@@ -87,6 +92,7 @@ def compute_errors(
             A ``dict`` containing as keys the parameter and as value a ``dict`` which
             contains two keys 'lower' and 'upper', holding the calculated errors.
             Example: result[par1]['upper'] -> the asymmetric upper error of 'par1'
+
         out: a fit result is returned when a new minimum is found during the loss scan
     """
     if rtol is None:
@@ -340,6 +346,7 @@ def covariance_with_weights(hinv, result, params, *, weightcorr: WeightCorr = No
         weightcorr: |@doc:result.hesse.weightcorr.method| Method to correct the estimation of the covariance matrix/hesse error
                    for a weighted likelihood. The following methods are available, for a comparison and
                    the derivation of the methods, see [langenbruch1]_:
+
                     - `False`: no correction, the covariance matrix is calculated as if the likelihood
                       was unweighted. This will generally underestimate the errors.
                     - `asymptotic`: the covariance matrix is corrected by the asymptotic formula
@@ -347,9 +354,13 @@ def covariance_with_weights(hinv, result, params, *, weightcorr: WeightCorr = No
                       expensive method.
                     - `effsize`: the covariance matrix is corrected by the effective sample size.
                       This is the fastest method but won't yield asymptotically correct results.
+
+                   This is not (yet) guaranteed to fully work for binned fits and maybe under/over
+                   represents errors.
+
                     .. [langenbruch1] Langenbruch, C. Parameter uncertainties in weighted unbinned maximum
-                       likelihood fits. Eur. Phys. J. C 82, 393 (2022).
-                       https://doi.org/10.1140/epjc/s10052-022-10254-8 |@docend:result.hesse.weightcorr.method|
+                       likelihood fits
+                       `Eur. Phys. J. C 82, 393 (2022). <https://doi.org/10.1140/epjc/s10052-022-10254-8>`_. |@docend:result.hesse.weightcorr.method|
     """
     from .. import run
 

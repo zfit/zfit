@@ -9,7 +9,11 @@ Therefore, a convenient wrapper as well as a lot of implementations are provided
 #  Copyright (c) 2025 zfit
 from __future__ import annotations
 
+import typing
 from typing import Literal
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 import tensorflow as tf
 import tensorflow_probability as tfp

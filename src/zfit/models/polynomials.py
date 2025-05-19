@@ -3,6 +3,11 @@
 
 from __future__ import annotations
 
+import typing
+
+if typing.TYPE_CHECKING:
+    import zfit
+
 from typing import TYPE_CHECKING, Literal, Optional
 
 import pydantic.v1 as pydantic
@@ -609,7 +614,7 @@ laguerre_polys = generalized_laguerre_polys_factory(alpha=0.0)
 def generalized_laguerre_recurrence_factory(alpha=0.0):
     @z.function(wraps="tensor", keepalive=True, stateless_args=False)
     def generalized_laguerre_recurrence(p1, p2, n, x):
-        """Recurrence relation for Laguerre polynomials.
+        r"""Recurrence relation for Laguerre polynomials.
 
         :math:`(n+1) L_{n+1}(x) = (2n + 1 + \alpha - x) L_{n}(x) - (n + \alpha) L_{n-1}(x)`
         """
@@ -711,9 +716,9 @@ class LaguerreRepr(BaseRecursivePolynomialRepr):
 
 
 def func_integral_laguerre(limits, norm, params: dict, model):
-    """The integral of the simple laguerre polynomials.
+    r"""The integral of the simple laguerre polynomials.
 
-    Defined as :math:`\\int L_{n} = (-1) L_{n+1}^{(-1)}` with :math:`L^{(\alpha)}` the generalized Laguerre polynom.
+    Defined as :math:`\int L_{n} = (-1) L_{n+1}^{(-1)}` with :math:`L^{(\alpha)}` the generalized Laguerre polynom.
 
     Args:
         limits:

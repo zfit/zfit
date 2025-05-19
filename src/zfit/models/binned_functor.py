@@ -2,10 +2,18 @@
 
 from __future__ import annotations
 
+import typing
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
+
 from collections.abc import Iterable
-from typing import Union
+from typing import TYPE_CHECKING, Union
 
 from uhi.typing.plottable import PlottableHistogram
+
+if TYPE_CHECKING:
+    pass
 
 from .. import z
 from ..core.binnedpdf import BaseBinnedPDF

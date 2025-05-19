@@ -159,6 +159,14 @@ pdf.param.norm: |1+
                 the space of the PDF). Should be ``ZfitSpace`` to define the space
                 to normalize over.
 
+pdf.param.options: |1+
+    Options for the PDF.
+                Additional options for the PDF. Currently supported options are:
+
+                - type: one of (``bins``)
+                  This hints that bins are integrated. A method that is vectorizable,
+                  non-dynamic and therefore less suitable for complicated functions is chosen.
+
 pdf.param.x: |1+
     Data to evaluate the method on. Should be ``ZfitData``
                 or a mapping of *obs* to numpy-like arrays.
@@ -192,10 +200,12 @@ pdf.integrate.norm: |1+
 pdf.integrate.options: |1+
     Options for the integration.
                 Additional options for the integration. Currently supported options are:
-                - type: one of (``bins``)
+
+                * type: one of (``bins``)
                   This hints that bins are integrated. A method that is vectorizable,
                   non-dynamic and therefore less suitable for complicated functions is chosen.
 
+                Other options *may* be available in the future.
 pdf.param.yield: |1+
     Yield (expected number of events) of the PDF.
                 This is the expected number of events.
@@ -456,6 +466,10 @@ minimizer.maxiter: |1+
                     evaluations of the ``value``, 'gradient`` or ``hessian``.
 minimizer.name: |1+
     Human-readable name of the minimizer.
+
+minimizer.init.name:
+  Name of the minimizer.
+
 minimizer.maxcor: |1+
     Maximum number of memory history to keep
                     when using a quasi-Newton update formula such as BFGS.
@@ -480,6 +494,12 @@ minimizer.init.c2: |1+
                     which effectively provides a lower bound to the step size.
                     The value is constrained to be 0 < c1 < c2 < 1.
                     Defaults to 0.4.
+
+minimizer.init.options: |1+
+    Additional options for the minimizer.
+                    This is a dictionary of options that are passed to the minimizer.
+                    The options depend on the minimizer and are not always available.
+                    See the documentation of the minimizer for more information.
 
 minimizer.scipy.gradient: |1+
     Define the method to use for the gradient computation
@@ -666,6 +686,7 @@ loss.init.binned.explain.chi2zeros: |1+
          - "empty": "ignore" will ignore all bins with zero entries and won't count to the loss
          - "errors": "expected" will use the expected counts from the model
            with a Poissonian uncertainty
+
 loss.init.options: |1+
     Additional options (as a dict) for the loss.
                 Current possibilities include:
@@ -775,6 +796,7 @@ result.init.info: |1+
                       by the minimizer used internally.
                     - *optimizer*: the actual instance of the wrapped
                       optimizer (if available)
+
 result.init.approx: |1+
     Collection of approximations found during
                     the minimization process such as gradient and hessian.
@@ -796,6 +818,7 @@ result.hesse.weightcorr.method: |1+
     Method to correct the estimation of the covariance matrix/hesse error
                     for a weighted likelihood. The following methods are available, for a comparison and
                     the derivation of the methods, see [langenbruch1]_:
+
                      - `False`: no correction, the covariance matrix is calculated as if the likelihood
                        was unweighted. This will generally underestimate the errors.
                      - `asymptotic`: the covariance matrix is corrected by the asymptotic formula
@@ -803,9 +826,14 @@ result.hesse.weightcorr.method: |1+
                        expensive method.
                      - `effsize`: the covariance matrix is corrected by the effective sample size.
                        This is the fastest method but won't yield asymptotically correct results.
+
+                    This is not (yet) guaranteed to fully work for binned fits and maybe under/over
+                    represents errors.
+
                      .. [langenbruch1] Langenbruch, C. Parameter uncertainties in weighted unbinned maximum
-                        likelihood fits. Eur. Phys. J. C 82, 393 (2022).
-                        https://doi.org/10.1140/epjc/s10052-022-10254-8
+                        likelihood fits
+                        `Eur. Phys. J. C 82, 393 (2022). <https://doi.org/10.1140/epjc/s10052-022-10254-8>`_.
+
 hs3.ini.reuse_params: |1+
     If parameters, the parameters
                     will be reused if they are given.
@@ -820,10 +848,12 @@ hs3.explain: |1+
                     coordinated effort of the HEP community to standardize the serialization of statistical models. The standard
                     is still in development and is not yet finalized. This function is experimental and may change in the future.
 hs3.layout.explain: |1+
-    The keys in the HS3 format are:
-                     - 'distributions': list of PDFs
-                     - 'variables': list of variables, i.e. ``zfit.Space`` and ``zfit.Parameter`` (or more generally parameters)
-                     - 'loss': list of losses
-                     - 'data': list of data
-                     - 'metadata': contains the version of the HS3 format and the
+    The keys in the HS3 format
+                    are:
+
+                    - 'distributions': list of PDFs
+                    - 'variables': list of variables, i.e. ``zfit.Space`` and ``zfit.Parameter`` (or more generally parameters)
+                    - 'loss': list of losses
+                    - 'data': list of data
+                    - 'metadata': contains the version of the HS3 format and the
                        zfit version used to create the file

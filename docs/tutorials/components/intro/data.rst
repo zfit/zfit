@@ -4,7 +4,7 @@
 Data
 ====
 
-In general, python objects like :py:class:~`np.ndarray`, :py:class:~`pandas.DataFrame` or :py:class:~`hist.Hist` can be used as direct input to the various functions in zfit. However, the :py:class:`~zfit.Data` class provides a more structured and convenient way to handle data and applies a rectangular cut to the data.
+In general, python objects like :py:class:`~np.ndarray`, :py:class:`~pandas.DataFrame` or :py:class:`~hist.Hist` can be used as direct input to the various functions in zfit. However, the :py:class:`~zfit.Data` class provides a more structured and convenient way to handle data and applies a rectangular cut to the data.
 
 An easy and fast data manipulation are among the crucial aspects in High Energy Particle physics data analysis.
 With the increasing data availability (e.g. with the advent of LHC), this challenge has been pursued in different

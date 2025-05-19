@@ -2,7 +2,11 @@
 
 from __future__ import annotations
 
+import typing
 from collections.abc import Callable, Iterable
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 import tensorflow as tf
 

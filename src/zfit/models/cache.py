@@ -2,6 +2,12 @@
 
 from __future__ import annotations
 
+import typing
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
+
+import typing
 from typing import Callable, Literal
 
 import pydantic.v1 as pydantic
@@ -17,6 +23,9 @@ from ..settings import ztypes
 from ..util import ztyping
 from .basefunctor import FunctorPDFRepr
 from .functor import BaseFunctor
+
+if typing.TYPE_CHECKING:
+    pass
 
 
 def get_value(cache: tf.Variable, flag: tf.Variable, func: Callable):

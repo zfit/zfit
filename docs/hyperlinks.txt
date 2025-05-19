@@ -2,4 +2,4 @@
 
 .. _Stack Overflow: https://stackoverflow.com/questions/ask?tags=zfit
 
-.. _GitHub: https://github.com/zfit/zfit
+.. _GitHub_repo: https://github.com/zfit/zfit

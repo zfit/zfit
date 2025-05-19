@@ -5,15 +5,19 @@
 version: 2
 
 build:
-  os: ubuntu-24.04
+  os: ubuntu-lts-latest
   tools:
     python: "3.12"
   commands:
+    - git fetch --unshallow --tags || (git fetch --depth=50 && git fetch --tags)
     - asdf plugin add uv
     - asdf install uv latest
     - asdf global uv latest
-    - uv venv
-    - uv pip install .[dev]
-    - .venv/bin/python -m sphinx -T -b html -d docs/_build/doctrees -D language=en docs $READTHEDOCS_OUTPUT/html
+    - uv pip install --system .[docs]
+    - python -m sphinx -T -b html -d docs/_build/doctrees -D language=en docs $READTHEDOCS_OUTPUT/html
 
-formats: [ ]
+
+sphinx:
+  configuration: docs/conf.py
+
+#formats: [ ]

@@ -1,6 +1,11 @@
 #  Copyright (c) 2025 zfit
 from __future__ import annotations
 
+import typing
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
+
 from ._data.binneddatav1 import BinnedData, BinnedSamplerData
 from ._variables.axis import RegularBinning, VariableBinning
 from .core.data import Data, SamplerData, concat, convert_to_data

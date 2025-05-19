@@ -7,6 +7,11 @@ caught in the right place.
 
 from __future__ import annotations
 
+import typing
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
+
 from .core.serialmixin import NumpyArrayNotSerializableError
 from .util.checks import NONE
 from .util.deprecation import deprecated

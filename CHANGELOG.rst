@@ -22,6 +22,7 @@ Bug fixes and small changes
 ---------------------------
 - Allow BinnedSamplerData to be instantiated from a histogram and fix variance handling if not given.
 - Enhance the precision of binned loss functions
+- make adaptive bandwidth default in KDE
 
 Experimental
 ------------
@@ -103,11 +104,11 @@ Requirement changes
 Major Features and Improvements
 -------------------------------
 - Minimizers can use the new ``SimpleLoss.from_any`` method that allows other libraries to hook into the minimization.
-  For example, using zfit-physics, minimizers can directly minimize RooFit ``RooNllVar`` (as created by ``createNLL`` described `here <https://root.cern.ch/doc/master/classRooAbsPdf.html#a24b1afec4fd149e08967eac4285800de>`_
+  For example, using zfit-physics, minimizers can directly minimize RooFit ``RooNllVar`` (as created by ``createNLL`` described `here <https://root.cern.ch/doc/master/classRooAbsPdf.html#a24b1afec4fd149e08967eac4285800de>`_)
 - Added the well performing ``LevenbergMarquardt`` minimizer, a new implementation of the Levenberg-Marquardt algorithm.
 - New BFGS minimizer implementation of Scipy, ``ScipyBFGS``.
 - Reactivate a few minimizers: ``ScipyDogleg``, ``ScipyNCG``, ``ScipyCOBYLA`` and ``ScipyNewtonCG``
-- Add ``GeneralizedGauss`` PDF, where the exponent is something else than squared, taken from `tensorflow-probability<https://www.tensorflow.org/probability/api_docs/python/tfp/distributions/GeneralizedNormal>`_.
+- Add ``GeneralizedGauss`` PDF, where the exponent is something else than squared, taken from `tensorflow-probability <https://www.tensorflow.org/probability/api_docs/python/tfp/distributions/GeneralizedNormal>`_.
 
 Breaking changes
 ------------------
@@ -280,7 +281,7 @@ Deprecations
 -------------
 - ``result.fminfull`` is deprecated and will be removed in the future. Use ``result.fmin`` instead.
 - ``Data.set_data_range`` is deprecated and will be removed in the future. Use ``with_range`` instead.
-- ``Space`` has many deprecated methods, such as ``rect_limits`` and quite a few more. The full discussion can be found `here <https://github.com/zfit/zfit/discussions/533>`_.
+- ``Space`` has many deprecated methods, such as ``rect_limits`` and quite a few more. The full discussion can be found in the `GitHub discussion <https://github.com/zfit/zfit/discussions/533>`_.
 - ``fixed_params`` in ``create_sampler`` is deprecated and will be removed in the future. Use ``params`` instead.
 - ``fixed_params`` attribute of the ``Sampler`` is deprecated and will be removed in the future. Use ``params`` instead.
 - ``uncertainties`` in ``GaussianConstraint`` is deprecated and will be removed in the future. Use either explicitly ``sigma`` or ``cov``.

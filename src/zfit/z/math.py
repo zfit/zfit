@@ -2,6 +2,11 @@
 
 from __future__ import annotations
 
+import typing
+
+if typing.TYPE_CHECKING:
+    import zfit
+
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -128,14 +133,14 @@ def numerical_hessian(func: Callable | None, params: Iterable[zfit.Parameter], h
     if hessian == "diag":
         hesse_func = numdifftools.Hessdiag(
             wrapped_func,
-            order=3,
+            order=2,
             # TODO: maybe add step to remove numerical problems?
             base_step=1e-1,
         )
     else:
         hesse_func = numdifftools.Hessian(
             wrapped_func,
-            order=3,
+            order=2,
             base_step=1e-1,
         )
     if tf.executing_eagerly():

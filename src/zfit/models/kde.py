@@ -2,6 +2,11 @@
 
 from __future__ import annotations
 
+import typing
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
+
 from collections.abc import Callable
 from typing import ClassVar, Literal, Optional, Union
 
@@ -481,18 +486,19 @@ class KDEHelper:
         return data, size, weights, bandwidth
 
     def _convert_input_bandwidth(self, bandwidth, data, **kwargs):
-        if bandwidth is None:
+        if bandwidth is None and (bandwidth := "adaptive") not in self._bandwidth_methods:
             bandwidth = "silverman"
         # estimate bandwidth
         bandwidth_param = bandwidth
         if isinstance(bandwidth, str):
-            bandwidth = self._bandwidth_methods.get(bandwidth)
+            newbandwidth = self._bandwidth_methods.get(bandwidth)
             if bandwidth is None:
                 msg = (
                     f"Cannot use {bandwidth} as a bandwidth method. Use a numerical value or one of"
                     f" the defined methods: {list(self._bandwidth_methods.keys())}"
                 )
                 raise ValueError(msg)
+            bandwidth = newbandwidth
         if (not isinstance(bandwidth, ZfitParameter)) and callable(bandwidth):
             bandwidth = bandwidth(constructor=type(self), data=data, **kwargs)
         is_arraylike = bw_is_arraylike(bandwidth_param, allow1d=True)
@@ -797,6 +803,7 @@ class KDE1DimExact(KDEHelper, WrapDistribution, SerializableMixin):
             "adaptive_std": _adaptive_std_bandwidth_KDEV1,
             "adaptive_zfit": _adaptive_zfit_bandwidth_KDEV1,
             "isj": _bandwidth_isj_KDEV1,
+            "adaptive": _adaptive_zfit_bandwidth_KDEV1,
         }
     )
 
@@ -862,8 +869,9 @@ class KDE1DimExact(KDEHelper, WrapDistribution, SerializableMixin):
              space than *data*, as long as the name of the observable match.
              Using a larger dataset is actually good practice avoiding
              bountary biases, see also :ref:`sec-boundary-bias-and-padding`. |@docend:pdf.kde.init.obs|
-            bandwidth: Valid pre-defined options are {'silverman', 'scott',
+            bandwidth: Valid pre-defined options are {'silverman', 'scott', 'adaptive',
              'adaptive_zfit', 'adaptive_geom', 'adaptive_std', 'isj'}.
+             'adaptive' (alias for 'adaptive_zfit') is the default.
              |@doc:pdf.kde.init.bandwidth| Bandwidth of the kernel,
              often also denoted as :math:`h`. For a Gaussian kernel, this
              corresponds to *sigma*. This can be calculated using
@@ -1059,6 +1067,7 @@ class KDE1DimGrid(KDEHelper, WrapDistribution, SerializableMixin):
             "adaptive_geom": _adaptive_geom_bandwidth_grid_KDEV1,
             "adaptive_zfit": _adaptive_zfit_bandwidth_grid_KDEV1,
             # 'adaptive_std': _adaptive_std_bandwidth_grid_KDEV1,
+            "adaptive": _adaptive_zfit_bandwidth_grid_KDEV1,
         }
     )
 

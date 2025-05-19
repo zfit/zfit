@@ -11,6 +11,11 @@ way of importing:
 #  Copyright (c) 2025 zfit
 from __future__ import annotations
 
+import typing
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
+
 import numpy as np
 import tensorflow as tf
 from tensorflow.experimental.numpy import *  # noqa: F403

@@ -7,6 +7,10 @@ Contains a singleton instance to register new PDFs and let them be tested.
 
 from __future__ import annotations
 
+import typing
+if typing.TYPE_CHECKING:
+    import zfit     # noqa: F401
+
 from collections.abc import Iterable, Callable
 
 import scipy.stats

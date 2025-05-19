@@ -1,7 +1,17 @@
 #  Copyright (c) 2025 zfit
 from __future__ import annotations
 
+import typing
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
+
+from typing import TYPE_CHECKING
+
 import zfit.z.numpy as znp
+
+if TYPE_CHECKING:
+    pass
 
 from ..core.interfaces import ZfitBinnedPDF
 from ..core.space import supports
@@ -93,6 +103,6 @@ class SplinePDF(BaseFunctor):
             train_points=centers,
             train_values=density[None, :, None],
             query_points=x.value()[None, ...],
-            order=3,
+            order=2,
         )
         return probs[0, ..., 0]

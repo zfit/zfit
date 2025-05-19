@@ -1,59 +1,11 @@
-"""This  module defines the ``BasePdf`` that can be used to inherit from in order to build a custom PDF.
-
-The ``BasePDF`` implements already a lot of ready-to-use functionality like integral, automatic normalization
-and sampling.
-
-Defining your own pdf
----------------------
-
-A simple example:
->>> import zfit
->>> import zfit.z.numpy as znp
->>>
->>> class MyGauss(BasePDF):
->>>     def __init__(self, mean, stddev, name="MyGauss"):
->>>         super().__init__(mean=mean, stddev=stddev, name=name)
->>>
->>>     def _unnormalized_pdf(self, x):
->>>         return znp.exp((x - mean) ** 2 / (2 * stddev**2))
-
-Notice that *here* we only specify the *function* and no normalization. This
-**No** attempt to **explicitly** normalize the function should be done inside ``_unnormalized_pdf``.
-The normalization is handled with another method depending on the normalization range specified.
-(It *is* possible, though discouraged, to directly provide the *normalized probability* by overriding _pdf(), but
-there are other, more convenient ways to add improvements like providing an analytical integrals.)
-
-Before we create an instance, we need to create the variables to initialize it
->>> mean = zfit.Parameter("mean1", 2., 0.1, 4.2)  # signature as in RooFit: *name, initial, lower, upper*
->>> stddev = zfit.Parameter("stddev1", 5., 0.3, 10.)
-Let's create an instance and some example data
->>> gauss = MyGauss(mean=mean, stddev=stddev)
->>> example_data = np.random.random(10)
-Now we can get the probability
->>> probs = gauss.pdf(example_data)  # ``norm`` specifies over which range to normalize
-Or the integral
->>> integral = gauss.integrate(limits=(-5, 3.1),norm=False)  # norm is False -> return unnormalized
-integral
-Or directly sample from it
->>> sample = gauss.sample(n_draws=1000, limits=(-10, 10))  # draw 1000 samples within (-10, 10)
-
-We can create an extended PDF, which will result in anything using a ``norm`` to not return the
-probability but the number probability (the function will be normalized to ``yield`` instead of 1 inside
-the ``norm``)
->>> yield1 = Parameter("yield1", 100, 0, 1000)
->>> gauss_extended = gauss.create_extended(yield1)
->>> gauss.is_extended
-True
-
->>> integral_extended = gauss.ext_integrate(limits=(-10, 10),norm=(-10, 10))  # yields approx 100
-
-For more advanced methods and ways to register analytic integrals or overwrite certain methods, see
-also the advanced models in `zfit models <https://github.com/zfit/zfit-tutorials>`_
-"""
-
 #  Copyright (c) 2025 zfit
 
 from __future__ import annotations
+
+import typing
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 from collections.abc import Iterable
 from typing import TYPE_CHECKING, Optional
@@ -256,7 +208,12 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
                By default, this is the ``norm`` of the PDF (which by default is the same as
                the space of the PDF). Should be ``ZfitSpace`` to define the space
                to normalize over. |@docend:pdf.param.norm|
-            options: |@doc:pdf.param.options||@docend:pdf.param.options|
+            options: |@doc:pdf.param.options| Options for the PDF.
+               Additional options for the PDF. Currently supported options are:
+
+               - type: one of (``bins``)
+                 This hints that bins are integrated. A method that is vectorizable,
+                 non-dynamic and therefore less suitable for complicated functions is chosen. |@docend:pdf.param.options|
             params: |@doc:model.args.params| Mapping of the parameter names to the actual
                values. The parameter names refer to the names of the parameters,
                typically :py:class:`~zfit.Parameter`, that
@@ -581,7 +538,7 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
                By default, this is the ``norm`` of the PDF (which by default is the same as
                the space of the PDF). Should be ``ZfitSpace`` to define the space
                to normalize over. |@docend:pdf.param.norm|
-            options: |@doc:pdf.param.options||@docend:pdf.param.options|
+            options: Additional options for the normalization.
             params: |@doc:model.args.params| Mapping of the parameter names to the actual
                values. The parameter names refer to the names of the parameters,
                typically :py:class:`~zfit.Parameter`, that
@@ -631,9 +588,12 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
                ``False`` means no normalization and returns the unnormed integral. |@docend:pdf.integrate.norm|
             options: |@doc:pdf.integrate.options| Options for the integration.
                Additional options for the integration. Currently supported options are:
-               - type: one of (``bins``)
+
+               * type: one of (``bins``)
                  This hints that bins are integrated. A method that is vectorizable,
-                 non-dynamic and therefore less suitable for complicated functions is chosen. |@docend:pdf.integrate.options|
+                 non-dynamic and therefore less suitable for complicated functions is chosen.
+
+               Other options *may* be available in the future. |@docend:pdf.integrate.options|
             params: |@doc:model.args.params| Mapping of the parameter names to the actual
                values. The parameter names refer to the names of the parameters,
                typically :py:class:`~zfit.Parameter`, that
@@ -868,9 +828,12 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
             obs: Observables to project on. If not given, all observables that are not in `limits` are projected on.
             options: |@doc:pdf.integrate.options| Options for the integration.
                Additional options for the integration. Currently supported options are:
-               - type: one of (``bins``)
+
+               * type: one of (``bins``)
                  This hints that bins are integrated. A method that is vectorizable,
-                 non-dynamic and therefore less suitable for complicated functions is chosen. |@docend:pdf.integrate.options|
+                 non-dynamic and therefore less suitable for complicated functions is chosen.
+
+               Other options *may* be available in the future. |@docend:pdf.integrate.options|
             name: Name of the new PDF. If not given, it is created from the original name.
             label: Label of the new PDF. If not given, it is created from the original label.
             extended: If the new PDF should be extended. If not given, it is the same as the original PDF.

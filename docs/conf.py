@@ -1,25 +1,27 @@
 #!/usr/bin/env python
 
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2025 zfit
 
-#
-#
-# zfit documentation build configuration file, created by
-# sphinx-quickstart on Fri Jun  9 13:47:02 2017.
 from __future__ import annotations
 
 import atexit
+
+# disable gpu for TensorFlow
+import os
 import shutil
+import subprocess
 import sys
 from pathlib import Path
 
 import pygit2
 import yaml
 
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"  # disable GPU for TensorFlow
+
 import zfit
 
 project_dir = Path(__file__).parents[1]
-sys.path.insert(0, str(project_dir))
+# sys.path.insert(0, str(project_dir))
 
 # -- General configuration ---------------------------------------------
 
@@ -47,7 +49,6 @@ extensions = [
     "sphinx_copybutton",
     "sphinxcontrib.youtube",
     "sphinx_panels",
-    "seed_intersphinx_mapping",
     "myst_nb",
     "sphinx_togglebutton",
 ]
@@ -58,16 +59,14 @@ panels_add_bootstrap_css = False  # for sphinx_panel, use custom css from theme,
 # releases_document_name = "../CHANGELOG.rst"
 
 # nb_execution_mode = "force"  # use if needed and cache should be ignored
-nb_execution_mode = "cache"
+nb_execution_mode = "off"
+# nb_execution_mode = "cache"
 if nb_execution_mode == "cache":
     jupyter_cache_path = project_dir.joinpath("docs", ".cache", "myst-nb")
     jupyter_cache_path.mkdir(parents=True, exist_ok=True)
     nb_execution_cache_path = str(jupyter_cache_path)
 
-source_suffix = {
-    ".ipynb": "myst-nb",
-    ".myst": "myst-nb",
-}
+
 myst_enable_extensions = [
     "amsmath",
     "colon_fence",
@@ -76,8 +75,36 @@ myst_enable_extensions = [
     "html_image",
 ]
 
-bibtex_bibfiles = [str(project_dir.joinpath("docs", "refs.bib"))]
+bibtex_bibfiles = ["refs.bib"]  # str(project_dir.joinpath("docs", "refs.bib"))]
+bibtex_default_style = "plain"
 
+# run the generate_pdf_plots.py script to generate the pdf plots
+docsdir = project_dir / "docs"
+plotscript = docsdir / "utils" / "generate_pdf_plots.py"
+minimizerscript = docsdir / "utils" / "generate_minimizer_plots.py"
+plot_output_dir = docsdir / "_static" / "plots"
+plot_output_dir.mkdir(parents=True, exist_ok=True)
+
+
+def is_up_to_date(script, output_dir):
+    """Check if the output directory is up-to-date with the script."""
+    if not output_dir.exists() or not any(output_dir.iterdir()):
+        return False
+    script_mtime = script.stat().st_mtime
+    return all(file.stat().st_mtime >= script_mtime for file in output_dir.iterdir())
+
+
+plotrerun = True
+
+
+if (plotrerun and not is_up_to_date(plotscript, plot_output_dir)) or plotrerun == "force":
+    subprocess.run([sys.executable, str(plotscript)], check=True, stdout=subprocess.PIPE)
+
+minimizer_output_dir = docsdir / "_static" / "minimizer_plots"
+minimizer_output_dir.mkdir(parents=True, exist_ok=True)
+if (plotrerun and not is_up_to_date(minimizerscript, minimizer_output_dir)) or plotrerun == "force":
+    subprocess.run([sys.executable, str(minimizerscript)], check=True, stdout=subprocess.PIPE)
+# Temporarily disabled for faster build
 zfit_tutorials_path = project_dir.joinpath("docs", "_tmp", "zfit-tutorials")
 atexit.register(lambda path=zfit_tutorials_path: shutil.rmtree(path))
 pygit2.clone_repository("https://github.com/zfit/zfit-tutorials", zfit_tutorials_path)
@@ -87,8 +114,9 @@ pygit2.clone_repository("https://github.com/zfit/zfit-tutorials", zfit_tutorials
 # atexit.register(lambda path=zfit_physics_path: shutil.rmtree(path))
 # pygit2.clone_repository("https://github.com/zfit/zfit-physics", zfit_physics_path)
 
-zfit_images_path = project_dir.joinpath("docs", "images")
-docs_images_path = project_dir.joinpath("docs", "_static", "images")
+# Temporarily disabled for faster build
+zfit_images_path = docsdir / "images"
+docs_images_path = docsdir / "_static" / "images"
 atexit.register(lambda path=docs_images_path: shutil.rmtree(path))
 docs_images_path.mkdir(parents=True, exist_ok=True)
 shutil.copytree(zfit_images_path, docs_images_path, dirs_exist_ok=True)
@@ -100,7 +128,8 @@ templates_path = ["_templates"]
 
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
-source_suffix = ".rst"
+
+source_suffix = {".rst": "restructuredtext", ".ipynb": "myst-nb", ".myst": "myst-nb"}
 
 # The master toctree document.
 master_doc = "index"
@@ -129,17 +158,14 @@ language = "en"
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This patterns also effect to html_static_path and html_extra_path
-exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
+exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", ".cache", "README.md", "README.rst"]
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = "sphinx"
 
-# Automatically add substitutions to all RST files.
-with Path("subst_types.txt").open() as subst_types:
-    rst_epilog = subst_types.read()
 
 # add whitespaces to the internal commands. Maybe move to preprocessing?
-rst_epilog += """
+rst_epilog = """
 .. |wzw| unicode:: U+200B
    :trim:
 
@@ -156,6 +182,7 @@ for replacement_key in replacements:
 
 .. |@docend:{replacement_key}| replace:: |wzw|
 """
+print("replacements", replacements)
 with Path("hyperlinks.txt").open() as hyperlinks:
     rst_epilog += hyperlinks.read()
 
@@ -250,14 +277,18 @@ html_theme_options = {
     },
     "github_url": "https://github.com/zfit/zfit",
     "use_edit_page_button": True,
-    "navigation_depth": 3,
+    "navigation_depth": 2,
     "search_bar_text": "Search zfit...",
     "navigation_with_keys": True,
-    "search_bar_position": "sidebar",
+    # "search_bar_position": "sidebar",
     "icon_links": [{}],  # temporary fix for https://github.com/pydata/pydata-sphinx-theme/issues/1220
     # "repository_url": "https://github.com/zfit/zfit",  # adding jupyter book somehow?
     # "repository_branch": "develop",
     # "path_to_docs": "docs",
+    "collapse_navigation": True,
+    # "sticky_navigation": True,
+    # "navigation_depth": 4,
+    "header_links_before_dropdown": 7,
 }
 
 html_context = {
@@ -325,7 +356,8 @@ primary_domain = "py"
 # nitpick_ignore = [
 #     ("py:class", "tensorflow.keras.losses.Loss"),
 # ]
-# Example configuration for intersphinx: refer to the Python standard library.
+
+
 intersphinx_mapping = {
     # 'numdifftools': ('https://numdifftools.readthedocs.io/en/latest/index.html', None),
     "tensorflow": (
@@ -334,11 +366,12 @@ intersphinx_mapping = {
     ),
     "tensorflow_probability": (
         "https://www.tensorflow.org/probability/api_docs/python",
-        " https://raw.githubusercontent.com/GPflow/tensorflow-intersphinx/master/tfp_py_objects.inv",
+        "https://raw.githubusercontent.com/GPflow/tensorflow-intersphinx/master/tfp_py_objects.inv",
     ),
     "uproot": ("https://uproot.readthedocs.io/en/latest/", None),
     "python": ("https://docs.python.org/3", None),
     "matplotlib": ("https://matplotlib.org/stable/", None),
     "pandas": ("https://pandas.pydata.org/docs/", None),
     "numpy": ("https://numpy.org/doc/stable/", None),
+    "scipy": ("https://docs.scipy.org/doc/scipy/", None),
 }
