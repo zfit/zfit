@@ -97,6 +97,7 @@ test = [
     # helpers
     "pyyaml",
     "matplotlib",
+    "mplhep",
 
     # all aspects of zfit
     "zfit[all]",
