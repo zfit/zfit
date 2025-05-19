@@ -1206,7 +1206,7 @@ class FitResult(ZfitResult):
                     - `asymptotic`: the covariance matrix is corrected by the asymptotic formula
                       for the weighted likelihood. This is the default, yet computationally most
                       expensive method.
-                    - `effsize`: the covariance matrix is corrected by the effective sample size.
+                    - `sumw2`: the covariance matrix is corrected by the effective sample size.
                       This is the fastest method but won't yield asymptotically correct results.
 
                    This is not (yet) guaranteed to fully work for binned fits and maybe under/over
@@ -1448,7 +1448,7 @@ class FitResult(ZfitResult):
                     - `asymptotic`: the covariance matrix is corrected by the asymptotic formula
                       for the weighted likelihood. This is the default, yet computationally most
                       expensive method.
-                    - `effsize`: the covariance matrix is corrected by the effective sample size.
+                    - `sumw2`: the covariance matrix is corrected by the effective sample size.
                       This is the fastest method but won't yield asymptotically correct results.
 
                    This is not (yet) guaranteed to fully work for binned fits and maybe under/over

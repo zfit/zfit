@@ -267,6 +267,10 @@ class Data(
 
     @property
     def samplesize(self) -> float:
+        """Effective sample size, sum of weights.
+
+        To get the number of entries, use `nentries` instead.
+        """
         samplesize = znp.sum(self.weights) if self.has_weights else self.num_entries
         return znp.asarray(samplesize, dtype=ztypes.float)
 

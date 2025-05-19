@@ -10,9 +10,11 @@ Develop
 
 Major Features and Improvements
 -------------------------------
+- asymptotic uncertainties for weighted fits have been optimized and fixed, working for yields and constraints correctly
 
 Breaking changes
 ------------------
+- renamed ``effsize`` weight corretion to actual ``sumw2``
 
 
 Deprecations
@@ -41,7 +43,7 @@ Major Features and Improvements
 -------------------------------
 - New weighted corrections for Hesse uncertainty calculation. The corrections are now selectable by specifying
   ``weighcorr=...``, allowing for (currently) three values: ``"asymptotic"`` (current, and default), ``False`` (no correction),
-  and ``"effsize"`` (new correction). effsize scales the uncertainties by the "effective size" of the dataset, a significantly
+  and ``"sumw2"`` (new correction). sumw2 scales the uncertainties by the "effective size" of the dataset, a significantly
   faster, yet not asymptotically correct method. Useful for a quick estimate of the uncertainties.
 
 
