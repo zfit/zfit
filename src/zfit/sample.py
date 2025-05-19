@@ -13,8 +13,8 @@ import tensorflow as tf
 
 from zfit import z
 from zfit.core.interfaces import ZfitPDF
-from zfit.util.exception import NotExtendedPDFError
 from zfit.util import ztyping
+from zfit.util.exception import NotExtendedPDFError
 from zfit.z.random import counts_multinomial, sample_with_replacement
 
 from .util.container import convert_to_container

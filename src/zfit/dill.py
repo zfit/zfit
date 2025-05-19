@@ -212,7 +212,9 @@ def dump(
     return out
 
 
-def __retry_with_graphclear(func: typing.Callable, kwargs: dict, max_retries: int, _file_to_reset: io.IOBase | None = None) -> typing.Any:
+def __retry_with_graphclear(
+    func: typing.Callable, kwargs: dict, max_retries: int, _file_to_reset: io.IOBase | None = None
+) -> typing.Any:
     original_error = None
 
     # make sure to reset the file to the initial position after an error was raised

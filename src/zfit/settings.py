@@ -15,7 +15,12 @@ from .util.execution import RunManager
 run = RunManager()
 
 
-def set_seed(seed: int | None = None, numpy: int | bool | None = None, backend: int | bool | None = None, zfit: int | bool | None = None) -> dict[str, int | None]:
+def set_seed(
+    seed: int | None = None,
+    numpy: int | bool | None = None,
+    backend: int | bool | None = None,
+    zfit: int | bool | None = None,
+) -> dict[str, int | None]:
     """Set random seed for zfit, numpy and the backend. If seed is given, this is used to generate deterministic seeds
     for numpy, zfit and the backend.
 

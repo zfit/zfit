@@ -9,7 +9,6 @@ if typing.TYPE_CHECKING:
 
 from collections.abc import Iterable
 from functools import wraps
-from typing import Any
 
 import tensorflow as tf
 import tensorflow_probability as tfp
@@ -107,7 +106,9 @@ def counts_multinomial(
 
 
 @function(wraps="tensor")
-def _wrapped_multinomial_func(dtype: tf.DType, logits: tf.Tensor | None, probs: tf.Tensor | None, total_count: tf.Tensor) -> tf.Tensor:
+def _wrapped_multinomial_func(
+    dtype: tf.DType, logits: tf.Tensor | None, probs: tf.Tensor | None, total_count: tf.Tensor
+) -> tf.Tensor:
     if probs is not None:
         shape = tf.shape(probs)
         probs = _znp.reshape(probs, [-1])
@@ -121,12 +122,24 @@ def _wrapped_multinomial_func(dtype: tf.DType, logits: tf.Tensor | None, probs: 
 
 
 @wraps(tf.random.normal)
-def normal(shape: tuple[int, ...] | list[int] | int, mean: float = 0.0, stddev: float = 1.0, dtype: tf.DType = ztypes.float, name: str | None = None) -> tf.Tensor:
+def normal(
+    shape: tuple[int, ...] | list[int] | int,
+    mean: float = 0.0,
+    stddev: float = 1.0,
+    dtype: tf.DType = ztypes.float,
+    name: str | None = None,
+) -> tf.Tensor:
     return get_prng().normal(shape=shape, mean=mean, stddev=stddev, dtype=dtype, name=name)
 
 
 @wraps(tf.random.uniform)
-def uniform(shape: tuple[int, ...] | list[int] | int, minval: float | int = 0, maxval: float | int | None = None, dtype: tf.DType = ztypes.float, name: str | None = None) -> tf.Tensor:
+def uniform(
+    shape: tuple[int, ...] | list[int] | int,
+    minval: float | int = 0,
+    maxval: float | int | None = None,
+    dtype: tf.DType = ztypes.float,
+    name: str | None = None,
+) -> tf.Tensor:
     return get_prng().uniform(shape=shape, minval=minval, maxval=maxval, dtype=dtype, name=name)
 
 
