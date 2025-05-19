@@ -37,19 +37,19 @@ RESERVED_NAMES = {"null", "true", "false", "yes", "no", "on", "off"}
 valid_name_regex = r"^[a-zA-Z0-9_\-\.]+$"
 
 
-def validate_preprocess_name(name: str) -> bool:
+def validate_preprocess_name(name: str) -> str:
     """
     Validates if a string is suitable as a YAML name/key.
-    Raises specific InvalidYamlNameError with detailed message if invalid.
+    Returns the validated name if valid, otherwise raises an InvalidNameError.
 
     Args:
-        name: The string to validate
+        name: The string to validate.
 
     Returns:
-        True if the name is valid
+        The validated name (str).
 
     Raises:
-        InvalidYamlNameError: With a specific message explaining why the name is invalid
+        InvalidNameError: With a specific message explaining why the name is invalid.
     """
     from zfit.exception import InvalidNameError
 
