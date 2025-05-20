@@ -1,11 +1,13 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2025 zfit
 
 import pytest
 
 try:
     import ROOT
+    from ROOT import RooFit
 except ImportError:
     pytest.skip("ROOT not installed", allow_module_level=True)
+
 
 import zfit
 from zfit.loss import UnbinnedNLL
@@ -21,9 +23,7 @@ def toy_data():
     fraction = ROOT.RooRealVar("fraction", "fraction", 0.5, 0, 1)
     gauss = ROOT.RooGaussian("gauss", "Gaussian", x, mean, sigma)
     expo = ROOT.RooExponential("expo", "Exponential", x, ROOT.RooFit.RooConst(-0.3))
-    model = ROOT.RooAddPdf(
-        "model", "Model", ROOT.RooArgList(gauss, expo), ROOT.RooArgList(fraction)
-    )
+    model = ROOT.RooAddPdf("model", "Model", ROOT.RooArgList(gauss, expo), ROOT.RooArgList(fraction))
     data = model.generate(ROOT.RooArgSet(x), 100000)
     return data
 
@@ -36,9 +36,7 @@ def test_roofit_vs_zfit(toy_data):
     fraction = ROOT.RooRealVar("fraction", "fraction", 0.5, 0, 1)
     gauss = ROOT.RooGaussian("gauss", "Gaussian", x, mean, sigma)
     expo = ROOT.RooExponential("expo", "Exponential", x, ROOT.RooFit.RooConst(-0.3))
-    model = ROOT.RooAddPdf(
-        "model", "Model", ROOT.RooArgList(gauss, expo), ROOT.RooArgList(fraction)
-    )
+    model = ROOT.RooAddPdf("model", "Model", ROOT.RooArgList(gauss, expo), ROOT.RooArgList(fraction))
     roofit_result = model.fitTo(toy_data, ROOT.RooFit.Save(True), ROOT.RooFit.Hesse())
     # run hesse
 
@@ -59,26 +57,10 @@ def test_roofit_vs_zfit(toy_data):
 
     # Compare uncertainties
     mean_unc = zfit_result.params[mean]["hesse"]["error"]
-    assert (
-        pytest.approx(roofit_result.floatParsFinal().find("mean").getError(), rel=0.05)
-        == mean_unc
-    )
+    assert pytest.approx(roofit_result.floatParsFinal().find("mean").getError(), rel=0.05) == mean_unc
     sigma_unc = zfit_result.params[sigma]["hesse"]["error"]
-    assert (
-        pytest.approx(roofit_result.floatParsFinal().find("sigma").getError(), rel=0.15)
-        == sigma_unc
-    )
+    assert pytest.approx(roofit_result.floatParsFinal().find("sigma").getError(), rel=0.15) == sigma_unc
     # Compare results
     assert pytest.approx(roofit_result.minNll(), rel=1e-3) == zfit_result.fminopt
-    assert (
-        pytest.approx(
-            roofit_result.floatParsFinal().find("mean").getVal(), abs=3 * mean_unc
-        )
-        == mean.value()
-    )
-    assert (
-        pytest.approx(
-            roofit_result.floatParsFinal().find("sigma").getVal(), abs=3 * sigma_unc
-        )
-        == sigma.value()
-    )
+    assert pytest.approx(roofit_result.floatParsFinal().find("mean").getVal(), abs=3 * mean_unc) == mean.value()
+    assert pytest.approx(roofit_result.floatParsFinal().find("sigma").getVal(), abs=3 * sigma_unc) == sigma.value()

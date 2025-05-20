@@ -11,6 +11,8 @@ if typing.TYPE_CHECKING:
 
 import contextlib
 import itertools
+import re
+import warnings
 from collections import Counter
 from collections.abc import Iterable, Mapping
 from typing import Union
@@ -31,11 +33,74 @@ from .interfaces import (
     ZfitParametrized,
 )
 
+RESERVED_NAMES = {"null", "true", "false", "yes", "no", "on", "off"}
+valid_name_regex = r"^[a-zA-Z0-9_\-\.]+$"
+
+
+def validate_preprocess_name(name: str) -> str:
+    """
+    Validates if a string is suitable as a YAML name/key.
+    Returns the validated name if valid, otherwise raises an InvalidNameError.
+
+    Args:
+        name: The string to validate.
+
+    Returns:
+        The validated name (str).
+
+    Raises:
+        InvalidNameError: With a specific message explaining why the name is invalid.
+    """
+    from zfit.exception import InvalidNameError
+
+    arbitrary_name_message = "To use arbitrary characters in the name, for a human readable lable, use `label` instead."
+
+    try:
+        # Check for empty string
+        if not name:
+            msg = f"Name cannot be empty, is {name}"
+            raise InvalidNameError(msg)
+
+        # Check character set
+
+        if not re.match(valid_name_regex, name):
+            invalid_chars = [c for c in name if not re.match(r"[a-zA-Z0-9_\-\.]", c)]
+            raise InvalidNameError(
+                f"Name contains invalid characters: {', '.join(repr(c) for c in invalid_chars)}. "
+                + arbitrary_name_message
+            )
+
+        # Check for names starting with problematic characters
+        if name.startswith("-"):
+            raise InvalidNameError(
+                "Name cannot start with '-' as it may be interpreted as a list item." + arbitrary_name_message
+            )
+
+        if name.startswith("."):
+            raise InvalidNameError(
+                "Name cannot start with '.' as it may cause parsing ambiguity." + arbitrary_name_message
+            )
+
+        # Check for YAML reserved words
+
+        if name.lower() in RESERVED_NAMES:
+            raise InvalidNameError(
+                f"'{name}' is a reserved word in zfit and cannot be used as a name. Reserved words include: {', '.join(RESERVED_NAMES)}"
+                + arbitrary_name_message
+            )
+    except InvalidNameError as e:
+        warning_msg = f"{e}. In the future, this will be an ERROR, change code accordingly."
+        warnings.warn(warning_msg, DeprecationWarning, stacklevel=3)
+
+    # If we've passed all checks, return True
+    return name
+
 
 class BaseObject(ZfitObject):
     def __init__(self, name, **kwargs):
         assert not kwargs, f"kwargs not empty, the following arguments are not captured: {kwargs}"
         super().__init__()
+        name = validate_preprocess_name(name)
 
         self._name = name  # TODO: uniquify name?
 
