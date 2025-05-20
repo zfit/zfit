@@ -42,9 +42,9 @@ jobs:
             exit 0
           fi
           
-          # Check if @fullci is in the commit message
+          # Check if [full ci] or similar is in the commit message
           COMMIT_MSG=$(git log -1 --pretty=%B)
-          if [[ "$COMMIT_MSG" == *"@fullci"* ]]; then
+          if [[ "$COMMIT_MSG" == *"[full ci]"* || "$COMMIT_MSG" == *"[ci full]"* || "$COMMIT_MSG" == *"[cifull]"* || "$COMMIT_MSG" == *"[fullci]"* ]]; then
             echo "run-full-ci=true" >> $GITHUB_OUTPUT
             echo "Running full CI because @fullci was found in the commit message"
             exit 0
@@ -58,7 +58,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Full set run
-        run: exit ${{ needs.check-ci-scope.outputs.run-full-ci }}
+        run: |
+          if ${{ needs.check-ci-scope.outputs.run-full-ci }};
+               exit 0
+          else
+               echo "Only limited set of CI and tests will be run. To run the full set, please add [full ci] to the commit message.";
+               echo "Note that the whole set is run by default on main, develop, and release branches.";
+               exit 1
+          fi
 
   unittests:
     needs: check-ci-scope
@@ -184,7 +191,7 @@ jobs:
       fail-fast: False
       matrix:
         use-graph: [ 1 ]
-        python-version: [ "3.9"]
+        python-version: [ "3.9" ]
         run: [ true ]
         extras: [ all ]
         include:
@@ -234,7 +241,7 @@ jobs:
       fail-fast: False
       matrix:
         use-graph: [ 1 ]
-        python-version: [ "3.9"]
+        python-version: [ "3.9" ]
         run: [ true ]
         include:
           - python-version: "3.12"
