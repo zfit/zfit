@@ -229,7 +229,7 @@ jobs:
       - name: Run notebooks
         if: ${{ matrix.run }}
         run: |
-          pytest --nbval-lax zfit-tutorials --dist loadscope --ignore=zfit-tutorials/experimental --ignore=zfit-tutorials/_unused --ignore=zfit-tutorials/_website -n${{ steps.cpu-cores.outputs.count }}
+          pytest --nbval-lax zfit-tutorials --dist loadscope --ignore=zfit-tutorials/experimental --ignore=zfit-tutorials/_unused --ignore=zfit-tutorials/_website -n auto
 
   examples:
     needs: check-ci-scope
