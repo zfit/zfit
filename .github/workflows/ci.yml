@@ -209,7 +209,6 @@ jobs:
     env:
       ZFIT_DO_JIT: ${{ matrix.use-graph }}
     steps:
-      -
       - uses: actions/checkout@v4
         if: ${{ matrix.run }}
       - name: Get history and tags for SCM versioning to work
