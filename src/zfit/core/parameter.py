@@ -185,8 +185,8 @@ class WrappedVariable(metaclass=MetaBaseParameter):
     def value(self):
         return self.variable.value()
 
-    def read_value(self):  # keep! Needed by TF internally
-        return self.variable.read_value()
+    # def read_value(self):  # keep! Needed by TF internally
+    #     return self.variable.read_value()
 
     @property
     def shape(self):
@@ -519,9 +519,9 @@ class Parameter(
             )
         return value
 
-    @deprecated(None, "Use `value` instead.")
-    def read_value(self):
-        return self.value()
+    # @deprecated(None, "Use `value` instead.")
+    # def read_value(self):
+    #     return self.value()
 
     @property
     def floating(self):
@@ -865,9 +865,9 @@ class BaseComposedParameter(ZfitParameterMixin, OverloadableMixin, BaseParameter
 
         # return tf.convert_to_tensor(value, dtype=self.dtype)
 
-    @deprecated(None, "Use `value` instead.")
-    def read_value(self):  # keep! Needed by TF internally
-        return self.value()
+    # @deprecated(None, "Use `value` instead.")
+    # def read_value(self):  # keep! Needed by TF internally
+    #     return self.value()
 
     @property
     def shape(self):
@@ -937,9 +937,9 @@ class ConstantParameter(OverloadableMixin, ZfitParameterMixin, BaseParameter, Se
     def value(self) -> tf.Tensor:
         return self._value
 
-    @deprecated(None, "Use `value` instead.")
-    def read_value(self) -> tf.Tensor:  # keep! Needed by TF internally
-        return self.value()
+    # @deprecated(None, "Use `value` instead.")
+    # def read_value(self) -> tf.Tensor:  # keep! Needed by TF internally
+    #     return self.value()
 
     @property
     def floating(self):

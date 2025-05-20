@@ -710,9 +710,9 @@ class ZfitParameter(ZfitNumericParametrized):
     def value(self) -> tf.Tensor:
         raise NotImplementedError
 
-    @abstractmethod
-    def read_value(self) -> tf.Tensor:
-        raise NotImplementedError
+    # @abstractmethod
+    # def read_value(self) -> tf.Tensor:
+    #     raise NotImplementedError
 
     @property
     @abstractmethod
