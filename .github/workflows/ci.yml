@@ -53,6 +53,12 @@ jobs:
           # Otherwise, run limited CI
           echo "run-full-ci=false" >> $GITHUB_OUTPUT
           echo "Running limited CI"
+  full-checks-run:
+    needs: check-ci-scope
+    runs-on: ubuntu-latest
+    steps:
+      - name: Full set run
+        run: exit ${{ needs.check-ci-scope.outputs.run-full-ci }}
 
   unittests:
     needs: check-ci-scope
@@ -100,26 +106,12 @@ jobs:
             extras: test
             run: ${{ needs.check-ci-scope.outputs.run-full-ci == 'true' }}
     steps:
-      #      - name: Check if this configuration should run
-      #        run: |
-      #          RUN_FULL_CI="${{ needs.check-ci-scope.outputs.run-full-ci }}"
-      #          if [ "$RUN_FULL_CI" != "true" ]; then
-      #            # For limited CI, only run with Python 3.9, graph=1, and Ubuntu
-      #            if [ "${{ matrix.python-version }}" != "3.9" ] || [ "${{ matrix.use-graph }}" != "1" ] || [ "${{ matrix.os }}" != "ubuntu-latest" ]; then
-      #              echo "Skipping this configuration for limited CI"
-      #              exit 0
-      #            fi
-      #          fi
-      #          echo "Running this configuration"
-      - name: Get number of CPU cores
-        uses: SimenB/github-actions-cpu-cores@v2
-        id: cpu-cores
       - uses: actions/checkout@v4
       - name: Get history and tags for SCM versioning to work
         run: |
           git fetch --prune --unshallow
           git fetch --depth=1 origin +refs/tags/*:refs/tags/*
-      # do not install ROOT on windows
+      # do not install ROOT on windows, fails
       - uses: mamba-org/setup-micromamba@v2
         if: runner.os != 'Windows'
         with:
