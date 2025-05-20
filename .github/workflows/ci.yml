@@ -286,7 +286,8 @@ jobs:
         run: |
           BASEDIR=$(dirname "$0")
           fail=0
-          for file in ${BASEDIR}/../../work/zfit/examples/*.py; do
+          ls -l ${BASEDIR}/../zfit/examples/*.py
+          for file in ${BASEDIR}/../zfit/examples/*.py; do
             echo "----------------------------------------------------------------------------------------------"
             echo "Running example: $file"
             echo "----------------------------------------------------------------------------------------------"
