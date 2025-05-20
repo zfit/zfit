@@ -209,21 +209,27 @@ jobs:
     env:
       ZFIT_DO_JIT: ${{ matrix.use-graph }}
     steps:
+      -
       - uses: actions/checkout@v4
+        if: ${{ matrix.run }}
       - name: Get history and tags for SCM versioning to work
+        if: ${{ matrix.run }}
         run: |
           git fetch --prune --unshallow
           git fetch --depth=1 origin +refs/tags/*:refs/tags/*
       - uses: mamba-org/setup-micromamba@v2
+        if: ${{ matrix.run }}
         with:
           environment-name: zfit
           create-args: >-
             python=${{ matrix.python-version }}
             uv
       - name: Clone Tutorials
+        if: ${{ matrix.run }}
         run: |
           git clone https://github.com/zfit/zfit-tutorials.git
       - name: Install dependencies
+        if: ${{ matrix.run }}
         run: |
           uv pip install -U .[${{ matrix.extras }}] -r zfit-tutorials/requirements.txt nbval pytest-helpers-namespace pytest-xdist
       - name: Run notebooks
@@ -259,7 +265,9 @@ jobs:
       ZFIT_DO_JIT: ${{ matrix.use-graph }}
     steps:
       - uses: actions/checkout@v4
+        if: ${{ matrix.run }}
       - name: Get history and tags for SCM versioning to work
+        if: ${{ matrix.run }}
         run: |
           git fetch --prune --unshallow
           git fetch --depth=1 origin +refs/tags/*:refs/tags/*
@@ -279,9 +287,7 @@ jobs:
         run: |
           BASEDIR=$(dirname "$0")
           fail=0
-          ls -l ${BASEDIR}/../..
-          ls -l ${BASEDIR}/../../*
-          for file in ${BASEDIR}/zfit/examples/*.py; do
+          for file in ${BASEDIR}/../../work/zfit/examples/*.py; do
             echo "----------------------------------------------------------------------------------------------"
             echo "Running example: $file"
             echo "----------------------------------------------------------------------------------------------"
