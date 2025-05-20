@@ -138,6 +138,8 @@ jobs:
         run: |
           uv pip install coverage-lcov pytest-xdist pytest-cov
           uv pip install .[${{ matrix.extras }}]
+      - name: Check imports
+        run: python -c "import zfit; from zfit import *"
       - name: Test with pytest
         if: ${{ matrix.run }}
         run: |
@@ -262,22 +264,23 @@ jobs:
           git fetch --prune --unshallow
           git fetch --depth=1 origin +refs/tags/*:refs/tags/*
       - uses: mamba-org/setup-micromamba@v2
+        if: ${{ matrix.run }}
         with:
           environment-name: zfit
           create-args: >-
             python=${{ matrix.python-version }}
             uv
       - name: Install dependencies
+        if: ${{ matrix.run }}
         run: |
           uv pip install .[${{ matrix.extras }}]
       - name: Run examples
+        if: ${{ matrix.run }}
         run: |
-          if ${{ ! matrix.run }}; then
-            echo "Skipping examples, not full CI run"
-            exit 0
-          fi
           BASEDIR=$(dirname "$0")
           fail=0
+          ls -l ${BASEDIR}
+          ls -l ${BASEDIR}/*
           for file in ${BASEDIR}/zfit/examples/*.py; do
             echo "----------------------------------------------------------------------------------------------"
             echo "Running example: $file"
