@@ -272,16 +272,20 @@ jobs:
           uv pip install .[${{ matrix.extras }}]
       - name: Run examples
         run: |
-          BASEDIR=$( dirname -- "$0"; )
+          if ${{ ! matrix.run }}; then
+            echo "Skipping examples, not full CI run"
+            exit 0
+          fi
+          BASEDIR=$(dirname "$0")
           fail=0
-          for file in ${BASEDIR}/../../examples/*.py; do
-          echo "----------------------------------------------------------------------------------------------"
-          echo "Running example: $file"
-          echo "----------------------------------------------------------------------------------------------"
-          python "$file" || { fail=$((fail+1)) && echo "Failed running example: $file"; }
-          echo "----------------------------------------------------------------------------------------------"
-          echo "Finished example: $file"
-          echo "----------------------------------------------------------------------------------------------"
+          for file in ${BASEDIR}/zfit/examples/*.py; do
+            echo "----------------------------------------------------------------------------------------------"
+            echo "Running example: $file"
+            echo "----------------------------------------------------------------------------------------------"
+            python "$file" || { fail=$((fail+1)) && echo "Failed running example: $file"; }
+            echo "----------------------------------------------------------------------------------------------"
+            echo "Finished example: $file"
+            echo "----------------------------------------------------------------------------------------------"
           done
             if [ $fail -ne 0 ]; then
                 echo "Some examples failed"
