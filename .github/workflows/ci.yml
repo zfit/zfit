@@ -23,84 +23,62 @@ on:
       - "doc/*"
 
 jobs:
-  check-run-type:
-    runs-on: ubuntu-latest
-    outputs:
-      run-full-ci: ${{ github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/heads/release/') || contains(github.event.head_commit.message, '@fullci') }}
-    steps:
-      - name: Check run type
-        run: |
-          if [[ "${{ github.ref }}" == "refs/heads/main" || "${{ github.ref }}" == "refs/heads/develop" || "${{ github.ref }}" == "refs/heads/release/*" || "${{ contains(github.event.head_commit.message, '@fullci') }}" == "true" ]]; then
-            echo "Running full CI pipeline"
-            echo "run-full-ci=true" >> $GITHUB_OUTPUT
-          else
-            echo "Running reduced CI pipeline" 
-            echo "run-full-ci=false" >> $GITHUB_OUTPUT
-          fi
-
   unittests:
-    needs: check-run-type
     runs-on: ${{ matrix.os }}
     defaults:
       run:
         shell: bash -el {0}
-    timeout-minutes: 200
+    timeout-minutes: 200 # for eager mode
+    name: tests on ${{ matrix.os }} with ${{ matrix.python-version }} compiled = ${{ matrix.use-graph }}
+    env:
+      ZFIT_DO_JIT: ${{ matrix.use-graph }}
     strategy:
+      max-parallel: 15
+      fail-fast: False
       matrix:
+        use-graph: [ 1 ]
+        python-version: [ "3.9", "3.12" ]  # omit "3.10", "3.11" to save compute time
+        os: [ ubuntu-latest ]
+        #        os: [ self-hosted ]
+        extras: [ test ]
         include:
-          # Always included configuration (reduced CI)
-          - os: ubuntu-latest
-            extras: test
-            python-version: "3.9"
-            use-graph: 1
-          # Configurations for full CI only
-          - os: ubuntu-latest
-            extras: test
-            python-version: "3.12"
-            use-graph: 1
-            full-ci-only: true
           - os: ubuntu-latest
             extras: test
             python-version: "3.12"
             use-graph: 0
-            full-ci-only: true
           - os: macos-latest
             python-version: "3.12"
             use-graph: 1
             extras: test
-            full-ci-only: true
           - os: windows-latest
             python-version: "3.12"
             use-graph: 1
             extras: test
-            full-ci-only: true
-          - os: macos-14
+          - os: macos-14  # Apple silicon runner
             python-version: '3.12'
             use-graph: 1
             extras: test
-            full-ci-only: true
-    if: ${{ needs.check-run-type.outputs.run-full-ci == 'true' || !matrix.full-ci-only }}
-    env:
-      ZFIT_DO_JIT: ${{ matrix.use-graph }}
+
     steps:
-      - name: Get CPU cores
+      - name: Get number of CPU cores
         uses: SimenB/github-actions-cpu-cores@v2
         id: cpu-cores
       - uses: actions/checkout@v4
-      - name: Get history and tags
+      - name: Get history and tags for SCM versioning to work
         run: |
           git fetch --prune --unshallow
           git fetch --depth=1 origin +refs/tags/*:refs/tags/*
+      # do not install ROOT on windows
       - uses: mamba-org/setup-micromamba@v2
-        if: runner.os != 'Windows'
+        if: runner.os != 'Windows' && matrix.python-version != '3.12'  # root not yet available in 3.12
         with:
-          environment-name: zfit
+          environment-name: zfit  # newer ROOT versions segfault
           create-args: >-
             python=${{ matrix.python-version }}
             uv
             root
       - uses: mamba-org/setup-micromamba@v2
-        if: runner.os == 'Windows'
+        if: runner.os == 'Windows' || matrix.python-version == '3.12'
         with:
           environment-name: zfit
           create-args: >-
@@ -112,7 +90,6 @@ jobs:
           uv pip install .[${{ matrix.extras }}]
       - name: Test with pytest
         run: |
-          echo "PYTEST_ADDOPTS=--longtests-kde --longtests" >> "$GITHUB_ENV"
           pytest --cov=. --cov-config=pyproject.toml -n auto --cov-report=xml --cov-report=term-missing
 
   #          pytest --cov=. --cov-config=pyproject.toml -n auto --cov-report=xml --cov-report=term-missing  # logical number of cpus, falls back to auto
@@ -130,7 +107,6 @@ jobs:
   #          flag-name: run-${{ matrix.use-graph }}-${{ matrix.python-version }}-ubuntu
   #          parallel: true
   docs:
-    needs: check-run-type
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -139,12 +115,14 @@ jobs:
     strategy:
       matrix:
         python-version: [ "3.9" ]
+    name: Testbuild docs
     steps:
       - uses: actions/checkout@v4
-      - name: Get history and tags
+      - name: Get history and tags for SCM versioning to work
         run: |
           git fetch --prune --unshallow
           git fetch --depth=1 origin +refs/tags/*:refs/tags/*
+
       - uses: mamba-org/setup-micromamba@v2
         with:
           environment-name: zfit
@@ -152,46 +130,41 @@ jobs:
             python=${{ matrix.python-version }}
             uv
             root
+
+
       - name: Install dependencies
         run: |
           uv pip install .[docs]
-      - name: Build docs
+      - name: Build the docs, check for failure
         run: |
           bash utils/ci/testbuild_docs.sh
 
   tutorials:
-    needs: check-run-type
     runs-on: ubuntu-latest
     defaults:
       run:
         shell: bash -el {0}
-    timeout-minutes: 150
+    timeout-minutes: 150  # eager mode takes some time
     strategy:
+      max-parallel: 8
+      fail-fast: False
       matrix:
+        use-graph: [ 1 ]
+        python-version: [ "3.9", "3.12" ]
         include:
-          - os: ubuntu-latest
-            extras: all
-            python-version: "3.9"
-            use-graph: 1
-          - os: ubuntu-latest
-            extras: all
-            python-version: "3.12"
-            use-graph: 1
-            full-ci-only: true
           - os: ubuntu-latest
             extras: all
             python-version: "3.12"
             use-graph: 0
-            full-ci-only: true
-    if: ${{ needs.check-run-type.outputs.run-full-ci == 'true' || !matrix.full-ci-only }}
+    name: Run tutorials, Python ${{ matrix.python-version }}, compiled = ${{ matrix.use-graph }}
     env:
       ZFIT_DO_JIT: ${{ matrix.use-graph }}
     steps:
-      - name: Get CPU cores
+      - name: Get number of CPU cores
         uses: SimenB/github-actions-cpu-cores@v2
         id: cpu-cores
       - uses: actions/checkout@v4
-      - name: Get history and tags
+      - name: Get history and tags for SCM versioning to work
         run: |
           git fetch --prune --unshallow
           git fetch --depth=1 origin +refs/tags/*:refs/tags/*
@@ -201,50 +174,44 @@ jobs:
           create-args: >-
             python=${{ matrix.python-version }}
             uv
-#            root
+      #            root
 
       - name: Clone Tutorials
         run: |
           git clone https://github.com/zfit/zfit-tutorials.git
+
       - name: Install dependencies
         run: |
           uv pip install nbval pytest-helpers-namespace pytest-xdist
           uv pip install -U .[all]
           uv pip install -r zfit-tutorials/requirements.txt
+
       - name: Run notebooks
         run: |
           pytest --nbval-lax zfit-tutorials --dist loadscope --ignore=zfit-tutorials/experimental --ignore=zfit-tutorials/_unused --ignore=zfit-tutorials/_website -n${{ steps.cpu-cores.outputs.count }}
-
   examples:
-    needs: check-run-type
     runs-on: ubuntu-latest
     defaults:
       run:
         shell: bash -el {0}
     timeout-minutes: 120
     strategy:
+      max-parallel: 8
+      fail-fast: False
       matrix:
+        use-graph: [ 1 ]
+        python-version: [ "3.9", "3.12" ]
         include:
-          - os: ubuntu-latest
-            extras: all
-            python-version: "3.9"
-            use-graph: 1
-          - os: ubuntu-latest
-            extras: all
-            python-version: "3.12"
-            use-graph: 1
-            full-ci-only: true
           - os: ubuntu-latest
             extras: all
             python-version: "3.12"
             use-graph: 0
-            full-ci-only: true
-    if: ${{ needs.check-run-type.outputs.run-full-ci == 'true' || !matrix.full-ci-only }}
+    name: Run examples, Python ${{ matrix.python-version }}, compiled = ${{ matrix.use-graph }}
     env:
       ZFIT_DO_JIT: ${{ matrix.use-graph }}
     steps:
       - uses: actions/checkout@v4
-      - name: Get history and tags
+      - name: Get history and tags for SCM versioning to work
         run: |
           git fetch --prune --unshallow
           git fetch --depth=1 origin +refs/tags/*:refs/tags/*
@@ -254,22 +221,27 @@ jobs:
           create-args: >-
             python=${{ matrix.python-version }}
             uv
+      #            root  # Working, non-segfaulting version, not available in 3.12
       - name: Install dependencies
         run: |
           uv pip install .[all]
+
       - name: Run examples
         run: |
           BASEDIR=$( dirname -- "$0"; )
           fail=0
           for file in ${BASEDIR}/../../examples/*.py; do
-            echo "Running example: $file"
-            python "$file" || { fail=$((fail+1)) && echo "Failed running example: $file"; }
-            echo "Finished example: $file"
+          echo "----------------------------------------------------------------------------------------------"
+          echo "Running example: $file"
+          echo "----------------------------------------------------------------------------------------------"
+          python "$file" || { fail=$((fail+1)) && echo "Failed running example: $file"; }
+          echo "----------------------------------------------------------------------------------------------"
+          echo "Finished example: $file"
+          echo "----------------------------------------------------------------------------------------------"
           done
 
   finish:
-    needs: [ check-run-type, unittests ]
-    if: always()
+    needs: unittests
     runs-on: ubuntu-latest
     steps:
       - name: Coveralls Finished
