@@ -34,9 +34,9 @@ Minuit
 
 Minuit is a longstanding and well proven algorithm of the BFG class implemented in iminuit.
 The `iminuit <https://iminuit.readthedocs.io/en/stable/>`_ package is a fast, time-proven
-minimizer based on the Minuit2 C++ library; the latter is
-maintained by CERN's ROOT team. It is an especially robust minimizer that finds the global minimum
-quiet reliably. It is however, like all local minimizers, still rather dependent on close enough
+minimizer based on the Minuit2 C++ library. It is an especially robust minimizer that finds the local minimum
+quiet reliably for complicated fits. For large fits with hundreds of parameters, other alternatives are generally more performant.
+It is however, like all local minimizers, still rather dependent on close enough
 initial values.
 
 .. image:: ../../images/_generated/minimizers/minuit_paths.gif
