@@ -278,7 +278,7 @@ jobs:
       - name: Install dependencies
         if: ${{ matrix.run }}
         run: |
-          uv pip install .[all]
+          uv pip install .[all] mplhep  # for example plots
       - name: Run examples
         if: ${{ matrix.run }}
         run: |
