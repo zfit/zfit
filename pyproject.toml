@@ -82,8 +82,8 @@ uproot = ["awkward-pandas"]
 all = [
     "zfit[uproot]",
     "zfit[hs3]",
-    "ipyopt>=0.12 ; sys_platform == 'linux'",
-    "nlopt>=2.7.1 ; sys_platform == 'linux' or sys_platform == 'darwin' and platform_machine != 'arm64' or sys_platform == 'win32'",
+    "zfit[ipyopt] ; sys_platform == 'linux'",
+    "zfit[nlopt] ; sys_platform == 'linux' or sys_platform == 'darwin' and platform_machine != 'arm64' or sys_platform == 'win32'",
 ]
 
 test = [

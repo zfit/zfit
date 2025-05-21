@@ -253,11 +253,9 @@ jobs:
         include:
           - python-version: "3.12"
             use-graph: 1
-            extras: all
             run: ${{ needs.check-ci-scope.outputs.run-full-ci == 'true' }}
           - python-version: "3.12"
             use-graph: 0
-            extras: all
             run: ${{ needs.check-ci-scope.outputs.run-full-ci == 'true' }}
     name: Run examples, Python ${{ matrix.python-version }}, compiled = ${{ matrix.use-graph }}
     env:
@@ -280,15 +278,12 @@ jobs:
       - name: Install dependencies
         if: ${{ matrix.run }}
         run: |
-          uv pip install .[${{ matrix.extras }}]
+          uv pip install .[all]
       - name: Run examples
         if: ${{ matrix.run }}
         run: |
-          BASEDIR=$(dirname "$0")
+          
           fail=0
-          ls -l ${{ github.workspace }}/
-          ls -l ${{ github.workspace }}/*
-          ls -l ${{ github.workspace }}/examples/*
           for file in ${{ github.workspace }}/examples/*.py; do
             echo "----------------------------------------------------------------------------------------------"
             echo "Running example: $file"
