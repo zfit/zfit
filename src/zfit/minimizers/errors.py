@@ -31,7 +31,7 @@ from .. import z
 from ..core.interfaces import ZfitIndependentParameter
 from ..core.parameter import assign_values
 from ..util.container import convert_to_container
-from ..util.errors import BreakingAPIChangeError
+from ..util.exception import BreakingAPIChangeError
 
 
 class NewMinimum(Exception):
