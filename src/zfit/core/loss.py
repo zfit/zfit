@@ -18,7 +18,7 @@ import tensorflow_probability as tfp
 from pydantic.v1 import Field
 from tensorflow.python.util.deprecation import deprecated
 
-from ..exception import AutogradNotSupported, OutsideLimitsError, SpecificFunctionNotImplementedError
+from ..exception import AutogradNotSupported, OutsideLimitsError, SpecificFunctionNotImplemented
 from ..serialization.serializer import BaseRepr, Serializer
 from .data import convert_to_data
 from .serialmixin import SerializableMixin
@@ -183,19 +183,19 @@ class BaseLossRepr(BaseRepr):
         return v
 
 
-class GradientNotImplementedError(SpecificFunctionNotImplementedError):
+class GradientNotImplementedError(SpecificFunctionNotImplemented):
     pass
 
 
-class ValueGradientNotImplementedError(SpecificFunctionNotImplementedError):
+class ValueGradientNotImplementedError(SpecificFunctionNotImplemented):
     pass
 
 
-class ValueGradientHessianNotImplementedError(SpecificFunctionNotImplementedError):
+class ValueGradientHessianNotImplementedError(SpecificFunctionNotImplemented):
     pass
 
 
-class HessianNotImplementedError(SpecificFunctionNotImplementedError):
+class HessianNotImplementedError(SpecificFunctionNotImplemented):
     pass
 
 

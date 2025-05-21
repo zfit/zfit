@@ -14,7 +14,6 @@ if typing.TYPE_CHECKING:
 
 from .core.serialmixin import NumpyArrayNotSerializableError
 from .util.checks import NONE
-from .util.deprecation import deprecated
 from .util.exception import (
     AnalyticGradientNotAvailable,
     AnalyticIntegralNotImplemented,
@@ -44,6 +43,7 @@ __all__ = [
     "FunctionNotImplemented",
     "IllegalInGraphModeError",
     "InitNotImplemented",
+    "InvalidNameError",
     "IpyoptPicklingError",
     "LogicalUndefinedOperationError",
     "MaximumIterationReached",
@@ -59,52 +59,8 @@ __all__ = [
 ]
 
 
-class VectorizedLimitsNotImplementedError(VectorizedLimitsNotImplemented):
-    @deprecated(None, "Use VectorizedLimitsNotImplemented instead.")
-    def __init__(self, *args: object) -> None:
-        super().__init__(*args)
-
-
-class SpecificFunctionNotImplementedError(SpecificFunctionNotImplemented):
-    @deprecated(None, "Use SpecificFunctionNotImplemented instead.")
-    def __init__(self, *args: object) -> None:
-        super().__init__(*args)
-
-
-class NormRangeNotImplementedError(NormRangeNotImplemented):
-    @deprecated(None, "Use NormRangeNotImplemented instead.")
-    def __init__(self, *args: object) -> None:
-        super().__init__(*args)
-
-
-class MultipleLimitsNotImplementedError(MultipleLimitsNotImplemented):
-    @deprecated(None, "Use MultipleLimitsNotImplemented instead.")
-    def __init__(self, *args: object) -> None:
-        super().__init__(*args)
-
-
-class FunctionNotImplementedError(FunctionNotImplemented):
-    @deprecated(None, "Use FunctionNotImplemented instead.")
-    def __init__(self, *args: object) -> None:
-        super().__init__(*args)
-
-
-class AnalyticSamplingNotImplementedError(AnalyticSamplingNotImplemented):
-    @deprecated(None, "Use AnalyticSamplingNotImplemented instead.")
-    def __init__(self, *args: object) -> None:
-        super().__init__(*args)
-
-
-class AnalyticIntegralNotImplementedError(AnalyticIntegralNotImplemented):
-    @deprecated(None, "Use AnalyticIntegralNotImplemented instead.")
-    def __init__(self, *args: object) -> None:
-        super().__init__(*args)
-
-
-class AnalyticNotImplementedError(AnalyticNotImplemented):
-    @deprecated(None, "Use AnalyticNotImplemented instead.")
-    def __init__(self, *args: object) -> None:
-        super().__init__(*args)
+class InvalidNameError(Exception):
+    """Exception raised when a name is invalid."""
 
 
 class NameAlreadyTakenError(Exception):

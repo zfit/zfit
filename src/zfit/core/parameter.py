@@ -46,7 +46,7 @@ from tensorflow.python.types.core import Tensor as TensorType
 import zfit.z.numpy as znp
 
 from .. import z
-from ..core.baseobject import BaseNumeric, extract_filter_params
+from ..core.baseobject import BaseNumeric, extract_filter_params, validate_preprocess_name
 from ..minimizers.interface import ZfitResult
 from ..serialization.paramrepr import make_param_constructor
 from ..serialization.serializer import BaseRepr, Serializer
@@ -185,8 +185,8 @@ class WrappedVariable(metaclass=MetaBaseParameter):
     def value(self):
         return self.variable.value()
 
-    def read_value(self):  # keep! Needed by TF internally
-        return self.variable.read_value()
+    # def read_value(self):  # keep! Needed by TF internally
+    #     return self.variable.read_value()
 
     @property
     def shape(self):
@@ -275,6 +275,7 @@ class ZfitParameterMixin(BaseNumeric):
     _existing_params: typing.ClassVar = {}
 
     def __init__(self, name, label=None, **kwargs):
+        name = validate_preprocess_name(name)
         if name not in self._existing_params:
             self._existing_params[name] = WeakSet()
             # Is an alternative arg for pop needed in case it fails? Why would it fail?
@@ -518,9 +519,9 @@ class Parameter(
             )
         return value
 
-    @deprecated(None, "Use `value` instead.")
-    def read_value(self):
-        return self.value()
+    # @deprecated(None, "Use `value` instead.")
+    # def read_value(self):
+    #     return self.value()
 
     @property
     def floating(self):
@@ -864,9 +865,9 @@ class BaseComposedParameter(ZfitParameterMixin, OverloadableMixin, BaseParameter
 
         # return tf.convert_to_tensor(value, dtype=self.dtype)
 
-    @deprecated(None, "Use `value` instead.")
-    def read_value(self):  # keep! Needed by TF internally
-        return self.value()
+    # @deprecated(None, "Use `value` instead.")
+    # def read_value(self):  # keep! Needed by TF internally
+    #     return self.value()
 
     @property
     def shape(self):
@@ -936,9 +937,9 @@ class ConstantParameter(OverloadableMixin, ZfitParameterMixin, BaseParameter, Se
     def value(self) -> tf.Tensor:
         return self._value
 
-    @deprecated(None, "Use `value` instead.")
-    def read_value(self) -> tf.Tensor:  # keep! Needed by TF internally
-        return self.value()
+    # @deprecated(None, "Use `value` instead.")
+    # def read_value(self) -> tf.Tensor:  # keep! Needed by TF internally
+    #     return self.value()
 
     @property
     def floating(self):

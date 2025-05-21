@@ -1,5 +1,10 @@
 """Top-level package for zfit."""
+#  Copyright (c) 2025 zfit
 
+import logging
+#  Copyright (c) 2025 zfit
+
+from contextlib import redirect_stdout, redirect_stderr
 #  Copyright (c) 2025 zfit
 
 from importlib.metadata import version as _importlib_version
@@ -18,9 +23,7 @@ __author__ = (
 )
 __maintainer__ = "zfit"
 __email__ = "zfit@physik.uzh.ch"
-__credits__ = (
-    "Chris Burr, Martina Ferrillo, Abhijit Mathad, Oliver Lantwin, Johannes Lade, Iason Krommydas"
-)
+__credits__ = "Chris Burr, Martina Ferrillo, Abhijit Mathad, Oliver Lantwin, Johannes Lade, Iason Krommydas"
 
 __all__ = [
     "z",
@@ -69,10 +72,27 @@ def _maybe_disable_warnings() -> None:
 
     os.environ["KMP_AFFINITY"] = "noverbose"
     os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
+    saved_stdout_fd = os.dup(1)
+    saved_stderr_fd = os.dup(2)
+    with open(os.devnull, "w", encoding="utf-8") as devnull:
+        os.dup2(devnull.fileno(), 1)
+        os.dup2(devnull.fileno(), 2)
+        import tensorflow as tf
 
-    import tensorflow as tf
+        tf.constant(1)
+        os.dup2(saved_stdout_fd, 1)
+        os.dup2(saved_stderr_fd, 2)
+        os.close(saved_stdout_fd)
+        os.close(saved_stderr_fd)
+        tf.get_logger().setLevel("ERROR")
+    # with redirect_stdout(None), redirect_stderr(None):
+    #
+    #     logging.getLogger("tensorflow").disabled = True
+    #     import tensorflow as tf
+    #
+    #     tf.constant(1)
 
-    tf.get_logger().setLevel("ERROR")
+
 
 
 _maybe_disable_warnings()
@@ -81,8 +101,7 @@ import tensorflow as _tf
 
 if int(_tf.__version__[0]) < 2:
     raise RuntimeError(
-        f"You are using TensorFlow version {_tf.__version__}. This zfit version ({__version__}) works"
-        f" only with TF >= 2"
+        f"You are using TensorFlow version {_tf.__version__}. This zfit version ({__version__}) works only with TF >= 2"
     )
 from . import z  # initialize first
 from . import (
