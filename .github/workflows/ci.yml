@@ -286,10 +286,10 @@ jobs:
         run: |
           BASEDIR=$(dirname "$0")
           fail=0
-          ls -l ${BASEDIR}/../zfit/*
-          ls -l ${BASEDIR}/../zfit/examples
-          ls -l ${BASEDIR}/../zfit/examples/*
-          for file in "${BASEDIR}/../zfit/examples/*.py"; do
+          ls -l ${{ github.workspace }}/
+          ls -l ${{ github.workspace }}/*
+          ls -l ${{ github.workspace }}/examples/*
+          for file in ${{ github.workspace }}/examples/*.py; do
             echo "----------------------------------------------------------------------------------------------"
             echo "Running example: $file"
             echo "----------------------------------------------------------------------------------------------"
