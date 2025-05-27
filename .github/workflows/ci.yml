@@ -24,7 +24,7 @@ on:
 
 jobs:
   check-ci-scope:
-    name: Full CI run
+    name: Initialize CI runs
     runs-on: ubuntu-latest
     outputs:
       run-full-ci: ${{ steps.check.outputs.run-full-ci }}
@@ -56,6 +56,7 @@ jobs:
   full-checks-run:
     needs: check-ci-scope
     runs-on: ubuntu-latest
+    name: Full CI checks run
     steps:
       - name: Full set run
         run: |
