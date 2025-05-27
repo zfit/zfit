@@ -7,7 +7,7 @@ import typing
 if typing.TYPE_CHECKING:
     import zfit
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, NoReturn
 
 import numpy as np
 
@@ -29,7 +29,7 @@ from .tools import _auto_upcast
 from .zextension import convert_to_tensor
 
 
-def poly_complex(*args, real_x=False):
+def poly_complex(*args, real_x=False) -> tf.Tensor:
     """Complex polynomial with the last arg being x.
 
     Args:
@@ -37,6 +37,7 @@ def poly_complex(*args, real_x=False):
         real_x: If True, x is assumed to be real.
 
     Returns:
+        Complex tensor representing the polynomial evaluation
     """
     from .. import z
 
@@ -103,8 +104,8 @@ def numerical_value_gradient(func: Callable, params: Iterable[zfit.Parameter]) -
 deprecated(None, "Use `numerical_value_gradient` instead.")
 
 
-def numerical_value_gradients(*args, **kwargs):
-    return numerical_value_gradients(*args, **kwargs)
+def numerical_value_gradients(*args, **kwargs) -> tuple[tf.Tensor, tf.Tensor]:
+    return numerical_value_gradient(*args, **kwargs)
 
 
 def numerical_hessian(func: Callable | None, params: Iterable[zfit.Parameter], hessian=None) -> tf.Tensor:
@@ -186,7 +187,7 @@ def numerical_value_gradient_hessian(
 
 
 @deprecated(None, "Use `numerical_value_gradient_hessian` instead.")
-def numerical_value_gradients_hessian(*args, **kwargs):
+def numerical_value_gradients_hessian(*args, **kwargs) -> tuple[tf.Tensor, tf.Tensor, tf.Tensor]:
     return numerical_value_gradient_hessian(*args, **kwargs)
 
 
@@ -267,7 +268,7 @@ def autodiff_value_gradient(func: Callable, params: Iterable[zfit.Parameter]) ->
     return value, gradients
 
 
-def autodiff_value_gradients(*args, **kwargs):  # noqa: ARG001
+def autodiff_value_gradients(*args, **kwargs) -> NoReturn:  # noqa: ARG001
     msg = "Use `autodiff_value_gradient` instead."
     raise BreakingAPIChangeError(msg)
 
@@ -356,13 +357,13 @@ def automatic_value_gradient_hessian(
     return loss, gradients, computed_hessian
 
 
-def automatic_value_gradients_hessian(*args, **kwargs):  # noqa: ARG001
+def automatic_value_gradients_hessian(*args, **kwargs) -> NoReturn:  # noqa: ARG001
     msg = "Use `automatic_value_gradient_hessian` instead."
     raise BreakingAPIChangeError(msg)
 
 
 # @z.function  # TODO: circular import, improve?
-def reduce_geometric_mean(input_tensor, axis=None, weights=None, keepdims=False):
+def reduce_geometric_mean(input_tensor, axis=None, weights=None, keepdims=False) -> tf.Tensor:
     if weights is not None:
         log_mean = tf.nn.weighted_moments(log(input_tensor), axes=axis, frequency_weights=weights)[0]
     else:
@@ -370,12 +371,12 @@ def reduce_geometric_mean(input_tensor, axis=None, weights=None, keepdims=False)
     return znp.exp(log_mean)
 
 
-def log(x):
+def log(x) -> tf.Tensor:
     x = _auto_upcast(x)
     return _auto_upcast(znp.log(x=x))
 
 
-def weighted_quantile(x, quantiles, weights=None, side="middle"):
+def weighted_quantile(x, quantiles, weights=None, side="middle") -> tf.Tensor:
     """Very close to numpy.percentile, but supports weights.
 
     NOTE: quantiles should be in [0, 1]!

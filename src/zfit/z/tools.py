@@ -11,7 +11,7 @@ import tensorflow as tf
 from zfit.settings import upcast_ztypes
 
 
-def _auto_upcast(tensor: tf.Tensor):
+def _auto_upcast(tensor: tf.Tensor) -> tf.Tensor:
     import zfit.z.numpy as znp
 
     if isinstance(tensor, tf.Tensor):
@@ -21,7 +21,7 @@ def _auto_upcast(tensor: tf.Tensor):
     return tensor
 
 
-def _get_ndims(x):
+def _get_ndims(x) -> int:
     """Returns the number of dimensions of a TensorFlow Tensor or a numpy array like object.
 
     Both objects have a different method to get the number of dimensions. Numpy arrays have a .ndim attribute,

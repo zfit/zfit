@@ -9,7 +9,6 @@ if typing.TYPE_CHECKING:
 
 from collections.abc import Iterable
 from functools import wraps
-from typing import Any
 
 import tensorflow as tf
 import tensorflow_probability as tfp
@@ -24,7 +23,7 @@ from ..z import numpy as _znp
 generator = None
 
 
-def get_prng():
+def get_prng() -> tf.random.Generator:
     """Get the global random number generator.
 
     Returns:
@@ -70,7 +69,7 @@ def counts_multinomial(
     total_count: int | tf.Tensor,
     probs: Iterable[float | tf.Tensor] | None = None,
     logits: Iterable[float | tf.Tensor] | None = None,
-    dtype=tf.int32,
+    dtype: tf.DType = tf.int32,
 ) -> tf.Tensor:
     """Get the number of counts for different classes with given probs/logits.
 
@@ -107,7 +106,9 @@ def counts_multinomial(
 
 
 @function(wraps="tensor")
-def _wrapped_multinomial_func(dtype, logits, probs, total_count):
+def _wrapped_multinomial_func(
+    dtype: tf.DType, logits: tf.Tensor | None, probs: tf.Tensor | None, total_count: tf.Tensor
+) -> tf.Tensor:
     if probs is not None:
         shape = tf.shape(probs)
         probs = _znp.reshape(probs, [-1])
@@ -121,29 +122,41 @@ def _wrapped_multinomial_func(dtype, logits, probs, total_count):
 
 
 @wraps(tf.random.normal)
-def normal(shape, mean=0.0, stddev=1.0, dtype=ztypes.float, name=None):
+def normal(
+    shape: tuple[int, ...] | list[int] | int,
+    mean: float = 0.0,
+    stddev: float = 1.0,
+    dtype: tf.DType = ztypes.float,
+    name: str | None = None,
+) -> tf.Tensor:
     return get_prng().normal(shape=shape, mean=mean, stddev=stddev, dtype=dtype, name=name)
 
 
 @wraps(tf.random.uniform)
-def uniform(shape, minval=0, maxval=None, dtype=ztypes.float, name=None):
+def uniform(
+    shape: tuple[int, ...] | list[int] | int,
+    minval: float | int = 0,
+    maxval: float | int | None = None,
+    dtype: tf.DType = ztypes.float,
+    name: str | None = None,
+) -> tf.Tensor:
     return get_prng().uniform(shape=shape, minval=minval, maxval=maxval, dtype=dtype, name=name)
 
 
 @wraps(tf.random.poisson)
 def poisson(
-    lam: Any,
-    shape: Any,
-    seed: Any = None,
+    lam: float | tf.Tensor,
+    shape: tuple[int, ...] | list[int] | int,
+    seed: int | tuple[int, int] | None = None,
     dtype: tf.DType = ztypes.float,
-    name: Any = None,
-):
+    name: str | None = None,
+) -> tf.Tensor:
     if seed is None:
         seed = get_prng().make_seeds(1)[:, 0]
     return tf.random.stateless_poisson(lam=lam, seed=seed, shape=shape, dtype=dtype, name=name)
 
 
-def shuffle(value, seed=None, name=None):
+def shuffle(value: tf.Tensor, seed: int | tuple[int, int] | None = None, name: str | None = None) -> tf.Tensor:
     if seed is None:
         seed = get_prng().make_seeds(1)[:, 0]
     return tf.random.experimental.stateless_shuffle(value, seed=seed, name=name)

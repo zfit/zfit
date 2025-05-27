@@ -30,7 +30,7 @@ class linalg:
 
 
 # TODO: move into special namespace when that's available
-def faddeeva_humlicek(z, s=10.0):
+def faddeeva_humlicek(z, s=10.0) -> tf.Tensor:
     """Complex error function w(z = x + iy) combining Humlicek's rational approximations.
 
     |x| + y > s:  Humlicek (JQSRT, 1982) rational approximation for region II;

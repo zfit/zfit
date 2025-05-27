@@ -26,7 +26,7 @@ class ZfitDillLoadError(Exception):
     pass
 
 
-def __retry_with_gc(func, kwargs, *, max_retries: int | None = None):
+def __retry_with_gc(func: typing.Callable, kwargs: dict, *, max_retries: int | None = None) -> typing.Any:
     """Helper function to retry a function with garbage collection if necessary.
 
     Main intended use is to retry a function that failed due to a graph that cannot be pickled. This can happen
@@ -88,16 +88,16 @@ def __retry_with_gc(func, kwargs, *, max_retries: int | None = None):
 
 @_functools.wraps(__dill.dumps)
 def dumps(
-    obj,
-    protocol=None,
-    byref=False,
-    fmode=None,
-    recurse=None,
+    obj: typing.Any,
+    protocol: typing.Any = None,
+    byref: bool = False,
+    fmode: typing.Any = None,
+    recurse: typing.Any = None,
     *,
     max_retries: Optional[int | bool] = None,
     verify: Optional[bool] = None,
     **kwds,
-):
+) -> bytes:
     """Wrapper around :py:func`dill.dumps` that helps dumping zfit objects as it retries with garbage collection if
     necessary.
 
@@ -146,17 +146,17 @@ dumps.__doc__ = dumps.__doc__.format(docstring=__dill.dumps.__doc__)
 
 @_functools.wraps(__dill.dump)
 def dump(
-    obj,
-    file,
-    protocol=None,
-    byref=None,
-    fmode=None,
-    recurse=None,
+    obj: typing.Any,
+    file: io.IOBase,
+    protocol: typing.Any = None,
+    byref: typing.Any = None,
+    fmode: typing.Any = None,
+    recurse: typing.Any = None,
     *,
     max_retries: Optional[int | bool] = None,
     verify: Optional[bool] = None,
     **kwds,
-):
+) -> typing.Any:
     """Wrapper around :py:func`dill.dump` that helps dumping zfit objects as it retries with garbage collection if
     necessary.
 
@@ -212,7 +212,9 @@ def dump(
     return out
 
 
-def __retry_with_graphclear(func, kwargs, max_retries, _file_to_reset=None):
+def __retry_with_graphclear(
+    func: typing.Callable, kwargs: dict, max_retries: int, _file_to_reset: io.IOBase | None = None
+) -> typing.Any:
     original_error = None
 
     # make sure to reset the file to the initial position after an error was raised
@@ -249,7 +251,7 @@ def __retry_with_graphclear(func, kwargs, max_retries, _file_to_reset=None):
 
 
 @_functools.wraps(__dill.loads)
-def loads(str, *, max_retries: Optional[int | bool] = None, **kwds):
+def loads(str: bytes, *, max_retries: Optional[int | bool] = None, **kwds) -> typing.Any:
     """Wrapper around :py:func`dill.loads`that helps loading zfit objects as it retries with graph clearing if
     necessary.
 
@@ -275,7 +277,7 @@ def loads(str, *, max_retries: Optional[int | bool] = None, **kwds):
 
 
 @_functools.wraps(__dill.load)
-def load(file, *, max_retries: Optional[int | bool] = None, **kwds):
+def load(file: io.IOBase, *, max_retries: Optional[int | bool] = None, **kwds) -> typing.Any:
     """Wrapper around :py:func`dill.load`that helps loading zfit objects as it retries with graph clearing if necessary.
 
     .. warning ::

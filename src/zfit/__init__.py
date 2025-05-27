@@ -55,7 +55,7 @@ __all__ = [
 #  Copyright (c) 2019 zfit
 
 
-def _maybe_disable_warnings():
+def _maybe_disable_warnings() -> None:
     import os, warnings
 
     disable_warnings = os.environ.get("ZFIT_DISABLE_TF_WARNINGS")
@@ -132,7 +132,7 @@ from .core.space import Space, convert_to_space, supports
 from .settings import run, ztypes
 
 
-def _maybe_disable_jit():
+def _maybe_disable_jit() -> None:
     import os, warnings
 
     arg1 = os.environ.get("ZFIT_DO_JIT")

@@ -11,6 +11,7 @@ The serialization is done via the :py:class:`~zfit.serializer.Serializer` class.
 from __future__ import annotations
 
 import typing
+from typing import NoReturn
 
 if typing.TYPE_CHECKING:
     import zfit  # noqa: F401
@@ -24,7 +25,7 @@ __all__ = ["dumps", "loads"]
 
 
 @warn_experimental_feature
-def dumps(obj: ZfitSerializable):
+def dumps(obj: ZfitSerializable) -> str:
     """Serialize a PDF or a list of PDFs to a JSON string according to the HS3 standard.
 
     .. warning::
@@ -51,7 +52,7 @@ def dumps(obj: ZfitSerializable):
 
 
 @warn_experimental_feature
-def loads(string: str):
+def loads(string: str) -> ZfitSerializable:
     """Load a zfit object from a string representation in the HS3 format.
 
     .. warning::
@@ -76,11 +77,11 @@ def loads(string: str):
     return Serializer.from_hs3(string)
 
 
-def dump(*_, **__):
+def dump(*_, **__) -> NoReturn:
     msg = "Not yet implemented, use `dumps` and manually dump the string."
     raise WorkInProgressError(msg)
 
 
-def load(*_, **__):
+def load(*_, **__) -> NoReturn:
     msg = "Not yet implemented, use `loads` and manually load the string."
     raise WorkInProgressError(msg)

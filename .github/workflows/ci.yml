@@ -23,7 +23,53 @@ on:
       - "doc/*"
 
 jobs:
+  check-ci-scope:
+    name: Initialize CI runs
+    runs-on: ubuntu-latest
+    outputs:
+      run-full-ci: ${{ steps.check.outputs.run-full-ci }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: check
+        name: Check if full CI is needed
+        run: |
+          # Check if we're on main, develop, or release/* branches
+          if [[ "$GITHUB_REF" == "refs/heads/main" || "$GITHUB_REF" == "refs/heads/develop" || "$GITHUB_REF" =~ ^refs/heads/release/ ]]; then
+            echo "run-full-ci=true" >> $GITHUB_OUTPUT
+            echo "Running full CI because we're on main, develop, or a release branch"
+            exit 0
+          fi
+          
+          # Check if [full ci] or similar is in the commit message
+          COMMIT_MSG=$(git log -1 --pretty=%B)
+          if [[ "$COMMIT_MSG" == *"[full ci]"* || "$COMMIT_MSG" == *"[ci full]"* || "$COMMIT_MSG" == *"[cifull]"* || "$COMMIT_MSG" == *"[fullci]"* ]]; then
+            echo "run-full-ci=true" >> $GITHUB_OUTPUT
+            echo "Running full CI because @fullci was found in the commit message"
+            exit 0
+          fi
+          
+          # Otherwise, run limited CI
+          echo "run-full-ci=false" >> $GITHUB_OUTPUT
+          echo "Running limited CI"
+  full-checks-run:
+    needs: check-ci-scope
+    runs-on: ubuntu-latest
+    name: Full CI checks run
+    steps:
+      - name: Full set run
+        run: |
+          if ${{ needs.check-ci-scope.outputs.run-full-ci }};
+               exit 0
+          else
+               echo "Only limited set of CI and tests will be run. To run the full set, please add [full ci] to the commit message.";
+               echo "Note that the whole set is run by default on main, develop, and release branches.";
+               exit 1
+          fi
+
   unittests:
+    needs: check-ci-scope
     runs-on: ${{ matrix.os }}
     defaults:
       run:
@@ -34,51 +80,56 @@ jobs:
       ZFIT_DO_JIT: ${{ matrix.use-graph }}
     strategy:
       max-parallel: 15
-      fail-fast: False
+      fail-fast: false
       matrix:
         use-graph: [ 1 ]
-        python-version: [ "3.9", "3.12" ]  # omit "3.10", "3.11" to save compute time
+        python-version: [ "3.9" ]  # omit "3.10", "3.11" to save compute time
         os: [ ubuntu-latest ]
-        #        os: [ self-hosted ]
         extras: [ test ]
+        run: [ true ]
         include:
           - os: ubuntu-latest
             extras: test
             python-version: "3.12"
+            run: ${{ needs.check-ci-scope.outputs.run-full-ci == 'true' }}
+            use-graph: 1
+          - os: ubuntu-latest
+            extras: test
+            python-version: "3.12"
             use-graph: 0
+            run: ${{ needs.check-ci-scope.outputs.run-full-ci == 'true' }}
           - os: macos-latest
             python-version: "3.12"
             use-graph: 1
             extras: test
+            run: ${{ needs.check-ci-scope.outputs.run-full-ci == 'true' }}
           - os: windows-latest
             python-version: "3.12"
             use-graph: 1
             extras: test
+            run: ${{ needs.check-ci-scope.outputs.run-full-ci == 'true' }}
           - os: macos-14  # Apple silicon runner
             python-version: '3.12'
             use-graph: 1
             extras: test
-
+            run: ${{ needs.check-ci-scope.outputs.run-full-ci == 'true' }}
     steps:
-      - name: Get number of CPU cores
-        uses: SimenB/github-actions-cpu-cores@v2
-        id: cpu-cores
       - uses: actions/checkout@v4
       - name: Get history and tags for SCM versioning to work
         run: |
           git fetch --prune --unshallow
           git fetch --depth=1 origin +refs/tags/*:refs/tags/*
-      # do not install ROOT on windows
+      # do not install ROOT on windows, fails
       - uses: mamba-org/setup-micromamba@v2
-        if: runner.os != 'Windows' && matrix.python-version != '3.12'  # root not yet available in 3.12
+        if: runner.os != 'Windows'
         with:
-          environment-name: zfit  # newer ROOT versions segfault
+          environment-name: zfit
           create-args: >-
             python=${{ matrix.python-version }}
             uv
             root
       - uses: mamba-org/setup-micromamba@v2
-        if: runner.os == 'Windows' || matrix.python-version == '3.12'
+        if: runner.os == 'Windows'
         with:
           environment-name: zfit
           create-args: >-
@@ -88,24 +139,19 @@ jobs:
         run: |
           uv pip install coverage-lcov pytest-xdist pytest-cov
           uv pip install .[${{ matrix.extras }}]
+      - name: Check imports
+        run: python -c "import zfit; from zfit import *"
       - name: Test with pytest
+        if: ${{ matrix.run }}
         run: |
-          pytest --cov=. --cov-config=pyproject.toml -n auto --cov-report=xml --cov-report=term-missing
+          if [ ${{ needs.check-ci-scope.outputs.run-full-ci }} == "true" ]; then
+            echo "Running full tests"
+            pytest --doctest-modules --cov=. --cov-config=pyproject.toml -n auto --longtests --longtests-kde --cov-report=xml --cov-report=term-missing
+          else
+            echo "Running limited tests"
+            pytest --doctest-modules --cov=. --cov-config=pyproject.toml -n auto --cov-report=xml --cov-report=term-missing
+          fi
 
-  #          pytest --cov=. --cov-config=pyproject.toml -n auto --cov-report=xml --cov-report=term-missing  # logical number of cpus, falls back to auto
-  #               TODO: fails on windows? add again above pytest?
-  #          if [ "$GITHUB_REF" == 'refs/heads/develop' ]; then
-  #            echo "PYTEST_ADDOPTS=--longtests-kde --longtests" >> "$GITHUB_ENV"
-  #          fi
-  #           convert to lcov format
-  #          mkdir coverage && coverage-lcov --output_file_path ./coverage/lcov.info
-  #      # TODO(jonas): fix coverage report? Needs converter to lcov format
-  #      - name: Coveralls Parallel
-  #        uses: coverallsapp/github-action@v2.3.6
-  #        with:
-  #          github-token: ${{ secrets.github_token }}
-  #          flag-name: run-${{ matrix.use-graph }}-${{ matrix.python-version }}-ubuntu
-  #          parallel: true
   docs:
     runs-on: ubuntu-latest
     defaults:
@@ -122,7 +168,6 @@ jobs:
         run: |
           git fetch --prune --unshallow
           git fetch --depth=1 origin +refs/tags/*:refs/tags/*
-
       - uses: mamba-org/setup-micromamba@v2
         with:
           environment-name: zfit
@@ -130,8 +175,6 @@ jobs:
             python=${{ matrix.python-version }}
             uv
             root
-
-
       - name: Install dependencies
         run: |
           uv pip install .[docs]
@@ -140,6 +183,7 @@ jobs:
           bash utils/ci/testbuild_docs.sh
 
   tutorials:
+    needs: check-ci-scope
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -150,46 +194,51 @@ jobs:
       fail-fast: False
       matrix:
         use-graph: [ 1 ]
-        python-version: [ "3.9", "3.12" ]
+        python-version: [ "3.9" ]
+        run: [ true ]
+        extras: [ all ]
         include:
-          - os: ubuntu-latest
-            extras: all
-            python-version: "3.12"
+          - python-version: "3.12"
             use-graph: 0
+            extras: all
+            run: ${{ needs.check-ci-scope.outputs.run-full-ci == 'true' }}
+          - python-version: "3.12"
+            use-graph: 0
+            extras: all
+            run: ${{ needs.check-ci-scope.outputs.run-full-ci == 'true' }}
     name: Run tutorials, Python ${{ matrix.python-version }}, compiled = ${{ matrix.use-graph }}
     env:
       ZFIT_DO_JIT: ${{ matrix.use-graph }}
     steps:
-      - name: Get number of CPU cores
-        uses: SimenB/github-actions-cpu-cores@v2
-        id: cpu-cores
       - uses: actions/checkout@v4
+        if: ${{ matrix.run }}
       - name: Get history and tags for SCM versioning to work
+        if: ${{ matrix.run }}
         run: |
           git fetch --prune --unshallow
           git fetch --depth=1 origin +refs/tags/*:refs/tags/*
       - uses: mamba-org/setup-micromamba@v2
+        if: ${{ matrix.run }}
         with:
           environment-name: zfit
           create-args: >-
             python=${{ matrix.python-version }}
             uv
-#            root
-
       - name: Clone Tutorials
+        if: ${{ matrix.run }}
         run: |
           git clone https://github.com/zfit/zfit-tutorials.git
-
       - name: Install dependencies
+        if: ${{ matrix.run }}
         run: |
-          uv pip install nbval pytest-helpers-namespace pytest-xdist
-          uv pip install -U .[all]
-          uv pip install -r zfit-tutorials/requirements.txt
-
+          uv pip install -U .[${{ matrix.extras }}] -r zfit-tutorials/requirements.txt nbval pytest-helpers-namespace pytest-xdist
       - name: Run notebooks
+        if: ${{ matrix.run }}
         run: |
-          pytest --nbval-lax zfit-tutorials --dist loadscope --ignore=zfit-tutorials/experimental --ignore=zfit-tutorials/_unused --ignore=zfit-tutorials/_website -n${{ steps.cpu-cores.outputs.count }}
+          pytest --nbval-lax zfit-tutorials --dist loadscope --ignore=zfit-tutorials/experimental --ignore=zfit-tutorials/_unused --ignore=zfit-tutorials/_website -n auto
+
   examples:
+    needs: check-ci-scope
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -200,48 +249,61 @@ jobs:
       fail-fast: False
       matrix:
         use-graph: [ 1 ]
-        python-version: [ "3.9", "3.12" ]
+        python-version: [ "3.9" ]
+        run: [ true ]
         include:
-          - os: ubuntu-latest
-            extras: all
-            python-version: "3.12"
+          - python-version: "3.12"
+            use-graph: 1
+            run: ${{ needs.check-ci-scope.outputs.run-full-ci == 'true' }}
+          - python-version: "3.12"
             use-graph: 0
+            run: ${{ needs.check-ci-scope.outputs.run-full-ci == 'true' }}
     name: Run examples, Python ${{ matrix.python-version }}, compiled = ${{ matrix.use-graph }}
     env:
       ZFIT_DO_JIT: ${{ matrix.use-graph }}
     steps:
       - uses: actions/checkout@v4
+        if: ${{ matrix.run }}
       - name: Get history and tags for SCM versioning to work
+        if: ${{ matrix.run }}
         run: |
           git fetch --prune --unshallow
           git fetch --depth=1 origin +refs/tags/*:refs/tags/*
       - uses: mamba-org/setup-micromamba@v2
+        if: ${{ matrix.run }}
         with:
           environment-name: zfit
           create-args: >-
             python=${{ matrix.python-version }}
             uv
-      #            root  # Working, non-segfaulting version, not available in 3.12
       - name: Install dependencies
+        if: ${{ matrix.run }}
         run: |
-          uv pip install .[all]
-
+          uv pip install .[all] mplhep  # for example plots
       - name: Run examples
+        if: ${{ matrix.run }}
         run: |
-          BASEDIR=$( dirname -- "$0"; )
+          
           fail=0
-          for file in ${BASEDIR}/../../examples/*.py; do
-          echo "----------------------------------------------------------------------------------------------"
-          echo "Running example: $file"
-          echo "----------------------------------------------------------------------------------------------"
-          python "$file" || { fail=$((fail+1)) && echo "Failed running example: $file"; }
-          echo "----------------------------------------------------------------------------------------------"
-          echo "Finished example: $file"
-          echo "----------------------------------------------------------------------------------------------"
+          for file in ${{ github.workspace }}/examples/*.py; do
+            echo "----------------------------------------------------------------------------------------------"
+            echo "Running example: $file"
+            echo "----------------------------------------------------------------------------------------------"
+            python "$file" || { fail=$((fail+1)) && echo "Failed running example: $file"; }
+            echo "----------------------------------------------------------------------------------------------"
+            echo "Finished example: $file"
+            echo "----------------------------------------------------------------------------------------------"
           done
+            if [ $fail -ne 0 ]; then
+                echo "Some examples failed"
+                exit 1
+            else
+                echo "All examples passed"
+            fi
 
   finish:
     needs: unittests
+    if: ${{ always() }}
     runs-on: ubuntu-latest
     steps:
       - name: Coveralls Finished

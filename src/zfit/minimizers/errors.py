@@ -31,6 +31,7 @@ from .. import z
 from ..core.interfaces import ZfitIndependentParameter
 from ..core.parameter import assign_values
 from ..util.container import convert_to_container
+from ..util.exception import BreakingAPIChangeError
 
 
 class NewMinimum(Exception):
@@ -366,7 +367,7 @@ def covariance_with_weights(hinv, result, params, *, weightcorr: WeightCorr = No
 
     if weightcorr == "sumw2":
         msg = "The 'sumw2' option has been renamed to 'sumw2'."
-        raise BreakingAPIChange(msg)
+        raise BreakingAPIChangeError(msg)
     weightcorr = WeightCorr.ASYMPTOTIC if weightcorr is None else WeightCorr(weightcorr)
 
     run.assert_executing_eagerly()
