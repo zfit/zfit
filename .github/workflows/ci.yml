@@ -60,7 +60,7 @@ jobs:
     steps:
       - name: Full set run
         run: |
-          if ${{ needs.check-ci-scope.outputs.run-full-ci }};
+          if [ "${{ needs.check-ci-scope.outputs.run-full-ci }}" == "true" ]; then
                exit 0
           else
                echo "Only limited set of CI and tests will be run. To run the full set, please add [full ci] to the commit message.";
