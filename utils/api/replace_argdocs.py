@@ -55,7 +55,7 @@ for filepath in cfg.files:
 
         for match in matches:
             if auto_start in match[len(auto_start) :]:  # sanity check
-                msg = f"Docstring formatting error," f" has more than one start until an end command: {match}"
+                msg = f"Docstring formatting error, has more than one start until an end command: {match}"
                 raise ValueError(msg)
             if match != replacement_mod:
                 needs_replacement = True

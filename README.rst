@@ -233,8 +233,6 @@ Prerequisites
 ``zfit`` works with Python versions 3.9 and above.
 The main dependency is `tensorflow <https://www.tensorflow.org/>`_: zfit follows a close version compatibility with TensorFlow.
 
-For a full list of all dependencies, check the `requirements <requirements.txt>`_.
-
 
 Contributing
 ============

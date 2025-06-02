@@ -1,12 +1,177 @@
 [build-system]
-requires = [
-    "setuptools>=42",
-    "setuptools_scm[toml]>=3.4",
-    "setuptools_scm_git_archive",
-    "wheel"
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
+
+
+[project]
+name = "zfit"
+description = "scalable pythonic model fitting for high energy physics"
+readme = "README.rst"
+requires-python = ">=3.9, <3.13"
+license = { text = "BSD-3-Clause" }
+authors = [
+    { name = "Jonas Eschle", email = "Jonas.Eschle@cern.ch" },
+    { name = "Albert Puig", email = "apuignav@gmail.com" },
+    { name = "Rafael Silva Coutinho", email = "rsilvaco@cern.ch" },
+    { name = "Matthieu Marinangeli", email = "matthieu.marinangeli@cern.ch" }
+]
+maintainers = [
+    { name = "zfit", email = "zfit@physik.uzh.ch" }
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Natural Language :: English",
+    "Operating System :: MacOS",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: Unix",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Physics"
+]
+keywords = ["TensorFlow", "model", "fitting", "scalable", "HEP", "likelihood"]
+dynamic = ["version"]
+
+dependencies = [
+    "attrs",
+    "boost-histogram",
+    "colorama",
+    "colored",
+    "colorlog",
+    "deprecated",
+    "dill",
+    "dotmap",
+    "frozendict",
+    "hist",
+    "iminuit>=2.3",
+    "jacobi",
+    "numdifftools",
+    "numpy>=1.16",
+    "ordered-set",
+    "pandas",
+    "pydantic>=2.0.0",
+    "pyyaml",
+    "scipy>=1.2",
+    "tabulate",
+    "tensorflow>=2.16.2, <2.20",
+    "tensorflow-probability[tf]>=0.24, <0.27",
+    "texttable",
+    "uhi",
+    "uproot>=4",
+    "xxhash",
+    "zfit_interface"
 ]
 
-build-backend = "setuptools.build_meta"
+[project.urls]
+Homepage = "https://github.com/zfit/zfit"
+
+[project.optional-dependencies]
+# Basic extras
+ipyopt = ["ipyopt>=0.12 ; sys_platform == 'linux'"]
+nlopt = ["nlopt>=2.7.1 ; sys_platform == 'linux' or sys_platform == 'darwin' and platform_machine != 'arm64' or sys_platform == 'win32'"]
+hs3 = ["asdf<4.0.0"]
+uproot = ["awkward-pandas"]
+
+# Additional extras with platform-specific markers
+all = [
+    "zfit[uproot]",
+    "zfit[hs3]",
+    "zfit[ipyopt]",
+    "zfit[nlopt]",
+]
+
+test = [
+    # comparison with other libraries
+    "jax ; sys_platform != 'win32'",
+    "jaxlib ; sys_platform != 'win32'",
+    "numba-stats",
+    "pyhf>=0.7.0",
+    "scikit-hep-testdata",
+    # helpers
+    "pyyaml",
+    "matplotlib",
+    "mplhep",
+    # all aspects of zfit
+        "zfit[all]",  # TODO: we cannot have platform specific deps in here? A bug?
+
+#    "zfit[uproot]",
+#    "zfit[hs3]",
+#    "zfit[ipyopt] ; sys_platform == 'linux'",
+#    "zfit[nlopt] ; sys_platform == 'linux' or sys_platform == 'darwin' and platform_machine != 'arm64' or sys_platform == 'win32'",
+    # pytest related
+    "pytest>=3.4.2",
+    "pytest-runner>=2.11.1",
+    "pytest-rerunfailures>=6",
+    "pytest-xdist",
+    "pytest-ordering",
+    "pytest-randomly",
+    "pytest-timeout>=1",
+    "pytest-benchmark",
+    "pytest-cases",
+    "pytest-helpers-namespace",
+    "coverage>=4.5.1",
+    "coverage-lcov",
+]# Documentation dependencies
+
+tests = ['zfit[test]']  # backwards compatibility
+
+docs = [
+    # plotting
+    "matplotlib",
+    "mplhep",
+    # generate
+    "zfit-physics>=0.6.0",
+    "ray",
+    "pygit2",
+    "tqdm",
+    "zfit[all]",
+    # sphinx website generation
+    "Jinja2",
+    "jupyter-sphinx",
+    "myst-nb",
+    "pydata-sphinx-theme>=0.9",
+    "Sphinx>=5.0.0",
+    "sphinx-autodoc-typehints",
+    "sphinx-copybutton",
+    "sphinx-panels",
+    "sphinx_togglebutton",
+    "sphinxcontrib-applehelp>1.0.8",
+    "sphinxcontrib-bibtex",
+    "sphinxcontrib-youtube>=1.0.0",
+]
+doc = ['zfit[docs]']  # backwards compatibility
+# Development dependencies
+dev = [
+    # Include all dependencies
+    "zfit[all]",
+    # Include test dependencies
+    "zfit[test]",
+    # Include docs dependencies
+    "zfit[doc]",
+    # Additional dev-specific dependencies
+    #    "docformatter",
+    "pip>=9.0.1",
+    "pre-commit",
+    "setupext-janitor",
+    "twine>=1.10.0",
+    "wheel>=0.29.0",
+]
+
+
+
+alldev = ["zfit[dev]"]  # backwards compatibility
+
+[tool.hatch]
+version.source = "vcs"
+build.hooks.vcs.version-file = "src/zfit/_version.py"
+
+[tool.hatch.envs.default]
+features = ["test"]
+scripts.test = "pytest {args}"
 
 [tool.pytest.ini_options]
 minversion = "6.0"
@@ -50,6 +215,20 @@ ignore_errors = true
 [tool.coverage.html]
 directory = "coverage_html_report"
 
+[tool.flake8]
+exclude = [
+    "docs",
+    "examples",
+    "dist",
+    "building",
+    "build",
+    "legacy",
+    "utils"
+]
+max-line-length = 110
+statistics = true
+max-complexity = 30
+
 [tool.ruff]
 #src = ["src"]
 line-length = 120
@@ -61,42 +240,42 @@ exclude = [
 ]
 [tool.ruff.lint]
 extend-select = [
-    "B",        # flake8-bugbear
-    "I",        # isort
-    "ARG",      # flake8-unused-arguments
-    "C4",       # flake8-comprehensions
-    "EM",       # flake8-errmsg
-    "ICN",      # flake8-import-conventions
-    "G",        # flake8-logging-format
-    "PGH",      # pygrep-hooks
-    "PIE",      # flake8-pie
-    "PL",       # pylint
-    "PT",       # flake8-pytest-style
-    "PTH",      # flake8-use-pathlib
-    "RET",      # flake8-return
-    "RUF",      # Ruff-specific
-    "SIM",      # flake8-simplify
-    "T20",      # flake8-print
-    "UP",       # pyupgrade
-    "YTT",      # flake8-2020
-    "EXE",      # flake8-executable
-    "NPY",      # NumPy specific rules
-    "PD",       # pandas-vet
+    "B", # flake8-bugbear
+    "I", # isort
+    "ARG", # flake8-unused-arguments
+    "C4", # flake8-comprehensions
+    "EM", # flake8-errmsg
+    "ICN", # flake8-import-conventions
+    "G", # flake8-logging-format
+    "PGH", # pygrep-hooks
+    "PIE", # flake8-pie
+    "PL", # pylint
+    "PT", # flake8-pytest-style
+    "PTH", # flake8-use-pathlib
+    "RET", # flake8-return
+    "RUF", # Ruff-specific
+    "SIM", # flake8-simplify
+    "T20", # flake8-print
+    "UP", # pyupgrade
+    "YTT", # flake8-2020
+    "EXE", # flake8-executable
+    "NPY", # NumPy specific rules
+    "PD", # pandas-vet
 ]
 ignore = [
-    "UP007",    # type annotation upgrade, breaks pydantic for Python 3.9 (remove once above)
-    "PLR09",    # Too many <...>
-    "PLR2004",  # Magic value used in comparison
-    "ISC001",   # Conflicts with formatter
-    "RET505",   # This is sometimes wanted, protets against accidental intendation
-    "PD901",    # "avoid using `df[...].values`" -> no, this is a very good name if there is only one df
-    "PD011",    # "replace `df[...].values` with `df[...].to_numpy()`" -> not yet, it's not deprecated.
+    "UP007", # type annotation upgrade, breaks pydantic for Python 3.9 (remove once above)
+    "PLR09", # Too many <...>
+    "PLR2004", # Magic value used in comparison
+    "ISC001", # Conflicts with formatter
+    "RET505", # This is sometimes wanted, protets against accidental intendation
+    "PD901", # "avoid using `df[...].values`" -> no, this is a very good name if there is only one df
+    "PD011", # "replace `df[...].values` with `df[...].to_numpy()`" -> not yet, it's not deprecated.
     # Prefer to have a single way to access the data if we don't care about whether it's a numpy array or not.
-    "PLW0603",  # updating global variables with a function is bad, but we use it for
-    "PLW2901",  # "for loop overwritten by assignment" -> we use this to update the loop variable
-    "PD013",    # "melt over stack": df function, but triggers on tensors
-    "NPY002",   # "Use rnd generator in numpy" -> we use np.random for some legacy stuff but do use the new one where we can
-    "T201",    # "print used" -> we use print for displaying information in verbose mode
+    "PLW0603", # updating global variables with a function is bad, but we use it for
+    "PLW2901", # "for loop overwritten by assignment" -> we use this to update the loop variable
+    "PD013", # "melt over stack": df function, but triggers on tensors
+    "NPY002", # "Use rnd generator in numpy" -> we use np.random for some legacy stuff but do use the new one where we can
+    "T201", # "print used" -> we use print for displaying information in verbose mode
 
 ]
 isort.required-imports = ["from __future__ import annotations"]

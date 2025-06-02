@@ -18,3 +18,11 @@ help:
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
 %: Makefile
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+
+# add rule clean
+clean:
+	@echo "Cleaning up build directory..."
+	@rm -rf $(BUILDDIR)
+	@rm -rf user_api/_generated
+	@rm -rf user_api/minimize/_generated
+	@rm -rf user_api/pdf/_generated

@@ -1,4 +1,4 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2025 zfit
 import numpy as np
 import pytest
 import tensorflow as tf
@@ -12,8 +12,6 @@ from zfit.param import ComplexParameter, ComposedParameter
 
 
 def test_complex_param():
-
-
     real_part = 1.3
     imag_part = 0.3
     complex_value = real_part + 1j * imag_part
@@ -31,9 +29,7 @@ def test_complex_param():
     # Cartesian complex
     real_part_param = Parameter("real_part_param", real_part)
     imag_part_param = Parameter("imag_part_param", imag_part)
-    param2 = ComplexParameter.from_cartesian(
-        "param2_compl", real_part_param, imag_part_param
-    )
+    param2 = ComplexParameter.from_cartesian("param2_compl", real_part_param, imag_part_param)
     part1, part2 = param2.get_params()
     part1_val, part2_val = [part1.value(), part2.value()]
     if pytest.approx(real_part) == part1_val:
@@ -109,16 +105,12 @@ def test_composed_param():
     param1 = Parameter("param1", 1.0)
     param2 = Parameter("param2", 2.0)
     param3 = Parameter("param3", 3.0, floating=False)
-    param4 = Parameter(
-        "param4", 4.0
-    )  # noqa Needed to make sure it does not only take all params as deps
+    param4 = Parameter("param4", 4.0)  # noqa Needed to make sure it does not only take all params as deps
 
     def func(p1, p2, p3):
         return z.math.log(3.0 * p1) * tf.square(p2) - p3
 
-    param_a = ComposedParameter(
-        "param_as", func=func, params=(param1, param2, param3)
-    )
+    param_a = ComposedParameter("param_as", func=func, params=(param1, param2, param3))
     param_a2 = ComposedParameter(
         "param_as2",
         func=func,
@@ -216,9 +208,7 @@ def test_overloaded_operators():
     param_b = ComposedParameter("param_b", lambda p2: p2, params=param2)
     param_c = param_a * param_b
     assert not isinstance(param_c, zfit.Parameter)
-    param_d = ComposedParameter(
-        "param_d", lambda pa, pb: pa + pa * pb**2, params=[param_a, param_b]
-    )
+    param_d = ComposedParameter("param_d", lambda pa, pb: pa + pa * pb**2, params=[param_a, param_b])
     assert param_d.value() == (param_a + param_a * param_b**2)
 
 
@@ -261,22 +251,16 @@ def test_fixed_param():
 def test_convert_to_parameters():
     import zfit
 
-    conv_param1 = zfit.param.convert_to_parameters(
-        [23, 10.0, 34, 23], prefer_constant=True
-    )
+    conv_param1 = zfit.param.convert_to_parameters([23, 10.0, 34, 23], prefer_constant=True)
     assert len(conv_param1) == 4
     assert not any(p.floating for p in conv_param1)
 
-    conv_param2 = zfit.param.convert_to_parameters(
-        [23, 10.0, 34, 12, 23], prefer_constant=False
-    )
+    conv_param2 = zfit.param.convert_to_parameters([23, 10.0, 34, 12, 23], prefer_constant=False)
     assert all(p.floating for p in conv_param2)
 
     trueval3 = [23, 10.0, 12, 34, 23]
     truelower3 = list(range(5))
-    conv_param3 = zfit.param.convert_to_parameters(
-        trueval3, lower=truelower3, prefer_constant=False
-    )
+    conv_param3 = zfit.param.convert_to_parameters(trueval3, lower=truelower3, prefer_constant=False)
     np.testing.assert_allclose(znp.asarray(conv_param3), trueval3)
     np.testing.assert_allclose(znp.asarray([p.lower for p in conv_param3]), truelower3)
 
@@ -297,9 +281,7 @@ def test_convert_to_parameters():
     assert [p.name for p in conv_param4dict] == truename4
 
     np.testing.assert_allclose(znp.asarray([p.upper for p in conv_param4dict]), trueupper4)
-    np.testing.assert_allclose(
-        znp.asarray([p.stepsize for p in conv_param4dict]), stepsize4
-    )
+    np.testing.assert_allclose(znp.asarray([p.stepsize for p in conv_param4dict]), stepsize4)
 
     truename5 = [name + "_five" for name in truename4]
     conv_param4dict = zfit.param.convert_to_parameters(
@@ -312,9 +294,7 @@ def test_convert_to_parameters():
     assert [p.name for p in conv_param4dict] == truename5
 
     np.testing.assert_allclose(znp.asarray([p.upper for p in conv_param4dict]), trueupper4)
-    np.testing.assert_allclose(
-        znp.asarray([p.stepsize for p in conv_param4dict]), stepsize4
-    )
+    np.testing.assert_allclose(znp.asarray([p.stepsize for p in conv_param4dict]), stepsize4)
 
 
 def test_convert_to_parameters_equivalence_to_single_multi():
@@ -324,16 +304,14 @@ def test_convert_to_parameters_equivalence_to_single_multi():
     assert pytest.approx(znp.asarray(conv_param1.value())) == 10
     assert not conv_param1.floating
 
-    conv_param2 = zfit.param.convert_to_parameters(
-        [23, 10.0, 34, 12, 23], prefer_constant=False
-    )[-2]
+    conv_param2 = zfit.param.convert_to_parameters([23, 10.0, 34, 12, 23], prefer_constant=False)[-2]
     assert pytest.approx(znp.asarray(conv_param2.value())) == 12.0
     assert conv_param2.floating
     assert not conv_param2.has_limits
 
-    conv_param3 = zfit.param.convert_to_parameters(
-        [23, 10.0, 12, 34, 23], lower=list(range(5)), prefer_constant=False
-    )[2]
+    conv_param3 = zfit.param.convert_to_parameters([23, 10.0, 12, 34, 23], lower=list(range(5)), prefer_constant=False)[
+        2
+    ]
     assert pytest.approx(znp.asarray(conv_param3.lower)) == 2
     assert conv_param3.has_limits
 
@@ -365,9 +343,7 @@ def test_convert_to_parameters_equivalence_to_single():
     assert conv_param2.floating
     assert not conv_param2.has_limits
 
-    conv_param3 = zfit.param.convert_to_parameters(
-        12.0, lower=5.0, prefer_constant=False
-    )[0]
+    conv_param3 = zfit.param.convert_to_parameters(12.0, lower=5.0, prefer_constant=False)[0]
     assert pytest.approx(znp.asarray(conv_param3.lower)) == 5.0
     assert conv_param3.has_limits
 
@@ -395,9 +371,7 @@ def test_convert_to_parameter():
     assert conv_param2.floating
     assert not conv_param2.has_limits
 
-    conv_param3 = zfit.param.convert_to_parameter(
-        12.0, lower=5.0, prefer_constant=False
-    )
+    conv_param3 = zfit.param.convert_to_parameter(12.0, lower=5.0, prefer_constant=False)
     assert pytest.approx(znp.asarray(conv_param3.lower)) == 5.0
     assert conv_param3.has_limits
 
@@ -511,13 +485,11 @@ def test_to_numpy():
     p1 = zfit.param.ConstantParameter("aoeu1", 15)
     assert znp.asarray(p1) == 15
 
-    p2 = zfit.param.ComposedParameter(
-        "aoeu2", lambda params: 2 * params["p1"], params={"p1": p1}
-    )
+    p2 = zfit.param.ComposedParameter("aoeu2", lambda params: 2 * params["p1"], params={"p1": p1})
     assert znp.asarray(p2) == 30
 
-def test_parameter_label():
 
+def test_parameter_label():
     param1 = zfit.Parameter("param1", 1.0)
     assert param1.label == "param1"
 
@@ -536,7 +508,12 @@ def test_parameter_label():
     paramc1 = zfit.ComplexParameter.from_polar("paramc1", 4.0, 2.0, label="paramc1_label")
     assert paramc1.label == "paramc1_label"
 
-    paramc2 = zfit.ComplexParameter.from_cartesian("paramc2", zfit.Parameter("real_part_param", real_part), zfit.Parameter("imag_part_param", imag_part), label="paramc2_label")
+    paramc2 = zfit.ComplexParameter.from_cartesian(
+        "paramc2",
+        zfit.Parameter("real_part_param", real_part),
+        zfit.Parameter("imag_part_param", imag_part),
+        label="paramc2_label",
+    )
     assert paramc2.label == "paramc2_label"
 
     # constant params
@@ -545,3 +522,30 @@ def test_parameter_label():
 
     param_const2 = zfit.param.ConstantParameter("param_const2", 5.0, label="param_const2_label")
     assert param_const2.label == "param_const2_label"
+
+
+def test_invalid_parameter_names():
+    """Test that invalid parameter names result in a warning."""
+    # Test empty name
+    with pytest.warns(DeprecationWarning, match="Name cannot be empty"):
+        param_empty = zfit.Parameter("", 1.0)
+
+    # Test name with invalid characters
+    with pytest.warns(DeprecationWarning, match="Name contains invalid characters"):
+        param_invalid_chars = zfit.Parameter("invalid name", 1.0)
+
+    # Test name starting with "-"
+    with pytest.warns(DeprecationWarning, match="Name cannot start with '-'"):
+        param_starts_with_dash = zfit.Parameter("-invalid", 1.0)
+
+    # Test name starting with "."
+    with pytest.warns(DeprecationWarning, match="Name cannot start with '.'"):
+        param_starts_with_dot = zfit.Parameter(".invalid", 1.0)
+
+    # Test reserved word
+    with pytest.warns(DeprecationWarning, match="is a reserved word"):
+        param_reserved = zfit.Parameter("null", 1.0)
+
+    # Test that valid names don't raise warnings
+    param_valid = zfit.Parameter("valid_name", 1.0)
+    assert param_valid.name == "valid_name"

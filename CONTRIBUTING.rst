@@ -30,7 +30,7 @@ Ready to contribute? Here's how to set up *zfit* for local development.
 
     conda create -n zfit311 python=3.11
     conda activate zfit311
-    pip install -e .[alldev]  # . is the folder where setup.py is
+    pip install -e .[dev]  # . is the folder where setup.py is
 
 Further, you can install pre-commit locally to run the checks before you commit:
 

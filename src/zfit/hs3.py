@@ -1,0 +1,87 @@
+#  Copyright (c) 2025 zfit
+"""Zfit serialization module.
+
+This module contains the serialization functionality of zfit. It is used to serialize and deserialize
+zfit objects to a string representation.
+The output format adheres to the HS3 standard (NOT YET, but will be in the future).
+
+The serialization is done via the :py:class:`~zfit.serializer.Serializer` class.
+"""
+
+from __future__ import annotations
+
+import typing
+from typing import NoReturn
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
+
+from .core.serialmixin import ZfitSerializable
+from .serialization import Serializer
+from .util.exception import WorkInProgressError
+from .util.warnings import warn_experimental_feature
+
+__all__ = ["dumps", "loads"]
+
+
+@warn_experimental_feature
+def dumps(obj: ZfitSerializable) -> str:
+    """Serialize a PDF or a list of PDFs to a JSON string according to the HS3 standard.
+
+    .. warning::
+        This is an experimental feature and the API might change in the future. DO NOT RELY ON THE OUTPUT FOR
+        ANYTHING ELSE THAN TESTING.
+
+    THIS FUNCTION DOESN'T YET ADHERE TO HS3 (but just as a proxy).
+
+    |@doc:hs3.explain| The `HEP Statistics Serialization Standard <https://github.com/hep-statistics-serialization-standard/hep-statistics-serialization-standard>`_,
+                   or in short, :math:`\text{HS}^3`, is a serialization format for statistical models.
+                   It is a JSON/YAML-based serialization that is a
+                   coordinated effort of the HEP community to standardize the serialization of statistical models. The standard
+                   is still in development and is not yet finalized. This function is experimental and may change in the future. |@docend:hs3.explain|
+
+
+
+    Args:
+    obj (ZfitSerializable): The object to dump.
+
+    Returns:
+    str: The string representation of the object.
+    """
+    return Serializer.to_hs3(obj)
+
+
+@warn_experimental_feature
+def loads(string: str) -> ZfitSerializable:
+    """Load a zfit object from a string representation in the HS3 format.
+
+    .. warning::
+        This is an experimental feature and the API might change in the future. DO NOT RELY ON THE OUTPUT FOR
+        ANYTHING ELSE THAN TESTING.
+
+    THIS FUNCTION DOESN'T YET ADHERE TO HS3 (but just as a proxy).
+
+    |@doc:hs3.explain| The `HEP Statistics Serialization Standard <https://github.com/hep-statistics-serialization-standard/hep-statistics-serialization-standard>`_,
+                   or in short, :math:`\text{HS}^3`, is a serialization format for statistical models.
+                   It is a JSON/YAML-based serialization that is a
+                   coordinated effort of the HEP community to standardize the serialization of statistical models. The standard
+                   is still in development and is not yet finalized. This function is experimental and may change in the future. |@docend:hs3.explain|
+
+
+    Args:
+        string (str): The string representation of the object.
+
+    Returns:
+        ZfitSerializable: The object.
+    """
+    return Serializer.from_hs3(string)
+
+
+def dump(*_, **__) -> NoReturn:
+    msg = "Not yet implemented, use `dumps` and manually dump the string."
+    raise WorkInProgressError(msg)
+
+
+def load(*_, **__) -> NoReturn:
+    msg = "Not yet implemented, use `loads` and manually load the string."
+    raise WorkInProgressError(msg)

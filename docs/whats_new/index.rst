@@ -11,5 +11,4 @@ Recent changes in the newest version :ref:`newest-changelog`.
 .. toctree::
     :maxdepth: 2
 
-    ../_tmp/zfit-tutorials/introduction/upgrade_guide_020.ipynb
     changelog

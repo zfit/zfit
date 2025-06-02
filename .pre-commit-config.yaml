@@ -42,6 +42,7 @@ repos:
         always_run: true
         additional_dependencies: [ pyyaml ]
 
+  # Broken, errors?
   #  - repo: https://github.com/PyCQA/docformatter
   #    rev: v1.7.5
   #    hooks:
@@ -65,7 +66,7 @@ repos:
   #        args: [ --py36-plus ]  # TODO: change fro 3.8? type annotations fail...
 
   - repo: https://github.com/asottile/setup-cfg-fmt
-    rev: v2.7.0
+    rev: v2.8.0
     hooks:
       - id: setup-cfg-fmt
         args: [ --max-py-version=3.12, --include-version-classifiers ]
@@ -81,12 +82,13 @@ repos:
         additional_dependencies: [ pyupgrade ]
         args: [ --py36-plus ]
 
-  - repo: https://github.com/mgedmin/check-manifest
-    rev: "0.50"
-    hooks:
-      - id: check-manifest
-        args: [ --update, --no-build-isolation ]
-        additional_dependencies: [ setuptools-scm, setuptools-scm-git-archive ]
+  # not needed for hatchling? also really slow...
+  #  - repo: https://github.com/mgedmin/check-manifest
+  #    rev: "0.50"
+  #    hooks:
+  #      - id: check-manifest
+  #        args: [ --update, --no-build-isolation ]
+  #        additional_dependencies: [ hatchling, hatch-vcs ]
 
   - repo: https://github.com/kynan/nbstripout
     rev: 0.8.1
@@ -105,15 +107,15 @@ repos:
     hooks:
       - id: auto-walrus
 
-  # todo: needs rust, reactivate?
+  #   todo: needs rust, reactivate?
   #  - repo: https://github.com/shssoichiro/oxipng
-  #    rev: v8.0.0
+  #    rev: v9.1.4
   #    hooks:
   #      - id: oxipng
 
 
   - repo: https://github.com/python-jsonschema/check-jsonschema
-    rev: 0.30.0
+    rev: 0.33.0
     hooks:
       - id: check-github-workflows
       - id: check-github-actions
@@ -128,7 +130,7 @@ repos:
 
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: "v0.8.6"
+    rev: "v0.11.10"
     hooks:
       - id: ruff
         types_or: [ python, pyi, jupyter ]

@@ -331,8 +331,8 @@ def test_result_update_params():
 
 @pytest.mark.flaky(reruns=3)
 @pytest.mark.parametrize("minimizer_class_and_kwargs", minimizers, ids=minimizer_ids)
-@pytest.mark.parametrize("use_weights", [False, "False", "asymptotic", "effsize"],
-                         ids=["no_weights", "w False", "w asymptotic", "w effsize"])
+@pytest.mark.parametrize("use_weights", [False, "False", "asymptotic", "sumw2"],
+                         ids=["no_weights", "w False", "w asymptotic", "w sumw2"])
 @pytest.mark.parametrize("extended", [True, False], ids=["extended", "not_extended"])
 def test_covariance(minimizer_class_and_kwargs, use_weights, extended):
     n = true_ntot
@@ -376,7 +376,7 @@ def test_covariance(minimizer_class_and_kwargs, use_weights, extended):
     else:
         rtol, atol = 0.05, 0.005
 
-    weightcorr = use_weights if use_weights in ("asymptotic", "effsize") else False
+    weightcorr = use_weights if use_weights in ("asymptotic", "sumw2") else False
     cov_mat_3_np = result.covariance(params=[a, b, c], method="hesse_np", weightcorr=weightcorr)
     np.testing.assert_allclose(cov_mat_3, cov_mat_3_np, rtol=rtol, atol=atol)
 
