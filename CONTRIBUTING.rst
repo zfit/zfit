@@ -24,7 +24,7 @@ Ready to contribute? Here's how to set up *zfit* for local development.
 
     git clone git@github.com:your_name_here/zfit.git
 
-3. Synchronise your fork with the official *zfit* tags:
+3. Synchronise your fork with the official *zfit* tags (needed since zfit uses past tags to get an on-the-fly version when installing):
 
 .. code-block::
 
