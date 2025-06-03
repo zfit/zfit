@@ -17,26 +17,33 @@ Get Started!
 
 Ready to contribute? Here's how to set up *zfit* for local development.
 
-1. Fork the *zfit* repo on GitHub.
+1. [Fork](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo#forking-a-repository) the *zfit* repo on GitHub.
 2. Clone your fork locally:
 
 .. code-block::
 
     git clone git@github.com:your_name_here/zfit.git
 
-3. Install your local copy into a conda/mamba or other virtual environment. For example with conda, do
+3. Synchronise your fork with the official *zfit* tags:
 
 .. code-block::
 
-    conda create -n zfit311 python=3.11
-    conda activate zfit311
-    pip install -e .[dev]  # . is the folder where setup.py is
+    cd zfit
+    git remote add upstream git@github.com:zfit/zfit.git
+    git fetch upstream --tags
 
-Further, you can install pre-commit locally to run the checks before you commit:
+4. Install your local copy into a conda/mamba or other virtual environment. For example with conda, do
 
 .. code-block::
 
-    pip install pre-commit
+    conda create -n zfit312 python=3.12
+    conda activate zfit312
+    python -m pip install -e .[dev]  # . is the the folder where pyproject.toml is 
+
+Further, you can install the *zfit* pre-commit hooks locally to run the checks before you commit:
+
+.. code-block::
+
     pre-commit install  # this will execute pre-commit checks before every commit
 
 4. Create a branch for local development
