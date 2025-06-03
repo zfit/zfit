@@ -12,12 +12,15 @@ from ._loss.binnedloss import (
     ExtendedBinnedChi2,
     ExtendedBinnedNLL,
 )
+from ._loss.general import Chi2
 from .core.loss import BaseLoss, ExtendedUnbinnedNLL, SimpleLoss, UnbinnedNLL
 
 __all__ = [
     "BaseLoss",
     "BinnedChi2",
     "BinnedNLL",
+    # general losses
+    "Chi2",
     "ExtendedBinnedChi2",
     "ExtendedBinnedNLL",
     "ExtendedBinnedNLL",
