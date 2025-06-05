@@ -293,12 +293,14 @@ class FunctionCacheHolder(GraphCachable):
 
         Returns:
         """
+
         # todo: we can probably get rid of this check, this is somewhat for legacy purpose
         # with the new parameter tf type spec, TF should take care of this
         # is initialized before the core
         # args = tuple(args)
         # kwargs = list(kwargs.keys()) + list(kwargs.values())
         combined = (*args, *kwargs.keys(), *kwargs.values())
+
         combined_cleaned = []
         for obj in combined:
             obj = self.get_immutable_repr_obj(obj)
@@ -343,7 +345,7 @@ class FunctionCacheHolder(GraphCachable):
                 id(obj),
             )  # crucial that we have the ID, see https://github.com/tensorflow/tensorflow/issues/57365
         elif tf.is_tensor(obj):
-            obj = self.IS_TENSOR
+            obj = self.IS_TENSOR  # keep it, otherwise it's an iterable
         elif isinstance(obj, collections.abc.Iterable):
             obj_new = []
             for obj_i in obj:
