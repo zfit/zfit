@@ -554,14 +554,14 @@ def padreflect_data_weights_1dim(data, mode, weights=None, limits=None, bandwidt
         dx_lower = diff * lower
         lower_area = data < minimum + dx_lower
         lower_index = znp.where(lower_area)[0]
-        lower_data = tf.gather(data, indices=lower_index)
+        lower_data = znp.take(data, lower_index, axis=0)
         lower_data_mirrored = -lower_data + 2 * minimum
         new_data.append(lower_data_mirrored)
         if weights is not None:
-            lower_weights = tf.gather(weights, indices=lower_index)
+            lower_weights = znp.take(weights, lower_index, axis=0)
             new_weights.append(lower_weights)
         if bw_is_array:
-            new_bw.append(tf.gather(bandwidth, indices=lower_index))
+            new_bw.append(znp.take(bandwidth, lower_index, axis=0))
     new_data.append(data)
     new_weights.append(weights)
     if bw_is_array:
@@ -570,14 +570,14 @@ def padreflect_data_weights_1dim(data, mode, weights=None, limits=None, bandwidt
         dx_upper = diff * upper
         upper_area = data > maximum - dx_upper
         upper_index = znp.where(upper_area)[0]
-        upper_data = tf.gather(data, indices=upper_index)
+        upper_data = znp.take(data, upper_index, axis=0)
         upper_data_mirrored = -upper_data + 2 * maximum
         new_data.append(upper_data_mirrored)
         if weights is not None:
-            upper_weights = tf.gather(weights, indices=upper_index)
+            upper_weights = znp.take(weights, upper_index, axis=0)
             new_weights.append(upper_weights)
         if bw_is_array:
-            new_bw.append(tf.gather(bandwidth, indices=upper_index))
+            new_bw.append(znp.take(bandwidth, upper_index, axis=0))
     data = tf.concat(new_data, axis=0)
 
     if weights is not None:

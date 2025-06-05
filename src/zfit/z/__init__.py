@@ -24,11 +24,11 @@ Recommended way of importing:
 # import sys
 # sys.modules['zfit.z.numpy'] = _tnp
 
-
 from . import math, random, unstable
 from .tools import _get_ndims
 from .wrapping_tf import (
     check_numerics,
+    assert_all_finite,
     complex,
     convert_to_tensor,
     exp,

@@ -324,7 +324,7 @@ def accept_reject_sample(
             n_drawn,
         ) = sample_and_weights(n_to_produce=n_to_produce, limits=new_limits, dtype=dtype)
 
-        rnd_sample_data = Data.from_tensor(obs=new_limits, tensor=rnd_sample)
+        rnd_sample_data = Data.from_tensor(obs=new_limits, tensor=rnd_sample, guarantee_limits=True)
         n_drawn = znp.asarray(n_drawn, dtype=tf.int64)
         if run.numeric_checks:
             tf.debugging.assert_non_negative(n_drawn)

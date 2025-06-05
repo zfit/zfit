@@ -1,3 +1,5 @@
+#  Copyright (c) 2025 zfit
+
 import pytest
 import numpy as np
 import time
@@ -24,7 +26,6 @@ def create_gaussian_mixture_data(n_samples=1000, weights=True):
 
     # Combine signal components
     model = zfit.pdf.SumPDF([sig1, sig2], fracs=[sig1frac], extended=nsig)
-
 
     # Generate data
     sampler = model.create_sampler(n=n_samples)
@@ -57,8 +58,9 @@ def create_three_component_data(n_samples=1000, weights=True):
 
     # Create the PDFs
     gauss = zfit.pdf.Gauss(mu=mean_gauss, sigma=sigma, obs=obs)
-    cb = zfit.pdf.GeneralizedCB(mu=mean_cb, sigmal=sigma, alphal=alphal, nl=nl,
-                               sigmar=sigma, alphar=alphar, nr=nr, obs=obs)
+    cb = zfit.pdf.GeneralizedCB(
+        mu=mean_cb, sigmal=sigma, alphal=alphal, nl=nl, sigmar=sigma, alphar=alphar, nr=nr, obs=obs
+    )
     exp = zfit.pdf.Exponential(lam=lam, obs=obs)
 
     # Create extended PDFs
@@ -124,8 +126,9 @@ def perform_fit(data, obs, model_type="gaussian_mixture"):
 
         # Create the PDFs
         gauss = zfit.pdf.Gauss(mu=mean_gauss, sigma=sigma, obs=obs)
-        cb = zfit.pdf.GeneralizedCB(mu=mean_cb, sigmal=sigma, alphal=alphal, nl=nl,
-                                   sigmar=sigma, alphar=alphar, nr=nr, obs=obs)
+        cb = zfit.pdf.GeneralizedCB(
+            mu=mean_cb, sigmal=sigma, alphal=alphal, nl=nl, sigmar=sigma, alphar=alphar, nr=nr, obs=obs
+        )
         exp = zfit.pdf.Exponential(lam=lam, obs=obs)
 
         # Create extended PDFs
@@ -142,12 +145,6 @@ def perform_fit(data, obs, model_type="gaussian_mixture"):
     result = minimizer.minimize(nll)
 
     return result, model
-
-
-
-
-
-
 
 
 def test_compare_error_methods():
@@ -169,12 +166,15 @@ def test_compare_error_methods():
         asymptotic_error = errors_asymptotic[param_name]["error"]
 
         # Asymptotic errors should generally be larger than uncorrected errors for weighted fits
-        assert asymptotic_error >= no_corr_error * 0.9, f"Asymptotic error for {param_name} should be larger than uncorrected"
+        assert asymptotic_error >= no_corr_error * 0.9, (
+            f"Asymptotic error for {param_name} should be larger than uncorrected"
+        )
 
         # Effective size errors should be between no correction and asymptotic
         sumw2_error = errors_sumw2[param_name]["error"]
-        assert no_corr_error * 0.9 <= sumw2_error <= asymptotic_error * 1.1, \
+        assert no_corr_error * 0.9 <= sumw2_error <= asymptotic_error * 1.1, (
             f"Effective size error for {param_name} should be between uncorrected and asymptotic"
+        )
 
 
 def test_weights_one_equals_no_weights():
@@ -214,17 +214,22 @@ def test_weights_one_equals_no_weights():
         weights_asymptotic_error = weights_asymptotic_errors[param_name]
 
         # All errors should be reasonably close to each other (within 100%)
-        assert pytest.approx(no_weights_error, rel=1.0) == weights_no_corr_error, \
+        assert pytest.approx(no_weights_error, rel=1.0) == weights_no_corr_error, (
             f"No weights error and weights=1 no correction error differ for {param_name}"
-        assert pytest.approx(no_weights_error, rel=1.0) == weights_sumw2_error, \
+        )
+        assert pytest.approx(no_weights_error, rel=1.0) == weights_sumw2_error, (
             f"No weights error and weights=1 sumw2 error differ for {param_name}"
-        assert pytest.approx(no_weights_error, rel=1.0) == weights_asymptotic_error, \
+        )
+        assert pytest.approx(no_weights_error, rel=1.0) == weights_asymptotic_error, (
             f"No weights error and weights=1 asymptotic error differ for {param_name}"
+        )
 
 
 def compare_roofit_zfit_gaussian_mixture():
     """Create and fit a Gaussian mixture model with both RooFit and zfit, then compare the results."""
     # Define the observable space
+    ROOT = pytest.importorskip("ROOT", reason="ROOT not available")
+    RooFit = ROOT.RooFit
     obs_z = zfit.Space("x", limits=(0, 10))
 
     # Create parameters for the zfit model
@@ -303,25 +308,26 @@ def compare_roofit_zfit_gaussian_mixture():
     param_errors_z = result_z.hesse(weightcorr="asymptotic", name="hesse_zfit_compare")
 
     # Fit with RooFit
-    result_r = model_r.fitTo(data_roofit, RooFit.Save(True), RooFit.AsymptoticError(True),
-                            RooFit.EvalBackend("cpu"), RooFit.Extended(True))
+    result_r = model_r.fitTo(
+        data_roofit, RooFit.Save(True), RooFit.AsymptoticError(True), RooFit.EvalBackend("cpu"), RooFit.Extended(True)
+    )
 
     # Return the results for comparison
     return {
         "zfit": {
-            "nsig": (nsig_z.value(), param_errors_z[nsig_z]['error']),
-            "mean": (mean_z.value(), param_errors_z[mean_z]['error']),
-            "sigma1": (sigma1_z.value(), param_errors_z[sigma1_z]['error']),
-            "sigma2": (sigma2_z.value(), param_errors_z[sigma2_z]['error']),
-            "sig1frac": (sig1frac_z.value(), param_errors_z[sig1frac_z]['error'])
+            "nsig": (nsig_z.value(), param_errors_z[nsig_z]["error"]),
+            "mean": (mean_z.value(), param_errors_z[mean_z]["error"]),
+            "sigma1": (sigma1_z.value(), param_errors_z[sigma1_z]["error"]),
+            "sigma2": (sigma2_z.value(), param_errors_z[sigma2_z]["error"]),
+            "sig1frac": (sig1frac_z.value(), param_errors_z[sig1frac_z]["error"]),
         },
         "roofit": {
             "nsig": (nsig_r.getVal(), nsig_r.getError()),
             "mean": (mean_r.getVal(), mean_r.getError()),
             "sigma1": (sigma1_r.getVal(), sigma1_r.getError()),
             "sigma2": (sigma2_r.getVal(), sigma2_r.getError()),
-            "sig1frac": (sig1frac_r.getVal(), sig1frac_r.getError())
-        }
+            "sig1frac": (sig1frac_r.getVal(), sig1frac_r.getError()),
+        },
     }
 
 
@@ -340,20 +346,21 @@ def test_compare_roofit_zfit_errors():
         roofit_val, roofit_err = results["roofit"][param_name]
 
         # Values should be similar (within 10%)
-        assert pytest.approx(zfit_val, rel=0.01) == roofit_val, \
+        assert pytest.approx(zfit_val, rel=0.01) == roofit_val, (
             f"zfit and RooFit values differ for {param_name}: {zfit_val} vs {roofit_val}"
+        )
 
         # Errors should be similar (within 20%)
-        assert pytest.approx(zfit_err, rel=0.01) == roofit_err, \
+        assert pytest.approx(zfit_err, rel=0.01) == roofit_err, (
             f"zfit and RooFit errors differ for {param_name}: {zfit_err} vs {roofit_err}"
-
+        )
 
 
 def compare_roofit_zfit_three_component(weightcorr):
     """Create and fit a three-component model with both RooFit and zfit, then compare the results."""
     # Define the observable space
     ROOT = pytest.importorskip("ROOT", reason="ROOT not available")
-    Roofit = ROOT.RooFit
+    RooFit = ROOT.RooFit
     obs_z = zfit.Space("x", limits=(0, 10))
 
     # Create parameters for the zfit model
@@ -481,9 +488,9 @@ def compare_roofit_zfit_three_component(weightcorr):
             raise ValueError(f"Unknown weight correction method: {weightcorr}")
     else:
         weightcorr_r = ROOT.RooFit.SumW2Error(False)
-    result_r = model_r.fitTo(data_roofit, RooFit.Save(True), weightcorr_r,
-                            RooFit.EvalBackend("cpu"), RooFit.Extended(True))
-
+    result_r = model_r.fitTo(
+        data_roofit, RooFit.Save(True), weightcorr_r, RooFit.EvalBackend("cpu"), RooFit.Extended(True)
+    )
 
     # Print comparison of results
     # print("\nComparison of zfit and RooFit results:")
@@ -494,15 +501,15 @@ def compare_roofit_zfit_three_component(weightcorr):
     # Return the results for comparison
     resultvals = {
         "zfit": {
-            "n_gauss": (n_gauss_z.value(), param_errors_z[n_gauss_z]['error']),
-            "n_cb": (n_cb_z.value(), param_errors_z[n_cb_z]['error']),
-            "n_exp": (n_exp_z.value(), param_errors_z[n_exp_z]['error']),
-            "mean_gauss": (mean_gauss_z.value(), param_errors_z[mean_gauss_z]['error']),
-            "mean_cb": (mean_cb_z.value(), param_errors_z[mean_cb_z]['error']),
-            "sigma": (sigma_z.value(), param_errors_z[sigma_z]['error']),
-            "alpha": (alpha_z.value(), param_errors_z[alpha_z]['error']),
-            "n": (n_z.value(), param_errors_z[n_z]['error']),
-            "lambda": (lam_z.value(), param_errors_z[lam_z]['error'])
+            "n_gauss": (n_gauss_z.value(), param_errors_z[n_gauss_z]["error"]),
+            "n_cb": (n_cb_z.value(), param_errors_z[n_cb_z]["error"]),
+            "n_exp": (n_exp_z.value(), param_errors_z[n_exp_z]["error"]),
+            "mean_gauss": (mean_gauss_z.value(), param_errors_z[mean_gauss_z]["error"]),
+            "mean_cb": (mean_cb_z.value(), param_errors_z[mean_cb_z]["error"]),
+            "sigma": (sigma_z.value(), param_errors_z[sigma_z]["error"]),
+            "alpha": (alpha_z.value(), param_errors_z[alpha_z]["error"]),
+            "n": (n_z.value(), param_errors_z[n_z]["error"]),
+            "lambda": (lam_z.value(), param_errors_z[lam_z]["error"]),
         },
         "roofit": {
             "n_gauss": (n_gauss_r.getVal(), n_gauss_r.getError()),
@@ -513,8 +520,8 @@ def compare_roofit_zfit_three_component(weightcorr):
             "sigma": (sigma_r.getVal(), sigma_r.getError()),
             "alpha": (alpha_r.getVal(), alpha_r.getError()),
             "n": (n_r.getVal(), n_r.getError()),
-            "lambda": (lam_r.getVal(), lam_r.getError())
-        }
+            "lambda": (lam_r.getVal(), lam_r.getError()),
+        },
     }
 
     # # Print the comparison
@@ -579,6 +586,7 @@ def compare_roofit_zfit_three_component(weightcorr):
 
     return resultvals
 
+
 @pytest.mark.parametrize("weightcorr", [False, "sumw2", "asymptotic"])
 def test_compare_roofit_zfit_three_component_errors(weightcorr):
     """Test that zfit and RooFit errors are similar for the three-component model."""
@@ -594,11 +602,13 @@ def test_compare_roofit_zfit_three_component_errors(weightcorr):
         roofit_val, roofit_err = results["roofit"][param_name]
 
         # For all parameters, compare values with a tight tolerance (3%)
-        assert pytest.approx(zfit_val, rel=0.03) == roofit_val, \
+        assert pytest.approx(zfit_val, rel=0.03) == roofit_val, (
             f"zfit and RooFit values differ for {param_name}: {zfit_val} vs {roofit_val}"
+        )
 
         relerr = 0.15 if weightcorr == "sumw2" else 0.03  # only approximate, it's not correct.
         # we don't do the squared weights in the NLL calculation, just multiply the weights with the pdf vals
         # and then multiply by the sum of weights and divide by the sum of squares.
-        assert pytest.approx(zfit_err, rel=relerr) == roofit_err, \
+        assert pytest.approx(zfit_err, rel=relerr) == roofit_err, (
             f"zfit and RooFit errors differ significantly for {param_name}: {zfit_err} vs {roofit_err}"
+        )

@@ -324,6 +324,7 @@ class Ipyopt(BaseMinimizer):
             ipopt_options["limited_memory_update_type"] = hessian
             # ipopt_options["limited_memory_initialization"] = "scalar2"
             # ipopt_options["limited_memory_init_val"] = 0.1  # (np.min(stepsize) + np.mean(stepsize)) / 2
+            ipopt_options["limited_memory_max_history"] = minimizer_options.pop("limited_memory_max_history", 8)
         # ipopt_options['dual_inf_tol'] = TODO?
 
         minimizer = ipyopt.Problem(**minimizer_kwargs)

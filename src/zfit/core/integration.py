@@ -163,7 +163,7 @@ def simpson_integrate(func, limits, num_points):  # currently not vectorized
             raise ValueError(msg)
         lower = znp.array(lower)[0, 0]
         upper = znp.array(upper)[0, 0]
-        tf.debugging.assert_all_finite(
+        z.assert_all_finite(
             (lower, upper),
             "MC integration does (currently) not support unbound limits (np.infty) as given here:"
             f"\nlower: {lower}, upper: {upper}",

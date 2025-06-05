@@ -134,7 +134,7 @@ repos:
     hooks:
       - id: ruff
         types_or: [ python, pyi, jupyter ]
-        args: [ --fix, --unsafe-fixes, --show-fixes , --line-length=120 ]
+        args: [ --fix, --show-fixes , --line-length=120 ]
       # Run the formatter.
       - id: ruff-format
         types_or: [ python, pyi, jupyter ]

@@ -162,7 +162,7 @@ class CachedPDF(BaseFunctor, SerializableMixin):
         pdf_params = list(self.pdfs[0].get_params())
         if hasparams := (paramlen := len(pdf_params)) > 0:
             stacked_pdf_params = tf.stack(pdf_params)
-            cachedparamlen = tf.shape(self._cached_pdf_params)
+            cachedparamlen = tf.shape(self._cached_pdf_params)[0]
             minparamlen = znp.min(
                 [
                     paramlen,

@@ -61,7 +61,7 @@ def tfd_analytic_sample(n: int, dist: tfd.Distribution, limits: ztyping.ObsTypeI
         sample = dist.quantile(prob_sample)
     except NotImplementedError:
         raise AnalyticSamplingNotImplemented from None
-    sample.set_shape((None, limits.n_obs))
+    sample.set_shape((n, limits.n_obs))
     return sample
 
 
@@ -116,7 +116,7 @@ class WrapDistribution(BasePDF):  # TODO: extend functionality of wrapper, like 
         lower, upper = limits._rect_limits_tf
         lower = z.unstack_x(lower)
         upper = z.unstack_x(upper)
-        tf.debugging.assert_all_finite((lower, upper), "Are infinite limits needed? Causes troubles with NaNs")
+        z.assert_all_finite((lower, upper), "Are infinite limits needed? Causes troubles with NaNs")
         return self.distribution.cdf(upper) - self.distribution.cdf(lower)
 
     def _analytic_sample(self, n, limits: Space):

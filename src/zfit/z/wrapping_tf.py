@@ -71,6 +71,10 @@ def check_numerics(tensor: Any, message: Any, name: Any = None) -> tf.Operation:
     Returns:
         A TensorFlow operation that checks if the tensor is valid
     """
+    from .. import run
+
+    if not run.numeric_checks:
+        return None
     if tf.as_dtype(tensor.dtype).is_complex:
         real_check = tf.debugging.check_numerics(tensor=_znp.real(tensor), message=message, name=name)
         imag_check = tf.debugging.check_numerics(tensor=_znp.imag(tensor), message=message, name=name)
@@ -78,6 +82,15 @@ def check_numerics(tensor: Any, message: Any, name: Any = None) -> tf.Operation:
     else:
         check_op = tf.debugging.check_numerics(tensor=tensor, message=message, name=name)
     return check_op
+
+
+def assert_all_finite(t: tf.Tensor, msg: str = None) -> tf.Operation:
+    """Assert that all elements of a tensor are finite."""
+    from .. import run
+
+    if not run.numeric_checks:
+        return None
+    return tf.debugging.assert_all_finite(t, msg)
 
 
 reduce_sum = _znp.sum

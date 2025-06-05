@@ -2179,6 +2179,8 @@ class Space(
 
     def _inside(self, x, guarantee_limits):
         del guarantee_limits  # not used
+        tf.print("DEBUG")
+        print("PYTHON DEBUG")
         xs_inside = []
         obs_in_use = self.obs is not None
         limits_dict = self._limits_dict["obs" if obs_in_use else "axes"]

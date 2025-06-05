@@ -356,10 +356,8 @@ class Data(
             **overwrite_params,
         }
         newpar["guarantee_limits"] = (
-            "obs" not in overwrite_params
-            and "data" not in overwrite_params
-            and overwrite_params.get("guarantee_limits") is not False
-        )
+            "obs" not in overwrite_params and "data" not in overwrite_params
+        ) or overwrite_params.get("guarantee_limits") is not False
         if "tensor" in overwrite_params:
             msg = "do not give tensor in copy, instead give a LightDataset."
             raise BreakingAPIChangeError(msg)
@@ -979,7 +977,7 @@ class Data(
         else:
             indices = self.space.with_obs(obs=obs).axes
         out = self.dataset.value(indices)
-        if isinstance(obs, str) or axis is not None:
+        if isinstance(obs, str) or (axis is not None and isinstance(indices, int)):
             out = znp.squeeze(out, axis=-1)
         return out
 
@@ -1904,9 +1902,9 @@ class LightDataset:
         else:
             if isint := isinstance(index, int):
                 index = (index,)
-            newindex = [tensormap[i] for i in index]
+            newindex = tuple([tensormap[i] for i in index])
             if newindex != trivial_index:
-                tensor = tf.gather(tensor, newindex, axis=-1)
+                tensor = znp.take(tensor, newindex, axis=-1)
             if isint:
                 tensor = znp.squeeze(tensor, axis=-1)
             return tensor

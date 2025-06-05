@@ -1,9 +1,14 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2025 zfit
 from __future__ import annotations
 
 import pickle
+import time
+
+from tqdm import tqdm
 
 import zfit
+
+zfit.run.experimental_disable_param_update(True)
 
 n_bins = 50
 
@@ -14,8 +19,8 @@ obs = zfit.Space("x", -10, 10)
 mu = zfit.Parameter("mu", 1.0, -4, 6)
 sigma = zfit.Parameter("sigma", 1.0, 0.1, 10)
 lambd = zfit.Parameter("lambda", -0.06, -1, -0.01)
-n_bkg = zfit.Parameter("n_bkg", 20000)
-n_sig = zfit.Parameter("n_sig", 1000)
+n_bkg = zfit.Parameter("n_bkg", 1200000)
+n_sig = zfit.Parameter("n_sig", 100000)
 
 # model building, pdf creation
 gauss_extended = zfit.pdf.Gauss(mu=mu, sigma=sigma, obs=obs, extended=n_sig)
@@ -23,11 +28,11 @@ exp_extended = zfit.pdf.Exponential(lambd, obs=obs, extended=n_bkg)
 
 model = zfit.pdf.SumPDF([gauss_extended, exp_extended])
 
-n = 21200
+n = (n_bkg + n_sig) * 1.05
 data = model.sample(n=n)
 
 # set the values to a start value for the fit
-zfit.param.set_values({mu: 0.5, sigma: 1.2, lambd: -0.05})
+# zfit.param.set_values({mu: 0.5, sigma: 1.2, lambd: -0.05})
 # alternatively, we can set the values individually
 # mu.set_value(0.5)
 # sigma.set_value(1.2)
@@ -38,14 +43,20 @@ nll = zfit.loss.ExtendedUnbinnedNLL(model=model, data=data)
 
 # create a minimizer
 # this uses the automatic gradient (more precise, but can fail)
-minimizer = zfit.minimize.Minuit(gradient="zfit")
-result = minimizer.minimize(nll).update_params()
-# do the error calculations, here with hesse, than with minos
-param_hesse = result.hesse()
+minimizer = zfit.minimize.Minuit(gradient=True)
+result = minimizer.minimize(nll)
 
+start = time.time()
+ntoys = 50
+for i in tqdm(range(ntoys)):
+    result = minimizer.minimize(nll)
+    # do the error calculations, here with hesse, than with minos
+    # param_hesse = result.hesse()
+
+print(f"Time per fit {(time.time() - start) / ntoys} seconds")
 # the second return value is a new FitResult if a new minimum was found
 
-param_errors, _ = result.errors()
+# param_errors, _ = result.errors()
 
 print(result)
 # Storing the result can be achieved in many ways. Using dill (like pickle), we can dump and load the result

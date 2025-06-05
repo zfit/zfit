@@ -28,7 +28,6 @@ import dill
 import numpy as np
 import pydantic.v1 as pydantic
 import tensorflow as tf
-import tensorflow_probability as tfp
 
 # TF backwards compatibility
 from ordered_set import OrderedSet
@@ -513,10 +512,10 @@ class Parameter(
 
     def value(self):
         value = super().value()
-        if self.has_limits:
-            value = tfp.math.clip_by_value_preserve_gradient(
-                value, clip_value_min=self.lower, clip_value_max=self.upper
-            )
+        # if self.has_limits:
+        #     value = tfp.math.clip_by_value_preserve_gradient(
+        #         value, clip_value_min=self.lower, clip_value_max=self.upper
+        #     )
         return value
 
     # @deprecated(None, "Use `value` instead.")
