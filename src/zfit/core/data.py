@@ -977,7 +977,7 @@ class Data(
         else:
             indices = self.space.with_obs(obs=obs).axes
         out = self.dataset.value(indices)
-        if isinstance(obs, str) or (axis is not None and isinstance(indices, int)):
+        if isinstance(obs, str) or (axis is not None and isinstance(axis, int)):
             out = znp.squeeze(out, axis=-1)
         return out
 
