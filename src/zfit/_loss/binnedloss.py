@@ -523,6 +523,8 @@ def chi2_loss_calc(probs, values, variances, log_offset=None, ignore_empty=None)
     if log_offset is not False:
         log_offset = znp.asarray(log_offset, dtype=znp.float64)
         chi2_term += log_offset
+    # else:
+    #     log_offset = znp.shape(chi2_term)[0] * znp.log(2 * np.pi * znp.sqrt(variances + 0.0001))  # full loss, from gauss
     return znp.sum(chi2_term)
 
 
@@ -672,7 +674,7 @@ class BinnedChi2(BaseBinned):
 
             variance_method = self._options.get("errors")
             if variance_method == "expected":
-                variances = znp.sqrt(probs + znp.asarray(1e-307, dtype=znp.float64))
+                variances = probs + znp.asarray(1e-307, dtype=znp.float64)
             elif variance_method == "data":
                 variances = dat.variances()
             else:
