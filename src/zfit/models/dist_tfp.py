@@ -61,7 +61,7 @@ def tfd_analytic_sample(n: int, dist: tfd.Distribution, limits: ztyping.ObsTypeI
         sample = dist.quantile(prob_sample)
     except NotImplementedError:
         raise AnalyticSamplingNotImplemented from None
-    sample.set_shape((n, limits.n_obs))
+    sample.set_shape((None, limits.n_obs))  # n is possibly a tensor, needs a static shape
     return sample
 
 

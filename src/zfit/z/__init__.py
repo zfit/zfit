@@ -29,6 +29,9 @@ from .tools import _get_ndims
 from .wrapping_tf import (
     check_numerics,
     assert_all_finite,
+    assert_equal,
+    assert_positive,
+    assert_non_negative,
     complex,
     convert_to_tensor,
     exp,

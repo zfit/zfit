@@ -93,6 +93,33 @@ def assert_all_finite(t: tf.Tensor, msg: str = None) -> tf.Operation:
     return tf.debugging.assert_all_finite(t, msg)
 
 
+def assert_positive(t: tf.Tensor, msg: str = None) -> tf.Operation:
+    """Assert that all elements of a tensor are positive."""
+    from .. import run
+
+    if not run.numeric_checks:
+        return None
+    return tf.debugging.assert_positive(t, msg)
+
+
+def assert_non_negative(t: tf.Tensor, msg: str = None) -> tf.Operation:
+    """Assert that all elements of a tensor are non-negative."""
+    from .. import run
+
+    if not run.numeric_checks:
+        return None
+    return tf.debugging.assert_non_negative(t, msg)
+
+
+def assert_equal(t1: tf.Tensor, t2: tf.Tensor, msg: str = None) -> tf.Operation:
+    """Assert that two tensors are equal."""
+    from .. import run
+
+    if not run.numeric_checks:
+        return None
+    return tf.debugging.assert_equal(t1, t2, msg)
+
+
 reduce_sum = _znp.sum
 
 reduce_prod = _znp.prod

@@ -299,7 +299,7 @@ def accept_reject_sample(
             n_to_produce = znp.maximum(n_to_produce, n_min_to_produce)
             # TODO: adjustable efficiency cap for memory efficiency (prevent too many samples at once produced)
             max_produce_cap = tf.constant(800000, dtype=tf.int64)
-            tf.debugging.assert_positive(n_to_produce, "n_to_produce went negative, overflow?")
+            z.assert_positive(n_to_produce, "n_to_produce went negative, overflow?")
             # TODO: remove below? was there due to overflow in tf?
             # n_to_produce = znp.maximum(5, n_to_produce)  # protect against overflow, n_to_prod -> neg.
             n_to_produce = znp.minimum(n_to_produce, max_produce_cap)  # introduce a cap to force serial
@@ -327,12 +327,12 @@ def accept_reject_sample(
         rnd_sample_data = Data.from_tensor(obs=new_limits, tensor=rnd_sample, guarantee_limits=True)
         n_drawn = znp.asarray(n_drawn, dtype=tf.int64)
         if run.numeric_checks:
-            tf.debugging.assert_non_negative(n_drawn)
+            z.assert_non_negative(n_drawn)
         n_total_drawn += n_drawn
         probabilities = prob(rnd_sample_data)
         shape_rnd_sample = tf.shape(input=rnd_sample)[0]
         if run.numeric_checks:
-            tf.debugging.assert_equal(tf.shape(input=probabilities), shape_rnd_sample)
+            z.assert_equal(tf.shape(input=probabilities), shape_rnd_sample)
 
         if (
             prob_max_init is None or weights_max is None
