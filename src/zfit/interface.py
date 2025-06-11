@@ -23,12 +23,18 @@ from .core.interfaces import (
 
 __all__ = [
     "ZfitBinnedData",
+    "ZfitBinnedData",
     "ZfitBinnedPDF",
+    "ZfitBinnedPDF",
+    "ZfitBinning",
     "ZfitBinning",
     "ZfitData",
     "ZfitIndependentParameter",
+    "ZfitIndependentParameter",
+    "ZfitLoss",
     "ZfitLoss",
     "ZfitModel",
+    "ZfitPDF",
     "ZfitPDF",
     "ZfitParameter",
     "ZfitSpace",

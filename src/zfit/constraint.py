@@ -20,6 +20,7 @@ __all__ = [
     "LogNormalConstraint",
     "PoissonConstraint",
     "SimpleConstraint",
+    "SimpleConstraint",
 ]
 
 
