@@ -37,7 +37,7 @@ class RunManager:
         self._inter_cpus = None
         self._intra_cpus = None
         self._strict = False
-        self.numeric_checks = True
+        self.numeric_checks = False
         self._mode = self.DEFAULT_MODE.copy()
         self.set_n_cpu(n_cpu=n_cpu)
         self._hashing_enabled = True

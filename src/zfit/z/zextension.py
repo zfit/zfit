@@ -270,6 +270,7 @@ class FunctionWrapperRegistry:
         def concrete_func(*args, **kwargs):
             if self.force_eager and not run.executing_eagerly():
                 raise DoNotCompile
+            # skip JIT in certain situations
             if not self.do_jit or func in self.currently_traced or not run.executing_eagerly():
                 return func(*args, **kwargs)
 

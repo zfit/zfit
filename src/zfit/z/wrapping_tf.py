@@ -120,6 +120,15 @@ def assert_equal(t1: tf.Tensor, t2: tf.Tensor, msg: str = None) -> tf.Operation:
     return tf.debugging.assert_equal(t1, t2, msg)
 
 
+def assert_greater_equal(t1: tf.Tensor, t2: tf.Tensor, msg: str = None) -> tf.Operation:
+    """Assert that two tensors are equal."""
+    from .. import run
+
+    if not run.numeric_checks:
+        return None
+    return tf.debugging.assert_greater_equal(t1, t2, msg)
+
+
 reduce_sum = _znp.sum
 
 reduce_prod = _znp.prod
