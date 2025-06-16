@@ -32,6 +32,7 @@ from .wrapping_tf import (
     assert_equal,
     assert_positive,
     assert_non_negative,
+assert_greater_equal,
     complex,
     convert_to_tensor,
     exp,

@@ -226,16 +226,7 @@ def accept_reject_sample(
     initial_n_drawn = tf.constant(0, dtype=tf.int64)
 
     # Pre-allocate tensor instead of TensorArray for better performance
-    # Research shows 57x-290x speedup with tensor_scatter_nd_update
-    if dynamic_array_shape:
-        # For dynamic case, allocate extra buffer space to reduce reallocations
-        # Start with 25% extra space, which should cover most cases efficiently
-        buffer_factor = 1.25
-        max_size = znp.asarray(znp.ceil(z.to_real(n) * buffer_factor), dtype=tf.int64)
-        sample = tf.zeros(shape=(max_size, limits.n_obs), dtype=dtype)
-    else:
-        # For fixed case (EventSpace), allocate exactly n samples
-        sample = tf.zeros(shape=(n, limits.n_obs), dtype=dtype)
+    sample = tf.zeros(shape=(n, limits.n_obs), dtype=dtype)
 
     @z.function(wraps="tensor", keepalive=True)
     def not_enough_produced(
@@ -329,13 +320,11 @@ def accept_reject_sample(
 
         rnd_sample_data = Data.from_tensor(obs=new_limits, tensor=rnd_sample, guarantee_limits=True)
         n_drawn = znp.asarray(n_drawn, dtype=tf.int64)
-        if run.numeric_checks:
-            z.assert_non_negative(n_drawn)
+        z.assert_non_negative(n_drawn)
         n_total_drawn += n_drawn
         probabilities = prob(rnd_sample_data)
         shape_rnd_sample = tf.shape(input=rnd_sample)[0]
-        if run.numeric_checks:
-            z.assert_equal(tf.shape(input=probabilities), shape_rnd_sample)
+        z.assert_equal(tf.shape(input=probabilities), shape_rnd_sample)
 
         if (
             prob_max_init is None or weights_max is None
@@ -415,7 +404,7 @@ def accept_reject_sample(
             #                                    data=[weights_scaling, min_prob_weights_ratio],
             #                                    message="The ratio between the probabilities from the pdf and the"
             #                                    f"probability from the sampler is higher "
-            #                                    f" then {ratio_threshold}. This will most probably bias the sampling. "
+            #                                    f" than {ratio_threshold}. This will most probably bias the sampling. "
             #                                    f"Use importance sampling or, to disable this check, do"
             #                                    f"zfit.run.numeric_checks = False")
             # assert_op.append(assert_scaling_op)
@@ -426,6 +415,7 @@ def accept_reject_sample(
 
         n_accepted = tf.shape(input=filtered_sample, out_type=tf.int64)[0]
         n_produced_new = n_produced + n_accepted
+        last_index =znp.min([n_produced_new, n])
         if not dynamic_array_shape:
             indices = tf.boolean_mask(tensor=draw_indices, mask=take_or_not)
             current_sampled = tf.sparse.to_dense(
@@ -439,21 +429,11 @@ def accept_reject_sample(
             is_sampled = tf.logical_or(is_sampled, current_sampled)
             indices = indices[:, 0]
         else:
-            indices = tf.range(n_produced, n_produced_new)
+            indices = tf.range(n_produced, last_index)
+            filtered_sample = filtered_sample[:last_index - n_produced]
 
-        # Check if we need to grow the buffer (only for dynamic case)
-        if dynamic_array_shape:
-            current_buffer_size = znp.asarray(tf.shape(sample)[0], dtype=tf.int64)
-            needed_size = n_produced_new
 
-            def grow_buffer():
-                # Grow buffer by 50% when needed to balance memory vs reallocation cost
-                new_buffer_size = znp.asarray(znp.ceil(z.to_real(needed_size) * 1.5), dtype=tf.int64)
-                new_buffer = tf.zeros(shape=(new_buffer_size, limits.n_obs), dtype=dtype)
-                # Copy existing samples to new buffer efficiently
-                return tf.concat([sample[:n_produced, :], new_buffer[n_produced:, :]], axis=0)
 
-            sample = tf.cond(tf.greater(needed_size, current_buffer_size), grow_buffer, lambda: sample)
 
         # Use tensor_scatter_nd_update for massive performance improvement over TensorArray
         # Convert indices to the format expected by tensor_scatter_nd_update
@@ -496,18 +476,11 @@ def accept_reject_sample(
         n_min_to_produce,
     )
 
-    # Define shape invariants for the while loop since buffer can grow in dynamic case
-    # Handle is_sampled shape properly - it can be a string constant or a boolean tensor
-    if dynamic_array_shape:
-        # For dynamic case, initial_is_sampled is always tf.constant("EMPTY")
-        is_sampled_shape = tf.TensorShape([])
-    else:
-        # For fixed case, initial_is_sampled is a boolean tensor of shape (n,)
-        is_sampled_shape = tf.TensorShape([None])
+    is_sampled_shape = tf.TensorShape([None])
 
     shape_invariants = (
         n.get_shape(),  # n - fixed
-        tf.TensorShape([None, limits.n_obs]),  # sample - can grow
+        sample.get_shape(),  # sample - fixed
         inital_n_produced.get_shape(),  # n_produced - fixed
         initial_n_drawn.get_shape(),  # n_total_drawn - fixed
         efficiency_estimation.get_shape(),  # eff - fixed

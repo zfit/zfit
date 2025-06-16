@@ -111,7 +111,7 @@ def assert_non_negative(t: tf.Tensor, msg: str = None) -> tf.Operation:
     return tf.debugging.assert_non_negative(t, msg)
 
 
-def assert_equal(t1: tf.Tensor, t2: tf.Tensor, msg: str = None) -> tf.Operation:
+def assert_equal(t1: tf.Tensor, t2: tf.Tensor, msg: str | None= None) -> tf.Operation:
     """Assert that two tensors are equal."""
     from .. import run
 
@@ -120,13 +120,13 @@ def assert_equal(t1: tf.Tensor, t2: tf.Tensor, msg: str = None) -> tf.Operation:
     return tf.debugging.assert_equal(t1, t2, msg)
 
 
-def assert_greater_equal(t1: tf.Tensor, t2: tf.Tensor, msg: str = None) -> tf.Operation:
+def assert_greater_equal(x: tf.Tensor, y: tf.Tensor, msg: str | None = None) -> tf.Operation:
     """Assert that two tensors are equal."""
     from .. import run
 
     if not run.numeric_checks:
         return None
-    return tf.debugging.assert_greater_equal(t1, t2, msg)
+    return tf.debugging.assert_greater_equal(x, y, msg)
 
 
 reduce_sum = _znp.sum

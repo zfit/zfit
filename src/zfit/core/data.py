@@ -226,7 +226,7 @@ class Data(
         self._original_space = self.space
         self._data_range = self.space
 
-        if not guarantee_limits:
+        if not guarantee_limits:  # TODO: find correct observables
             tensormap = data._tensormap if (ismap := data._tensor is None) else data.value()
             value, weights = check_cut_data_weights(limits=self.space, data=tensormap, weights=weights)
             if ismap:
@@ -357,7 +357,7 @@ class Data(
         }
         newpar["guarantee_limits"] = (
             "obs" not in overwrite_params and "data" not in overwrite_params
-        ) or overwrite_params.get("guarantee_limits") is not False
+        ) or overwrite_params.get("guarantee_limits")
         if "tensor" in overwrite_params:
             msg = "do not give tensor in copy, instead give a LightDataset."
             raise BreakingAPIChangeError(msg)
@@ -1779,14 +1779,23 @@ class LightDataset:
                 assumed to be the data.
             ndims: The number of dimensions of the data. If `None`, it is inferred from the tensor or the tensormap.
         """
-        if tensor is None and isinstance(tensormap, Mapping):
-            tensormap = tensormap.copy()
-            for _key, value in tensormap.items():
-                if value.dtype not in (ztypes.float, znp.float32, znp.float64, znp.int32, znp.int64):
-                    msg = f"Value of tensormap has to be a float, not {value.dtype}."
-                    raise TypeError(msg)
-                if value.dtype != ztypes.float:
-                    value = znp.array(value, dtype=ztypes.float)
+        if isinstance(tensormap, Mapping):
+            if tensor is None:
+                tensormapnew = tensormap.copy()
+                for key, value in tensormap.items():
+                    if value.dtype not in (ztypes.float, znp.float32, znp.float64, znp.int32, znp.int64):
+                        msg = f"Value of tensormap has to be a float, not {value.dtype}."
+                        raise TypeError(msg)
+                    if value.dtype != ztypes.float:
+                        tensormapnew[key] = znp.asarray(value, dtype=ztypes.float)
+                tensormap = tensormapnew
+            elif (tensorshape := tensor.shape[-1]) != len(tensormap):  # we need to reduce the dimensions
+                if tensorshape < len(tensormap):
+                    msg = "More dimensions requested than available in data"
+                    raise ValueError(msg)
+                tensormap = {k: znp.asarray(tensor[..., v], dtype=ztypes.float) for k, v in tensormap.items()}
+                tensor = None
+
         elif tensormap is None:  # the actual preprocessing, otherwise we pass it through
             if not isinstance(tensor, tf.Variable):
                 tensor = znp.asarray(tensor)
@@ -1799,6 +1808,7 @@ class LightDataset:
                 raise ValueError(msg)
             ndims = tensor.shape[1]
             tensormap = {i: i for i in range(ndims)}
+
 
         if ndims is None:
             ndims = len(tensormap)
@@ -1897,7 +1907,7 @@ class LightDataset:
         if tensor is None:
             # tensormap is filled, we can now return the values, either a single one or a stacked tensor
             if isinstance(index, int):
-                return tensormap[index]
+                return tensormap[index]  # todo: add case for single index in tuple?
             return znp.stack([tensormap[i] for i in index], axis=-1)
         else:
             if isint := isinstance(index, int):
