@@ -513,10 +513,12 @@ class Parameter(
     def value(self):
         value = super().value()
         # We don't need to preserve this, right?
-        # if self.has_limits:
-        #     value = tfp.math.clip_by_value_preserve_gradient(
-        #         value, clip_value_min=self.lower, clip_value_max=self.upper
-        #     )
+        if self.has_limits:
+            import tensorflow_probability as tfp
+
+            value = tfp.math.clip_by_value_preserve_gradient(
+                value, clip_value_min=self.lower, clip_value_max=self.upper
+            )
         return value
 
     # @deprecated(None, "Use `value` instead.")
