@@ -3,17 +3,13 @@
 from __future__ import annotations
 
 import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
-import typing
 from collections.abc import Iterable
 from typing import Optional
 
 import pydantic.v1 as pydantic
 import tensorflow as tf
 
+from .. import z
 from ..core.coordinates import convert_to_obs_str
 from ..core.dimension import get_same_obs
 from ..core.interfaces import ZfitFunctorMixin, ZfitModel, ZfitParameter, ZfitSpace
@@ -36,7 +32,7 @@ from ..util.warnings import warn_advanced_feature, warn_changed_feature
 from ..z import numpy as znp
 
 if typing.TYPE_CHECKING:
-    pass
+    import zfit  # noqa: F401
 
 
 def extract_daughter_input_obs(obs: ztyping.ObsTypeInput, spaces: Iterable[ZfitSpace]) -> ZfitSpace:

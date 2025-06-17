@@ -583,7 +583,7 @@ class Parameter(
     def step_size(self, value):
         self.stepsize = value
 
-    def set_value(self, value: ztyping.NumericalScalarType):
+    def set_value(self, value: ztyping.NumericalScalarType, *, clip: bool | None = None):
         """Set the :py:class:`~zfit.Parameter` to `value` (temporarily if used in a context manager).
 
         This operation won't, compared to the assign, return the read value but an object that *can* act as a context
@@ -611,17 +611,17 @@ class Parameter(
                     if self._check_at_limit(value, exact=True):
                         raise ValueError(message)
                 else:
-                    tf.debugging.assert_greater(
+                    z.assert_greater(
                         znp.asarray(value, tf.float64),
                         znp.asarray(self.lower, tf.float64),
                         message=message,
                     )
-                    tf.debugging.assert_less(
+                    z.assert_less(
                         znp.asarray(value, tf.float64),
                         znp.asarray(self.upper, tf.float64),
                         message=message,
                     )
-            #     tf.debugging.Assert(self._check_at_limit(value), [value])
+            #     z.Assert(self._check_at_limit(value), [value])
             self.assign(value=value, read_value=False)
 
         return TemporarilySet(value=value, setter=setter, getter=getter)

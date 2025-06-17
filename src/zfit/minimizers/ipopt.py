@@ -325,6 +325,7 @@ class Ipyopt(BaseMinimizer):
         else:
             ipopt_options["hessian_approximation"] = "limited-memory"
             ipopt_options["limited_memory_update_type"] = hessian
+            ipopt_options["constr_viol_tol"] = 1e-15
             # ipopt_options["limited_memory_initialization"] = "scalar2"
             # ipopt_options["limited_memory_init_val"] = 0.1  # (np.min(stepsize) + np.mean(stepsize)) / 2
             ipopt_options["limited_memory_max_history"] = minimizer_options.pop("limited_memory_max_history", 8)
@@ -346,10 +347,10 @@ class Ipyopt(BaseMinimizer):
 
         warm_start_options = (  # TODO: what exactly here?
             "warm_start_init_point",
-            "warm_start_same_structure",
-            "warm_start_entire_iterate",
+            # "warm_start_same_structure",
+            # "warm_start_entire_iterate",
         )
-        # minimizer.set_intermediate_callback(lambda *a, **k: print(a, k) or True)
+        minimizer.set_intermediate_callback(lambda *a, **k: print(a, k) or True)
 
         fmin = None
         status = None
@@ -359,12 +360,7 @@ class Ipyopt(BaseMinimizer):
 
             # run the minimization
             try:
-                xvalues, fmin, status = minimizer.solve(
-                    xvalues,
-                    # mult_g=constraint_multipliers,
-                    # mult_x_L=zl,
-                    # mult_x_U=zu
-                )
+                xvalues, fmin, status = minimizer.solve(xvalues)
             except MaximumIterationReached:
                 maxiter_reached = True
                 valid = False
@@ -407,8 +403,10 @@ class Ipyopt(BaseMinimizer):
             if converged or maxiter_reached:
                 break
 
-            # prepare for next run
-            minimizer.set(**dict.fromkeys(warm_start_options, "yes"))
+            # Only enable warm start after first successful iteration
+            # and only if the previous iteration completed successfully
+            if i == 0 and status in [0, 1]:  # 0=solved, 1=solved to acceptable level
+                minimizer.set(**dict.fromkeys(warm_start_options, "yes"))
 
             # update the tolerances
             self._update_tol_inplace(

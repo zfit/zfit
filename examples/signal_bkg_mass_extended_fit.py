@@ -16,8 +16,8 @@ obs = zfit.Space("x", -10, 10)
 mu = zfit.Parameter("mu", 1.0, -4, 6)
 sigma = zfit.Parameter("sigma", 1.0, 0.1, 10)
 lambd = zfit.Parameter("lambda", -0.06, -1, -0.01)
-n_bkg = zfit.Parameter("n_bkg", 20000)
-n_sig = zfit.Parameter("n_sig", 1000)
+n_bkg = zfit.Parameter("n_bkg", 20000, 0, 50000)
+n_sig = zfit.Parameter("n_sig", 1000, 0, 30000)
 
 # model building, pdf creation
 gauss_extended = zfit.pdf.Gauss(mu=mu, sigma=sigma, obs=obs, extended=n_sig)
@@ -40,7 +40,8 @@ nll = zfit.loss.ExtendedUnbinnedNLL(model=model, data=data)
 
 # create a minimizer
 # this uses the automatic gradient (more precise, but can fail)
-minimizer = zfit.minimize.Minuit(gradient="zfit")
+# minimizer = zfit.minimize.Minuit(gradient="zfit")
+minimizer = zfit.minimize.Ipyopt()
 result = minimizer.minimize(nll).update_params()
 # do the error calculations, here with hesse, than with minos
 param_hesse = result.hesse()
