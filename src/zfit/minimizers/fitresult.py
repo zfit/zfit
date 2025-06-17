@@ -439,6 +439,7 @@ class FitResult(ZfitResult):
             message += "parameter(s) at their limit."
 
         self._cache_minuit = None  # in case used in errors
+        self._is_frozen = False  # flag to prevent double freezing
 
         self._evaluator = evaluator  # keep private for now
         self._niter = niter  # keep private for now
@@ -1530,6 +1531,9 @@ class FitResult(ZfitResult):
 
         Parameters can be accessed by their string name.
         """
+        if self._is_frozen:
+            return
+
         self._loss = self.loss.name
         self._minimizer = self.minimizer.name
         self._criterion = self.criterion.name
@@ -1555,6 +1559,7 @@ class FitResult(ZfitResult):
         if "evaluator" in self.info:
             self.info["evaluator"] = "evaluator_frozen"
         self._cache_minuit = None
+        self._is_frozen = True
 
     def __str__(self):
         string = Style.BRIGHT + "FitResult" + Style.NORMAL + f" of\n{self.loss} \nwith\n{self.minimizer}\n\n"

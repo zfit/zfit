@@ -19,6 +19,7 @@ Deprecations
 
 Bug fixes and small changes
 ---------------------------
+- Fix AttributeError when calling ``freeze()`` method twice on FitResult
 
 Experimental
 ------------
