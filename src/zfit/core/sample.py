@@ -288,7 +288,7 @@ def accept_reject_sample(
             one_over_eff_int = znp.asarray(1.0 / eff * 1.01 * eff_precision, dtype=tf.int64)
             n_to_produce *= one_over_eff_int
             n_to_produce = znp.floor_divide(n_to_produce, eff_precision)
-            # tf.debugging.assert_positive(n_to_produce_float, "n_to_produce went negative, overflow?")
+            # z.assert_positive(n_to_produce_float, "n_to_produce went negative, overflow?")
             # n_to_produce = znp.asarray(n_to_produce_float, dtype=tf.int64) + 3  # just to make sure
             n_to_produce = znp.maximum(n_to_produce, n_min_to_produce)
             # TODO: adjustable efficiency cap for memory efficiency (prevent too many samples at once produced)
@@ -333,7 +333,7 @@ def accept_reject_sample(
             weights_maximum_new = znp.max(weights)
             weights_maximum = znp.maximum(weights_maximum, weights_maximum_new)
             # if run.numeric_checks:
-            #     tf.debugging.assert_greater_equal(weights, weights_maximum * 1e-5, message="The ")
+            #     z.assert_greater_equal(weights, weights_maximum * 1e-5, message="The ")
             weights_clipped = znp.maximum(weights, weights_maximum * 1e-5)
             # prob_weights_ratio = probabilities / weights
             prob_maximum_new = znp.max(probabilities)
@@ -415,7 +415,7 @@ def accept_reject_sample(
 
         n_accepted = tf.shape(input=filtered_sample, out_type=tf.int64)[0]
         n_produced_new = n_produced + n_accepted
-        last_index =znp.min([n_produced_new, n])
+        last_index = znp.min([n_produced_new, n])
         if not dynamic_array_shape:
             indices = tf.boolean_mask(tensor=draw_indices, mask=take_or_not)
             current_sampled = tf.sparse.to_dense(
@@ -430,10 +430,7 @@ def accept_reject_sample(
             indices = indices[:, 0]
         else:
             indices = tf.range(n_produced, last_index)
-            filtered_sample = filtered_sample[:last_index - n_produced]
-
-
-
+            filtered_sample = filtered_sample[: last_index - n_produced]
 
         # Use tensor_scatter_nd_update for massive performance improvement over TensorArray
         # Convert indices to the format expected by tensor_scatter_nd_update

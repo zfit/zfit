@@ -7,7 +7,6 @@ import typing
 if typing.TYPE_CHECKING:
     import zfit  # noqa: F401
 
-import importlib.util
 import math
 
 import numpy as np
@@ -221,7 +220,7 @@ class Ipyopt(BaseMinimizer):
             msg = "Cannot put 'hessian_approximation' into the options. Use `hessian` instead.`"
             raise ValueError(msg)
         if maxcor is None:
-            maxcor = 10
+            maxcor = 8
         options["limited_memory_max_history"] = maxcor
 
         minimizer_options["ipopt"] = options
@@ -231,9 +230,11 @@ class Ipyopt(BaseMinimizer):
             if iptol not in internal_tol:
                 internal_tol[iptol] = None
         self._internal_tol = internal_tol
-        self._internal_maxiter = 20
+        self._internal_maxiter = 5
 
-        if importlib.util.find_spec("ipyopt") is None:
+        try:
+            import ipyopt
+        except ImportError as error:
             msg = (
                 "This requires the ipyopt library (https://gitlab.com/g-braeunlich/ipyopt)"
                 " to be installed. On a 'Linux' environment, you can install zfit with"
@@ -242,7 +243,9 @@ class Ipyopt(BaseMinimizer):
                 "to use this minimizer"
                 " or install zfit on a 'Linux' environment."
             )
-            raise ImportError(msg)
+            raise ImportError(msg) from error
+        else:
+            del ipyopt
 
         super().__init__(
             name=name,

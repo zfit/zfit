@@ -1702,7 +1702,7 @@ def concat_data_obs(datasets, obs, name, label, use_hash):
         if data.has_weights:
             weights_new.append(data.weights)
 
-    tf.debugging.assert_equal(
+    zassert_equal(
         tf.reduce_all(tf.equal(nevents, nevents[0])),
         True,
         message=f"Number of events in the datasets {datasets} have to be equal.",
@@ -1809,7 +1809,6 @@ class LightDataset:
             ndims = tensor.shape[1]
             tensormap = {i: i for i in range(ndims)}
 
-
         if ndims is None:
             ndims = len(tensormap)
         self._tensor = tensor
@@ -1841,8 +1840,7 @@ class LightDataset:
             if tensor.shape[1] != ndims:
                 msg = f"Second dimension of {tensor} has to be {ndims} but is {tensor.shape[1]}"
                 raise ShapeIncompatibleError(msg)
-        elif run.numeric_checks:
-            tf.debugging.assert_equal(tf.shape(tensor)[1], ndims)
+        z.assert_equal(tf.shape(tensor)[1], ndims)
         return cls(tensor=tensor, ndims=None)
 
     def with_indices(self, indices: int | tuple[int] | list[int]):

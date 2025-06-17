@@ -135,8 +135,8 @@ def simpson(func, lower, upper, num_points=1001, dtype=None):
     num_points = tf.convert_to_tensor(num_points, dtype=tf.int32, name="num_points")
 
     assertions = [
-        tf.debugging.assert_greater_equal(num_points, 3),
-        tf.debugging.assert_equal(num_points % 2, 1),
+        z.assert_greater_equal(num_points, 3),
+        z.assert_equal(num_points % 2, 1),
     ]
 
     with tf.control_dependencies(assertions):
@@ -276,7 +276,7 @@ def mc_integrate(
     integrals = []
     for space in limits:
         lower, upper = space.v1.limits
-        # tf.debugging.assert_all_finite(
+        # z.assert_all_finite(
         #     (lower, upper),
         #     "MC integration does (currently) not support unbound limits (np.infty) as given here:"
         #     f"\nlower: {lower}, upper: {upper}",

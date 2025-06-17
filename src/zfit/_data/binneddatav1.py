@@ -143,7 +143,7 @@ class BinnedHolder:
             from zfit import run
 
             if run.numeric_checks:
-                tf.debugging.assert_equal(
+                zassert_equal(
                     tf.shape(variances),
                     tf.shape(self.values),
                     message=f"Variances {variances} and values {self.values} do not have the same shape",

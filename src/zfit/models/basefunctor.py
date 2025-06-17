@@ -22,7 +22,7 @@ from ..core.space import Space, combine_spaces
 from ..serialization import SpaceRepr
 from ..serialization.pdfrepr import BasePDFRepr
 from ..serialization.serializer import Serializer
-from ..settings import run, ztypes
+from ..settings import ztypes
 from ..util import ztyping
 from ..util.container import convert_to_container
 from ..util.deprecation import deprecated_norm_range
@@ -200,11 +200,10 @@ def _preprocess_init_sum(fracs, obs, pdfs):
                 return tf.constant(1.0, dtype=ztypes.float) - tf.add_n(list(params.values()))
 
             remaining_frac = convert_to_parameter(remaining_frac_func, params=frac_params_tmp)
-            if run.numeric_checks:
-                tf.debugging.assert_non_negative(
-                    remaining_frac,
-                    f"The remaining fraction is negative, the sum of fracs is > 0. Fracs: {fracs}",
-                )  # check fractions
+            z.assert_non_negative(
+                remaining_frac,
+                f"The remaining fraction is negative, the sum of fracs is > 0. Fracs: {fracs}",
+            )  # check fractions
 
             # IMPORTANT to change the name! Otherwise, recursion due to namespace capture in the lambda
             fracs_cleaned = [*fracs, remaining_frac]
