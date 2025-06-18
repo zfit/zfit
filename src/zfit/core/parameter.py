@@ -4,11 +4,6 @@
 
 from __future__ import annotations
 
-import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 import abc
 import collections
 import copy
@@ -18,18 +13,14 @@ import weakref
 from collections.abc import Callable, Iterable, Mapping
 from contextlib import suppress
 from inspect import signature
-from typing import TYPE_CHECKING, Literal, Optional, Union
-
-if TYPE_CHECKING:
-    pass
+from typing import Literal, Optional, Union
 from weakref import WeakSet
 
 import dill
 import numpy as np
 import pydantic.v1 as pydantic
 import tensorflow as tf
-
-# TF backwards compatibility
+import tensorflow_probability as tfp
 from ordered_set import OrderedSet
 from pydantic.v1 import Field, validator
 from tensorflow.python.ops import tensor_getitem_override
@@ -41,8 +32,6 @@ from tensorflow.python.ops.resource_variable_ops import (
 )
 from tensorflow.python.ops.variables import Variable
 from tensorflow.python.types.core import Tensor as TensorType
-
-import zfit.z.numpy as znp
 
 from .. import z
 from ..core.baseobject import BaseNumeric, extract_filter_params, validate_preprocess_name
@@ -62,9 +51,14 @@ from ..util.exception import (
     ParameterNotIndependentError,
 )
 from ..util.temporary import TemporarilySet
+from ..z import numpy as znp
 from . import interfaces as zinterfaces
 from .interfaces import ZfitIndependentParameter, ZfitModel, ZfitParameter
 from .serialmixin import SerializableMixin
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
+
 
 # todo add type hints in this module for api
 
