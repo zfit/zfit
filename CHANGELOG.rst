@@ -11,6 +11,7 @@ Major Features and Improvements
 -------------------------------
 - significantly improved performance, especially when using a GPU for certain fits.
 
+
 Breaking changes
 ------------------
 
