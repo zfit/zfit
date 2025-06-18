@@ -350,7 +350,6 @@ class Ipyopt(BaseMinimizer):
             # "warm_start_same_structure",
             # "warm_start_entire_iterate",
         )
-        minimizer.set_intermediate_callback(lambda *a, **k: print(a, k) or True)
 
         fmin = None
         status = None

@@ -380,10 +380,6 @@ def accept_reject_sample(
             invalid_probs_weights = tf.greater(probabilities, weights_scaled)
             failed_weights = tf.boolean_mask(tensor=weights_scaled, mask=invalid_probs_weights)
 
-            # def bias_print():
-            #     tf.print("HACK WARNING: if the following is NOT empty, your sampling _may_ be biased."
-            #              " Failed weights:", failed_weights, " failed probs", failed_probs)
-
             # tf.cond(tf.not_equal(tf.shape(input=failed_weights), [0]), bias_print, lambda: None)
 
             z.assert_equal(tf.shape(input=failed_weights), [0])
@@ -499,7 +495,6 @@ def accept_reject_sample(
 
     # Extract results from the loop
     new_sample = loop_result[1]  # the sample buffer
-    final_n_produced = loop_result[2]  # number of samples actually produced
 
     if multiple_limits:
         new_sample = z.random.shuffle(new_sample)  # to make sure, randomly remove and not biased.

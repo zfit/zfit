@@ -40,8 +40,7 @@ nll = zfit.loss.ExtendedUnbinnedNLL(model=model, data=data)
 
 # create a minimizer
 # this uses the automatic gradient (more precise, but can fail)
-# minimizer = zfit.minimize.Minuit(gradient="zfit")
-minimizer = zfit.minimize.Ipyopt()
+minimizer = zfit.minimize.Minuit(gradient="zfit")
 result = minimizer.minimize(nll).update_params()
 # do the error calculations, here with hesse, than with minos
 param_hesse = result.hesse()

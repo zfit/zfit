@@ -1,4 +1,6 @@
 #  Copyright (c) 2025 zfit
+from __future__ import annotations
+
 import numpy as np
 import pytest
 import tensorflow as tf
@@ -199,6 +201,50 @@ def test_param_limits():
     param2.lower = lower
     param2.assign(lower - 1.1)
     assert lower == param2.value()
+
+
+def test_param_clipping():
+    """Test the new clip parameter functionality in set_value and set_values."""
+    lower, upper = -4.0, 3.0
+    param1 = Parameter("param1", 1.0, lower=lower, upper=upper)
+    param2 = Parameter("param2", 2.0, lower=lower, upper=upper)
+
+    # Test clipping with both bounds
+    param1.set_value(upper + 0.5, clip=True)
+    assert param1.value() == upper
+
+    param1.set_value(lower - 1.1, clip=True)
+    assert param1.value() == lower
+
+    # Test clipping when value is within bounds (should not change)
+    target_value = (lower + upper) / 2
+    param1.set_value(target_value, clip=True)
+    assert abs(param1.value() - target_value) < 1e-10
+
+    # Test clipping with only lower bound
+    param_lower_only = Parameter("param_lower", 0.0, lower=lower)
+    param_lower_only.set_value(lower - 2.0, clip=True)
+    assert param_lower_only.value() == lower
+
+    # Test clipping with only upper bound
+    param_upper_only = Parameter("param_upper", 0.0, upper=upper)
+    param_upper_only.set_value(upper + 2.0, clip=True)
+    assert param_upper_only.value() == upper
+
+    # Test no clipping (default behavior should still raise error)
+    with pytest.raises(ValueError):
+        param1.set_value(upper + 0.5, clip=False)
+
+    # Test set_values with clipping
+    params = [param1, param2]
+    values_out_of_bounds = [upper + 1.0, lower - 1.0]
+    zfit.param.set_values(params, values_out_of_bounds, clip=True)
+    assert param1.value() == upper
+    assert param2.value() == lower
+
+    # Test set_values without clipping (should raise error)
+    with pytest.raises(ValueError):
+        zfit.param.set_values(params, values_out_of_bounds, clip=False)
 
 
 def test_overloaded_operators():

@@ -593,9 +593,12 @@ class Parameter(
 
         Args:
             value: The value the parameter will take on.
+            clip: If True, clip the value to be within the parameter limits instead of raising an error.
+                If False, raise an error if the value is outside limits (default behavior).
+                If None, use the default behavior (raise error).
         Raises:
-            ValueError: If the value is not inside the limits (in normal Python/eager mode)
-            InvalidArgumentError: If the value is not inside the limits (in JIT/traced/graph mode)
+            ValueError: If the value is not inside the limits (in normal Python/eager mode) and clip is False/None
+            InvalidArgumentError: If the value is not inside the limits (in JIT/traced/graph mode) and clip is False/None
         """
 
         def getter():
@@ -603,26 +606,35 @@ class Parameter(
 
         def setter(value):
             if self.has_limits:
-                message = (
-                    f"Setting value {value} invalid for parameter {self.name} with limits "
-                    f"{self.lower} - {self.upper}. This is changed."
-                    f" In order to silence this and clip the value, you can use (with caution,"
-                    f" advanced) `Parameter.assign`"
-                )
-                if run.executing_eagerly():
-                    if self._check_at_limit(value, exact=True):
-                        raise ValueError(message)
+                if clip:
+                    # Clip the value to be within bounds using TensorFlow/znp functions
+                    if self.lower is not None and self.upper is not None:
+                        value = znp.clip(value, self.lower, self.upper)
+                    elif self.lower is not None:
+                        value = znp.maximum(value, self.lower)
+                    elif self.upper is not None:
+                        value = znp.minimum(value, self.upper)
                 else:
-                    z.assert_greater(
-                        znp.asarray(value, tf.float64),
-                        znp.asarray(self.lower, tf.float64),
-                        message=message,
+                    # Original behavior: raise error if out of bounds
+                    message = (
+                        f"Setting value {value} invalid for parameter {self.name} with limits "
+                        f"{self.lower} - {self.upper}. This is changed."
+                        f" In order to silence this and clip the value, you can use clip=True"
                     )
-                    z.assert_less(
-                        znp.asarray(value, tf.float64),
-                        znp.asarray(self.upper, tf.float64),
-                        message=message,
-                    )
+                    if run.executing_eagerly():
+                        if self._check_at_limit(value, exact=True):
+                            raise ValueError(message)
+                    else:
+                        z.assert_greater(
+                            znp.asarray(value, tf.float64),
+                            znp.asarray(self.lower, tf.float64),
+                            message=message,
+                        )
+                        z.assert_less(
+                            znp.asarray(value, tf.float64),
+                            znp.asarray(self.upper, tf.float64),
+                            message=message,
+                        )
             #     z.Assert(self._check_at_limit(value), [value])
             self.assign(value=value, read_value=False)
 
@@ -1527,6 +1539,8 @@ def set_values(
         | None,
     ) = None,
     allow_partial: bool | None = None,
+    *,
+    clip: bool | None = None,
 ):
     """Set the values (using a context manager or not) of multiple parameters.
 
@@ -1537,11 +1551,14 @@ def set_values(
             and not all are present in the
             *values*. If False, *params* not in *values* will raise an error.
             Note that setting this to true will also go with an empty values container.
+        clip: If True, clip values to be within parameter limits instead of raising an error.
+            If False, raise an error if values are outside limits (default behavior).
+            If None, use the default behavior (raise error).
 
     Returns:
         An object for a context manager (but can also be used without), can be ignored.
     Raises:
-        ValueError: If the value is not between the limits of the parameter.
+        ValueError: If the value is not between the limits of the parameter and clip is False/None.
         ValueError: If not all *params* are in *values* if *values* is a `FitResult` and `allow_partial` is `False`.
     """
     if allow_partial is None:
@@ -1550,7 +1567,7 @@ def set_values(
 
     def setter(values):
         for i, param in enumerate(params):
-            param.set_value(values[i])
+            param.set_value(values[i], clip=clip)
 
     def getter():
         return [param.value() for param in params]

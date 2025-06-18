@@ -135,8 +135,7 @@ def simpson(func, lower, upper, num_points=1001, dtype=None):
     num_points = tf.convert_to_tensor(num_points, dtype=tf.int32, name="num_points")
 
     assertions = [
-        z.assert_greater_equal(num_points, 3),
-        z.assert_equal(num_points % 2, 1),
+        op for op in (z.assert_greater_equal(num_points, 3), z.assert_equal(num_points % 2, 1)) if op is not None
     ]
 
     with tf.control_dependencies(assertions):

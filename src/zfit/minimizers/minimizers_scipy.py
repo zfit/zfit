@@ -649,7 +649,6 @@ class ScipyBFGS(ScipyBaseMinimizer):
                 hess_inv0 = init.approx.inv_hessian()
             elif stepsize is not None:
                 hess_inv0 = np.diag(np.array(stepsize) ** 2)
-            # if False: HACK
             options["hess_inv0"] = hess_inv0
             return options
 

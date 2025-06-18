@@ -2,45 +2,29 @@
 from __future__ import annotations
 
 import typing
-
-if typing.TYPE_CHECKING:
-    import zfit
-
-import typing
-
-if typing.TYPE_CHECKING:
-    import zfit
-
-import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 from collections.abc import Callable
-from typing import TYPE_CHECKING, Optional
+from typing import Optional
 
+import boost_histogram as bh
+import hist
 import numpy as np
+import tensorflow as tf
 import xxhash
 from tensorflow.python.util.deprecation import deprecated
 from uhi.typing.plottable import PlottableHistogram
 from zfit_interface.typing import TensorLike
 
-from ..core.baseobject import convert_param_values
-from ..settings import ztypes
-
-if TYPE_CHECKING:
-    pass
-
-import boost_histogram as bh
-import hist
-import tensorflow as tf
-
-from zfit.z import numpy as znp
-
+from .. import z
 from .._variables.axis import binning_to_histaxes, histaxes_to_binning
+from ..core.baseobject import convert_param_values
 from ..core.interfaces import ZfitBinnedData, ZfitData, ZfitSpace
+from ..settings import ztypes
 from ..util import ztyping
 from ..util.exception import BreakingAPIChangeError, ShapeIncompatibleError
+from ..z import numpy as znp
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 
 def convert_hist2binneddata(data: ZfitBinnedData | PlottableHistogram, *, none_if_fail=None) -> ZfitBinnedData:
@@ -140,14 +124,12 @@ class BinnedHolder:
         """
         if variances is not None:
             variances = znp.asarray(variances)
-            from zfit import run
 
-            if run.numeric_checks:
-                zassert_equal(
-                    tf.shape(variances),
-                    tf.shape(self.values),
-                    message=f"Variances {variances} and values {self.values} do not have the same shape",
-                )
+            z.assert_equal(
+                tf.shape(variances),
+                tf.shape(self.values),
+                message=f"Variances {variances} and values {self.values} do not have the same shape",
+            )
         return type(self)(space=self.space, values=self.values, variances=variances)
 
 
