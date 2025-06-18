@@ -1539,4 +1539,3 @@ Beta stage and first pip release
 
 
 - First creation of the package.
-
