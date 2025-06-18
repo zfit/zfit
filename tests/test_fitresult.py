@@ -325,6 +325,23 @@ def test_result_update_params():
     np.testing.assert_allclose(initial, params)
 
 
+def test_double_freeze():
+    """Test that calling freeze() twice doesn't raise an error."""
+    loss, (param_a, param_b, param_c) = create_loss(n=5000)
+    minimizer = zfit.minimize.Minuit(gradient=True, tol=10.0)
+    result = minimizer.minimize(loss)
+
+    # First freeze should work fine
+    result.freeze()
+
+    # Second freeze should not raise an AttributeError
+    result.freeze()  # This should not fail
+
+    # Verify the result is still valid after double freeze
+    assert result.fminopt is not None
+    assert result.edm is not None
+
+
 
 
 
