@@ -44,7 +44,6 @@ jobs:
           
           # Check if [full ci] or similar is in the commit message
           COMMIT_MSGS=$(git log --pretty=%B ${{ github.event.before }}..${{ github.sha }})
-          echo "$COMMIT_MSGS"
           if echo "$COMMIT_MSGS" | grep -E '\[full ci\]|\[ci full\]|\[cifull\]|\[fullci\]'; then
           echo "run-full-ci=true" >> $GITHUB_OUTPUT
           echo "Running full CI because [full ci] (or similar) was found in the commit messages"
