@@ -41,6 +41,7 @@ jobs:
             echo "Running full CI because we're on main, develop, or a release branch"
             exit 0
           fi
+          
           # Check if [full ci] or similar is in the commit message
           COMMIT_MSGS=$(git log --pretty=%B ${{ github.event.before }}..${{ github.sha }})
           echo "$COMMIT_MSGS"
