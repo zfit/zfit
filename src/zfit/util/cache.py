@@ -343,7 +343,7 @@ class FunctionCacheHolder(GraphCachable):
                 id(obj),
             )  # crucial that we have the ID, see https://github.com/tensorflow/tensorflow/issues/57365
         elif tf.is_tensor(obj):
-            obj = self.IS_TENSOR
+            obj = self.IS_TENSOR  # keep it, otherwise it's an iterable
         elif isinstance(obj, collections.abc.Iterable):
             obj_new = []
             for obj_i in obj:

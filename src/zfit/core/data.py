@@ -226,7 +226,7 @@ class Data(
         self._original_space = self.space
         self._data_range = self.space
 
-        if not guarantee_limits:
+        if not guarantee_limits:  # TODO: find correct observables
             tensormap = data._tensormap if (ismap := data._tensor is None) else data.value()
             value, weights = check_cut_data_weights(limits=self.space, data=tensormap, weights=weights)
             if ismap:
@@ -356,10 +356,8 @@ class Data(
             **overwrite_params,
         }
         newpar["guarantee_limits"] = (
-            "obs" not in overwrite_params
-            and "data" not in overwrite_params
-            and overwrite_params.get("guarantee_limits") is not False
-        )
+            "obs" not in overwrite_params and "data" not in overwrite_params
+        ) or overwrite_params.get("guarantee_limits")
         if "tensor" in overwrite_params:
             msg = "do not give tensor in copy, instead give a LightDataset."
             raise BreakingAPIChangeError(msg)
@@ -979,7 +977,7 @@ class Data(
         else:
             indices = self.space.with_obs(obs=obs).axes
         out = self.dataset.value(indices)
-        if isinstance(obs, str) or axis is not None:
+        if isinstance(obs, str) or (axis is not None and isinstance(axis, int)):
             out = znp.squeeze(out, axis=-1)
         return out
 
@@ -1704,7 +1702,7 @@ def concat_data_obs(datasets, obs, name, label, use_hash):
         if data.has_weights:
             weights_new.append(data.weights)
 
-    tf.debugging.assert_equal(
+    z.assert_equal(
         tf.reduce_all(tf.equal(nevents, nevents[0])),
         True,
         message=f"Number of events in the datasets {datasets} have to be equal.",
@@ -1781,14 +1779,23 @@ class LightDataset:
                 assumed to be the data.
             ndims: The number of dimensions of the data. If `None`, it is inferred from the tensor or the tensormap.
         """
-        if tensor is None and isinstance(tensormap, Mapping):
-            tensormap = tensormap.copy()
-            for _key, value in tensormap.items():
-                if value.dtype not in (ztypes.float, znp.float32, znp.float64, znp.int32, znp.int64):
-                    msg = f"Value of tensormap has to be a float, not {value.dtype}."
-                    raise TypeError(msg)
-                if value.dtype != ztypes.float:
-                    value = znp.array(value, dtype=ztypes.float)
+        if isinstance(tensormap, Mapping):
+            if tensor is None:
+                tensormapnew = tensormap.copy()
+                for key, value in tensormap.items():
+                    if value.dtype not in (ztypes.float, znp.float32, znp.float64, znp.int32, znp.int64):
+                        msg = f"Value of tensormap has to be a float, not {value.dtype}."
+                        raise TypeError(msg)
+                    if value.dtype != ztypes.float:
+                        tensormapnew[key] = znp.asarray(value, dtype=ztypes.float)
+                tensormap = tensormapnew
+            elif (tensorshape := tensor.shape[-1]) != len(tensormap):  # we need to reduce the dimensions
+                if tensorshape < len(tensormap):
+                    msg = "More dimensions requested than available in data"
+                    raise ValueError(msg)
+                tensormap = {k: znp.asarray(tensor[..., v], dtype=ztypes.float) for k, v in tensormap.items()}
+                tensor = None
+
         elif tensormap is None:  # the actual preprocessing, otherwise we pass it through
             if not isinstance(tensor, tf.Variable):
                 tensor = znp.asarray(tensor)
@@ -1829,12 +1836,10 @@ class LightDataset:
 
     @classmethod
     def from_tensor(cls, tensor, ndims):
-        if run.executing_eagerly():
-            if tensor.shape[1] != ndims:
-                msg = f"Second dimension of {tensor} has to be {ndims} but is {tensor.shape[1]}"
-                raise ShapeIncompatibleError(msg)
-        elif run.numeric_checks:
-            tf.debugging.assert_equal(tf.shape(tensor)[1], ndims)
+        if run.executing_eagerly() and tensor.shape[1] != ndims:
+            msg = f"Second dimension of {tensor} has to be {ndims} but is {tensor.shape[1]}"
+            raise ShapeIncompatibleError(msg)
+        z.assert_equal(tf.shape(tensor)[1], ndims)
         return cls(tensor=tensor, ndims=None)
 
     def with_indices(self, indices: int | tuple[int] | list[int]):
@@ -1899,14 +1904,14 @@ class LightDataset:
         if tensor is None:
             # tensormap is filled, we can now return the values, either a single one or a stacked tensor
             if isinstance(index, int):
-                return tensormap[index]
+                return tensormap[index]  # todo: add case for single index in tuple?
             return znp.stack([tensormap[i] for i in index], axis=-1)
         else:
             if isint := isinstance(index, int):
                 index = (index,)
-            newindex = [tensormap[i] for i in index]
+            newindex = tuple([tensormap[i] for i in index])
             if newindex != trivial_index:
-                tensor = tf.gather(tensor, newindex, axis=-1)
+                tensor = znp.take(tensor, newindex, axis=-1)
             if isint:
                 tensor = znp.squeeze(tensor, axis=-1)
             return tensor

@@ -7,7 +7,6 @@ import typing
 if typing.TYPE_CHECKING:
     import zfit  # noqa: F401
 
-import importlib.util
 import math
 
 import numpy as np
@@ -221,7 +220,7 @@ class Ipyopt(BaseMinimizer):
             msg = "Cannot put 'hessian_approximation' into the options. Use `hessian` instead.`"
             raise ValueError(msg)
         if maxcor is None:
-            maxcor = 10
+            maxcor = 8
         options["limited_memory_max_history"] = maxcor
 
         minimizer_options["ipopt"] = options
@@ -231,9 +230,11 @@ class Ipyopt(BaseMinimizer):
             if iptol not in internal_tol:
                 internal_tol[iptol] = None
         self._internal_tol = internal_tol
-        self._internal_maxiter = 20
+        self._internal_maxiter = 5
 
-        if importlib.util.find_spec("ipyopt") is None:
+        try:
+            import ipyopt
+        except ImportError as error:
             msg = (
                 "This requires the ipyopt library (https://gitlab.com/g-braeunlich/ipyopt)"
                 " to be installed. On a 'Linux' environment, you can install zfit with"
@@ -242,7 +243,9 @@ class Ipyopt(BaseMinimizer):
                 "to use this minimizer"
                 " or install zfit on a 'Linux' environment."
             )
-            raise ImportError(msg)
+            raise ImportError(msg) from error
+        else:
+            del ipyopt
 
         super().__init__(
             name=name,
@@ -322,8 +325,10 @@ class Ipyopt(BaseMinimizer):
         else:
             ipopt_options["hessian_approximation"] = "limited-memory"
             ipopt_options["limited_memory_update_type"] = hessian
+            ipopt_options["constr_viol_tol"] = 1e-15
             # ipopt_options["limited_memory_initialization"] = "scalar2"
             # ipopt_options["limited_memory_init_val"] = 0.1  # (np.min(stepsize) + np.mean(stepsize)) / 2
+            ipopt_options["limited_memory_max_history"] = minimizer_options.pop("limited_memory_max_history", 8)
         # ipopt_options['dual_inf_tol'] = TODO?
 
         minimizer = ipyopt.Problem(**minimizer_kwargs)
@@ -342,10 +347,9 @@ class Ipyopt(BaseMinimizer):
 
         warm_start_options = (  # TODO: what exactly here?
             "warm_start_init_point",
-            "warm_start_same_structure",
-            "warm_start_entire_iterate",
+            # "warm_start_same_structure",
+            # "warm_start_entire_iterate",
         )
-        # minimizer.set_intermediate_callback(lambda *a, **k: print(a, k) or True)
 
         fmin = None
         status = None
@@ -355,12 +359,7 @@ class Ipyopt(BaseMinimizer):
 
             # run the minimization
             try:
-                xvalues, fmin, status = minimizer.solve(
-                    xvalues,
-                    # mult_g=constraint_multipliers,
-                    # mult_x_L=zl,
-                    # mult_x_U=zu
-                )
+                xvalues, fmin, status = minimizer.solve(xvalues)
             except MaximumIterationReached:
                 maxiter_reached = True
                 valid = False
@@ -403,8 +402,10 @@ class Ipyopt(BaseMinimizer):
             if converged or maxiter_reached:
                 break
 
-            # prepare for next run
-            minimizer.set(**dict.fromkeys(warm_start_options, "yes"))
+            # Only enable warm start after first successful iteration
+            # and only if the previous iteration completed successfully
+            if i == 0 and status in [0, 1]:  # 0=solved, 1=solved to acceptable level
+                minimizer.set(**dict.fromkeys(warm_start_options, "yes"))
 
             # update the tolerances
             self._update_tol_inplace(

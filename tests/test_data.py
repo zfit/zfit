@@ -163,7 +163,7 @@ def test_from_numpy(weights_factory, obs3d, init):
 
 @pytest.mark.parametrize('init', [True, False], ids=['init', 'from_pandas'])
 def test_from_to_pandas(obs3d, init):
-    dtype = np.float32
+    dtype = np.float64
     example_data_np = np.random.random(size=(1000, len(obs3d)))
     example_weights = np.random.random(size=(1000,))
     example_data = pd.DataFrame(data=example_data_np, columns=obs3d)
@@ -172,7 +172,6 @@ def test_from_to_pandas(obs3d, init):
     else:
         data = zfit.Data.from_pandas(obs=obs3d, df=example_data, dtype=dtype)
     x = data.value()
-    assert x.dtype == dtype
     assert x.dtype == dtype
     np.testing.assert_array_equal(example_data_np.astype(dtype=dtype), x)
 

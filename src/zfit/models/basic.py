@@ -20,7 +20,6 @@ if TYPE_CHECKING:
     pass
 
 import numpy as np
-import tensorflow as tf
 from pydantic.v1 import Field
 
 import zfit.z.numpy as znp
@@ -119,7 +118,7 @@ class Exponential(BasePDF, SerializableMixin):
         lambda_ = params["lambda"]
         x = x.unstack_x()
         probs = znp.exp(lambda_ * (self._shift_x(x)))
-        tf.debugging.assert_all_finite(
+        z.assert_all_finite(
             probs,
             f"Exponential PDF {self} has non valid values. This is likely caused"
             f" by numerical problems: if the exponential is too steep, this will"

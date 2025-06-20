@@ -237,11 +237,11 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         else:
             x = convert_to_data(x, obs=fallback_obs)
             if x.obs is not None:
-                x = x.with_obs(self.obs)
+                x = x.with_obs(self.obs, guarantee_limits=True)
                 # with x.sort_by_obs(obs=self.obs, allow_superset=True):
                 yield x
             elif x.axes is not None:
-                x = x.with_axes(self.space.axes)
+                x = x.with_axes(self.space.axes, guarantee_limits=True)
                 # with x.sort_by_axes(axes=self.axes):
                 yield x
             else:
@@ -1211,7 +1211,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         with self._convert_sort_x(x, allow_none=True) as xclean, self._check_set_input_params(params=params):
             new_obs = limits * xclean.data_range if xclean is not None else limits
             tensor = run_tf(n=n, limits=limits, x=xclean)
-        return Data.from_tensor(tensor=tensor, obs=new_obs)  # TODO: which limits?
+        return Data.from_tensor(tensor=tensor, obs=new_obs, guarantee_limits=True)  # TODO: which limits?
 
     @z.function(wraps="sample")
     def _single_hook_sample(self, n, limits, x=None):

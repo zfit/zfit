@@ -390,7 +390,7 @@ def covariance_with_weights(hinv, result, params, *, weightcorr: WeightCorr = No
         return {}
     Hinv = dict_to_matrix(params, Hinv_dict)
     dataweights = [
-        d.weights if d.has_weights else znp.ones((data.nevents,))  # sum(ones_nevents ** 2) = nevents
+        d.weights if d.has_weights else znp.ones((d.nevents,))  # sum(ones_nevents ** 2) = nevents
         for d in data
     ]
     # extendedweights = [znp.reshape(znp.sum(w), (-1,)) for w in dataweights] if yields else []

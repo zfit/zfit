@@ -3,17 +3,13 @@
 from __future__ import annotations
 
 import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
-import typing
 from collections.abc import Iterable
 from typing import Optional
 
 import pydantic.v1 as pydantic
 import tensorflow as tf
 
+from .. import z
 from ..core.coordinates import convert_to_obs_str
 from ..core.dimension import get_same_obs
 from ..core.interfaces import ZfitFunctorMixin, ZfitModel, ZfitParameter, ZfitSpace
@@ -22,7 +18,7 @@ from ..core.space import Space, combine_spaces
 from ..serialization import SpaceRepr
 from ..serialization.pdfrepr import BasePDFRepr
 from ..serialization.serializer import Serializer
-from ..settings import run, ztypes
+from ..settings import ztypes
 from ..util import ztyping
 from ..util.container import convert_to_container
 from ..util.deprecation import deprecated_norm_range
@@ -36,7 +32,7 @@ from ..util.warnings import warn_advanced_feature, warn_changed_feature
 from ..z import numpy as znp
 
 if typing.TYPE_CHECKING:
-    pass
+    import zfit  # noqa: F401
 
 
 def extract_daughter_input_obs(obs: ztyping.ObsTypeInput, spaces: Iterable[ZfitSpace]) -> ZfitSpace:
@@ -200,11 +196,10 @@ def _preprocess_init_sum(fracs, obs, pdfs):
                 return tf.constant(1.0, dtype=ztypes.float) - tf.add_n(list(params.values()))
 
             remaining_frac = convert_to_parameter(remaining_frac_func, params=frac_params_tmp)
-            if run.numeric_checks:
-                tf.debugging.assert_non_negative(
-                    remaining_frac,
-                    f"The remaining fraction is negative, the sum of fracs is > 0. Fracs: {fracs}",
-                )  # check fractions
+            z.assert_non_negative(
+                remaining_frac,
+                f"The remaining fraction is negative, the sum of fracs is > 0. Fracs: {fracs}",
+            )  # check fractions
 
             # IMPORTANT to change the name! Otherwise, recursion due to namespace capture in the lambda
             fracs_cleaned = [*fracs, remaining_frac]

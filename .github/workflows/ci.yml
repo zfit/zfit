@@ -43,11 +43,11 @@ jobs:
           fi
           
           # Check if [full ci] or similar is in the commit message
-          COMMIT_MSG=$(git log -1 --pretty=%B)
-          if [[ "$COMMIT_MSG" == *"[full ci]"* || "$COMMIT_MSG" == *"[ci full]"* || "$COMMIT_MSG" == *"[cifull]"* || "$COMMIT_MSG" == *"[fullci]"* ]]; then
-            echo "run-full-ci=true" >> $GITHUB_OUTPUT
-            echo "Running full CI because @fullci was found in the commit message"
-            exit 0
+          COMMIT_MSGS=$(git log --pretty=%B ${{ github.event.before }}..${{ github.sha }})
+          if echo "$COMMIT_MSGS" | grep -E '\[full ci\]|\[ci full\]|\[cifull\]|\[fullci\]'; then
+          echo "run-full-ci=true" >> $GITHUB_OUTPUT
+          echo "Running full CI because [full ci] (or similar) was found in the commit messages"
+          exit 0
           fi
           
           # Otherwise, run limited CI

@@ -492,7 +492,7 @@ class AddingSampleAndWeights:
         from zfit import run
 
         if run.numeric_checks:
-            tf.debugging.assert_positive(
+            z.assert_positive(
                 n_drawn,
                 "Could not draw any samples. Check the limits of the func and kernel.",
             )

@@ -176,7 +176,7 @@ def test_set_values_fitresult(do_pickle, weights, extended, fitres_creator):
     val_c = fitresult["c"]
     with pytest.raises(ValueError):
         param_b.set_value(999)
-    param_c.assign(9999)
+    param_c.assign(param_c - 0.2)
     if do_pickle == "pickle":
         result.freeze()
         result = pickle.loads(pickle.dumps(result))

@@ -1,9 +1,11 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2025 zfit
 from __future__ import annotations
 
 import pickle
 
 import zfit
+
+zfit.run.experimental_disable_param_update(True)
 
 n_bins = 50
 
@@ -14,8 +16,8 @@ obs = zfit.Space("x", -10, 10)
 mu = zfit.Parameter("mu", 1.0, -4, 6)
 sigma = zfit.Parameter("sigma", 1.0, 0.1, 10)
 lambd = zfit.Parameter("lambda", -0.06, -1, -0.01)
-n_bkg = zfit.Parameter("n_bkg", 20000)
-n_sig = zfit.Parameter("n_sig", 1000)
+n_bkg = zfit.Parameter("n_bkg", 20000, 0, 50000)
+n_sig = zfit.Parameter("n_sig", 1000, 0, 30000)
 
 # model building, pdf creation
 gauss_extended = zfit.pdf.Gauss(mu=mu, sigma=sigma, obs=obs, extended=n_sig)

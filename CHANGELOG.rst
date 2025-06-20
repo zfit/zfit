@@ -9,7 +9,7 @@ Develop
 
 Major Features and Improvements
 -------------------------------
-
+- significantly improved performance, especially when using a GPU for certain fits.
 Breaking changes
 ------------------
 
@@ -20,6 +20,10 @@ Deprecations
 Bug fixes and small changes
 ---------------------------
 - Fix AttributeError when calling ``freeze()`` method twice on FitResult
+- Add clipping functionality to parameter setting methods: ``set_value`` and ``set_values`` now accept a ``clip`` parameter that clips values to parameter limits instead of raising errors when values are outside bounds
+- Remove conditional numeric checks in favor of unconditional assertions: some internal checks that were only performed when ``run.numeric_checks=True`` are now always performed. To re-enable the old conditional behavior, set ``zfit.run.numeric_checks = True`` for debugging numerical issues
+- Clean up code by removing commented debug code, unused variables, and duplicate imports
+- Simplify assertion handling in numerical integration to properly filter out None operations
 
 Experimental
 ------------

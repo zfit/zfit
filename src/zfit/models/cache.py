@@ -136,11 +136,12 @@ class CachedPDF(BaseFunctor, SerializableMixin):
     @supports(norm="space")
     def _pdf(self, x, norm):
         x = x.value()
+        xlen = tf.shape(x)[0]
         if self._pdf_cache is None:
             self._pdf_cache = tf.Variable(
                 -999.0
                 * znp.ones(
-                    shape=tf.shape(x)[0],
+                    shape=xlen,
                 ),  # negative ones, to make sure these are unrealistic values
                 trainable=False,
                 validate_shape=False,
@@ -154,15 +155,27 @@ class CachedPDF(BaseFunctor, SerializableMixin):
                 validate_shape=False,
                 dtype=ztypes.float,
             )
-        x_same = tf.math.reduce_all(znp.abs(x - self._cached_x) < self._cache_tolerance)
+        cachedxlen = tf.shape(self._cached_x)[0]
+        minlen = znp.min([xlen, cachedxlen])
+        x_same = tf.math.reduce_all(znp.abs(x[:minlen] - self._cached_x[:minlen]) < self._cache_tolerance)
+        x_same = znp.logical_and(x_same, xlen == cachedxlen)
         pdf_params = list(self.pdfs[0].get_params())
-        if hasparams := len(pdf_params) > 0:
+        if hasparams := (paramlen := len(pdf_params)) > 0:
             stacked_pdf_params = tf.stack(pdf_params)
+            cachedparamlen = tf.shape(self._cached_pdf_params)[0]
+            minparamlen = znp.min(
+                [
+                    paramlen,
+                    cachedparamlen,
+                ]
+            )
             params_same = tf.math.reduce_all(
-                znp.abs(stacked_pdf_params - self._cached_pdf_params) < self._cache_tolerance
+                znp.abs(stacked_pdf_params[:minparamlen] - self._cached_pdf_params[:minparamlen])
+                < self._cache_tolerance
             )
 
             same_args = tf.math.logical_and(params_same, x_same)
+            same_args = znp.logical_and(same_args, paramlen == cachedparamlen)
         else:
             same_args = x_same
         assign1 = self._pdf_cache_valid.assign(same_args, read_value=False)
