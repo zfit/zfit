@@ -50,20 +50,15 @@ Example with a pdf that caches the normalization:
 
 from __future__ import annotations
 
-import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 import collections.abc
 import functools
 import gc
-import typing
 import weakref
 from abc import abstractmethod
 from collections.abc import Iterable
 from contextlib import suppress
 from itertools import zip_longest
+from typing import TYPE_CHECKING
 
 import numpy as np
 import tensorflow as tf
@@ -71,6 +66,9 @@ import uhi.typing.plottable
 
 from . import ztyping
 from .container import convert_to_container
+
+if TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 
 class ZfitGraphCachable:

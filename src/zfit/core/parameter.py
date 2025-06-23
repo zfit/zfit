@@ -23,14 +23,14 @@ import tensorflow as tf
 import tensorflow_probability as tfp
 from ordered_set import OrderedSet
 from pydantic.v1 import Field, validator
-from tensorflow.python.ops import tensor_getitem_override
+from tensorflow.python.ops import tensor_getitem_override  # TF backwards compatibility
 from tensorflow.python.ops.resource_variable_ops import (
-    ResourceVariable as TFVariable,
+    ResourceVariable as TFVariable,  # TF backwards compatibility
 )
 from tensorflow.python.ops.resource_variable_ops import (
-    VariableSpec,
+    VariableSpec,  # TF backwards compatibility
 )
-from tensorflow.python.ops.variables import Variable
+from tensorflow.python.ops.variables import Variable  # TF backwards compatibility
 from tensorflow.python.types.core import Tensor as TensorType
 
 from .. import z
@@ -432,7 +432,7 @@ class Parameter(
         raise ValueError(msg)
 
     @property
-    def lower(self):
+    def lower(self) -> tf.Tensor | None:
         limit = self._lower
         if limit is None:
             limit = self._lower_limit_neg_inf
@@ -448,7 +448,7 @@ class Parameter(
         self._lower = value
 
     @property
-    def upper(self):
+    def upper(self) -> tf.Tensor | None:
         limit = self._upper
         if limit is None:
             limit = self._upper_limit_neg_inf
@@ -504,7 +504,7 @@ class Parameter(
         at_upper = z.unstable.greater_equal(value, self.upper + tol)
         return z.unstable.logical_or(at_lower, at_upper)
 
-    def value(self):
+    def value(self) -> tf.Tensor:
         value = super().value()
         # We don't need to preserve this, right?
         if self.has_limits:
@@ -520,7 +520,7 @@ class Parameter(
     #     return self.value()
 
     @property
-    def floating(self):
+    def floating(self) -> bool:
         if self._floating and (hasattr(self, "trainable") and not self.trainable):
             msg = "Floating is set to true but tf Variable is not trainable."
             raise RuntimeError(msg)
@@ -534,11 +534,11 @@ class Parameter(
         self._floating = value
 
     @property
-    def independent(self):
+    def independent(self) -> bool:
         return self._independent
 
     @property
-    def has_stepsize(self):
+    def has_stepsize(self) -> bool:
         return self._stepsize is not None
 
     @property
@@ -706,6 +706,15 @@ class Parameter(
         except Exception as err:
             name = f"errored {err}"
         return f"<zfit.{self.__class__.__name__} '{name}' floating={floating} value={value}>"
+
+    def __str__(self) -> str:
+        """Simple user-friendly string representation."""
+        try:
+            name = self.name
+            value = f"{self.numpy():.4g}" if tf.executing_eagerly() else "symbolic"
+            return f"{name}={value}"
+        except Exception:
+            return f"{self.__class__.__name__}(?)"
 
     # LEGACY, deprecate?
 

@@ -2,10 +2,7 @@
 #  Copyright (c) 2025 zfit
 
 import logging
-#  Copyright (c) 2025 zfit
-
 from contextlib import redirect_stdout, redirect_stderr
-#  Copyright (c) 2025 zfit
 
 from importlib.metadata import version as _importlib_version
 

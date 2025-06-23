@@ -27,7 +27,7 @@ from .basefunctor import FunctorPDFRepr
 from .functor import BaseFunctor
 
 
-def check_limits(limits: Union[ZfitSpace, list[ZfitSpace]], obs=None):
+def check_limits(limits: Union[ZfitSpace, list[ZfitSpace]], obs=None) -> tuple[ZfitSpace, ...]:
     """Check if the limits are valid Spaces and return an iterable."""
     limits = convert_to_container(limits, container=tuple)
     obs = obs.obs if obs is not None else None
@@ -64,7 +64,7 @@ def check_limits(limits: Union[ZfitSpace, list[ZfitSpace]], obs=None):
     return check_overlap(limits_sorted)
 
 
-def check_overlap(limits):
+def check_overlap(limits: Iterable[ZfitSpace]) -> tuple[ZfitSpace, ...]:
     if len(limits) == 1:
         return limits
     for i, limit1 in enumerate(limits[:-1]):
@@ -173,7 +173,7 @@ class TruncatedPDF(BaseFunctor, SerializableMixin):
         if extended is True and pdf.is_extended:
             paramname = "wrapped_yield"
 
-            def scaled_yield(params):
+            def scaled_yield(params: dict[str, tf.Tensor]) -> tuple[tf.Tensor]:
                 base_norm = pdf.integrate(limits=obs, norm=False)
                 piecewise_norms = znp.asarray([pdf.integrate(limits=limit, norm=False) for limit in self._limits])
                 relative_scale = znp.sum(piecewise_norms / base_norm)

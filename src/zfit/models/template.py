@@ -40,7 +40,7 @@ class BinnedTemplatePDFV1(BaseBinnedPDF):
             if sysshape:
                 import zfit
 
-                def sumfunc(params):
+                def sumfunc(params: dict[str, tf.Tensor]) -> tf.Tensor:
                     values = self._data.values()
                     if sysshape := list(params.values()):
                         sysshape_flat = tf.stack(sysshape)
@@ -60,19 +60,19 @@ class BinnedTemplatePDFV1(BaseBinnedPDF):
 
         self._data = data
 
-    def _ext_pdf(self, x, norm):
+    def _ext_pdf(self, x: tf.Tensor, norm: tf.Tensor | None) -> tf.Tensor:
         counts = self._counts(x, norm)
         areas = np.prod(self._data.axes.widths, axis=0)
         return counts / areas
 
     @supports(norm=False)
-    def _pdf(self, x, norm):
+    def _pdf(self, x: tf.Tensor, norm: tf.Tensor | None) -> tf.Tensor:
         counts = self._rel_counts(x, norm)
         areas = np.prod(self._data.axes.widths, axis=0)
         return counts / areas
 
     @supports(norm="norm")
-    def _counts(self, x, norm=None):  # noqa: ARG002
+    def _counts(self, x: tf.Tensor, norm: tf.Tensor | None = None) -> tf.Tensor:  # noqa: ARG002
         if not self._automatically_extended:
             raise SpecificFunctionNotImplemented
         values = self._data.values()
@@ -83,7 +83,7 @@ class BinnedTemplatePDFV1(BaseBinnedPDF):
         return values
 
     @supports(norm="norm")
-    def _rel_counts(self, x, norm=None):  # noqa: ARG002
+    def _rel_counts(self, x: tf.Tensor, norm: tf.Tensor | None = None) -> tf.Tensor:  # noqa: ARG002
         values = self._data.values()
         if sysshape := list(self._template_sysshape.values()):
             sysshape_flat = tf.stack(sysshape)

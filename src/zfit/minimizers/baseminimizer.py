@@ -2,18 +2,13 @@
 
 from __future__ import annotations
 
-import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
-import collections
 import copy
 import functools
 import inspect
 import math
 import typing
 import warnings
+from collections import deque
 from collections.abc import Callable, Iterable, Mapping
 from contextlib import contextmanager
 
@@ -42,6 +37,9 @@ from .strategy import (
     ZfitStrategy,
 )
 from .termination import EDM, ConvergenceCriterion
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 DefaultStrategy = PushbackStrategy
 
@@ -295,7 +293,7 @@ class BaseMinimizer(ZfitMinimizer):
                 params_init = init.loss.get_params()
                 to_set_param_values = dict(zip(params_init, params))
 
-        if isinstance(params, collections.abc.Mapping):
+        if isinstance(params, Mapping):
             if all(isinstance(p, ZfitParameter) for p in params):
                 to_set_param_values = {p: val for p, val in params.items() if val is not None}
                 params = list(params.keys())
@@ -573,7 +571,12 @@ class BaseMinimizer(ZfitMinimizer):
         return copy.copy(self)
 
     def __str__(self) -> str:
-        return f"<{type(self).__name__} {self.name} tol={self.tol}>"
+        """User-friendly string representation."""
+        info = [f"{self.name}"]
+
+        # Add key configuration
+        info.append(f"tol={self.tol}")
+        return f"<{self.__class__.__name__} {', '.join(info)}>"
 
     def get_maxiter(self, n=None):
         if n is None:
@@ -715,7 +718,7 @@ class BaseStepMinimizer(BaseMinimizer):
         if init:
             assign_values(params=params, values=init)
         n_old_vals = 5
-        changes = collections.deque(np.ones(n_old_vals))
+        changes = deque(np.ones(n_old_vals))
         last_val = -10
         niter = 0
         criterion = self.criterion(tol=self.tol, loss=loss, params=params)

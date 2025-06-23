@@ -154,7 +154,7 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
         return self.pdf(x, norm=False)
 
     @property
-    def label(self):
+    def label(self) -> str:
         return self._label if self._label is not None else self.name
 
     @property
@@ -985,10 +985,40 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
 
         return convert_pdf_to_func(pdf=self, norm=norm)
 
-    def __str__(self):
-        return f"{type(self).__name__} {self.label}"
+    def __str__(self) -> str:
+        """User-friendly string representation."""
+        info = [f"{type(self).__name__}('{self.label}')"]
 
-    def to_unbinned(self):
+        # Add observables
+        if hasattr(self, "obs") and self.obs:
+            info.append(f"obs={self.obs}")
+
+        # Add key parameters (limit to avoid clutter)
+        if hasattr(self, "params") and self.params:
+            param_strs = []
+            for name, param in list(self.params.items())[:3]:  # Show first 3
+                try:
+                    if hasattr(param, "value"):
+                        value = f"{param.value():.3g}" if run.executing_eagerly() else "symbolic"
+                        param_strs.append(f"{name}={value}")
+                except Exception:
+                    param_strs.append(f"{name}=?")
+            if len(self.params) > 3:
+                param_strs.append("...")
+            if param_strs:
+                info.append(f"params=[{', '.join(param_strs)}]")
+
+        # Add extended status
+        if hasattr(self, "is_extended") and self.is_extended:
+            try:
+                yield_val = f"{self.get_yield().value():.3g}" if run.executing_eagerly() else "symbolic"
+                info.append(f"extended=True(yield={yield_val})")
+            except Exception:
+                info.append("extended=True")
+
+        return " ".join(info)
+
+    def to_unbinned(self) -> ZfitPDF:
         """Convert to unbinned pdf, returns self if already unbinned."""
         return self
 

@@ -12,7 +12,6 @@ import functools
 import multiprocessing
 import os
 import sys
-import typing
 
 import tensorflow as tf
 from dotmap import DotMap

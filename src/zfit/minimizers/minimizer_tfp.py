@@ -82,8 +82,8 @@ class BFGS(BaseMinimizer):
             except tf.errors.InvalidArgumentError:
                 err = "NaNs"
                 is_nan = True
-            except:
-                err = "unknonw error"
+            except Exception as e:
+                err = f"unknown error: {e}"
                 raise
             finally:
                 if value is None:

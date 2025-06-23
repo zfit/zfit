@@ -7,13 +7,12 @@ import typing
 if typing.TYPE_CHECKING:
     import zfit  # noqa: F401
 
-import collections
 import contextlib
 import functools
 import math as _mt
 import typing
 import warnings
-from collections import defaultdict
+from collections import Counter, defaultdict, deque
 from collections.abc import Callable
 from typing import Any
 from weakref import WeakSet
@@ -213,7 +212,7 @@ class FunctionWrapperRegistry:
         if keepalive is None:
             keepalive = True
         self._initial_user_kwargs = kwargs_user
-        self._deleted_cachers = collections.Counter()
+        self._deleted_cachers = Counter()
 
         self.registries.add(self)  # TODO: remove?
         self.python_func = None
@@ -227,7 +226,7 @@ class FunctionWrapperRegistry:
         self.wraps = wraps
         self.stateless_args = stateless_args
 
-        self.function_cache = collections.deque()
+        self.function_cache = deque()
         self.reset(**self._initial_user_kwargs)
         self.currently_traced = set()
         self.cachesize = cachesize
@@ -324,9 +323,7 @@ class FunctionWrapperRegistry:
                             stacklevel=2,
                         )
 
-                        self._deleted_cachers - collections.Counter(
-                            {hash(function_holder): int(-1e100)}
-                        )  # won't be warned again
+                        self._deleted_cachers - Counter({hash(function_holder): int(-1e100)})  # won't be warned again
                     del popped_holder
                 cache.append(function_holder)
             else:
