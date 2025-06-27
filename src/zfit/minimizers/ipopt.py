@@ -2,12 +2,9 @@
 
 from __future__ import annotations
 
-import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
+import importlib.util
 import math
+import typing
 
 import numpy as np
 
@@ -17,6 +14,9 @@ from .baseminimizer import BaseMinimizer, minimize_supports, print_minimization_
 from .fitresult import FitResult
 from .strategy import ZfitStrategy
 from .termination import CRITERION_NOT_AVAILABLE, EDM, ConvergenceCriterion
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 
 class Ipyopt(BaseMinimizer):

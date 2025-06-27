@@ -3,9 +3,6 @@ from __future__ import annotations
 
 import typing
 
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 import numpy as np
 import tensorflow as tf
 
@@ -13,6 +10,9 @@ from ..core.binnedpdf import BaseBinnedPDF
 from ..core.space import supports
 from ..util.exception import SpecificFunctionNotImplemented
 from ..z import numpy as znp
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 
 class BinnedTemplatePDFV1(BaseBinnedPDF):

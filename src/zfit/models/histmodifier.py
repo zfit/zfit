@@ -3,10 +3,6 @@
 from __future__ import annotations
 
 import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 from collections.abc import Mapping
 
 import tensorflow as tf
@@ -18,6 +14,9 @@ from ..core.space import supports
 from ..util import ztyping
 from ..util.exception import SpecificFunctionNotImplemented
 from .binned_functor import BaseBinnedFunctorPDF
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 
 class BinwiseScaleModifier(BaseBinnedFunctorPDF):

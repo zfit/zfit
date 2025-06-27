@@ -3,20 +3,8 @@
 from __future__ import annotations
 
 import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
-from collections.abc import Iterable
-from typing import TYPE_CHECKING, Optional
-
-from ..util.plotter import PDFPlotter
-from ..util.ztyping import ExtendedInputType, NormInputType
-
-if TYPE_CHECKING:
-    pass
-
 import warnings
+from collections.abc import Iterable
 from contextlib import suppress
 
 import tensorflow as tf
@@ -36,12 +24,18 @@ from ..util.exception import (
     NotExtendedPDFError,
     SpecificFunctionNotImplemented,
 )
+from ..util.plotter import PDFPlotter
+from ..util.ztyping import ExtendedInputType, NormInputType
 from .basemodel import BaseModel
 from .baseobject import extract_filter_params
 from .interfaces import ZfitParameter, ZfitPDF, ZfitSpace
 from .parameter import Parameter, convert_to_parameter
 from .sample import extended_sampling
 from .space import Space, convert_to_space
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
+
 
 _BasePDF_USER_IMPL_METHODS_TO_CHECK = {}
 
@@ -109,7 +103,7 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
         **kwargs,
     ):
         self._yield = None
-        self.plot = None
+        self._plot = None
 
         super().__init__(obs=obs, dtype=dtype, name=name, params=params, **kwargs)
         self._label = label or self.name
@@ -118,8 +112,8 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
             self._set_yield(extended)
 
         self._assert_params_unique()
-        if self.plot is None:
-            self.plot = PDFPlotter(self)
+        if self._plot is None:
+            self._plot = PDFPlotter(self)
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
@@ -1027,8 +1021,8 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
         space: ztyping.SpaceType,
         extended: ExtendedInputType = None,
         norm: NormInputType = None,
-        name: Optional[str] = None,
-        label: Optional[str] = None,
+        name: str | None = None,
+        label: str | None = None,
     ):
         """Convert to binned pdf, returns self if already binned.
 

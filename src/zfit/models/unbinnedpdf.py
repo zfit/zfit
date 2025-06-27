@@ -3,24 +3,20 @@ from __future__ import annotations
 
 import typing
 
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
-from typing import TYPE_CHECKING
-
 import pydantic.v1 as pydantic
 import tensorflow as tf
 
-if TYPE_CHECKING:
-    pass
-
 from zfit import z
-from zfit.core.binning import unbinned_to_binindex
-from zfit.core.interfaces import ZfitSpace
-from zfit.core.space import supports
-from zfit.models.functor import BaseFunctor
-from zfit.util.ztyping import ExtendedInputType, NormInputType
 from zfit.z import numpy as znp
+
+from ..core.binning import unbinned_to_binindex
+from ..core.interfaces import ZfitSpace
+from ..core.space import supports
+from ..util.ztyping import ExtendedInputType, NormInputType
+from .functor import BaseFunctor
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 
 class UnbinnedFromBinnedPDF(BaseFunctor):

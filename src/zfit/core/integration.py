@@ -4,14 +4,9 @@
 
 from __future__ import annotations
 
-import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 import collections
+import typing
 from collections.abc import Callable, Iterable, Mapping
-from typing import Optional
 
 import numpy as np
 import tensorflow as tf
@@ -25,6 +20,9 @@ from ..util import ztyping
 from ..util.exception import AnalyticIntegralNotImplemented, WorkInProgressError
 from .interfaces import ZfitModel, ZfitSpace
 from .space import MultiSpace, convert_to_space, supports
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 
 def auto_integrate(
@@ -189,7 +187,7 @@ def mc_integrate(
     draws_per_dim: int = 40000,
     max_draws=800_000,
     tol: float = 1e-6,
-    method: Optional[str] = None,  # noqa: ARG001
+    method: str | None = None,  # noqa: ARG001
     xfixed: Mapping | None = None,
     dtype: type = ztypes.float,
     mc_sampler: Callable = tfp.mcmc.sample_halton_sequence,  # noqa: ARG001

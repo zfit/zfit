@@ -9,20 +9,17 @@ Their implementation is often non-trivial.
 
 from __future__ import annotations
 
-import typing
-
-if typing.TYPE_CHECKING:
-    import zfit
-
 import functools
 import operator
 import typing
 from collections import Counter
 from collections.abc import Iterable
-from typing import Literal, Optional
+from typing import Literal
 
 if typing.TYPE_CHECKING:
     import zfit
+
+import typing
 
 import pydantic.v1 as pydantic
 import tensorflow as tf
@@ -48,6 +45,9 @@ from ..util.plotter import PDFPlotter, SumCompPlotter
 from ..util.ztyping import ExtendedInputType, NormInputType
 from ..z.random import counts_multinomial
 from .basefunctor import FunctorPDFRepr, _preprocess_init_sum
+
+if typing.TYPE_CHECKING:
+    import zfit
 
 
 # TODO: order of spaces if the obs is different from the wrapped pdf
@@ -174,7 +174,7 @@ class SumPDF(BaseFunctor, SerializableMixin):  # TODO: add extended argument
             extended = sum_yields
         super().__init__(pdfs=pdfs, obs=obs, params=params, name=name, extended=extended, norm=norm, label=label)
         self.hs3.original_init.update(original_init)
-        self.plot = PDFPlotter(self, componentplotter=SumCompPlotter(self))
+        self._plot = PDFPlotter(self, componentplotter=SumCompPlotter(self))
 
     @property
     def fracs(self):
@@ -315,7 +315,7 @@ class SumPDF(BaseFunctor, SerializableMixin):  # TODO: add extended argument
 class SumPDFRepr(FunctorPDFRepr):
     _implementation = SumPDF
     hs3_type: Literal["SumPDF"] = pydantic.Field("SumPDF", alias="type")
-    fracs: Optional[list[Serializer.types.ParamInputTypeDiscriminated]] = None
+    fracs: list[Serializer.types.ParamInputTypeDiscriminated] | None = None
 
     @pydantic.root_validator(pre=True)
     def validate_all_sumpdf(cls, values):

@@ -3,37 +3,30 @@
 
 from __future__ import annotations
 
+import abc
 import typing
-
-if typing.TYPE_CHECKING:
-    import zfit
-
-from typing import TYPE_CHECKING, Literal, Optional
+from collections.abc import Mapping
+from typing import Literal
 
 import pydantic.v1 as pydantic
-
-from ..core.serialmixin import SerializableMixin
-from ..serialization import Serializer, SpaceRepr
-from ..serialization.pdfrepr import BasePDFRepr
-from ..util.ztyping import ExtendedInputType, NormInputType
-
-if TYPE_CHECKING:
-    import zfit
-
-import abc
-from collections.abc import Mapping
-
 import tensorflow as tf
 
 import zfit.z.numpy as znp
 from zfit import z
 
 from ..core.basepdf import BasePDF
+from ..core.serialmixin import SerializableMixin
 from ..core.space import Space, supports
+from ..serialization import Serializer, SpaceRepr
+from ..serialization.pdfrepr import BasePDFRepr
 from ..settings import ztypes
 from ..util import ztyping
 from ..util.container import convert_to_container
 from ..util.exception import SpecificFunctionNotImplemented
+from ..util.ztyping import ExtendedInputType, NormInputType
+
+if typing.TYPE_CHECKING:
+    import zfit
 
 
 def rescale_minus_plus_one(x: tf.Tensor, limits: zfit.Space) -> tf.Tensor:
@@ -154,7 +147,7 @@ class RecursivePolynomial(BasePDF):
 class BaseRecursivePolynomialRepr(BasePDFRepr):
     x: SpaceRepr
     params: Mapping[str, Serializer.types.ParamTypeDiscriminated] = pydantic.Field(alias="coeffs")
-    apply_scaling: Optional[bool]
+    apply_scaling: bool | None
 
     @pydantic.root_validator(pre=True)
     def convert_params(cls, values):  # does not propagate `params` into the fields
@@ -990,7 +983,7 @@ class BernsteinPDFRepr(BasePDFRepr):
     hs3_type: Literal["Bernstein"] = pydantic.Field("Bernstein", alias="type")
     x: SpaceRepr
     params: Mapping[str, Serializer.types.ParamTypeDiscriminated] = pydantic.Field(alias="coeffs")
-    apply_scaling: Optional[bool]
+    apply_scaling: bool | None
 
     @pydantic.root_validator(pre=True)
     def convert_params(cls, values):  # does not propagate `params` into the fields

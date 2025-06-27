@@ -2,10 +2,6 @@
 from __future__ import annotations
 
 import typing
-
-if typing.TYPE_CHECKING:
-    import zfit
-
 from collections.abc import Iterable, Mapping
 
 # ruff: noqa: F821
@@ -27,6 +23,8 @@ from tensorflow.python.types.core import TensorLike
 # as documented, such that sphinx will document them.
 from uhi.typing.plottable import PlottableHistogram
 
+if typing.TYPE_CHECKING:
+    import zfit
 LowerTypeInput = Union[tf.Tensor, np.ndarray, tuple[float], list[float], float]  #:
 LowerTypeReturn = Union[np.ndarray, tf.Tensor, None, bool]  #:
 

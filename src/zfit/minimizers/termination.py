@@ -1,13 +1,8 @@
 #  Copyright (c) 2025 zfit
 from __future__ import annotations
 
-import typing
-
-if typing.TYPE_CHECKING:
-    import zfit
-
 import abc
-from typing import TYPE_CHECKING
+import typing
 
 import numpy as np
 
@@ -15,7 +10,7 @@ from ..core.interfaces import ZfitLoss
 from ..util import ztyping
 from ..util.checks import Singleton
 
-if TYPE_CHECKING:
+if typing.TYPE_CHECKING:
     import zfit
 
 

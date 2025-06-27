@@ -3,39 +3,27 @@
 from __future__ import annotations
 
 import typing
+from collections import Counter
+from collections.abc import Callable, Iterable, Mapping
+from typing import Literal, Union
 
-if typing.TYPE_CHECKING:
-    import zfit
-
-from collections.abc import Iterable
-from typing import TYPE_CHECKING, Literal, Optional, Union
-
+import numpy as np
+import pandas as pd
 import pydantic.v1 as pydantic
+import tensorflow as tf
+import uproot
 import xxhash
 from pydantic.v1 import Field
 from tensorflow.python.types.core import TensorLike
 from tensorflow.python.util.deprecation import deprecated, deprecated_args
 
-from ..exception import OutsideLimitsError
-from ..serialization import SpaceRepr
-from ..serialization.serializer import BaseRepr, to_orm_init
-from .serialmixin import SerializableMixin, ZfitSerializable
-
-if TYPE_CHECKING:
-    import zfit
-
-from collections import Counter
-from collections.abc import Callable, Mapping
-
-import numpy as np
-import pandas as pd
-import tensorflow as tf
-import uproot
-
 import zfit
 import zfit.z.numpy as znp
 
 from .. import z
+from ..exception import OutsideLimitsError
+from ..serialization import SpaceRepr
+from ..serialization.serializer import BaseRepr, to_orm_init
 from ..settings import run, ztypes
 from ..util import ztyping
 from ..util.cache import GraphCachable, invalidate_graph
@@ -51,7 +39,11 @@ from .baseobject import BaseObject, convert_param_values
 from .coordinates import convert_to_obs_str
 from .dimension import BaseDimensional
 from .interfaces import ZfitBinnedData, ZfitSpace, ZfitUnbinnedData
+from .serialmixin import SerializableMixin, ZfitSerializable
 from .space import Space, convert_to_space
+
+if typing.TYPE_CHECKING:
+    import zfit
 
 
 def convert_to_data(data, obs=None, *, check_limits=False):
@@ -1135,8 +1127,8 @@ class DataRepr(BaseRepr):
 
     data: np.ndarray
     space: Union[SpaceRepr, list[SpaceRepr]]
-    name: Optional[str] = None
-    weights: Optional[np.ndarray] = None
+    name: str | None = None
+    weights: np.ndarray | None = None
 
     @pydantic.root_validator(pre=True)
     def extract_data(cls, values):
@@ -1380,8 +1372,8 @@ class SamplerData(Data):
     def from_sampler(
         cls,
         *,
-        sample_func: Optional[Callable] = None,
-        sample_and_weights_func: Optional[Callable] = None,
+        sample_func: Callable | None = None,
+        sample_and_weights_func: Callable | None = None,
         n: ztyping.NumericalScalarType,
         obs: ztyping.ObsTypeInput,
         params: ztyping.ParamValuesMap = None,

@@ -8,7 +8,8 @@ Gauss, exponential... that can be used together with Functors to build larger mo
 from __future__ import annotations
 
 import contextlib
-from typing import TYPE_CHECKING, Literal
+import typing
+from typing import Literal
 
 import numpy as np
 from pydantic.v1 import Field
@@ -26,7 +27,7 @@ from ..util.exception import BreakingAPIChangeError
 from ..util.warnings import warn_advanced_feature
 from ..util.ztyping import ExtendedInputType, NormInputType
 
-if TYPE_CHECKING:
+if typing.TYPE_CHECKING:
     import zfit  # noqa: F401
 
 

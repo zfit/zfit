@@ -2,25 +2,19 @@
 
 from __future__ import annotations
 
-import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
-from collections.abc import Callable
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    pass
-
 import abc
+import typing
 from abc import ABCMeta, abstractmethod
+from typing import Callable
 
 import numpy as np
 import tensorflow as tf
 from uhi.typing.plottable import PlottableHistogram
 
 from ..util import ztyping
+
+if typing.TYPE_CHECKING:
+    import zfit
 
 
 class ZfitObject:
@@ -969,6 +963,12 @@ class ZfitPDF(ZfitModel):
 
     @abstractmethod
     def as_func(self, norm: ztyping.LimitsType = False):
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def plot(self) -> zfit.util.plotter.ZfitPDFPlotter:
+        """Plot the PDF using the :py:class:`~zfit.PDFPlotter`."""
         raise NotImplementedError
 
 

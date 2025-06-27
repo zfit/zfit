@@ -11,6 +11,7 @@ import warnings
 from collections import deque
 from collections.abc import Callable, Iterable, Mapping
 from contextlib import contextmanager
+from typing import ClassVar
 
 import numpy as np
 from ordered_set import OrderedSet
@@ -132,7 +133,7 @@ def _Minimizer_register_check_support(has_support: bool):
 
 
 class BaseMinimizer(ZfitMinimizer):
-    _DEFAULTS: typing.ClassVar = {
+    _DEFAULTS: ClassVar = {
         "tol": 1e-3,
         "verbosity": 0,
         "strategy": DefaultStrategy,

@@ -3,16 +3,6 @@
 from __future__ import annotations
 
 import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from ..models.functions import ProdFunc, SumFunc
-    from ..models.functor import ProductPDF, SumPDF
-
 from collections.abc import Callable
 
 import zfit.z.numpy as znp
@@ -26,6 +16,12 @@ from ..util.exception import (
 )
 from .interfaces import ZfitFunc, ZfitModel, ZfitParameter, ZfitPDF
 from .parameter import convert_to_parameter
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
+
+    from ..models.functions import ProdFunc, SumFunc
+    from ..models.functor import ProductPDF, SumPDF
 
 
 def multiply(object1: ztyping.BaseObjectType, object2: ztyping.BaseObjectType) -> ztyping.BaseObjectType:

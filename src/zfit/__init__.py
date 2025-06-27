@@ -1,10 +1,12 @@
 """Top-level package for zfit."""
 #  Copyright (c) 2025 zfit
+from __future__ import annotations
 
-import logging
-from contextlib import redirect_stdout, redirect_stderr
-
+import typing
 from importlib.metadata import version as _importlib_version
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 __version__ = _importlib_version(__name__)
 
@@ -53,7 +55,8 @@ __all__ = [
 
 
 def _maybe_disable_warnings() -> None:
-    import os, warnings
+    import os
+    import warnings
 
     disable_warnings = os.environ.get("ZFIT_DISABLE_TF_WARNINGS")
     if disable_warnings is None:
@@ -100,25 +103,23 @@ if int(_tf.__version__[0]) < 2:
     raise RuntimeError(
         f"You are using TensorFlow version {_tf.__version__}. This zfit version ({__version__}) works only with TF >= 2"
     )
-from . import z  # initialize first
 from . import (
+    binned,
     constraint,
     data,
+    dill,
     dimension,
     exception,
     func,
-    dill,
+    hs3,
     loss,
-    binned,
     minimize,
-    param,
     pdf,
     result,
     sample,
     settings,
-    hs3,
+    z,  # initialize first
 )
-from .core.data import Data
 from .core.parameter import (
     ComplexParameter,
     ComposedParameter,
@@ -126,11 +127,12 @@ from .core.parameter import (
     convert_to_parameter,
 )
 from .core.space import Space, convert_to_space, supports
-from .settings import run, ztypes
+from .settings import run
 
 
 def _maybe_disable_jit() -> None:
-    import os, warnings
+    import os
+    import warnings
 
     arg1 = os.environ.get("ZFIT_DO_JIT")
     arg2 = os.environ.get("ZFIT_EXPERIMENTAL_DO_JIT")

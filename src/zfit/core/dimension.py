@@ -3,10 +3,6 @@
 from __future__ import annotations
 
 import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 from collections.abc import Iterable
 
 import numpy as np
@@ -15,6 +11,9 @@ from ..util import ztyping
 from ..util.container import convert_to_container
 from ..util.exception import SpaceIncompatibleError
 from .interfaces import ZfitDimensional
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 
 class BaseDimensional(ZfitDimensional):

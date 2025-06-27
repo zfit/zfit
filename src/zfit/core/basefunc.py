@@ -6,29 +6,18 @@ TODO(Mayou36): subclassing?
 
 from __future__ import annotations
 
-import typing
-
-if typing.TYPE_CHECKING:
-    import zfit
-
-import typing
-
-if typing.TYPE_CHECKING:
-    import zfit
-
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    import zfit
-
 import abc
 import typing
+from typing import Any
 
 from ..settings import ztypes
 from ..util import ztyping
 from ..util.exception import ShapeIncompatibleError, SpecificFunctionNotImplemented
 from .basemodel import BaseModel
 from .interfaces import ZfitFunc
+
+if typing.TYPE_CHECKING:
+    import zfit
 
 
 class BaseFuncV1(BaseModel, ZfitFunc):
@@ -37,7 +26,7 @@ class BaseFuncV1(BaseModel, ZfitFunc):
         obs=None,
         dtype: type = ztypes.float,
         name: str = "BaseFunc",
-        params: typing.Any = None,
+        params: Any = None,
     ):
         """TODO(docs): explain subclassing."""
         super().__init__(obs=obs, dtype=dtype, name=name, params=params)

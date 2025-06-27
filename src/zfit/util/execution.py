@@ -2,16 +2,12 @@
 
 from __future__ import annotations
 
-import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 import contextlib
 import functools
 import multiprocessing
 import os
 import sys
+import typing
 
 import tensorflow as tf
 from dotmap import DotMap
@@ -19,6 +15,9 @@ from dotmap import DotMap
 from .deprecation import deprecated
 from .exception import BreakingAPIChangeError, IllegalInGraphModeError
 from .temporary import TemporarilySet
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 
 class RunManager:

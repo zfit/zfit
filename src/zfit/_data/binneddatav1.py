@@ -15,9 +15,11 @@ from uhi.typing.plottable import PlottableHistogram
 from zfit_interface.typing import TensorLike
 
 from .. import z
+from zfit.z import numpy as znp
+
 from .._variables.axis import binning_to_histaxes, histaxes_to_binning
 from ..core.baseobject import convert_param_values
-from ..core.interfaces import ZfitBinnedData, ZfitData, ZfitSpace
+from .._interfaces import ZfitBinnedData, ZfitData, ZfitSpace
 from ..settings import ztypes
 from ..util import ztyping
 from ..util.exception import BreakingAPIChangeError, ShapeIncompatibleError
@@ -157,8 +159,8 @@ class BinnedData(
         *,
         h: BinnedHolder | hist.NamedHist | ZfitBinnedData,
         use_hash=None,
-        name: Optional[str] = None,
-        label: Optional[str] = None,
+        name: str | None = None,
+        label: str | None = None,
     ):
         """Create a binned data object from a histogram object.
 

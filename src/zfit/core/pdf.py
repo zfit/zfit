@@ -3,11 +3,6 @@
 from __future__ import annotations
 
 import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
-import typing
 from collections.abc import Callable
 from contextlib import suppress
 
@@ -26,6 +21,9 @@ from zfit.util.exception import (
     SpecificFunctionNotImplemented,
     WorkInProgressError,
 )
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 
 class Integration:

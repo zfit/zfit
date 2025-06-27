@@ -7,20 +7,15 @@ Handle integration and sampling
 
 from __future__ import annotations
 
-import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 import abc
 import builtins
 import contextlib
 import inspect
 import math
+import typing
 import warnings
 from collections.abc import Callable, Mapping
 from contextlib import suppress
-from typing import Optional
 
 import tensorflow as tf
 from dotmap import DotMap
@@ -57,6 +52,8 @@ from .interfaces import ZfitData, ZfitModel, ZfitParameter, ZfitSpace
 from .sample import UniformSampleAndWeights
 from .space import Space, convert_to_space, supports
 
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 _BaseModel_USER_IMPL_METHODS_TO_CHECK = {}
 
 
@@ -1073,7 +1070,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         n: ztyping.nSamplingTypeIn = None,
         limits: ztyping.LimitsType = None,
         *,
-        fixed_params: Optional[bool | list[ZfitParameter] | tuple[ZfitParameter]] = None,
+        fixed_params: bool | list[ZfitParameter] | tuple[ZfitParameter] | None = None,
         params: ztyping.ParamTypeInput = None,
     ) -> SamplerData:
         """Create a :py:class:`SamplerData` that acts as `Data` but can be resampled, also with changed parameters and

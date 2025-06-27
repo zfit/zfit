@@ -3,10 +3,6 @@
 from __future__ import annotations
 
 import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 from collections.abc import Mapping
 
 import numpy as np
@@ -20,6 +16,9 @@ from .baseminimizer import BaseMinimizer, minimize_supports
 from .evaluation import print_gradient
 from .fitresult import FitResult
 from .strategy import ZfitStrategy
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 
 class BFGS(BaseMinimizer):

@@ -2,24 +2,14 @@
 
 from __future__ import annotations
 
-import typing
-
-if typing.TYPE_CHECKING:
-    import zfit
-
-import warnings
-from enum import Enum
-from typing import TYPE_CHECKING
-
-import jacobi
-
-if TYPE_CHECKING:
-    import zfit
-
 import logging
+import typing
+import warnings
 from collections.abc import Callable
+from enum import Enum
 from functools import lru_cache, wraps
 
+import jacobi
 import numpy as np
 import scipy.stats
 import tensorflow as tf
@@ -32,6 +22,9 @@ from ..core.interfaces import ZfitIndependentParameter
 from ..core.parameter import assign_values
 from ..util.container import convert_to_container
 from ..util.exception import BreakingAPIChangeError
+
+if typing.TYPE_CHECKING:
+    import zfit
 
 
 class NewMinimum(Exception):

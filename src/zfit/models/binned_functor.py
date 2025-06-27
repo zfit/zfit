@@ -2,11 +2,6 @@
 
 from __future__ import annotations
 
-import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 from collections.abc import Iterable
 from typing import TYPE_CHECKING, Union
 
@@ -14,6 +9,8 @@ from uhi.typing.plottable import PlottableHistogram
 
 if TYPE_CHECKING:
     pass
+
+import typing
 
 from .. import z
 from ..core.binnedpdf import BaseBinnedPDF
@@ -26,6 +23,9 @@ from ..util.exception import NormNotImplemented
 from ..util.ztyping import BinnedDataInputType
 from ..z import numpy as znp
 from .basefunctor import FunctorMixin, _preprocess_init_sum
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 
 def preprocess_pdf_or_hist(models: Union[ZfitPDF, Iterable[ZfitPDF], BinnedDataInputType]):

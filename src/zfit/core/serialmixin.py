@@ -2,16 +2,15 @@
 from __future__ import annotations
 
 import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 import weakref
 
 import pydantic.v1 as pydantic
 import yaml
 
 from zfit.util.warnings import warn_experimental_feature
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 
 class ZfitSerializable:

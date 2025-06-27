@@ -3,30 +3,23 @@
 from __future__ import annotations
 
 import typing
-
-if typing.TYPE_CHECKING:
-    import zfit
-
-from typing import TYPE_CHECKING, NoReturn
-
-import numpy as np
-
-from ..util.exception import BreakingAPIChangeError
-
-if TYPE_CHECKING:
-    import zfit
-
 from collections.abc import Callable, Iterable
+from typing import NoReturn
 
 import numdifftools
+import numpy as np
 import tensorflow as tf
 import tensorflow_probability as tfp
 
 from ..util.container import convert_to_container
 from ..util.deprecation import deprecated
+from ..util.exception import BreakingAPIChangeError
 from . import numpy as znp
 from .tools import _auto_upcast
 from .zextension import convert_to_tensor
+
+if typing.TYPE_CHECKING:
+    import zfit
 
 
 def poly_complex(*args, real_x=False) -> tf.Tensor:

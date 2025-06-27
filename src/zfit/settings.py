@@ -3,14 +3,14 @@ from __future__ import annotations
 
 import typing
 
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 import numpy as np
 import tensorflow as tf
 from dotmap import DotMap
 
 from .util.execution import RunManager
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 run = RunManager()
 

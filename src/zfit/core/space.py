@@ -2,34 +2,23 @@
 
 from __future__ import annotations
 
-import typing
-
-if typing.TYPE_CHECKING:
-    import zfit
-
-from typing import TYPE_CHECKING, Union
-
-import pandas as pd
-from numpy import ndarray
-from pandas import DataFrame
-from tensorflow import Tensor
-
-from .serialmixin import SerializableMixin
-
-if TYPE_CHECKING:
-    import zfit
-
 import functools
 import inspect
 import itertools
+import typing
 import warnings
 from abc import abstractmethod
 from collections import defaultdict
 from collections.abc import Callable, Iterable, Mapping
 from contextlib import suppress
+from typing import Union
 
 import numpy as np
+import pandas as pd
 import tensorflow as tf
+from numpy import ndarray
+from pandas import DataFrame
+from tensorflow import Tensor
 
 import zfit
 import zfit.z.numpy as znp
@@ -77,6 +66,10 @@ from .interfaces import (
     ZfitPDF,
     ZfitSpace,
 )
+from .serialmixin import SerializableMixin
+
+if typing.TYPE_CHECKING:
+    import zfit
 
 
 class LimitRangeDefinition:

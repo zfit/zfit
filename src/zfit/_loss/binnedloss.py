@@ -3,10 +3,6 @@
 from __future__ import annotations
 
 import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 from collections.abc import Iterable
 
 import numpy as np
@@ -22,6 +18,9 @@ from ..util.container import convert_to_container
 from ..util.warnings import warn_advanced_feature
 from ..util.ztyping import ConstraintsInputType, OptionsInputType
 from ..z import numpy as znp
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 
 @z.function(wraps="tensor", keepalive=True)

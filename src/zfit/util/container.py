@@ -3,23 +3,16 @@
 from __future__ import annotations
 
 import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
-from typing import TYPE_CHECKING
-
-import numpy as np
-import pandas as pd
-
-if TYPE_CHECKING:
-    pass
-
 from collections.abc import Callable, Iterable
 from typing import Any
 
+import numpy as np
+import pandas as pd
 import tensorflow as tf
 from uhi.typing.plottable import PlottableHistogram
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 
 def convert_to_container(

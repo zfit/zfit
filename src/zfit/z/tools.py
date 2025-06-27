@@ -3,12 +3,12 @@ from __future__ import annotations
 
 import typing
 
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 import tensorflow as tf
 
 from zfit.settings import upcast_ztypes
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 
 def _auto_upcast(tensor: tf.Tensor) -> tf.Tensor:

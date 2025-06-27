@@ -1,13 +1,12 @@
 #  Copyright (c) 2025 zfit
 from __future__ import annotations
 
+import functools
 import typing
+import warnings
 
 if typing.TYPE_CHECKING:
     import zfit  # noqa: F401
-
-import functools
-import warnings
 
 
 class ExperimentalFeatureWarning(UserWarning):

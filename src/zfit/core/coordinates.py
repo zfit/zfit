@@ -4,9 +4,6 @@ from __future__ import annotations
 
 import typing
 
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 import numpy as np
 import tensorflow as tf
 
@@ -23,6 +20,9 @@ from ..util.exception import (
     OverdefinedError,
 )
 from .interfaces import ZfitData, ZfitDimensional, ZfitOrderableDimensional, ZfitSpace
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 
 class Coordinates(ZfitOrderableDimensional):

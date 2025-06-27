@@ -3,15 +3,7 @@
 from __future__ import annotations
 
 import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 from collections.abc import Mapping
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    pass
 
 import iminuit
 import numpy as np
@@ -26,6 +18,9 @@ from .baseminimizer import BaseMinimizer, minimize_supports, print_minimization_
 from .fitresult import FitResult
 from .strategy import ZfitStrategy
 from .termination import EDM, ConvergenceCriterion
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 
 class Minuit(BaseMinimizer, GraphCachable):

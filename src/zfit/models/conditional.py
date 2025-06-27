@@ -4,19 +4,15 @@ from __future__ import annotations
 
 import typing
 
-if typing.TYPE_CHECKING:
-    import zfit
-
-import typing
-
 from ordered_set import OrderedSet
 
 from ..util.ztyping import ExtendedInputType, NormInputType
 
 if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
+    import zfit
 
 import functools
+import typing
 import warnings
 from collections.abc import Mapping
 
@@ -37,6 +33,9 @@ from ..core.space import combine_spaces, convert_to_space, supports
 from ..util.exception import WorkInProgressError
 from ..util.warnings import warn_experimental_feature
 from .functor import BaseFunctor
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 
 class ConditionalPDFV1(BaseFunctor):

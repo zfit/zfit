@@ -2,16 +2,15 @@
 from __future__ import annotations
 
 import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
-from typing import Literal, Optional, Union
+from typing import Literal, Union
 
 import pydantic.v1 as pydantic
 from pydantic.v1 import Field, root_validator
 
 from .serializer import BaseRepr, Serializer
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 
 class BasePDFRepr(BaseRepr):
@@ -20,7 +19,7 @@ class BasePDFRepr(BaseRepr):
     hs3_type: Literal["BasePDF"] = Field("BasePDF", alias="type")
     extended: Union[bool, None, Serializer.types.ParamTypeDiscriminated] = None
     # TODO: add norm?
-    name: Optional[str] = None
+    name: str | None = None
 
     @root_validator(pre=True)
     def convert_params(cls, values):

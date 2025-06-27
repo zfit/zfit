@@ -1,12 +1,8 @@
 #  Copyright (c) 2025 zfit
 from __future__ import annotations
 
-import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 import functools
+import typing
 from typing import Any
 
 import tensorflow as tf
@@ -16,6 +12,9 @@ import zfit.z.numpy as _znp
 from ..settings import ztypes
 from ..util.exception import BreakingAPIChangeError
 from .tools import _auto_upcast
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 
 def exp(x) -> tf.Tensor:

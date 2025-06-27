@@ -3,14 +3,6 @@ from __future__ import annotations
 
 import typing
 
-if typing.TYPE_CHECKING:
-    import zfit
-
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    import zfit
-
 import tensorflow as tf
 
 import zfit
@@ -22,6 +14,9 @@ from ..core.space import supports
 from ..util import ztyping
 from ..util.warnings import warn_advanced_feature
 from .binned_functor import BaseBinnedFunctorPDF
+
+if typing.TYPE_CHECKING:
+    import zfit
 
 
 class MapNotVectorized(Exception):

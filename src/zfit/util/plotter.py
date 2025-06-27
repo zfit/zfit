@@ -2,12 +2,8 @@
 from __future__ import annotations
 
 import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 from collections.abc import Mapping
-from typing import Callable, Optional
+from typing import Callable
 
 from ..core.interfaces import ZfitPDF
 from ..core.space import convert_to_space
@@ -15,6 +11,9 @@ from . import ztyping
 from .checks import RuntimeDependency
 from .exception import WorkInProgressError
 from .warnings import warn_experimental_feature
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 try:
     import matplotlib.pyplot as plt
@@ -25,11 +24,12 @@ except ImportError as error:
 def plot_sumpdf_components_pdfV1(
     model,
     *,
-    plotfunc: Optional[Callable] = None,
+    plotfunc: Callable | None = None,
     scale=1,
     ax=None,
     linestyle=None,
     plotkwargs: Mapping[str, object] | None = None,
+    extended: bool | None = None,
 ):
     """Plot the components of a sum pdf.
 
@@ -40,6 +40,7 @@ def plot_sumpdf_components_pdfV1(
         ax: A matplotlib Axes object to plot on.
         linestyle: A linestyle to use for the components. Default is "--".
         plotkwargs: Additional keyword arguments to pass to the plotting function.
+        extended: If True, plot extended components. If None, uses the model's extended state.
     """
     import zfit
 
@@ -50,9 +51,25 @@ def plot_sumpdf_components_pdfV1(
         linestyle = "--"
     if plotkwargs is None:
         plotkwargs = {}
+    if extended is None:
+        extended = model.is_extended
+
     plotfunc = plot_model_pdfV1 if plotfunc is None else plotfunc
-    for mod, frac in zip(model.pdfs, model.params.values()):
-        plotfunc(mod, scale=frac * scale, ax=ax, linestyle=linestyle, plotkwargs=plotkwargs)
+
+    # Check if the SumPDF is automatically extended
+    is_auto_extended = hasattr(model, "_automatically_extended") and model._automatically_extended
+
+    # For automatically extended SumPDFs, we need to handle components differently
+    if extended and is_auto_extended:
+        for mod in model.pdfs:
+            plotfunc(mod, scale=scale, ax=ax, linestyle=linestyle, extended=True, plotkwargs=plotkwargs)
+    else:
+        if extended:
+            scale = scale * model.get_yield()
+        # For non-extended or manually extended SumPDFs, use fractions
+        # Force components to be non-extended and scale by fractions
+        for mod, frac in zip(model.pdfs, model.params.values()):
+            plotfunc(mod, scale=frac * scale, ax=ax, linestyle=linestyle, extended=False, plotkwargs=plotkwargs)
     return ax
 
 
@@ -173,19 +190,50 @@ class ZfitPDFPlotter:
     ):
         """Plot the 1 dimensional density of the PDF, possibly scaled by the yield if extended.
 
+        This is the main plotting method for PDFs in zfit. It provides a quick way to visualize
+        the probability density function.
+
+        Examples:
+            Basic usage::
+
+                # Plot a simple PDF
+                pdf.plot.plotpdf()
+
+                # Plot extended PDF (scaled by yield)
+                pdf.plot.plotpdf(extended=True)
+
+                # Custom styling
+                pdf.plot.plotpdf(color='red', linestyle='--', label='My PDF')
+
+            For composite PDFs like SumPDF::
+
+                # Plot the sum
+                sumpdf.plot.plotpdf()
+
+                # Plot components
+                sumpdf.plot.comp.plotpdf(linestyle='--')
+
         Args:
-            plotfunc: A plotting function that takes the `ax` to plot on, and x, y, and additional arguments. Default is `ax.plot`.
-            extended: If True, plot the extended pdf. If False, plot the pdf.
+            plotfunc: A plotting function that takes the `ax` to plot on, and x, y, and additional arguments.
+                Default is `ax.plot`.
+            extended: If True, plot the extended pdf (multiplied by the yield). If False, plot the
+                normalized pdf. If None, uses the PDF's `is_extended` property.
             obs: The observable to plot the pdf for. If None, the model's space is used.
-            scale: An overall scale factor to apply to the pdf.
-            ax: A matplotlib Axes object to plot on.
+            scale: An overall scale factor to apply to the pdf. Useful for plotting multiple PDFs
+                with different normalizations.
+            ax: A matplotlib Axes object to plot on. If None, uses the current axes (plt.gca()).
             num: The number of points to evaluate the pdf at. Default is 300.
             full: If True, set the x and y labels and the legend. Default is True.
-            linestyle: A linestyle to use for the pdf.
-            plotkwargs: Additional keyword arguments to pass to the plotting function.
+            linestyle: A linestyle to use for the pdf (e.g., '-', '--', '-.', ':').
+            plotkwargs: Additional keyword arguments to pass to the plotting function (e.g., color,
+                alpha, linewidth, label).
 
         Returns:
-            The matplotlib Axes object.
+            matplotlib.axes.Axes: The matplotlib Axes object used for plotting.
+
+        See Also:
+            zfit.plot.plot_model_pdfV1: The underlying plotting function.
+            SumPDF.plot.comp.plotpdf: For plotting components of composite PDFs.
         """
         return self._plotpdf(
             plotfunc=plotfunc,
@@ -259,9 +307,12 @@ class SumCompPlotter(ZfitPDFPlotter):
         if not isinstance(pdf := self.pdf, zfit.pdf.SumPDF):  # we can relax this later with duck typing
             msg = f"pdf must be a SumPDF, is {type(pdf)}."
             raise TypeError(msg)
+        assert isinstance(pdf, zfit.pdf.SumPDF), "pdf must be a SumPDF"
         scale = kwargs.pop("scale")
         if scale is None:
             scale = 1
+        if pdf.is_extended:
+            scale *= pdf.get_yield()
         for mod, frac in zip(pdf.pdfs, pdf.params.values()):
             ax = mod.plot.plotpdf(scale=frac * scale, **kwargs)
         return ax

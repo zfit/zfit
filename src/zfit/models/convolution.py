@@ -2,11 +2,6 @@
 from __future__ import annotations
 
 import typing
-
-if typing.TYPE_CHECKING:
-    import zfit
-
-import typing
 from typing import Literal, Optional, Union
 
 import pydantic.v1 as pydantic
@@ -31,6 +26,7 @@ from .functor import BaseFunctor
 
 if typing.TYPE_CHECKING:
     import zfit  # noqa: F401
+
 LimitsTypeInput = Optional[Union[ztyping.LimitsType, float]]
 
 
@@ -450,11 +446,11 @@ class FFTConvPDFV1Repr(BasePDFRepr):
     func: Serializer.types.PDFTypeDiscriminated
 
     kernel: Serializer.types.PDFTypeDiscriminated
-    n: Optional[int] = None
-    limits_func: Optional[SpaceRepr] = None
-    limits_kernel: Optional[SpaceRepr] = None
-    interpolation: Optional[str] = None
-    obs: Optional[SpaceRepr] = None
+    n: int | None = None
+    limits_func: SpaceRepr | None = None
+    limits_kernel: SpaceRepr | None = None
+    interpolation: str | None = None
+    obs: SpaceRepr | None = None
 
     @pydantic.root_validator(pre=True)
     def validate_all(cls, values):

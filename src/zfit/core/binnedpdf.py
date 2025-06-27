@@ -105,7 +105,7 @@ class BaseBinnedPDF(
         **kwargs,
     ):
         self._label = label
-        self.plot = None
+        self._plot = None
         super().__init__(dtype=znp.float64, name=name, **kwargs)
 
         self._space = self._check_convert_obs_init(obs)
@@ -116,8 +116,8 @@ class BaseBinnedPDF(
         if extended is not False:
             self._set_yield(extended)
 
-        if self.plot is None:  # todo: have a binned plotter
-            self.plot = PDFPlotter(self)
+        if self._plot is None:  # todo: have a binned plotter
+            self._plot = PDFPlotter(self)
 
     @property
     def label(self):

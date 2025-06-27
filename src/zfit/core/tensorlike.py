@@ -1,18 +1,17 @@
 #  Copyright (c) 2025 zfit
 from __future__ import annotations
 
-import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 import functools
+import typing
 
 import tensorflow as tf
 from tensorflow.python.framework import ops
 from tensorflow.python.ops import array_ops
 
 from zfit.core import interfaces as zinterfaces
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 
 def register_tensor_conversion(

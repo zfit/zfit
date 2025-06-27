@@ -2,10 +2,6 @@
 from __future__ import annotations
 
 import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 from collections.abc import Iterable
 from typing import Literal, Union
 
@@ -25,6 +21,9 @@ from ..util.container import convert_to_container
 from ..util.exception import AnalyticIntegralNotImplemented, SpecificFunctionNotImplemented
 from .basefunctor import FunctorPDFRepr
 from .functor import BaseFunctor
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 
 def check_limits(limits: Union[ZfitSpace, list[ZfitSpace]], obs=None) -> tuple[ZfitSpace, ...]:

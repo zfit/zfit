@@ -18,15 +18,13 @@
 from __future__ import annotations
 
 import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 from typing import Union
 
 import numpy as np
 import tensorflow as tf
 
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 Number = Union[
     float,
     int,

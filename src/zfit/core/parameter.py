@@ -13,7 +13,7 @@ import weakref
 from collections.abc import Callable, Iterable, Mapping
 from contextlib import suppress
 from inspect import signature
-from typing import Literal, Optional, Union
+from typing import Literal, Union
 from weakref import WeakSet
 
 import dill
@@ -832,11 +832,11 @@ class ParameterRepr(BaseRepr):  # add label?
     hs3_type: Literal["Parameter"] = Field("Parameter", alias="type")
     name: str
     value: float
-    lower: Optional[float] = Field(None, alias="min")
-    upper: typing.Optional[float] = Field(None, alias="max")
-    stepsize: Optional[float] = None
-    floating: Optional[bool] = None
-    label: Optional[str] = None
+    lower: float | None = Field(None, alias="min")
+    upper: float | None = Field(None, alias="max")
+    stepsize: float | None = None
+    floating: bool | None = None
+    label: str | None = None
 
     @validator("value", pre=True)
     def _validate_value(cls, v):
@@ -994,7 +994,7 @@ class ConstantParamRepr(BaseRepr):
     name: str
     value: float
     floating: bool = False
-    label: Optional[str] = None
+    label: str | None = None
 
     @validator("value", pre=True)
     def _validate_value(cls, value):
@@ -1014,9 +1014,9 @@ class ComposedParameter(SerializableMixin, BaseComposedParameter):
     def __init__(
         self,
         name: str,
-        func: Optional[Callable] = None,
+        func: Callable | None = None,
         *,
-        value_fn: Optional[Callable] = None,
+        value_fn: Callable | None = None,
         params: (dict[str, ZfitParameter] | Iterable[ZfitParameter] | ZfitParameter) = NotSpecified,
         label: str | None = None,
         unpack_params: bool | None = None,
@@ -1164,15 +1164,16 @@ class ComposedParameterRepr(BaseRepr):
     name: str
     func: str
     params: dict[str, Serializer.types.ParamTypeDiscriminated]
-    unpack_params: Optional[bool]
-    label: Optional[str] = None
-    internal_params: Optional[
+    unpack_params: bool | None
+    label: str | None = None
+    internal_params: (
         Union[
             Serializer.types.ParamTypeDiscriminated,
             list[Serializer.types.ParamTypeDiscriminated],
             dict[str, Serializer.types.ParamTypeDiscriminated],
         ]
-    ]
+        | None
+    )
 
     @validator("func", pre=True)
     def _validate_value_pre(cls, value):

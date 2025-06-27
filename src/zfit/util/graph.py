@@ -4,10 +4,10 @@ from __future__ import annotations
 
 import typing
 
+from .temporary import TemporarilySet
+
 if typing.TYPE_CHECKING:
     import zfit  # noqa: F401
-
-from zfit.util.temporary import TemporarilySet
 
 
 class JIT:

@@ -4,16 +4,14 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
-
-import numpy as np
-import tensorflow as tf
+import typing
+from typing import Any
 
 import zfit.z.numpy as znp
 
 from ..util.exception import ShapeIncompatibleError
 
-if TYPE_CHECKING:
+if typing.TYPE_CHECKING:
     import zfit  # noqa: F401
 
 
@@ -30,7 +28,8 @@ def validate_parameter_type(param: Any, name: str = "parameter") -> None:
     from ..core.interfaces import ZfitParameter
 
     if not isinstance(param, ZfitParameter):
-        raise TypeError(f"`{name}` must be ZfitParameter, got {type(param)}")
+        msg = f"`{name}` must be ZfitParameter, got {type(param)}"
+        raise TypeError(msg)
 
 
 def validate_parameters(*params: Any, names: list[str] | None = None) -> None:
@@ -64,9 +63,9 @@ def validate_limit_bounds(lower: Any, upper: Any) -> tuple[Any, Any]:
     Raises:
         ValueError: If bounds are invalid
     """
-    if lower is not None and upper is not None:
-        if znp.any(lower >= upper):
-            raise ValueError(f"Lower limit ({lower}) must be less than upper limit ({upper})")
+    if lower is not None and upper is not None and znp.any(lower >= upper):
+        msg = f"Lower limit ({lower}) must be less than upper limit ({upper})"
+        raise ValueError(msg)
 
     return lower, upper
 
@@ -84,10 +83,12 @@ def validate_value_in_limits(value: Any, lower: Any = None, upper: Any = None, n
         ValueError: If value is outside limits
     """
     if lower is not None and znp.any(value < lower):
-        raise ValueError(f"{name} ({value}) is below lower limit ({lower})")
+        msg = f"{name} ({value}) is below lower limit ({lower})"
+        raise ValueError(msg)
 
     if upper is not None and znp.any(value > upper):
-        raise ValueError(f"{name} ({value}) is above upper limit ({upper})")
+        msg = f"{name} ({value}) is above upper limit ({upper})"
+        raise ValueError(msg)
 
 
 def calculate_limit_tolerance(lower: Any, upper: Any, exact: bool = False) -> Any:
@@ -157,9 +158,8 @@ def validate_parameter_shapes(*params: Any, require_same: bool = True) -> None:
         first_shape = shapes[0]
         for i, shape in enumerate(shapes[1:], 1):
             if shape != first_shape:
-                raise ShapeIncompatibleError(
-                    f"Parameter shapes must be identical. param1 shape: {first_shape}, param{i + 1} shape: {shape}"
-                )
+                msg = f"Parameter shapes must be identical. param1 shape: {first_shape}, param{i + 1} shape: {shape}"
+                raise ShapeIncompatibleError(msg)
 
 
 def validate_parameter_names(*names: str) -> None:
@@ -175,23 +175,28 @@ def validate_parameter_names(*names: str) -> None:
 
     for name in names:
         if not isinstance(name, str):
-            raise ValueError(f"Parameter name must be string, got {type(name)}")
+            msg = f"Parameter name must be string, got {type(name)}"
+            raise ValueError(msg)
 
         if not name:
-            raise ValueError("Parameter name cannot be empty")
+            msg = "Parameter name cannot be empty"
+            raise ValueError(msg)
 
         # Check for Python keywords
         if keyword.iskeyword(name):
-            raise ValueError(f"Parameter name '{name}' is a Python keyword")
+            msg = f"Parameter name '{name}' is a Python keyword"
+            raise ValueError(msg)
 
         # Check for valid identifier
         if not name.isidentifier():
-            raise ValueError(f"Parameter name '{name}' is not a valid Python identifier")
+            msg = f"Parameter name '{name}' is not a valid Python identifier"
+            raise ValueError(msg)
 
         # Check for reserved zfit names (common patterns)
         reserved_patterns = ["__", "_zfit_", "zfit_"]
         if any(pattern in name for pattern in reserved_patterns):
-            raise ValueError(f"Parameter name '{name}' uses reserved pattern")
+            msg = f"Parameter name '{name}' uses reserved pattern"
+            raise ValueError(msg)
 
 
 def format_parameter_error(expected_type: str, actual_type: type, param_name: str = "parameter") -> str:
@@ -224,8 +229,10 @@ def validate_stepsize(stepsize: Any, param_name: str = "parameter") -> None:
     try:
         # Try to convert to float to verify it's numeric
         float(stepsize)  # Just check if conversion works
-    except (TypeError, ValueError):
-        raise ValueError(f"Stepsize for {param_name} must be convertible to float, got {type(stepsize)}")
+    except (TypeError, ValueError) as error:
+        msg = f"Stepsize for {param_name} must be convertible to float, got {type(stepsize)}"
+        raise TypeError(msg) from error
 
     if znp.any(stepsize <= 0):
-        raise ValueError(f"Stepsize for {param_name} must be positive, got {stepsize}")
+        msg = f"Stepsize for {param_name} must be positive, got {stepsize}"
+        raise ValueError(msg)

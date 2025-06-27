@@ -2,11 +2,6 @@
 
 from __future__ import annotations
 
-import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 from collections.abc import Iterable, Mapping
 from typing import TYPE_CHECKING
 
@@ -20,11 +15,16 @@ from zfit.core.binnedpdf import BaseBinnedPDF
 if TYPE_CHECKING:
     pass
 
+import typing
+
 from ..core import parameter
 from ..core.interfaces import ZfitBinnedPDF
 from ..util import ztyping
 from ..util.exception import SpecificFunctionNotImplemented
 from ..z.interpolate_spline import interpolate_spline
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 
 @z.function(wraps="tensor", keepalive=True)

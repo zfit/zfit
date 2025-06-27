@@ -2,11 +2,6 @@
 
 from __future__ import annotations
 
-import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 import contextlib
 import functools
 import math as _mt
@@ -24,6 +19,9 @@ import zfit.z.numpy as znp
 
 from ..settings import run, ztypes
 from ..util.warnings import warn_advanced_feature
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 
 def constant(value, dtype=ztypes.float, shape=None, name="Const", verify_shape=None):

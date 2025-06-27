@@ -2,10 +2,6 @@
 from __future__ import annotations
 
 import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 import warnings
 
 import hist
@@ -15,6 +11,9 @@ import tensorflow_probability as tfp
 
 import zfit.z.numpy as znp
 from zfit.core.interfaces import ZfitSpace
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 
 def unbinned_to_hist_eager_edgesweightsargs(values, *edges_weights):

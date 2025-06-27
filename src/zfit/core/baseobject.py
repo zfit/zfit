@@ -4,14 +4,10 @@
 
 from __future__ import annotations
 
-import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 import contextlib
 import itertools
 import re
+import typing
 import warnings
 from collections import Counter
 from collections.abc import Iterable, Mapping
@@ -32,6 +28,9 @@ from .interfaces import (
     ZfitParameter,
     ZfitParametrized,
 )
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 RESERVED_NAMES = {"null", "true", "false", "yes", "no", "on", "off"}
 valid_name_regex = r"^[a-zA-Z0-9_\-\.]+$"

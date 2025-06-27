@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import typing
 from collections.abc import Iterable
-from typing import Optional
 
 import pydantic.v1 as pydantic
 import tensorflow as tf
@@ -135,7 +134,7 @@ class FunctorMixin(ZfitFunctorMixin):
 class FunctorPDFRepr(BasePDFRepr):
     _implementation = None
     pdfs: list[Serializer.types.PDFTypeDiscriminated]
-    obs: Optional[SpaceRepr] = None
+    obs: SpaceRepr | None = None
 
     @pydantic.root_validator(pre=True)
     def validate_all_functor(cls, values):

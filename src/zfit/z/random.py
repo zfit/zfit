@@ -3,23 +3,20 @@
 from __future__ import annotations
 
 import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 from collections.abc import Iterable
 from functools import wraps
 
 import tensorflow as tf
 import tensorflow_probability as tfp
 
-from .zextension import function
-
-__all__ = ["counts_multinomial", "sample_with_replacement"]
-
 from ..settings import ztypes
 from ..z import numpy as _znp
+from .zextension import function
 
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
+
+__all__ = ["counts_multinomial", "sample_with_replacement"]
 generator = None
 
 

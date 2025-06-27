@@ -2,27 +2,14 @@
 
 from __future__ import annotations
 
-import typing
-
-if typing.TYPE_CHECKING:
-    import zfit
-
-import typing
-from typing import TYPE_CHECKING
-
-from ..util.exception import BreakingAPIChangeError
-
-if TYPE_CHECKING:
-    import zfit
-
-    from .evaluation import LossEval
-
 import collections
 import contextlib
 import itertools
 import math
+import typing
 import warnings
 from collections.abc import Callable, Iterable, Mapping
+from typing import TYPE_CHECKING
 
 import colored
 import iminuit
@@ -33,6 +20,13 @@ from colorama import Style, init
 from ordered_set import OrderedSet
 from scipy.optimize import LbfgsInvHessProduct
 from tabulate import tabulate
+
+from ..util.exception import BreakingAPIChangeError
+
+if typing.TYPE_CHECKING:
+    import zfit
+
+    from .evaluation import LossEval
 
 if TYPE_CHECKING:
     with contextlib.suppress(ImportError):  # for type checking

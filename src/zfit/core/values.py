@@ -2,12 +2,8 @@
 
 from __future__ import annotations
 
-import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 import collections
+import typing
 from collections.abc import Mapping
 
 import tensorflow_probability as tfp
@@ -15,6 +11,9 @@ from zfit_interface.variables import ZfitVar
 
 from zfit.core.interfaces import ZfitData, ZfitParameter, ZfitSpace
 from zfit.util.container import convert_to_container
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 
 @tfp.experimental.auto_composite_tensor()

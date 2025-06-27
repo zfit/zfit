@@ -3,10 +3,6 @@
 from __future__ import annotations
 
 import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 from collections.abc import Callable, Iterable
 from contextlib import suppress
 
@@ -23,6 +19,9 @@ from ..util.exception import WorkInProgressError
 from .data import Data
 from .interfaces import ZfitPDF, ZfitSpace
 from .space import Space
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 
 class UniformSampleAndWeights:

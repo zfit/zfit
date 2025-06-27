@@ -2,40 +2,27 @@
 
 from __future__ import annotations
 
-import typing
-
-if typing.TYPE_CHECKING:
-    import zfit
-
+import abc
 import copy
 import typing
-from contextlib import suppress
-from functools import partial
-from typing import TYPE_CHECKING, Literal, Optional, Union
-
-import pydantic.v1 as pydantic
-import tensorflow_probability as tfp
-from pydantic.v1 import Field
-from tensorflow.python.util.deprecation import deprecated
-
-from ..exception import AutogradNotSupported, OutsideLimitsError, SpecificFunctionNotImplemented
-from ..serialization.serializer import BaseRepr, Serializer
-from .data import convert_to_data
-from .serialmixin import SerializableMixin
-
-if TYPE_CHECKING:
-    import zfit
-
-import abc
 import warnings
 from collections.abc import Callable, Iterable, Mapping
+from contextlib import suppress
+from functools import partial
+from typing import Literal, Union
 
+import pydantic.v1 as pydantic
 import tensorflow as tf
+import tensorflow_probability as tfp
 from ordered_set import OrderedSet
+from pydantic.v1 import Field
+from tensorflow.python.util.deprecation import deprecated
 
 import zfit.z.numpy as znp
 
 from .. import settings, z
+from ..exception import AutogradNotSupported, OutsideLimitsError, SpecificFunctionNotImplemented
+from ..serialization.serializer import BaseRepr, Serializer
 from ..util import ztyping
 from ..util.checks import NONE
 from ..util.container import convert_to_container, is_container
@@ -59,6 +46,7 @@ from ..z.math import (
 )
 from .baseobject import BaseNumeric, extract_filter_params
 from .constraint import BaseConstraint
+from .data import convert_to_data
 from .interfaces import (
     ZfitBinnedData,
     ZfitData,
@@ -70,7 +58,10 @@ from .interfaces import (
     ZfitUnbinnedData,
 )
 from .parameter import convert_to_parameters, set_values
+from .serialmixin import SerializableMixin
 
+if typing.TYPE_CHECKING:
+    import zfit
 DEFAULT_FULL_ARG = True
 
 
@@ -173,8 +164,8 @@ class BaseLossRepr(BaseRepr):
         Serializer.types.DataTypeDiscriminated,
         list[Serializer.types.DataTypeDiscriminated],
     ]
-    constraints: Optional[list[Serializer.types.ConstraintTypeDiscriminated]] = Field(default_factory=list)
-    options: Optional[Mapping] = Field(default_factory=dict)
+    constraints: list[Serializer.types.ConstraintTypeDiscriminated] | None = Field(default_factory=list)
+    options: Mapping | None = Field(default_factory=dict)
 
     @pydantic.validator("model", "data", "constraints", pre=True)
     def _check_container(cls, v):
@@ -1307,7 +1298,7 @@ class SimpleLoss(BaseLoss):
         *,
         gradient: Callable | str | None = None,
         hessian: Callable | str | None = None,
-        jit: Optional[bool] = None,
+        jit: bool | None = None,
         # legacy
         deps: Iterable[zfit.Parameter] = NONE,
         dependents: Iterable[zfit.Parameter] = NONE,

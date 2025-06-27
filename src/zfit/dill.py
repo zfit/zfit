@@ -1,19 +1,17 @@
 #  Copyright (c) 2025 zfit
 from __future__ import annotations
 
-import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 import functools as _functools
 import io
-from typing import Optional
+import typing
 
 import dill as __dill
 
 # noinspection PyUnresolvedReferences
 from dill import *  # noqa: F403
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 _NONE = object()
 
@@ -94,8 +92,8 @@ def dumps(
     fmode: typing.Any = None,
     recurse: typing.Any = None,
     *,
-    max_retries: Optional[int | bool] = None,
-    verify: Optional[bool] = None,
+    max_retries: int | bool | None = None,
+    verify: bool | None = None,
     **kwds,
 ) -> bytes:
     """Wrapper around :py:func`dill.dumps` that helps dumping zfit objects as it retries with garbage collection if
@@ -153,8 +151,8 @@ def dump(
     fmode: typing.Any = None,
     recurse: typing.Any = None,
     *,
-    max_retries: Optional[int | bool] = None,
-    verify: Optional[bool] = None,
+    max_retries: int | bool | None = None,
+    verify: bool | None = None,
     **kwds,
 ) -> typing.Any:
     """Wrapper around :py:func`dill.dump` that helps dumping zfit objects as it retries with garbage collection if
@@ -251,7 +249,7 @@ def __retry_with_graphclear(
 
 
 @_functools.wraps(__dill.loads)
-def loads(str: bytes, *, max_retries: Optional[int | bool] = None, **kwds) -> typing.Any:
+def loads(str: bytes, *, max_retries: int | bool | None = None, **kwds) -> typing.Any:
     """Wrapper around :py:func`dill.loads`that helps loading zfit objects as it retries with graph clearing if
     necessary.
 
@@ -277,7 +275,7 @@ def loads(str: bytes, *, max_retries: Optional[int | bool] = None, **kwds) -> ty
 
 
 @_functools.wraps(__dill.load)
-def load(file: io.IOBase, *, max_retries: Optional[int | bool] = None, **kwds) -> typing.Any:
+def load(file: io.IOBase, *, max_retries: int | bool | None = None, **kwds) -> typing.Any:
     """Wrapper around :py:func`dill.load`that helps loading zfit objects as it retries with graph clearing if necessary.
 
     .. warning ::
