@@ -447,7 +447,7 @@ class BaseBinnedPDF(
             pdf = self._ext_pdf(x, norm=norm)
         except NormNotImplemented:
             unnormed_pdf = self._ext_pdf(x, norm=False)
-            normalization = self.ext_normalization(norm)
+            normalization = self.normalization(norm)
             pdf = unnormed_pdf / normalization
         return pdf
 
