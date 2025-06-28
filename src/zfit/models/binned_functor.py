@@ -12,9 +12,10 @@ if TYPE_CHECKING:
 
 import typing
 
+from zfit._interfaces import ZfitPDF
+
 from .. import z
 from ..core.binnedpdf import BaseBinnedPDF
-from ..core.interfaces import ZfitPDF
 from ..core.space import supports
 from ..util import ztyping
 from ..util.container import convert_to_container
@@ -30,7 +31,7 @@ if typing.TYPE_CHECKING:
 
 def preprocess_pdf_or_hist(models: Union[ZfitPDF, Iterable[ZfitPDF], BinnedDataInputType]):
     models = convert_to_container(models)
-    from zfit.models.histogram import HistogramPDF
+    from zfit.models.histogram import HistogramPDF  # noqa: PLC0415
 
     return [HistogramPDF(model) if isinstance(model, PlottableHistogram) else model for model in models]
 

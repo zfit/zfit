@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import importlib.util
 import math
 import typing
 
@@ -233,7 +232,7 @@ class Ipyopt(BaseMinimizer):
         self._internal_maxiter = 5
 
         try:
-            import ipyopt
+            import ipyopt  # noqa: PLC0415
         except ImportError as error:
             msg = (
                 "This requires the ipyopt library (https://gitlab.com/g-braeunlich/ipyopt)"
@@ -259,7 +258,7 @@ class Ipyopt(BaseMinimizer):
 
     @minimize_supports(init=True)
     def _minimize(self, loss, params, init):
-        import ipyopt
+        import ipyopt  # noqa: PLC0415
 
         if init:
             assign_values(params=params, values=init)

@@ -22,6 +22,7 @@ from dotmap import DotMap
 from tensorflow_probability.python import mcmc as mc
 
 import zfit.z.numpy as znp
+from zfit._interfaces import ZfitData, ZfitModel, ZfitParameter, ZfitSpace
 
 from .. import z
 from ..core.integration import Integration
@@ -48,7 +49,6 @@ from . import sample as zsample
 from .baseobject import BaseNumeric
 from .data import Data, SamplerData, convert_to_data
 from .dimension import BaseDimensional
-from .interfaces import ZfitData, ZfitModel, ZfitParameter, ZfitSpace
 from .sample import UniformSampleAndWeights
 from .space import Space, convert_to_space, supports
 
@@ -1355,22 +1355,22 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         return func
 
     def __add__(self, other):
-        from . import operations
+        from . import operations  # noqa: PLC0415
 
         return operations.add(self, other)
 
     def __radd__(self, other):
-        from . import operations
+        from . import operations  # noqa: PLC0415
 
         return operations.add(other, self)
 
     def __mul__(self, other):
-        from . import operations
+        from . import operations  # noqa: PLC0415
 
         return operations.multiply(self, other)
 
     def __rmul__(self, other):
-        from . import operations
+        from . import operations  # noqa: PLC0415
 
         return operations.multiply(other, self)
 

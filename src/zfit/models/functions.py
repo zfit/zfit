@@ -11,10 +11,10 @@ if typing.TYPE_CHECKING:
 import tensorflow as tf
 
 import zfit.z.numpy as znp
+from zfit._interfaces import ZfitFunc
 
 from ..core.basefunc import BaseFuncV1
 from ..core.basemodel import SimpleModelSubclassMixin
-from ..core.interfaces import ZfitFunc
 from ..core.space import supports
 from ..models.basefunctor import FunctorMixin
 from ..util import ztyping

@@ -8,8 +8,9 @@ from collections.abc import Mapping
 import iminuit
 import numpy as np
 
+from zfit._interfaces import ZfitLoss
+
 from .. import z
-from ..core.interfaces import ZfitLoss
 from ..core.parameter import Parameter, assign_values
 from ..util.cache import GraphCachable
 from ..util.deprecation import deprecated_args
@@ -166,7 +167,7 @@ class Minuit(BaseMinimizer, GraphCachable):
     # TODO 0.7: legacy, remove `_use_tfgrad`
     @property
     def _use_tfgrad(self):
-        from zfit.exception import BreakingAPIChangeError
+        from zfit.exception import BreakingAPIChangeError  # noqa: PLC0415
 
         msg = "This property is not available anymore. Use `gradient` instead."
         raise BreakingAPIChangeError(msg)

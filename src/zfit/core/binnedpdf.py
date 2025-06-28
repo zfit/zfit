@@ -25,6 +25,15 @@ import zfit
 import zfit.z.numpy as znp
 from zfit import z
 from zfit._data.binneddatav1 import BinnedData, BinnedSamplerData, move_axis_obs
+from zfit._interfaces import (
+    ZfitBinnedData,
+    ZfitBinnedPDF,
+    ZfitBinning,
+    ZfitParameter,
+    ZfitPDF,
+    ZfitSpace,
+    ZfitUnbinnedData,
+)
 
 from ..util import ztyping
 from ..util.cache import GraphCachable
@@ -45,15 +54,6 @@ from .baseobject import BaseNumeric, extract_filter_params
 from .binning import unbinned_to_binindex
 from .data import Data
 from .dimension import BaseDimensional
-from .interfaces import (
-    ZfitBinnedData,
-    ZfitBinnedPDF,
-    ZfitBinning,
-    ZfitParameter,
-    ZfitPDF,
-    ZfitSpace,
-    ZfitUnbinnedData,
-)
 from .parameter import convert_to_parameter
 from .space import convert_to_space, supports
 from .tensorlike import OverloadableMixinValues
@@ -1339,7 +1339,7 @@ class BaseBinnedPDF(
 
     def to_unbinned(self):
         """Convert the PDF to an unbinned PDF."""
-        from zfit.models.unbinnedpdf import UnbinnedFromBinnedPDF
+        from zfit.models.unbinnedpdf import UnbinnedFromBinnedPDF  # noqa: PLC0415
 
         return UnbinnedFromBinnedPDF(self, self.space.with_binning(None))
 

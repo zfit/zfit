@@ -9,7 +9,7 @@ from collections.abc import Mapping
 import tensorflow_probability as tfp
 from zfit_interface.variables import ZfitVar
 
-from zfit.core.interfaces import ZfitData, ZfitParameter, ZfitSpace
+from zfit._interfaces import ZfitData, ZfitParameter, ZfitSpace
 from zfit.util.container import convert_to_container
 
 if typing.TYPE_CHECKING:

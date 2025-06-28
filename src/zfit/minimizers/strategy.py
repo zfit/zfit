@@ -9,7 +9,8 @@ from collections.abc import Mapping
 
 import numpy as np
 
-from ..core.interfaces import ZfitLoss, ZfitParameter
+from zfit._interfaces import ZfitLoss, ZfitParameter
+
 from ..util import ztyping
 from .fitresult import FitResult
 

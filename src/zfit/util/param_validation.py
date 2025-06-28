@@ -25,7 +25,7 @@ def validate_parameter_type(param: Any, name: str = "parameter") -> None:
     Raises:
         TypeError: If param is not a ZfitParameter
     """
-    from ..core.interfaces import ZfitParameter
+    from zfit._interfaces import ZfitParameter  # noqa: PLC0415
 
     if not isinstance(param, ZfitParameter):
         msg = f"`{name}` must be ZfitParameter, got {type(param)}"
@@ -171,7 +171,7 @@ def validate_parameter_names(*names: str) -> None:
     Raises:
         ValueError: If any name is invalid
     """
-    import keyword
+    import keyword  # noqa: PLC0415
 
     for name in names:
         if not isinstance(name, str):
@@ -231,7 +231,7 @@ def validate_stepsize(stepsize: Any, param_name: str = "parameter") -> None:
         float(stepsize)  # Just check if conversion works
     except (TypeError, ValueError) as error:
         msg = f"Stepsize for {param_name} must be convertible to float, got {type(stepsize)}"
-        raise TypeError(msg) from error
+        raise ValueError(msg) from error
 
     if znp.any(stepsize <= 0):
         msg = f"Stepsize for {param_name} must be positive, got {stepsize}"

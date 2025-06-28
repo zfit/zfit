@@ -1,4 +1,6 @@
 #  Copyright (c) 2025 zfit
+from __future__ import annotations
+
 import pickle
 import platform
 
@@ -222,56 +224,56 @@ if (platf := platform.system()) not in ("Darwin",):
 minimizers = sorted(minimizers, key=lambda val: repr(val))
 
 
-@pytest.mark.parametrize(
-    "minimizer_class_and_kwargs", minimizers, ids=lambda val: val[0].__name__
-)
-@pytest.mark.parametrize("dill", [False, True], ids=["no_dill", "dill"])
-@pytest.mark.parametrize("weights", [np.random.normal(1, 0.1, true_ntot), None])
-@pytest.mark.parametrize("extended", [True, False], ids=["extended", "not_extended"])
-def test_freeze(minimizer_class_and_kwargs, dill, weights, extended):
-    result = create_fitresult(
-        minimizer_class_and_kwargs, weights=weights, extended=extended
-    )["result"]
-
-    if dill:
-        if isinstance(result.minimizer, zfit.minimize.Ipyopt):
-            with pytest.raises(zfit.exception.IpyoptPicklingError):
-                _ = zfit.dill.loads(zfit.dill.dumps(result))
-            pytest.skip("Ipyopt cannot be pickled")
-        result = zfit.dill.loads(zfit.dill.dumps(result))
-
-    try:
-        pickle.dumps(result)
-    except Exception:
-        pass
-    result.covariance()
-    if dill:
-        result = zfit.dill.loads(zfit.dill.dumps(result))
-    result.errors()
-    if dill:
-        result = zfit.dill.loads(zfit.dill.dumps(result))
-    result.hesse()
-    if dill:
-        result = zfit.dill.loads(zfit.dill.dumps(result))
-    result.freeze()
-    if dill:
-        result = zfit.dill.loads(zfit.dill.dumps(result))
-
-    dumped = pickle.dumps(result)
-    loaded = pickle.loads(dumped)
-    test = loaded
-    true = result
-    assert test.fminopt == true.fminopt
-    assert test.edm == true.edm
-
-    for testval, trueval in zip(test.params.values(), true.params.values()):
-        assert testval == trueval
-
-    assert test.valid == true.valid
-    assert test.status == true.status
-    assert test.message == true.message
-    assert test.converged == true.converged
-    assert test.params_at_limit == true.params_at_limit
+# @pytest.mark.parametrize(
+#     "minimizer_class_and_kwargs", minimizers, ids=lambda val: val[0].__name__
+# )
+# @pytest.mark.parametrize("dill", [False, True], ids=["no_dill", "dill"])
+# @pytest.mark.parametrize("weights", [np.random.normal(1, 0.1, true_ntot), None])
+# @pytest.mark.parametrize("extended", [True, False], ids=["extended", "not_extended"])
+# def test_freeze(minimizer_class_and_kwargs, dill, weights, extended):
+#     result = create_fitresult(
+#         minimizer_class_and_kwargs, weights=weights, extended=extended
+#     )["result"]
+#
+#     if dill:
+#         if isinstance(result.minimizer, zfit.minimize.Ipyopt):
+#             with pytest.raises(zfit.exception.IpyoptPicklingError):
+#                 _ = zfit.dill.loads(zfit.dill.dumps(result))
+#             pytest.skip("Ipyopt cannot be pickled")
+#         result = zfit.dill.loads(zfit.dill.dumps(result))
+#
+#     try:
+#         pickle.dumps(result)
+#     except Exception:
+#         pass
+#     result.covariance()
+#     if dill:
+#         result = zfit.dill.loads(zfit.dill.dumps(result))
+#     result.errors()
+#     if dill:
+#         result = zfit.dill.loads(zfit.dill.dumps(result))
+#     result.hesse()
+#     if dill:
+#         result = zfit.dill.loads(zfit.dill.dumps(result))
+#     result.freeze()
+#     if dill:
+#         result = zfit.dill.loads(zfit.dill.dumps(result))
+#
+#     dumped = pickle.dumps(result)
+#     loaded = pickle.loads(dumped)
+#     test = loaded
+#     true = result
+#     assert test.fminopt == true.fminopt
+#     assert test.edm == true.edm
+#
+#     for testval, trueval in zip(test.params.values(), true.params.values()):
+#         assert testval == trueval
+#
+#     assert test.valid == true.valid
+#     assert test.status == true.status
+#     assert test.message == true.message
+#     assert test.converged == true.converged
+#     assert test.params_at_limit == true.params_at_limit
 
 
 @pytest.mark.parametrize("minimizer_class_and_kwargs", minimizers, ids=minimizer_ids)
@@ -351,7 +353,8 @@ def test_double_freeze():
 @pytest.mark.parametrize("use_weights", [False, "False", "asymptotic", "sumw2"],
                          ids=["no_weights", "w False", "w asymptotic", "w sumw2"])
 @pytest.mark.parametrize("extended", [True, False], ids=["extended", "not_extended"])
-def test_covariance(minimizer_class_and_kwargs, use_weights, extended):
+@pytest.mark.parametrize("dill", [False, True], ids=["no_dill", "dill"])
+def test_covariance(minimizer_class_and_kwargs, use_weights, extended, dill):
     n = true_ntot
     if use_weights:
         weights = np.random.normal(1, 0.001, n)
@@ -396,6 +399,46 @@ def test_covariance(minimizer_class_and_kwargs, use_weights, extended):
     weightcorr = use_weights if use_weights in ("asymptotic", "sumw2") else False
     cov_mat_3_np = result.covariance(params=[a, b, c], method="hesse_np", weightcorr=weightcorr)
     np.testing.assert_allclose(cov_mat_3, cov_mat_3_np, rtol=rtol, atol=atol)
+
+    if dill:
+        if isinstance(result.minimizer, zfit.minimize.Ipyopt):
+            with pytest.raises(zfit.exception.IpyoptPicklingError):
+                _ = zfit.dill.loads(zfit.dill.dumps(result))
+            pytest.skip("Ipyopt cannot be pickled")
+        result = zfit.dill.loads(zfit.dill.dumps(result))
+
+    try:
+        pickle.dumps(result)
+    except Exception:
+        pass
+    result.covariance()
+    if dill:
+        result = zfit.dill.loads(zfit.dill.dumps(result))
+    result.errors()
+    if dill:
+        result = zfit.dill.loads(zfit.dill.dumps(result))
+    result.hesse()
+    if dill:
+        result = zfit.dill.loads(zfit.dill.dumps(result))
+    result.freeze()
+    if dill:
+        result = zfit.dill.loads(zfit.dill.dumps(result))
+
+    dumped = pickle.dumps(result)
+    loaded = pickle.loads(dumped)
+    test = loaded
+    true = result
+    assert test.fminopt == true.fminopt
+    assert test.edm == true.edm
+
+    for testval, trueval in zip(test.params.values(), true.params.values()):
+        assert testval == trueval
+
+    assert test.valid == true.valid
+    assert test.status == true.status
+    assert test.message == true.message
+    assert test.converged == true.converged
+    assert test.params_at_limit == true.params_at_limit
 
 
 @pytest.mark.flaky(reruns=3)

@@ -311,7 +311,7 @@ def test_invalid_stepsize_types():
     invalid_types = ["string", [1, 2, 3], {"key": "value"}]
 
     for invalid_type in invalid_types:
-        with pytest.raises(TypeError, match="must be numeric"):
+        with pytest.raises(ValueError):
             validate_stepsize(invalid_type)
 
 

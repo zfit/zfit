@@ -8,7 +8,7 @@ import tensorflow as tf
 from tensorflow.python.framework import ops
 from tensorflow.python.ops import array_ops
 
-from zfit.core import interfaces as zinterfaces
+from zfit import _interfaces as zinterfaces
 
 if typing.TYPE_CHECKING:
     import zfit  # noqa: F401

@@ -11,16 +11,14 @@ import numpy as np
 import tensorflow as tf
 from uhi.typing.plottable import PlottableHistogram
 
-from ..util import ztyping
-
 if typing.TYPE_CHECKING:
     import zfit
+    from zfit.util import ztyping
 
 
 class ZfitObject:
     # TODO: make abstractmethod?
-    def __eq__(self, other: object) -> bool:
-        raise NotImplementedError
+    pass
 
 
 class ZfitDimensional(ZfitObject):
@@ -406,7 +404,7 @@ class ZfitLimit(abc.ABC, metaclass=ABCMeta):
 
     # TODO: remove from API?
     def get_subspace(self, *_, **__):
-        from zfit.util.exception import InvalidLimitSubspaceError
+        from zfit.util.exception import InvalidLimitSubspaceError  # noqa: PLC0415
 
         msg = "ZfitLimits does not suppoert subspaces"
         raise InvalidLimitSubspaceError(msg)
@@ -495,6 +493,11 @@ class ZfitLimit(abc.ABC, metaclass=ABCMeta):
         Returns:
             The sublimits if it was able to split.
         """
+        raise NotImplementedError
+
+    @abstractmethod
+    def __hash__(self):
+        """Hash the limits, so they can be used in sets and as keys in dictionaries."""
         raise NotImplementedError
 
 
@@ -966,10 +969,9 @@ class ZfitPDF(ZfitModel):
         raise NotImplementedError
 
     @property
-    @abstractmethod
     def plot(self) -> zfit.util.plotter.ZfitPDFPlotter:
         """Plot the PDF using the :py:class:`~zfit.PDFPlotter`."""
-        raise NotImplementedError
+        return self._plot
 
 
 class ZfitFunctorMixin:

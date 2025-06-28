@@ -10,6 +10,7 @@ import tensorflow as tf
 from tensorflow_probability import distributions as tfd
 
 import zfit.z.numpy as znp
+from zfit._interfaces import ZfitPDF, ZfitSpace
 
 from .. import settings, z
 from ..settings import run, ztypes
@@ -17,7 +18,6 @@ from ..util import ztyping
 from ..util.container import convert_to_container
 from ..util.exception import WorkInProgressError
 from .data import Data
-from .interfaces import ZfitPDF, ZfitSpace
 from .space import Space
 
 if typing.TYPE_CHECKING:
@@ -519,7 +519,7 @@ def extract_extended_pdfs(pdfs: Iterable[ZfitPDF] | ZfitPDF) -> list[ZfitPDF]:
     Returns:
         List[pdfs]:
     """
-    from ..models.functor import BaseFunctor
+    from ..models.functor import BaseFunctor  # noqa: PLC0415
 
     pdfs = convert_to_container(pdfs)
     indep_pdfs = []

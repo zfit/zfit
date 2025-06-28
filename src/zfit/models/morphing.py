@@ -17,8 +17,9 @@ if TYPE_CHECKING:
 
 import typing
 
+from zfit._interfaces import ZfitBinnedPDF
+
 from ..core import parameter
-from ..core.interfaces import ZfitBinnedPDF
 from ..util import ztyping
 from ..util.exception import SpecificFunctionNotImplemented
 from ..z.interpolate_spline import interpolate_spline
@@ -91,7 +92,7 @@ class SplineMorphingPDF(BaseBinnedPDF):
 
         for a, hist in hists.items():
             if isinstance(hist, PlottableHistogram):
-                from zfit.models.histogram import HistogramPDF
+                from zfit.models.histogram import HistogramPDF  # noqa: PLC0415
 
                 hist = HistogramPDF(hist)
             if isinstance(hist, ZfitBinnedPDF):

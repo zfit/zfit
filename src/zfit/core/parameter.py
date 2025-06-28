@@ -33,6 +33,10 @@ from tensorflow.python.ops.resource_variable_ops import (
 from tensorflow.python.ops.variables import Variable  # TF backwards compatibility
 from tensorflow.python.types.core import Tensor as TensorType
 
+import zfit.z.numpy as znp
+from zfit._interfaces import ZfitIndependentParameter, ZfitModel, ZfitParameter
+
+from .. import _interfaces as zinterfaces
 from .. import z
 from ..core.baseobject import BaseNumeric, extract_filter_params, validate_preprocess_name
 from ..minimizers.interface import ZfitResult
@@ -52,8 +56,8 @@ from ..util.exception import (
 )
 from ..util.temporary import TemporarilySet
 from ..z import numpy as znp
-from . import interfaces as zinterfaces
-from .interfaces import ZfitIndependentParameter, ZfitModel, ZfitParameter
+from .. import _interfaces as zinterfaces
+from .._interfaces import ZfitIndependentParameter, ZfitModel, ZfitParameter
 from .serialmixin import SerializableMixin
 
 if typing.TYPE_CHECKING:
@@ -297,7 +301,7 @@ class ZfitParameterMixin(BaseNumeric):
 
     def __add__(self, other):
         if isinstance(other, (ZfitModel, ZfitParameter)):
-            from . import operations
+            from . import operations  # noqa: PLC0415
 
             with suppress(FunctionNotImplemented):
                 return operations.add(self, other)
@@ -305,7 +309,7 @@ class ZfitParameterMixin(BaseNumeric):
 
     def __radd__(self, other):
         if isinstance(other, (ZfitModel, ZfitParameter)):
-            from . import operations
+            from . import operations  # noqa: PLC0415
 
             with suppress(FunctionNotImplemented):
                 return operations.add(other, self)
@@ -313,7 +317,7 @@ class ZfitParameterMixin(BaseNumeric):
 
     def __mul__(self, other):
         if isinstance(other, (ZfitModel, ZfitParameter)):
-            from . import operations
+            from . import operations  # noqa: PLC0415
 
             with suppress(FunctionNotImplemented):
                 return operations.multiply(self, other)
@@ -321,7 +325,7 @@ class ZfitParameterMixin(BaseNumeric):
 
     def __rmul__(self, other):
         if isinstance(other, (ZfitModel, ZfitParameter)):
-            from . import operations
+            from . import operations  # noqa: PLC0415
 
             with suppress(FunctionNotImplemented):
                 return operations.multiply(other, self)
@@ -1360,6 +1364,9 @@ def _reset_auto_number():
     _auto_number = 0
 
 
+ALLOWED_KEYS = {"name", "value", "lower", "upper", "stepsize"}
+
+
 def convert_to_parameters(
     value,
     name: str | list[str] | None = None,
@@ -1371,7 +1378,26 @@ def convert_to_parameters(
     if prefer_constant is None:
         prefer_constant = True
     if isinstance(value, collections.abc.Mapping):
-        return convert_to_parameters(**value, prefer_constant=False)
+        if not value:
+            msg = "Cannot convert an empty mapping to parameters."
+            raise ValueError(msg)
+        if all(k in ALLOWED_KEYS for k in value):
+            return convert_to_parameters(**value, prefer_constant=False)
+        else:
+            # convert it to correct dictionary
+            newvalues = collections.defaultdict(list)
+            for k, v in value.items():
+                newvalues["name"].append(k)
+                if isinstance(v, collections.abc.Mapping):
+                    for k2, v2 in v.items():
+                        if k2 not in ALLOWED_KEYS:
+                            msg = f"Invalid key {k2} in mapping {value}. Allowed keys are {ALLOWED_KEYS}."
+                            raise ValueError(msg)
+                        newvalues[k2].append(v2)
+                else:
+                    newvalues["value"].append(v)
+
+            return convert_to_parameters(**newvalues, prefer_constant=False)
     value = convert_to_container(value)
     is_param_already = [isinstance(val, ZfitParameter) for val in value]
     if all(is_param_already):

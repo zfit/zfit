@@ -9,8 +9,9 @@ import numpy as np
 import tensorflow as tf
 from uhi.typing.plottable import PlottableHistogram
 
+from zfit._interfaces import ZfitBinnedData, ZfitBinnedPDF, ZfitParameter
+
 from .. import z
-from ..core.interfaces import ZfitBinnedData, ZfitBinnedPDF, ZfitParameter
 from ..core.loss import BaseLoss
 from ..util import ztyping
 from ..util.checks import NONE
@@ -94,7 +95,7 @@ class BaseBinned(BaseLoss):
     ):
         model = convert_to_container(model)
         data = convert_to_container(data)
-        from zfit._data.binneddatav1 import BinnedData
+        from zfit._data.binneddatav1 import BinnedData  # noqa: PLC0415
 
         data = [
             (

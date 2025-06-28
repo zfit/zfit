@@ -11,7 +11,8 @@ import numpy as np
 import tensorflow as tf
 import texttable as tt
 
-from ..core.interfaces import ZfitLoss
+from zfit._interfaces import ZfitLoss
+
 from ..core.parameter import assign_values_jit
 from ..util import ztyping
 from ..util.container import convert_to_container

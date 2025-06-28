@@ -10,9 +10,9 @@ import pydantic.v1 as pydantic
 import tensorflow as tf
 
 import zfit.z.numpy as znp
+from zfit._interfaces import ZfitPDF, ZfitSpace
 
 from .. import z
-from ..core.interfaces import ZfitPDF, ZfitSpace
 from ..core.serialmixin import SerializableMixin
 from ..core.space import Space, convert_to_space, supports
 from ..serialization import Serializer, SpaceRepr  # noqa: F401
@@ -178,7 +178,7 @@ class TruncatedPDF(BaseFunctor, SerializableMixin):
                 relative_scale = znp.sum(piecewise_norms / base_norm)
                 return (params[paramname] * relative_scale,)
 
-            import zfit
+            import zfit  # noqa: PLC0415
 
             params_deps = {p.name: p for p in pdf.get_params(floating=None)}
             toreplace = paramname
@@ -212,7 +212,7 @@ class TruncatedPDF(BaseFunctor, SerializableMixin):
         # this maybe has a speedup (although limited as we're using dynamic shapes -> needs to change for JAX)
         # but most importantly avoids any issue if we take the gradient of a pdf that is not defined outside
         # the limits, because this can yield NaNs using a naive multiplication with a mask
-        from zfit import Data
+        from zfit import Data  # noqa: PLC0415
 
         xarray = znp.asarray(x.value())
         inside_arrays = [limit.inside(x) for limit in self._limits]
@@ -226,7 +226,7 @@ class TruncatedPDF(BaseFunctor, SerializableMixin):
     def _integrate(self, limits, norm, options=None):
         del norm  # not used here
         # cannot equal, as possibly jitted
-        from zfit import run
+        from zfit import run  # noqa: PLC0415
 
         if (
             not run.executing_eagerly() or limits != self.space
@@ -243,7 +243,7 @@ class TruncatedPDF(BaseFunctor, SerializableMixin):
     def _analytic_integrate(self, limits, norm):
         del norm  # not used here
         # cannot equal, as possibly jitted
-        from zfit import run
+        from zfit import run  # noqa: PLC0415
 
         if (
             not run.executing_eagerly() or limits != self.space
@@ -263,7 +263,7 @@ class TruncatedPDF(BaseFunctor, SerializableMixin):
         pdf = self.pdfs[0]
 
         # TODO: cannot compare, as possibly jitted
-        from zfit import run
+        from zfit import run  # noqa: PLC0415
 
         if (
             not run.executing_eagerly() or limits != self.space

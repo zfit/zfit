@@ -22,6 +22,13 @@ from tensorflow import Tensor
 
 import zfit
 import zfit.z.numpy as znp
+from zfit._interfaces import (
+    ZfitData,
+    ZfitLimit,
+    ZfitOrderableDimensional,
+    ZfitPDF,
+    ZfitSpace,
+)
 
 from .. import z
 from .._variables.axis import Binnings, RegularBinning, histaxes_to_binning
@@ -59,13 +66,6 @@ from .coordinates import (
     convert_to_obs_str,
 )
 from .dimension import common_axes, common_obs, limits_overlap
-from .interfaces import (
-    ZfitData,
-    ZfitLimit,
-    ZfitOrderableDimensional,
-    ZfitPDF,
-    ZfitSpace,
-)
 from .serialmixin import SerializableMixin
 
 if typing.TYPE_CHECKING:

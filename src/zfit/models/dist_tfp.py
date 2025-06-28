@@ -22,10 +22,10 @@ from pydantic.v1 import Field
 
 import zfit.z.numpy as znp
 from zfit import z
+from zfit._interfaces import ZfitData
 from zfit.util.exception import AnalyticSamplingNotImplemented
 
 from ..core.basepdf import BasePDF
-from ..core.interfaces import ZfitData
 from ..core.parameter import convert_to_parameter
 from ..core.serialmixin import SerializableMixin
 from ..core.space import Space, supports
@@ -878,7 +878,7 @@ class QGauss(WrapDistribution, SerializableMixin):
                the PDF for a better description, to be used with plots etc.
                Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
         """
-        from zfit import run
+        from zfit import run  # noqa: PLC0415
 
         q, mu, sigma = self._check_input_params_tfp(q, mu, sigma)
         if run.executing_eagerly():

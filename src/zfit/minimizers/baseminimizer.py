@@ -16,7 +16,8 @@ from typing import ClassVar
 import numpy as np
 from ordered_set import OrderedSet
 
-from ..core.interfaces import ZfitLoss, ZfitParameter
+from zfit._interfaces import ZfitLoss, ZfitParameter
+
 from ..core.parameter import assign_values, convert_to_parameters, set_values
 from ..util import ztyping
 from ..util.container import convert_to_container
@@ -300,6 +301,11 @@ class BaseMinimizer(ZfitMinimizer):
                 params = list(params.keys())
             elif all(isinstance(p, str) for p in params):
                 params = convert_to_parameters(params, prefer_constant=False)
+
+                # TODO: simpleloss should take dicts of name to value?!
+                # if 'name' not in params and 'value' not in params:  # keep it a dictionary
+                #     cleanedparams = {p.name: p for p in cleanedparams}
+
             else:
                 msg = (
                     "if `params` argument is a dict, it must either contain parameters or fields"
@@ -309,7 +315,7 @@ class BaseMinimizer(ZfitMinimizer):
 
         # convert the function to a SimpleLoss
         if not isinstance(loss, ZfitLoss):
-            from zfit.loss import SimpleLoss
+            from zfit.loss import SimpleLoss  # noqa: PLC0415
 
             loss = SimpleLoss.from_any(loss, params=params)
 
@@ -556,10 +562,10 @@ class BaseMinimizer(ZfitMinimizer):
         """
         state = {"loss": loss, "params": params, "init": init}
         self._state = state
-        from zfit import settings
+        from zfit import settings  # noqa: PLC0415
 
         if no_update := not settings.options.auto_update_params:
-            import zfit.z.numpy as znp
+            import zfit.z.numpy as znp  # noqa: PLC0415
 
             old_params = list(loss.get_params())
             old_values = znp.asarray(old_params)

@@ -32,13 +32,14 @@ if TYPE_CHECKING:
     with contextlib.suppress(ImportError):  # for type checking
         import ipyopt
 
-from ..core.interfaces import (
+from zfit._interfaces import (
     ZfitData,
     ZfitIndependentParameter,
     ZfitLoss,
     ZfitParameter,
     ZfitUnbinnedData,
 )
+
 from ..core.parameter import set_values
 from ..util.container import convert_to_container
 from ..util.deprecation import deprecated, deprecated_args
@@ -546,7 +547,7 @@ class FitResult(ZfitResult):
 
     def _create_minuit_instance(self):
         minuit = self._cache_minuit
-        from zfit.minimizers.minimizer_minuit import Minuit
+        from zfit.minimizers.minimizer_minuit import Minuit  # noqa: PLC0415
 
         if minuit is None:
             if isinstance(self.minimizer, Minuit):
@@ -726,8 +727,8 @@ class FitResult(ZfitResult):
             Returns:
                 ``zfit.minimize.FitResult``: A `FitResult` as if zfit Minuit was used.
         """
-        from .minimizer_minuit import Minuit
-        from .termination import EDM
+        from .minimizer_minuit import Minuit  # noqa: PLC0415
+        from .termination import EDM  # noqa: PLC0415
 
         if not isinstance(minimizer, Minuit):
             if isinstance(minimizer, iminuit.Minuit):
@@ -1134,6 +1135,10 @@ class FitResult(ZfitResult):
         return self._valid and not self.params_at_limit and self.converged
 
     @property
+    def x(self):
+        return znp.array(self.values)
+
+    @property
     def params_at_limit(self) -> bool:
         return self._params_at_limit
 
@@ -1228,7 +1233,7 @@ class FitResult(ZfitResult):
         if method is None:
             # LEGACY START
             method = self._default_hesse
-            from zfit.minimizers.minimizer_minuit import Minuit
+            from zfit.minimizers.minimizer_minuit import Minuit  # noqa: PLC0415
 
             if isinstance(self.minimizer, Minuit):
                 method = "minuit_hesse"
@@ -1543,7 +1548,7 @@ class FitResult(ZfitResult):
             self.info["minuit"] = "Minuit_frozen"
         if "problem" in self.info:
             try:
-                import ipyopt
+                import ipyopt  # noqa: PLC0415
             except ImportError:
                 pass
             else:

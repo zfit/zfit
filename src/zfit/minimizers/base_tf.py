@@ -8,7 +8,8 @@ from functools import partial
 
 import tensorflow as tf
 
-from ..core.interfaces import ZfitIndependentParameter, ZfitLoss
+from zfit._interfaces import ZfitIndependentParameter, ZfitLoss
+
 from ..util.exception import OperationNotAllowedError
 from .baseminimizer import BaseStepMinimizer, minimize_supports
 

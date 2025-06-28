@@ -15,6 +15,7 @@ import tensorflow_probability as tfp
 from ordered_set import OrderedSet
 
 import zfit.z.numpy as znp
+from zfit._interfaces import ZfitConstraint, ZfitParameter
 
 from .. import z
 from ..serialization.serializer import BaseRepr, Serializer
@@ -24,7 +25,6 @@ from ..util.container import convert_to_container
 from ..util.deprecation import deprecated_args
 from ..util.exception import ShapeIncompatibleError
 from .baseobject import BaseNumeric
-from .interfaces import ZfitConstraint, ZfitParameter
 from .serialmixin import SerializableMixin
 
 if typing.TYPE_CHECKING:

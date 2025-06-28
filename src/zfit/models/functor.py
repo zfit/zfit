@@ -26,10 +26,10 @@ import tensorflow as tf
 
 import zfit.data
 import zfit.z.numpy as znp
+from zfit._interfaces import ZfitData, ZfitPDF, ZfitSpace
 
 from .. import z
 from ..core.basepdf import BasePDF
-from ..core.interfaces import ZfitData, ZfitPDF, ZfitSpace
 from ..core.serialmixin import SerializableMixin
 from ..core.space import supports
 from ..models.basefunctor import FunctorMixin, extract_daughter_input_obs

@@ -32,12 +32,15 @@ __all__ = [
     "loss",
     "dill",
     "data",
+    "Data",
     "func",
+    "binned",
     "dimension",
     "exception",
     "sample",
     "binned",
     "hs3",
+    'param',
     "Parameter",
     "ComposedParameter",
     "ComplexParameter",
@@ -48,6 +51,7 @@ __all__ = [
     "result",
     "run",
     "settings",
+    "ztypes",
 ]
 
 
@@ -103,6 +107,7 @@ if int(_tf.__version__[0]) < 2:
     raise RuntimeError(
         f"You are using TensorFlow version {_tf.__version__}. This zfit version ({__version__}) works only with TF >= 2"
     )
+from . import z  # initialize first
 from . import (
     binned,
     constraint,
@@ -114,12 +119,14 @@ from . import (
     hs3,
     loss,
     minimize,
+    param,
     pdf,
     result,
     sample,
     settings,
     z,  # initialize first
 )
+from .core.data import Data
 from .core.parameter import (
     ComplexParameter,
     ComposedParameter,
@@ -127,7 +134,7 @@ from .core.parameter import (
     convert_to_parameter,
 )
 from .core.space import Space, convert_to_space, supports
-from .settings import run
+from .settings import run, ztypes
 
 
 def _maybe_disable_jit() -> None:

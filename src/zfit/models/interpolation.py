@@ -4,8 +4,8 @@ from __future__ import annotations
 import typing
 
 import zfit.z.numpy as znp
+from zfit._interfaces import ZfitBinnedPDF
 
-from ..core.interfaces import ZfitBinnedPDF
 from ..core.space import supports
 from ..util import ztyping
 from ..util.exception import SpecificFunctionNotImplemented

@@ -6,7 +6,8 @@ import typing
 
 import numpy as np
 
-from ..core.interfaces import ZfitLoss
+from zfit._interfaces import ZfitLoss
+
 from ..util import ztyping
 from ..util.checks import Singleton
 
@@ -148,6 +149,9 @@ class CriterionNotAvailable(Singleton):
 
     def __repr__(self):
         return "<EDM_not_available>"
+
+    def __hash__(self):
+        return hash("EDM_not_available")
 
 
 CRITERION_NOT_AVAILABLE = CriterionNotAvailable()

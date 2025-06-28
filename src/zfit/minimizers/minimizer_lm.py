@@ -8,8 +8,8 @@ from collections.abc import Mapping
 import numpy as np
 
 import zfit.z.numpy as znp
+from zfit._interfaces import ZfitLoss
 
-from ..core.interfaces import ZfitLoss
 from ..core.parameter import Parameter, assign_values
 from ..util.cache import GraphCachable
 from ..util.exception import MaximumIterationReached

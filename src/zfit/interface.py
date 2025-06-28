@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from .core.interfaces import (
+from zfit._interfaces import (
     ZfitBinnedData,
     ZfitBinnedPDF,
     ZfitBinning,

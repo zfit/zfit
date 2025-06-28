@@ -13,7 +13,7 @@ from collections.abc import Callable, Iterable
 import scipy.stats
 
 from ..util.container import convert_to_container
-from .interfaces import ZfitPDF
+from zfit._interfaces import ZfitPDF
 
 if typing.TYPE_CHECKING:
     import zfit  # noqa: F401

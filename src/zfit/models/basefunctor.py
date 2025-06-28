@@ -8,10 +8,11 @@ from collections.abc import Iterable
 import pydantic.v1 as pydantic
 import tensorflow as tf
 
+from zfit._interfaces import ZfitFunctorMixin, ZfitModel, ZfitParameter, ZfitSpace
+
 from .. import z
 from ..core.coordinates import convert_to_obs_str
 from ..core.dimension import get_same_obs
-from ..core.interfaces import ZfitFunctorMixin, ZfitModel, ZfitParameter, ZfitSpace
 from ..core.parameter import convert_to_parameter
 from ..core.space import Space, combine_spaces
 from ..serialization import SpaceRepr

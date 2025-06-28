@@ -9,10 +9,10 @@ import tensorflow as tf
 import tensorflow_probability as tfp
 
 import zfit.z.numpy as znp
+from zfit._interfaces import ZfitPDF
 
 from .. import exception, z
 from ..core.data import Data, sum_samples
-from ..core.interfaces import ZfitPDF
 from ..core.sample import accept_reject_sample
 from ..core.serialmixin import SerializableMixin
 from ..core.space import supports
@@ -158,7 +158,7 @@ class FFTConvPDFV1(BaseFunctor, SerializableMixin):
                the PDF for a better description, to be used with plots etc.
                Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
         """
-        from zfit import run
+        from zfit import run  # noqa: PLC0415
 
         run.assert_executing_eagerly()
         original_init = {
@@ -485,7 +485,7 @@ class AddingSampleAndWeights:
         sample = sum_samples(sample_func, sample_kernel, obs=limits, shuffle=True)
         sample = limits.filter(sample)
         n_drawn = tf.shape(sample)[0]
-        from zfit import run
+        from zfit import run  # noqa: PLC0415
 
         if run.numeric_checks:
             z.assert_positive(

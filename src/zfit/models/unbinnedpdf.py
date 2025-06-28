@@ -7,10 +7,10 @@ import pydantic.v1 as pydantic
 import tensorflow as tf
 
 from zfit import z
+from zfit._interfaces import ZfitSpace
 from zfit.z import numpy as znp
 
 from ..core.binning import unbinned_to_binindex
-from ..core.interfaces import ZfitSpace
 from ..core.space import supports
 from ..util.ztyping import ExtendedInputType, NormInputType
 from .functor import BaseFunctor

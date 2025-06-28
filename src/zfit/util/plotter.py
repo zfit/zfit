@@ -5,7 +5,8 @@ import typing
 from collections.abc import Mapping
 from typing import Callable
 
-from ..core.interfaces import ZfitPDF
+from zfit._interfaces import ZfitPDF
+
 from ..core.space import convert_to_space
 from . import ztyping
 from .checks import RuntimeDependency
@@ -42,7 +43,7 @@ def plot_sumpdf_components_pdfV1(
         plotkwargs: Additional keyword arguments to pass to the plotting function.
         extended: If True, plot extended components. If None, uses the model's extended state.
     """
-    import zfit
+    import zfit  # noqa: PLC0415
 
     if not isinstance(model, zfit.pdf.SumPDF):
         msg = f"model must be a ZfitPDF, not a {type(model)}. Model is {model}."
@@ -102,7 +103,7 @@ def plot_model_pdfV1(
 
     Returns:
     """
-    import zfit.z.numpy as znp
+    import zfit.z.numpy as znp  # noqa: PLC0415
 
     if not isinstance(model, ZfitPDF):
         msg = f"model must be a ZfitPDF, not a {type(model)}. Model is {model}."
@@ -302,7 +303,7 @@ class SumCompPlotter(ZfitPDFPlotter):
         super().__init__(*args, **kwargs)
 
     def _plotpdf(self, **kwargs):
-        import zfit
+        import zfit  # noqa: PLC0415
 
         if not isinstance(pdf := self.pdf, zfit.pdf.SumPDF):  # we can relax this later with duck typing
             msg = f"pdf must be a SumPDF, is {type(pdf)}."
