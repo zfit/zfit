@@ -33,11 +33,9 @@ from tensorflow.python.ops.resource_variable_ops import (
 from tensorflow.python.ops.variables import Variable  # TF backwards compatibility
 from tensorflow.python.types.core import Tensor as TensorType
 
-import zfit.z.numpy as znp
-from zfit._interfaces import ZfitIndependentParameter, ZfitModel, ZfitParameter
-
 from .. import _interfaces as zinterfaces
 from .. import z
+from .._interfaces import ZfitIndependentParameter, ZfitModel, ZfitParameter
 from ..core.baseobject import BaseNumeric, extract_filter_params, validate_preprocess_name
 from ..minimizers.interface import ZfitResult
 from ..serialization.paramrepr import make_param_constructor
@@ -56,8 +54,6 @@ from ..util.exception import (
 )
 from ..util.temporary import TemporarilySet
 from ..z import numpy as znp
-from .. import _interfaces as zinterfaces
-from .._interfaces import ZfitIndependentParameter, ZfitModel, ZfitParameter
 from .serialmixin import SerializableMixin
 
 if typing.TYPE_CHECKING:
@@ -301,7 +297,7 @@ class ZfitParameterMixin(BaseNumeric):
 
     def __add__(self, other):
         if isinstance(other, (ZfitModel, ZfitParameter)):
-            from . import operations  # noqa: PLC0415
+            from . import operations
 
             with suppress(FunctionNotImplemented):
                 return operations.add(self, other)
@@ -309,7 +305,7 @@ class ZfitParameterMixin(BaseNumeric):
 
     def __radd__(self, other):
         if isinstance(other, (ZfitModel, ZfitParameter)):
-            from . import operations  # noqa: PLC0415
+            from . import operations
 
             with suppress(FunctionNotImplemented):
                 return operations.add(other, self)
@@ -317,7 +313,7 @@ class ZfitParameterMixin(BaseNumeric):
 
     def __mul__(self, other):
         if isinstance(other, (ZfitModel, ZfitParameter)):
-            from . import operations  # noqa: PLC0415
+            from . import operations
 
             with suppress(FunctionNotImplemented):
                 return operations.multiply(self, other)
@@ -325,7 +321,7 @@ class ZfitParameterMixin(BaseNumeric):
 
     def __rmul__(self, other):
         if isinstance(other, (ZfitModel, ZfitParameter)):
-            from . import operations  # noqa: PLC0415
+            from . import operations
 
             with suppress(FunctionNotImplemented):
                 return operations.multiply(other, self)
