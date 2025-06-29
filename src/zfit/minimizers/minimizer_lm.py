@@ -241,7 +241,7 @@ class LevenbergMarquardt(BaseMinimizer, GraphCachable):
             approx = Approximations(params=params, gradient=new_point.get("gradient"), hessian=new_point.get("hessian"))
             tempres = FitResult(
                 loss=loss,
-                params=dict(zip(params, paramvals)),
+                params=dict(zip(params, paramvals, strict=True)),
                 minimizer=self,
                 valid=False,
                 criterion=criterion,

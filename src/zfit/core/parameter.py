@@ -13,7 +13,7 @@ import weakref
 from collections.abc import Callable, Iterable, Mapping
 from contextlib import suppress
 from inspect import signature
-from typing import Literal, Union
+from typing import Literal
 from weakref import WeakSet
 
 import dill
@@ -1166,13 +1166,10 @@ class ComposedParameterRepr(BaseRepr):
     unpack_params: bool | None
     label: str | None = None
     internal_params: (
-        Union[
-            Serializer.types.ParamTypeDiscriminated,
-            list[Serializer.types.ParamTypeDiscriminated],
-            dict[str, Serializer.types.ParamTypeDiscriminated],
-        ]
-        | None
-    )
+        Serializer.types.ParamTypeDiscriminated
+        | list[Serializer.types.ParamTypeDiscriminated]
+        | dict[str, Serializer.types.ParamTypeDiscriminated]
+    ) | None
 
     @validator("func", pre=True)
     def _validate_value_pre(cls, value):

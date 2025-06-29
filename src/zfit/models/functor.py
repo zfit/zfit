@@ -190,7 +190,7 @@ class SumPDF(BaseFunctor, SerializableMixin):  # TODO: add extended argument
     def _unnormalized_pdf(self, x, params):  # NOT _pdf, as the normalization range can differ
         pdfs = self.pdfs
         fracs = params.values()
-        probs = [pdf.pdf(x) * frac for pdf, frac in zip(pdfs, fracs)]
+        probs = [pdf.pdf(x) * frac for pdf, frac in zip(pdfs, fracs, strict=True)]
         prob = sum(probs)  # to keep the broadcasting ability
         return z.convert_to_tensor(prob)
 
@@ -201,7 +201,7 @@ class SumPDF(BaseFunctor, SerializableMixin):  # TODO: add extended argument
             raise SpecificFunctionNotImplemented
         pdfs = self.pdfs
         fracs = self.params.values()
-        probs = [pdf.pdf(x) * frac for pdf, frac in zip(pdfs, fracs)]
+        probs = [pdf.pdf(x) * frac for pdf, frac in zip(pdfs, fracs, strict=True)]
         prob = sum(probs)
         return z.convert_to_tensor(prob)
 
@@ -224,7 +224,7 @@ class SumPDF(BaseFunctor, SerializableMixin):  # TODO: add extended argument
         # assert norm_range not in (None, False), "Bug, who requested an unnormalized integral?"
         integrals = [
             frac * pdf.integrate(limits=limits, options=options)  # do NOT propagate the norm_range!
-            for pdf, frac in zip(pdfs, fracs)
+            for pdf, frac in zip(pdfs, fracs, strict=True)
         ]
         return znp.sum(integrals, axis=0)
 
@@ -250,7 +250,7 @@ class SumPDF(BaseFunctor, SerializableMixin):  # TODO: add extended argument
         try:
             integrals = [
                 frac * pdf.analytic_integrate(limits=limits)  # do NOT propagate the norm!
-                for pdf, frac in zip(pdfs, fracs)
+                for pdf, frac in zip(pdfs, fracs, strict=True)
             ]
         except AnalyticIntegralNotImplemented as error:
             msg = (
@@ -270,7 +270,8 @@ class SumPDF(BaseFunctor, SerializableMixin):  # TODO: add extended argument
 
         # do NOT propagate the norm!
         partial_integral = [
-            pdf.partial_integrate(x=x, limits=limits, options=options) * frac for pdf, frac in zip(pdfs, fracs)
+            pdf.partial_integrate(x=x, limits=limits, options=options) * frac
+            for pdf, frac in zip(pdfs, fracs, strict=True)
         ]
         partial_integral = sum(partial_integral)
         return z.convert_to_tensor(partial_integral)
@@ -284,7 +285,7 @@ class SumPDF(BaseFunctor, SerializableMixin):  # TODO: add extended argument
             partial_integral = [
                 pdf.partial_analytic_integrate(x=x, limits=limits) * frac
                 # do NOT propagate the norm!
-                for pdf, frac in zip(pdfs, fracs)
+                for pdf, frac in zip(pdfs, fracs, strict=True)
             ]
         except AnalyticIntegralNotImplemented as error:
             msg = (
@@ -303,7 +304,7 @@ class SumPDF(BaseFunctor, SerializableMixin):  # TODO: add extended argument
             n = tf.unstack(counts_multinomial(total_count=n, probs=self.fracs), axis=0)
 
         samples = []
-        for pdf, n_sample in zip(self.pdfs, n):
+        for pdf, n_sample in zip(self.pdfs, n, strict=True):
             sub_sample = pdf.sample(n=n_sample, limits=limits)
             if isinstance(sub_sample, ZfitData):
                 sub_sample = sub_sample.value()

@@ -293,7 +293,7 @@ class BaseMinimizer(ZfitMinimizer):
                 params = list(init.params)
             elif not any(isinstance(p, ZfitParameter) for p in params):
                 params_init = init.loss.get_params()
-                to_set_param_values = dict(zip(params_init, params))
+                to_set_param_values = dict(zip(params_init, params, strict=True))
 
         if isinstance(params, Mapping):
             if all(isinstance(p, ZfitParameter) for p in params):
@@ -327,7 +327,7 @@ class BaseMinimizer(ZfitMinimizer):
                     f" {len(params)} and {len(loss_params)} respectively."
                 )
                 raise ValueError(msg)
-            to_set_param_values = {p: val for p, val in zip(loss_params, params) if val is not None}
+            to_set_param_values = {p: val for p, val in zip(loss_params, params, strict=True) if val is not None}
             params = loss_params
 
         if params is None:
@@ -745,7 +745,7 @@ class BaseStepMinimizer(BaseMinimizer):
                 hesse = loss.hessian(params)
                 inv_hesse = np.linalg.inv(hesse)
                 status = 10
-                params_result = dict(zip(params, xvalues))
+                params_result = dict(zip(params, xvalues, strict=True))
 
                 message = "Unfinished, for criterion"
                 info = {
@@ -788,7 +788,7 @@ class BaseStepMinimizer(BaseMinimizer):
             "inv_hesse": inv_hesse,
         }
 
-        params = dict(zip(params, xvalues))
+        params = dict(zip(params, xvalues, strict=True))
         valid = converged
 
         return FitResult(

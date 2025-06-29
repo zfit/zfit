@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import typing
 from collections.abc import Iterable
-from typing import Literal, Union
+from typing import Literal
 
 import numpy as np
 import pydantic.v1 as pydantic
@@ -26,7 +26,7 @@ if typing.TYPE_CHECKING:
     import zfit  # noqa: F401
 
 
-def check_limits(limits: Union[ZfitSpace, list[ZfitSpace]], obs=None) -> tuple[ZfitSpace, ...]:
+def check_limits(limits: ZfitSpace | list[ZfitSpace], obs=None) -> tuple[ZfitSpace, ...]:
     """Check if the limits are valid Spaces and return an iterable."""
     limits = convert_to_container(limits, container=tuple)
     obs = obs.obs if obs is not None else None
@@ -278,7 +278,9 @@ class TruncatedPDF(BaseFunctor, SerializableMixin):
             counts = tf.unstack(z.random.counts_multinomial(n, probs=fracs), axis=0)
         else:
             counts = [n]
-        samples = [self.pdfs[0].sample(count, limits=limit).value() for count, limit in zip(counts, limits)]
+        samples = [
+            self.pdfs[0].sample(count, limits=limit).value() for count, limit in zip(counts, limits, strict=True)
+        ]
         return znp.concatenate(samples, axis=0)
 
 

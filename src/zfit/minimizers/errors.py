@@ -406,7 +406,7 @@ def covariance_with_weights(hinv, result, params, *, weightcorr: WeightCorr = No
     def func():
         values = []
 
-        for i, (m, d) in enumerate(zip(model, data)):
+        for i, (m, d) in enumerate(zip(model, data, strict=True)):
             v = m.log_pdf(d)
             # we calculate the unweighted likelihood, correct?
             # weights = d.weights

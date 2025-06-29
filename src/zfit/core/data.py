@@ -5,7 +5,7 @@ from __future__ import annotations
 import typing
 from collections import Counter
 from collections.abc import Callable, Iterable, Mapping
-from typing import Literal, Union
+from typing import Literal
 
 import numpy as np
 import pandas as pd
@@ -1125,7 +1125,7 @@ class DataRepr(BaseRepr):
     hs3_type: Literal["Data"] = Field("Data", alias="type")
 
     data: np.ndarray
-    space: Union[SpaceRepr, list[SpaceRepr]]
+    space: SpaceRepr | list[SpaceRepr]
     name: str | None = None
     weights: np.ndarray | None = None
 

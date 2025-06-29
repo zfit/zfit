@@ -15,7 +15,7 @@ if typing.TYPE_CHECKING:
 
 NumericTyped = Union[float, int]
 
-NameObsTyped = Optional[Union[tuple[str], str]]
+NameObsTyped = Optional[tuple[str] | str]
 
 
 class SpaceRepr(BaseRepr):

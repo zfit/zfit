@@ -11,7 +11,6 @@ import typing
 import warnings
 from collections import Counter
 from collections.abc import Iterable, Mapping
-from typing import Union
 
 import tensorflow as tf
 from ordered_set import OrderedSet
@@ -134,7 +133,7 @@ class BaseObject(ZfitObject):
         return object.__hash__(self)
 
 
-def convert_param_values(params: Union[Mapping[Union[str, ztyping.ParamType], float], ZfitResult]):
+def convert_param_values(params: Mapping[str | ztyping.ParamType, float] | ZfitResult):
     """Convert the mapping or `ZfitResult` to a dictionary of str -> value.
 
     Args:

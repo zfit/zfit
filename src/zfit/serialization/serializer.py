@@ -87,8 +87,11 @@ class Types:
         elif len(repr) == 1:
             return repr[0]
         else:
-            return Union[
-                Annotated[Union[tuple(repr)], Field(discriminator="hs3_type")],
+            return Union[  # noqa: UP007
+                Annotated[
+                    Union[tuple(repr)],  # noqa: UP007
+                    Field(discriminator="hs3_type"),
+                ],
                 self.DUMMYTYPE,
             ]
 

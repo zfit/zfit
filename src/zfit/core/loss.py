@@ -9,7 +9,7 @@ import warnings
 from collections.abc import Callable, Iterable, Mapping
 from contextlib import suppress
 from functools import partial
-from typing import Literal, Union
+from typing import Literal
 
 import pydantic.v1 as pydantic
 import tensorflow as tf
@@ -96,7 +96,7 @@ def _unbinned_nll_tf(
     if is_container(model):
         nlls = [
             _unbinned_nll_tf(model=p, data=d, fit_range=r, log_offset=log_offset, kahan=kahan)
-            for p, d, r in zip(model, data, fit_range)
+            for p, d, r in zip(model, data, fit_range, strict=True)
         ]
         nlls, nlls_corr = [nll[0] for nll in nlls], [nll[1] for nll in nlls]
         nll_corrs = znp.sum(nlls_corr, axis=0)
@@ -156,14 +156,8 @@ class BaseLossRepr(BaseRepr):
     _implementation = None
     _owndict = pydantic.PrivateAttr(default_factory=dict)
     hs3_type: Literal["BaseLoss"] = Field("BaseLoss", alias="type")
-    model: Union[
-        Serializer.types.PDFTypeDiscriminated,
-        list[Serializer.types.PDFTypeDiscriminated],
-    ]
-    data: Union[
-        Serializer.types.DataTypeDiscriminated,
-        list[Serializer.types.DataTypeDiscriminated],
-    ]
+    model: Serializer.types.PDFTypeDiscriminated | list[Serializer.types.PDFTypeDiscriminated]
+    data: Serializer.types.DataTypeDiscriminated | list[Serializer.types.DataTypeDiscriminated]
     constraints: list[Serializer.types.ConstraintTypeDiscriminated] | None = Field(default_factory=list)
     options: Mapping | None = Field(default_factory=dict)
 
@@ -247,7 +241,10 @@ class BaseLoss(ZfitLoss, BaseNumeric):
 
     @property
     def is_precompiled(self):
-        for data, h in zip(self.data, self._precompiled_hashes):
+        if len(self._precompiled_hashes) != len(self.data):
+            self._is_precompiled = False
+            return self._is_precompiled
+        for data, h in zip(self.data, self._precompiled_hashes, strict=True):
             if data.hashint != h:
                 self.is_precompiled = False
                 break
@@ -324,7 +321,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
             if len(params) != len(all_params):
                 msg = "Length of params does not match the length of all parameters or provide a Mapping."
                 raise ValueError(msg)
-            params = dict(zip(all_params, params))
+            params = dict(zip(all_params, params, strict=True))
         return super()._check_set_input_params(params, guarantee_checked)
 
     def _input_check(self, pdf, data, fit_range):
@@ -341,7 +338,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         if fit_range is None:
             fit_range = []
             non_consistent = {"data": [], "model": [], "range": []}
-            for p, d in zip(pdf, data):
+            for p, d in zip(pdf, data, strict=True):
                 if p.norm != d.data_range:
                     non_consistent["data"].append(d)
                     non_consistent["model"].append(p)
@@ -370,7 +367,8 @@ class BaseLoss(ZfitLoss, BaseNumeric):
 
         # sanitize fit_range
         fit_range = [
-            p._convert_sort_space(limits=range_) if range_ is not None else None for p, range_ in zip(pdf, fit_range)
+            p._convert_sort_space(limits=range_) if range_ is not None else None
+            for p, range_ in zip(pdf, fit_range, strict=True)
         ]
         # TODO: sanitize pdf, data?
         self.add_cache_deps(cache_deps=pdf)
@@ -412,7 +410,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
 
         model_checked = []
         data_checked = []
-        for mod, dat in zip(model, data):
+        for mod, dat in zip(model, data, strict=True):
             if not isinstance(dat, (ZfitData, ZfitBinnedData)):
                 if fit_range is not None:
                     msg = "Fit range should not be used if data is not ZfitData."
@@ -1248,7 +1246,7 @@ class ExtendedUnbinnedNLL(BaseUnbinnedNLL):
 
         yields = []
         nevents_collected = []
-        for mod, dat in zip(model, data):
+        for mod, dat in zip(model, data, strict=True):
             if not mod.is_extended:
                 msg = f"The pdf {mod} is not extended but has to be (for an extended fit)"
                 raise NotExtendedPDFError(msg)
@@ -1524,8 +1522,8 @@ class SimpleLoss(BaseLoss):
                 paramsself = {name: p for name, p in params if name in selfnames}
                 paramsother = {name: p for name, p in params.items() if name in othernames}
             elif len(params) == len(selfnames) + len(othernames):
-                paramsself = dict(zip(selfnames, params[: len(selfnames)]))
-                paramsother = dict(zip(othernames, params[len(selfnames) :]))
+                paramsself = dict(zip(selfnames, params[: len(selfnames)], strict=True))
+                paramsother = dict(zip(othernames, params[len(selfnames) :], strict=True))
             else:
                 msg = "The parameters do not match the sum of the parameters of the two losses."
                 raise ValueError(msg)

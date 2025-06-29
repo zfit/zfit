@@ -1235,7 +1235,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             n_samples = tf.unstack(z.random.counts_multinomial(n, probs=fracs), axis=0)
 
             samples = []
-            for limit, n_sample in zip(limits, n_samples):
+            for limit, n_sample in zip(limits, n_samples, strict=True):
                 sub_sample = self._call_sample(n=n_sample, limits=limit)
                 if isinstance(sub_sample, ZfitData):
                     sub_sample = sub_sample.value()

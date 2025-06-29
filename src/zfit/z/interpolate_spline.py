@@ -42,7 +42,7 @@ Number = Union[
 ]
 
 TensorLike = Union[
-    list[Union[Number, list]],
+    list[Number | list],
     tuple,
     Number,
     np.ndarray,

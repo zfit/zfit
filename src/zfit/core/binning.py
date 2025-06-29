@@ -108,7 +108,7 @@ def unbinned_to_binindex(data, space, flow=False):
         )
     values = [znp.reshape(data.value(ob), (-1,)) for ob in space.obs]
     edges = [znp.reshape(edge, (-1,)) for edge in space.binning.edges]
-    bins = [tfp.stats.find_bins(x=val, edges=edge) for val, edge in zip(values, edges)]
+    bins = [tfp.stats.find_bins(x=val, edges=edge) for val, edge in zip(values, edges, strict=True)]
     stacked_bins = znp.stack(bins, axis=-1)
     if flow:
         stacked_bins += 1

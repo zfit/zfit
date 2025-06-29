@@ -327,7 +327,9 @@ def automatic_value_gradient_hessian(
             gradients = tf.unstack(gradients)
             # gradients_tf = znp.stack(gradients)
     if hessian == "diag":
-        computed_hessian = znp.stack([tape.gradient(grad, sources=param) for param, grad in zip(params, gradients)])
+        computed_hessian = znp.stack(
+            [tape.gradient(grad, sources=param) for param, grad in zip(params, gradients, strict=True)]
+        )
         # gradfunc = lambda par_grad: tape.gradient(par_grad[0], sources=par_grad[1])
         # computed_hessian = tf.vectorized_map(gradfunc, zip(params, gradients))
     else:

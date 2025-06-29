@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import typing
-from typing import Literal, Union
+from typing import Literal
 
 import pydantic.v1 as pydantic
 from pydantic.v1 import Field, root_validator
@@ -17,7 +17,7 @@ class BasePDFRepr(BaseRepr):
     _implementation = None
     _owndict = pydantic.PrivateAttr(default_factory=dict)
     hs3_type: Literal["BasePDF"] = Field("BasePDF", alias="type")
-    extended: Union[bool, None, Serializer.types.ParamTypeDiscriminated] = None
+    extended: bool | None | Serializer.types.ParamTypeDiscriminated = None
     # TODO: add norm?
     name: str | None = None
 

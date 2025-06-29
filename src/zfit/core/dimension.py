@@ -87,7 +87,7 @@ def limits_overlap(spaces: ztyping.SpaceOrSpacesTypeInput, allow_exact_match: bo
                 low = lower[:, index]
                 up = upper[:, index]
 
-                for other_lower, other_upper in zip(lowers, uppers):
+                for other_lower, other_upper in zip(lowers, uppers, strict=True):
                     if allow_exact_match and np.allclose(other_lower, low) and np.allclose(other_upper, up):
                         continue
                     # TODO(Mayou36): tol? add global flags?

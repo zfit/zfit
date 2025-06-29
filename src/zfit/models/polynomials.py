@@ -164,7 +164,7 @@ class BaseRecursivePolynomialRepr(BasePDFRepr):
 def create_poly(x, polys, coeffs, recurrence):
     degree = len(coeffs) - 1
     polys = do_recurrence(x, polys=polys, degree=degree, recurrence=recurrence)
-    return znp.sum([coeff * poly for coeff, poly in zip(coeffs, polys)], axis=0)
+    return znp.sum([coeff * poly for coeff, poly in zip(coeffs, polys, strict=True)], axis=0)
 
 
 def do_recurrence(x, polys, degree, recurrence):

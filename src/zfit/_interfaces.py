@@ -5,7 +5,7 @@ from __future__ import annotations
 import abc
 import typing
 from abc import ABCMeta, abstractmethod
-from typing import Callable
+from collections.abc import Callable
 
 import numpy as np
 import tensorflow as tf

@@ -2,8 +2,7 @@
 from __future__ import annotations
 
 import typing
-from collections.abc import Mapping
-from typing import Callable
+from collections.abc import Callable, Mapping
 
 from zfit._interfaces import ZfitPDF
 
@@ -69,7 +68,7 @@ def plot_sumpdf_components_pdfV1(
             scale = scale * model.get_yield()
         # For non-extended or manually extended SumPDFs, use fractions
         # Force components to be non-extended and scale by fractions
-        for mod, frac in zip(model.pdfs, model.params.values()):
+        for mod, frac in zip(model.pdfs, model.params.values(), strict=True):
             plotfunc(mod, scale=frac * scale, ax=ax, linestyle=linestyle, extended=False, plotkwargs=plotkwargs)
     return ax
 
@@ -314,6 +313,6 @@ class SumCompPlotter(ZfitPDFPlotter):
             scale = 1
         if pdf.is_extended:
             scale *= pdf.get_yield()
-        for mod, frac in zip(pdf.pdfs, pdf.params.values()):
+        for mod, frac in zip(pdf.pdfs, pdf.params.values(), strict=True):
             ax = mod.plot.plotpdf(scale=frac * scale, **kwargs)
         return ax

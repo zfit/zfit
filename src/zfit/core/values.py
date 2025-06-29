@@ -80,12 +80,12 @@ class ValueHolder(tfp.experimental.AutoCompositeTensor):
 
     @property
     def params(self):
-        return {k: v for k, v in zip(self.names, self.args) if isinstance(v, ZfitParameter)}
+        return {k: v for k, v in zip(self.names, self.args, strict=True) if isinstance(v, ZfitParameter)}
 
     @property
     def space(self):
-        return {k: v for k, v in zip(self.names, self.args) if isinstance(v, ZfitSpace)}
+        return {k: v for k, v in zip(self.names, self.args, strict=True) if isinstance(v, ZfitSpace)}
 
     @property
     def datasets(self):
-        return {k: v for k, v in zip(self.names, self.args) if isinstance(v, ZfitData)}
+        return {k: v for k, v in zip(self.names, self.args, strict=True) if isinstance(v, ZfitData)}

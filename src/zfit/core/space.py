@@ -11,7 +11,6 @@ from abc import abstractmethod
 from collections import defaultdict
 from collections.abc import Callable, Iterable, Mapping
 from contextlib import suppress
-from typing import Union
 
 import numpy as np
 import pandas as pd
@@ -937,7 +936,7 @@ class BaseSpace(ZfitSpace, BaseObject):
             if missing_obs := set(self.obs) - set(x.columns):  # todo: expose the expression?
                 msg = f"Dataframe is missing the following observables: {missing_obs}"
                 raise ValueError(msg)
-            for ob, lower, upper in zip(self.obs, self.v1.lower, self.v1.upper):
+            for ob, lower, upper in zip(self.obs, self.v1.lower, self.v1.upper, strict=True):
                 expr = f"({lower} <= {ob} <= {upper})"
                 exprs.append(expr)
             expr = " & ".join(exprs)
@@ -1257,7 +1256,7 @@ class Space(
         axes=None,
         rect_limits=None,
         name: str | None = None,
-        label: Union[str, Iterable[str]] | None = None,
+        label: str | Iterable[str] | None = None,
         lower: ztyping.LimitsTypeInputV1 | None = None,
         upper: ztyping.LimitsTypeInputV1 | None = None,
     ):
@@ -1335,7 +1334,7 @@ class Space(
             elif len(label) != self.n_obs:
                 msg = f"Number of labels ({label}) does not match the number of observables ({self.obs})"
                 raise ValueError(msg)
-            label = dict(zip(self.obs, label))
+            label = dict(zip(self.obs, label, strict=True))
         self._labels = label
 
         if binning is not False and not isinstance(binning, int) and limits is None and rect_limits is None:
@@ -3467,7 +3466,7 @@ def add_spaces_old(spaces: Iterable[zfit.Space]):
         if not space.limits_are_set:
             continue
         for lower, upper in space:
-            for other_lower, other_upper in zip(lowers, uppers):
+            for other_lower, other_upper in zip(lowers, uppers, strict=True):
                 lower_same = np.allclose(lower, other_lower)
                 upper_same = np.allclose(upper, other_upper)
                 assert not lower_same ^ upper_same, "Bug, please report as issue. limits_overlap did not catch right."

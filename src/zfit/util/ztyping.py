@@ -2,11 +2,10 @@
 from __future__ import annotations
 
 import typing
-from collections.abc import Iterable, Mapping
+from collections.abc import Callable, Iterable, Mapping
 
 # ruff: noqa: F821
 from typing import (
-    Callable,
     Optional,
     TypeVar,
     Union,
@@ -111,14 +110,14 @@ ConstraintsTypeInput = Optional[
 
 # Parameter
 ParamsTypeOpt = Optional[Iterable["zfit.core.interfaces.ZfitParameter"]]  #:
-ParamsNameOpt = Optional[Union[str, list[str]]]  #:
-ParamsOrNameType = Optional[Union[ParamsTypeOpt, Iterable[str]]]  #:
+ParamsNameOpt = Optional[str | list[str]]  #:
+ParamsOrNameType = Optional[ParamsTypeOpt | Iterable[str]]  #:
 ParameterType = TypeVar("ParameterType", bound=dict[str, "zfit.core.interfaces.ZfitParameter"])  #:
 ParametersType = Iterable[ParameterType]
 ParamTypeInput = TypeVar("ParamTypeInput", "zfit.core.interfaces.ZfitParameter", NumericalScalarType)  #:
 ParamsTypeInput = Mapping[Union[str, "zfit.core.interfaces.ZfitParameter"], ParamTypeInput]  #:
 
-ExtendedInputType = Optional[Union[bool, ParamTypeInput]]  #:
+ExtendedInputType = Optional[bool | ParamTypeInput]  #:
 
 # Zfit Structure
 BaseObjectType = Union[

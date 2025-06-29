@@ -310,7 +310,7 @@ class ExtendedBinnedNLL(BaseBinned):
     ):
         del fit_range
         poisson_terms = []
-        for mod, dat in zip(model, data):
+        for mod, dat in zip(model, data, strict=True):
             values = dat.values(  # TODO: right order of model and data?
                 # obs=mod.obs
             )
@@ -458,7 +458,7 @@ class BinnedNLL(BaseBinned):
     ):
         del fit_range
         poisson_terms = []
-        for mod, dat in zip(model, data):
+        for mod, dat in zip(model, data, strict=True):
             values = dat.values(  # TODO: right order of model and data?
                 # obs=mod.obs
             )
@@ -663,7 +663,7 @@ class BinnedChi2(BaseBinned):
         log_offset_val = 0.0 if log_offset is False else log_offset
         log_offset_val = znp.asarray(log_offset_val, dtype=znp.float64)
 
-        for mod, dat in zip(model, data):
+        for mod, dat in zip(model, data, strict=True):
             values = dat.values(  # TODO: right order of model and data?
                 # obs=mod.obs
             )
@@ -817,7 +817,7 @@ class ExtendedBinnedChi2(BaseBinned):
         chi2_terms = []
         log_offset_val = 0.0 if log_offset is False else log_offset
         log_offset_val = znp.asarray(log_offset_val, dtype=znp.float64)
-        for mod, dat in zip(model, data):
+        for mod, dat in zip(model, data, strict=True):
             values = dat.values(  # TODO: right order of model and data?
                 # obs=mod.obs
             )

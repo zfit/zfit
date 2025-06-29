@@ -46,7 +46,7 @@ def allclose_anyaware(x, y, rtol=1e-5, atol=1e-8) -> bool:
         from zfit.core.space import LimitRangeDefinition  # noqa: PLC0415
 
         equal = []
-        for x1, y1 in zip(x[0], y[0]):
+        for x1, y1 in zip(x[0], y[0], strict=True):
             if isinstance(x1, LimitRangeDefinition) or isinstance(y1, LimitRangeDefinition):
                 equal.append(x1 < y1 or x1 > y1)
             else:

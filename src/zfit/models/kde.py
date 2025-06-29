@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import typing
 from collections.abc import Callable
-from typing import ClassVar, Literal, Union
+from typing import ClassVar, Literal
 
 import numpy as np
 import pydantic.v1 as pydantic
@@ -1033,12 +1033,12 @@ class KDE1DimExactRepr(BasePDFRepr):
     _implementation = KDE1DimExact
     hs3_type: Literal["KDE1DimExact"] = pydantic.Field("KDE1DimExact", alias="type")
 
-    data: Union[np.ndarray, Serializer.types.DataTypeDiscriminated]
+    data: np.ndarray | Serializer.types.DataTypeDiscriminated
     obs: SpaceRepr | None = None
-    bandwidth: Union[str, float] | None = None
+    bandwidth: str | float | None = None
     kernel: None = None
-    padding: Union[bool, str] | None = None
-    weights: Union[np.ndarray, tf.Tensor] | None = None
+    padding: bool | str | None = None
+    weights: np.ndarray | tf.Tensor | None = None
     name: str | None = "KDE1DimExact"
 
     @pydantic.validator("kernel", pre=True)
@@ -1336,14 +1336,14 @@ class KDE1DimGridRepr(BasePDFRepr):
     _implementation = KDE1DimGrid
     hs3_type: Literal["KDE1DimGrid"] = pydantic.Field("KDE1DimGrid", alias="type")
 
-    data: Union[np.ndarray, Serializer.types.DataTypeDiscriminated]
+    data: np.ndarray | Serializer.types.DataTypeDiscriminated
     obs: SpaceRepr | None = None
-    bandwidth: Union[str, float] | None = None
+    bandwidth: str | float | None = None
     num_grid_points: int | None = None
     binning_method: str | None = None
     kernel: None = None
-    padding: Union[bool, str] | None = None
-    weights: Union[np.ndarray, tf.Tensor] | None = None
+    padding: bool | str | None = None
+    weights: np.ndarray | tf.Tensor | None = None
     name: str | None = "GridKDE1DimV1"
 
     @pydantic.validator("kernel", pre=True)
@@ -1615,16 +1615,16 @@ class KDE1DimFFTRepr(BasePDFRepr):
     _implementation = KDE1DimFFT
     hs3_type: Literal["KDE1DimFFT"] = pydantic.Field("KDE1DimFFT", alias="type")
 
-    data: Union[np.ndarray, Serializer.types.DataTypeDiscriminated]
+    data: np.ndarray | Serializer.types.DataTypeDiscriminated
     obs: SpaceRepr | None = None
-    bandwidth: Union[str, float] | None = None
+    bandwidth: str | float | None = None
     num_grid_points: int | None = None
     binning_method: str | None = None
     kernel: None = None
     support: float | None = None
     fft_method: str | None = None
-    padding: Union[bool, str] | None = None
-    weights: Union[np.ndarray, tf.Tensor] | None = None
+    padding: bool | str | None = None
+    weights: np.ndarray | tf.Tensor | None = None
     name: str | None = "KDE1DimFFT"
 
     @pydantic.validator("kernel", pre=True)
@@ -1828,14 +1828,14 @@ class KDE1DimISJRepr(BasePDFRepr):
     _implementation = KDE1DimISJ
     hs3_type: Literal["KDE1DimISJ"] = pydantic.Field("KDE1DimISJ", alias="type")
 
-    data: Union[np.ndarray, Serializer.types.DataTypeDiscriminated]
+    data: np.ndarray | Serializer.types.DataTypeDiscriminated
     obs: SpaceRepr | None = None
-    bandwidth: Union[str, float] | None = None
+    bandwidth: str | float | None = None
     num_grid_points: int | None = None
     binning_method: str | None = None
     kernel: None = None
-    padding: Union[bool, str] | None = None
-    weights: Union[np.ndarray, tf.Tensor] | None = None
+    padding: bool | str | None = None
+    weights: np.ndarray | tf.Tensor | None = None
     name: str | None = "KDE1DimISJ"
 
     @pydantic.validator("kernel", pre=True)

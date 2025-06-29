@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 import typing
-from typing import Callable, Literal
+from collections.abc import Callable
+from typing import Literal
 
 import pydantic.v1 as pydantic
 import tensorflow as tf

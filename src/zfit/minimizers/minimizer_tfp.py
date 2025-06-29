@@ -63,7 +63,7 @@ class BFGS(BaseMinimizer):
 
         # @z.function
         def update_params_value_grad(loss, params, values):
-            for param, value in zip(params, tf.unstack(values, axis=0)):
+            for param, value in zip(params, tf.unstack(values, axis=0), strict=True):
                 param.set_value(value)
             value, gradients = loss.value_gradient(params=params, full=False)
             return gradients, value
@@ -139,7 +139,7 @@ class BFGS(BaseMinimizer):
         fmin = float(result.objective_value)
         status = None
         converged = bool(result.converged)
-        params = dict(zip(params, params_result))
+        params = dict(zip(params, params_result, strict=True))
         return FitResult(
             params=params,
             edm=edm,

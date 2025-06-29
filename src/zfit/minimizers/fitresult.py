@@ -261,7 +261,9 @@ def _covariance_approx(result, params):
     param_indices = [params_approx.index(p) for p in params]
     return {
         (p1, p2): inv_hessian[(p1_index, p2_index)]
-        for (p1, p1_index), (p2, p2_index) in itertools.product(zip(params, param_indices), zip(params, param_indices))
+        for (p1, p1_index), (p2, p2_index) in itertools.product(
+            zip(params, param_indices, strict=True), zip(params, param_indices, strict=True)
+        )
     }
 
 
@@ -636,7 +638,7 @@ class FitResult(ZfitResult):
             ``zfit.minimize.FitResult``:
         """
         info = {"problem": problem}
-        params = dict(zip(params, values))
+        params = dict(zip(params, values, strict=True))
         valid = valid if converged is None else valid and converged
         if evaluator is not None:
             valid = valid and not evaluator.maxiter_reached
@@ -766,7 +768,7 @@ class FitResult(ZfitResult):
             valid = valid and not evaluator.maxiter_reached
         if values is None:
             values = tuple(res.value for res in params_result)
-        params = dict(zip(params, values))
+        params = dict(zip(params, values, strict=True))
         return cls(
             params=params,
             edm=edm,
@@ -880,7 +882,7 @@ class FitResult(ZfitResult):
             approx["inv_hessian"] = inv_hesse
 
         fminopt = result["fun"]
-        params = dict(zip(params, result_values))
+        params = dict(zip(params, result_values, strict=True))
         if evaluator is not None:
             valid = valid and not evaluator.maxiter_reached
 
@@ -983,7 +985,7 @@ class FitResult(ZfitResult):
             zfit.minimizers.fitresult.FitResult:
         """
         converged = converged if converged is None else bool(converged)
-        param_dict = dict(zip(params, values))
+        param_dict = dict(zip(params, values, strict=True))
         if fminopt is None:
             fminopt = opt.last_optimum_value()
         status_nlopt = opt.last_optimize_result()

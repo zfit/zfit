@@ -620,7 +620,7 @@ def test_minimizers(minimizer_class_and_kwargs, chunksize, numgrad, spaces, requ
                     # test custom error
                     def custom_error_func(result, params, cl):
                         return (
-                            dict((param, {"myval": 42}) for param in params),
+                            {param: {"myval": 42} for param in params},
                             None,
                         )
 

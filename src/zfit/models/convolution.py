@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import typing
-from typing import Literal, Optional, Union
+from typing import Literal, Optional
 
 import pydantic.v1 as pydantic
 import tensorflow as tf
@@ -27,7 +27,7 @@ from .functor import BaseFunctor
 if typing.TYPE_CHECKING:
     import zfit  # noqa: F401
 
-LimitsTypeInput = Optional[Union[ztyping.LimitsType, float]]
+LimitsTypeInput = Optional[ztyping.LimitsType | float]
 
 
 class FFTConvPDFV1(BaseFunctor, SerializableMixin):

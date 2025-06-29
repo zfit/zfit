@@ -255,7 +255,7 @@ def mc_integrate(
 
         @z.function(wraps="tensor")
         def part_integrate_func(x):  # TODO: improve? as_tensormap or similar?
-            x = dict(zip(data_obs, tf.unstack(x, axis=0)))
+            x = dict(zip(data_obs, tf.unstack(x, axis=0), strict=True))
             return mc_integrate(
                 func=func,
                 limits=limits,
@@ -332,9 +332,9 @@ def mc_integrate(
                 if xfixed is not None:
                     shape = tf.shape(samples)[0]
                     xfixed_shaped = {key: znp.broadcast_to(val, shape) for key, val in xfixed.items()}
-                    samples_named = dict(zip(space.obs, tf.unstack(samples, axis=1)))
+                    samples_named = dict(zip(space.obs, tf.unstack(samples, axis=1), strict=True))
                     samples_tot = {**samples_named, **xfixed_shaped}
-                    obstot, samplestot = zip(*samples_tot.items())
+                    obstot, samplestot = zip(*samples_tot.items(), strict=True)
                     samplestot = tf.stack(samplestot, axis=-1)
                     samples = zfit.Data.from_tensor(tensor=samplestot, obs=obstot)
 
