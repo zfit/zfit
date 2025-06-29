@@ -59,11 +59,11 @@ repos:
       - id: rst-backticks
       - id: rst-directive-colons
 
-  #  - repo: https://github.com/asottile/pyupgrade
-  #    rev: v3.3.1
-  #    hooks:
-  #      - id: pyupgrade
-  #        args: [ --py36-plus ]  # TODO: change fro 3.8? type annotations fail...
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v3.3.1
+    hooks:
+      - id: pyupgrade
+        args: [ --py310-plus]
 
   - repo: https://github.com/asottile/setup-cfg-fmt
     rev: v2.8.0

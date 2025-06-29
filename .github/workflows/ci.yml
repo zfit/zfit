@@ -83,7 +83,7 @@ jobs:
       fail-fast: false
       matrix:
         use-graph: [ 1 ]
-        python-version: [ "3.9" ]  # omit "3.10", "3.11" to save compute time
+        python-version: [ "3.10" ]  # omit "3.11" to save compute time
         os: [ ubuntu-latest ]
         extras: [ test ]
         run: [ true ]
@@ -160,7 +160,7 @@ jobs:
     timeout-minutes: 10
     strategy:
       matrix:
-        python-version: [ "3.9" ]
+        python-version: [ "3.10" ]
     name: Testbuild docs
     steps:
       - uses: actions/checkout@v4
@@ -194,7 +194,7 @@ jobs:
       fail-fast: False
       matrix:
         use-graph: [ 1 ]
-        python-version: [ "3.9" ]
+        python-version: [ "3.10" ]
         run: [ true ]
         extras: [ all ]
         include:
@@ -249,7 +249,7 @@ jobs:
       fail-fast: False
       matrix:
         use-graph: [ 1 ]
-        python-version: [ "3.9" ]
+        python-version: [ "3.10" ]
         run: [ true ]
         include:
           - python-version: "3.12"
