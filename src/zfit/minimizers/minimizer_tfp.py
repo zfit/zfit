@@ -3,10 +3,6 @@
 from __future__ import annotations
 
 import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 from collections.abc import Mapping
 
 import numpy as np
@@ -20,6 +16,9 @@ from .baseminimizer import BaseMinimizer, minimize_supports
 from .evaluation import print_gradient
 from .fitresult import FitResult
 from .strategy import ZfitStrategy
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 
 class BFGS(BaseMinimizer):
@@ -64,7 +63,7 @@ class BFGS(BaseMinimizer):
 
         # @z.function
         def update_params_value_grad(loss, params, values):
-            for param, value in zip(params, tf.unstack(values, axis=0)):
+            for param, value in zip(params, tf.unstack(values, axis=0), strict=True):
                 param.set_value(value)
             value, gradients = loss.value_gradient(params=params, full=False)
             return gradients, value
@@ -82,8 +81,8 @@ class BFGS(BaseMinimizer):
             except tf.errors.InvalidArgumentError:
                 err = "NaNs"
                 is_nan = True
-            except:
-                err = "unknonw error"
+            except Exception as e:
+                err = f"unknown error: {e}"
                 raise
             finally:
                 if value is None:
@@ -140,7 +139,7 @@ class BFGS(BaseMinimizer):
         fmin = float(result.objective_value)
         status = None
         converged = bool(result.converged)
-        params = dict(zip(params, params_result))
+        params = dict(zip(params, params_result, strict=True))
         return FitResult(
             params=params,
             edm=edm,

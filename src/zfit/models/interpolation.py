@@ -3,23 +3,18 @@ from __future__ import annotations
 
 import typing
 
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
-from typing import TYPE_CHECKING
-
 import zfit.z.numpy as znp
+from zfit._interfaces import ZfitBinnedPDF
 
-if TYPE_CHECKING:
-    pass
-
-from ..core.interfaces import ZfitBinnedPDF
 from ..core.space import supports
 from ..util import ztyping
 from ..util.exception import SpecificFunctionNotImplemented
 from ..util.ztyping import ExtendedInputType, NormInputType
 from ..z.interpolate_spline import interpolate_spline
 from .functor import BaseFunctor
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 
 class SplinePDF(BaseFunctor):

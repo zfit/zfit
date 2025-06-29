@@ -3,13 +3,13 @@ from __future__ import annotations
 
 import typing
 
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 import numpy as np
 import tensorflow as tf
 
 import zfit.z.numpy as znp
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 SWITCH_ON = True
 
@@ -43,10 +43,10 @@ def allclose_anyaware(x, y, rtol=1e-5, atol=1e-8) -> bool:
     x = np.array(x)
     y = np.array(y)
     if any(ar.dtype == object for ar in (x, y)):
-        from zfit.core.space import LimitRangeDefinition
+        from zfit.core.space import LimitRangeDefinition  # noqa: PLC0415
 
         equal = []
-        for x1, y1 in zip(x[0], y[0]):
+        for x1, y1 in zip(x[0], y[0], strict=True):
             if isinstance(x1, LimitRangeDefinition) or isinstance(y1, LimitRangeDefinition):
                 equal.append(x1 < y1 or x1 > y1)
             else:
@@ -148,7 +148,7 @@ def _try_convert_numpy(tensorlike) -> np.ndarray:
         tensorlike = tensorlike.numpy()
 
     if not isinstance(tensorlike, np.ndarray):
-        from zfit.util.exception import CannotConvertToNumpyError
+        from zfit.util.exception import CannotConvertToNumpyError  # noqa: PLC0415
 
         msg = (
             f"Cannot convert {tensorlike} to a Numpy array. This may be because the"

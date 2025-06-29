@@ -3,9 +3,6 @@ from __future__ import annotations
 
 import typing
 
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 from ._loss.binnedloss import (
     BinnedChi2,
     BinnedNLL,
@@ -13,6 +10,9 @@ from ._loss.binnedloss import (
     ExtendedBinnedNLL,
 )
 from .core.loss import BaseLoss, ExtendedUnbinnedNLL, SimpleLoss, UnbinnedNLL
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 __all__ = [
     "BaseLoss",

@@ -1,15 +1,14 @@
 #  Copyright (c) 2025 zfit
 from __future__ import annotations
 
-import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 import functools
+import typing
 import warnings
 
 from tensorflow.python.util.deprecation import deprecated_args
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 _PRINTED_WARNING = {}
 

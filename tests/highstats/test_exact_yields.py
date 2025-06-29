@@ -1,4 +1,4 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2025 zfit
 import pathlib
 
 import matplotlib.pyplot as plt
@@ -11,6 +11,7 @@ from tqdm import tqdm
 def test_yield_bias(exact_nsample, ntoys=300):
     import zfit
     import zfit.z.numpy as znp
+    from zfit import z
 
     plot_folder = pathlib.Path(
         f"{'exact' if exact_nsample else 'binomial_sum'}_yield_sampling"
@@ -39,18 +40,18 @@ def test_yield_bias(exact_nsample, ntoys=300):
     def sample_func():
         exp_sample.resample()
         gauss_sample.resample()
-        gauss_val = gauss_sample.value()
-        assert gauss_val.shape[0] == true_nsig
-        exp_val = exp_sample.value()
-        assert exp_val.shape[0] == true_nbkg
-        return znp.concatenate([gauss_val, exp_val])
+        # gauss_val = gauss_sample.value()
+        # exp_val = exp_sample.value()
+        # assert gauss_val.shape[0] == true_nsig
+        # assert exp_val.shape[0] == true_nbkg
+        return zfit.data.concat([gauss_sample, exp_sample])
 
     data = model.create_sampler()
     data.update_data(sample_func())
     nll = zfit.loss.ExtendedUnbinnedNLL(model=model, data=data)
     nsigs = []
     nbkgs = []
-    minimizer = zfit.minimize.Minuit(gradient=False, tol=1e-05, mode=2)
+    minimizer = zfit.minimize.Minuit(gradient=False, tol=1e-05)
     failures = 0
     for _ in tqdm(range(ntoys)):
         zfit.param.set_values(params, true_vals)

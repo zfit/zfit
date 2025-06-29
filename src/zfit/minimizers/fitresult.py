@@ -2,27 +2,14 @@
 
 from __future__ import annotations
 
-import typing
-
-if typing.TYPE_CHECKING:
-    import zfit
-
-import typing
-from typing import TYPE_CHECKING
-
-from ..util.exception import BreakingAPIChangeError
-
-if TYPE_CHECKING:
-    import zfit
-
-    from .evaluation import LossEval
-
 import collections
 import contextlib
 import itertools
 import math
+import typing
 import warnings
 from collections.abc import Callable, Iterable, Mapping
+from typing import TYPE_CHECKING
 
 import colored
 import iminuit
@@ -34,17 +21,25 @@ from ordered_set import OrderedSet
 from scipy.optimize import LbfgsInvHessProduct
 from tabulate import tabulate
 
+from ..util.exception import BreakingAPIChangeError
+
+if typing.TYPE_CHECKING:
+    import zfit
+
+    from .evaluation import LossEval
+
 if TYPE_CHECKING:
     with contextlib.suppress(ImportError):  # for type checking
         import ipyopt
 
-from ..core.interfaces import (
+from zfit._interfaces import (
     ZfitData,
     ZfitIndependentParameter,
     ZfitLoss,
     ZfitParameter,
     ZfitUnbinnedData,
 )
+
 from ..core.parameter import set_values
 from ..util.container import convert_to_container
 from ..util.deprecation import deprecated, deprecated_args
@@ -266,7 +261,9 @@ def _covariance_approx(result, params):
     param_indices = [params_approx.index(p) for p in params]
     return {
         (p1, p2): inv_hessian[(p1_index, p2_index)]
-        for (p1, p1_index), (p2, p2_index) in itertools.product(zip(params, param_indices), zip(params, param_indices))
+        for (p1, p1_index), (p2, p2_index) in itertools.product(
+            zip(params, param_indices, strict=True), zip(params, param_indices, strict=True)
+        )
     }
 
 
@@ -552,7 +549,7 @@ class FitResult(ZfitResult):
 
     def _create_minuit_instance(self):
         minuit = self._cache_minuit
-        from zfit.minimizers.minimizer_minuit import Minuit
+        from zfit.minimizers.minimizer_minuit import Minuit  # noqa: PLC0415
 
         if minuit is None:
             if isinstance(self.minimizer, Minuit):
@@ -641,7 +638,7 @@ class FitResult(ZfitResult):
             ``zfit.minimize.FitResult``:
         """
         info = {"problem": problem}
-        params = dict(zip(params, values))
+        params = dict(zip(params, values, strict=True))
         valid = valid if converged is None else valid and converged
         if evaluator is not None:
             valid = valid and not evaluator.maxiter_reached
@@ -732,8 +729,8 @@ class FitResult(ZfitResult):
             Returns:
                 ``zfit.minimize.FitResult``: A `FitResult` as if zfit Minuit was used.
         """
-        from .minimizer_minuit import Minuit
-        from .termination import EDM
+        from .minimizer_minuit import Minuit  # noqa: PLC0415
+        from .termination import EDM  # noqa: PLC0415
 
         if not isinstance(minimizer, Minuit):
             if isinstance(minimizer, iminuit.Minuit):
@@ -771,7 +768,7 @@ class FitResult(ZfitResult):
             valid = valid and not evaluator.maxiter_reached
         if values is None:
             values = tuple(res.value for res in params_result)
-        params = dict(zip(params, values))
+        params = dict(zip(params, values, strict=True))
         return cls(
             params=params,
             edm=edm,
@@ -885,7 +882,7 @@ class FitResult(ZfitResult):
             approx["inv_hessian"] = inv_hesse
 
         fminopt = result["fun"]
-        params = dict(zip(params, result_values))
+        params = dict(zip(params, result_values, strict=True))
         if evaluator is not None:
             valid = valid and not evaluator.maxiter_reached
 
@@ -988,7 +985,7 @@ class FitResult(ZfitResult):
             zfit.minimizers.fitresult.FitResult:
         """
         converged = converged if converged is None else bool(converged)
-        param_dict = dict(zip(params, values))
+        param_dict = dict(zip(params, values, strict=True))
         if fminopt is None:
             fminopt = opt.last_optimum_value()
         status_nlopt = opt.last_optimize_result()
@@ -1140,6 +1137,10 @@ class FitResult(ZfitResult):
         return self._valid and not self.params_at_limit and self.converged
 
     @property
+    def x(self):
+        return znp.array(self.values)
+
+    @property
     def params_at_limit(self) -> bool:
         return self._params_at_limit
 
@@ -1234,7 +1235,7 @@ class FitResult(ZfitResult):
         if method is None:
             # LEGACY START
             method = self._default_hesse
-            from zfit.minimizers.minimizer_minuit import Minuit
+            from zfit.minimizers.minimizer_minuit import Minuit  # noqa: PLC0415
 
             if isinstance(self.minimizer, Minuit):
                 method = "minuit_hesse"
@@ -1549,7 +1550,7 @@ class FitResult(ZfitResult):
             self.info["minuit"] = "Minuit_frozen"
         if "problem" in self.info:
             try:
-                import ipyopt
+                import ipyopt  # noqa: PLC0415
             except ImportError:
                 pass
             else:

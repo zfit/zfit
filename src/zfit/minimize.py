@@ -3,9 +3,6 @@ from __future__ import annotations
 
 import typing
 
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 from .minimizers.baseminimizer import (
     BaseMinimizer,
     DefaultStrategy,
@@ -48,6 +45,9 @@ from .minimizers.minimizers_scipy import (
 from .minimizers.optimizers_tf import Adam, WrapOptimizer
 from .minimizers.strategy import DefaultToyStrategy, PushbackStrategy
 from .minimizers.termination import EDM
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 ScipyTrustConstrV1 = ScipyTrustConstr
 ScipyTrustNCGV1 = ScipyTrustNCG

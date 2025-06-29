@@ -37,7 +37,7 @@ For development, it's recommended to use a conda/mamba environment:
 
 ```bash
 # Create environment with micromamba
-micromamba create -n zfit python=3.9 uv
+micromamba create -n zfit python=3.10 uv
 micromamba activate zfit
 
 # Install dependencies
@@ -47,7 +47,7 @@ uv pip install -e ".[dev]"
 For testing with ROOT support (not available on Windows or Python 3.12):
 
 ```bash
-micromamba create -n zfit python=3.9 uv root<6.32
+micromamba create -n zfit python=3.10
 micromamba activate zfit
 uv pip install -e ".[dev]"
 ```

@@ -2,12 +2,8 @@
 
 from __future__ import annotations
 
-import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 import math
+import typing
 
 import numpy as np
 
@@ -17,6 +13,9 @@ from .baseminimizer import BaseMinimizer, minimize_supports, print_minimization_
 from .fitresult import FitResult
 from .strategy import ZfitStrategy
 from .termination import CRITERION_NOT_AVAILABLE, EDM, ConvergenceCriterion
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 
 class Ipyopt(BaseMinimizer):
@@ -233,7 +232,7 @@ class Ipyopt(BaseMinimizer):
         self._internal_maxiter = 5
 
         try:
-            import ipyopt
+            import ipyopt  # noqa: PLC0415
         except ImportError as error:
             msg = (
                 "This requires the ipyopt library (https://gitlab.com/g-braeunlich/ipyopt)"
@@ -259,7 +258,7 @@ class Ipyopt(BaseMinimizer):
 
     @minimize_supports(init=True)
     def _minimize(self, loss, params, init):
-        import ipyopt
+        import ipyopt  # noqa: PLC0415
 
         if init:
             assign_values(params=params, values=init)

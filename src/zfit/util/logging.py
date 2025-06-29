@@ -10,15 +10,14 @@ colorlog color scheme are printed.
 #  Copyright (c) 2025 zfit
 from __future__ import annotations
 
-import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 import logging
+import typing
 from pathlib import Path
 
 import colorlog
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 
 def get_logger(name, stdout_level=None, file_level=None, file_name=None):

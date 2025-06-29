@@ -3,12 +3,8 @@
 from __future__ import annotations
 
 import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 from collections.abc import Callable
-from typing import ClassVar, Literal, Optional, Union
+from typing import ClassVar, Literal
 
 import numpy as np
 import pydantic.v1 as pydantic
@@ -17,10 +13,10 @@ import tensorflow_probability as tfp
 from tensorflow_probability.python import distributions as tfd
 
 import zfit.z.numpy as znp
+from zfit._interfaces import ZfitData, ZfitParameter, ZfitSpace
 
 from .. import z
 from ..core.basepdf import BasePDF
-from ..core.interfaces import ZfitData, ZfitParameter, ZfitSpace
 from ..core.serialmixin import SerializableMixin
 from ..serialization import Serializer, SpaceRepr
 from ..serialization.pdfrepr import BasePDFRepr
@@ -41,6 +37,9 @@ from ..util.exception import OverdefinedError, ShapeIncompatibleError
 from ..util.ztyping import ExtendedInputType, NormInputType
 from ..z.math import weighted_quantile
 from .dist_tfp import WrapDistribution
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 
 @z.function(wraps="tensor", keepalive=True)
@@ -1034,13 +1033,13 @@ class KDE1DimExactRepr(BasePDFRepr):
     _implementation = KDE1DimExact
     hs3_type: Literal["KDE1DimExact"] = pydantic.Field("KDE1DimExact", alias="type")
 
-    data: Union[np.ndarray, Serializer.types.DataTypeDiscriminated]
-    obs: Optional[SpaceRepr] = None
-    bandwidth: Optional[Union[str, float]] = None
+    data: np.ndarray | Serializer.types.DataTypeDiscriminated
+    obs: SpaceRepr | None = None
+    bandwidth: str | float | None = None
     kernel: None = None
-    padding: Optional[Union[bool, str]] = None
-    weights: Optional[Union[np.ndarray, tf.Tensor]] = None
-    name: Optional[str] = "KDE1DimExact"
+    padding: bool | str | None = None
+    weights: np.ndarray | tf.Tensor | None = None
+    name: str | None = "KDE1DimExact"
 
     @pydantic.validator("kernel", pre=True)
     def validate_kernel(cls, v):
@@ -1337,15 +1336,15 @@ class KDE1DimGridRepr(BasePDFRepr):
     _implementation = KDE1DimGrid
     hs3_type: Literal["KDE1DimGrid"] = pydantic.Field("KDE1DimGrid", alias="type")
 
-    data: Union[np.ndarray, Serializer.types.DataTypeDiscriminated]
-    obs: Optional[SpaceRepr] = None
-    bandwidth: Optional[Union[str, float]] = None
-    num_grid_points: Optional[int] = None
-    binning_method: Optional[str] = None
+    data: np.ndarray | Serializer.types.DataTypeDiscriminated
+    obs: SpaceRepr | None = None
+    bandwidth: str | float | None = None
+    num_grid_points: int | None = None
+    binning_method: str | None = None
     kernel: None = None
-    padding: Optional[Union[bool, str]] = None
-    weights: Optional[Union[np.ndarray, tf.Tensor]] = None
-    name: Optional[str] = "GridKDE1DimV1"
+    padding: bool | str | None = None
+    weights: np.ndarray | tf.Tensor | None = None
+    name: str | None = "GridKDE1DimV1"
 
     @pydantic.validator("kernel", pre=True)
     def validate_kernel(cls, v):
@@ -1616,17 +1615,17 @@ class KDE1DimFFTRepr(BasePDFRepr):
     _implementation = KDE1DimFFT
     hs3_type: Literal["KDE1DimFFT"] = pydantic.Field("KDE1DimFFT", alias="type")
 
-    data: Union[np.ndarray, Serializer.types.DataTypeDiscriminated]
-    obs: Optional[SpaceRepr] = None
-    bandwidth: Optional[Union[str, float]] = None
-    num_grid_points: Optional[int] = None
-    binning_method: Optional[str] = None
+    data: np.ndarray | Serializer.types.DataTypeDiscriminated
+    obs: SpaceRepr | None = None
+    bandwidth: str | float | None = None
+    num_grid_points: int | None = None
+    binning_method: str | None = None
     kernel: None = None
-    support: Optional[float] = None
-    fft_method: Optional[str] = None
-    padding: Optional[Union[bool, str]] = None
-    weights: Optional[Union[np.ndarray, tf.Tensor]] = None
-    name: Optional[str] = "KDE1DimFFT"
+    support: float | None = None
+    fft_method: str | None = None
+    padding: bool | str | None = None
+    weights: np.ndarray | tf.Tensor | None = None
+    name: str | None = "KDE1DimFFT"
 
     @pydantic.validator("kernel", pre=True)
     def validate_kernel(cls, v):
@@ -1829,15 +1828,15 @@ class KDE1DimISJRepr(BasePDFRepr):
     _implementation = KDE1DimISJ
     hs3_type: Literal["KDE1DimISJ"] = pydantic.Field("KDE1DimISJ", alias="type")
 
-    data: Union[np.ndarray, Serializer.types.DataTypeDiscriminated]
-    obs: Optional[SpaceRepr] = None
-    bandwidth: Optional[Union[str, float]] = None
-    num_grid_points: Optional[int] = None
-    binning_method: Optional[str] = None
+    data: np.ndarray | Serializer.types.DataTypeDiscriminated
+    obs: SpaceRepr | None = None
+    bandwidth: str | float | None = None
+    num_grid_points: int | None = None
+    binning_method: str | None = None
     kernel: None = None
-    padding: Optional[Union[bool, str]] = None
-    weights: Optional[Union[np.ndarray, tf.Tensor]] = None
-    name: Optional[str] = "KDE1DimISJ"
+    padding: bool | str | None = None
+    weights: np.ndarray | tf.Tensor | None = None
+    name: str | None = "KDE1DimISJ"
 
     @pydantic.validator("kernel", pre=True)
     def validate_kernel(cls, v):

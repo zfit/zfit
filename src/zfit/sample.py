@@ -3,21 +3,20 @@
 from __future__ import annotations
 
 import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 from collections.abc import Iterable
 
 import tensorflow as tf
 
 from zfit import z
-from zfit.core.interfaces import ZfitPDF
+from zfit._interfaces import ZfitPDF
 from zfit.util import ztyping
 from zfit.util.exception import NotExtendedPDFError
 from zfit.z.random import counts_multinomial, sample_with_replacement
 
 from .util.container import convert_to_container
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 __all__ = ["counts_multinomial", "poisson", "sample_with_replacement"]
 

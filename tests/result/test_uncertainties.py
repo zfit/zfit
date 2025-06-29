@@ -1,11 +1,11 @@
 #  Copyright (c) 2025 zfit
 
-import pytest
+from __future__ import annotations
+
 import numpy as np
-import time
+import pytest
 
 import zfit
-from zfit.minimizers.errors import WeightCorr
 
 
 def create_gaussian_mixture_data(n_samples=1000, weights=True):
@@ -227,6 +227,8 @@ def test_weights_one_equals_no_weights():
 
 def compare_roofit_zfit_gaussian_mixture():
     """Create and fit a Gaussian mixture model with both RooFit and zfit, then compare the results."""
+    ROOT = pytest.importorskip("ROOT", reason="ROOT not available")
+
     # Define the observable space
     ROOT = pytest.importorskip("ROOT", reason="ROOT not available")
     RooFit = ROOT.RooFit
@@ -283,7 +285,7 @@ def compare_roofit_zfit_gaussian_mixture():
 
     # Create RooFit data
     weight_r = ROOT.RooRealVar("weight", "weight", 0.1, 1000.0)
-    data_roofit = ROOT.RooDataSet("data", "data", [x], RooFit.WeightVar(weight_r))
+    data_roofit = ROOT.RooDataSet("data", "data", [x], ROOT.RooFit.WeightVar(weight_r))
 
     for val, w in zip(data_np, weights_np):
         x.setVal(val)
@@ -309,7 +311,12 @@ def compare_roofit_zfit_gaussian_mixture():
 
     # Fit with RooFit
     result_r = model_r.fitTo(
-        data_roofit, RooFit.Save(True), RooFit.AsymptoticError(True), RooFit.EvalBackend("cpu"), RooFit.Extended(True)
+        data_roofit,
+        ROOT.RooFit.Save(True),
+        ROOT.RooFit.AsymptoticError(True),
+        ROOT.RooFit.EvalBackend("cpu"),
+        ROOT.RooFit.Extended(True)
+    ,
     )
 
     # Return the results for comparison
@@ -335,7 +342,6 @@ def test_compare_roofit_zfit_errors():
     """Test that zfit and RooFit errors are similar for the same model and data."""
     # Skip test if ROOT is not available
     ROOT = pytest.importorskip("ROOT", reason="ROOT not available")
-    Roofit = ROOT.RooFit
 
     # Compare RooFit and zfit results
     results = compare_roofit_zfit_gaussian_mixture()
@@ -427,7 +433,7 @@ def compare_roofit_zfit_three_component(weightcorr):
 
     # Create RooFit data
     weight_r = ROOT.RooRealVar("weight", "weight", 0.1, 1000.0)
-    data_roofit = ROOT.RooDataSet("data", "data", [x], RooFit.WeightVar(weight_r))
+    data_roofit = ROOT.RooDataSet("data", "data", [x], ROOT.RooFit.WeightVar(weight_r))
 
     for val, w in zip(data_np, weights_np):
         x.setVal(val)
@@ -485,11 +491,12 @@ def compare_roofit_zfit_three_component(weightcorr):
         elif weightcorr == "asymptotic":
             weightcorr_r = ROOT.RooFit.AsymptoticError(True)
         else:
-            raise ValueError(f"Unknown weight correction method: {weightcorr}")
+            error_msg = f"Unknown weight correction method: {weightcorr}"
+            raise ValueError(error_msg)
     else:
         weightcorr_r = ROOT.RooFit.SumW2Error(False)
-    result_r = model_r.fitTo(
-        data_roofit, RooFit.Save(True), weightcorr_r, RooFit.EvalBackend("cpu"), RooFit.Extended(True)
+    model_r.fitTo(
+        data_roofit, ROOT.RooFit.Save(True), weightcorr_r, ROOT.RooFit.EvalBackend("cpu"), ROOT.RooFit.Extended(True)
     )
 
     # Print comparison of results
@@ -561,12 +568,12 @@ def compare_roofit_zfit_three_component(weightcorr):
     # plt.tight_layout()
     # plt.show()
     # # Create RooFit frame and plot
-    # frame = x.frame(ROOT.RooFit.Title("Three Component Fit - RooFit"))
+    # frame = x.frame(ROOT.ROOT.RooFit.Title("Three Component Fit - RooFit"))
     # data_roofit.plotOn(frame)
     # model_r.plotOn(frame)
-    # model_r.plotOn(frame, ROOT.RooFit.Components("gauss_ext"), ROOT.RooFit.LineStyle(ROOT.kDashed), ROOT.RooFit.LineColor(ROOT.kRed))
-    # model_r.plotOn(frame, ROOT.RooFit.Components("cb_ext"), ROOT.RooFit.LineStyle(ROOT.kDashed), ROOT.RooFit.LineColor(ROOT.kGreen))
-    # model_r.plotOn(frame, ROOT.RooFit.Components("exp_ext"), ROOT.RooFit.LineStyle(ROOT.kDashed), ROOT.RooFit.LineColor(ROOT.kBlue))
+    # model_r.plotOn(frame, ROOT.ROOT.RooFit.Components("gauss_ext"), ROOT.ROOT.RooFit.LineStyle(ROOT.kDashed), ROOT.ROOT.RooFit.LineColor(ROOT.kRed))
+    # model_r.plotOn(frame, ROOT.ROOT.RooFit.Components("cb_ext"), ROOT.ROOT.RooFit.LineStyle(ROOT.kDashed), ROOT.ROOT.RooFit.LineColor(ROOT.kGreen))
+    # model_r.plotOn(frame, ROOT.ROOT.RooFit.Components("exp_ext"), ROOT.ROOT.RooFit.LineStyle(ROOT.kDashed), ROOT.ROOT.RooFit.LineColor(ROOT.kBlue))
     #
     # # Create canvas and draw
     # c = ROOT.TCanvas("c", "c", 800, 600)
@@ -592,7 +599,6 @@ def test_compare_roofit_zfit_three_component_errors(weightcorr):
     """Test that zfit and RooFit errors are similar for the three-component model."""
 
     ROOT = pytest.importorskip("ROOT", reason="ROOT not available")
-    Roofit = ROOT.RooFit
     # Compare RooFit and zfit results
     results = compare_roofit_zfit_three_component(weightcorr=weightcorr)
 

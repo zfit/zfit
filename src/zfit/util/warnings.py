@@ -1,13 +1,12 @@
 #  Copyright (c) 2025 zfit
 from __future__ import annotations
 
+import functools
 import typing
+import warnings
 
 if typing.TYPE_CHECKING:
     import zfit  # noqa: F401
-
-import functools
-import warnings
 
 
 class ExperimentalFeatureWarning(UserWarning):
@@ -44,7 +43,7 @@ warned_advanced = set()
 
 
 def warn_advanced_feature(message, identifier):
-    from .. import settings
+    from .. import settings  # noqa: PLC0415
 
     do_warn = (
         settings.advanced_warnings.get(identifier, True)
@@ -70,7 +69,7 @@ warned_changed = set()
 
 
 def warn_changed_feature(message, identifier):
-    from .. import settings
+    from .. import settings  # noqa: PLC0415
 
     if (
         settings.changed_warnings.get(identifier, True)

@@ -13,14 +13,13 @@ from __future__ import annotations
 import typing
 from typing import NoReturn
 
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 from .core.serialmixin import ZfitSerializable
 from .serialization import Serializer
 from .util.exception import WorkInProgressError
 from .util.warnings import warn_experimental_feature
 
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 __all__ = ["dumps", "loads"]
 
 

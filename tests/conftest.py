@@ -1,6 +1,6 @@
 """Used to make pytest functions available globally."""
 
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2025 zfit
 from __future__ import annotations
 
 import collections.abc
@@ -13,15 +13,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 
-# try:
-#     import pytest_randomly
-# except ImportError:
-#     pass
-# else:
-#     import zfit
-#
-#     pytest_randomly.random_seeder = [zfit.settings.set_seed]
 import zfit
+from zfit.core.parameter import ZfitParameterMixin, _reset_auto_number
+from zfit.util.cache import clear_graph_cache
 
 zfit.settings.set_seed(519)
 init_modules = sys.modules.keys()
@@ -29,8 +23,6 @@ init_modules = sys.modules.keys()
 
 @pytest.fixture(autouse=True)
 def setup_teardown():
-    import zfit
-
     old_chunksize = zfit.run.chunking.max_n_points
     old_active = zfit.run.chunking.active
     old_graph_mode = zfit.run.get_graph_mode()
@@ -42,16 +34,11 @@ def setup_teardown():
 
     yield
 
-    from zfit.core.parameter import ZfitParameterMixin, _reset_auto_number
-
     ZfitParameterMixin._existing_params.clear()
     _reset_auto_number()
     zfit.settings.options.auto_update_params = True
 
-    from zfit.util.cache import clear_graph_cache
-
     clear_graph_cache()
-    import zfit
 
     zfit.run.chunking.active = old_active
     zfit.run.chunking.max_n_points = old_chunksize
@@ -63,7 +50,7 @@ def setup_teardown():
             del sys.modules[m]
 
     zfit.settings.set_seed(None)
-    import gc
+    import gc  # noqa: PLC0415
 
     gc.collect()
 
@@ -182,14 +169,14 @@ def get_truth(folder, filename, request, newval=None):
     recreate_truth = request.config.getoption("--recreate-truth")
     if recreate_truth:
         if filepath.suffix == ".json":
-            import json
+            import json  # noqa: PLC0415
 
             if isinstance(newval, str):
                 newval = json.loads(newval)
             with Path(filepath).open("w") as f:
                 json.dump(newval, f)
         elif filepath.suffix == ".yaml":
-            import yaml
+            import yaml  # noqa: PLC0415
 
             with Path(filepath).open("w") as f:
                 yaml.dump(newval, f)
@@ -204,17 +191,17 @@ def get_truth(folder, filename, request, newval=None):
         msg = f"File {filepath} does not exist"
         raise FileNotFoundError(msg)
     if filepath.suffix == ".json":
-        import json
+        import json  # noqa: PLC0415
 
         with Path(filepath).open() as f:
             return json.load(f)
     elif filepath.suffix == ".yaml":
-        import yaml
+        import yaml  # noqa: PLC0415
 
         with Path(filepath).open() as f:
             return yaml.safe_load(f)
     elif filepath.suffix == ".asdf":
-        import asdf
+        import asdf  # noqa: PLC0415
 
         with asdf.open(filepath, memmap=False) as f:
             return asdf.AsdfFile(f.tree, memmap=False)

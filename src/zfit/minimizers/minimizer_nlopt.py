@@ -2,28 +2,16 @@
 
 from __future__ import annotations
 
-import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 import collections
 import copy
 import importlib
 import math
 from collections.abc import Callable, Mapping
 
-from ..util.checks import RuntimeDependency
-
-try:
-    import nlopt
-except ImportError as error:
-    nlopt = RuntimeDependency("nlopt", error_msg=str(error))
-
-
 import numpy as np
 
 from ..core.parameter import assign_values
+from ..util.checks import RuntimeDependency
 from ..util.exception import MaximumIterationReached
 from .baseminimizer import (
     NOT_SUPPORTED,
@@ -34,6 +22,17 @@ from .baseminimizer import (
 from .fitresult import FitResult
 from .strategy import ZfitStrategy
 from .termination import CRITERION_NOT_AVAILABLE, EDM, ConvergenceCriterion
+
+try:
+    import nlopt
+except ImportError as error:
+    nlopt = RuntimeDependency("nlopt", error_msg=str(error))
+
+
+import typing
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 
 class NLoptBaseMinimizer(BaseMinimizer):

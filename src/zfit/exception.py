@@ -9,9 +9,6 @@ from __future__ import annotations
 
 import typing
 
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 from .core.serialmixin import NumpyArrayNotSerializableError
 from .util.checks import NONE
 from .util.exception import (
@@ -34,6 +31,8 @@ from .util.exception import (
     VectorizedLimitsNotImplemented,
 )
 
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 __all__ = [
     "NONE",
     "AnalyticGradientNotAvailable",

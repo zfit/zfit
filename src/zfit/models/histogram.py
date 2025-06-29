@@ -11,8 +11,9 @@ import zfit.z.numpy as znp
 if typing.TYPE_CHECKING:
     import zfit  # noqa: F401
 
+from zfit._interfaces import ZfitBinnedData
+
 from ..core.binnedpdf import BaseBinnedPDF
-from ..core.interfaces import ZfitBinnedData
 from ..core.space import supports
 from ..util import ztyping
 from ..util.exception import SpecificFunctionNotImplemented
@@ -57,7 +58,7 @@ class HistogramPDF(BaseBinnedPDF):
             extended = True
         if not isinstance(data, ZfitBinnedData):
             if isinstance(data, PlottableHistogram):
-                from zfit._data.binneddatav1 import BinnedData
+                from zfit._data.binneddatav1 import BinnedData  # noqa: PLC0415
 
                 data = BinnedData.from_hist(data)
             else:

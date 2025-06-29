@@ -3,18 +3,15 @@
 from __future__ import annotations
 
 import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 from collections.abc import Iterable
 
 import numpy as np
 import tensorflow as tf
 from uhi.typing.plottable import PlottableHistogram
 
+from zfit._interfaces import ZfitBinnedData, ZfitBinnedPDF, ZfitParameter
+
 from .. import z
-from ..core.interfaces import ZfitBinnedData, ZfitBinnedPDF, ZfitParameter
 from ..core.loss import BaseLoss
 from ..util import ztyping
 from ..util.checks import NONE
@@ -22,6 +19,9 @@ from ..util.container import convert_to_container
 from ..util.warnings import warn_advanced_feature
 from ..util.ztyping import ConstraintsInputType, OptionsInputType
 from ..z import numpy as znp
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 
 @z.function(wraps="tensor", keepalive=True)
@@ -95,7 +95,7 @@ class BaseBinned(BaseLoss):
     ):
         model = convert_to_container(model)
         data = convert_to_container(data)
-        from zfit._data.binneddatav1 import BinnedData
+        from zfit._data.binneddatav1 import BinnedData  # noqa: PLC0415
 
         data = [
             (
@@ -310,7 +310,7 @@ class ExtendedBinnedNLL(BaseBinned):
     ):
         del fit_range
         poisson_terms = []
-        for mod, dat in zip(model, data):
+        for mod, dat in zip(model, data, strict=True):
             values = dat.values(  # TODO: right order of model and data?
                 # obs=mod.obs
             )
@@ -458,7 +458,7 @@ class BinnedNLL(BaseBinned):
     ):
         del fit_range
         poisson_terms = []
-        for mod, dat in zip(model, data):
+        for mod, dat in zip(model, data, strict=True):
             values = dat.values(  # TODO: right order of model and data?
                 # obs=mod.obs
             )
@@ -663,7 +663,7 @@ class BinnedChi2(BaseBinned):
         log_offset_val = 0.0 if log_offset is False else log_offset
         log_offset_val = znp.asarray(log_offset_val, dtype=znp.float64)
 
-        for mod, dat in zip(model, data):
+        for mod, dat in zip(model, data, strict=True):
             values = dat.values(  # TODO: right order of model and data?
                 # obs=mod.obs
             )
@@ -817,7 +817,7 @@ class ExtendedBinnedChi2(BaseBinned):
         chi2_terms = []
         log_offset_val = 0.0 if log_offset is False else log_offset
         log_offset_val = znp.asarray(log_offset_val, dtype=znp.float64)
-        for mod, dat in zip(model, data):
+        for mod, dat in zip(model, data, strict=True):
             values = dat.values(  # TODO: right order of model and data?
                 # obs=mod.obs
             )

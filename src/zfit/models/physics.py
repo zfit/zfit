@@ -3,14 +3,6 @@
 from __future__ import annotations
 
 import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
-import typing
-
-if typing.TYPE_CHECKING:
-    pass
 from typing import Literal
 
 import numpy as np
@@ -27,6 +19,9 @@ from ..serialization import Serializer, SpaceRepr
 from ..serialization.pdfrepr import BasePDFRepr
 from ..util import ztyping
 from ..util.ztyping import ExtendedInputType, NormInputType
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 
 def _powerlaw(x, a, k):

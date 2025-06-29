@@ -1,19 +1,17 @@
 #  Copyright (c) 2025 zfit
 from __future__ import annotations
 
-import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 import functools as _functools
 import io
-from typing import Optional
+import typing
 
 import dill as __dill
 
 # noinspection PyUnresolvedReferences
 from dill import *  # noqa: F403
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 _NONE = object()
 
@@ -60,7 +58,7 @@ def __retry_with_gc(func: typing.Callable, kwargs: dict, *, max_retries: int | N
             max_retries_reached := max_retries <= 0
         ):
             if ipyopt_phrase in str(error):
-                from zfit.exception import IpyoptPicklingError
+                from zfit.exception import IpyoptPicklingError  # noqa: PLC0415
 
                 raise IpyoptPicklingError(ipyopt_error_msg) from error
             if max_retries_reached:
@@ -77,7 +75,7 @@ def __retry_with_gc(func: typing.Callable, kwargs: dict, *, max_retries: int | N
             raise error
     # need to get out, otherwise "error" has a reference to graph and gc can't collect it
     if redo:
-        import gc
+        import gc  # noqa: PLC0415
 
         gc.collect()
         result_dilled = __retry_with_gc(func, kwargs, max_retries=max_retries - 1)
@@ -94,8 +92,8 @@ def dumps(
     fmode: typing.Any = None,
     recurse: typing.Any = None,
     *,
-    max_retries: Optional[int | bool] = None,
-    verify: Optional[bool] = None,
+    max_retries: int | bool | None = None,
+    verify: bool | None = None,
     **kwds,
 ) -> bytes:
     """Wrapper around :py:func`dill.dumps` that helps dumping zfit objects as it retries with garbage collection if
@@ -132,7 +130,7 @@ def dumps(
                     msg = "Tried to verify dumps by loading but failed."
                     raise ZfitDillDumpError(msg) from error
                 redo = True
-                from zfit import run
+                from zfit import run  # noqa: PLC0415
 
                 run.clear_graph_cache(call_gc=True)
         if not redo:
@@ -153,8 +151,8 @@ def dump(
     fmode: typing.Any = None,
     recurse: typing.Any = None,
     *,
-    max_retries: Optional[int | bool] = None,
-    verify: Optional[bool] = None,
+    max_retries: int | bool | None = None,
+    verify: bool | None = None,
     **kwds,
 ) -> typing.Any:
     """Wrapper around :py:func`dill.dump` that helps dumping zfit objects as it retries with garbage collection if
@@ -200,7 +198,7 @@ def dump(
                     msg = "Tried to verify dumps by loading but failed."
                     raise ZfitDillDumpError(msg) from error
                 redo = True
-                from zfit import run
+                from zfit import run  # noqa: PLC0415
 
                 run.clear_graph_cache(call_gc=True)
                 file.seek(initial_position)  # reset to initial position
@@ -242,7 +240,7 @@ def __retry_with_graphclear(
                     f"Max retries reached when loading {kwargs}, error still occurred. Original error {original_error}"
                 )
                 raise ZfitDillLoadError(msg) from error
-            from zfit import run
+            from zfit import run  # noqa: PLC0415
 
             run.clear_graph_cache(call_gc=True)
         else:
@@ -251,7 +249,7 @@ def __retry_with_graphclear(
 
 
 @_functools.wraps(__dill.loads)
-def loads(str: bytes, *, max_retries: Optional[int | bool] = None, **kwds) -> typing.Any:
+def loads(str: bytes, *, max_retries: int | bool | None = None, **kwds) -> typing.Any:
     """Wrapper around :py:func`dill.loads`that helps loading zfit objects as it retries with graph clearing if
     necessary.
 
@@ -277,7 +275,7 @@ def loads(str: bytes, *, max_retries: Optional[int | bool] = None, **kwds) -> ty
 
 
 @_functools.wraps(__dill.load)
-def load(file: io.IOBase, *, max_retries: Optional[int | bool] = None, **kwds) -> typing.Any:
+def load(file: io.IOBase, *, max_retries: int | bool | None = None, **kwds) -> typing.Any:
     """Wrapper around :py:func`dill.load`that helps loading zfit objects as it retries with graph clearing if necessary.
 
     .. warning ::

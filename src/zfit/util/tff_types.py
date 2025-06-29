@@ -19,14 +19,13 @@
 from __future__ import annotations
 
 import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 from typing import TypeVar
 
 import numpy as np
 import tensorflow as tf
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 __all__ = ["BoolTensor", "ComplexTensor", "IntTensor", "RealTensor", "StringTensor"]
 

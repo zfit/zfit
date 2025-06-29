@@ -3,13 +3,13 @@ from __future__ import annotations
 
 import typing
 
-if typing.TYPE_CHECKING:
-    import zfit
-
 import tensorflow_probability as tfp
 import zfit_interface.variables
 
 import zfit.util.container
+
+if typing.TYPE_CHECKING:
+    import zfit
 
 
 @tfp.experimental.auto_composite_tensor()

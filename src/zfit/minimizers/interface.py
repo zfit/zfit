@@ -1,13 +1,12 @@
 #  Copyright (c) 2025 zfit
 from __future__ import annotations
 
+import abc
 import typing
+from abc import abstractmethod
 
 if typing.TYPE_CHECKING:
     import zfit  # noqa: F401
-
-import abc
-from abc import abstractmethod
 
 
 class ZfitResult:

@@ -2,10 +2,6 @@
 from __future__ import annotations
 
 import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 from contextlib import suppress
 
 from zfit_interface.func import ZfitFunc
@@ -14,6 +10,9 @@ from zfit_interface.variables import ZfitAxis, ZfitParam
 from zfit import Data
 from zfit.core.values import ValueHolder
 from zfit.util.exception import SpecificFunctionNotImplemented, WorkInProgressError
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 
 def to_value_holder(var):

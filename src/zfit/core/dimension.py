@@ -3,18 +3,18 @@
 from __future__ import annotations
 
 import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 from collections.abc import Iterable
 
 import numpy as np
 
+from zfit._interfaces import ZfitDimensional
+
 from ..util import ztyping
 from ..util.container import convert_to_container
 from ..util.exception import SpaceIncompatibleError
-from .interfaces import ZfitDimensional
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 
 class BaseDimensional(ZfitDimensional):
@@ -87,7 +87,7 @@ def limits_overlap(spaces: ztyping.SpaceOrSpacesTypeInput, allow_exact_match: bo
                 low = lower[:, index]
                 up = upper[:, index]
 
-                for other_lower, other_upper in zip(lowers, uppers):
+                for other_lower, other_upper in zip(lowers, uppers, strict=True):
                     if allow_exact_match and np.allclose(other_lower, low) and np.allclose(other_upper, up):
                         continue
                     # TODO(Mayou36): tol? add global flags?

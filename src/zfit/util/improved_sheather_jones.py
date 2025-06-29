@@ -3,9 +3,6 @@ from __future__ import annotations
 
 import typing
 
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 import numpy as np
 import tensorflow as tf
 
@@ -15,6 +12,9 @@ from .. import z
 from ..settings import ztypes
 from . import binning as binning_util
 from . import root_search
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 
 @z.function(wraps="tensor", keepalive=True)
