@@ -32,7 +32,7 @@ def poly_complex(*args, real_x=False) -> tf.Tensor:
     Returns:
         Complex tensor representing the polynomial evaluation
     """
-    from .. import z
+    from .. import z  # noqa: PLC0415
 
     args = list(args)
     x = args.pop()
@@ -51,7 +51,7 @@ def numerical_gradient(func: Callable, params: Iterable[zfit.Parameter]) -> tf.T
     Returns:
         Gradients
     """
-    from ..core.parameter import assign_values
+    from ..core.parameter import assign_values  # noqa: PLC0415
 
     params = convert_to_container(params)
 
@@ -112,7 +112,7 @@ def numerical_hessian(func: Callable | None, params: Iterable[zfit.Parameter], h
     Returns:
         Hessian matrix
     """
-    from ..core.parameter import assign_values
+    from ..core.parameter import assign_values  # noqa: PLC0415
 
     params = convert_to_container(params)
 
@@ -312,7 +312,7 @@ def automatic_value_gradient_hessian(
         msg = "Either `func` or `value_grad_func` has to be specified."
         raise ValueError(msg)
 
-    from .. import z
+    from .. import z  # noqa: PLC0415
 
     # TODO(WrappedVariable): this is needed if we want to use wrapped Variables
     # params = _extract_tfparams(params)

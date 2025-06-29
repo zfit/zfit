@@ -12,7 +12,7 @@ if typing.TYPE_CHECKING:
 
 
 def _auto_upcast(tensor: tf.Tensor) -> tf.Tensor:
-    import zfit.z.numpy as znp
+    import zfit.z.numpy as znp  # noqa: PLC0415
 
     if isinstance(tensor, tf.Tensor):
         new_dtype = upcast_ztypes[tensor.dtype]

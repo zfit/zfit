@@ -24,6 +24,7 @@ Bug fixes and small changes
 - Remove conditional numeric checks in favor of unconditional assertions: some internal checks that were only performed when ``run.numeric_checks=True`` are now always performed. To re-enable the old conditional behavior, set ``zfit.run.numeric_checks = True`` for debugging numerical issues
 - Clean up code by removing commented debug code, unused variables, and duplicate imports
 - Simplify assertion handling in numerical integration to properly filter out None operations
+- Add ``FitResult.x`` attribute to access the best fit values of the parameters directly.
 
 Experimental
 ------------

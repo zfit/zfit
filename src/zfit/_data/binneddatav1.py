@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import typing
 from collections.abc import Callable
-from typing import Optional
 
 import boost_histogram as bh
 import hist
@@ -14,13 +13,10 @@ from tensorflow.python.util.deprecation import deprecated
 from uhi.typing.plottable import PlottableHistogram
 from zfit_interface.typing import TensorLike
 
-from .._interfaces import ZfitBinnedData, ZfitData, ZfitSpace
 from .. import z
-from zfit.z import numpy as znp
-
+from .._interfaces import ZfitBinnedData, ZfitData, ZfitSpace
 from .._variables.axis import binning_to_histaxes, histaxes_to_binning
 from ..core.baseobject import convert_param_values
-from .._interfaces import ZfitBinnedData, ZfitData, ZfitSpace
 from ..settings import ztypes
 from ..util import ztyping
 from ..util.exception import BreakingAPIChangeError, ShapeIncompatibleError

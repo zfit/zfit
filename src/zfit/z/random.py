@@ -79,7 +79,7 @@ def counts_multinomial(
     Returns:
         Shape (k,) tensor containing the number of draws.
     """
-    from .. import z
+    from .. import z  # noqa: PLC0415
 
     total_count = tf.convert_to_tensor(total_count)
     probs = z.convert_to_tensor(probs) if probs is not None else probs
