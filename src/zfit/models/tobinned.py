@@ -128,7 +128,6 @@ class BinnedFromUnbinnedPDF(BaseBinnedFunctorPDF):
             import zfit
 
             low, up = tf.unstack(limits)
-            import zfit  # noqa: PLC0415
 
             limits_space = zfit.Space(obs=obs, limits=[low, up])
             return pdf.integrate(limits_space, norm=False, options=options)
