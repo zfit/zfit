@@ -20,4 +20,3 @@ build:
 sphinx:
   configuration: docs/conf.py
 
-#formats: [ ]
