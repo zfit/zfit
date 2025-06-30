@@ -426,11 +426,11 @@ class BinnedData(
             np.ndarray: A NumPy array representation of the histogram values.
         """
         # Get the histogram values as numpy array
-        arr = znp.asarray(self.values()).numpy()
+        arr = np.asarray(self.values())
 
         # Handle dtype conversion
         if dtype is not None and arr.dtype != dtype:
-            arr = arr.astype(dtype)
+            arr = arr.astype(dtype, copy=copy)
         elif copy is True:
             arr = arr.copy()
 
