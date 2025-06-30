@@ -11,6 +11,7 @@ Major Features and Improvements
 -------------------------------
 - significantly improved performance, especially when using a GPU for certain fits.
 - **NumPy Array Protocol Support**: Added ``__array__`` method to both ``Data`` and ``BinnedData`` classes, enabling seamless integration with NumPy functions. zfit data objects can now be used directly with ``np.array()``, ``np.mean()``, ``np.sum()``, and other NumPy functions without manual conversion. Supports dtype conversion and copy parameters.
+
 Breaking changes
 ------------------
 
