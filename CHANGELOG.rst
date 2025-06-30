@@ -25,6 +25,7 @@ Bug fixes and small changes
 - Clean up code by removing commented debug code, unused variables, and duplicate imports
 - Simplify assertion handling in numerical integration to properly filter out None operations
 - Add ``FitResult.x`` attribute to access the best fit values of the parameters directly.
+- Add ``OptimizeResultMixin`` to ``FitResult`` providing full ``scipy.optimize.OptimizeResult`` compatibility with attributes like ``success``, ``fun``, ``x``, ``jac``, ``hess``, ``hess_inv``, ``nfev``, ``njev``, ``nhev``, ``nit``, and ``maxcv``
 
 Experimental
 ------------
