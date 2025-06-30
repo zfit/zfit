@@ -610,7 +610,7 @@ class BaseBinnedPDF(
             pdf = self._ext_log_pdf(x, norm=norm)
         except NormNotImplemented:
             unnormed_pdf = self._ext_log_pdf(x, norm=False)
-            log_normalization = znp.log(self.ext_normalization(norm))
+            log_normalization = self.log_normalization(norm)
             pdf = unnormed_pdf - log_normalization
         return pdf
 
