@@ -420,7 +420,7 @@ class BinnedData(
             copy: Whether to force a copy of the data:
                 - None: copy only if needed (e.g., dtype conversion requires it)
                 - True: always make a copy
-                - False: avoid copying if possible, raise exception if copy is unavoidable
+                - False: avoid copying if possible, maybe still does if unavoidable
 
         Returns:
             np.ndarray: A NumPy array representation of the histogram values.
@@ -433,9 +433,6 @@ class BinnedData(
             arr = arr.astype(dtype)
         elif copy is True:
             arr = arr.copy()
-        elif copy is False and dtype is not None and arr.dtype != dtype:
-            msg = "Cannot avoid copy when dtype conversion is required"
-            raise ValueError(msg)
 
         return arr
 
