@@ -14,7 +14,6 @@ from typing import (
     Any,
     ClassVar,
     Literal,
-    Optional,
     TypeVar,
     Union,
 )
@@ -26,7 +25,7 @@ from frozendict import frozendict
 from ordered_set import OrderedSet
 from pydantic.v1 import Field
 
-from zfit.core.interfaces import (
+from zfit._interfaces import (
     ZfitBinnedData,
     ZfitConstraint,
     ZfitData,
@@ -88,8 +87,11 @@ class Types:
         elif len(repr) == 1:
             return repr[0]
         else:
-            return Union[
-                Annotated[Union[tuple(repr)], Field(discriminator="hs3_type")],
+            return Union[  # noqa: UP007
+                Annotated[
+                    Union[tuple(repr)],  # noqa: UP007
+                    Field(discriminator="hs3_type"),
+                ],
                 self.DUMMYTYPE,
             ]
 
@@ -285,19 +287,19 @@ class Serializer:
                 raise ValueError(msg)
 
             obj = convert_to_container(obj)
-            from zfit.core.interfaces import ZfitPDF
+            from zfit._interfaces import ZfitPDF  # noqa: PLC0415
 
             all_pdfs = all(isinstance(ob, ZfitPDF) for ob in obj)
             all_losses = all(isinstance(ob, ZfitLoss) for ob in obj)
             if not all_pdfs and not all_losses:
                 msg = "Only PDFs or losses can be serialized."
                 raise TypeError(msg)
-            from zfit.core.serialmixin import ZfitSerializable
+            from zfit.core.serialmixin import ZfitSerializable  # noqa: PLC0415
 
             if not all(isinstance(pdf, ZfitSerializable) for pdf in obj):
                 msg = "All distributions must be ZfitSerializable"
                 raise SerializationTypeError(msg)
-            import zfit
+            import zfit  # noqa: PLC0415
 
             out = {
                 "metadata": {
@@ -559,8 +561,8 @@ def replace_matching(mapping, replace):
 def convert_to_orm(init):
     if isinstance(init, Mapping):
         for k, v in init.items():
-            from zfit.core.data import LightDataset
-            from zfit.core.interfaces import ZfitParameter, ZfitSpace
+            from zfit._interfaces import ZfitParameter, ZfitSpace  # noqa: PLC0415
+            from zfit.core.data import LightDataset  # noqa: PLC0415
 
             if (
                 not isinstance(v, (Iterable, Mapping))
@@ -617,8 +619,8 @@ class BaseRepr(pydantic.BaseModel):
     _context = pydantic.PrivateAttr(None)
     _constructor = pydantic.PrivateAttr(None)
 
-    dictionary: Optional[dict] = Field(alias="dict")
-    tags: Optional[list[str]] = None
+    dictionary: dict | None = Field(alias="dict")
+    tags: list[str] | None = None
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)

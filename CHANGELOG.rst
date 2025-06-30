@@ -25,6 +25,12 @@ Bug fixes and small changes
 - Remove conditional numeric checks in favor of unconditional assertions: some internal checks that were only performed when ``run.numeric_checks=True`` are now always performed. To re-enable the old conditional behavior, set ``zfit.run.numeric_checks = True`` for debugging numerical issues
 - Clean up code by removing commented debug code, unused variables, and duplicate imports
 - Simplify assertion handling in numerical integration to properly filter out None operations
+- Add ``FitResult.x`` attribute to access the best fit values of the parameters directly.
+- Add ``OptimizeResultMixin`` to ``FitResult`` providing full ``scipy.optimize.OptimizeResult`` compatibility with attributes like ``success``, ``fun``, ``x``, ``jac``, ``hess``, ``hess_inv``, ``nfev``, ``njev``, ``nhev``, ``nit``, and ``maxcv``
+- Fix critical bugs in binned PDF extended normalization methods:
+
+  - ``_auto_ext_pdf`` incorrectly used ``ext_normalization()`` instead of ``normalization()``, causing extended PDF values to be multiplied by yield squared instead of yield
+  - ``_auto_ext_log_pdf`` incorrectly used ``znp.log(ext_normalization(norm))`` instead of ``log_normalization(norm)``
 
 Experimental
 ------------

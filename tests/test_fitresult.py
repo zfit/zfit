@@ -1,4 +1,6 @@
 #  Copyright (c) 2025 zfit
+from __future__ import annotations
+
 import pickle
 import platform
 
@@ -219,59 +221,59 @@ if (platf := platform.system()) not in ("Darwin",):
     if platf not in ("Windows",):
         minimizers.append((zfit.minimize.Ipyopt, {}, False))
 # sort for xdist: https://github.com/pytest-dev/pytest-xdist/issues/432
-minimizers = sorted(minimizers, key=lambda val: repr(val))
+minimizers = list(sorted(minimizers, key=lambda val: repr(val)))
 
 
-@pytest.mark.parametrize(
-    "minimizer_class_and_kwargs", minimizers, ids=lambda val: val[0].__name__
-)
-@pytest.mark.parametrize("dill", [False, True], ids=["no_dill", "dill"])
-@pytest.mark.parametrize("weights", [np.random.normal(1, 0.1, true_ntot), None])
-@pytest.mark.parametrize("extended", [True, False], ids=["extended", "not_extended"])
-def test_freeze(minimizer_class_and_kwargs, dill, weights, extended):
-    result = create_fitresult(
-        minimizer_class_and_kwargs, weights=weights, extended=extended
-    )["result"]
-
-    if dill:
-        if isinstance(result.minimizer, zfit.minimize.Ipyopt):
-            with pytest.raises(zfit.exception.IpyoptPicklingError):
-                _ = zfit.dill.loads(zfit.dill.dumps(result))
-            pytest.skip("Ipyopt cannot be pickled")
-        result = zfit.dill.loads(zfit.dill.dumps(result))
-
-    try:
-        pickle.dumps(result)
-    except Exception:
-        pass
-    result.covariance()
-    if dill:
-        result = zfit.dill.loads(zfit.dill.dumps(result))
-    result.errors()
-    if dill:
-        result = zfit.dill.loads(zfit.dill.dumps(result))
-    result.hesse()
-    if dill:
-        result = zfit.dill.loads(zfit.dill.dumps(result))
-    result.freeze()
-    if dill:
-        result = zfit.dill.loads(zfit.dill.dumps(result))
-
-    dumped = pickle.dumps(result)
-    loaded = pickle.loads(dumped)
-    test = loaded
-    true = result
-    assert test.fminopt == true.fminopt
-    assert test.edm == true.edm
-
-    for testval, trueval in zip(test.params.values(), true.params.values()):
-        assert testval == trueval
-
-    assert test.valid == true.valid
-    assert test.status == true.status
-    assert test.message == true.message
-    assert test.converged == true.converged
-    assert test.params_at_limit == true.params_at_limit
+# @pytest.mark.parametrize(
+#     "minimizer_class_and_kwargs", minimizers, ids=lambda val: val[0].__name__
+# )
+# @pytest.mark.parametrize("dill", [False, True], ids=["no_dill", "dill"])
+# @pytest.mark.parametrize("weights", [np.random.normal(1, 0.1, true_ntot), None])
+# @pytest.mark.parametrize("extended", [True, False], ids=["extended", "not_extended"])
+# def test_freeze(minimizer_class_and_kwargs, dill, weights, extended):
+#     result = create_fitresult(
+#         minimizer_class_and_kwargs, weights=weights, extended=extended
+#     )["result"]
+#
+#     if dill:
+#         if isinstance(result.minimizer, zfit.minimize.Ipyopt):
+#             with pytest.raises(zfit.exception.IpyoptPicklingError):
+#                 _ = zfit.dill.loads(zfit.dill.dumps(result))
+#             pytest.skip("Ipyopt cannot be pickled")
+#         result = zfit.dill.loads(zfit.dill.dumps(result))
+#
+#     try:
+#         pickle.dumps(result)
+#     except Exception:
+#         pass
+#     result.covariance()
+#     if dill:
+#         result = zfit.dill.loads(zfit.dill.dumps(result))
+#     result.errors()
+#     if dill:
+#         result = zfit.dill.loads(zfit.dill.dumps(result))
+#     result.hesse()
+#     if dill:
+#         result = zfit.dill.loads(zfit.dill.dumps(result))
+#     result.freeze()
+#     if dill:
+#         result = zfit.dill.loads(zfit.dill.dumps(result))
+#
+#     dumped = pickle.dumps(result)
+#     loaded = pickle.loads(dumped)
+#     test = loaded
+#     true = result
+#     assert test.fminopt == true.fminopt
+#     assert test.edm == true.edm
+#
+#     for testval, trueval in zip(test.params.values(), true.params.values()):
+#         assert testval == trueval
+#
+#     assert test.valid == true.valid
+#     assert test.status == true.status
+#     assert test.message == true.message
+#     assert test.converged == true.converged
+#     assert test.params_at_limit == true.params_at_limit
 
 
 @pytest.mark.parametrize("minimizer_class_and_kwargs", minimizers, ids=minimizer_ids)
@@ -351,7 +353,8 @@ def test_double_freeze():
 @pytest.mark.parametrize("use_weights", [False, "False", "asymptotic", "sumw2"],
                          ids=["no_weights", "w False", "w asymptotic", "w sumw2"])
 @pytest.mark.parametrize("extended", [True, False], ids=["extended", "not_extended"])
-def test_covariance(minimizer_class_and_kwargs, use_weights, extended):
+@pytest.mark.parametrize("dill", [False, True], ids=["no_dill", "dill"])
+def test_covariance(minimizer_class_and_kwargs, use_weights, extended, dill):
     n = true_ntot
     if use_weights:
         weights = np.random.normal(1, 0.001, n)
@@ -396,6 +399,46 @@ def test_covariance(minimizer_class_and_kwargs, use_weights, extended):
     weightcorr = use_weights if use_weights in ("asymptotic", "sumw2") else False
     cov_mat_3_np = result.covariance(params=[a, b, c], method="hesse_np", weightcorr=weightcorr)
     np.testing.assert_allclose(cov_mat_3, cov_mat_3_np, rtol=rtol, atol=atol)
+
+    if dill:
+        if isinstance(result.minimizer, zfit.minimize.Ipyopt):
+            with pytest.raises(zfit.exception.IpyoptPicklingError):
+                _ = zfit.dill.loads(zfit.dill.dumps(result))
+            pytest.skip("Ipyopt cannot be pickled")
+        result = zfit.dill.loads(zfit.dill.dumps(result))
+
+    try:
+        pickle.dumps(result)
+    except Exception:
+        pass
+    result.covariance()
+    if dill:
+        result = zfit.dill.loads(zfit.dill.dumps(result))
+    result.errors()
+    if dill:
+        result = zfit.dill.loads(zfit.dill.dumps(result))
+    result.hesse()
+    if dill:
+        result = zfit.dill.loads(zfit.dill.dumps(result))
+    result.freeze()
+    if dill:
+        result = zfit.dill.loads(zfit.dill.dumps(result))
+
+    dumped = pickle.dumps(result)
+    loaded = pickle.loads(dumped)
+    test = loaded
+    true = result
+    assert test.fminopt == true.fminopt
+    assert test.edm == true.edm
+
+    for testval, trueval in zip(test.params.values(), true.params.values()):
+        assert testval == trueval
+
+    assert test.valid == true.valid
+    assert test.status == true.status
+    assert test.message == true.message
+    assert test.converged == true.converged
+    assert test.params_at_limit == true.params_at_limit
 
 
 @pytest.mark.flaky(reruns=3)
@@ -542,3 +585,203 @@ def test_new_minimum(minimizer_class_and_kwargs):
         for param in params:
             assert errors[param]["lower"] < 0
             assert errors[param]["upper"] > 0
+
+
+# OptimizeResult compatibility tests
+@pytest.mark.parametrize("minimizer_class_and_kwargs", minimizers[0:1], ids=minimizer_ids)
+def test_optimize_result_compatibility(minimizer_class_and_kwargs):
+    """Test that FitResult has all scipy.optimize.OptimizeResult attributes."""
+    from scipy.optimize import OptimizeResult
+
+    results = create_fitresult(minimizer_class_and_kwargs=minimizer_class_and_kwargs)
+    result = results["result"]
+
+    # List of all scipy OptimizeResult attributes
+    scipy_attrs = ['x', 'fun', 'success', 'status', 'message', 'jac', 'hess', 'hess_inv',
+                   'nfev', 'njev', 'nhev', 'nit', 'maxcv']
+
+    # Check that all scipy attributes exist in FitResult
+    for attr in scipy_attrs:
+        assert hasattr(result, attr), f"FitResult missing scipy OptimizeResult attribute: {attr}"
+
+        # Check that the attribute is accessible (doesn't raise an exception)
+        try:
+            value = getattr(result, attr)
+            # Value can be None for some attributes
+        except Exception as e:
+            pytest.fail(f"Failed to access {attr} attribute: {e}")
+
+
+@pytest.mark.parametrize("minimizer_class_and_kwargs", minimizers[0:1], ids=minimizer_ids)
+def test_optimize_result_attribute_types(minimizer_class_and_kwargs):
+    """Test that OptimizeResult attributes have appropriate types."""
+    results = create_fitresult(minimizer_class_and_kwargs=minimizer_class_and_kwargs)
+    result = results["result"]
+
+    # Test specific attribute types and values
+    assert isinstance(result.success, bool), "success should be boolean"
+    assert isinstance(result.status, int), "status should be integer"
+    assert isinstance(result.message, str), "message should be string"
+    assert isinstance(result.fun, (int, float)), "fun should be numeric"
+
+    # x should be array-like
+    x = result.x
+    assert hasattr(x, '__len__') and hasattr(x, '__getitem__'), "x should be array-like"
+
+    # These can be None or arrays
+    for attr_name in ['jac', 'hess', 'hess_inv']:
+        attr_value = getattr(result, attr_name)
+        assert attr_value is None or hasattr(attr_value, 'shape'), f"{attr_name} should be None or array-like"
+
+    # Counters can be None or integers
+    for attr_name in ['nfev', 'njev', 'nhev', 'nit']:
+        attr_value = getattr(result, attr_name)
+        assert attr_value is None or isinstance(attr_value, int), f"{attr_name} should be None or integer"
+
+    # maxcv is always None in our implementation
+    assert result.maxcv is None, "maxcv should be None"
+
+
+def test_optimize_result_vs_scipy_direct():
+    """Test that FitResult attributes have compatible types with scipy OptimizeResult."""
+    import scipy.optimize
+
+    # Create a simple scipy optimization for comparison
+    def test_func(x):
+        return (x[0] - 2)**2 + (x[1] - 1)**2
+
+    scipy_result = scipy.optimize.minimize(
+        test_func, [0, 0], method='BFGS',
+        options={'disp': False}
+    )
+
+    # Create a simple zfit fit using existing test utilities
+    results = create_fitresult((zfit.minimize.Minuit, {}, True))
+    zfit_result = results["result"]
+
+    # Compare attribute types for common attributes
+    common_attrs = ['fun', 'success', 'status', 'message']
+
+    for attr in common_attrs:
+        if hasattr(scipy_result, attr) and hasattr(zfit_result, attr):
+            scipy_val = getattr(scipy_result, attr)
+            zfit_val = getattr(zfit_result, attr)
+
+            # Both should have compatible types (allowing None for zfit)
+            if zfit_val is not None and scipy_val is not None:
+                # Check type compatibility
+                if attr in ['fun']:
+                    assert isinstance(scipy_val, (int, float)) and isinstance(zfit_val, (int, float))
+                elif attr in ['success']:
+                    assert isinstance(scipy_val, bool) and isinstance(zfit_val, bool)
+                elif attr in ['status']:
+                    assert isinstance(scipy_val, int) and isinstance(zfit_val, int)
+                elif attr in ['message']:
+                    assert isinstance(scipy_val, str) and isinstance(zfit_val, str)
+
+
+@pytest.mark.parametrize("minimizer_class_and_kwargs", minimizers[0:1], ids=minimizer_ids)
+def test_success_vs_valid_difference(minimizer_class_and_kwargs):
+    """Test that success and valid attributes have different meanings."""
+    results = create_fitresult(minimizer_class_and_kwargs=minimizer_class_and_kwargs)
+    result = results["result"]
+
+    # success should reflect optimizer success
+    assert isinstance(result.success, bool)
+
+    # valid includes additional checks (params at limit, etc.)
+    assert isinstance(result.valid, bool)
+
+    # In a good fit, both should typically be True
+    # But success is simpler than valid
+    if result.valid:
+        # If result is valid, success should typically also be True
+        # (but not guaranteed due to different logic)
+        pass
+
+    # The key is that they can differ - valid has more stringent checks
+    # We can't test the difference directly without creating a specific scenario
+    # but we can test that both attributes exist and work independently
+
+
+@pytest.mark.parametrize("minimizer_class_and_kwargs", minimizers[0:1], ids=minimizer_ids)
+def test_fun_maps_to_fmin(minimizer_class_and_kwargs):
+    """Test that fun attribute correctly maps to fmin."""
+    results = create_fitresult(minimizer_class_and_kwargs=minimizer_class_and_kwargs)
+    result = results["result"]
+
+    # fun should map to fmin (full function value)
+    assert result.fun == result.fmin
+
+    # Verify it's the full value, not the optimized value
+    assert isinstance(result.fun, (int, float))
+    assert isinstance(result.fmin, (int, float))
+    assert isinstance(result.fminopt, (int, float))
+
+
+@pytest.mark.parametrize("minimizer_class_and_kwargs", minimizers[0:1], ids=minimizer_ids)
+def test_evaluation_counts_mapping(minimizer_class_and_kwargs):
+    """Test that evaluation count attributes map correctly to info dict."""
+    results = create_fitresult(minimizer_class_and_kwargs=minimizer_class_and_kwargs)
+    result = results["result"]
+
+    # nfev should come from info dict or _niter
+    if (nfev := result.nfev) is not None:
+        assert isinstance(nfev, int)
+        assert nfev >= 0
+
+    # nit should come from info dict
+    if (nit := result.nit) is not None:
+        assert isinstance(nit, int)
+        assert nit >= 0
+
+    # njev and nhev are often None (not all minimizers track these)
+    if (njev := result.njev) is not None:
+        assert isinstance(njev, int)
+        assert njev >= 0
+
+    if (nhev := result.nhev) is not None:
+        assert isinstance(nhev, int)
+        assert nhev >= 0
+
+
+def test_optimize_result_mixin_inheritance():
+    """Test that FitResult properly inherits from OptimizeResultMixin."""
+    from zfit.minimizers.fitresult import OptimizeResultMixin
+
+    # Check inheritance
+    assert issubclass(FitResult, OptimizeResultMixin)
+
+    # Check MRO includes OptimizeResultMixin
+    mro_names = [cls.__name__ for cls in FitResult.__mro__]
+    assert 'OptimizeResultMixin' in mro_names
+
+    # Check that OptimizeResultMixin comes before ZfitResult in MRO
+    mro_dict = {cls.__name__: i for i, cls in enumerate(FitResult.__mro__)}
+    assert mro_dict['OptimizeResultMixin'] < mro_dict['ZfitResult']
+
+
+def test_approximate_values_from_mixin():
+    """Test that OptimizeResultMixin provides approximation values correctly."""
+    # Create a simple fit to test approximations
+    loss, (param_a, param_b, param_c) = create_loss(n=5000)
+    minimizer = zfit.minimize.Minuit()
+    result = minimizer.minimize(loss)
+
+    # Test that approximations work
+    jac = result.jac
+    hess = result.hess
+    hess_inv = result.hess_inv
+
+    # These may be None or arrays depending on what's available
+    if jac is not None:
+        assert hasattr(jac, 'shape'), "jac should be array-like if not None"
+        assert len(jac) == len(result.params), "jac length should match number of parameters"
+
+    if hess is not None:
+        assert hasattr(hess, 'shape'), "hess should be array-like if not None"
+        assert hess.shape == (len(result.params), len(result.params)), "hess should be square matrix"
+
+    if hess_inv is not None:
+        assert hasattr(hess_inv, 'shape'), "hess_inv should be array-like if not None"
+        assert hess_inv.shape == (len(result.params), len(result.params)), "hess_inv should be square matrix"

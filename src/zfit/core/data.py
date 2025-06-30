@@ -3,39 +3,27 @@
 from __future__ import annotations
 
 import typing
+from collections import Counter
+from collections.abc import Callable, Iterable, Mapping
+from typing import Literal
 
-if typing.TYPE_CHECKING:
-    import zfit
-
-from collections.abc import Iterable
-from typing import TYPE_CHECKING, Literal, Optional, Union
-
+import numpy as np
+import pandas as pd
 import pydantic.v1 as pydantic
+import tensorflow as tf
+import uproot
 import xxhash
 from pydantic.v1 import Field
 from tensorflow.python.types.core import TensorLike
 from tensorflow.python.util.deprecation import deprecated, deprecated_args
 
+import zfit.z.numpy as znp
+from zfit._interfaces import ZfitBinnedData, ZfitSpace, ZfitUnbinnedData
+
+from .. import z
 from ..exception import OutsideLimitsError
 from ..serialization import SpaceRepr
 from ..serialization.serializer import BaseRepr, to_orm_init
-from .serialmixin import SerializableMixin, ZfitSerializable
-
-if TYPE_CHECKING:
-    import zfit
-
-from collections import Counter
-from collections.abc import Callable, Mapping
-
-import numpy as np
-import pandas as pd
-import tensorflow as tf
-import uproot
-
-import zfit
-import zfit.z.numpy as znp
-
-from .. import z
 from ..settings import run, ztypes
 from ..util import ztyping
 from ..util.cache import GraphCachable, invalidate_graph
@@ -50,8 +38,11 @@ from ..util.temporary import TemporarilySet
 from .baseobject import BaseObject, convert_param_values
 from .coordinates import convert_to_obs_str
 from .dimension import BaseDimensional
-from .interfaces import ZfitBinnedData, ZfitSpace, ZfitUnbinnedData
+from .serialmixin import SerializableMixin, ZfitSerializable
 from .space import Space, convert_to_space
+
+if typing.TYPE_CHECKING:
+    import zfit
 
 
 def convert_to_data(data, obs=None, *, check_limits=False):
@@ -282,7 +273,7 @@ class Data(
         all. For example, if an object was already called before with the data object, the hash will probably not be
         used, as the object is already compiled.
         """
-        from zfit import run
+        from zfit import run  # noqa: PLC0415
 
         run.assert_executing_eagerly()
         self._use_hash = True
@@ -1117,7 +1108,7 @@ class Data(
         Returns:
             ``zfit.BinnedData``: A new ``BinnedData`` object containing the binned data.
         """
-        from zfit._data.binneddatav1 import BinnedData
+        from zfit._data.binneddatav1 import BinnedData  # noqa: PLC0415
 
         return BinnedData.from_unbinned(
             space=space,
@@ -1162,9 +1153,9 @@ class DataRepr(BaseRepr):
     hs3_type: Literal["Data"] = Field("Data", alias="type")
 
     data: np.ndarray
-    space: Union[SpaceRepr, list[SpaceRepr]]
-    name: Optional[str] = None
-    weights: Optional[np.ndarray] = None
+    space: SpaceRepr | list[SpaceRepr]
+    name: str | None = None
+    weights: np.ndarray | None = None
 
     @pydantic.root_validator(pre=True)
     def extract_data(cls, values):
@@ -1408,8 +1399,8 @@ class SamplerData(Data):
     def from_sampler(
         cls,
         *,
-        sample_func: Optional[Callable] = None,
-        sample_and_weights_func: Optional[Callable] = None,
+        sample_func: Callable | None = None,
+        sample_and_weights_func: Callable | None = None,
         n: ztyping.NumericalScalarType,
         obs: ztyping.ObsTypeInput,
         params: ztyping.ParamValuesMap = None,

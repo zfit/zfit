@@ -32,5 +32,5 @@ If there was a crash, please include the traceback here.
 
 ## Possible Solution/Implementation
 
-<!--- Not obligatory, but suggest a fix/reason for the bug, -->
+<!--- Not mandatory, but suggest a fix/reason for the bug, -->
 <!--- and maybe suggest an idea for implementing addition or change -->

@@ -3,19 +3,10 @@
 from __future__ import annotations
 
 import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from ..models.functions import ProdFunc, SumFunc
-    from ..models.functor import ProductPDF, SumPDF
-
 from collections.abc import Callable
 
 import zfit.z.numpy as znp
+from zfit._interfaces import ZfitFunc, ZfitModel, ZfitParameter, ZfitPDF
 
 from ..util import ztyping
 from ..util.exception import (
@@ -24,8 +15,13 @@ from ..util.exception import (
     IntentionAmbiguousError,
     ModelIncompatibleError,
 )
-from .interfaces import ZfitFunc, ZfitModel, ZfitParameter, ZfitPDF
 from .parameter import convert_to_parameter
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
+
+    from ..models.functions import ProdFunc, SumFunc
+    from ..models.functor import ProductPDF, SumPDF
 
 
 def multiply(object1: ztyping.BaseObjectType, object2: ztyping.BaseObjectType) -> ztyping.BaseObjectType:
@@ -82,7 +78,7 @@ def multiply_pdf_pdf(pdf1: ZfitPDF, pdf2: ZfitPDF, name: str = "multiply_pdf_pdf
     if not (isinstance(pdf1, ZfitPDF) and isinstance(pdf2, ZfitPDF)):
         msg = f"`pdf1` and `pdf2` need to be `ZfitPDF` and not {pdf1}, {pdf2}"
         raise TypeError(msg)
-    from ..models.functor import ProductPDF
+    from ..models.functor import ProductPDF  # noqa: PLC0415
 
     if not pdf1.is_extended and pdf2.is_extended:
         msg = (
@@ -99,7 +95,7 @@ def multiply_func_func(func1: ZfitFunc, func2: ZfitFunc, name: str = "multiply_f
     if not (isinstance(func1, ZfitFunc) and isinstance(func2, ZfitFunc)):
         msg = f"`func1` and `func2` need to be `ZfitFunc` and not {func1}, {func2}"
         raise TypeError(msg)
-    from ..models.functions import ProdFunc
+    from ..models.functions import ProdFunc  # noqa: PLC0415
 
     return ProdFunc(funcs=[func1, func2], name=name)
 
@@ -108,7 +104,7 @@ def multiply_param_func(param: ZfitParameter, func: ZfitFunc) -> ZfitFunc:
     if not (isinstance(param, ZfitParameter) and isinstance(func, ZfitFunc)):
         msg = f"`param` and `func` need to be `ZfitParameter` resp. `ZfitFunc` and not {param}, {func}"
         raise TypeError(msg)
-    from ..models.functions import SimpleFuncV1
+    from ..models.functions import SimpleFuncV1  # noqa: PLC0415
 
     def combined_func(x):
         return param * func.func(x=x)
@@ -195,7 +191,7 @@ def add_pdf_pdf(pdf1: ZfitPDF, pdf2: ZfitPDF, name: str = "add_pdf_pdf") -> SumP
             "Use the `zfit.pdf.SumPDF([pdf, other_pdf], frac)` syntax instead."
         )
         raise BreakingAPIChangeError(msg)
-    from ..models.functor import SumPDF
+    from ..models.functor import SumPDF  # noqa: PLC0415
 
     return SumPDF(pdfs=[pdf1, pdf2], name=name)
 
@@ -204,7 +200,7 @@ def add_func_func(func1: ZfitFunc, func2: ZfitFunc, name: str = "add_func_func")
     if not (isinstance(func1, ZfitFunc) and isinstance(func2, ZfitFunc)):
         msg = f"`func1` and `func2` need to be `ZfitFunc` and not {func1}, {func2}"
         raise TypeError(msg)
-    from ..models.functions import SumFunc
+    from ..models.functions import SumFunc  # noqa: PLC0415
 
     return SumFunc(funcs=[func1, func2], name=name)
 
@@ -232,7 +228,7 @@ def convert_pdf_to_func(pdf: ZfitPDF, norm: ztyping.LimitsType) -> ZfitFunc:
     def value_func(x):
         return pdf.pdf(x, norm=norm)
 
-    from ..models.functions import SimpleFuncV1
+    from ..models.functions import SimpleFuncV1  # noqa: PLC0415
 
     return SimpleFuncV1(func=value_func, obs=pdf.obs, name=pdf.name + "_as_func", **pdf.params)
 
@@ -243,10 +239,10 @@ def convert_func_to_pdf(func: ZfitFunc | Callable, obs=None, name=None) -> ZfitP
         if obs is None:
             msg = "If `func` is a function, `obs` has to be specified."
             raise ValueError(msg)
-        from ..models.functions import SimpleFuncV1
+        from ..models.functions import SimpleFuncV1  # noqa: PLC0415
 
         func = SimpleFuncV1(func=func, obs=obs, name=func_name)
-    from ..models.special import SimplePDF
+    from ..models.special import SimplePDF  # noqa: PLC0415
 
     name = func.name if name is None else func_name
     return SimplePDF(func=func.func, obs=func.obs, name=name, **func.params)

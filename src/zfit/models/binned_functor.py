@@ -2,22 +2,20 @@
 
 from __future__ import annotations
 
-import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 from collections.abc import Iterable
-from typing import TYPE_CHECKING, Union
+from typing import TYPE_CHECKING
 
 from uhi.typing.plottable import PlottableHistogram
 
 if TYPE_CHECKING:
     pass
 
+import typing
+
+from zfit._interfaces import ZfitPDF
+
 from .. import z
 from ..core.binnedpdf import BaseBinnedPDF
-from ..core.interfaces import ZfitPDF
 from ..core.space import supports
 from ..util import ztyping
 from ..util.container import convert_to_container
@@ -27,10 +25,13 @@ from ..util.ztyping import BinnedDataInputType
 from ..z import numpy as znp
 from .basefunctor import FunctorMixin, _preprocess_init_sum
 
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
-def preprocess_pdf_or_hist(models: Union[ZfitPDF, Iterable[ZfitPDF], BinnedDataInputType]):
+
+def preprocess_pdf_or_hist(models: ZfitPDF | Iterable[ZfitPDF] | BinnedDataInputType):
     models = convert_to_container(models)
-    from zfit.models.histogram import HistogramPDF
+    from zfit.models.histogram import HistogramPDF  # noqa: PLC0415
 
     return [HistogramPDF(model) if isinstance(model, PlottableHistogram) else model for model in models]
 
@@ -141,7 +142,7 @@ class BinnedSumPDF(BaseBinnedFunctorPDF):
         pdfs = self.pdfs
         fracs = self.params.values()
         probs = []
-        for pdf, frac in zip(pdfs, fracs):
+        for pdf, frac in zip(pdfs, fracs, strict=True):
             probs.append(pdf.pdf(x) * frac)
         prob = znp.sum(probs, axis=0)
         return z.convert_to_tensor(prob)
@@ -166,6 +167,6 @@ class BinnedSumPDF(BaseBinnedFunctorPDF):
             raise NormNotImplemented
         fracs = self.params.values()
         return znp.sum(
-            [model.rel_counts(x) * frac for model, frac in zip(self.models, fracs)],
+            [model.rel_counts(x) * frac for model, frac in zip(self.models, fracs, strict=True)],
             axis=0,
         )

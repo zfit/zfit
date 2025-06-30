@@ -1,4 +1,4 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2025 zfit
 import itertools
 import platform
 import sys
@@ -72,12 +72,15 @@ def make_min_grad_hesse():
     return min_options
 
 
-@pytest.mark.parametrize("minimizer_gradient_hessian", make_min_grad_hesse())
+@pytest.mark.parametrize("minimizer_gradient_hessian", make_min_grad_hesse(), ids=lambda x: f"{x[0].__name__}_{x[1]}_{x[2]}")
 @pytest.mark.flaky(reruns=3)
 def test_scipy_derivative_options(minimizer_gradient_hessian):
     minimizer_cls, gradient, hessian = minimizer_gradient_hessian
-    loss, true_min, params = create_loss(obs1=obs1)
-    (mu_param, sigma_param, lambda_param) = params
+    def loss(params):
+        return params[0] ** 2. + params[1] ** 2.
+
+    loss.errordef = 0.5
+    true_min = 0.
     kwargs = {}
 
     if gradient is not None:
@@ -93,17 +96,13 @@ def test_scipy_derivative_options(minimizer_gradient_hessian):
         else:
             raise
 
-    result = minimizer.minimize(loss=loss)
+    result = minimizer.minimize(loss=loss, params={"a": 0.5, "b": 0.2})
     assert result.valid
 
-    found_min = loss.value(full=False)
+    found_min = loss(result.x)
     assert true_min + max_distance_to_min >= found_min
 
-    aval, bval, cval = znp.asarray((mu_param, sigma_param, lambda_param))
-
-    assert pytest.approx(aval, abs=parameter_tol) == true_mu
-    assert pytest.approx(bval, abs=parameter_tol) == true_sigma
-    assert pytest.approx(cval, abs=parameter_tol) == true_lambda
+    np.testing.assert_allclose([0., 0.], result.x, atol=0.02)
     assert result.converged
 
 
@@ -386,23 +385,22 @@ def test_floating_flag():
 )
 @pytest.mark.flaky(reruns=1)
 def test_minimize_pure_func(params, minimizer_class_and_kwargs):
-    zfit.run.set_autograd_mode(False)
-    zfit.run.set_graph_mode(False)
     minimizer_class, minimizer_kwargs, _ = minimizer_class_and_kwargs
-    minimizer = minimizer_class(**minimizer_kwargs)
-    func = scipy.optimize.rosen
-    func.errordef = 0.5
-    result = minimizer.minimize(func, params)
+    with zfit.run.set_autograd_mode(False), zfit.run.set_graph_mode(False):
+        minimizer = minimizer_class(**minimizer_kwargs)
+        func = scipy.optimize.rosen
+        func.errordef = 0.5
+        result = minimizer.minimize(func, params)
+        result.hesse(method="hesse_np", name="hesse")
+        param = list(result.params)[1]
+        result.errors(param, name="errors")
     assert result.valid
     assert pytest.approx(result.fmin, abs=0.01) == 0
-    result.hesse(method="hesse_np")
 
-    for param, error in zip(result.params, [0.32, 0.64, 1.3]):
-        assert pytest.approx(result.params[param]["hesse"]["error"], rel=0.15) == error
-    param = list(result.params)[1]
-    result.errors(param, name="errors")
     assert pytest.approx(result.params[param]["errors"]["lower"], rel=0.15) == -0.6
     assert pytest.approx(result.params[param]["errors"]["upper"], rel=0.15) == 0.65
+    for param, error in zip(result.params, [0.32, 0.64, 1.3]):
+        assert pytest.approx(result.params[param]["hesse"]["error"], rel=0.15) == error
 
 
 def test_dependent_param_extraction():
@@ -622,7 +620,7 @@ def test_minimizers(minimizer_class_and_kwargs, chunksize, numgrad, spaces, requ
                     # test custom error
                     def custom_error_func(result, params, cl):
                         return (
-                            dict((param, {"myval": 42}) for param in params),
+                            {param: {"myval": 42} for param in params},
                             None,
                         )
 

@@ -11,7 +11,8 @@ import numpy as np
 import tensorflow as tf
 import texttable as tt
 
-from ..core.interfaces import ZfitLoss
+from zfit._interfaces import ZfitLoss
+
 from ..core.parameter import assign_values_jit
 from ..util import ztyping
 from ..util.container import convert_to_container
@@ -37,7 +38,7 @@ def check_derivative_none_raise(values, params) -> None:
         params: Parameter that correspond to the values.
     """
     if None in values:
-        none_params = [p for p, grad in zip(params, values) if grad is None]
+        none_params = [p for p, grad in zip(params, values, strict=True) if grad is None]
         msg = (
             f"The derivative of the following parameters is None: {none_params}."
             f" This is usually caused by either the function not depending on the"

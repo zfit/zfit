@@ -3,17 +3,13 @@
 from __future__ import annotations
 
 import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 from collections.abc import Mapping
 
 import numpy as np
 
 import zfit.z.numpy as znp
+from zfit._interfaces import ZfitLoss
 
-from ..core.interfaces import ZfitLoss
 from ..core.parameter import Parameter, assign_values
 from ..util.cache import GraphCachable
 from ..util.exception import MaximumIterationReached
@@ -21,6 +17,9 @@ from .baseminimizer import BaseMinimizer, minimize_supports
 from .fitresult import Approximations, FitResult
 from .strategy import ZfitStrategy
 from .termination import ConvergenceCriterion
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 
 class OptimizeStop(Exception):
@@ -242,7 +241,7 @@ class LevenbergMarquardt(BaseMinimizer, GraphCachable):
             approx = Approximations(params=params, gradient=new_point.get("gradient"), hessian=new_point.get("hessian"))
             tempres = FitResult(
                 loss=loss,
-                params=dict(zip(params, paramvals)),
+                params=dict(zip(params, paramvals, strict=True)),
                 minimizer=self,
                 valid=False,
                 criterion=criterion,

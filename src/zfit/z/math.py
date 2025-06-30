@@ -3,30 +3,23 @@
 from __future__ import annotations
 
 import typing
-
-if typing.TYPE_CHECKING:
-    import zfit
-
-from typing import TYPE_CHECKING, NoReturn
-
-import numpy as np
-
-from ..util.exception import BreakingAPIChangeError
-
-if TYPE_CHECKING:
-    import zfit
-
 from collections.abc import Callable, Iterable
+from typing import NoReturn
 
 import numdifftools
+import numpy as np
 import tensorflow as tf
 import tensorflow_probability as tfp
 
 from ..util.container import convert_to_container
 from ..util.deprecation import deprecated
+from ..util.exception import BreakingAPIChangeError
 from . import numpy as znp
 from .tools import _auto_upcast
 from .zextension import convert_to_tensor
+
+if typing.TYPE_CHECKING:
+    import zfit
 
 
 def poly_complex(*args, real_x=False) -> tf.Tensor:
@@ -39,7 +32,7 @@ def poly_complex(*args, real_x=False) -> tf.Tensor:
     Returns:
         Complex tensor representing the polynomial evaluation
     """
-    from .. import z
+    from .. import z  # noqa: PLC0415
 
     args = list(args)
     x = args.pop()
@@ -58,7 +51,7 @@ def numerical_gradient(func: Callable, params: Iterable[zfit.Parameter]) -> tf.T
     Returns:
         Gradients
     """
-    from ..core.parameter import assign_values
+    from ..core.parameter import assign_values  # noqa: PLC0415
 
     params = convert_to_container(params)
 
@@ -119,7 +112,7 @@ def numerical_hessian(func: Callable | None, params: Iterable[zfit.Parameter], h
     Returns:
         Hessian matrix
     """
-    from ..core.parameter import assign_values
+    from ..core.parameter import assign_values  # noqa: PLC0415
 
     params = convert_to_container(params)
 
@@ -319,7 +312,7 @@ def automatic_value_gradient_hessian(
         msg = "Either `func` or `value_grad_func` has to be specified."
         raise ValueError(msg)
 
-    from .. import z
+    from .. import z  # noqa: PLC0415
 
     # TODO(WrappedVariable): this is needed if we want to use wrapped Variables
     # params = _extract_tfparams(params)
@@ -334,7 +327,9 @@ def automatic_value_gradient_hessian(
             gradients = tf.unstack(gradients)
             # gradients_tf = znp.stack(gradients)
     if hessian == "diag":
-        computed_hessian = znp.stack([tape.gradient(grad, sources=param) for param, grad in zip(params, gradients)])
+        computed_hessian = znp.stack(
+            [tape.gradient(grad, sources=param) for param, grad in zip(params, gradients, strict=True)]
+        )
         # gradfunc = lambda par_grad: tape.gradient(par_grad[0], sources=par_grad[1])
         # computed_hessian = tf.vectorized_map(gradfunc, zip(params, gradients))
     else:

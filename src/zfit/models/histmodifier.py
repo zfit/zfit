@@ -3,21 +3,20 @@
 from __future__ import annotations
 
 import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 from collections.abc import Mapping
 
 import tensorflow as tf
 
 import zfit.z.numpy as znp
+from zfit._interfaces import ZfitBinnedPDF
 
-from ..core.interfaces import ZfitBinnedPDF
 from ..core.space import supports
 from ..util import ztyping
 from ..util.exception import SpecificFunctionNotImplemented
 from .binned_functor import BaseBinnedFunctorPDF
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 
 class BinwiseScaleModifier(BaseBinnedFunctorPDF):
@@ -62,7 +61,7 @@ class BinwiseScaleModifier(BaseBinnedFunctorPDF):
         if modifiers is None:
             modifiers = True
         if modifiers is True:
-            import zfit
+            import zfit  # noqa: PLC0415
 
             modifiers = {
                 f"sysshape_{i}": zfit.Parameter(f"auto_sysshape_{self}_{i}", 1.0)
@@ -76,14 +75,14 @@ class BinwiseScaleModifier(BaseBinnedFunctorPDF):
         if extended is True:
             self._automatically_extended = True
             if modifiers:
-                import zfit
+                import zfit  # noqa: PLC0415
 
                 def sumfunc(params):
                     del params  # unused
                     values = self.counts()
                     return znp.sum(values)
 
-                from zfit.core.parameter import get_auto_number
+                from zfit.core.parameter import get_auto_number  # noqa: PLC0415
 
                 params_sumfunc = modifiers.copy()
                 dep_params = {}
