@@ -2,11 +2,6 @@
 
 from __future__ import annotations
 
-import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 import contextlib
 import functools
 import multiprocessing
@@ -20,6 +15,9 @@ from dotmap import DotMap
 from .deprecation import deprecated
 from .exception import BreakingAPIChangeError, IllegalInGraphModeError
 from .temporary import TemporarilySet
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 
 class RunManager:
@@ -175,7 +173,7 @@ class RunManager:
         Instead, `result.update_params()` has to be called manually to update the parameters if needed.
         """
 
-        from zfit import settings
+        from zfit import settings  # noqa: PLC0415
 
         def setter(v):
             settings.options.auto_update_params = not v
@@ -345,7 +343,7 @@ class RunManager:
 
     def _set_autograd_mode(self, autograd):
         if autograd is not None:
-            from zfit import settings
+            from zfit import settings  # noqa: PLC0415
 
             settings.options.numerical_grad = not autograd
             self._mode["autograd"] = autograd
@@ -353,7 +351,7 @@ class RunManager:
     def _set_graph_mode(self, graph, *, set_backend=True):
         if graph is None:
             graph = "auto"
-        from .graph import jit as jit_obj
+        from .graph import jit as jit_obj  # noqa: PLC0415
 
         # only run eagerly if no graph
         if set_backend:
@@ -430,7 +428,7 @@ class RunManager:
         """
         if call_gc is None:
             call_gc = False
-        from zfit.util.cache import clear_graph_cache
+        from zfit.util.cache import clear_graph_cache  # noqa: PLC0415
 
         clear_graph_cache(call_gc=call_gc)
 
@@ -448,7 +446,7 @@ class RunManager:
                 of calls to a function *with different arguments* is expected to happen *outside of any loop*/within
                 one execution of a loop.
         """
-        from zfit.z.zextension import FunctionWrapperRegistry
+        from zfit.z.zextension import FunctionWrapperRegistry  # noqa: PLC0415
 
         if size is not None and size < 1:
             msg = "The size of the cache must be at least 1."
@@ -506,7 +504,7 @@ class RunManager:
 
 @deprecated(None, "Use np.array(obj) instead.")
 def eval_object(obj: object) -> object:
-    from zfit.core.parameter import BaseComposedParameter
+    from zfit.core.parameter import BaseComposedParameter  # noqa: PLC0415
 
     if isinstance(obj, BaseComposedParameter):  # currently no numpy attribute. Should we add this?
         obj = obj.value()

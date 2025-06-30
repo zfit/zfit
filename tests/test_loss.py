@@ -1,4 +1,4 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2025 zfit
 import jacobi
 import numpy as np
 import pytest
@@ -512,7 +512,7 @@ def test_callable_loss(create_loss):
         _ = zfit.run(loss.value(full=True))
         assert pytest.approx(value_loss) == true_val
         with pytest.raises(BehaviorUnderDiscussion):
-            assert pytest.approx((loss())) == true_val
+            assert pytest.approx(loss()) == true_val
 
     with pytest.raises(ValueError):
         loss(x[:-1])

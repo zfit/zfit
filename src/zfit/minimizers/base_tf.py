@@ -3,23 +3,18 @@
 from __future__ import annotations
 
 import typing
-
-if typing.TYPE_CHECKING:
-    import zfit
-
-from functools import partial
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    import zfit
-
 from collections.abc import Iterable
+from functools import partial
 
 import tensorflow as tf
 
-from ..core.interfaces import ZfitIndependentParameter, ZfitLoss
+from zfit._interfaces import ZfitIndependentParameter, ZfitLoss
+
 from ..util.exception import OperationNotAllowedError
 from .baseminimizer import BaseStepMinimizer, minimize_supports
+
+if typing.TYPE_CHECKING:
+    import zfit
 
 
 class WrapOptimizer(BaseStepMinimizer):

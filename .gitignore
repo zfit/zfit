@@ -15,3 +15,4 @@ tmp/*
 /utils/ci/.test_docs_env/
 /images/_generated
 /src/zfit/_version.py
+/tests/.benchmarks/

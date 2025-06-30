@@ -2,15 +2,10 @@
 from __future__ import annotations
 
 import typing
-
-if typing.TYPE_CHECKING:
-    import zfit
-
-from collections.abc import Iterable, Mapping
+from collections.abc import Callable, Iterable, Mapping
 
 # ruff: noqa: F821
 from typing import (
-    Callable,
     Optional,
     TypeVar,
     Union,
@@ -27,6 +22,8 @@ from tensorflow.python.types.core import TensorLike
 # as documented, such that sphinx will document them.
 from uhi.typing.plottable import PlottableHistogram
 
+if typing.TYPE_CHECKING:
+    import zfit
 LowerTypeInput = Union[tf.Tensor, np.ndarray, tuple[float], list[float], float]  #:
 LowerTypeReturn = Union[np.ndarray, tf.Tensor, None, bool]  #:
 
@@ -113,14 +110,14 @@ ConstraintsTypeInput = Optional[
 
 # Parameter
 ParamsTypeOpt = Optional[Iterable["zfit.core.interfaces.ZfitParameter"]]  #:
-ParamsNameOpt = Optional[Union[str, list[str]]]  #:
-ParamsOrNameType = Optional[Union[ParamsTypeOpt, Iterable[str]]]  #:
+ParamsNameOpt = Optional[str | list[str]]  #:
+ParamsOrNameType = Optional[ParamsTypeOpt | Iterable[str]]  #:
 ParameterType = TypeVar("ParameterType", bound=dict[str, "zfit.core.interfaces.ZfitParameter"])  #:
 ParametersType = Iterable[ParameterType]
 ParamTypeInput = TypeVar("ParamTypeInput", "zfit.core.interfaces.ZfitParameter", NumericalScalarType)  #:
 ParamsTypeInput = Mapping[Union[str, "zfit.core.interfaces.ZfitParameter"], ParamTypeInput]  #:
 
-ExtendedInputType = Optional[Union[bool, ParamTypeInput]]  #:
+ExtendedInputType = Optional[bool | ParamTypeInput]  #:
 
 # Zfit Structure
 BaseObjectType = Union[

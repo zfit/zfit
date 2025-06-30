@@ -1,12 +1,8 @@
 #  Copyright (c) 2025 zfit
 from __future__ import annotations
 
-import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 import functools
+import typing
 from typing import Any
 
 import tensorflow as tf
@@ -16,6 +12,9 @@ import zfit.z.numpy as _znp
 from ..settings import ztypes
 from ..util.exception import BreakingAPIChangeError
 from .tools import _auto_upcast
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 
 def exp(x) -> tf.Tensor:
@@ -71,7 +70,7 @@ def check_numerics(tensor: Any, message: Any, name: Any = None) -> tf.Operation:
     Returns:
         A TensorFlow operation that checks if the tensor is valid
     """
-    from .. import run
+    from .. import run  # noqa: PLC0415
 
     if not run.numeric_checks:
         return None
@@ -86,7 +85,7 @@ def check_numerics(tensor: Any, message: Any, name: Any = None) -> tf.Operation:
 
 def assert_all_finite(t: tf.Tensor, msg: str | None = None) -> tf.Operation:
     """Assert that all elements of a tensor are finite."""
-    from .. import run
+    from .. import run  # noqa: PLC0415
 
     if not run.numeric_checks:
         return None
@@ -95,7 +94,7 @@ def assert_all_finite(t: tf.Tensor, msg: str | None = None) -> tf.Operation:
 
 def assert_positive(t: tf.Tensor, msg: str | None = None) -> tf.Operation:
     """Assert that all elements of a tensor are positive."""
-    from .. import run
+    from .. import run  # noqa: PLC0415
 
     if not run.numeric_checks:
         return None
@@ -104,7 +103,7 @@ def assert_positive(t: tf.Tensor, msg: str | None = None) -> tf.Operation:
 
 def assert_non_negative(t: tf.Tensor, msg: str | None = None) -> tf.Operation:
     """Assert that all elements of a tensor are non-negative."""
-    from .. import run
+    from .. import run  # noqa: PLC0415
 
     if not run.numeric_checks:
         return None
@@ -113,7 +112,7 @@ def assert_non_negative(t: tf.Tensor, msg: str | None = None) -> tf.Operation:
 
 def assert_equal(t1: tf.Tensor, t2: tf.Tensor, message: str | None = None) -> tf.Operation:
     """Assert that two tensors are equal."""
-    from .. import run
+    from .. import run  # noqa: PLC0415
 
     if not run.numeric_checks:
         return None
@@ -122,7 +121,7 @@ def assert_equal(t1: tf.Tensor, t2: tf.Tensor, message: str | None = None) -> tf
 
 def assert_greater_equal(x: tf.Tensor, y: tf.Tensor, msg: str | None = None) -> tf.Operation | None:
     """Assert that two tensors are equal or greater."""
-    from .. import run
+    from .. import run  # noqa: PLC0415
 
     if not run.numeric_checks:
         return None
@@ -131,7 +130,7 @@ def assert_greater_equal(x: tf.Tensor, y: tf.Tensor, msg: str | None = None) -> 
 
 def assert_greater(x: tf.Tensor, y: tf.Tensor, message: str | None = None) -> tf.Operation | None:
     """Assert that two tensors are greater."""
-    from .. import run
+    from .. import run  # noqa: PLC0415
 
     if not run.numeric_checks:
         return None
@@ -140,7 +139,7 @@ def assert_greater(x: tf.Tensor, y: tf.Tensor, message: str | None = None) -> tf
 
 def assert_less(x: tf.Tensor, y: tf.Tensor, message: str | None = None) -> tf.Operation | None:
     """Assert that two tensors are less."""
-    from .. import run
+    from .. import run  # noqa: PLC0415
 
     if not run.numeric_checks:
         return None

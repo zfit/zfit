@@ -3,12 +3,12 @@ from __future__ import annotations
 
 import typing
 
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 import tensorflow as tf
 
 from .base_tf import WrapOptimizer
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 
 class Adam(WrapOptimizer):

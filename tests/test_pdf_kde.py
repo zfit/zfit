@@ -1,4 +1,4 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2025 zfit
 import itertools
 
 import hist
@@ -11,7 +11,7 @@ from matplotlib import pyplot as plt
 import zfit
 from zfit import z
 import zfit.z.numpy as znp
-from zfit.core.interfaces import ZfitParameter
+from zfit._interfaces import ZfitParameter
 
 
 @pytest.mark.skip()  # copy not yet implemented
@@ -384,8 +384,6 @@ def _run(kdetype, full, upper=None, legacy=True, padding=False):
 @pytest.mark.parametrize("npoints", [1100, 500_000])
 @pytest.mark.parametrize("upper", [-4, -1, 3])
 def test_kde_border(kdetype, npoints, upper):
-    import zfit
-
     cfg = create_kde(
         kdetype=kdetype, npoints=npoints, cfgonly=True, full=False, legacy=False
     )

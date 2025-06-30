@@ -50,11 +50,6 @@ Example with a pdf that caches the normalization:
 
 from __future__ import annotations
 
-import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 import collections.abc
 import functools
 import gc
@@ -71,6 +66,9 @@ import uhi.typing.plottable
 
 from . import ztyping
 from .container import convert_to_container
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 
 class ZfitGraphCachable:
@@ -181,7 +179,7 @@ def invalidate_graph(func):
             msg = "Decorator can only be used in a subclass of `ZfitGraphCachable`"
             raise TypeError(msg)
 
-        from .. import run
+        from .. import run  # noqa: PLC0415
 
         if not tf.inside_function():
             run.clear_graph_cache()
@@ -306,7 +304,7 @@ class FunctionCacheHolder(GraphCachable):
         return tuple(combined_cleaned)
 
     def get_immutable_repr_obj(self, obj):
-        from ..core.interfaces import (
+        from zfit._interfaces import (  # noqa: PLC0415
             ZfitConstraint,
             ZfitData,
             ZfitLimit,
@@ -389,7 +387,7 @@ def clear_graph_cache(*, call_gc=None):
     if call_gc is None:
         call_gc = False
 
-    from zfit.z.zextension import FunctionWrapperRegistry
+    from zfit.z.zextension import FunctionWrapperRegistry  # noqa: PLC0415
 
     for registry in FunctionWrapperRegistry.registries:
         for wrapped_meth in registry.function_cache:

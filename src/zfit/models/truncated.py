@@ -2,21 +2,17 @@
 from __future__ import annotations
 
 import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 from collections.abc import Iterable
-from typing import Literal, Union
+from typing import Literal
 
 import numpy as np
 import pydantic.v1 as pydantic
 import tensorflow as tf
 
 import zfit.z.numpy as znp
+from zfit._interfaces import ZfitPDF, ZfitSpace
 
 from .. import z
-from ..core.interfaces import ZfitPDF, ZfitSpace
 from ..core.serialmixin import SerializableMixin
 from ..core.space import Space, convert_to_space, supports
 from ..serialization import Serializer, SpaceRepr  # noqa: F401
@@ -26,8 +22,11 @@ from ..util.exception import AnalyticIntegralNotImplemented, SpecificFunctionNot
 from .basefunctor import FunctorPDFRepr
 from .functor import BaseFunctor
 
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
-def check_limits(limits: Union[ZfitSpace, list[ZfitSpace]], obs=None):
+
+def check_limits(limits: ZfitSpace | list[ZfitSpace], obs=None) -> tuple[ZfitSpace, ...]:
     """Check if the limits are valid Spaces and return an iterable."""
     limits = convert_to_container(limits, container=tuple)
     obs = obs.obs if obs is not None else None
@@ -64,7 +63,7 @@ def check_limits(limits: Union[ZfitSpace, list[ZfitSpace]], obs=None):
     return check_overlap(limits_sorted)
 
 
-def check_overlap(limits):
+def check_overlap(limits: Iterable[ZfitSpace]) -> tuple[ZfitSpace, ...]:
     if len(limits) == 1:
         return limits
     for i, limit1 in enumerate(limits[:-1]):
@@ -173,13 +172,13 @@ class TruncatedPDF(BaseFunctor, SerializableMixin):
         if extended is True and pdf.is_extended:
             paramname = "wrapped_yield"
 
-            def scaled_yield(params):
+            def scaled_yield(params: dict[str, tf.Tensor]) -> tuple[tf.Tensor]:
                 base_norm = pdf.integrate(limits=obs, norm=False)
                 piecewise_norms = znp.asarray([pdf.integrate(limits=limit, norm=False) for limit in self._limits])
                 relative_scale = znp.sum(piecewise_norms / base_norm)
                 return (params[paramname] * relative_scale,)
 
-            import zfit
+            import zfit  # noqa: PLC0415
 
             params_deps = {p.name: p for p in pdf.get_params(floating=None)}
             toreplace = paramname
@@ -213,7 +212,7 @@ class TruncatedPDF(BaseFunctor, SerializableMixin):
         # this maybe has a speedup (although limited as we're using dynamic shapes -> needs to change for JAX)
         # but most importantly avoids any issue if we take the gradient of a pdf that is not defined outside
         # the limits, because this can yield NaNs using a naive multiplication with a mask
-        from zfit import Data
+        from zfit import Data  # noqa: PLC0415
 
         xarray = znp.asarray(x.value())
         inside_arrays = [limit.inside(x) for limit in self._limits]
@@ -227,7 +226,7 @@ class TruncatedPDF(BaseFunctor, SerializableMixin):
     def _integrate(self, limits, norm, options=None):
         del norm  # not used here
         # cannot equal, as possibly jitted
-        from zfit import run
+        from zfit import run  # noqa: PLC0415
 
         if (
             not run.executing_eagerly() or limits != self.space
@@ -244,7 +243,7 @@ class TruncatedPDF(BaseFunctor, SerializableMixin):
     def _analytic_integrate(self, limits, norm):
         del norm  # not used here
         # cannot equal, as possibly jitted
-        from zfit import run
+        from zfit import run  # noqa: PLC0415
 
         if (
             not run.executing_eagerly() or limits != self.space
@@ -264,7 +263,7 @@ class TruncatedPDF(BaseFunctor, SerializableMixin):
         pdf = self.pdfs[0]
 
         # TODO: cannot compare, as possibly jitted
-        from zfit import run
+        from zfit import run  # noqa: PLC0415
 
         if (
             not run.executing_eagerly() or limits != self.space
@@ -279,7 +278,9 @@ class TruncatedPDF(BaseFunctor, SerializableMixin):
             counts = tf.unstack(z.random.counts_multinomial(n, probs=fracs), axis=0)
         else:
             counts = [n]
-        samples = [self.pdfs[0].sample(count, limits=limit).value() for count, limit in zip(counts, limits)]
+        samples = [
+            self.pdfs[0].sample(count, limits=limit).value() for count, limit in zip(counts, limits, strict=True)
+        ]
         return znp.concatenate(samples, axis=0)
 
 

@@ -1,4 +1,4 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2025 zfit
 
 from __future__ import annotations
 
@@ -16,7 +16,7 @@ import tensorflow as tf
 import zfit
 import zfit.z.numpy as znp
 from zfit.core.data import Data
-from zfit.core.interfaces import ZfitPDF, ZfitBinnedPDF
+from zfit._interfaces import ZfitPDF, ZfitBinnedPDF
 from zfit.core.parameter import Parameter
 from zfit.core.space import Space
 from zfit.models.dist_tfp import Gauss

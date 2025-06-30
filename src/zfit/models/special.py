@@ -6,12 +6,8 @@ One example is a normal function `Function` that allows to simply define a non-n
 #  Copyright (c) 2025 zfit
 from __future__ import annotations
 
-import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 import functools
+import typing
 
 from ..core.basemodel import SimpleModelSubclassMixin
 from ..core.basepdf import BasePDF
@@ -19,6 +15,9 @@ from ..core.space import supports
 from ..util import ztyping
 from ..util.exception import NormRangeNotImplemented
 from .functor import BaseFunctor
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 
 class SimplePDF(BasePDF):
