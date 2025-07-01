@@ -680,6 +680,35 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
         new_pdf.set_yield(value=yield_)
         return new_pdf
 
+    def create_clamped(
+        self, 
+        lower_bound: float = 1e-310,
+        name: str | None = None,
+    ) -> ZfitPDF:
+        """Return a clamped version of this PDF that ensures output values are not negative or NaN.
+        
+        This method creates a ClampPDF functor that wraps the current PDF and clamps its output
+        using znp.maximum to ensure values are at least `lower_bound`. This is useful for PDFs 
+        that can produce negative values (e.g., KDE with negative weights) or numerical 
+        instabilities that lead to NaN values.
+        
+        Args:
+            lower_bound: The minimum value to clamp the output to. Default is 1e-310.
+            name: New name of the PDF. If ``None``, the name of the PDF with a trailing "_clamped" is used.
+            
+        Returns:
+            :py:class:`~zfit.core.interfaces.ZfitPDF`: a new PDF that is clamped
+        """
+        from zfit.models.functor import ClampPDF  # noqa: PLC0415
+        
+        name = f"{self.name}_clamped" if name is None else name
+        
+        return ClampPDF(
+            pdf=self,
+            lower_bound=lower_bound,
+            name=name,
+        )
+
     @deprecated(None, "Use `create_extended` instead or `extended=yield` when creating the PDF.")
     def set_yield(self, value):
         """Make the model extended **inplace** by setting a yield. If possible, prefer to use ``create_extended``.

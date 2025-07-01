@@ -446,12 +446,7 @@ def min_std_or_iqr(x, weights):
 @z.function(wraps="tensor", keepalive=True)
 def calc_kernel_probs(size, weights):
     if weights is not None:
-        normalized_weights = weights / znp.sum(weights)
-        # Handle negative weights that could lead to negative probabilities
-        # Clamp negative probabilities to a small positive value to ensure valid categorical distribution
-        normalized_weights = znp.maximum(normalized_weights, znp.asarray(1e-100, dtype=normalized_weights.dtype))
-        # Renormalize to ensure probabilities sum to 1
-        return normalized_weights / znp.sum(normalized_weights)
+        return weights / znp.sum(weights)
     else:
         return tf.broadcast_to(1 / size, shape=(znp.asarray(size, tf.int32),))
 
@@ -799,13 +794,6 @@ class GaussianKDE1DimV1(KDEHelper, WrapDistribution):
         self._original_data = original_data  # for copying
         self._truncate = truncate
 
-    def _unnormalized_pdf(self, x):
-        """Override to handle negative weights that can produce negative PDF values."""
-        value = super()._unnormalized_pdf(x)
-        # Clamp negative values to small positive epsilon to avoid NaN in numerical checks
-        # This handles the case where negative weights in KDE lead to negative PDF regions
-        return znp.maximum(value, znp.asarray(1e-100, dtype=value.dtype))
-
 
 class KDE1DimExact(KDEHelper, WrapDistribution, SerializableMixin):
     _bandwidth_methods = KDEHelper._bandwidth_methods.copy()
@@ -1041,13 +1029,6 @@ class KDE1DimExact(KDEHelper, WrapDistribution, SerializableMixin):
             label=label,
         )
         self.hs3.original_init.update(original_init)
-
-    def _unnormalized_pdf(self, x):
-        """Override to handle negative weights that can produce negative PDF values."""
-        value = super()._unnormalized_pdf(x)
-        # Clamp negative values to small positive epsilon to avoid NaN in numerical checks
-        # This handles the case where negative weights in KDE lead to negative PDF regions
-        return znp.maximum(value, znp.asarray(1e-100, dtype=value.dtype))
 
 
 class KDE1DimExactRepr(BasePDFRepr):
@@ -1344,13 +1325,6 @@ class KDE1DimGrid(KDEHelper, WrapDistribution, SerializableMixin):
         )
         self.hs3.original_init.update(original_init)
 
-    def _unnormalized_pdf(self, x):
-        """Override to handle negative weights that can produce negative PDF values."""
-        value = super()._unnormalized_pdf(x)
-        # Clamp negative values to small positive epsilon to avoid NaN in numerical checks
-        # This handles the case where negative weights in KDE lead to negative PDF regions
-        return znp.maximum(value, znp.asarray(1e-100, dtype=value.dtype))
-
 
 def bw_is_arraylike(bw, allow1d):
     return (
@@ -1638,9 +1612,6 @@ class KDE1DimFFT(KDEHelper, BasePDF, SerializableMixin):
 
         value = tfp.math.interp_regular_1d_grid(x, x_min, x_max, self._grid_estimations)
         value.set_shape(x.shape)
-        # Clamp negative values to small positive epsilon to avoid NaN in numerical checks
-        # This handles the case where negative weights in KDE lead to negative PDF regions
-        value = znp.maximum(value, znp.asarray(1e-100, dtype=value.dtype))
         return value
 
 
@@ -1855,9 +1826,6 @@ class KDE1DimISJ(KDEHelper, BasePDF, SerializableMixin):
 
         value = tfp.math.interp_regular_1d_grid(x, x_min, x_max, self._grid_estimations)
         value.set_shape(x.shape)
-        # Clamp negative values to small positive epsilon to avoid NaN in numerical checks
-        # This handles the case where negative weights in KDE lead to negative PDF regions
-        value = znp.maximum(value, znp.asarray(1e-100, dtype=value.dtype))
         return value
 
 

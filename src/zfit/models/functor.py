@@ -486,3 +486,86 @@ class ProductPDF(BaseFunctor, SerializableMixin):
 class ProductPDFRepr(FunctorPDFRepr):
     _implementation = ProductPDF
     hs3_type: Literal["ProductPDF"] = pydantic.Field("ProductPDF", alias="type")
+
+
+class ClampPDF(BaseFunctor, SerializableMixin):
+    """A functor that clamps the output of a PDF to ensure it doesn't produce negative or NaN values.
+    
+    This is useful for PDFs that can produce negative values (e.g., KDE with negative weights) or
+    numerical instabilities that lead to NaN values. The clamping operation uses znp.maximum to
+    ensure the output is at least the specified minimum value.
+    
+    Args:
+        pdf: The PDF to clamp
+        lower_bound: The minimum value to clamp the output to. Default is 1e-310.
+        obs: Observables of the PDF. If not given, taken from the wrapped PDF.
+        extended: Whether the PDF is extended. If not given, taken from the wrapped PDF.  
+        norm: Normalization range. If not given, taken from the wrapped PDF.
+        name: Name of the PDF
+    """
+    
+    def __init__(
+        self,
+        pdf: ZfitPDF,
+        lower_bound: float = 1e-310,
+        obs: ztyping.ObsTypeInput = None,
+        extended: ExtendedInputType = None,
+        norm: NormInputType = None,
+        name: str = "ClampPDF",
+        **kwargs,
+    ):
+        self.pdf = pdf
+        self.lower_bound = znp.asarray(lower_bound, dtype=pdf.dtype)
+        
+        # Use the wrapped PDF's properties if not explicitly provided
+        if obs is None:
+            obs = pdf.obs
+        if extended is None:
+            extended = pdf.is_extended
+        if norm is None:
+            norm = pdf.norm
+            
+        super().__init__(
+            pdfs=[pdf],
+            obs=obs, 
+            extended=extended,
+            norm=norm,
+            name=name,
+            **kwargs
+        )
+    
+    def _unnormalized_pdf(self, x):
+        """Return the clamped unnormalized PDF value."""
+        value = self.pdf.pdf(x, norm=False)
+        return znp.maximum(value, self.lower_bound)
+    
+    @supports(norm=True, multiple_limits=True)
+    def _pdf(self, x, norm):
+        """Return the clamped PDF value."""
+        value = self.pdf.pdf(x, norm=norm)
+        return znp.maximum(value, self.lower_bound)
+    
+    @supports(norm=True, multiple_limits=True) 
+    def _ext_pdf(self, x, norm):
+        """Return the clamped extended PDF value."""
+        if not self.pdf.is_extended:
+            msg = f"PDF {self.pdf} is not extended but extended PDF was called."
+            raise SpecificFunctionNotImplemented(msg)
+        value = self.pdf.ext_pdf(x, norm=norm)
+        return znp.maximum(value, self.lower_bound)
+    
+    def _integrate(self, limits, norm, options):
+        """Delegate integration to the wrapped PDF."""
+        return self.pdf.integrate(limits=limits, norm=norm, options=options)
+        
+    def _ext_integrate(self, limits, norm, options):
+        """Delegate extended integration to the wrapped PDF."""
+        return self.pdf.ext_integrate(limits=limits, norm=norm, options=options)
+
+
+class ClampPDFRepr(FunctorPDFRepr):
+    _implementation = ClampPDF
+    hs3_type: Literal["ClampPDF"] = pydantic.Field("ClampPDF", alias="type")
+    
+    pdf: BasePDFRepr = pydantic.Field(alias="pdf")
+    lower_bound: float = pydantic.Field(alias="lower_bound")
