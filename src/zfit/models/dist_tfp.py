@@ -284,9 +284,10 @@ class ExponentialTFP(WrapDistribution):
         tau: ztyping.ParamTypeInput,
         obs: ztyping.ObsTypeInput,
         name: str = "Exponential",
+        label: str | None = None,
     ):
         (tau,) = self._check_input_params_tfp(tau)
-        params = {"tau", tau}
+        params = {"tau": tau}
         dist_params = {"rate": tau}
         distribution = tfp.distributions.Exponential
         super().__init__(
@@ -295,6 +296,7 @@ class ExponentialTFP(WrapDistribution):
             obs=obs,
             params=params,
             name=name,
+            label=label,
         )
 
 
