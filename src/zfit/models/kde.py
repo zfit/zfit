@@ -964,6 +964,7 @@ class KDE1DimExact(KDEHelper, WrapDistribution, SerializableMixin):
             "weights": weights,
             "extended": extended,
             "name": name,
+            "label": label,
         }
 
         if kernel is None:
@@ -1025,6 +1026,7 @@ class KDE1DimExact(KDEHelper, WrapDistribution, SerializableMixin):
             extended=extended,
             norm=norm,
             name=name,
+            label=label,
         )
         self.hs3.original_init.update(original_init)
 
@@ -1232,6 +1234,7 @@ class KDE1DimGrid(KDEHelper, WrapDistribution, SerializableMixin):
             "name": name,
             "extended": extended,
             "norm": norm,
+            "label": label,
         }
         if kernel is None:
             kernel = tfd.Normal
@@ -1532,6 +1535,7 @@ class KDE1DimFFT(KDEHelper, BasePDF, SerializableMixin):
             "extended": extended,
             "norm": norm,
             "name": name,
+            "label": label,
         }
         if isinstance(bandwidth, ZfitParameter):
             msg = "bandwidth cannot be a Parameter for the FFT KDE."
@@ -1777,6 +1781,7 @@ class KDE1DimISJ(KDEHelper, BasePDF, SerializableMixin):
             "name": name,
             "norm": norm,
             "extended": extended,
+            "label": label,
         }
         if num_grid_points is None:
             num_grid_points = self._default_num_grid_points
