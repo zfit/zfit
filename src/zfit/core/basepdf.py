@@ -682,18 +682,20 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
 
     def create_clamped(
         self, 
-        lower_bound: float = 1e-310,
+        lower: float = 1e-310,
+        upper: float = None,
         name: str | None = None,
     ) -> ZfitPDF:
-        """Return a clamped version of this PDF that ensures output values are not negative or NaN.
+        """Return a clamped version of this PDF that ensures output values are within specified bounds.
         
         This method creates a ClampPDF functor that wraps the current PDF and clamps its output
-        using znp.maximum to ensure values are at least `lower_bound`. This is useful for PDFs 
+        using znp.maximum/minimum to ensure values are within the specified bounds. This is useful for PDFs 
         that can produce negative values (e.g., KDE with negative weights) or numerical 
         instabilities that lead to NaN values.
         
         Args:
-            lower_bound: The minimum value to clamp the output to. Default is 1e-310.
+            lower: The minimum value to clamp the output to. Default is 1e-310.
+            upper: The maximum value to clamp the output to. Default is None (no upper limit).
             name: New name of the PDF. If ``None``, the name of the PDF with a trailing "_clamped" is used.
             
         Returns:
@@ -705,7 +707,8 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
         
         return ClampPDF(
             pdf=self,
-            lower_bound=lower_bound,
+            lower=lower,
+            upper=upper,
             name=name,
         )
 

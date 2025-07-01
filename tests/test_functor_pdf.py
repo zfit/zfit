@@ -52,7 +52,7 @@ def test_clamp_pdf_basic():
     import numpy as np
     
     gauss = zfit.pdf.Gauss(1.0, 0.5, obs=space1)
-    clamped_gauss = gauss.create_clamped(lower_bound=1e-10)
+    clamped_gauss = gauss.create_clamped(lower=1e-10)
     
     # Test that the clamped PDF maintains basic properties
     assert clamped_gauss.obs == gauss.obs
@@ -116,10 +116,10 @@ def test_clamp_pdf_custom_bound():
     
     gauss = zfit.pdf.Gauss(1.0, 0.5, obs=space1)
     custom_bound = 1e-5
-    clamped_gauss = gauss.create_clamped(lower_bound=custom_bound)
+    clamped_gauss = gauss.create_clamped(lower=custom_bound)
     
     # Test that the bound is respected
-    assert clamped_gauss.lower_bound == custom_bound
+    assert clamped_gauss.lower == custom_bound
     
     # For this test, we create an artificial case where clamping matters
     # Use a very small test region where Gaussian is essentially zero
@@ -139,3 +139,46 @@ def test_clamp_pdf_extended():
     # Test that extension is preserved
     assert clamped_extended.is_extended
     assert clamped_extended.get_yield().numpy() == 100.0
+
+
+def test_clamp_pdf_upper_bound():
+    """Test ClampPDF with upper bound."""
+    import numpy as np
+    
+    # Create a Gaussian centered at 0
+    gauss = zfit.pdf.Gauss(0.0, 0.1, obs=space1)  # Narrow Gaussian for high peak
+    upper_bound = 1.0
+    clamped_gauss = gauss.create_clamped(upper=upper_bound)
+    
+    # Test that both bounds are set correctly
+    assert clamped_gauss.upper == upper_bound
+    assert clamped_gauss.lower == 1e-310  # default lower
+    
+    # Evaluate at the peak where the value would be highest
+    x_test = np.array([[0.0]])  # At the mean
+    clamped_vals = clamped_gauss.pdf(x_test).numpy()
+    
+    # The value should not exceed the upper bound
+    assert np.all(clamped_vals <= upper_bound)
+
+
+def test_clamp_pdf_both_bounds():
+    """Test ClampPDF with both lower and upper bounds."""
+    import numpy as np
+    
+    gauss = zfit.pdf.Gauss(1.0, 0.5, obs=space1)
+    lower_bound = 1e-8
+    upper_bound = 0.5
+    clamped_gauss = gauss.create_clamped(lower=lower_bound, upper=upper_bound)
+    
+    # Test that both bounds are set correctly
+    assert clamped_gauss.lower == lower_bound
+    assert clamped_gauss.upper == upper_bound
+    
+    # Test at various points
+    x_test = np.array([[-10.0], [1.0], [10.0]])  # Far left, center, far right
+    clamped_vals = clamped_gauss.pdf(x_test).numpy()
+    
+    # All values should be within bounds
+    assert np.all(clamped_vals >= lower_bound)
+    assert np.all(clamped_vals <= upper_bound)
