@@ -988,6 +988,34 @@ class Data(
         """
         return self.value().numpy()
 
+    def __array__(self, dtype=None, copy=None):
+        """Convert the data to a NumPy array.
+
+        This method implements the NumPy array protocol, allowing zfit Data objects
+        to be used directly with NumPy functions.
+
+        Args:
+            dtype: The desired data type. If provided and different from the object's
+                native dtype, the result will be cast to this type.
+            copy: Whether to force a copy of the data:
+                - None: copy only if needed (e.g., dtype conversion requires it)
+                - True: always make a copy
+                - False: avoid copying if possible, may still copies if unavoidable
+
+        Returns:
+            np.ndarray: A NumPy array representation of the data.
+        """
+        # Get the data as numpy array
+        arr = self.to_numpy()
+
+        # Handle dtype conversion
+        if dtype is not None and arr.dtype != dtype:
+            arr = arr.astype(dtype, copy=copy)
+        elif copy is True:
+            arr = arr.copy()
+
+        return arr
+
     def _value_internal(self, obs: ztyping.ObsTypeInput = None):
         if obs is not None:
             obs = convert_to_obs_str(obs)

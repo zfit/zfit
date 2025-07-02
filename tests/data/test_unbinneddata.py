@@ -264,3 +264,188 @@ def test_unbinned_data_concat_obs_errors():
 
     with pytest.raises(ObsIncompatibleError):
         zfit.data.concat([data1w, data3w], obs=space12, axis=1)
+
+
+def test_data_array_protocol():
+    """Test the numpy __array__ protocol implementation for Data objects."""
+    import zfit
+
+    # Test data setup
+    n = 100
+    nobs = 2
+    space_x = zfit.Space("x", limits=(-1, 1))
+    space_y = zfit.Space("y", limits=(-2, 2))
+    obs = space_x * space_y
+
+    # Create test data
+    np_data = np.random.uniform(-1, 1, size=(n, nobs))
+    weights = np.random.uniform(0.5, 1.5, size=(n,))
+
+    # Test unweighted data
+    data = zfit.Data.from_numpy(obs=obs, array=np_data)
+
+    # Test basic __array__ conversion
+    arr = np.array(data)
+    assert isinstance(arr, np.ndarray)
+    np.testing.assert_array_equal(arr, np_data)
+    assert arr.shape == (n, nobs)
+
+    # Test asarray conversion
+    arr2 = np.asarray(data)
+    assert isinstance(arr2, np.ndarray)
+    np.testing.assert_array_equal(arr2, np_data)
+
+    # Test dtype conversion
+    arr_float32 = np.array(data, dtype=np.float32)
+    assert arr_float32.dtype == np.float32
+    np.testing.assert_array_almost_equal(arr_float32, np_data.astype(np.float32))
+
+    # Test copy=True
+    arr_copy = np.array(data, copy=True)
+    assert isinstance(arr_copy, np.ndarray)
+    np.testing.assert_array_equal(arr_copy, np_data)
+    # Modify copy to ensure it's independent
+    arr_copy[0, 0] = 999
+    assert not np.array_equal(arr_copy, np_data)
+
+    # Test copy=False with same dtype (should not raise)
+    arr_nocopy = np.array(data, copy=False)
+    assert isinstance(arr_nocopy, np.ndarray)
+    np.testing.assert_array_equal(arr_nocopy, np_data)
+
+    # Note: NumPy may handle dtype conversion with copy=False internally,
+    # so we don't test for the exception here as the behavior can vary
+
+
+def test_data_array_protocol_weighted():
+    """Test the numpy __array__ protocol with weighted data."""
+    import zfit
+
+    # Test data setup
+    n = 50
+    obs = zfit.Space("x", limits=(-1, 1))
+
+    # Create test data with weights
+    np_data = np.random.uniform(-1, 1, size=(n, 1))
+    weights = np.random.uniform(0.5, 1.5, size=(n,))
+
+    data_weighted = zfit.Data.from_numpy(obs=obs, array=np_data, weights=weights)
+
+    # Test that __array__ returns the data, not the weights
+    arr = np.array(data_weighted)
+    assert isinstance(arr, np.ndarray)
+    np.testing.assert_array_equal(arr, np_data)
+    assert arr.shape == (n, 1)
+
+    # Verify weights are separate (not included in array conversion)
+    assert data_weighted.has_weights
+    np.testing.assert_array_equal(data_weighted.weights, weights)
+
+
+def test_data_array_protocol_numpy_functions():
+    """Test that Data objects work with various numpy functions."""
+    import zfit
+
+    # Test data setup
+    n = 50
+    nobs = 2
+    space_x = zfit.Space("x", limits=(-1, 1))
+    space_y = zfit.Space("y", limits=(-2, 2))
+    obs = space_x * space_y
+
+    # Create test data - make sure it's within the space limits
+    np_data = np.empty((n, nobs))
+    np_data[:, 0] = np.random.uniform(-0.9, 0.9, size=n)  # x: within (-1, 1)
+    np_data[:, 1] = np.random.uniform(-1.9, 1.9, size=n)  # y: within (-2, 2)
+    data = zfit.Data.from_numpy(obs=obs, array=np_data)
+
+    # Test with np.mean
+    mean_data = np.mean(data, axis=0)
+    mean_np = np.mean(np_data, axis=0)
+    np.testing.assert_array_almost_equal(mean_data, mean_np)
+
+    # Test with np.std
+    std_data = np.std(data, axis=0)
+    std_np = np.std(np_data, axis=0)
+    np.testing.assert_array_almost_equal(std_data, std_np)
+
+    # Test with np.sum
+    sum_data = np.sum(data, axis=0)
+    sum_np = np.sum(np_data, axis=0)
+    np.testing.assert_array_almost_equal(sum_data, sum_np)
+
+    # Test with np.concatenate
+    # Create data2 with guarantee_limits to avoid cutting
+    data2 = zfit.Data.from_numpy(obs=obs, array=np_data * 0.5, guarantee_limits=True)  # Scale down to ensure within limits
+    concat_result = np.concatenate([data, data2], axis=0)
+    expected_concat = np.concatenate([np_data, np_data * 0.5], axis=0)
+    np.testing.assert_array_equal(concat_result, expected_concat)
+
+    # Test with np.reshape
+    if n >= 10:
+        reshaped = np.reshape(data, (n * nobs,))
+        expected_reshaped = np.reshape(np_data, (n * nobs,))
+        np.testing.assert_array_equal(reshaped, expected_reshaped)
+
+
+def test_data_array_protocol_single_obs():
+    """Test __array__ protocol with single observable data."""
+    import zfit
+
+    # Test data setup
+    n = 30
+    obs = zfit.Space("x", limits=(-1, 1))
+
+    # Create test data (1D)
+    np_data_1d = np.random.uniform(-1, 1, size=(n,))
+    data = zfit.Data.from_numpy(obs=obs, array=np_data_1d)
+
+    # Test array conversion
+    arr = np.array(data)
+    assert isinstance(arr, np.ndarray)
+    assert arr.shape == (n, 1)  # zfit should expand to 2D
+    np.testing.assert_array_equal(arr.squeeze(), np_data_1d)
+
+    # Test that it works with numpy functions
+    mean_result = np.mean(arr)
+    expected_mean = np.mean(np_data_1d)
+    np.testing.assert_almost_equal(mean_result, expected_mean)
+
+
+def test_sampler_data_array_protocol():
+    """Test the numpy __array__ protocol with SamplerData objects."""
+    import zfit
+
+    # Test data setup
+    n = 50
+    obs = zfit.Space("x", limits=(-1, 1))
+
+    def sample_func(n_samples, params):
+        # Generate samples within the limits (-1, 1)
+        import tensorflow as tf
+        from zfit import ztypes
+        return tf.random.uniform((n_samples, 1), minval=-0.9, maxval=0.9, dtype=ztypes.float)
+
+    # Create SamplerData
+    sampler_data = zfit.data.SamplerData.from_sampler(
+        sample_func=sample_func,
+        n=n,
+        obs=obs
+    )
+
+    # Test that __array__ works (should inherit from Data)
+    arr = np.array(sampler_data)
+    assert isinstance(arr, np.ndarray)
+    assert arr.shape == (n, 1)
+
+    # Test with numpy functions
+    mean_result = np.mean(arr)
+    assert isinstance(mean_result, (float, np.floating))
+
+    # Test after resampling
+    sampler_data.resample()
+    arr2 = np.array(sampler_data)
+    assert isinstance(arr2, np.ndarray)
+    assert arr2.shape == (n, 1)
+    # Arrays should be different after resampling
+    assert not np.array_equal(arr, arr2)
