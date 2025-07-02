@@ -682,7 +682,7 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
 
     def to_clipped(
         self, 
-        lower: float = 1e-100,
+        lower: float = None,
         upper: float = None,
         name: str | None = None,
     ) -> ZfitPDF:
