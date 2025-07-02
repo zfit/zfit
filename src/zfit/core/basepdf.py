@@ -681,30 +681,30 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
         return new_pdf
 
     def to_clipped(
-        self, 
+        self,
         lower: float = None,
         upper: float = None,
         name: str | None = None,
     ) -> ZfitPDF:
         """Return a clipped version of this PDF that ensures output values are within specified bounds.
-        
+
         This method creates a ClipPDF functor that wraps the current PDF and clips its output
-        using znp.maximum/minimum to ensure values are within the specified bounds. This is useful for PDFs 
-        that can produce negative values (e.g., KDE with negative weights) or numerical 
+        using znp.maximum/minimum to ensure values are within the specified bounds. This is useful for PDFs
+        that can produce negative values (e.g., KDE with negative weights) or numerical
         instabilities that lead to NaN values.
-        
+
         Args:
             lower: The minimum value to clip the output to. Default is 1e-100.
             upper: The maximum value to clip the output to. Default is None (no upper limit).
             name: New name of the PDF. If ``None``, the name of the PDF with a trailing "_clipped" is used.
-            
+
         Returns:
             :py:class:`~zfit.core.interfaces.ZfitPDF`: a new PDF that is clipped
         """
         from zfit.models.functor import ClipPDF  # noqa: PLC0415
-        
+
         name = f"{self.name}_clipped" if name is None else name
-        
+
         return ClipPDF(
             pdf=self,
             lower=lower,
