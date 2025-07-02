@@ -498,7 +498,7 @@ class ClampPDF(BaseFunctor, SerializableMixin):
     
     Args:
         pdf: The PDF to clamp
-        lower: The minimum value to clamp the output to. Default is 1e-310.
+        lower: The minimum value to clamp the output to. Default is None (no lower limit).
         upper: The maximum value to clamp the output to. Default is None (no upper limit).
         obs: Observables of the PDF. If not given, taken from the wrapped PDF.
         extended: Whether the PDF is extended. If not given, taken from the wrapped PDF.  
@@ -509,7 +509,7 @@ class ClampPDF(BaseFunctor, SerializableMixin):
     def __init__(
         self,
         pdf: ZfitPDF,
-        lower: float = 1e-310,
+        lower: float = None,
         upper: float = None,
         obs: ztyping.ObsTypeInput = None,
         extended: ExtendedInputType = None,

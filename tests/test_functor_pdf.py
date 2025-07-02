@@ -152,7 +152,7 @@ def test_clamp_pdf_upper_bound():
     
     # Test that both bounds are set correctly
     assert clamped_gauss.upper == upper_bound
-    assert clamped_gauss.lower == 1e-310  # default lower
+    assert clamped_gauss.lower is None  # No lower bound set
     
     # Evaluate at the peak where the value would be highest
     x_test = np.array([[0.0]])  # At the mean
@@ -182,3 +182,78 @@ def test_clamp_pdf_both_bounds():
     # All values should be within bounds
     assert np.all(clamped_vals >= lower_bound)
     assert np.all(clamped_vals <= upper_bound)
+
+
+# Custom polynomial PDF that can go below zero for testing
+class CustomPolynomialPDF(zfit.pdf.BasePDF, zfit.core.SerializableMixin):
+    """A custom second-degree polynomial PDF: f(x) = a*x^2 + b*x + c
+    
+    This PDF is designed to test clamping behavior as it can produce negative values
+    depending on the coefficients and x values.
+    """
+    _N_OBS = 1
+
+    def __init__(self, a, b, c, obs, extended=None, norm=None, name="CustomPolynomialPDF", label=None):
+        params = {"a": a, "b": b, "c": c}
+        super().__init__(obs, name=name, params=params, extended=extended, norm=norm, label=label)
+
+    @zfit.core.space.supports()
+    def _unnormalized_pdf(self, x, params):
+        a = params["a"]
+        b = params["b"] 
+        c = params["c"]
+        x_val = x.unstack_x()
+        return a * x_val**2 + b * x_val + c
+
+
+def test_clamp_pdf_optional_lower():
+    """Test that lower bound is truly optional."""
+    import numpy as np
+    
+    gauss = zfit.pdf.Gauss(1.0, 0.5, obs=space1)
+    
+    # Create clamped PDF with no lower bound
+    clamped_gauss = gauss.create_clamped()
+    
+    # Test that lower bound is None
+    assert clamped_gauss.lower is None
+    assert clamped_gauss.upper is None
+    
+    # Test with only upper bound
+    clamped_gauss_upper = gauss.create_clamped(upper=0.5)
+    assert clamped_gauss_upper.lower is None
+    assert clamped_gauss_upper.upper == 0.5
+
+
+def test_clamp_pdf_custom_negative_polynomial():
+    """Test ClampPDF with a custom polynomial that goes below zero."""
+    import numpy as np
+    
+    # Create polynomial f(x) = -x^2 + 1, which is positive at x=0 but negative for |x| > 1
+    a = zfit.Parameter("a", -1.0)  # coefficient for x^2 term (negative)
+    b = zfit.Parameter("b", 0.0)   # coefficient for x term
+    c = zfit.Parameter("c", 1.0)   # constant term
+    
+    poly_pdf = CustomPolynomialPDF(a=a, b=b, c=c, obs=space1)
+    
+    # Test that the polynomial actually goes negative outside |x| > 1
+    x_negative = np.array([[2.0]])  # Should give f(2) = -4 + 1 = -3
+    unclamped_vals = poly_pdf.pdf(x_negative, norm=False).numpy()
+    assert np.any(unclamped_vals < 0), "Polynomial should produce negative values for x=2"
+    
+    # Create clamped version with lower bound
+    lower_bound = 1e-10
+    clamped_poly = poly_pdf.create_clamped(lower=lower_bound)
+    
+    # Test that the negative values are clamped to the lower bound
+    clamped_vals = clamped_poly.pdf(x_negative, norm=False).numpy()
+    assert np.all(clamped_vals >= lower_bound), "Clamped PDF should not have values below lower bound"
+    
+    # Test at a point where the polynomial is positive (x=0, f(0)=1)
+    x_positive = np.array([[0.0]])
+    positive_vals = clamped_poly.pdf(x_positive, norm=False).numpy()
+    assert np.all(positive_vals > lower_bound), "Positive values should remain above lower bound"
+    
+    # Verify that values at x=0 are approximately 1 (the original polynomial value)
+    expected_at_zero = c.numpy()  # c = 1.0
+    np.testing.assert_allclose(positive_vals, expected_at_zero, rtol=1e-6)
