@@ -10,7 +10,7 @@ import zfit
 
 @pytest.mark.flaky(2)
 def test_fail_on_nan_strategy():
-    from zfit.minimizers.strategy import ToyStrategyFail
+    from zfit._minimizers.strategy import ToyStrategyFail
 
     sigma = zfit.Parameter("sigma", 2.0)
     obs = zfit.Space("obs1", limits=(-4, 5))
@@ -50,7 +50,7 @@ minimizers = sorted(minimizers(), key=lambda val: repr(val))
 
 @pytest.mark.parametrize("minimizer_cls", minimizers)
 def test_callback(minimizer_cls):
-    from zfit.minimizers.strategy import PushbackStrategy
+    from zfit._minimizers.strategy import PushbackStrategy
 
     class MyError(Exception):
         pass

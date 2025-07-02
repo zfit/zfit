@@ -16,10 +16,10 @@ import zfit.z.numpy as znp
 from zfit._interfaces import ZfitData, ZfitParameter, ZfitSpace
 
 from .. import z
+from .._serialization import Serializer, SpaceRepr
+from .._serialization.pdfrepr import BasePDFRepr
 from ..core.basepdf import BasePDF
 from ..core.serialmixin import SerializableMixin
-from ..serialization import Serializer, SpaceRepr
-from ..serialization.pdfrepr import BasePDFRepr
 from ..settings import run, ztypes
 from ..util import (
     binning as binning_util,

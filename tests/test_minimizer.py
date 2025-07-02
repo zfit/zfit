@@ -8,9 +8,9 @@ import pytest
 import scipy.optimize
 from ordered_set import OrderedSet
 
-import zfit.minimizers.optimizers_tf
+import zfit._minimizers.optimizers_tf
 import zfit.z.numpy as znp
-from zfit.minimizers.base_tf import WrapOptimizer
+from zfit._minimizers.base_tf import WrapOptimizer
 from zfit.util.exception import OperationNotAllowedError
 
 true_mu = 4.5
@@ -114,9 +114,9 @@ def minimizer_ids(minimizer_class_and_kwargs):
 
 
 minimizers = [
-    # minimizers, minimizer_kwargs, do error estimation
-    # TensorFlow minimizers
-    # (zfit.minimizers.optimizers_tf.WrapOptimizer, dict(optimizer=tf.keras.optimizers.Adam(learning_rate=0.05)),
+    # _minimizers, minimizer_kwargs, do error estimation
+    # TensorFlow _minimizers
+    # (zfit._minimizers.optimizers_tf.WrapOptimizer, dict(optimizer=tf.keras.optimizers.Adam(learning_rate=0.05)),
     #  False),
     # (
     #     zfit.minimize.Adam,
@@ -306,35 +306,35 @@ if (
             {"error": True, "longtests": True},
         )
     )
-# To run individual minimizers
-# minimizers = [(zfit.minimize.Minuit, {"verbosity": verbosity, 'gradient': True}, {'error': True, 'longtests': True})]
-# minimizers = [(zfit.minimize.IpyoptV1, {'verbosity': 7}, True)]
-# minimizers = [(zfit.minimize.ScipyLBFGSBV1, {'verbosity': 7}, True)]
-# minimizers = [(zfit.minimize.ScipyBFGS, {"verbosity": 10}, True)]
-# minimizers = [(zfit.minimize.ScipyPowellV1, {'verbosity': 7}, True)]
-# minimizers = [(zfit.minimize.ScipySLSQPV1, {'verbosity': 7}, True)]
-# minimizers = [(zfit.minimize.ScipyNelderMeadV1, {'verbosity': 7}, True)]
-# minimizers = [(zfit.minimize.ScipyCOBYLAV1, {'verbosity': 7}, True)]
-# minimizers = [(zfit.minimize.ScipyNewtonCGV1, {'verbosity': 7}, True)]
-# minimizers = [(zfit.minimize.ScipyTrustNCGV1, {'tol': 1e-3, 'verbosity': 7}, True)]
-# minimizers = [(zfit.minimize.ScipyTruncNCV1, {'tol': 1e-5, 'verbosity': 7}, True)]
-# minimizers = [(zfit.minimize.ScipyDoglegV1, {'tol': 1e3, 'verbosity': 7}, True)]
-# minimizers = [(zfit.minimize.ScipyTrustConstrV1, {'tol': 1e-5, 'verbosity': 7}, True)]
-# minimizers = [(zfit.minimize.ScipyTrustKrylovV1, {'verbosity': 7}, True)]
-# minimizers = [(zfit.minimize.NLoptLBFGSV1, {'verbosity': 7}, {'error': True, 'longtests': True})]
-# minimizers = [(zfit.minimize.NLoptTruncNewtonV1, {'verbosity': 7}, True)]
-# minimizers = [(zfit.minimize.NLoptSLSQPV1, {'verbosity': 7}, True)]
-# minimizers = [(zfit.minimize.NLoptMMAV1, {'verbosity': 7}, True)]
-# minimizers = [(zfit.minimize.NLoptCCSAQV1, {'verbosity': 7}, True)]
-# minimizers = [(zfit.minimize.NLoptMLSLV1, {'verbosity': 7}, {'error': True, 'longtests': True})]
-# minimizers = [(zfit.minimize.NLoptStoGOV1, {'verbosity': 7}, {'error': True, 'longtests': True})]  # DOESN'T WORK!
-# minimizers = [(zfit.minimize.NLoptSubplexV1, {'verbosity': 7}, {'error': True, 'longtests': True})]
-# minimizers = [(zfit.minimize.NLoptESCHV1, {'verbosity': 7}, {'error': True, 'longtests': True})]
-# minimizers = [(zfit.minimize.NLoptISRESV1, {'verbosity': 7}, {'error': True, 'longtests': True})]
-# minimizers = [(zfit.minimize.NLoptBOBYQAV1, {'verbosity': 7}, {'error': True, 'longtests': True})]
-# minimizers = [(zfit.minimize.NLoptShiftVarV1, {'verbosity': 7, 'rank': 2}, {'error': True, 'longtests': True})]
-# minimizers = [(zfit.minimize.Minuit, {'verbosity': 6}, True)]
-# minimizers = [(zfit.minimize.BFGS, {'verbosity': 6}, True)]
+# To run individual _minimizers
+# _minimizers = [(zfit.minimize.Minuit, {"verbosity": verbosity, 'gradient': True}, {'error': True, 'longtests': True})]
+# _minimizers = [(zfit.minimize.IpyoptV1, {'verbosity': 7}, True)]
+# _minimizers = [(zfit.minimize.ScipyLBFGSBV1, {'verbosity': 7}, True)]
+# _minimizers = [(zfit.minimize.ScipyBFGS, {"verbosity": 10}, True)]
+# _minimizers = [(zfit.minimize.ScipyPowellV1, {'verbosity': 7}, True)]
+# _minimizers = [(zfit.minimize.ScipySLSQPV1, {'verbosity': 7}, True)]
+# _minimizers = [(zfit.minimize.ScipyNelderMeadV1, {'verbosity': 7}, True)]
+# _minimizers = [(zfit.minimize.ScipyCOBYLAV1, {'verbosity': 7}, True)]
+# _minimizers = [(zfit.minimize.ScipyNewtonCGV1, {'verbosity': 7}, True)]
+# _minimizers = [(zfit.minimize.ScipyTrustNCGV1, {'tol': 1e-3, 'verbosity': 7}, True)]
+# _minimizers = [(zfit.minimize.ScipyTruncNCV1, {'tol': 1e-5, 'verbosity': 7}, True)]
+# _minimizers = [(zfit.minimize.ScipyDoglegV1, {'tol': 1e3, 'verbosity': 7}, True)]
+# _minimizers = [(zfit.minimize.ScipyTrustConstrV1, {'tol': 1e-5, 'verbosity': 7}, True)]
+# _minimizers = [(zfit.minimize.ScipyTrustKrylovV1, {'verbosity': 7}, True)]
+# _minimizers = [(zfit.minimize.NLoptLBFGSV1, {'verbosity': 7}, {'error': True, 'longtests': True})]
+# _minimizers = [(zfit.minimize.NLoptTruncNewtonV1, {'verbosity': 7}, True)]
+# _minimizers = [(zfit.minimize.NLoptSLSQPV1, {'verbosity': 7}, True)]
+# _minimizers = [(zfit.minimize.NLoptMMAV1, {'verbosity': 7}, True)]
+# _minimizers = [(zfit.minimize.NLoptCCSAQV1, {'verbosity': 7}, True)]
+# _minimizers = [(zfit.minimize.NLoptMLSLV1, {'verbosity': 7}, {'error': True, 'longtests': True})]
+# _minimizers = [(zfit.minimize.NLoptStoGOV1, {'verbosity': 7}, {'error': True, 'longtests': True})]  # DOESN'T WORK!
+# _minimizers = [(zfit.minimize.NLoptSubplexV1, {'verbosity': 7}, {'error': True, 'longtests': True})]
+# _minimizers = [(zfit.minimize.NLoptESCHV1, {'verbosity': 7}, {'error': True, 'longtests': True})]
+# _minimizers = [(zfit.minimize.NLoptISRESV1, {'verbosity': 7}, {'error': True, 'longtests': True})]
+# _minimizers = [(zfit.minimize.NLoptBOBYQAV1, {'verbosity': 7}, {'error': True, 'longtests': True})]
+# _minimizers = [(zfit.minimize.NLoptShiftVarV1, {'verbosity': 7, 'rank': 2}, {'error': True, 'longtests': True})]
+# _minimizers = [(zfit.minimize.Minuit, {'verbosity': 6}, True)]
+# _minimizers = [(zfit.minimize.BFGS, {'verbosity': 6}, True)]
 minimizers = [(zfit.minimize.LevenbergMarquardt, {'verbosity': 6}, True)]
 
 
@@ -523,11 +523,11 @@ def test_minimizers(minimizer_class_and_kwargs, chunksize, numgrad, spaces, requ
             for cl, errscale in [(0.683, 1), (0.9548, 2), (0.99747, 3)]:
                 hesse_methods = ["hesse_np"]
                 profile_methods = ["zfit_error"]
-                from zfit.minimizers.minimizer_minuit import Minuit
+                from zfit._minimizers.minimizer_minuit import Minuit
 
                 hesse_methods.append("minuit_hesse")
                 profile_methods.append("minuit_minos")
-                # the following minimizers should support the "approx" option as the give access to the approx Hessian
+                # the following _minimizers should support the "approx" option as the give access to the approx Hessian
                 if isinstance(
                         minimizer,
                         (

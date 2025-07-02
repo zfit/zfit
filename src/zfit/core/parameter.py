@@ -35,10 +35,10 @@ from tensorflow.python.types.core import Tensor as TensorType
 from .. import _interfaces as zinterfaces
 from .. import z
 from .._interfaces import ZfitIndependentParameter, ZfitModel, ZfitParameter
+from .._minimizers.interface import ZfitResult
+from .._serialization.paramrepr import make_param_constructor
+from .._serialization.serializer import BaseRepr, Serializer
 from ..core.baseobject import BaseNumeric, extract_filter_params, validate_preprocess_name
-from ..minimizers.interface import ZfitResult
-from ..serialization.paramrepr import make_param_constructor
-from ..serialization.serializer import BaseRepr, Serializer
 from ..settings import run, ztypes
 from ..util import ztyping
 from ..util.checks import NotSpecified
@@ -295,32 +295,32 @@ class ZfitParameterMixin(BaseNumeric):
         return label
 
     def __add__(self, other):
-        if isinstance(other, (ZfitModel, ZfitParameter)):
-            from . import operations  # noqa: PLC0415
+        if isinstance(other, ZfitModel | ZfitParameter):
+            from . import operations
 
             with suppress(FunctionNotImplemented):
                 return operations.add(self, other)
         return super().__add__(other)
 
     def __radd__(self, other):
-        if isinstance(other, (ZfitModel, ZfitParameter)):
-            from . import operations  # noqa: PLC0415
+        if isinstance(other, ZfitModel | ZfitParameter):
+            from . import operations
 
             with suppress(FunctionNotImplemented):
                 return operations.add(other, self)
         return super().__radd__(other)
 
     def __mul__(self, other):
-        if isinstance(other, (ZfitModel, ZfitParameter)):
-            from . import operations  # noqa: PLC0415
+        if isinstance(other, ZfitModel | ZfitParameter):
+            from . import operations
 
             with suppress(FunctionNotImplemented):
                 return operations.multiply(self, other)
         return super().__mul__(other)
 
     def __rmul__(self, other):
-        if isinstance(other, (ZfitModel, ZfitParameter)):
-            from . import operations  # noqa: PLC0415
+        if isinstance(other, ZfitModel | ZfitParameter):
+            from . import operations
 
             with suppress(FunctionNotImplemented):
                 return operations.multiply(other, self)
@@ -507,7 +507,7 @@ class Parameter(
         value = super().value()
         # We don't need to preserve this, right?
         if self.has_limits:
-            import tensorflow_probability as tfp  # noqa: PLC0415
+            import tensorflow_probability as tfp
 
             value = tfp.math.clip_by_value_preserve_gradient(
                 value, clip_value_min=self.lower, clip_value_max=self.upper
@@ -1143,7 +1143,9 @@ class ComposedParameter(SerializableMixin, BaseComposedParameter):
                     def stratified_fn(params):
                         return func(tuple(params.values()))
 
-        original_init["params"] = params_dict  # needs to be here, we need the params to be a dict for the serialization
+        original_init["params"] = (
+            params_dict  # needs to be here, we need the params to be a dict for the _serialization
+        )
 
         super().__init__(params=params_dict, func=stratified_fn, name=name, dtype=dtype, label=label)
         self.hs3.original_init.update(original_init)

@@ -1,11 +1,11 @@
 #  Copyright (c) 2025 zfit
-"""Zfit serialization module.
+"""Zfit _serialization module.
 
-This module contains the serialization functionality of zfit. It is used to serialize and deserialize
+This module contains the _serialization functionality of zfit. It is used to serialize and deserialize
 zfit objects to a string representation.
 The output format adheres to the HS3 standard (NOT YET, but will be in the future).
 
-The serialization is done via the :py:class:`~zfit.serializer.Serializer` class.
+The _serialization is done via the :py:class:`~zfit.serializer.Serializer` class.
 """
 
 from __future__ import annotations
@@ -13,8 +13,8 @@ from __future__ import annotations
 import typing
 from typing import NoReturn
 
+from ._serialization import Serializer
 from .core.serialmixin import ZfitSerializable
-from .serialization import Serializer
 from .util.exception import WorkInProgressError
 from .util.warnings import warn_experimental_feature
 

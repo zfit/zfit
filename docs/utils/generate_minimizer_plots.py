@@ -1,6 +1,6 @@
-"""This script generates visualization plots for different minimizers in zfit.
+"""This script generates visualization plots for different _minimizers in zfit.
 
-It creates both static and animated plots showing how different minimizers perform
+It creates both static and animated plots showing how different _minimizers perform
 on a complex version of the Rosenbrock function, tracking their paths and metrics
 like number of function evaluations and gradient calculations.
 """
@@ -28,7 +28,7 @@ import zfit.z.numpy as znp
 here = Path(__file__).parent.absolute()
 
 # Set the output directory for the plots
-outpath = Path(here / "../images/_generated/minimizers").absolute().resolve()
+outpath = Path(here / "../images/_generated/_minimizers").absolute().resolve()
 outpath.mkdir(parents=True, exist_ok=True)
 print(f"Saving plots to {outpath}")
 
@@ -55,7 +55,7 @@ def complex_rosenbrock(x, a=1.0, b=100.0, c=0.5, d=0.1):
     """A more complex version of the Rosenbrock function.
 
     This function adds additional terms to the standard Rosenbrock function
-    to make it more challenging for minimizers.
+    to make it more challenging for _minimizers.
 
     Args:
         x: Input array of shape (n,) where n >= 2
@@ -150,7 +150,7 @@ class FunctionWrapper(zfit.loss.SimpleLoss):
 
 
 def plot_minimizer_paths(minimizer_classes, starting_points, meshgrid_arrays, func, title, filename, pbar=None):
-    """Plot the paths taken by different minimizers.
+    """Plot the paths taken by different _minimizers.
 
     Args:
         minimizer_classes: List of minimizer classes to test
@@ -370,7 +370,7 @@ def create_animation(
     Args:
         X, Y, Z: Meshgrid arrays for contour plot
         true_minimum: True minimum of the function
-        all_paths: List of paths taken by the minimizers
+        all_paths: List of paths taken by the _minimizers
         all_colors: List of colors for each path
         all_labels: List of labels for each path
         all_markers: List of markers for each starting point
@@ -493,7 +493,7 @@ def create_meshgrid_arrays(func):
 
 
 def plot_minimizers():
-    """Generate plots for different minimizers."""
+    """Generate plots for different _minimizers."""
     n_physical_cpus = psutil.cpu_count(logical=False)
 
     ray.init(num_cpus=n_physical_cpus)
@@ -501,8 +501,8 @@ def plot_minimizers():
     # Define the function to minimize
     func = complex_rosenbrock
 
-    # Define the minimizers to test
-    # Group minimizers by category
+    # Define the _minimizers to test
+    # Group _minimizers by category
     minuit_minimizers = [zfit.minimize.Minuit]
 
     levenberg_marquardt_minimizers = [zfit.minimize.LevenbergMarquardt]
@@ -539,7 +539,7 @@ def plot_minimizers():
         zfit.minimize.NLoptShiftVarV1,
     ]
 
-    # Combine all minimizers for the combined plot
+    # Combine all _minimizers for the combined plot
     minimizer_classes = (
         minuit_minimizers + levenberg_marquardt_minimizers + ipyopt_minimizers + scipy_minimizers + nlopt_minimizers
     )
@@ -570,7 +570,7 @@ def plot_minimizers():
 
     # Plot individual minimizer paths for each category
 
-    # Minuit minimizers
+    # Minuit _minimizers
     print("Generating all minimizer plots...")
 
     @lru_cache
@@ -602,7 +602,7 @@ def plot_minimizers():
         )
         remotes.append(future)
 
-    # Minuit minimizers
+    # Minuit _minimizers
     # print("Generating Minuit minimizer plots...")
     # remotes = []
     # for minimizer_class in minuit_minimizers:
@@ -616,7 +616,7 @@ def plot_minimizers():
     #     )
     #     remotes.append(future)
     #
-    # # Levenberg-Marquardt minimizers
+    # # Levenberg-Marquardt _minimizers
     # print("Generating Levenberg-Marquardt minimizer plots...")
     # for minimizer_class in levenberg_marquardt_minimizers:
     #     func_wrapper.reset()
@@ -629,7 +629,7 @@ def plot_minimizers():
     #     )
     #     remotes.append(future)
     #
-    # # Ipyopt minimizers
+    # # Ipyopt _minimizers
     # print("Generating Ipyopt minimizer plots...")
     # for minimizer_class in ipyopt_minimizers:
     #     func_wrapper.reset()
@@ -642,7 +642,7 @@ def plot_minimizers():
     #     )
     #     remotes.append(future)
     #
-    # # Scipy minimizers
+    # # Scipy _minimizers
     # print("Generating Scipy minimizer plots...")
     # for minimizer_class in scipy_minimizers:
     #     func_wrapper.reset()
@@ -655,7 +655,7 @@ def plot_minimizers():
     #     )
     #     remotes.append(future)
     #
-    # # NLopt minimizers
+    # # NLopt _minimizers
     # print("Generating NLopt minimizer plots...")
     # for minimizer_class in nlopt_minimizers:
     #     func_wrapper.reset()
@@ -672,7 +672,7 @@ def plot_minimizers():
     print("Waiting for all minimizer to finish...")
     all_data = []
     ntot = len(remotes)
-    for _ in tqdm(range(ntot), desc="Waiting for minimizers to finish"):
+    for _ in tqdm(range(ntot), desc="Waiting for _minimizers to finish"):
         finished, remotes = ray.wait(remotes)
         data = ray.get(finished)
         all_data.extend(data)

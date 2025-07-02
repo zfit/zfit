@@ -155,7 +155,7 @@ def test_pdf_str_custom_label():
 def test_base_minimizer_str():
     """Test BaseMinimizer string representation."""
     # Import here to avoid circular imports
-    from zfit.minimizers.baseminimizer import BaseMinimizer
+    from zfit._minimizers.baseminimizer import BaseMinimizer
 
     # Create a concrete minimizer for testing
     minimizer = BaseMinimizer(tol=1e-4, verbosity=1, maxiter=5000)
@@ -168,7 +168,7 @@ def test_base_minimizer_str():
 
 def test_minimizer_str_default_values():
     """Test minimizer string with default values."""
-    from zfit.minimizers.baseminimizer import BaseMinimizer
+    from zfit._minimizers.baseminimizer import BaseMinimizer
 
     minimizer = BaseMinimizer()  # All defaults
 
@@ -184,7 +184,7 @@ def test_minimizer_str_default_values():
 
 def test_minimizer_str_custom_strategy():
     """Test minimizer string with custom strategy."""
-    from zfit.minimizers.baseminimizer import BaseMinimizer
+    from zfit._minimizers.baseminimizer import BaseMinimizer
 
     # Test with default strategy (skip custom strategy test for now)
     minimizer = BaseMinimizer()

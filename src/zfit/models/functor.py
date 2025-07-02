@@ -29,11 +29,11 @@ import zfit.z.numpy as znp
 from zfit._interfaces import ZfitData, ZfitPDF, ZfitSpace
 
 from .. import z
+from .._serialization import Serializer
 from ..core.basepdf import BasePDF
 from ..core.serialmixin import SerializableMixin
 from ..core.space import supports
 from ..models.basefunctor import FunctorMixin, extract_daughter_input_obs
-from ..serialization import Serializer
 from ..util import ztyping
 from ..util.container import convert_to_container
 from ..util.exception import (

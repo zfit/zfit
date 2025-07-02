@@ -1355,22 +1355,22 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         return func
 
     def __add__(self, other):
-        from . import operations  # noqa: PLC0415
+        from . import operations
 
         return operations.add(self, other)
 
     def __radd__(self, other):
-        from . import operations  # noqa: PLC0415
+        from . import operations
 
         return operations.add(other, self)
 
     def __mul__(self, other):
-        from . import operations  # noqa: PLC0415
+        from . import operations
 
         return operations.multiply(self, other)
 
     def __rmul__(self, other):
-        from . import operations  # noqa: PLC0415
+        from . import operations
 
         return operations.multiply(other, self)
 

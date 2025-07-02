@@ -25,12 +25,12 @@ from zfit import z
 from zfit._interfaces import ZfitData
 from zfit.util.exception import AnalyticSamplingNotImplemented
 
+from .._serialization import Serializer, SpaceRepr
+from .._serialization.pdfrepr import BasePDFRepr
 from ..core.basepdf import BasePDF
 from ..core.parameter import convert_to_parameter
 from ..core.serialmixin import SerializableMixin
 from ..core.space import Space, supports
-from ..serialization import Serializer, SpaceRepr
-from ..serialization.pdfrepr import BasePDFRepr
 from ..settings import ztypes
 from ..util import ztyping
 from ..util.deprecation import deprecated_args
@@ -880,7 +880,7 @@ class QGauss(WrapDistribution, SerializableMixin):
                the PDF for a better description, to be used with plots etc.
                Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
         """
-        from zfit import run  # noqa: PLC0415
+        from zfit import run
 
         q, mu, sigma = self._check_input_params_tfp(q, mu, sigma)
         if run.executing_eagerly():

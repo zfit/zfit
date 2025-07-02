@@ -11,13 +11,13 @@ import tensorflow as tf
 from zfit._interfaces import ZfitFunctorMixin, ZfitModel, ZfitParameter, ZfitSpace
 
 from .. import z
+from .._serialization import SpaceRepr
+from .._serialization.pdfrepr import BasePDFRepr
+from .._serialization.serializer import Serializer
 from ..core.coordinates import convert_to_obs_str
 from ..core.dimension import get_same_obs
 from ..core.parameter import convert_to_parameter
 from ..core.space import Space, combine_spaces
-from ..serialization import SpaceRepr
-from ..serialization.pdfrepr import BasePDFRepr
-from ..serialization.serializer import Serializer
 from ..settings import ztypes
 from ..util import ztyping
 from ..util.container import convert_to_container
@@ -206,7 +206,7 @@ def _preprocess_init_sum(fracs, obs, pdfs):
 
         elif len(fracs) == len(pdfs):
             # skip if deserializing, this is fine, we know what we're doing
-            if Serializer._existing_params is None:  # todo: make a better context for serialization/deserialization
+            if Serializer._existing_params is None:  # todo: make a better context for _serialization/deserialization
                 warn_changed_feature(
                     "A SumPDF with the number of fractions equal to the number of pdf will no longer "
                     "be extended. To make it extended, either manually use 'create_exteneded' or set "

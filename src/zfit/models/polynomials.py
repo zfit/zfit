@@ -14,11 +14,11 @@ import tensorflow as tf
 import zfit.z.numpy as znp
 from zfit import z
 
+from .._serialization import Serializer, SpaceRepr
+from .._serialization.pdfrepr import BasePDFRepr
 from ..core.basepdf import BasePDF
 from ..core.serialmixin import SerializableMixin
 from ..core.space import Space, supports
-from ..serialization import Serializer, SpaceRepr
-from ..serialization.pdfrepr import BasePDFRepr
 from ..settings import ztypes
 from ..util import ztyping
 from ..util.container import convert_to_container

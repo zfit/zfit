@@ -55,7 +55,7 @@ class Minuit(BaseMinimizer, GraphCachable):
         The `iminuit <https://iminuit.readthedocs.io/en/stable/>`_ package is a fast, time-proven
         minimizer based on the Minuit2 C++ library; the latter is
         maintained by CERN's ROOT team. It is an especially robust minimizer that finds the global minimum
-        quiet reliably. It is however, like all local minimizers, still rather dependent on close enough
+        quiet reliably. It is however, like all local _minimizers, still rather dependent on close enough
         initial values.
 
         Args:
@@ -167,7 +167,7 @@ class Minuit(BaseMinimizer, GraphCachable):
     # TODO 0.7: legacy, remove `_use_tfgrad`
     @property
     def _use_tfgrad(self):
-        from zfit.exception import BreakingAPIChangeError  # noqa: PLC0415
+        from zfit.exception import BreakingAPIChangeError
 
         msg = "This property is not available anymore. Use `gradient` instead."
         raise BreakingAPIChangeError(msg)
@@ -258,7 +258,7 @@ class Minuit(BaseMinimizer, GraphCachable):
             msg = "errordef cannot be specified for Minuit as this is already defined in the Loss."
             raise ValueError(msg)
         loss_errordef = loss.errordef
-        if not isinstance(loss_errordef, (float, int)):
+        if not isinstance(loss_errordef, float | int):
             msg = "errordef has to be a float"
             raise ValueError(msg)
         minimizer_init["errordef"] = loss_errordef

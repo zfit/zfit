@@ -173,7 +173,7 @@ class RunManager:
         Instead, `result.update_params()` has to be called manually to update the parameters if needed.
         """
 
-        from zfit import settings  # noqa: PLC0415
+        from zfit import settings
 
         def setter(v):
             settings.options.auto_update_params = not v
@@ -312,7 +312,7 @@ class RunManager:
         To allow to have dynamic numpy operations in a component, preferably wrapped with `z.numpy_function` instead of
         forced eager, and to still retrieve a meaningful gradient, a numerical gradient has to be used.
         In general, this can be achieved by setting the `autograd` to False. Any derivative received will then be
-        numerically computed. Furthermore, some minimizers (e.g. :py:class:`~zfit.minimize.Minuit`) have their own way
+        numerically computed. Furthermore, some _minimizers (e.g. :py:class:`~zfit.minimize.Minuit`) have their own way
         of calculating gradients, which can be faster.
         Disabling `autograd` and using the zfit builting numerical way of calculating the gradients and hessian can
         be less stable and may raises errors.
@@ -343,7 +343,7 @@ class RunManager:
 
     def _set_autograd_mode(self, autograd):
         if autograd is not None:
-            from zfit import settings  # noqa: PLC0415
+            from zfit import settings
 
             settings.options.numerical_grad = not autograd
             self._mode["autograd"] = autograd
@@ -351,7 +351,7 @@ class RunManager:
     def _set_graph_mode(self, graph, *, set_backend=True):
         if graph is None:
             graph = "auto"
-        from .graph import jit as jit_obj  # noqa: PLC0415
+        from .graph import jit as jit_obj
 
         # only run eagerly if no graph
         if set_backend:
@@ -428,7 +428,7 @@ class RunManager:
         """
         if call_gc is None:
             call_gc = False
-        from zfit.util.cache import clear_graph_cache  # noqa: PLC0415
+        from zfit.util.cache import clear_graph_cache
 
         clear_graph_cache(call_gc=call_gc)
 
@@ -446,7 +446,7 @@ class RunManager:
                 of calls to a function *with different arguments* is expected to happen *outside of any loop*/within
                 one execution of a loop.
         """
-        from zfit.z.zextension import FunctionWrapperRegistry  # noqa: PLC0415
+        from zfit.z.zextension import FunctionWrapperRegistry
 
         if size is not None and size < 1:
             msg = "The size of the cache must be at least 1."
@@ -504,7 +504,7 @@ class RunManager:
 
 @deprecated(None, "Use np.array(obj) instead.")
 def eval_object(obj: object) -> object:
-    from zfit.core.parameter import BaseComposedParameter  # noqa: PLC0415
+    from zfit.core.parameter import BaseComposedParameter
 
     if isinstance(obj, BaseComposedParameter):  # currently no numpy attribute. Should we add this?
         obj = obj.value()

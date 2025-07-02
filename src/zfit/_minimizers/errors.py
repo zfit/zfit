@@ -165,7 +165,7 @@ def compute_errors(
                     assert isinstance(index, int)
                     assign_values(all_params, values)
                     loss_value, gradient = loss.value_gradient(params=all_params, full=False)
-                    if isinstance(gradient, (tuple, list)):
+                    if isinstance(gradient, tuple | list):
                         gradient = znp.asarray(gradient)
                     gradient = znp.concatenate([gradient[:index_poi], gradient[index_poi + 1 :]])
                     return loss_value, gradient
@@ -256,7 +256,7 @@ def compute_errors(
         assign_values(all_params, result)
 
     except NewMinimum:
-        from .. import settings  # noqa: PLC0415
+        from .. import settings
 
         if settings.get_verbosity() >= 5:
             pass
@@ -356,7 +356,7 @@ def covariance_with_weights(hinv, result, params, *, weightcorr: WeightCorr = No
                        likelihood fits
                        `Eur. Phys. J. C 82, 393 (2022). <https://doi.org/10.1140/epjc/s10052-022-10254-8>`_. |@docend:result.hesse.weightcorr.method|
     """
-    from .. import run  # noqa: PLC0415
+    from .. import run
 
     if weightcorr == "sumw2":
         msg = "The 'sumw2' option has been renamed to 'sumw2'."

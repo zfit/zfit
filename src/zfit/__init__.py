@@ -5,9 +5,6 @@ from __future__ import annotations
 import typing
 from importlib.metadata import version as _importlib_version
 
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 __version__ = _importlib_version(__name__)
 
 __license__ = "BSD 3-Clause"
@@ -18,11 +15,12 @@ __author__ = (
     "Jonas Eschle <Jonas.Eschle@cern.ch>,"
     "Albert Puig <albert@protonmail.com>, "
     "Rafael Silva Coutinho <rsilvaco@cern.ch>, "
-    "Matthieu Marinangeli <matthieu.marinangeli@cern.ch>"
+    "Matthieu Marinangeli <matthieu.marinangeli@cern.ch>, "
+    "Iason Krommydas, <ik23@rice.edu>"
 )
 __maintainer__ = "zfit"
 __email__ = "zfit@physik.uzh.ch"
-__credits__ = "Chris Burr, Martina Ferrillo, Abhijit Mathad, Oliver Lantwin, Johannes Lade, Iason Krommydas"
+__credits__ = "Chris Burr, Martina Ferrillo, Abhijit Mathad, Oliver Lantwin, Johannes Lade"
 
 __all__ = [
     "z",
@@ -40,6 +38,7 @@ __all__ = [
     "sample",
     "binned",
     "hs3",
+    "serialize",
     'param',
     "Parameter",
     "ComposedParameter",

@@ -51,7 +51,7 @@ alias1 = Aliases(hs3_type="type")
 
 class Types:
     def __init__(self):
-        """Hold all types that are used in the serialization, automatically collects parameters and PDFs.
+        """Hold all types that are used in the _serialization, automatically collects parameters and PDFs.
 
         This holding of types in this way is needed to delay the evaluation of the annotations, which is necessary since
         pydantic will remember (statically) the types and not evaluate them again. Therefore, we delay the evaluation of
@@ -124,7 +124,7 @@ class Types:
         return list[self.ParamInputTypeDiscriminated]
 
     def register_repr(self, repr: ZfitPDF | ZfitParameter) -> None:
-        """Register a repr to be used in the serialization such as PDF or Parameter.
+        """Register a repr to be used in the _serialization such as PDF or Parameter.
 
         This is needed to make sure that objects which use any of these types can be recursively
         serialized. They are autamtically added to the correct type.
@@ -144,7 +144,7 @@ class Types:
             self._pdf_repr.append(repr)
         elif issubclass(cls, ZfitParameter):
             self._param_repr.append(repr)
-        elif issubclass(cls, (ZfitData, ZfitBinnedData)):
+        elif issubclass(cls, ZfitData | ZfitBinnedData):
             self._data_repr.append(repr)
         elif issubclass(cls, ZfitConstraint):
             self._constraint_repr.append(repr)
@@ -172,7 +172,7 @@ class Serializer:
 
     @classmethod
     def register(own_cls, repr: ZfitSerializable) -> None:
-        """Register a repr to be used in the HS3 serialization.
+        """Register a repr to be used in the HS3 _serialization.
 
         Args:
             repr: The repr to be registered.
@@ -287,19 +287,19 @@ class Serializer:
                 raise ValueError(msg)
 
             obj = convert_to_container(obj)
-            from zfit._interfaces import ZfitPDF  # noqa: PLC0415
+            from zfit._interfaces import ZfitPDF
 
             all_pdfs = all(isinstance(ob, ZfitPDF) for ob in obj)
             all_losses = all(isinstance(ob, ZfitLoss) for ob in obj)
             if not all_pdfs and not all_losses:
                 msg = "Only PDFs or losses can be serialized."
                 raise TypeError(msg)
-            from zfit.core.serialmixin import ZfitSerializable  # noqa: PLC0415
+            from zfit.core.serialmixin import ZfitSerializable
 
             if not all(isinstance(pdf, ZfitSerializable) for pdf in obj):
                 msg = "All distributions must be ZfitSerializable"
                 raise SerializationTypeError(msg)
-            import zfit  # noqa: PLC0415
+            import zfit
 
             out = {
                 "metadata": {
@@ -551,7 +551,7 @@ def replace_matching(mapping, replace):
         for k, v in mapping.items():
             mapping[k] = replace_matching(v, replace)
     elif isinstance(mapping, Iterable) and not (
-        isinstance(mapping, (str, (ZfitParameter, np.ndarray))) or tf.is_tensor(mapping)
+        isinstance(mapping, str | (ZfitParameter | np.ndarray)) or tf.is_tensor(mapping)
     ):
         replaced_list = [replace_matching(v, replace) for v in mapping]
         mapping = type(mapping)(replaced_list)
@@ -561,26 +561,24 @@ def replace_matching(mapping, replace):
 def convert_to_orm(init):
     if isinstance(init, Mapping):
         for k, v in init.items():
-            from zfit._interfaces import ZfitParameter, ZfitSpace  # noqa: PLC0415
-            from zfit.core.data import LightDataset  # noqa: PLC0415
+            from zfit._interfaces import ZfitParameter, ZfitSpace
+            from zfit.core.data import LightDataset
 
             if (
-                not isinstance(v, (Iterable, Mapping))
+                not isinstance(v, Iterable | Mapping)
                 or isinstance(
                     v,
-                    (
-                        ZfitParameter,
-                        ZfitSpace,
-                        ZfitData,
-                        ZfitBinnedData,
-                        LightDataset,
-                        np.ndarray,
-                        str,
-                        bytes,
-                        bool,
-                        int,
-                        float,
-                    ),
+                    ZfitParameter
+                    | ZfitSpace
+                    | ZfitData
+                    | ZfitBinnedData
+                    | LightDataset
+                    | np.ndarray
+                    | str
+                    | bytes
+                    | bool
+                    | int
+                    | float,
                 )  # skip to not trigger the "in"
                 or tf.is_tensor(v)
             ):
@@ -595,7 +593,7 @@ def convert_to_orm(init):
             cls = Serializer.type_repr[init[TYPENAME]]
             return cls(**init).to_orm()
 
-    elif isinstance(init, (list, tuple)):
+    elif isinstance(init, list | tuple):
         init = type(init)([convert_to_orm(v) for v in init])
     return init
 

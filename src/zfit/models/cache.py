@@ -12,9 +12,9 @@ import tensorflow as tf
 import zfit.z.numpy as znp
 from zfit.util.exception import AnalyticGradientNotAvailable
 
+from .._serialization import Serializer  # noqa: F401
 from ..core.serialmixin import SerializableMixin
 from ..core.space import supports
-from ..serialization import Serializer  # noqa: F401
 from ..settings import ztypes
 from ..util import ztyping
 from .basefunctor import FunctorPDFRepr
@@ -64,7 +64,7 @@ class CachedPDF(BaseFunctor, SerializableMixin):
         .. note::
 
            Analytic gradients are not available for the cached PDF. Use the numerical gradient instead,
-           either by using a minimizers internal calculator (e.g. :py:class:`~zfit.minimize.Minuit(..., gradient=True)`) or by
+           either by using a _minimizers internal calculator (e.g. :py:class:`~zfit.minimize.Minuit(..., gradient=True)`) or by
            setting the autograd mode to False (e.g. :py:func:`~zfit.run.set_autograd_mode(False)`).
            An error will be raised if the analytic gradient is requested.
 

@@ -9,8 +9,8 @@ import pytest
 
 import zfit
 import zfit.z.numpy as znp
-from zfit.minimizers.errors import compute_errors
-from zfit.minimizers.fitresult import FitResult
+from zfit._minimizers.errors import compute_errors
+from zfit._minimizers.fitresult import FitResult
 
 true_a = 2.4
 true_b = 1.1
@@ -225,7 +225,7 @@ minimizers = list(sorted(minimizers, key=lambda val: repr(val)))
 
 
 # @pytest.mark.parametrize(
-#     "minimizer_class_and_kwargs", minimizers, ids=lambda val: val[0].__name__
+#     "minimizer_class_and_kwargs", _minimizers, ids=lambda val: val[0].__name__
 # )
 # @pytest.mark.parametrize("dill", [False, True], ids=["no_dill", "dill"])
 # @pytest.mark.parametrize("weights", [np.random.normal(1, 0.1, true_ntot), None])
@@ -735,7 +735,7 @@ def test_evaluation_counts_mapping(minimizer_class_and_kwargs):
         assert isinstance(nit, int)
         assert nit >= 0
 
-    # njev and nhev are often None (not all minimizers track these)
+    # njev and nhev are often None (not all _minimizers track these)
     if (njev := result.njev) is not None:
         assert isinstance(njev, int)
         assert njev >= 0
@@ -747,7 +747,7 @@ def test_evaluation_counts_mapping(minimizer_class_and_kwargs):
 
 def test_optimize_result_mixin_inheritance():
     """Test that FitResult properly inherits from OptimizeResultMixin."""
-    from zfit.minimizers.fitresult import OptimizeResultMixin
+    from zfit._minimizers.fitresult import OptimizeResultMixin
 
     # Check inheritance
     assert issubclass(FitResult, OptimizeResultMixin)

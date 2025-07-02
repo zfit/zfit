@@ -315,11 +315,11 @@ class BaseMinimizer(ZfitMinimizer):
 
         # convert the function to a SimpleLoss
         if not isinstance(loss, ZfitLoss):
-            from zfit.loss import SimpleLoss  # noqa: PLC0415
+            from zfit.loss import SimpleLoss
 
             loss = SimpleLoss.from_any(loss, params=params)
 
-        if isinstance(params, (tuple, list)) and not any(isinstance(p, ZfitParameter) for p in params):
+        if isinstance(params, tuple | list) and not any(isinstance(p, ZfitParameter) for p in params):
             loss_params = loss.get_params()
             if len(params) != len(loss_params):
                 msg = (
@@ -562,10 +562,10 @@ class BaseMinimizer(ZfitMinimizer):
         """
         state = {"loss": loss, "params": params, "init": init}
         self._state = state
-        from zfit import settings  # noqa: PLC0415
+        from zfit import settings
 
         if no_update := not settings.options.auto_update_params:
-            import zfit.z.numpy as znp  # noqa: PLC0415
+            import zfit.z.numpy as znp
 
             old_params = list(loss.get_params())
             old_values = znp.asarray(old_params)

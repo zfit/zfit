@@ -3,15 +3,15 @@ from __future__ import annotations
 
 import typing
 
-from .minimizers.baseminimizer import (
+from ._minimizers.baseminimizer import (
     BaseMinimizer,
     DefaultStrategy,
     minimize_supports,
 )
-from .minimizers.ipopt import Ipyopt
-from .minimizers.minimizer_lm import LevenbergMarquardt
-from .minimizers.minimizer_minuit import Minuit
-from .minimizers.minimizer_nlopt import (
+from ._minimizers.ipopt import Ipyopt
+from ._minimizers.minimizer_lm import LevenbergMarquardt
+from ._minimizers.minimizer_minuit import Minuit
+from ._minimizers.minimizer_nlopt import (
     NLoptBaseMinimizer,
     NLoptBOBYQA,
     NLoptCCSAQ,
@@ -27,7 +27,7 @@ from .minimizers.minimizer_nlopt import (
     NLoptSubplex,
     NLoptTruncNewton,
 )
-from .minimizers.minimizers_scipy import (
+from ._minimizers.minimizers_scipy import (
     ScipyBaseMinimizer,
     ScipyBFGS,
     ScipyCOBYLA,
@@ -42,9 +42,9 @@ from .minimizers.minimizers_scipy import (
     ScipyTrustKrylov,
     ScipyTrustNCG,
 )
-from .minimizers.optimizers_tf import Adam, WrapOptimizer
-from .minimizers.strategy import DefaultToyStrategy, PushbackStrategy
-from .minimizers.termination import EDM
+from ._minimizers.optimizers_tf import Adam, WrapOptimizer
+from ._minimizers.strategy import DefaultToyStrategy, PushbackStrategy
+from ._minimizers.termination import EDM
 
 if typing.TYPE_CHECKING:
     import zfit  # noqa: F401

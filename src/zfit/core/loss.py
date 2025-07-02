@@ -31,8 +31,8 @@ from zfit._interfaces import (
 )
 
 from .. import settings, z
+from .._serialization.serializer import BaseRepr, Serializer
 from ..exception import AutogradNotSupported, OutsideLimitsError, SpecificFunctionNotImplemented
-from ..serialization.serializer import BaseRepr, Serializer
 from ..util import ztyping
 from ..util.checks import NONE
 from ..util.container import convert_to_container, is_container
@@ -376,7 +376,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         return pdf, data, fit_range
 
     def check_precompile(self, *, params=None, force=False):
-        from zfit import run  # noqa: PLC0415
+        from zfit import run
 
         if (not run.executing_eagerly()) or (self.is_precompiled and not force):
             return params, False
@@ -411,7 +411,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         model_checked = []
         data_checked = []
         for mod, dat in zip(model, data, strict=True):
-            if not isinstance(dat, (ZfitData, ZfitBinnedData)):
+            if not isinstance(dat, ZfitData | ZfitBinnedData):
                 if fit_range is not None:
                     msg = "Fit range should not be used if data is not ZfitData."
                     raise TypeError(msg)
@@ -1419,7 +1419,7 @@ class SimpleLoss(BaseLoss):
 
     def _check_jit_or_not(self):
         if not self._do_jit:
-            from zfit import run  # noqa: PLC0415
+            from zfit import run
 
             if not run.executing_eagerly():
                 raise z.DoNotCompile

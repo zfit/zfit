@@ -673,7 +673,7 @@ def test_constraint_dumpload(Constraint, request):
 def test_serial_hs3_pdfs(pdf, extended):
     import zfit
     import zfit.z.numpy as znp
-    import zfit.serialization as zserial
+    import zfit._serialization as zserial
 
     pdf = pdf(extended=extended)
     scale = zfit.Parameter("yield", 100.0, 0, 1000)
@@ -695,7 +695,7 @@ def test_serial_hs3_pdfs(pdf, extended):
 
 def test_replace_matching():
     import zfit
-    import zfit.serialization as zserial
+    import zfit._serialization as zserial
 
     original_dict = {
         "metadata": {

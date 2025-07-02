@@ -12,12 +12,12 @@ import zfit.z.numpy as znp
 from zfit._interfaces import ZfitPDF
 
 from .. import exception, z
+from .._serialization import Serializer, SpaceRepr
+from .._serialization.pdfrepr import BasePDFRepr
 from ..core.data import Data, sum_samples
 from ..core.sample import accept_reject_sample
 from ..core.serialmixin import SerializableMixin
 from ..core.space import supports
-from ..serialization import Serializer, SpaceRepr
-from ..serialization.pdfrepr import BasePDFRepr
 from ..util import ztyping
 from ..util.exception import ShapeIncompatibleError, WorkInProgressError
 from ..util.ztyping import ExtendedInputType, NormInputType
@@ -158,7 +158,7 @@ class FFTConvPDFV1(BaseFunctor, SerializableMixin):
                the PDF for a better description, to be used with plots etc.
                Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
         """
-        from zfit import run  # noqa: PLC0415
+        from zfit import run
 
         run.assert_executing_eagerly()
         original_init = {
@@ -485,7 +485,7 @@ class AddingSampleAndWeights:
         sample = sum_samples(sample_func, sample_kernel, obs=limits, shuffle=True)
         sample = limits.filter(sample)
         n_drawn = tf.shape(sample)[0]
-        from zfit import run  # noqa: PLC0415
+        from zfit import run
 
         if run.numeric_checks:
             z.assert_positive(

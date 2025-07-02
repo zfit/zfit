@@ -3,8 +3,8 @@ from __future__ import annotations
 
 import typing
 
-from .minimizers.errors import compute_errors
-from .minimizers.fitresult import Approximations, FitResult
+from ._minimizers.errors import compute_errors
+from ._minimizers.fitresult import Approximations, FitResult
 
 if typing.TYPE_CHECKING:
     import zfit  # noqa: F401
