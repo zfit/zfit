@@ -680,7 +680,7 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
         new_pdf.set_yield(value=yield_)
         return new_pdf
 
-    def create_clipped(
+    def to_clipped(
         self, 
         lower: float = None,
         upper: float = None,

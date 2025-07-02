@@ -52,7 +52,7 @@ def test_clip_pdf_basic():
     import numpy as np
     
     gauss = zfit.pdf.Gauss(1.0, 0.5, obs=space1)
-    clamped_gauss = gauss.create_clipped(lower=1e-10)
+    clamped_gauss = gauss.to_clipped(lower=1e-10)
     
     # Test that the clamped PDF maintains basic properties
     assert clamped_gauss.obs == gauss.obs
@@ -80,7 +80,7 @@ def test_clip_pdf_negative_weights_kde():
     kde = zfit.pdf.KDE1DimExact(data, bandwidth='silverman')
     
     # Create a clamped version
-    clamped_kde = kde.create_clipped()
+    clamped_kde = kde.to_clipped()
     
     # Test that properties are preserved
     assert clamped_kde.obs == kde.obs
@@ -100,7 +100,7 @@ def test_clip_pdf_integration():
     import numpy as np
     
     gauss = zfit.pdf.Gauss(1.0, 0.5, obs=space1)
-    clamped_gauss = gauss.create_clipped()
+    clamped_gauss = gauss.to_clipped()
     
     # Test integration - should give similar results for a well-behaved PDF
     integral_original = gauss.integrate(limits=space1)
@@ -116,7 +116,7 @@ def test_clip_pdf_custom_bound():
     
     gauss = zfit.pdf.Gauss(1.0, 0.5, obs=space1)
     custom_bound = 1e-5
-    clamped_gauss = gauss.create_clipped(lower=custom_bound)
+    clamped_gauss = gauss.to_clipped(lower=custom_bound)
     
     # Test that the bound is respected
     assert clamped_gauss.lower == custom_bound
@@ -134,7 +134,7 @@ def test_clip_pdf_extended():
     """Test ClipPDF with extended PDFs."""
     gauss = zfit.pdf.Gauss(1.0, 0.5, obs=space1)
     extended_gauss = gauss.create_extended(100.0)
-    clamped_extended = extended_gauss.create_clipped()
+    clamped_extended = extended_gauss.to_clipped()
     
     # Test that extension is preserved
     assert clamped_extended.is_extended
@@ -148,7 +148,7 @@ def test_clip_pdf_upper_bound():
     # Create a Gaussian centered at 0
     gauss = zfit.pdf.Gauss(0.0, 0.1, obs=space1)  # Narrow Gaussian for high peak
     upper_bound = 1.0
-    clamped_gauss = gauss.create_clipped(upper=upper_bound)
+    clamped_gauss = gauss.to_clipped(upper=upper_bound)
     
     # Test that both bounds are set correctly
     assert clamped_gauss.upper == upper_bound
@@ -169,7 +169,7 @@ def test_clip_pdf_both_bounds():
     gauss = zfit.pdf.Gauss(1.0, 0.5, obs=space1)
     lower_bound = 1e-8
     upper_bound = 0.5
-    clamped_gauss = gauss.create_clipped(lower=lower_bound, upper=upper_bound)
+    clamped_gauss = gauss.to_clipped(lower=lower_bound, upper=upper_bound)
     
     # Test that both bounds are set correctly
     assert clamped_gauss.lower == lower_bound
@@ -213,14 +213,14 @@ def test_clip_pdf_optional_lower():
     gauss = zfit.pdf.Gauss(1.0, 0.5, obs=space1)
     
     # Create clamped PDF with no lower bound
-    clamped_gauss = gauss.create_clipped()
+    clamped_gauss = gauss.to_clipped()
     
     # Test that lower bound is None
     assert clamped_gauss.lower is None
     assert clamped_gauss.upper is None
     
     # Test with only upper bound
-    clamped_gauss_upper = gauss.create_clipped(upper=0.5)
+    clamped_gauss_upper = gauss.to_clipped(upper=0.5)
     assert clamped_gauss_upper.lower is None
     assert clamped_gauss_upper.upper == 0.5
 
@@ -243,7 +243,7 @@ def test_clip_pdf_custom_negative_polynomial():
     
     # Create clamped version with lower bound
     lower_bound = 1e-10
-    clamped_poly = poly_pdf.create_clipped(lower=lower_bound)
+    clamped_poly = poly_pdf.to_clipped(lower=lower_bound)
     
     # Test that the negative values are clamped to the lower bound
     clamped_vals = clamped_poly.pdf(x_negative, norm=False).numpy()
