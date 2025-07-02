@@ -489,17 +489,17 @@ class ProductPDFRepr(FunctorPDFRepr):
     hs3_type: Literal["ProductPDF"] = pydantic.Field("ProductPDF", alias="type")
 
 
-class ClampPDF(BaseFunctor, SerializableMixin):
-    """A functor that clamps the output of a PDF to ensure it doesn't produce negative or NaN values.
+class ClipPDF(BaseFunctor, SerializableMixin):
+    """A functor that clips the output of a PDF to ensure it doesn't produce negative or NaN values.
     
     This is useful for PDFs that can produce negative values (e.g., KDE with negative weights) or
-    numerical instabilities that lead to NaN values. The clamping operation uses znp.maximum and
+    numerical instabilities that lead to NaN values. The clipping operation uses znp.maximum and
     znp.minimum to ensure the output is within the specified bounds.
     
     Args:
-        pdf: The PDF to clamp
-        lower: The minimum value to clamp the output to. Default is None (no lower limit).
-        upper: The maximum value to clamp the output to. Default is None (no upper limit).
+        pdf: The PDF to clip
+        lower: The minimum value to clip the output to. Default is None (no lower limit).
+        upper: The maximum value to clip the output to. Default is None (no upper limit).
         obs: Observables of the PDF. If not given, taken from the wrapped PDF.
         extended: Whether the PDF is extended. If not given, taken from the wrapped PDF.  
         norm: Normalization range. If not given, taken from the wrapped PDF.
@@ -514,7 +514,7 @@ class ClampPDF(BaseFunctor, SerializableMixin):
         obs: ztyping.ObsTypeInput = None,
         extended: ExtendedInputType = None,
         norm: NormInputType = None,
-        name: str = "ClampPDF",
+        name: str = "ClipPDF",
         **kwargs,
     ):
         self.pdf = pdf
@@ -538,8 +538,8 @@ class ClampPDF(BaseFunctor, SerializableMixin):
             **kwargs
         )
     
-    def _clamp_value(self, value):
-        """Apply clamping to a value if bounds are specified."""
+    def _clip_value(self, value):
+        """Apply clipping to a value if bounds are specified."""
         if self.lower is not None:
             value = znp.maximum(value, self.lower)
         if self.upper is not None:
@@ -548,24 +548,24 @@ class ClampPDF(BaseFunctor, SerializableMixin):
     
     @supports()
     def _unnormalized_pdf(self, x, params):
-        """Return the clamped unnormalized PDF value."""
+        """Return the clipped unnormalized PDF value."""
         value = self.pdf.pdf(x, norm=False)
-        return self._clamp_value(value)
+        return self._clip_value(value)
     
     @supports(norm=True, multiple_limits=True)
     def _pdf(self, x, norm, params):
-        """Return the clamped PDF value."""
+        """Return the clipped PDF value."""
         value = self.pdf.pdf(x, norm=norm)
-        return self._clamp_value(value)
+        return self._clip_value(value)
     
     @supports(norm=True, multiple_limits=True) 
     def _ext_pdf(self, x, norm, params):
-        """Return the clamped extended PDF value."""
+        """Return the clipped extended PDF value."""
         if not self.pdf.is_extended:
             msg = f"PDF {self.pdf} is not extended but extended PDF was called."
             raise SpecificFunctionNotImplemented(msg)
         value = self.pdf.ext_pdf(x, norm=norm)
-        return self._clamp_value(value)
+        return self._clip_value(value)
     
     @supports()
     def _integrate(self, limits, norm, options):
@@ -578,9 +578,9 @@ class ClampPDF(BaseFunctor, SerializableMixin):
         return self.pdf.ext_integrate(limits=limits, norm=norm, options=options)
 
 
-class ClampPDFRepr(FunctorPDFRepr):
-    _implementation = ClampPDF
-    hs3_type: Literal["ClampPDF"] = pydantic.Field("ClampPDF", alias="type")
+class ClipPDFRepr(FunctorPDFRepr):
+    _implementation = ClipPDF
+    hs3_type: Literal["ClipPDF"] = pydantic.Field("ClipPDF", alias="type")
     
     pdf: BasePDFRepr = pydantic.Field(alias="pdf")
     lower: float = pydantic.Field(alias="lower")

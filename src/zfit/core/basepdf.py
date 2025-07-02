@@ -680,32 +680,32 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
         new_pdf.set_yield(value=yield_)
         return new_pdf
 
-    def create_clamped(
+    def create_clipped(
         self, 
         lower: float = None,
         upper: float = None,
         name: str | None = None,
     ) -> ZfitPDF:
-        """Return a clamped version of this PDF that ensures output values are within specified bounds.
+        """Return a clipped version of this PDF that ensures output values are within specified bounds.
         
-        This method creates a ClampPDF functor that wraps the current PDF and clamps its output
+        This method creates a ClipPDF functor that wraps the current PDF and clips its output
         using znp.maximum/minimum to ensure values are within the specified bounds. This is useful for PDFs 
         that can produce negative values (e.g., KDE with negative weights) or numerical 
         instabilities that lead to NaN values.
         
         Args:
-            lower: The minimum value to clamp the output to. Default is None (no lower limit).
-            upper: The maximum value to clamp the output to. Default is None (no upper limit).
-            name: New name of the PDF. If ``None``, the name of the PDF with a trailing "_clamped" is used.
+            lower: The minimum value to clip the output to. Default is None (no lower limit).
+            upper: The maximum value to clip the output to. Default is None (no upper limit).
+            name: New name of the PDF. If ``None``, the name of the PDF with a trailing "_clipped" is used.
             
         Returns:
-            :py:class:`~zfit.core.interfaces.ZfitPDF`: a new PDF that is clamped
+            :py:class:`~zfit.core.interfaces.ZfitPDF`: a new PDF that is clipped
         """
-        from zfit.models.functor import ClampPDF  # noqa: PLC0415
+        from zfit.models.functor import ClipPDF  # noqa: PLC0415
         
-        name = f"{self.name}_clamped" if name is None else name
+        name = f"{self.name}_clipped" if name is None else name
         
-        return ClampPDF(
+        return ClipPDF(
             pdf=self,
             lower=lower,
             upper=upper,

@@ -22,7 +22,7 @@ __all__ = [
     "Chebyshev",
     "Chebyshev2",
     "ChiSquared",
-    "ClampPDF",
+    "ClipPDF",
     "ConditionalPDFV1",
     "CrystalBall",
     "DoubleCB",
@@ -86,7 +86,7 @@ from .models.dist_tfp import (
     Uniform,
     WrapDistribution,
 )
-from .models.functor import BaseFunctor, ClampPDF, ProductPDF, SumPDF
+from .models.functor import BaseFunctor, ClipPDF, ProductPDF, SumPDF
 from .models.histmodifier import BinwiseScaleModifier
 from .models.histogram import HistogramPDF
 from .models.interpolation import SplinePDF
