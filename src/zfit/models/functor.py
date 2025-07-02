@@ -509,7 +509,7 @@ class ClipPDF(BaseFunctor, SerializableMixin):
     def __init__(
         self,
         pdf: ZfitPDF,
-        lower: float = 1e-100,
+        lower: float = None,
         upper: float = None,
         obs: ztyping.ObsTypeInput = None,
         extended: ExtendedInputType = None,
@@ -518,7 +518,7 @@ class ClipPDF(BaseFunctor, SerializableMixin):
         **kwargs,
     ):
         self.pdf = pdf
-        self.lower = znp.asarray(lower, dtype=pdf.dtype) if lower is not None else None
+        self.lower = znp.asarray(lower, dtype=pdf.dtype) if lower is not None else znp.array(1e-100, dtype=pdf.dtype)
         self.upper = znp.asarray(upper, dtype=pdf.dtype) if upper is not None else None
 
         # Use the wrapped PDF's properties if not explicitly provided
@@ -561,11 +561,6 @@ class ClipPDF(BaseFunctor, SerializableMixin):
         return self._clip_value(value)
 
     @supports()
-    def _integrate(self, limits, norm, options):
-        """Delegate integration to the wrapped PDF."""
-        return self.pdf.integrate(limits=limits, norm=norm, options=options)
-
-    @supports()
     def _ext_integrate(self, limits, norm, options):
         """Delegate extended integration to the wrapped PDF."""
         return self.pdf.ext_integrate(limits=limits, norm=norm, options=options)
@@ -576,5 +571,5 @@ class ClipPDFRepr(FunctorPDFRepr):
     hs3_type: Literal["ClipPDF"] = pydantic.Field("ClipPDF", alias="type")
 
     pdf: BasePDFRepr = pydantic.Field(alias="pdf")
-    lower: float = pydantic.Field(alias="lower")
+    lower: float | None = pydantic.Field(alias="lower")
     upper: float | None = pydantic.Field(alias="upper")
