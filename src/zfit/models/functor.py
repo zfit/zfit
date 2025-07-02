@@ -498,7 +498,7 @@ class ClipPDF(BaseFunctor, SerializableMixin):
     
     Args:
         pdf: The PDF to clip
-        lower: The minimum value to clip the output to. Default is None (no lower limit).
+        lower: The minimum value to clip the output to. Default is 1e-100.
         upper: The maximum value to clip the output to. Default is None (no upper limit).
         obs: Observables of the PDF. If not given, taken from the wrapped PDF.
         extended: Whether the PDF is extended. If not given, taken from the wrapped PDF.  
@@ -509,7 +509,7 @@ class ClipPDF(BaseFunctor, SerializableMixin):
     def __init__(
         self,
         pdf: ZfitPDF,
-        lower: float = None,
+        lower: float = 1e-100,
         upper: float = None,
         obs: ztyping.ObsTypeInput = None,
         extended: ExtendedInputType = None,

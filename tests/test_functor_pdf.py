@@ -152,7 +152,7 @@ def test_clip_pdf_upper_bound():
     
     # Test that both bounds are set correctly
     assert clamped_gauss.upper == upper_bound
-    assert clamped_gauss.lower is None  # No lower bound set
+    assert clamped_gauss.lower == 1e-100  # Default lower bound
     
     # Evaluate at the peak where the value would be highest
     x_test = np.array([[0.0]])  # At the mean
@@ -215,13 +215,13 @@ def test_clip_pdf_optional_lower():
     # Create clamped PDF with no lower bound
     clamped_gauss = gauss.to_clipped()
     
-    # Test that lower bound is None
-    assert clamped_gauss.lower is None
+    # Test that default bounds are set correctly
+    assert clamped_gauss.lower == 1e-100  # Default lower bound
     assert clamped_gauss.upper is None
     
     # Test with only upper bound
     clamped_gauss_upper = gauss.to_clipped(upper=0.5)
-    assert clamped_gauss_upper.lower is None
+    assert clamped_gauss_upper.lower == 1e-100  # Default lower bound
     assert clamped_gauss_upper.upper == 0.5
 
 

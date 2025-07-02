@@ -682,7 +682,7 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
 
     def to_clipped(
         self, 
-        lower: float = None,
+        lower: float = 1e-100,
         upper: float = None,
         name: str | None = None,
     ) -> ZfitPDF:
@@ -694,7 +694,7 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
         instabilities that lead to NaN values.
         
         Args:
-            lower: The minimum value to clip the output to. Default is None (no lower limit).
+            lower: The minimum value to clip the output to. Default is 1e-100.
             upper: The maximum value to clip the output to. Default is None (no upper limit).
             name: New name of the PDF. If ``None``, the name of the PDF with a trailing "_clipped" is used.
             
