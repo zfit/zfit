@@ -701,7 +701,7 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
         Returns:
             :py:class:`~zfit.core.interfaces.ZfitPDF`: a new PDF that is clipped
         """
-        from zfit.models.functor import ClipPDF  # noqa: PLC0415
+        from zfit.models.postprocess import ClipPDF  # noqa: PLC0415
 
         name = f"{self.name}_clipped" if name is None else name
 
