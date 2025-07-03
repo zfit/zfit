@@ -16,14 +16,14 @@ import pydantic.v1 as pydantic
 import zfit.z.numpy as znp
 from zfit._interfaces import ZfitPDF
 
-from ...core.serialmixin import SerializableMixin
-from ...core.space import supports
-from ...serialization.pdfrepr import BasePDFRepr
-from ...util import ztyping
-from ...util.exception import SpecificFunctionNotImplemented
-from ...util.ztyping import ExtendedInputType, NormInputType
-from ..basefunctor import FunctorPDFRepr
-from ..functor import BaseFunctor
+from ..core.serialmixin import SerializableMixin
+from ..core.space import supports
+from ..serialization.pdfrepr import BasePDFRepr
+from ..util import ztyping
+from ..util.exception import SpecificFunctionNotImplemented
+from ..util.ztyping import ExtendedInputType, NormInputType
+from .basefunctor import FunctorPDFRepr
+from .functor import BaseFunctor
 
 
 class ClipPDF(BaseFunctor, SerializableMixin):
