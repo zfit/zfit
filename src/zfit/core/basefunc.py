@@ -151,9 +151,7 @@ class BaseFuncV1(BaseModel, ZfitFunc):
         self,
         x: ztyping.XType,
         *,
-        params: ztyping.ParamTypeInput = None,
         name: str = "value",
-        *,
         params: ztyping.ParamsTypeInput | None = None,
     ) -> ztyping.XType:
         """The function evaluated at ``x``.
