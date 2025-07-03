@@ -25,6 +25,8 @@ from ..util.ztyping import ExtendedInputType, NormInputType
 from .basefunctor import FunctorPDFRepr
 from .functor import BaseFunctor
 
+__all__ = ["ClipPDF"]
+
 
 class ClipPDF(BaseFunctor, SerializableMixin):
     """A functor that clips the output of a PDF to ensure it doesn't produce negative or NaN values.
