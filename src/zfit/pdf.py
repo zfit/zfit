@@ -87,7 +87,7 @@ from .models.dist_tfp import (
     WrapDistribution,
 )
 from .models.functor import BaseFunctor, ProductPDF, SumPDF
-from .models.postprocess import ClipPDF
+from .models.postprocess.pdf import ClipPDF
 from .models.histmodifier import BinwiseScaleModifier
 from .models.histogram import HistogramPDF
 from .models.interpolation import SplinePDF

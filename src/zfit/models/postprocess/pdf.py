@@ -16,14 +16,14 @@ import pydantic.v1 as pydantic
 import zfit.z.numpy as znp
 from zfit._interfaces import ZfitPDF
 
-from ..core.serialmixin import SerializableMixin
-from ..core.space import supports
-from ..serialization.pdfrepr import BasePDFRepr
-from ..util import ztyping
-from ..util.exception import SpecificFunctionNotImplemented
-from ..util.ztyping import ExtendedInputType, NormInputType
-from .basefunctor import FunctorPDFRepr
-from .functor import BaseFunctor
+from ...core.serialmixin import SerializableMixin
+from ...core.space import supports
+from ...serialization.pdfrepr import BasePDFRepr
+from ...util import ztyping
+from ...util.exception import SpecificFunctionNotImplemented
+from ...util.ztyping import ExtendedInputType, NormInputType
+from ..basefunctor import FunctorPDFRepr
+from ..functor import BaseFunctor
 
 
 class ClipPDF(BaseFunctor, SerializableMixin):
@@ -46,7 +46,7 @@ class ClipPDF(BaseFunctor, SerializableMixin):
     def __init__(
         self,
         pdf: ZfitPDF,
-        lower: float = None,
+        lower: float = 1e-100,
         upper: float = None,
         obs: ztyping.ObsTypeInput = None,
         extended: ExtendedInputType = None,
@@ -55,7 +55,7 @@ class ClipPDF(BaseFunctor, SerializableMixin):
         **kwargs,
     ):
         self.pdf = pdf
-        self.lower = znp.asarray(lower, dtype=pdf.dtype) if lower is not None else znp.array(1e-100, dtype=pdf.dtype)
+        self.lower = znp.asarray(lower, dtype=pdf.dtype) if lower is not None else None
         self.upper = znp.asarray(upper, dtype=pdf.dtype) if upper is not None else None
 
         # Use the wrapped PDF's properties if not explicitly provided
