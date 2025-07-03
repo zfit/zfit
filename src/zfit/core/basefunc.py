@@ -32,7 +32,6 @@ class BaseFuncV2(BaseModel, ZfitFunc):
         name: str = "BaseFunc",
         params: typing.Any = None,
     ):
-        """TODO(docs): explain subclassing."""
 
         super().__init__(obs=obs, name=name, params=params)
         self._output = convert_to_space(output)
