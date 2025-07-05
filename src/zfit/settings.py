@@ -74,7 +74,7 @@ def set_seed(
     if backend is not None and backend is not False:
         tf.random.set_seed(backend)
 
-    from .z.random import get_prng  # noqa: PLC0415
+    from .z.random import get_prng
 
     if zfit is True:
         if seed is True:
@@ -92,7 +92,7 @@ def set_seed(
 
 
 def generate_urandom_seed() -> int:
-    import os  # noqa: PLC0415
+    import os
 
     random_data = os.urandom(4)
     backend_seed = int.from_bytes(random_data, byteorder="big")

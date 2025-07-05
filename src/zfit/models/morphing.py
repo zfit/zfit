@@ -92,7 +92,7 @@ class SplineMorphingPDF(BaseBinnedPDF):
 
         for a, hist in hists.items():
             if isinstance(hist, PlottableHistogram):
-                from zfit.models.histogram import HistogramPDF  # noqa: PLC0415
+                from zfit.models.histogram import HistogramPDF
 
                 hist = HistogramPDF(hist)
             if isinstance(hist, ZfitBinnedPDF):

@@ -34,7 +34,6 @@ from ..core.serialmixin import SerializableMixin
 from ..core.space import supports
 from ..models.basefunctor import FunctorMixin, extract_daughter_input_obs
 from ..serialization import Serializer
-from ..serialization.pdfrepr import BasePDFRepr
 from ..util import ztyping
 from ..util.container import convert_to_container
 from ..util.exception import (
@@ -487,6 +486,3 @@ class ProductPDF(BaseFunctor, SerializableMixin):
 class ProductPDFRepr(FunctorPDFRepr):
     _implementation = ProductPDF
     hs3_type: Literal["ProductPDF"] = pydantic.Field("ProductPDF", alias="type")
-
-
-

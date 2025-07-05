@@ -22,7 +22,6 @@ __all__ = [
     "Chebyshev",
     "Chebyshev2",
     "ChiSquared",
-    "ClipPDF",
     "ConditionalPDFV1",
     "CrystalBall",
     "DoubleCB",
@@ -46,6 +45,7 @@ __all__ = [
     "Legendre",
     "LogNormal",
     "Poisson",
+    "PositivePDF",
     "ProductPDF",
     "QGauss",
     "RecursivePolynomial",
@@ -87,7 +87,6 @@ from .models.dist_tfp import (
     WrapDistribution,
 )
 from .models.functor import BaseFunctor, ProductPDF, SumPDF
-from .models.postprocess import ClipPDF
 from .models.histmodifier import BinwiseScaleModifier
 from .models.histogram import HistogramPDF
 from .models.interpolation import SplinePDF
@@ -115,6 +114,7 @@ from .models.polynomials import (
     Legendre,
     RecursivePolynomial,
 )
+from .models.postprocess import PositivePDF
 from .models.special import ZPDF, SimpleFunctorPDF, SimplePDF
 from .models.tobinned import BinnedFromUnbinnedPDF
 from .models.truncated import TruncatedPDF

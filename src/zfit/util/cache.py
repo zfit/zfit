@@ -179,7 +179,7 @@ def invalidate_graph(func):
             msg = "Decorator can only be used in a subclass of `ZfitGraphCachable`"
             raise TypeError(msg)
 
-        from .. import run  # noqa: PLC0415
+        from .. import run
 
         if not tf.inside_function():
             run.clear_graph_cache()
@@ -304,7 +304,7 @@ class FunctionCacheHolder(GraphCachable):
         return tuple(combined_cleaned)
 
     def get_immutable_repr_obj(self, obj):
-        from zfit._interfaces import (  # noqa: PLC0415
+        from zfit._interfaces import (
             ZfitConstraint,
             ZfitData,
             ZfitLimit,
@@ -387,7 +387,7 @@ def clear_graph_cache(*, call_gc=None):
     if call_gc is None:
         call_gc = False
 
-    from zfit.z.zextension import FunctionWrapperRegistry  # noqa: PLC0415
+    from zfit.z.zextension import FunctionWrapperRegistry
 
     for registry in FunctionWrapperRegistry.registries:
         for wrapped_meth in registry.function_cache:

@@ -722,7 +722,7 @@ class FitResult(OptimizeResultMixin, ZfitResult):
 
     def _create_minuit_instance(self):
         minuit = self._cache_minuit
-        from zfit.minimizers.minimizer_minuit import Minuit  # noqa: PLC0415
+        from zfit.minimizers.minimizer_minuit import Minuit
 
         if minuit is None:
             if isinstance(self.minimizer, Minuit):
@@ -902,8 +902,8 @@ class FitResult(OptimizeResultMixin, ZfitResult):
             Returns:
                 ``zfit.minimize.FitResult``: A `FitResult` as if zfit Minuit was used.
         """
-        from .minimizer_minuit import Minuit  # noqa: PLC0415
-        from .termination import EDM  # noqa: PLC0415
+        from .minimizer_minuit import Minuit
+        from .termination import EDM
 
         if not isinstance(minimizer, Minuit):
             if isinstance(minimizer, iminuit.Minuit):
@@ -1408,7 +1408,7 @@ class FitResult(OptimizeResultMixin, ZfitResult):
         if method is None:
             # LEGACY START
             method = self._default_hesse
-            from zfit.minimizers.minimizer_minuit import Minuit  # noqa: PLC0415
+            from zfit.minimizers.minimizer_minuit import Minuit
 
             if isinstance(self.minimizer, Minuit):
                 method = "minuit_hesse"
@@ -1723,7 +1723,7 @@ class FitResult(OptimizeResultMixin, ZfitResult):
             self.info["minuit"] = "Minuit_frozen"
         if "problem" in self.info:
             try:
-                import ipyopt  # noqa: PLC0415
+                import ipyopt
             except ImportError:
                 pass
             else:

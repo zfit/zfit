@@ -376,7 +376,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         return pdf, data, fit_range
 
     def check_precompile(self, *, params=None, force=False):
-        from zfit import run  # noqa: PLC0415
+        from zfit import run
 
         if (not run.executing_eagerly()) or (self.is_precompiled and not force):
             return params, False
@@ -1419,7 +1419,7 @@ class SimpleLoss(BaseLoss):
 
     def _check_jit_or_not(self):
         if not self._do_jit:
-            from zfit import run  # noqa: PLC0415
+            from zfit import run
 
             if not run.executing_eagerly():
                 raise z.DoNotCompile

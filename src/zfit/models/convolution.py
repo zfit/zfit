@@ -158,7 +158,7 @@ class FFTConvPDFV1(BaseFunctor, SerializableMixin):
                the PDF for a better description, to be used with plots etc.
                Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
         """
-        from zfit import run  # noqa: PLC0415
+        from zfit import run
 
         run.assert_executing_eagerly()
         original_init = {
@@ -485,7 +485,7 @@ class AddingSampleAndWeights:
         sample = sum_samples(sample_func, sample_kernel, obs=limits, shuffle=True)
         sample = limits.filter(sample)
         n_drawn = tf.shape(sample)[0]
-        from zfit import run  # noqa: PLC0415
+        from zfit import run
 
         if run.numeric_checks:
             z.assert_positive(

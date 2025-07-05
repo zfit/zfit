@@ -232,7 +232,7 @@ class Ipyopt(BaseMinimizer):
         self._internal_maxiter = 5
 
         try:
-            import ipyopt  # noqa: PLC0415
+            import ipyopt
         except ImportError as error:
             msg = (
                 "This requires the ipyopt library (https://gitlab.com/g-braeunlich/ipyopt)"
@@ -258,7 +258,7 @@ class Ipyopt(BaseMinimizer):
 
     @minimize_supports(init=True)
     def _minimize(self, loss, params, init):
-        import ipyopt  # noqa: PLC0415
+        import ipyopt
 
         if init:
             assign_values(params=params, values=init)

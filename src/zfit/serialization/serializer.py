@@ -287,19 +287,19 @@ class Serializer:
                 raise ValueError(msg)
 
             obj = convert_to_container(obj)
-            from zfit._interfaces import ZfitPDF  # noqa: PLC0415
+            from zfit._interfaces import ZfitPDF
 
             all_pdfs = all(isinstance(ob, ZfitPDF) for ob in obj)
             all_losses = all(isinstance(ob, ZfitLoss) for ob in obj)
             if not all_pdfs and not all_losses:
                 msg = "Only PDFs or losses can be serialized."
                 raise TypeError(msg)
-            from zfit.core.serialmixin import ZfitSerializable  # noqa: PLC0415
+            from zfit.core.serialmixin import ZfitSerializable
 
             if not all(isinstance(pdf, ZfitSerializable) for pdf in obj):
                 msg = "All distributions must be ZfitSerializable"
                 raise SerializationTypeError(msg)
-            import zfit  # noqa: PLC0415
+            import zfit
 
             out = {
                 "metadata": {
@@ -561,8 +561,8 @@ def replace_matching(mapping, replace):
 def convert_to_orm(init):
     if isinstance(init, Mapping):
         for k, v in init.items():
-            from zfit._interfaces import ZfitParameter, ZfitSpace  # noqa: PLC0415
-            from zfit.core.data import LightDataset  # noqa: PLC0415
+            from zfit._interfaces import ZfitParameter, ZfitSpace
+            from zfit.core.data import LightDataset
 
             if (
                 not isinstance(v, (Iterable, Mapping))
