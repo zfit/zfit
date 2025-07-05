@@ -441,11 +441,12 @@ def min_std_or_iqr(x, weights):
         # Check for negative variance (can happen with negative weights)
         if tf.executing_eagerly():
             if variance < 0:
-                raise ValueError(
+                msg = (
                     f"Weighted variance is negative ({variance}), which can occur with negative weights. "
                     "This makes automatic bandwidth estimation impossible. "
                     "Consider providing an explicit bandwidth parameter."
                 )
+                raise ValueError(msg)
         else:
             z.assert_greater_equal(
                 variance,
@@ -1007,11 +1008,12 @@ class KDE1DimExact(KDEHelper, WrapDistribution, SerializableMixin):
             # Force eager execution of the assertion
             if tf.executing_eagerly():
                 if weights_sum <= 0:
-                    raise ValueError(
+                    msg = (
                         f"Sum of weights must be positive for automatic bandwidth estimation, but got {weights_sum}. "
                         f"This typically happens with negative weights that cancel out. "
                         f"Consider providing an explicit bandwidth parameter instead of '{bandwidth}'."
                     )
+                    raise ValueError(msg)
             else:
                 z.assert_greater(
                     weights_sum,
@@ -1073,49 +1075,39 @@ class KDE1DimExact(KDEHelper, WrapDistribution, SerializableMixin):
         # We'll check this at runtime in _unnormalized_pdf
 
     def _unnormalized_pdf(self, x):
-        """Override to handle negative weights correctly."""
-        # Check if we have negative weights
-        has_negative_weights = False
+        """Override to use manual implementation for all cases."""
+        # Always use manual implementation for consistency
+        # KDE formula: sum_i w_i * K((x - x_i) / h) / h
+        x_vals = z.unstack_x(x)  # shape: (n_points,)
+
+        # Reshape for broadcasting
+        x_vals = znp.expand_dims(x_vals, axis=-1)  # shape: (n_points, 1)
+        data_vals = znp.expand_dims(self._data, axis=0)  # shape: (1, n_data)
+
+        # Handle weights - need to normalize them like calc_kernel_probs does
         if self._weights is not None:
-            has_negative_weights = tf.reduce_any(self._weights < 0)
-
-        def manual_pdf():
-            """Manual implementation for negative weights."""
-            # Manual implementation for negative weights
-            # KDE formula: sum_i w_i * K((x - x_i) / h) / h
-            x_vals = z.unstack_x(x)  # shape: (n_points,)
-
-            # Reshape for broadcasting
-            x_vals = znp.expand_dims(x_vals, axis=-1)  # shape: (n_points, 1)
-            data_vals = znp.expand_dims(self._data, axis=0)  # shape: (1, n_data)
-            weights = znp.expand_dims(self._weights, axis=0)  # shape: (1, n_data)
-            bandwidth = self._bandwidth
-            # Check if bandwidth is an array or scalar
-            if hasattr(bandwidth, "shape") and bandwidth.shape.rank > 0:  # array bandwidth
-                bandwidth = znp.expand_dims(bandwidth, axis=0)  # shape: (1, n_data)
-
-            # Compute normalized distances
-            z_values = (x_vals - data_vals) / bandwidth
-
-            # Gaussian kernel: exp(-0.5 * z^2) / sqrt(2*pi)
-            # For non-Gaussian kernels, this would need to be generalized
-            kernel_vals = znp.exp(-0.5 * z_values**2) / znp.sqrt(2 * znp.pi)
-
-            # Weighted sum
-            weighted_kernels = weights * kernel_vals / bandwidth
-            pdf_vals = znp.sum(weighted_kernels, axis=-1)
-
-            return pdf_vals
-
-        def tfp_pdf():
-            """Use the standard TFP implementation for non-negative weights."""
-            return super(KDE1DimExact, self)._unnormalized_pdf(x)
-
-        # Use tf.cond to select implementation based on weights
-        if self._weights is not None:
-            return tf.cond(has_negative_weights, manual_pdf, tfp_pdf)
+            weights = self._weights / znp.sum(self._weights)
+            weights = znp.expand_dims(weights, axis=0)  # shape: (1, n_data)
         else:
-            return tfp_pdf()
+            # Uniform weights if none provided
+            n_data = znp.asarray(tf.shape(self._data)[0], dtype=self._data.dtype)
+            weights = znp.ones_like(data_vals) / n_data
+
+        bandwidth = self._bandwidth
+        # Check if bandwidth is an array or scalar
+        if hasattr(bandwidth, "shape") and bandwidth.shape.rank > 0:  # array bandwidth
+            bandwidth = znp.expand_dims(bandwidth, axis=0)  # shape: (1, n_data)
+
+        # Compute normalized distances
+        z_values = (x_vals - data_vals) / bandwidth
+
+        # Gaussian kernel: exp(-0.5 * z^2) / sqrt(2*pi)
+        # For non-Gaussian kernels, this would need to be generalized
+        kernel_vals = znp.exp(-0.5 * z_values**2) / znp.sqrt(2 * znp.pi)
+
+        # Weighted sum
+        weighted_kernels = weights * kernel_vals / bandwidth
+        return znp.sum(weighted_kernels, axis=-1)
 
 
 class KDE1DimExactRepr(BasePDFRepr):
