@@ -112,7 +112,7 @@ class ConditionalPDFV1(BaseFunctor):
         param_x_indices = {p: x.obs.index(p_space.obs[0]) for p, p_space in self._cond.items()}
         x_values = x.value()
 
-        from zfit import run  # noqa: PLC0415
+        from zfit import run
 
         if self._use_vectorized_map and run.get_graph_mode() is not False:
             tf_map = tf.vectorized_map
@@ -147,7 +147,7 @@ class ConditionalPDFV1(BaseFunctor):
 
     @z.function(wraps="conditional_pdf")
     def _single_hook_integrate(self, limits, norm, x, options):
-        from zfit import run  # noqa: PLC0415
+        from zfit import run
 
         if not run.get_graph_mode():
             warnings.warn(
@@ -190,7 +190,7 @@ class ConditionalPDFV1(BaseFunctor):
         #     x_values = z.random.sample_with_replacement(x_values, axis=0, sample_shape=(n,))
         pdf = self.pdfs[0]
 
-        from zfit import run  # todo: we could use the normal python map for eager?  # noqa: PLC0415
+        from zfit import run  # todo: we could use the normal python map for eager?
 
         if self._use_vectorized_map and run.get_graph_mode() is not False:
             tf_map = tf.vectorized_map

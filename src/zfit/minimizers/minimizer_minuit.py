@@ -167,7 +167,7 @@ class Minuit(BaseMinimizer, GraphCachable):
     # TODO 0.7: legacy, remove `_use_tfgrad`
     @property
     def _use_tfgrad(self):
-        from zfit.exception import BreakingAPIChangeError  # noqa: PLC0415
+        from zfit.exception import BreakingAPIChangeError
 
         msg = "This property is not available anymore. Use `gradient` instead."
         raise BreakingAPIChangeError(msg)

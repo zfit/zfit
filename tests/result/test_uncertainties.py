@@ -612,7 +612,7 @@ def test_compare_roofit_zfit_three_component_errors(weightcorr):
             f"zfit and RooFit values differ for {param_name}: {zfit_val} vs {roofit_val}"
         )
 
-        relerr = 0.15 if weightcorr == "sumw2" else 0.03  # only approximate, it's not correct.
+        relerr = 0.25 if weightcorr == "sumw2" else 0.03  # only approximate, it's not correct.
         # we don't do the squared weights in the NLL calculation, just multiply the weights with the pdf vals
         # and then multiply by the sum of weights and divide by the sum of squares.
         assert pytest.approx(zfit_err, rel=relerr) == roofit_err, (

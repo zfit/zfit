@@ -26,7 +26,7 @@ class BinnedTemplatePDFV1(BaseBinnedPDF):
         if sysshape is None:
             sysshape = {}
         if sysshape is True:
-            import zfit  # noqa: PLC0415
+            import zfit
 
             sysshape = {
                 f"sysshape_{i}": zfit.Parameter(f"auto_sysshape_{self}_{i}", 1.0)
@@ -38,7 +38,7 @@ class BinnedTemplatePDFV1(BaseBinnedPDF):
         if extended is True:
             self._automatically_extended = True
             if sysshape:
-                import zfit  # noqa: PLC0415
+                import zfit
 
                 def sumfunc(params: dict[str, tf.Tensor]) -> tf.Tensor:
                     values = self._data.values()
@@ -48,7 +48,7 @@ class BinnedTemplatePDFV1(BaseBinnedPDF):
                         values = values * sysshape
                     return znp.sum(values)
 
-                from zfit.core.parameter import get_auto_number  # noqa: PLC0415
+                from zfit.core.parameter import get_auto_number
 
                 extended = zfit.ComposedParameter(f"TODO_name_selfmade_{get_auto_number()}", sumfunc, params=sysshape)
 

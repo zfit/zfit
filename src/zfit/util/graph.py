@@ -23,7 +23,7 @@ class JIT:
         return TemporarilySet(getter=getter, setter=setter, value=new_values)
 
     def _set_default(self):
-        from zfit import z  # noqa: PLC0415
+        from zfit import z
 
         new_values = z.zextension.FunctionWrapperRegistry._DEFAULT_DO_JIT_TYPES.copy()
 
@@ -40,18 +40,18 @@ class JIT:
         return TemporarilySet(getter=getter, setter=setter, value=new_values)
 
     def _update_allowed(self, update_jit):
-        from zfit import z  # noqa: PLC0415
+        from zfit import z
 
         z.zextension.FunctionWrapperRegistry.do_jit_types.update(update_jit)
 
     def _get_allowed(self):
-        from zfit import z  # noqa: PLC0415
+        from zfit import z
 
         return z.zextension.FunctionWrapperRegistry.do_jit_types
 
     @property
     def experimental_is_eager(self):
-        from ..settings import run  # noqa: PLC0415
+        from ..settings import run
 
         return run.mode["graph"]
 

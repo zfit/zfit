@@ -58,7 +58,7 @@ class HistogramPDF(BaseBinnedPDF):
             extended = True
         if not isinstance(data, ZfitBinnedData):
             if isinstance(data, PlottableHistogram):
-                from zfit._data.binneddatav1 import BinnedData  # noqa: PLC0415
+                from zfit._data.binneddatav1 import BinnedData
 
                 data = BinnedData.from_hist(data)
             else:

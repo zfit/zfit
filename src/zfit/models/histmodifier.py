@@ -61,7 +61,7 @@ class BinwiseScaleModifier(BaseBinnedFunctorPDF):
         if modifiers is None:
             modifiers = True
         if modifiers is True:
-            import zfit  # noqa: PLC0415
+            import zfit
 
             modifiers = {
                 f"sysshape_{i}": zfit.Parameter(f"auto_sysshape_{self}_{i}", 1.0)
@@ -75,14 +75,14 @@ class BinwiseScaleModifier(BaseBinnedFunctorPDF):
         if extended is True:
             self._automatically_extended = True
             if modifiers:
-                import zfit  # noqa: PLC0415
+                import zfit
 
                 def sumfunc(params):
                     del params  # unused
                     values = self.counts()
                     return znp.sum(values)
 
-                from zfit.core.parameter import get_auto_number  # noqa: PLC0415
+                from zfit.core.parameter import get_auto_number
 
                 params_sumfunc = modifiers.copy()
                 dep_params = {}

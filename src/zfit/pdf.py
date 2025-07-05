@@ -45,6 +45,7 @@ __all__ = [
     "Legendre",
     "LogNormal",
     "Poisson",
+    "PositivePDF",
     "ProductPDF",
     "QGauss",
     "RecursivePolynomial",
@@ -113,6 +114,7 @@ from .models.polynomials import (
     Legendre,
     RecursivePolynomial,
 )
+from .models.postprocess import PositivePDF
 from .models.special import ZPDF, SimpleFunctorPDF, SimplePDF
 from .models.tobinned import BinnedFromUnbinnedPDF
 from .models.truncated import TruncatedPDF

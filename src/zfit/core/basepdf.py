@@ -34,7 +34,7 @@ from .sample import extended_sampling
 from .space import Space, convert_to_space
 
 if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
+    import zfit
 
 
 _BasePDF_USER_IMPL_METHODS_TO_CHECK = {}
@@ -653,7 +653,7 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
         if name_addition is not None:
             msg = "name_addition is not supported anymore, use `name` instead."
             raise BreakingAPIChangeError(msg)
-        from zfit.models.functor import ProductPDF  # noqa: PLC0415
+        from zfit.models.functor import ProductPDF
 
         name = f"{self.name}_ext" if name is None else name
 
@@ -679,6 +679,31 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
             raise RuntimeError(msg) from error
         new_pdf.set_yield(value=yield_)
         return new_pdf
+
+    def to_positive(
+        self,
+        epsilon: float = 1e-100,
+        name: str | None = None,
+    ) -> zfit.pdf.PositivePDF:
+        """Return a positive version of this PDF that ensures output values are at least epsilon.
+
+        This method creates a PositivePDF functor that wraps the current PDF and ensures its output
+        is always at least epsilon using znp.maximum. This is useful for PDFs
+        that can produce negative values (e.g., KDE with negative weights) or numerical
+        instabilities that lead to values very close to zero.
+
+        Args:
+            epsilon: The minimum positive value for the PDF output. Default is 1e-100.
+            name: New name of the PDF. If ``None``, the name of the PDF with a trailing "_positive" is used.
+
+        Returns:
+            :py:class:`~zfit.core.interfaces.ZfitPDF`: a new PDF that is always positive
+        """
+        from zfit.models.postprocess import PositivePDF
+
+        name = f"{self.name}_positive" if name is None else name
+
+        return PositivePDF(pdf=self, epsilon=epsilon, name=name)
 
     @deprecated(None, "Use `create_extended` instead or `extended=yield` when creating the PDF.")
     def set_yield(self, value):
@@ -836,7 +861,7 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
         Returns:
             A pdf without the dimensions from ``limits``.
         """
-        from ..models.special import SimpleFunctorPDF  # noqa: PLC0415
+        from ..models.special import SimpleFunctorPDF
 
         if limits is None:
             if obs is None:
@@ -907,9 +932,9 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
         obs = self.norm
 
         # HACK(Mayou36): remove once copy is proper implemented
-        from ..models.dist_tfp import WrapDistribution  # noqa: PLC0415
-        from ..models.kde import GaussianKDE1DimV1  # noqa: PLC0415
-        from ..models.polynomials import RecursivePolynomial  # noqa: PLC0415
+        from ..models.dist_tfp import WrapDistribution
+        from ..models.kde import GaussianKDE1DimV1
+        from ..models.polynomials import RecursivePolynomial
 
         if type(self) is WrapDistribution:  # NOT isinstance! Because e.g. Gauss wraps that and takes different args
             parameters = {"distribution": self._distribution, "dist_params": self.dist_params}
@@ -947,7 +972,7 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
                 i_coeff += 1
             parameters["coeffs"] = coeffs
 
-        from zfit.models.functor import BaseFunctor, SumPDF  # noqa: PLC0415
+        from zfit.models.functor import BaseFunctor, SumPDF
 
         if isinstance(self, BaseFunctor):
             parameters = {}
@@ -975,7 +1000,7 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
         Args:
             norm: If not False or a `ZfitSpace`, this will be used to call the `pdf` function.
         """
-        from .operations import convert_pdf_to_func  # prevent circular import  # noqa: PLC0415
+        from .operations import convert_pdf_to_func  # prevent circular import
 
         return convert_pdf_to_func(pdf=self, norm=norm)
 
@@ -1033,7 +1058,7 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
             name: Name of the new PDF. If not given, it is created from the original name.
             label: Label of the new PDF. If not given, it is created from the original label.
         """
-        from ..models.tobinned import BinnedFromUnbinnedPDF  # noqa: PLC0415
+        from ..models.tobinned import BinnedFromUnbinnedPDF
 
         return BinnedFromUnbinnedPDF(pdf=self, space=space, extended=extended, norm=norm, name=name, label=label)
 
@@ -1095,7 +1120,7 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
                Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
         """
 
-        from ..models.truncated import TruncatedPDF  # noqa: PLC0415
+        from ..models.truncated import TruncatedPDF
 
         if limits is None:
             limits = obs if obs is not None else self.space
