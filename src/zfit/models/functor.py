@@ -153,7 +153,7 @@ class SumPDF(BaseFunctor, SerializableMixin):  # TODO: add extended argument
         self._fracs = None
 
         pdfs = convert_to_container(pdfs)
-        self.pdfs = pdfs
+        self.pdfs: typing.Collection = pdfs
         (
             all_extended,
             fracs_cleaned,

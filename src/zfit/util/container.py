@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import typing
-from collections.abc import Callable, Iterable
+from collections.abc import Callable
 from typing import Any
 
 import numpy as np
@@ -17,7 +17,7 @@ if typing.TYPE_CHECKING:
 
 def convert_to_container(
     value: Any, container: Callable = list, non_containers=None, ignore=None, convert_none=False
-) -> None | Iterable:
+) -> None | typing.Collection:
     """Convert `value` into a `container` storing `value` if `value` is not yet a python container.
 
     Args:

@@ -240,6 +240,10 @@ class ZfitData(ZfitDimensional):
     def num_entries(self) -> int:
         raise NotImplementedError
 
+    @abstractmethod
+    def to_binned(self, binning: ztyping.BinningTypeInput):
+        raise NotImplementedError
+
 
 class ZfitUnbinnedData(ZfitData):
     @property
@@ -1018,9 +1022,10 @@ class ZfitBinnedData(ZfitDimensional, ZfitMinimalHist, metaclass=ABCMeta):
     # def counts(self):  # TODO: name?
     #     raise NotImplementedError
 
-    # @abstractmethod
-    # def binning(self):
-    #     return self.space.binning
+    @abstractmethod
+    def binning(self):
+        return self.space.binning
+
     @abstractmethod
     def to_hist(self):
         """Convert the binned data to a :py:class:`~hist.NamedHist`.

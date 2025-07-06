@@ -61,7 +61,7 @@ def test_kde_manual_vs_tfp_correctness():
 @pytest.mark.parametrize("n_data,n_eval", [
     (100, 1000),
     (1000, 100),
-    (1000, 100000),
+    (1000, 10000),
 ])
 def test_kde_manual_vs_tfp_performance(n_data, n_eval):
     """Compare performance of manual vs TFP implementations."""

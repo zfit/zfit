@@ -18,6 +18,7 @@ from zfit._interfaces import ZfitData, ZfitParameter, ZfitSpace
 from .. import z
 from ..core.basepdf import BasePDF
 from ..core.serialmixin import SerializableMixin
+from ..core.space import supports
 from ..serialization import Serializer, SpaceRepr
 from ..serialization.pdfrepr import BasePDFRepr
 from ..settings import run, ztypes
@@ -439,7 +440,7 @@ def min_std_or_iqr(x, weights):
         variance = tf.nn.weighted_moments(x, axes=[0], frequency_weights=weights)[1]
 
         # Check for negative variance (can happen with negative weights)
-        if tf.executing_eagerly():
+        if run.executing_eagerly():
             if variance < 0:
                 msg = (
                     f"Weighted variance is negative ({variance}), which can occur with negative weights. "
@@ -1006,7 +1007,7 @@ class KDE1DimExact(KDEHelper, WrapDistribution, SerializableMixin):
         if weights is not None and isinstance(bandwidth, str):
             weights_sum = znp.sum(weights)
             # Force eager execution of the assertion
-            if tf.executing_eagerly():
+            if run.executing_eagerly():
                 if weights_sum <= 0:
                     msg = (
                         f"Sum of weights must be positive for automatic bandwidth estimation, but got {weights_sum}. "
@@ -1074,8 +1075,10 @@ class KDE1DimExact(KDEHelper, WrapDistribution, SerializableMixin):
         # Store whether we should use manual implementation for negative weights
         # We'll check this at runtime in _unnormalized_pdf
 
-    def _unnormalized_pdf(self, x):
+    @supports(norm=False)
+    def _pdf(self, x, norm, params):
         """Override to use manual implementation for all cases."""
+        del norm, params
         # Always use manual implementation for consistency
         # KDE formula: sum_i w_i * K((x - x_i) / h) / h
         x_vals = z.unstack_x(x)  # shape: (n_points,)
@@ -1084,7 +1087,7 @@ class KDE1DimExact(KDEHelper, WrapDistribution, SerializableMixin):
         x_vals = znp.expand_dims(x_vals, axis=-1)  # shape: (n_points, 1)
         data_vals = znp.expand_dims(self._data, axis=0)  # shape: (1, n_data)
 
-        # Handle weights - need to normalize them like calc_kernel_probs does
+        # Handle weights - need to normalize them
         if self._weights is not None:
             weights = self._weights / znp.sum(self._weights)
             weights = znp.expand_dims(weights, axis=0)  # shape: (1, n_data)
@@ -1101,9 +1104,12 @@ class KDE1DimExact(KDEHelper, WrapDistribution, SerializableMixin):
         # Compute normalized distances
         z_values = (x_vals - data_vals) / bandwidth
 
-        # Gaussian kernel: exp(-0.5 * z^2) / sqrt(2*pi)
-        # For non-Gaussian kernels, this would need to be generalized
-        kernel_vals = znp.exp(-0.5 * z_values**2) / znp.sqrt(2 * znp.pi)
+        # Evaluate kernel at normalized distances using TFP distribution
+        # Create kernel distribution with loc=0, scale=1 for standardized evaluation
+        # Ensure dtype compatibility
+        dtype = z_values.dtype
+        kernel_dist = self._kernel(loc=znp.asarray(0.0, dtype=dtype), scale=znp.asarray(1.0, dtype=dtype))
+        kernel_vals = kernel_dist.prob(z_values)
 
         # Weighted sum
         weighted_kernels = weights * kernel_vals / bandwidth
