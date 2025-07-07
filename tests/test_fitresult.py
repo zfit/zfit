@@ -1,6 +1,7 @@
 #  Copyright (c) 2025 zfit
 from __future__ import annotations
 
+import functools
 import pickle
 import platform
 
@@ -23,7 +24,6 @@ true_yields = [0.8 * true_ntot, 0.2 * true_ntot]
 
 def minimizer_ids(minimizer_class_and_kwargs):
     return minimizer_class_and_kwargs[0].__name__.split(".")[-1]
-
 
 def create_loss(n=15000, weights=None, extended=None, constraints=None):
     avalue = 1.5
