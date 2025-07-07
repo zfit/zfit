@@ -271,7 +271,7 @@ class Ipyopt(BaseMinimizer):
         # get and set the limits
         lower = np.array([p.lower for p in params])
         upper = np.array([p.upper for p in params])
-        np.array([p.stepsize if p.stepsize is not None else 1.0 for p in params])
+        stepsizes = np.array([p.stepsize if p.stepsize is not None else 1.0 for p in params])
         nconstraints = 0
         empty_array = np.array([])
         nparams = len(params)
@@ -324,10 +324,9 @@ class Ipyopt(BaseMinimizer):
         else:
             ipopt_options["hessian_approximation"] = "limited-memory"
             ipopt_options["limited_memory_update_type"] = hessian
-            ipopt_options["constr_viol_tol"] = 1e-15
+            # ipopt_options["constr_viol_tol"] = 1e-15
             # ipopt_options["limited_memory_initialization"] = "scalar2"
             # ipopt_options["limited_memory_init_val"] = 0.1  # (np.min(stepsize) + np.mean(stepsize)) / 2
-            ipopt_options["limited_memory_max_history"] = minimizer_options.pop("limited_memory_max_history", 8)
         # ipopt_options['dual_inf_tol'] = TODO?
 
         minimizer = ipyopt.Problem(**minimizer_kwargs)
@@ -346,8 +345,8 @@ class Ipyopt(BaseMinimizer):
 
         warm_start_options = (  # TODO: what exactly here?
             "warm_start_init_point",
-            # "warm_start_same_structure",
-            # "warm_start_entire_iterate",
+            "warm_start_same_structure",
+            "warm_start_entire_iterate",
         )
 
         fmin = None
