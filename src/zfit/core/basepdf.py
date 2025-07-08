@@ -34,7 +34,7 @@ from .sample import extended_sampling
 from .space import Space, convert_to_space
 
 if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
+    import zfit
 
 
 _BasePDF_USER_IMPL_METHODS_TO_CHECK = {}
@@ -679,6 +679,31 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
             raise RuntimeError(msg) from error
         new_pdf.set_yield(value=yield_)
         return new_pdf
+
+    def to_positive(
+        self,
+        epsilon: float = 1e-100,
+        name: str | None = None,
+    ) -> zfit.pdf.PositivePDF:
+        """Return a positive version of this PDF that ensures output values are at least epsilon.
+
+        This method creates a PositivePDF functor that wraps the current PDF and ensures its output
+        is always at least epsilon using znp.maximum. This is useful for PDFs
+        that can produce negative values (e.g., KDE with negative weights) or numerical
+        instabilities that lead to values very close to zero.
+
+        Args:
+            epsilon: The minimum positive value for the PDF output. Default is 1e-100.
+            name: New name of the PDF. If ``None``, the name of the PDF with a trailing "_positive" is used.
+
+        Returns:
+            :py:class:`~zfit.core.interfaces.ZfitPDF`: a new PDF that is always positive
+        """
+        from zfit.models.postprocess import PositivePDF  # noqa: PLC0415
+
+        name = f"{self.name}_positive" if name is None else name
+
+        return PositivePDF(pdf=self, epsilon=epsilon, name=name)
 
     @deprecated(None, "Use `create_extended` instead or `extended=yield` when creating the PDF.")
     def set_yield(self, value):

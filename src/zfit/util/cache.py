@@ -319,20 +319,18 @@ class FunctionCacheHolder(GraphCachable):
             obj = obj.items()
         if isinstance(
             obj,
-            (
-                ZfitData,
-                ZfitLoss,
-                ZfitModel,
-                ZfitConstraint,
-                ZfitPDF,
-                ZfitLimit,
-                ZfitSpace,
-                uhi.typing.plottable.PlottableHistogram,
-                str,
-                np.ndarray,
-                int,
-                float,
-            ),
+            ZfitData
+            | ZfitLoss
+            | ZfitModel
+            | ZfitConstraint
+            | ZfitPDF
+            | ZfitLimit
+            | ZfitSpace
+            | uhi.typing.plottable.PlottableHistogram
+            | str
+            | np.ndarray
+            | int
+            | float,
         ):
             obj = self.IS_TENSOR
         elif isinstance(obj, ZfitParameter):

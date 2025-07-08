@@ -18,6 +18,7 @@ from zfit._interfaces import ZfitData, ZfitParameter, ZfitSpace
 from .. import z
 from ..core.basepdf import BasePDF
 from ..core.serialmixin import SerializableMixin
+from ..core.space import supports
 from ..serialization import Serializer, SpaceRepr
 from ..serialization.pdfrepr import BasePDFRepr
 from ..settings import run, ztypes
@@ -435,10 +436,30 @@ def check_bw_grid_shapes(bandwidth, grid=None, n_grid=None):
 @z.function(wraps="tensor", keepalive=True)
 def min_std_or_iqr(x, weights):
     if weights is not None:
-        return znp.minimum(
-            znp.sqrt(tf.nn.weighted_moments(x, axes=[0], frequency_weights=weights)[1]),
-            weighted_quantile(x, 0.75, weights=weights)[0] - weighted_quantile(x, 0.25, weights=weights)[0],
-        )
+        # Get variance from weighted moments
+        variance = tf.nn.weighted_moments(x, axes=[0], frequency_weights=weights)[1]
+
+        # Check for negative variance (can happen with negative weights)
+        if run.executing_eagerly():
+            if variance < 0:
+                msg = (
+                    f"Weighted variance is negative ({variance}), which can occur with negative weights. "
+                    "This makes automatic bandwidth estimation impossible. "
+                    "Consider providing an explicit bandwidth parameter."
+                )
+                raise ValueError(msg)
+        else:
+            z.assert_greater_equal(
+                variance,
+                znp.asarray(0.0, dtype=variance.dtype),
+                msg="Weighted variance must be non-negative for bandwidth estimation. "
+                "Negative variance can occur with negative weights. "
+                "Consider providing an explicit bandwidth parameter.",
+            )
+
+        std_dev = znp.sqrt(variance)
+        iqr = weighted_quantile(x, 0.75, weights=weights)[0] - weighted_quantile(x, 0.25, weights=weights)[0]
+        return znp.minimum(std_dev, iqr)
     else:
         return znp.minimum(znp.std(x), (tfp.stats.percentile(x, 75) - tfp.stats.percentile(x, 25)))
 
@@ -981,6 +1002,27 @@ class KDE1DimExact(KDEHelper, WrapDistribution, SerializableMixin):
             data, weights, padding=padding, limits=obs.v1.limits, bandwidth=bandwidth
         )
         self._padding = padding
+
+        # Check if weights sum is positive when bandwidth needs to be estimated
+        if weights is not None and isinstance(bandwidth, str):
+            weights_sum = znp.sum(weights)
+            # Force eager execution of the assertion
+            if run.executing_eagerly():
+                if weights_sum <= 0:
+                    msg = (
+                        f"Sum of weights must be positive for automatic bandwidth estimation, but got {weights_sum}. "
+                        f"This typically happens with negative weights that cancel out. "
+                        f"Consider providing an explicit bandwidth parameter instead of '{bandwidth}'."
+                    )
+                    raise ValueError(msg)
+            else:
+                z.assert_greater(
+                    weights_sum,
+                    znp.asarray(0.0, dtype=weights.dtype),
+                    message="Sum of weights must be positive for automatic bandwidth estimation. "
+                    "This typically happens with negative weights that cancel out. "
+                    f"Consider providing an explicit bandwidth parameter instead of '{bandwidth}'.",
+                )
         bandwidth, bandwidth_param = self._convert_input_bandwidth(
             bandwidth=bandwidth,
             data=data,
@@ -1029,6 +1071,49 @@ class KDE1DimExact(KDEHelper, WrapDistribution, SerializableMixin):
             label=label,
         )
         self.hs3.original_init.update(original_init)
+
+        # Store whether we should use manual implementation for negative weights
+        # We'll check this at runtime in _unnormalized_pdf
+
+    @supports(norm=False)
+    def _pdf(self, x, norm, params):
+        """Override to use manual implementation for all cases."""
+        del norm, params
+        # Always use manual implementation for consistency
+        # KDE formula: sum_i w_i * K((x - x_i) / h) / h
+        x_vals = z.unstack_x(x)  # shape: (n_points,)
+
+        # Reshape for broadcasting
+        x_vals = znp.expand_dims(x_vals, axis=-1)  # shape: (n_points, 1)
+        data_vals = znp.expand_dims(self._data, axis=0)  # shape: (1, n_data)
+
+        # Handle weights - need to normalize them
+        if self._weights is not None:
+            weights = self._weights / znp.sum(self._weights)
+            weights = znp.expand_dims(weights, axis=0)  # shape: (1, n_data)
+        else:
+            # Uniform weights if none provided
+            n_data = znp.asarray(tf.shape(self._data)[0], dtype=self._data.dtype)
+            weights = znp.ones_like(data_vals) / n_data
+
+        bandwidth = self._bandwidth
+        # Check if bandwidth is an array or scalar
+        if hasattr(bandwidth, "shape") and bandwidth.shape.rank > 0:  # array bandwidth
+            bandwidth = znp.expand_dims(bandwidth, axis=0)  # shape: (1, n_data)
+
+        # Compute normalized distances
+        z_values = (x_vals - data_vals) / bandwidth
+
+        # Evaluate kernel at normalized distances using TFP distribution
+        # Create kernel distribution with loc=0, scale=1 for standardized evaluation
+        # Ensure dtype compatibility
+        dtype = z_values.dtype
+        kernel_dist = self._kernel(loc=znp.asarray(0.0, dtype=dtype), scale=znp.asarray(1.0, dtype=dtype))
+        kernel_vals = kernel_dist.prob(z_values)
+
+        # Weighted sum
+        weighted_kernels = weights * kernel_vals / bandwidth
+        return znp.sum(weighted_kernels, axis=-1)
 
 
 class KDE1DimExactRepr(BasePDFRepr):

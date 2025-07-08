@@ -170,7 +170,7 @@ def add(object1: ztyping.BaseObjectType, object2: ztyping.BaseObjectType) -> zty
 def _convert_to_known(object1, object2):
     objects = []
     for obj in (object1, object2):
-        if not isinstance(obj, (ZfitModel,)):
+        if not isinstance(obj, ZfitModel):
             try:
                 obj = convert_to_parameter(obj)
             except TypeError as error:

@@ -258,7 +258,7 @@ class Minuit(BaseMinimizer, GraphCachable):
             msg = "errordef cannot be specified for Minuit as this is already defined in the Loss."
             raise ValueError(msg)
         loss_errordef = loss.errordef
-        if not isinstance(loss_errordef, (float, int)):
+        if not isinstance(loss_errordef, float | int):
             msg = "errordef has to be a float"
             raise ValueError(msg)
         minimizer_init["errordef"] = loss_errordef

@@ -81,7 +81,7 @@ class SplineMorphingPDF(BaseBinnedPDF):
                the PDF for a better description, to be used with plots etc.
                Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
         """
-        if isinstance(hists, (list, tuple)):
+        if isinstance(hists, list | tuple):
             if len(hists) != 3:
                 msg = (
                     "If hists is a list, it is assumed to correspond to an alpha of -1, 0 and 1."

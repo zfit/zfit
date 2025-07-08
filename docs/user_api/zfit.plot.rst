@@ -75,5 +75,5 @@ Available Functions
 .. autosummary::
     :toctree: _generated/plot
 
-    zfit.plot.plot_model_pdfV1
+    zfit.plot.plot_model_pdf
     zfit.plot.plot_sumpdf_components_pdfV1

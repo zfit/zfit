@@ -319,7 +319,7 @@ class BaseMinimizer(ZfitMinimizer):
 
             loss = SimpleLoss.from_any(loss, params=params)
 
-        if isinstance(params, (tuple, list)) and not any(isinstance(p, ZfitParameter) for p in params):
+        if isinstance(params, tuple | list) and not any(isinstance(p, ZfitParameter) for p in params):
             loss_params = loss.get_params()
             if len(params) != len(loss_params):
                 msg = (

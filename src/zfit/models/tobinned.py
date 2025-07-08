@@ -125,7 +125,7 @@ class BinnedFromUnbinnedPDF(BaseBinnedFunctorPDF):
 
         @z.function
         def integrate_one(limits, *, obs=self.obs, pdf=pdf, options=options):
-            import zfit
+            import zfit  # noqa: PLC0415
 
             low, up = tf.unstack(limits)
 
