@@ -295,7 +295,7 @@ class ZfitParameterMixin(BaseNumeric):
         return label
 
     def __add__(self, other):
-        if isinstance(other, (ZfitModel, ZfitParameter)):
+        if isinstance(other, ZfitModel | ZfitParameter):
             from . import operations  # noqa: PLC0415
 
             with suppress(FunctionNotImplemented):
@@ -303,7 +303,7 @@ class ZfitParameterMixin(BaseNumeric):
         return super().__add__(other)
 
     def __radd__(self, other):
-        if isinstance(other, (ZfitModel, ZfitParameter)):
+        if isinstance(other, ZfitModel | ZfitParameter):
             from . import operations  # noqa: PLC0415
 
             with suppress(FunctionNotImplemented):
@@ -311,7 +311,7 @@ class ZfitParameterMixin(BaseNumeric):
         return super().__radd__(other)
 
     def __mul__(self, other):
-        if isinstance(other, (ZfitModel, ZfitParameter)):
+        if isinstance(other, ZfitModel | ZfitParameter):
             from . import operations  # noqa: PLC0415
 
             with suppress(FunctionNotImplemented):
@@ -319,7 +319,7 @@ class ZfitParameterMixin(BaseNumeric):
         return super().__mul__(other)
 
     def __rmul__(self, other):
-        if isinstance(other, (ZfitModel, ZfitParameter)):
+        if isinstance(other, ZfitModel | ZfitParameter):
             from . import operations  # noqa: PLC0415
 
             with suppress(FunctionNotImplemented):

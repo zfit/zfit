@@ -699,7 +699,7 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
         Returns:
             :py:class:`~zfit.core.interfaces.ZfitPDF`: a new PDF that is always positive
         """
-        from zfit.models.postprocess import PositivePDF
+        from zfit.models.postprocess import PositivePDF  # noqa: PLC0415
 
         name = f"{self.name}_positive" if name is None else name
 

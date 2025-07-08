@@ -173,7 +173,7 @@ class RunManager:
         Instead, `result.update_params()` has to be called manually to update the parameters if needed.
         """
 
-        from zfit import settings
+        from zfit import settings  # noqa: PLC0415
 
         def setter(v):
             settings.options.auto_update_params = not v

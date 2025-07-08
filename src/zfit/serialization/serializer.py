@@ -117,7 +117,7 @@ class Types:
 
     @property
     def ParamInputTypeDiscriminated(self):
-        return Union[self.ParamTypeDiscriminated, float, int]
+        return self.ParamTypeDiscriminated | float | int
 
     @property
     def ListParamInputTypeDiscriminated(self):
@@ -144,7 +144,7 @@ class Types:
             self._pdf_repr.append(repr)
         elif issubclass(cls, ZfitParameter):
             self._param_repr.append(repr)
-        elif issubclass(cls, (ZfitData, ZfitBinnedData)):
+        elif issubclass(cls, ZfitData | ZfitBinnedData):
             self._data_repr.append(repr)
         elif issubclass(cls, ZfitConstraint):
             self._constraint_repr.append(repr)
@@ -551,7 +551,7 @@ def replace_matching(mapping, replace):
         for k, v in mapping.items():
             mapping[k] = replace_matching(v, replace)
     elif isinstance(mapping, Iterable) and not (
-        isinstance(mapping, (str, (ZfitParameter, np.ndarray))) or tf.is_tensor(mapping)
+        isinstance(mapping, str | (ZfitParameter | np.ndarray)) or tf.is_tensor(mapping)
     ):
         replaced_list = [replace_matching(v, replace) for v in mapping]
         mapping = type(mapping)(replaced_list)
@@ -565,22 +565,20 @@ def convert_to_orm(init):
             from zfit.core.data import LightDataset  # noqa: PLC0415
 
             if (
-                not isinstance(v, (Iterable, Mapping))
+                not isinstance(v, Iterable | Mapping)
                 or isinstance(
                     v,
-                    (
-                        ZfitParameter,
-                        ZfitSpace,
-                        ZfitData,
-                        ZfitBinnedData,
-                        LightDataset,
-                        np.ndarray,
-                        str,
-                        bytes,
-                        bool,
-                        int,
-                        float,
-                    ),
+                    ZfitParameter
+                    | ZfitSpace
+                    | ZfitData
+                    | ZfitBinnedData
+                    | LightDataset
+                    | np.ndarray
+                    | str
+                    | bytes
+                    | bool
+                    | int
+                    | float,
                 )  # skip to not trigger the "in"
                 or tf.is_tensor(v)
             ):
@@ -595,7 +593,7 @@ def convert_to_orm(init):
             cls = Serializer.type_repr[init[TYPENAME]]
             return cls(**init).to_orm()
 
-    elif isinstance(init, (list, tuple)):
+    elif isinstance(init, list | tuple):
         init = type(init)([convert_to_orm(v) for v in init])
     return init
 

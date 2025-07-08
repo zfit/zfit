@@ -267,7 +267,7 @@ def _sanitize_x_input(x, n_obs):
 
 
 def is_range_definition(limit):
-    if isinstance(limit, (LimitRangeDefinition, ZfitSpace)):
+    if isinstance(limit, LimitRangeDefinition | ZfitSpace):
         return True
     elif (isinstance(limit, np.ndarray) and limit.dtype != object) or tf.is_tensor(limit):
         return False
@@ -1221,7 +1221,7 @@ def _legacy_get_arguments_space(obs, args, limits, binning, axes, rect_limits, l
         raise BreakingAPIChangeError(msg)
 
     if len(args) == 2:
-        if all(isinstance(lim, (int, float, Any)) for lim in args):
+        if all(isinstance(lim, int | float | Any) for lim in args):
             limits = args
         else:
             limits, binning = args
@@ -1309,7 +1309,7 @@ class Space(
             name = "Space"
         if binning is not False:
             integer_autobinning = isinstance(binning, int) or (
-                isinstance(binning, (list, tuple)) and all(isinstance(b, int) for b in binning)
+                isinstance(binning, list | tuple) and all(isinstance(b, int) for b in binning)
             )
             if not integer_autobinning:
                 if not isinstance(binning, Binnings):

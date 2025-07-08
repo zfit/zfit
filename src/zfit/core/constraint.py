@@ -307,7 +307,7 @@ class GaussianConstraint(TFProbabilityConstraint, SerializableMixin):
         # legacy start 1
         if legacy_uncertainty := uncertainty is not None:
             uncertainty = convert_to_container(uncertainty, tuple, ignore=np.ndarray)
-            if isinstance(uncertainty[0], (np.ndarray, tf.Tensor)) and len(uncertainty) == 1:
+            if isinstance(uncertainty[0], np.ndarray | tf.Tensor) and len(uncertainty) == 1:
                 uncertainty = tuple(uncertainty[0])
 
             def create_covariance_legacy(mu, sigma):

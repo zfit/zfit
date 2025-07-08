@@ -735,9 +735,9 @@ def create_dummy_plot(title, filename):
 def plot_histogrampdf():
     """Plot histogram PDFs with different shapes."""
     try:
-        import hist
+        import hist  # noqa: PLC0415
 
-        from zfit._data.binneddatav1 import BinnedData
+        from zfit._data.binneddatav1 import BinnedData  # noqa: PLC0415
 
         # Create the observable
         zfit.Space("x", limits=(0, 10))
@@ -799,9 +799,9 @@ def plot_histogrampdf():
 def plot_binwisescalemodifier():
     """Plot BinwiseScaleModifier with different scale patterns."""
     try:
-        import hist
+        import hist  # noqa: PLC0415
 
-        from zfit._data.binneddatav1 import BinnedData
+        from zfit._data.binneddatav1 import BinnedData  # noqa: PLC0415
 
         # Create the observable
         zfit.Space("x", limits=(0, 10))
@@ -854,7 +854,7 @@ def plot_binnedfromunbinnedpdf():
 def plot_splinemorphingpdf():
     """Plot SplineMorphingPDF with different parameter values."""
     try:
-        from zfit.data import BinnedData
+        from zfit.data import BinnedData  # noqa: PLC0415
 
         # Create the observable
         zfit.Space("x", limits=(-5, 5))
@@ -914,7 +914,7 @@ def plot_splinemorphingpdf():
 def plot_binnedsumpdf():
     """Plot BinnedSumPDF with different component fractions."""
     try:
-        from zfit._data.binneddatav1 import BinnedData
+        from zfit._data.binneddatav1 import BinnedData  # noqa: PLC0415
 
         # Create the observable
         zfit.Space("x", limits=(0, 10))
@@ -973,7 +973,7 @@ def plot_binnedsumpdf():
 def plot_splinepdf():
     """Plot SplinePDF with different shapes."""
     try:
-        from zfit._data.binneddatav1 import BinnedData
+        from zfit._data.binneddatav1 import BinnedData  # noqa: PLC0415
 
         # Create the observable
         obs = zfit.Space("x", limits=(0, 10))
@@ -1026,7 +1026,7 @@ def plot_splinepdf():
 def plot_unbinnedfromibinnedpdf():
     """Plot UnbinnedFromBinnedPDF comparison."""
     try:
-        from zfit._data.binneddatav1 import BinnedData
+        from zfit._data.binneddatav1 import BinnedData  # noqa: PLC0415
 
         # Create the observable
         zfit.Space("x", limits=(0, 10))
@@ -1463,7 +1463,7 @@ def plot_kde():
         plt.hist(samples, bins=30, density=True, alpha=0.3, label="Data histogram")
         plt.plot(x, true_pdf, "k--", label="True distribution")
 
-        import tensorflow_probability as tfp
+        import tensorflow_probability as tfp  # noqa: PLC0415
 
         tfd = tfp.distributions
 
@@ -1493,7 +1493,7 @@ def plot_kde():
 def plot_physics_pdfs():
     """Plot PDFs from zfit_physics package if installed."""
     try:
-        import zfit_physics.pdf
+        import zfit_physics.pdf  # noqa: PLC0415
 
         print("zfit_physics is installed, generating physics PDF plots...")
 

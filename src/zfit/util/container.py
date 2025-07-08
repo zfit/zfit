@@ -94,4 +94,4 @@ def is_container(obj):
     Returns:
         True if it is a *container*, otherwise False
     """
-    return isinstance(obj, (list, tuple))
+    return isinstance(obj, list | tuple)

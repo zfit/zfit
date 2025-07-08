@@ -44,7 +44,7 @@ def plot_sumpdf_components_pdfV1(
         plotkwargs: Additional keyword arguments to pass to the plotting function.
         extended: If True, plot extended components. If None, uses the model's extended state.
     """
-    import zfit
+    import zfit  # noqa: PLC0415
 
     if not isinstance(model, zfit.pdf.SumPDF):
         msg = f"model must be a ZfitPDF, not a {type(model)}. Model is {model}."
@@ -104,7 +104,7 @@ def plot_model_pdf(
 
     Returns:
     """
-    import zfit.z.numpy as znp
+    import zfit.z.numpy as znp  # noqa: PLC0415
 
     if not isinstance(model, ZfitPDF):
         msg = f"model must be a ZfitPDF, not a {type(model)}. Model is {model}."
@@ -254,9 +254,11 @@ class ZfitPDFPlotter:
             scale = 1
         if data is None:
             if density is not None:
-                raise ValueError("Density argument is only supported when data is provided.")
+                msg = "Density argument is only supported when data is provided."
+                raise ValueError(msg)
             if histplotkwargs is not None:
-                raise ValueError("histplotkwargs argument is only supported when data is provided.")
+                msg = "histplotkwargs argument is only supported when data is provided."
+                raise ValueError(msg)
         else:
             if density is None:
                 density = not extended
@@ -313,7 +315,7 @@ class ZfitPDFPlotter:
         The plot will be scaled based on the provided normalization.
         The density of the data will be displayed if the density parameter is set to True.
         """
-        import zfit.z.numpy as znp
+        import zfit.z.numpy as znp  # noqa: PLC0415
 
         if histplotkwargs is None:
             histplotkwargs = {}
@@ -358,7 +360,8 @@ class ZfitPDFPlotter:
         if extended is None:
             extended = self.pdf.is_extended
         if extended and not self.pdf.is_extended:
-            raise ValueError("Provided extended as argument for plotting, but pdf is not extended.")
+            msg = "Provided extended as argument for plotting, but pdf is not extended."
+            raise ValueError(msg)
         return extended
 
 
@@ -412,8 +415,8 @@ class SumCompPlotter(ZfitPDFPlotter):
         self.pdf = pdf
         super().__init__(*args, **kwargs)
 
-    def _plotpdf(self, data=None, *, depth: int | None = None, **kwargs):
-        import zfit
+    def _plotpdf(self, data=None, *, depth: int | None = None, **kwargs):  # noqa: ARG002
+        import zfit  # noqa: PLC0415
 
         if not isinstance(pdf := self.pdf, zfit.pdf.SumPDF):  # we can relax this later with duck typing
             msg = f"pdf must be a SumPDF, is {type(pdf)}."
@@ -427,11 +430,12 @@ class SumCompPlotter(ZfitPDFPlotter):
         if depth < 0:
             ax = kwargs.get("ax")
             if ax is None:
-                raise RuntimeError(
+                msg = (
                     "ax is None. Either there is an issue with the depth argument or an internal error. "
                     "Make sure `depth` is at least 0, if that's the case, please open a bug report "
                     "with zfit."
                 )
+                raise RuntimeError(msg)
             return ax
         if kwargs.pop("extended", False):
             scale *= pdf.get_yield()

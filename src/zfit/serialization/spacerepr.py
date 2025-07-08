@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import typing
-from typing import Literal, Optional, Union
+from typing import Literal
 
 from pydantic.v1 import Field, root_validator, validator
 
@@ -13,9 +13,9 @@ from .serializer import BaseRepr
 if typing.TYPE_CHECKING:
     import zfit  # noqa: F401
 
-NumericTyped = Union[float, int]
+NumericTyped = float | int
 
-NameObsTyped = Optional[tuple[str] | str]
+NameObsTyped = tuple[str] | str | None
 
 
 class SpaceRepr(BaseRepr):

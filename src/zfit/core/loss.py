@@ -411,7 +411,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         model_checked = []
         data_checked = []
         for mod, dat in zip(model, data, strict=True):
-            if not isinstance(dat, (ZfitData, ZfitBinnedData)):
+            if not isinstance(dat, ZfitData | ZfitBinnedData):
                 if fit_range is not None:
                     msg = "Fit range should not be used if data is not ZfitData."
                     raise TypeError(msg)

@@ -167,9 +167,9 @@ def hypotest_zfit(minimizer, nll):
 bins = [
     # 1,
     # 3,
-    # 10,
+    10,
     # 30,
-    100,
+    # 100,
     # 300,
     # 400,
     # 700,

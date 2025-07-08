@@ -165,7 +165,7 @@ def compute_errors(
                     assert isinstance(index, int)
                     assign_values(all_params, values)
                     loss_value, gradient = loss.value_gradient(params=all_params, full=False)
-                    if isinstance(gradient, (tuple, list)):
+                    if isinstance(gradient, tuple | list):
                         gradient = znp.asarray(gradient)
                     gradient = znp.concatenate([gradient[:index_poi], gradient[index_poi + 1 :]])
                     return loss_value, gradient

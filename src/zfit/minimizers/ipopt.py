@@ -271,7 +271,7 @@ class Ipyopt(BaseMinimizer):
         # get and set the limits
         lower = np.array([p.lower for p in params])
         upper = np.array([p.upper for p in params])
-        stepsizes = np.array([p.stepsize if p.stepsize is not None else 1.0 for p in params])
+        np.array([p.stepsize if p.stepsize is not None else 1.0 for p in params])
         nconstraints = 0
         empty_array = np.array([])
         nparams = len(params)

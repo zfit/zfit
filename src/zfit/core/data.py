@@ -68,13 +68,13 @@ def convert_to_data(data, obs=None, *, check_limits=False):
     if obs is None:
         msg = f"If data is not a Data-like object, obs has to be specified. Data is {data} and obs is {obs}."
         raise ValueError(msg)
-    if isinstance(data, (int, float)):
+    if isinstance(data, int | float):
         data = znp.array([data])
     if isinstance(data, Iterable):
         data = znp.array(data)
     if isinstance(data, np.ndarray):
         return Data.from_numpy(obs=obs, array=data)
-    if isinstance(data, (tf.Tensor, znp.ndarray, tf.Variable)):
+    if isinstance(data, tf.Tensor | znp.ndarray | tf.Variable):
         return Data.from_tensor(obs=obs, tensor=data)
 
     msg = f"Cannot convert {data} to a Data object."
@@ -750,7 +750,7 @@ class Data(
         #     warn_once("The order of the arguments `obs` and `array` has been swapped, array goes first (as any other `from_` constructor.", identifier="data_from_numpy")
         #     obs, array = array, obs
         # # legacy end
-        if isinstance(array, (float, int)):
+        if isinstance(array, float | int):
             array = np.array([array])
         if not isinstance(array, (np.ndarray)) and not (tf.is_tensor(array) and hasattr(array, "numpy")):
             msg = f"`array` has to be a `np.ndarray`. Is currently {type(array)}"
@@ -877,7 +877,7 @@ class Data(
             ``zfit.Data``: A new ``Data`` object containing the subset of the data.
         """
         if not isinstance(obs, ZfitSpace):
-            if not isinstance(obs, (list, tuple)):
+            if not isinstance(obs, list | tuple):
                 obs = [obs]
             if isinstance(obs[0], str):
                 obs = self.space.with_obs(obs)
@@ -1841,7 +1841,7 @@ class LightDataset:
         """
         if isinstance(indices, int):
             indices = (indices,)
-        if not isinstance(indices, (list, tuple)):
+        if not isinstance(indices, list | tuple):
             msg = f"Indices have to be an int, list or tuple, not {indices}"
             raise TypeError(msg)
 
@@ -1886,7 +1886,7 @@ class LightDataset:
         if index is None:
             index = trivial_index
         else:  # convert tensor to tensormap, if needed
-            if not isinstance(index, (int, tuple, list)):
+            if not isinstance(index, int | tuple | list):
                 msg = f"Index has to be an integer or a tuple/list of integers, not {index}"
                 raise TypeError(msg)
             forcemap = len(set(index)) < self.ndims  # we will need a subset

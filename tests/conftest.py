@@ -50,7 +50,7 @@ def setup_teardown():
             del sys.modules[m]
 
     zfit.settings.set_seed(None)
-    import gc
+    import gc  # noqa: PLC0415
 
     gc.collect()
 
@@ -169,14 +169,14 @@ def get_truth(folder, filename, request, newval=None):
     recreate_truth = request.config.getoption("--recreate-truth")
     if recreate_truth:
         if filepath.suffix == ".json":
-            import json
+            import json  # noqa: PLC0415
 
             if isinstance(newval, str):
                 newval = json.loads(newval)
             with Path(filepath).open("w") as f:
                 json.dump(newval, f)
         elif filepath.suffix == ".yaml":
-            import yaml
+            import yaml  # noqa: PLC0415
 
             with Path(filepath).open("w") as f:
                 yaml.dump(newval, f)
@@ -191,17 +191,17 @@ def get_truth(folder, filename, request, newval=None):
         msg = f"File {filepath} does not exist"
         raise FileNotFoundError(msg)
     if filepath.suffix == ".json":
-        import json
+        import json  # noqa: PLC0415
 
         with Path(filepath).open() as f:
             return json.load(f)
     elif filepath.suffix == ".yaml":
-        import yaml
+        import yaml  # noqa: PLC0415
 
         with Path(filepath).open() as f:
             return yaml.safe_load(f)
     elif filepath.suffix == ".asdf":
-        import asdf
+        import asdf  # noqa: PLC0415
 
         with asdf.open(filepath, memmap=False) as f:
             return asdf.AsdfFile(f.tree, memmap=False)
