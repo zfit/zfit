@@ -14,7 +14,7 @@ def test_plot_1d_simple():
 
     plt.figure()
     plt.title("Simple 1D plot using plot_model_pdf")
-    plotter.plot_model_pdfV1(gauss, obs=obs)
+    plotter.plot_model_pdf(gauss, obs=obs)
     pytest.zfit_savefig(folder=folder)
 
 
@@ -43,22 +43,22 @@ def test_plot_3d_simple():
     model = zfit.pdf.ProductPDF([gauss1, gauss2, gauss3])
 
     with pytest.raises(ValueError):
-        plotter.plot_model_pdfV1(model)
+        plotter.plot_model_pdf(model)
     obsplot = zfit.Space("obs2", -5, -3)
     plt.figure()
     plt.title("Simple 3D plot using plot_model_pdf with space")
-    plotter.plot_model_pdfV1(model, obs=obsplot)
+    plotter.plot_model_pdf(model, obs=obsplot)
     pytest.zfit_savefig(folder=folder)
 
     plt.figure()
     plt.title("Simple 3D plot using plot_model_pdf")
-    plotter.plot_model_pdfV1(model, obs="obs2")
+    plotter.plot_model_pdf(model, obs="obs2")
     pytest.zfit_savefig(folder=folder)
 
     model_ext = model.create_extended(1000)
     plt.figure()
     plt.title("Extended model 3D")
     with pytest.raises(ValueError):
-        plotter.plot_model_pdfV1(model_ext)
-    plotter.plot_model_pdfV1(model_ext, obs="obs2", extended=True)
+        plotter.plot_model_pdf(model_ext)
+    plotter.plot_model_pdf(model_ext, obs="obs2", extended=True)
     pytest.zfit_savefig(folder=folder)

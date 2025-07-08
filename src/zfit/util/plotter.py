@@ -56,7 +56,7 @@ def plot_sumpdf_components_pdfV1(
     if extended is None:
         extended = model.is_extended
 
-    plotfunc = plot_model_pdfV1 if plotfunc is None else plotfunc
+    plotfunc = plot_model_pdf if plotfunc is None else plotfunc
 
     # Check if the SumPDF is automatically extended
     is_auto_extended = hasattr(model, "_automatically_extended") and model._automatically_extended
@@ -75,7 +75,7 @@ def plot_sumpdf_components_pdfV1(
     return ax
 
 
-def plot_model_pdfV1(
+def plot_model_pdf(
     model: ZfitPDF,
     *,
     plotfunc: Callable | None = None,
@@ -244,7 +244,7 @@ class ZfitPDFPlotter:
             matplotlib.axes.Axes: The matplotlib Axes object used for plotting.
 
         See Also:
-            zfit.plot.plot_model_pdfV1: The underlying plotting function.
+            zfit.plot.plot_model_pdf: The underlying plotting function.
             SumPDF.plot.comp.plotpdf: For plotting components of composite PDFs.
         """
         extended = self._preprocess_args_extended(extended)
@@ -375,7 +375,7 @@ class PDFPlotter(ZfitPDFPlotter):
         if pdfplotter is not None and not callable(pdfplotter):
             msg = f"pdfplotter must be a callable, is {type(pdfplotter)}."
             raise TypeError(msg)
-        self._pdfplotter = plot_model_pdfV1 if pdfplotter is None else pdfplotter
+        self._pdfplotter = plot_model_pdf if pdfplotter is None else pdfplotter
         if componentplotter is not None and not isinstance(componentplotter, ZfitPDFPlotter):
             msg = f"componentplotter must be a ZfitPDFPlotter, is {type(componentplotter)}."
             raise TypeError(msg)
@@ -385,7 +385,7 @@ class PDFPlotter(ZfitPDFPlotter):
         if depth is None:
             depth = 1
         kwargs |= self.defaults
-        ax = plot_model_pdfV1(self.pdf, **kwargs)
+        ax = plot_model_pdf(self.pdf, **kwargs)
         _ = kwargs.pop("ax", None)
         if kwargs.get("linestyle") is None:
             kwargs["linestyle"] = ":"
