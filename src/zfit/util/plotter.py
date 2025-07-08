@@ -422,6 +422,15 @@ class SumCompPlotter(ZfitPDFPlotter):
         scale = kwargs.pop("scale", None)
         if scale is None:
             scale = 1
+        if depth is None:
+            depth = 0
+        if depth < 0:
+            ax = kwargs.get('ax')
+            if ax is None:
+                raise RuntimeError("ax is None. Either there is an issue with the depth argument or an internal error. "
+                                   "Make sure `depth` is at least 0, if that's the case, please open a bug report "
+                                   "with zfit.")
+            return ax
         if kwargs.pop("extended", False):
             scale *= pdf.get_yield()
         kwargs["extended"] = False  # we manually scale the components, this should always hold
@@ -429,5 +438,5 @@ class SumCompPlotter(ZfitPDFPlotter):
         values = pdf.params.values()
         assert len(values) > 0, "INTERNAL ERROR: values cannot be empty"
         for mod, frac in zip(pdf.pdfs, values, strict=True):
-            ax = mod.plot.plotpdf(scale=frac * scale, **kwargs)
+            ax = mod.plot.plotpdf(scale=frac * scale, **kwargs, depth=depth - 1)
         return ax

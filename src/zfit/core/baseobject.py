@@ -50,7 +50,7 @@ def validate_preprocess_name(name: str) -> str:
     Raises:
         InvalidNameError: With a specific message explaining why the name is invalid.
     """
-    from zfit.exception import InvalidNameError
+    from zfit.exception import InvalidNameError  # noqa: PLC0415
 
     arbitrary_name_message = "To use arbitrary characters in the name, for a human readable lable, use `label` instead."
 
@@ -159,7 +159,7 @@ def convert_param_values(params: Mapping[str | ztyping.ParamType, float] | ZfitR
 class BaseParametrized(BaseObject, ZfitParametrized):
     def __init__(self, params, autograd_params=None, **kwargs) -> None:
         super().__init__(**kwargs)
-        from zfit.core.parameter import convert_to_parameter
+        from zfit.core.parameter import convert_to_parameter  # noqa: PLC0415
 
         params = params or {}
         params = {n: convert_to_parameter(p) for n, p in params.items()}  # why sorted?
@@ -270,7 +270,7 @@ class BaseParametrized(BaseObject, ZfitParametrized):
     @contextlib.contextmanager
     def _check_set_input_params(self, params, guarantee_checked=None):
         paramvalues = self._check_convert_input_paramvalues(params, guarantee_checked)
-        import zfit
+        import zfit  # noqa: PLC0415
 
         with zfit.param.set_values(tuple(paramvalues.keys()), tuple(paramvalues.values())):
             yield paramvalues

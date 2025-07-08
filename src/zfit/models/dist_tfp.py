@@ -880,7 +880,7 @@ class QGauss(WrapDistribution, SerializableMixin):
                the PDF for a better description, to be used with plots etc.
                Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
         """
-        from zfit import run
+        from zfit import run  # noqa: PLC0415
 
         q, mu, sigma = self._check_input_params_tfp(q, mu, sigma)
         if run.executing_eagerly():

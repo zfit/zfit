@@ -64,7 +64,7 @@ def unbinned_to_binned(data, space, binned_class=None, initkwargs=None):
         binned_data: Binned dataset of type `binned_class`.
     """
     if binned_class is None:
-        from zfit._data.binneddatav1 import BinnedData
+        from zfit._data.binneddatav1 import BinnedData  # noqa: PLC0415
 
         binned_class = BinnedData
     if not isinstance(space, ZfitSpace):

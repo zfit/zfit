@@ -519,7 +519,7 @@ def extract_extended_pdfs(pdfs: Iterable[ZfitPDF] | ZfitPDF) -> list[ZfitPDF]:
     Returns:
         List[pdfs]:
     """
-    from ..models.functor import BaseFunctor
+    from ..models.functor import BaseFunctor  # noqa: PLC0415
 
     pdfs = convert_to_container(pdfs)
     indep_pdfs = []

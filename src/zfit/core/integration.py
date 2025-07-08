@@ -218,7 +218,7 @@ def mc_integrate(
     # if importance_sampling is not None:
     #     raise ValueError("Importance sampling is not yet implemented.")
 
-    import zfit
+    import zfit  # noqa: PLC0415
 
     if vectorizable is None:
         vectorizable = False
@@ -368,13 +368,13 @@ def mc_integrate(
                 avg, error, std, ntot, i = tf.while_loop(
                     cond=cond, body=body_integrate, loop_vars=[avg, error, std, ntot, i]
                 )
-                from zfit import settings
+                from zfit import settings  # noqa: PLC0415
 
                 if settings.get_verbosity() > 9:
                     tf.print("i:", i, "   ntot:", ntot)
 
             def print_none_return(error=error):
-                from zfit import settings
+                from zfit import settings  # noqa: PLC0415
 
                 if settings.get_verbosity() >= 0:
                     tf.print(

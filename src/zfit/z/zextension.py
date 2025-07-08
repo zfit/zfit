@@ -139,7 +139,7 @@ def safe_where(
 
 
 def run_no_nan(func, x):
-    from zfit.core.data import Data
+    from zfit.core.data import Data  # noqa: PLC0415
 
     value_with_nans = func(x=x)
     if value_with_nans.dtype in (tf.complex128, tf.complex64):
@@ -218,7 +218,7 @@ class FunctionWrapperRegistry:
         self.force_eager = force_eager if force_eager is not None else False
 
         if wraps not in self.do_jit_types:
-            from ..settings import run
+            from ..settings import run  # noqa: PLC0415
 
             self.do_jit_types[wraps] = bool(run.get_graph_mode())
         self.wraps = wraps
@@ -262,7 +262,7 @@ class FunctionWrapperRegistry:
         wrapped_func = self.tf_function(func)
         cache = self.function_cache
         deleted_cachers = self._deleted_cachers
-        from ..util.cache import FunctionCacheHolder
+        from ..util.cache import FunctionCacheHolder  # noqa: PLC0415
 
         def concrete_func(*args, **kwargs):
             if self.force_eager and not run.executing_eagerly():
@@ -379,7 +379,7 @@ def function(func=None, *, stateless_args=None, cachesize=None, **kwargs):
 
 @functools.wraps(tf.py_function)
 def py_function(func, inp, Tout, name=None):
-    from .. import settings
+    from .. import settings  # noqa: PLC0415
 
     if not settings.options["numerical_grad"]:
         warn_advanced_feature(

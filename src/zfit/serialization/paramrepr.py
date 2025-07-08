@@ -21,7 +21,7 @@ def make_param_constructor(constructor):
     """
 
     def param_constructor(name, **kwargs):
-        from zfit.serialization import Serializer
+        from zfit.serialization import Serializer  # noqa: PLC0415
 
         previous_existing = Serializer._existing_params
 

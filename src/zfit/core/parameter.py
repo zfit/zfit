@@ -296,7 +296,7 @@ class ZfitParameterMixin(BaseNumeric):
 
     def __add__(self, other):
         if isinstance(other, (ZfitModel, ZfitParameter)):
-            from . import operations
+            from . import operations  # noqa: PLC0415
 
             with suppress(FunctionNotImplemented):
                 return operations.add(self, other)
@@ -304,7 +304,7 @@ class ZfitParameterMixin(BaseNumeric):
 
     def __radd__(self, other):
         if isinstance(other, (ZfitModel, ZfitParameter)):
-            from . import operations
+            from . import operations  # noqa: PLC0415
 
             with suppress(FunctionNotImplemented):
                 return operations.add(other, self)
@@ -312,7 +312,7 @@ class ZfitParameterMixin(BaseNumeric):
 
     def __mul__(self, other):
         if isinstance(other, (ZfitModel, ZfitParameter)):
-            from . import operations
+            from . import operations  # noqa: PLC0415
 
             with suppress(FunctionNotImplemented):
                 return operations.multiply(self, other)
@@ -320,7 +320,7 @@ class ZfitParameterMixin(BaseNumeric):
 
     def __rmul__(self, other):
         if isinstance(other, (ZfitModel, ZfitParameter)):
-            from . import operations
+            from . import operations  # noqa: PLC0415
 
             with suppress(FunctionNotImplemented):
                 return operations.multiply(other, self)
@@ -507,7 +507,7 @@ class Parameter(
         value = super().value()
         # We don't need to preserve this, right?
         if self.has_limits:
-            import tensorflow_probability as tfp
+            import tensorflow_probability as tfp  # noqa: PLC0415
 
             value = tfp.math.clip_by_value_preserve_gradient(
                 value, clip_value_min=self.lower, clip_value_max=self.upper

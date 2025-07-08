@@ -25,7 +25,7 @@ def validate_parameter_type(param: Any, name: str = "parameter") -> None:
     Raises:
         TypeError: If param is not a ZfitParameter
     """
-    from zfit._interfaces import ZfitParameter
+    from zfit._interfaces import ZfitParameter  # noqa: PLC0415
 
     if not isinstance(param, ZfitParameter):
         msg = f"`{name}` must be ZfitParameter, got {type(param)}"
@@ -171,7 +171,7 @@ def validate_parameter_names(*names: str) -> None:
     Raises:
         ValueError: If any name is invalid
     """
-    import keyword
+    import keyword  # noqa: PLC0415
 
     for name in names:
         if not isinstance(name, str):

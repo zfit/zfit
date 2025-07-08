@@ -133,7 +133,7 @@ class BinnedFromUnbinnedPDF(BaseBinnedFunctorPDF):
             return pdf.integrate(limits_space, norm=False, options=options)
 
         limits = znp.stack([lower_flat, upper_flat], axis=1)
-        from zfit import run
+        from zfit import run  # noqa: PLC0415
 
         vectorized = self._use_vectorized_map or (self._use_vectorized_map is not False and pdf.has_analytic_integral)
         try:
@@ -175,7 +175,7 @@ class BinnedFromUnbinnedPDF(BaseBinnedFunctorPDF):
 
             @z.function
             def integrate_one(limits):
-                import zfit
+                import zfit  # noqa: PLC0415
 
                 low, up = tf.unstack(limits)
                 limits_space = zfit.Space(obs=self.obs, limits=[low, up])
@@ -186,7 +186,7 @@ class BinnedFromUnbinnedPDF(BaseBinnedFunctorPDF):
 
             @z.function
             def integrate_one(limits):
-                import zfit
+                import zfit  # noqa: PLC0415
 
                 low, up = tf.unstack(limits)
                 limits_space = zfit.Space(obs=self.obs, limits=[low, up])
@@ -195,7 +195,7 @@ class BinnedFromUnbinnedPDF(BaseBinnedFunctorPDF):
             missing_yield = True
 
         limits = znp.stack([lower_flat, upper_flat], axis=1)
-        from zfit import run
+        from zfit import run  # noqa: PLC0415
 
         vectorized = self._use_vectorized_map or (self._use_vectorized_map is not False and pdf.has_analytic_integral)
         try:

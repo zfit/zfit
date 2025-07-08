@@ -273,7 +273,7 @@ class Data(
         all. For example, if an object was already called before with the data object, the hash will probably not be
         used, as the object is already compiled.
         """
-        from zfit import run
+        from zfit import run  # noqa: PLC0415
 
         run.assert_executing_eagerly()
         self._use_hash = True
@@ -1080,7 +1080,7 @@ class Data(
         Returns:
             ``zfit.BinnedData``: A new ``BinnedData`` object containing the binned data.
         """
-        from zfit._data.binneddatav1 import BinnedData
+        from zfit._data.binneddatav1 import BinnedData  # noqa: PLC0415
 
         return BinnedData.from_unbinned(
             space=space,

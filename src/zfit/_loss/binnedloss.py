@@ -95,7 +95,7 @@ class BaseBinned(BaseLoss):
     ):
         model = convert_to_container(model)
         data = convert_to_container(data)
-        from zfit._data.binneddatav1 import BinnedData
+        from zfit._data.binneddatav1 import BinnedData  # noqa: PLC0415
 
         data = [
             (

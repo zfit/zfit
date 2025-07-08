@@ -653,7 +653,7 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
         if name_addition is not None:
             msg = "name_addition is not supported anymore, use `name` instead."
             raise BreakingAPIChangeError(msg)
-        from zfit.models.functor import ProductPDF
+        from zfit.models.functor import ProductPDF  # noqa: PLC0415
 
         name = f"{self.name}_ext" if name is None else name
 
@@ -861,7 +861,7 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
         Returns:
             A pdf without the dimensions from ``limits``.
         """
-        from ..models.special import SimpleFunctorPDF
+        from ..models.special import SimpleFunctorPDF  # noqa: PLC0415
 
         if limits is None:
             if obs is None:
@@ -932,9 +932,9 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
         obs = self.norm
 
         # HACK(Mayou36): remove once copy is proper implemented
-        from ..models.dist_tfp import WrapDistribution
-        from ..models.kde import GaussianKDE1DimV1
-        from ..models.polynomials import RecursivePolynomial
+        from ..models.dist_tfp import WrapDistribution  # noqa: PLC0415
+        from ..models.kde import GaussianKDE1DimV1  # noqa: PLC0415
+        from ..models.polynomials import RecursivePolynomial  # noqa: PLC0415
 
         if type(self) is WrapDistribution:  # NOT isinstance! Because e.g. Gauss wraps that and takes different args
             parameters = {"distribution": self._distribution, "dist_params": self.dist_params}
@@ -972,7 +972,7 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
                 i_coeff += 1
             parameters["coeffs"] = coeffs
 
-        from zfit.models.functor import BaseFunctor, SumPDF
+        from zfit.models.functor import BaseFunctor, SumPDF  # noqa: PLC0415
 
         if isinstance(self, BaseFunctor):
             parameters = {}
@@ -1000,7 +1000,7 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
         Args:
             norm: If not False or a `ZfitSpace`, this will be used to call the `pdf` function.
         """
-        from .operations import convert_pdf_to_func  # prevent circular import
+        from .operations import convert_pdf_to_func  # prevent circular import  # noqa: PLC0415
 
         return convert_pdf_to_func(pdf=self, norm=norm)
 
@@ -1058,7 +1058,7 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
             name: Name of the new PDF. If not given, it is created from the original name.
             label: Label of the new PDF. If not given, it is created from the original label.
         """
-        from ..models.tobinned import BinnedFromUnbinnedPDF
+        from ..models.tobinned import BinnedFromUnbinnedPDF  # noqa: PLC0415
 
         return BinnedFromUnbinnedPDF(pdf=self, space=space, extended=extended, norm=norm, name=name, label=label)
 
@@ -1120,7 +1120,7 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
                Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
         """
 
-        from ..models.truncated import TruncatedPDF
+        from ..models.truncated import TruncatedPDF  # noqa: PLC0415
 
         if limits is None:
             limits = obs if obs is not None else self.space

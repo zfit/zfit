@@ -90,7 +90,7 @@ class BaseFuncV1(BaseModel, ZfitFunc):
         Returns:
             A PDF with the current function as the unnormalized probability.
         """
-        from zfit.core.operations import convert_func_to_pdf
+        from zfit.core.operations import convert_func_to_pdf  # noqa: PLC0415
 
         return convert_func_to_pdf(func=self)
 

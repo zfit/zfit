@@ -1339,7 +1339,7 @@ class BaseBinnedPDF(
 
     def to_unbinned(self):
         """Convert the PDF to an unbinned PDF."""
-        from zfit.models.unbinnedpdf import UnbinnedFromBinnedPDF
+        from zfit.models.unbinnedpdf import UnbinnedFromBinnedPDF  # noqa: PLC0415
 
         return UnbinnedFromBinnedPDF(self, self.space.with_binning(None))
 

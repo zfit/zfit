@@ -34,7 +34,7 @@ def convert_to_container(
 
     Returns:
     """
-    from zfit._interfaces import (  # here due to dependency
+    from zfit._interfaces import (  # here due to dependency   # noqa: PLC0415
         ZfitBinnedData,
         ZfitBinning,
         ZfitData,
@@ -52,7 +52,7 @@ def convert_to_container(
     if value is None and not convert_none:
         return value
     if type(value) is not container and non_containers is not False:
-        import hist
+        import hist  # noqa: PLC0415
 
         non_containers.extend(
             [

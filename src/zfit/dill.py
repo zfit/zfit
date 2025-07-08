@@ -58,7 +58,7 @@ def __retry_with_gc(func: typing.Callable, kwargs: dict, *, max_retries: int | N
             max_retries_reached := max_retries <= 0
         ):
             if ipyopt_phrase in str(error):
-                from zfit.exception import IpyoptPicklingError
+                from zfit.exception import IpyoptPicklingError  # noqa: PLC0415
 
                 raise IpyoptPicklingError(ipyopt_error_msg) from error
             if max_retries_reached:
@@ -75,7 +75,7 @@ def __retry_with_gc(func: typing.Callable, kwargs: dict, *, max_retries: int | N
             raise error
     # need to get out, otherwise "error" has a reference to graph and gc can't collect it
     if redo:
-        import gc
+        import gc  # noqa: PLC0415
 
         gc.collect()
         result_dilled = __retry_with_gc(func, kwargs, max_retries=max_retries - 1)
@@ -130,7 +130,7 @@ def dumps(
                     msg = "Tried to verify dumps by loading but failed."
                     raise ZfitDillDumpError(msg) from error
                 redo = True
-                from zfit import run
+                from zfit import run  # noqa: PLC0415
 
                 run.clear_graph_cache(call_gc=True)
         if not redo:
@@ -198,7 +198,7 @@ def dump(
                     msg = "Tried to verify dumps by loading but failed."
                     raise ZfitDillDumpError(msg) from error
                 redo = True
-                from zfit import run
+                from zfit import run  # noqa: PLC0415
 
                 run.clear_graph_cache(call_gc=True)
                 file.seek(initial_position)  # reset to initial position
@@ -240,7 +240,7 @@ def __retry_with_graphclear(
                     f"Max retries reached when loading {kwargs}, error still occurred. Original error {original_error}"
                 )
                 raise ZfitDillLoadError(msg) from error
-            from zfit import run
+            from zfit import run  # noqa: PLC0415
 
             run.clear_graph_cache(call_gc=True)
         else:
