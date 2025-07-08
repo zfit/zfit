@@ -10,9 +10,10 @@ Develop
 Major Features and Improvements
 -------------------------------
 - significantly improved performance, especially when using a GPU for certain fits.
+
 Breaking changes
 ------------------
-
+- default padding of KDE switched to 0.1 instead of False. This should only improve KDEs at the boundary but technically changes the behavior
 
 Deprecations
 -------------

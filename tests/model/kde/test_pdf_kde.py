@@ -51,6 +51,24 @@ def test_exact_kde():
         zfit.pdf.KDE1DimExact(obs=obs, data=data, bandwidth="eoaue")
 
 
+def test_default_padding():
+    """Test that KDE implementations have default padding of 0.1."""
+    data, obs, pdf = create_pdf_sample(npoints=100)
+
+    # Test that all KDE implementations have the correct default padding
+    kde_exact = zfit.pdf.KDE1DimExact(data=data, obs=obs, bandwidth="silverman")
+    assert kde_exact._default_padding == 0.1
+
+    kde_grid = zfit.pdf.KDE1DimGrid(data=data, obs=obs, bandwidth="silverman")
+    assert kde_grid._default_padding == 0.1
+
+    kde_fft = zfit.pdf.KDE1DimFFT(data=data, obs=obs, bandwidth="silverman")
+    assert kde_fft._default_padding == 0.1
+
+    kde_isj = zfit.pdf.KDE1DimISJ(data=data, obs=obs)
+    assert kde_isj._default_padding == 0.1
+
+
 def create_kde(
     kdetype=None,
     npoints=1500,
