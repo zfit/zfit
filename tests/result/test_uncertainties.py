@@ -612,9 +612,14 @@ def test_compare_roofit_zfit_three_component_errors(weightcorr):
             f"zfit and RooFit values differ for {param_name}: {zfit_val} vs {roofit_val}"
         )
 
-        relerr = 0.25 if weightcorr == "sumw2" else 0.05  # only approximate, it's not correct.
-        # we don't do the squared weights in the NLL calculation, just multiply the weights with the pdf vals
-        # and then multiply by the sum of weights and divide by the sum of squares.
+        # Define relative error tolerances for comparison
+        RELATIVE_ERROR_SUMW2 = 0.25  # Tolerance for "sumw2" weight correction
+        RELATIVE_ERROR_DEFAULT = 0.05  # Default tolerance for other weight corrections
+
+        relerr = RELATIVE_ERROR_SUMW2 if weightcorr == "sumw2" else RELATIVE_ERROR_DEFAULT
+        # Explanation: The relative error tolerances are approximate due to the method used for NLL calculation.
+        # We don't do the squared weights in the NLL calculation; instead, we multiply the weights with the PDF values,
+        # then multiply by the sum of weights and divide by the sum of squares.
         assert pytest.approx(zfit_err, rel=relerr) == roofit_err, (
             f"zfit and RooFit errors differ significantly for {param_name}: {zfit_err} vs {roofit_err}"
         )
