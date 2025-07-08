@@ -425,11 +425,13 @@ class SumCompPlotter(ZfitPDFPlotter):
         if depth is None:
             depth = 0
         if depth < 0:
-            ax = kwargs.get('ax')
+            ax = kwargs.get("ax")
             if ax is None:
-                raise RuntimeError("ax is None. Either there is an issue with the depth argument or an internal error. "
-                                   "Make sure `depth` is at least 0, if that's the case, please open a bug report "
-                                   "with zfit.")
+                raise RuntimeError(
+                    "ax is None. Either there is an issue with the depth argument or an internal error. "
+                    "Make sure `depth` is at least 0, if that's the case, please open a bug report "
+                    "with zfit."
+                )
             return ax
         if kwargs.pop("extended", False):
             scale *= pdf.get_yield()
