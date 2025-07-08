@@ -119,7 +119,7 @@ def create_fitresult(
     else:
         assert (
             False
-        ), "Tried to minimize but failed 3 times, this is treated as an error."
+        ), f"Tried to minimize but failed 3 times, this is treated as an error. Last result: {result}"
     assert cur_val < true_minimum + 0.1, "Fit did not converge to true minimum"
     aval, bval, cval = (
         result.params[p]["value"] for p in all_params[:3]
