@@ -219,7 +219,7 @@ class Ipyopt(BaseMinimizer):
             msg = "Cannot put 'hessian_approximation' into the options. Use `hessian` instead.`"
             raise ValueError(msg)
         if maxcor is None:
-            maxcor = 8
+            maxcor = 10
         options["limited_memory_max_history"] = maxcor
 
         minimizer_options["ipopt"] = options
@@ -258,7 +258,7 @@ class Ipyopt(BaseMinimizer):
 
     @minimize_supports(init=True)
     def _minimize(self, loss, params, init):
-        import ipyopt
+        import ipyopt  # noqa: PLC0415
 
         if init:
             assign_values(params=params, values=init)
