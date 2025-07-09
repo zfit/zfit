@@ -301,11 +301,11 @@ def test_cached_pdf_with_different_cache_tolerances():
     test_pdf = TestPDF(obs=obs, mu=mu, sigma=sigma)
 
     # Test with very tight tolerance
-    cached_tight = CachedPDF(test_pdf, cache_tol=1e-12)
+    cached_tight = CachedPDF(test_pdf, epsilon=1e-12)
     assert cached_tight._cache_tolerance == 1e-12
 
     # Test with loose tolerance
-    cached_loose = CachedPDF(test_pdf, cache_tol=1e-4)
+    cached_loose = CachedPDF(test_pdf, epsilon=1e-4)
     assert cached_loose._cache_tolerance == 1e-4
 
     # Test default tolerance

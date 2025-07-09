@@ -299,7 +299,7 @@ For example you have sum of Gaussian and exponential pdfs:
     
     # Customize caching behavior
     cached_exponential = exponential.to_cached(
-        cache_tol=1e-6,                 # Cache tolerance
+        epsilon=1e-6,                 # Cache tolerance
     )
 
     # create SumPDF with cacheable exponential pdf

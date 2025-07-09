@@ -735,7 +735,7 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
 
         return CachedPDF(
             pdf=self,
-            cache_tol=epsilon,
+            epsilon=epsilon,
             name=name,
         )
 

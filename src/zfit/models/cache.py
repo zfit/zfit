@@ -90,27 +90,27 @@ class CachedPDF(BaseFunctor, SerializableMixin):
                Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
         """
         obs = pdf.space
+        if cache_tol is not None:
+            epsilon = cache_tol
         hs3_init = {
             "obs": obs,
             "extended": extended,
             "norm": norm,
-            "cache_tol": cache_tol,
+            "epsilon": epsilon,
             "name": name,
         }
         name = name or pdf.name
         super().__init__(pdfs=pdf, obs=obs, name=name, extended=extended, norm=norm, label=label, autograd_params=[])
         params = list(pdf.get_params(floating=None, is_yield=None, extract_independent=True))
-        if cache_tol is not None:
-            epsilon = cache_tol
 
         param_cache = tf.Variable(
-            znp.zeros(shape=znp.shape(znp.stack(params)), dtype=ztypes.float),
+            znp.zeros(shape=tf.shape(znp.stack(params)), dtype=ztypes.float),
             trainable=False,
             validate_shape=False,
             dtype=tf.float64,
         )
         param_cache_int = tf.Variable(
-            znp.zeros(shape=znp.shape(znp.stack(params)), dtype=ztypes.float),
+            znp.zeros(shape=tf.shape(znp.stack(params)), dtype=ztypes.float),
             trainable=False,
             validate_shape=False,
             dtype=tf.float64,
@@ -128,37 +128,50 @@ class CachedPDF(BaseFunctor, SerializableMixin):
 
         self._cache_tolerance = 1e-8 if epsilon is None else epsilon
         self.hs3.original_init.update(hs3_init)
+        ones = znp.ones(
+            shape=100,
+        )
+        self._pdf_cache = tf.Variable(
+            -999.0 * ones,  # negative ones, to make sure these are unrealistic values
+            trainable=False,
+            validate_shape=False,
+            dtype=ztypes.float,
+        )
+
+        self._cached_x = tf.Variable(
+            ones + 1e30,  # to make sure it's not the same
+            trainable=False,
+            validate_shape=False,
+            dtype=ztypes.float,
+        )
+        self._cached_integral_limits = tf.Variable(
+            znp.stack(obs.v1.limits) + 19.0,  # to make sure it's not the same
+            trainable=False,
+            validate_shape=False,
+            dtype=ztypes.float,
+        )
+
+        self._integral_cache = tf.Variable(
+            znp.zeros(shape=tf.shape([1])),
+            trainable=False,
+            validate_shape=False,
+            dtype=ztypes.float,
+        )
 
     @supports(norm="space")
     def _pdf(self, x, norm):
         x = x.value()
-        xlen = znp.shape(x)[0]
-        if self._pdf_cache is None:
-            self._pdf_cache = tf.Variable(
-                -999.0
-                * znp.ones(
-                    shape=xlen,
-                ),  # negative ones, to make sure these are unrealistic values
-                trainable=False,
-                validate_shape=False,
-                dtype=ztypes.float,
-            )
+        xlen = tf.shape(x)[0]
+        # if self._pdf_cache is None:
 
-        if self._cached_x is None:
-            self._cached_x = tf.Variable(
-                x + 19.0,  # to make sure it's not the same
-                trainable=False,
-                validate_shape=False,
-                dtype=ztypes.float,
-            )
-        cachedxlen = znp.shape(self._cached_x)[0]
+        cachedxlen = tf.shape(self._cached_x)[0]
         minlen = znp.min([xlen, cachedxlen])
         x_same = znp.all(znp.abs(x[:minlen] - self._cached_x[:minlen]) < self._cache_tolerance)
         x_same = znp.logical_and(x_same, xlen == cachedxlen)
         pdf_params = list(self.pdfs[0].get_params())
         if hasparams := (paramlen := len(pdf_params)) > 0:
             stacked_pdf_params = znp.stack(pdf_params)
-            cachedparamlen = znp.shape(self._cached_pdf_params)[0]
+            cachedparamlen = tf.shape(self._cached_pdf_params)[0]
             minparamlen = znp.min(
                 [
                     paramlen,
@@ -187,22 +200,6 @@ class CachedPDF(BaseFunctor, SerializableMixin):
 
     @supports(norm="space")
     def _integrate(self, limits, norm, options=None):
-        if self._cached_integral_limits is None:
-            self._cached_integral_limits = tf.Variable(
-                znp.stack(limits.v1.limits) + 19.0,  # to make sure it's not the same
-                trainable=False,
-                validate_shape=False,
-                dtype=ztypes.float,
-            )
-
-        if self._integral_cache is None:
-            self._integral_cache = tf.Variable(
-                znp.zeros(shape=znp.shape([1])),
-                trainable=False,
-                validate_shape=False,
-                dtype=ztypes.float,
-            )
-
         stacked_integral_limits = znp.stack(limits.v1.limits)
         limits_same = znp.all(znp.abs(stacked_integral_limits - self._cached_integral_limits) < self._cache_tolerance)
 
