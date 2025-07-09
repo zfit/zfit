@@ -59,9 +59,5 @@ hs3like = zfit.hs3.dumps(nll)
 # and we can load it again
 nll_loaded = zfit.hs3.loads(hs3like)
 
-# to dump the result, we can use dill (like pickle)
-dumped = zfit.dill.dumps(result)
-loaded = zfit.dill.loads(dumped)
-
 zfit.param.set_values(model.get_params(), loaded)
 print(loaded)
