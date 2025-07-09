@@ -10,7 +10,6 @@ import pydantic.v1 as pydantic
 import tensorflow as tf
 
 import zfit.z.numpy as znp
-from zfit.util.exception import AnalyticGradientNotAvailable
 
 from ..core.serialmixin import SerializableMixin
 from ..core.space import supports
@@ -25,27 +24,28 @@ if typing.TYPE_CHECKING:
 
 
 def get_value(cache: tf.Variable, flag: tf.Variable, func: Callable):
-    @tf.custom_gradient
-    def actual_func():
-        def autoset_func():
-            val = func()
-            return cache.assign(val, read_value=True)
+    """
+    Get value with caching support.
 
-        def use_cache():
-            return cache
+    This implementation provides a caching mechanism that:
+    1. Caches forward pass values to avoid recomputation
+    2. Uses tf.cond to conditionally use cached values
 
-        val = tf.cond(flag, use_cache, autoset_func)
+    Args:
+        cache: Cache for function values
+        flag: Flag indicating if cache is valid
+        func: Function to evaluate
+        analytic_gradients: Whether to enable analytic gradients (currently not supported)
+    """
 
-        def grad_fn(dval, variables):  # noqa: ARG001
-            msg = (
-                "The analytic gradient is not implemented for caching PDF. Use the numerical gradient instead."
-                "(either using zfit.run.set_autograd_mode(False) and/or by using the minimizer internal numerical gradient)"
-            )
-            raise AnalyticGradientNotAvailable(msg)
+    def compute_and_cache():
+        val = func()
+        return cache.assign(val, read_value=True)
 
-        return val, grad_fn
+    def use_cached():
+        return cache
 
-    return actual_func()
+    return tf.cond(flag, use_cached, compute_and_cache)
 
 
 class CachedPDF(BaseFunctor, SerializableMixin):
@@ -53,6 +53,7 @@ class CachedPDF(BaseFunctor, SerializableMixin):
         self,
         pdf: ztyping.PDFInputType,
         *,
+        epsilon: float | None = None,
         extended: ztyping.ExtendedInputType = None,
         norm: ztyping.NormInputType = None,
         cache_tol=None,
@@ -63,10 +64,7 @@ class CachedPDF(BaseFunctor, SerializableMixin):
 
         .. note::
 
-           Analytic gradients are not available for the cached PDF. Use the numerical gradient instead,
-           either by using a minimizers internal calculator (e.g. :py:class:`~zfit.minimize.Minuit(..., gradient=True)`) or by
-           setting the autograd mode to False (e.g. :py:func:`~zfit.run.set_autograd_mode(False)`).
-           An error will be raised if the analytic gradient is requested.
+           Analytic gradients are not supported for cached PDFs. Use numerical gradients instead.
 
         The method stores the last calculated value of a function for a specific dataset and
         returns it when the input data and the parameters are the same. This can be useful when
@@ -102,15 +100,17 @@ class CachedPDF(BaseFunctor, SerializableMixin):
         name = name or pdf.name
         super().__init__(pdfs=pdf, obs=obs, name=name, extended=extended, norm=norm, label=label, autograd_params=[])
         params = list(pdf.get_params(floating=None, is_yield=None, extract_independent=True))
+        if cache_tol is not None:
+            epsilon = cache_tol
 
         param_cache = tf.Variable(
-            znp.zeros(shape=tf.shape(tf.stack(params)), dtype=ztypes.float),
+            znp.zeros(shape=znp.shape(znp.stack(params)), dtype=ztypes.float),
             trainable=False,
             validate_shape=False,
             dtype=tf.float64,
         )
         param_cache_int = tf.Variable(
-            znp.zeros(shape=tf.shape(tf.stack(params)), dtype=ztypes.float),
+            znp.zeros(shape=znp.shape(znp.stack(params)), dtype=ztypes.float),
             trainable=False,
             validate_shape=False,
             dtype=tf.float64,
@@ -126,13 +126,13 @@ class CachedPDF(BaseFunctor, SerializableMixin):
         self._integral_cache = None
         self._integral_cache_valid = tf.Variable(initial_value=False, trainable=False)
 
-        self._cache_tolerance = 1e-8 if cache_tol is None else cache_tol
+        self._cache_tolerance = 1e-8 if epsilon is None else epsilon
         self.hs3.original_init.update(hs3_init)
 
     @supports(norm="space")
     def _pdf(self, x, norm):
         x = x.value()
-        xlen = tf.shape(x)[0]
+        xlen = znp.shape(x)[0]
         if self._pdf_cache is None:
             self._pdf_cache = tf.Variable(
                 -999.0
@@ -151,26 +151,26 @@ class CachedPDF(BaseFunctor, SerializableMixin):
                 validate_shape=False,
                 dtype=ztypes.float,
             )
-        cachedxlen = tf.shape(self._cached_x)[0]
+        cachedxlen = znp.shape(self._cached_x)[0]
         minlen = znp.min([xlen, cachedxlen])
-        x_same = tf.math.reduce_all(znp.abs(x[:minlen] - self._cached_x[:minlen]) < self._cache_tolerance)
+        x_same = znp.all(znp.abs(x[:minlen] - self._cached_x[:minlen]) < self._cache_tolerance)
         x_same = znp.logical_and(x_same, xlen == cachedxlen)
         pdf_params = list(self.pdfs[0].get_params())
         if hasparams := (paramlen := len(pdf_params)) > 0:
-            stacked_pdf_params = tf.stack(pdf_params)
-            cachedparamlen = tf.shape(self._cached_pdf_params)[0]
+            stacked_pdf_params = znp.stack(pdf_params)
+            cachedparamlen = znp.shape(self._cached_pdf_params)[0]
             minparamlen = znp.min(
                 [
                     paramlen,
                     cachedparamlen,
                 ]
             )
-            params_same = tf.math.reduce_all(
+            params_same = znp.all(
                 znp.abs(stacked_pdf_params[:minparamlen] - self._cached_pdf_params[:minparamlen])
                 < self._cache_tolerance
             )
 
-            same_args = tf.math.logical_and(params_same, x_same)
+            same_args = znp.logical_and(params_same, x_same)
             same_args = znp.logical_and(same_args, paramlen == cachedparamlen)
         else:
             same_args = x_same
@@ -189,7 +189,7 @@ class CachedPDF(BaseFunctor, SerializableMixin):
     def _integrate(self, limits, norm, options=None):
         if self._cached_integral_limits is None:
             self._cached_integral_limits = tf.Variable(
-                tf.stack(limits.v1.limits) + 19.0,  # to make sure it's not the same
+                znp.stack(limits.v1.limits) + 19.0,  # to make sure it's not the same
                 trainable=False,
                 validate_shape=False,
                 dtype=ztypes.float,
@@ -197,25 +197,23 @@ class CachedPDF(BaseFunctor, SerializableMixin):
 
         if self._integral_cache is None:
             self._integral_cache = tf.Variable(
-                znp.zeros(shape=tf.shape([1])),
+                znp.zeros(shape=znp.shape([1])),
                 trainable=False,
                 validate_shape=False,
                 dtype=ztypes.float,
             )
 
-        stacked_integral_limits = tf.stack(limits.v1.limits)
-        limits_same = tf.math.reduce_all(
-            znp.abs(stacked_integral_limits - self._cached_integral_limits) < self._cache_tolerance
-        )
+        stacked_integral_limits = znp.stack(limits.v1.limits)
+        limits_same = znp.all(znp.abs(stacked_integral_limits - self._cached_integral_limits) < self._cache_tolerance)
 
         params = list(self.pdfs[0].get_params(floating=None))
         if hasparams := len(params) > 0:
-            stacked_pdf_params = tf.stack(params)
-            params_same = tf.math.reduce_all(
+            stacked_pdf_params = znp.stack(params)
+            params_same = znp.all(
                 znp.abs(stacked_pdf_params - self._cached_pdf_params_for_integration) < self._cache_tolerance
             )
 
-            same_args = tf.math.logical_and(params_same, limits_same)
+            same_args = znp.logical_and(params_same, limits_same)
         else:
             same_args = limits_same
         assign1 = self._integral_cache_valid.assign(same_args, read_value=False)

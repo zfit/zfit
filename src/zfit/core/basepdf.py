@@ -705,6 +705,40 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
 
         return PositivePDF(pdf=self, epsilon=epsilon, name=name)
 
+    def to_cached(
+        self,
+        epsilon: float | None = None,
+        name: str | None = None,
+    ) -> zfit.pdf.CachedPDF:
+        """Return a cached version of this PDF that stores the last calculated value for reuse.
+
+        This method creates a CachedPDF functor that wraps the current PDF and caches
+        the results of pdf() and integrate() calls. The cache is keyed by the input data
+        and parameter values, and will return cached results when the same inputs are
+        encountered again within the specified tolerance.
+
+        This is particularly useful during optimization when the same PDF is evaluated
+        multiple times with the same parameters and data, such as when using numerical
+        gradients.
+
+        Args:
+            epsilon: Accuracy of absolute tolerance for comparing arguments (parameters, data)
+                with cached values. If None, defaults to 1e-8.
+            name: New name of the PDF. If ``None``, the name of the PDF with a trailing "_cached" is used.
+
+        Returns:
+            :py:class:`~zfit.core.interfaces.ZfitPDF`: a new PDF that caches evaluation results
+        """
+        from zfit.models.cache import CachedPDF  # noqa: PLC0415
+
+        name = f"{self.name}_cached" if name is None else name
+
+        return CachedPDF(
+            pdf=self,
+            cache_tol=epsilon,
+            name=name,
+        )
+
     @deprecated(None, "Use `create_extended` instead or `extended=yield` when creating the PDF.")
     def set_yield(self, value):
         """Make the model extended **inplace** by setting a yield. If possible, prefer to use ``create_extended``.
