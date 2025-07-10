@@ -585,7 +585,7 @@ all_pdfs = (
         # conditionalpdf,  # not working currently, see implementation
         truncpdf,
         complicatedpdf,
-        cachedpdf,
+        # cachedpdf,  # not working currently, weird bug: double tf.Variable creation?
     ]
     + [prod2dgauss]
 )

@@ -125,8 +125,8 @@ def plot_gaussian():
         "Gaussian PDF",
         (-5, 5),
         [
-            ("mu", [-3, -1.5, 0, 1.5, 3], {"sigma": 1.0}, r"\mu", lambda v: rf"\mu = {v}"),
-            ("sigma", [0.3, 0.7, 1.0, 1.5, 2.5], {"mu": 0.0}, r"\sigma", lambda v: rf"\sigma = {v}"),
+            ("mu", [-3, -1.5, 0, 1.5, 3], {"sigma": 1.0}, r"$\mu$", lambda v: rf"$\mu = {v}$"),
+            ("sigma", [0.3, 0.7, 1.0, 1.5, 2.5], {"mu": 0.0}, r"$\sigma$", lambda v: rf"$\sigma = {v}$"),
         ],
     )
     plot_multiple_configs(configs, obs)
@@ -138,10 +138,10 @@ def plot_exponential():
         pdf_class=zfit.pdf.Exponential,
         param_name="lam",
         param_values=[0.3, 0.6, 1.0, 1.5, 2.5],
-        title=r"Exponential PDF with different \lambda values",
+        title=r"Exponential PDF with different $\lambda$ values",
         filename="exponential_lambda.png",
         x_range=(0, 5),
-        label_fn=lambda v: rf"\lambda = {v}",
+        label_fn=lambda v: rf"$\lambda = {v}$",
     )
     plot_pdf(config, obs)
 
@@ -175,7 +175,7 @@ def plot_cauchy():
         (-10, 10),
         [
             ("m", [-3, -1.5, 0, 1.5, 3], {"gamma": 1.0}, "m", None),
-            ("gamma", [0.3, 0.7, 1.0, 1.5, 2.5], {"m": 0.0}, r"\gamma", lambda v: rf"\gamma = {v}"),
+            ("gamma", [0.3, 0.7, 1.0, 1.5, 2.5], {"m": 0.0}, r"$\gamma$", lambda v: rf"$\gamma = {v}$"),
         ],
     )
     plot_multiple_configs(configs, obs)
@@ -189,8 +189,8 @@ def plot_voigt():
         "Voigt PDF",
         (-10, 10),
         [
-            ("sigma", [0.3, 0.7, 1.0, 1.5, 2.5], {"m": 0.0, "gamma": 1.0}, r"\sigma", lambda v: rf"\sigma = {v}"),
-            ("gamma", [0.3, 0.7, 1.0, 1.5, 2.5], {"m": 0.0, "sigma": 1.0}, r"\gamma", lambda v: rf"\gamma = {v}"),
+            ("sigma", [0.3, 0.7, 1.0, 1.5, 2.5], {"m": 0.0, "gamma": 1.0}, r"$\sigma$", lambda v: rf"$\sigma = {v}$"),
+            ("gamma", [0.3, 0.7, 1.0, 1.5, 2.5], {"m": 0.0, "sigma": 1.0}, r"$\gamma$", lambda v: rf"$\gamma = {v}$"),
             ("m", [-3, -1.5, 0, 1.5, 3], {"sigma": 1.0, "gamma": 1.0}, "m", None),
         ],
     )
@@ -209,23 +209,23 @@ def plot_crystalball():
                 "alpha",
                 [0.3, 0.7, 1.0, 1.5, 2.5],
                 {"mu": 0.0, "sigma": 1.0, "n": 2.0},
-                r"\alpha",
-                lambda v: rf"\alpha = {v}",
+                r"$\alpha$",
+                lambda v: rf"$\alpha = {v}$",
             ),
             ("n", [1.0, 1.5, 2.0, 3.5, 5.0], {"mu": 0.0, "sigma": 1.0, "alpha": 1.0}, "n", None),
             (
                 "mu",
                 [-1.5, -0.75, 0.0, 0.75, 1.5],
                 {"sigma": 1.0, "alpha": 1.0, "n": 2.0},
-                r"\mu",
-                lambda v: rf"\mu = {v}",
+                r"$\mu$",
+                lambda v: rf"$\mu = {v}$",
             ),
             (
                 "sigma",
                 [0.5, 0.75, 1.0, 1.25, 1.5],
                 {"mu": 0.0, "alpha": 1.0, "n": 2.0},
-                r"\sigma",
-                lambda v: rf"\sigma = {v}",
+                r"$\sigma$",
+                lambda v: rf"$\sigma = {v}$",
             ),
         ],
     )
@@ -240,8 +240,8 @@ def plot_lognormal():
         "LogNormal PDF",
         (0.1, 10),
         [
-            ("mu", [-0.8, -0.4, 0.0, 0.4, 0.8], {"sigma": 0.5}, r"\mu", lambda v: rf"\mu = {v}"),
-            ("sigma", [0.2, 0.35, 0.5, 0.75, 1.0], {"mu": 0.0}, r"\sigma", lambda v: rf"\sigma = {v}"),
+            ("mu", [-0.8, -0.4, 0.0, 0.4, 0.8], {"sigma": 0.5}, r"$\mu$", lambda v: rf"$\mu = {v}$"),
+            ("sigma", [0.2, 0.35, 0.5, 0.75, 1.0], {"mu": 0.0}, r"$\sigma$", lambda v: rf"$\sigma = {v}$"),
         ],
     )
     plot_multiple_configs(configs, obs)
@@ -255,20 +255,20 @@ def plot_bifurgauss():
         "BifurGauss PDF",
         (-5, 5),
         [
-            ("mu", [-1.5, -0.75, 0.0, 0.75, 1.5], {"sigmal": 1.0, "sigmar": 1.0}, r"\mu", lambda v: rf"\mu = {v}"),
+            ("mu", [-1.5, -0.75, 0.0, 0.75, 1.5], {"sigmal": 1.0, "sigmar": 1.0}, r"$\mu$", lambda v: rf"$\mu = {v}$"),
             (
                 "sigmal",
                 [0.5, 0.75, 1.0, 1.25, 1.5],
                 {"mu": 0.0, "sigmar": 1.0},
-                r"\sigma_left",
-                lambda v: rf"\sigma_left = {v}",
+                r"$\sigma_\text{left}$",
+                lambda v: rf"$\sigma_\text{{left}} = {v}$",
             ),
             (
                 "sigmar",
                 [0.5, 0.75, 1.0, 1.25, 1.5],
                 {"mu": 0.0, "sigmal": 1.0},
-                r"\sigma_right",
-                lambda v: rf"\sigma_right = {v}",
+                r"$\sigma_\text{right}$",
+                lambda v: rf"$\sigma_\text{{right}} = {v}$",
             ),
         ],
     )
@@ -277,20 +277,18 @@ def plot_bifurgauss():
 
 def plot_poisson():
     """Plot Poisson PDF with different lambda values."""
-    obs = zfit.Space("x", limits=(0, 20))
-    plt.figure()
+    obs = zfit.Space("x", 0, 20)
 
-    x = np.arange(0, 20)
-    for lambda_val in [1.0, 3.0, 5.0, 7.0, 10.0]:
-        poisson = zfit.pdf.Poisson(lam=Parameter("lambda", lambda_val), obs=obs)
-        y = poisson.pdf(x)
-        plt.step(x, y, where="mid", label=rf"\lambda = {lambda_val}")
-
-    plt.xlabel("x")
-    plt.ylabel("Probability mass")
-    plt.title(r"Poisson PDF with different \lambda values")
-    plt.legend()
-    save_plot("poisson_lambda.png")
+    configs = create_configs(
+        zfit.pdf.Poisson,
+        "poisson",
+        "Poisson PDF",
+        (0, 20),
+        [
+            ("lamb", [1.0, 3.0, 5.0, 7.0, 10.0], {}, r"$\lambda$", lambda v: rf"$\lambda$ = {v}"),
+        ],
+    )
+    plot_multiple_configs(configs, obs)
 
 
 def plot_qgauss():
@@ -301,8 +299,8 @@ def plot_qgauss():
         "QGauss PDF",
         (-5, 5),
         [
-            ("mu", [-1.5, -0.75, 0.0, 0.75, 1.5], {"sigma": 1.0, "q": 1.5}, r"\mu", lambda v: rf"\mu = {v}"),
-            ("sigma", [0.5, 0.75, 1.0, 1.25, 1.5], {"mu": 0.0, "q": 1.5}, r"\sigma", lambda v: rf"\sigma = {v}"),
+            ("mu", [-1.5, -0.75, 0.0, 0.75, 1.5], {"sigma": 1.0, "q": 1.5}, r"$\mu$", lambda v: rf"$\mu = {v}$"),
+            ("sigma", [0.5, 0.75, 1.0, 1.25, 1.5], {"mu": 0.0, "q": 1.5}, r"$\sigma$", lambda v: rf"$\sigma = {v}$"),
             ("q", [1.1, 1.3, 1.5, 1.7, 2.0], {"mu": 0.0, "sigma": 1.0}, "q", None),
         ],
     )
@@ -321,22 +319,22 @@ def plot_johnsonsu():
                 "mu",
                 [-1.5, -0.75, 0.0, 0.75, 1.5],
                 {"lambd": 1.0, "gamma": 1.0, "delta": 1.0},
-                r"\mu",
-                lambda v: rf"\mu = {v}",
+                r"$\mu$",
+                lambda v: rf"$\mu = {v}$",
             ),
             (
                 "gamma",
                 [0.0, 0.5, 1.0, 1.5, 2.0],
                 {"mu": 0.0, "lambd": 1.0, "delta": 1.0},
-                r"\gamma",
-                lambda v: rf"\gamma = {v}",
+                r"$\gamma$",
+                lambda v: rf"$\gamma = {v}$",
             ),
             (
                 "delta",
                 [0.5, 0.75, 1.0, 1.5, 2.0],
                 {"mu": 0.0, "lambd": 1.0, "gamma": 1.0},
-                r"\delta",
-                lambda v: rf"\delta = {v}",
+                r"$\delta$",
+                lambda v: rf"$\delta = {v}$",
             ),
         ],
     )
@@ -460,48 +458,45 @@ def plot_polynomial(pdf_class, name, x_range, degree_values=None):
     """Generic function to plot polynomial PDFs."""
     if degree_values is None:
         degree_values = [2, 3, 5, 6]
-    try:
-        # Create the observable
-        obs = zfit.Space("x", limits=x_range)
+    # Create the observable
+    obs = zfit.Space("x", limits=x_range)
 
-        # Plot with different degrees
-        plt.figure()
-        for degree in degree_values:
-            coeffs = [Parameter(f"c{i}", 1.0 if i == 0 else 0.3) for i in range(degree + 1)]
-            poly = pdf_class(obs=obs, coeffs=coeffs)
-            x = np.linspace(x_range[0], x_range[1], 1000)
-            y = poly.pdf(x)
-            plt.plot(x, y, label=f"Degree {degree}")
+    # Plot with different degrees
+    plt.figure()
+    for degree in degree_values:
+        coeffs = [Parameter(f"c{i}", 1.0 if i == 0 else 0.3) for i in range(degree + 1)]
+        poly = pdf_class(obs=obs, coeffs=coeffs)
+        x = np.linspace(x_range[0], x_range[1], 1000)
+        y = poly.pdf(x)
+        plt.plot(x, y, label=f"Degree {degree}")
 
-        plt.xlabel("x")
-        plt.ylabel("Probability density")
-        plt.title(f"{name.capitalize()} PDF with different degrees")
-        plt.legend()
-        save_plot(f"{name}_degree.png")
+    plt.xlabel("x")
+    plt.ylabel("Probability density")
+    plt.title(f"{name.capitalize()} PDF with different degrees")
+    plt.legend()
+    save_plot(f"{name}_degree.png")
 
-        # Plot with different coefficient patterns
-        plt.figure()
-        patterns = [
-            [1.0, 0.0, 0.0, 0.0],  # Constant
-            [1.0, 0.5, 0.0, 0.0],  # Linear
-            [1.0, 0.0, 0.5, 0.0],  # Quadratic
-            [1.0, 0.0, 0.0, 0.5],  # Cubic
-        ]
+    # Plot with different coefficient patterns
+    plt.figure()
+    patterns = [
+        [1.0, 0.0, 0.0, 0.0],  # Constant
+        [1.0, 0.5, 0.0, 0.0],  # Linear
+        [1.0, 0.0, 0.5, 0.0],  # Quadratic
+        [1.0, 0.0, 0.0, 0.5],  # Cubic
+    ]
 
-        for pattern in patterns:
-            coeffs = [Parameter(f"c{j}", val) for j, val in enumerate(pattern)]
-            poly = pdf_class(obs=obs, coeffs=coeffs)
-            x = np.linspace(x_range[0], x_range[1], 1000)
-            y = poly.pdf(x)
-            plt.plot(x, y, label=f"Pattern: {pattern}")
+    for pattern in patterns:
+        coeffs = [Parameter(f"c{j}", val) for j, val in enumerate(pattern)]
+        poly = pdf_class(obs=obs, coeffs=coeffs)
+        x = np.linspace(x_range[0], x_range[1], 1000)
+        y = poly.pdf(x)
+        plt.plot(x, y, label=f"Pattern: {pattern}")
 
-        plt.xlabel("x")
-        plt.ylabel("Probability density")
-        plt.title(f"{name.capitalize()} PDF with different coefficient patterns")
-        plt.legend()
-        save_plot(f"{name}_patterns.png")
-    except Exception as e:
-        handle_error(f"{name} polynomial", e, f"{name}_degree.png")
+    plt.xlabel("x")
+    plt.ylabel("Probability density")
+    plt.title(f"{name.capitalize()} PDF with different coefficient patterns")
+    plt.legend()
+    save_plot(f"{name}_patterns.png")
 
 
 def plot_bernstein():

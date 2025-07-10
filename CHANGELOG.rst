@@ -33,6 +33,7 @@ Bug fixes and small changes
 
   - ``_auto_ext_pdf`` incorrectly used ``ext_normalization()`` instead of ``normalization()``, causing extended PDF values to be multiplied by yield squared instead of yield
   - ``_auto_ext_log_pdf`` incorrectly used ``znp.log(ext_normalization(norm))`` instead of ``log_normalization(norm)``
+- add ``to_cached`` to unbinned PDFs, returning a cached PDF. These do not support analytic gradients, an error will be raised if attempted.
 
 Experimental
 ------------
