@@ -13,7 +13,7 @@ Major Features and Improvements
 
 Breaking changes
 ------------------
-
+- default padding of KDE switched to 0.1 instead of False. This should only improve KDEs at the boundary but technically changes the behavior
 
 Deprecations
 -------------
