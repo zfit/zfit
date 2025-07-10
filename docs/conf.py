@@ -20,6 +20,8 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "-1"  # disable GPU for TensorFlow
 
 import zfit
 
+from utils.plot_cache import PlotCache
+
 project_dir = Path(__file__).parents[1]
 # sys.path.insert(0, str(project_dir))
 
@@ -78,6 +80,9 @@ myst_enable_extensions = [
 bibtex_bibfiles = ["refs.bib"]  # str(project_dir.joinpath("docs", "refs.bib"))]
 bibtex_default_style = "plain"
 
+# Import plot cache utility
+
+
 # run the generate_pdf_plots.py script to generate the pdf plots
 docsdir = project_dir / "docs"
 plotscript = docsdir / "utils" / "generate_pdf_plots.py"
@@ -85,25 +90,49 @@ minimizerscript = docsdir / "utils" / "generate_minimizer_plots.py"
 plot_output_dir = docsdir / "_static" / "plots"
 plot_output_dir.mkdir(parents=True, exist_ok=True)
 
+# Initialize plot cache
+cache_dir = docsdir / ".cache" / "plots"
+plot_cache = PlotCache(cache_dir)
 
-def is_up_to_date(script, output_dir):
-    """Check if the output directory is up-to-date with the script."""
-    if not output_dir.exists() or not any(output_dir.iterdir()):
-        return False
-    script_mtime = script.stat().st_mtime
-    return all(file.stat().st_mtime >= script_mtime for file in output_dir.iterdir())
-
-
-plotrerun = True
+# PDF plots generation with caching
+pdf_images_dir = docsdir / "images" / "_generated" / "pdfs"
+pdf_images_dir.mkdir(parents=True, exist_ok=True)
 
 
-if (plotrerun and not is_up_to_date(plotscript, plot_output_dir)) or plotrerun == "force":
+def generate_pdf_plots():
+    """Generate PDF plots."""
     subprocess.run([sys.executable, str(plotscript)], check=True, stdout=subprocess.PIPE)
 
+
+# Check if PDF plots need regeneration
+pdf_output_files = list(pdf_images_dir.glob("*.png"))
+if plot_cache.should_regenerate(plotscript, pdf_output_files):
+    print("Regenerating PDF plots...")
+    generate_pdf_plots()
+    plot_cache.mark_generated(plotscript, pdf_output_files)
+else:
+    print("Using cached PDF plots")
+
+# Minimizer plots generation with caching
 minimizer_output_dir = docsdir / "_static" / "minimizer_plots"
 minimizer_output_dir.mkdir(parents=True, exist_ok=True)
-if (plotrerun and not is_up_to_date(minimizerscript, minimizer_output_dir)) or plotrerun == "force":
+minimizer_images_dir = docsdir / "images" / "_generated" / "minimizers"
+minimizer_images_dir.mkdir(parents=True, exist_ok=True)
+
+
+def generate_minimizer_plots():
+    """Generate minimizer plots."""
     subprocess.run([sys.executable, str(minimizerscript)], check=True, stdout=subprocess.PIPE)
+
+
+# Check if minimizer plots need regeneration
+minimizer_output_files = list(minimizer_images_dir.glob("*.png")) + list(minimizer_images_dir.glob("*.gif"))
+if plot_cache.should_regenerate(minimizerscript, minimizer_output_files):
+    print("Regenerating minimizer plots...")
+    generate_minimizer_plots()
+    plot_cache.mark_generated(minimizerscript, minimizer_output_files)
+else:
+    print("Using cached minimizer plots")
 # Temporarily disabled for faster build
 zfit_tutorials_path = project_dir.joinpath("docs", "_tmp", "zfit-tutorials")
 atexit.register(lambda path=zfit_tutorials_path: shutil.rmtree(path))

@@ -291,7 +291,7 @@ For example you have sum of Gaussian and exponential pdfs:
     gauss = zfit.pdf.Gauss(mu=mu, sigma=sigma, obs=obs)
     exponential = zfit.pdf.Exponential(lambd, obs=obs)
 
-    # make exponential pdf cacheable (with analytic gradients enabled by default)
+    # make exponential pdf cacheable
     cached_exponential = zfit.pdf.CachedPDF(exponential)
     
     # Alternative: use the convenient to_cached() method
@@ -307,38 +307,6 @@ For example you have sum of Gaussian and exponential pdfs:
 
 Done! Your optimized SumPDF is ready for fitting.
 
-**Example: Using CachedPDF for Optimization**
-
-.. jupyter-execute::
-
-    # Create a complex PDF that's expensive to compute
-    import zfit
-    import numpy as np
-    
-    # Parameters
-    mu1 = zfit.Parameter("mu1", 1.0)
-    sigma1 = zfit.Parameter("sigma1", 0.5)
-    mu2 = zfit.Parameter("mu2", 3.0)
-    sigma2 = zfit.Parameter("sigma2", 0.8)
-    
-    # Create Gaussians
-    obs = zfit.Space("x", limits=(-5, 5))
-    gauss1 = zfit.pdf.Gauss(mu=mu1, sigma=sigma1, obs=obs)
-    gauss2 = zfit.pdf.Gauss(mu=mu2, sigma=sigma2, obs=obs)
-    
-    # Cache the expensive component with gradient support
-    cached_gauss2 = gauss2.to_cached()
-    
-    # Create mixture
-    mixture = zfit.pdf.SumPDF([gauss1, cached_gauss2], fracs=0.3)
-    
-    # Generate data and fit
-    data = mixture.sample(1000)
-    nll = zfit.loss.UnbinnedNLL(model=mixture, data=data)
-
-    minimizer = zfit.minimize.Minuit(gradient=True)  # uses numeric gradient
-    result = minimizer.minimize(nll)
-    print(f"Converged: {result.converged}")
 
 **When to Use CachedPDF:**
 

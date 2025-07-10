@@ -187,24 +187,6 @@ def test_integrate_cache_is_revaluation_if_limits_is_different():
     assert tf.equal(test_pdf.integrate_call_counter, tf.Variable(2))
 
 
-def test_gradient_cached_pdf_disabled():
-    """Test that analytic gradients are disabled by default for cached PDFs."""
-    obs = zfit.Space("x", limits=[-5.0, 5.0])
-    mu = zfit.Parameter("mu", 1.0, -5, 5)
-    sigma = zfit.Parameter("sigma", 1, 0, 10)
-    test_pdf = TestPDF(obs=obs, mu=mu, sigma=sigma)
-    cached_test_pdf = CachedPDF(test_pdf)  # analytic_gradients=False by default
-    x = znp.linspace(-5, 5, 500)
-
-    # Since analytic gradients are disabled, gradients should work through automatic differentiation
-    # but may not be optimal
-    with tf.GradientTape(watch_accessed_variables=True, persistent=True) as tape:
-        pdf = cached_test_pdf.pdf(x)
-
-    # This should work because TensorFlow can differentiate through the cached operations
-    gradient = tape.gradient(pdf, [mu])
-    # The gradients may be None or contain values depending on TensorFlow's ability to differentiate
-    # through the caching mechanism
 
 
 def test_minimize_cached_pdf_with_numerical_gradients():
