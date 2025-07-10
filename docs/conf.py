@@ -19,7 +19,6 @@ import yaml
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"  # disable GPU for TensorFlow
 
 import zfit
-
 from utils.plot_cache import PlotCache
 
 project_dir = Path(__file__).parents[1]
