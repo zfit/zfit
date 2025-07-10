@@ -57,7 +57,8 @@ result_loaded = zfit.dill.loads(result_dilled)
 hs3like = zfit.hs3.dumps(nll)
 # print(hs3like)
 # and we can load it again
-nll_loaded = zfit.hs3.loads(hs3like)
+loaded = zfit.hs3.loads(hs3like)
+
 
 zfit.param.set_values(model.get_params(), loaded)
 print(loaded)
