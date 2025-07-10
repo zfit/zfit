@@ -4,6 +4,49 @@ Changelog
 
 .. _newest-changelog:
 
+Develop
+======================
+
+Major Features and Improvements
+-------------------------------
+
+Breaking changes
+------------------
+
+Deprecations
+-------------
+
+Bug fixes and small changes
+---------------------------
+
+Experimental
+------------
+
+Requirement changes
+-------------------
+
+Thanks
+------
+
+
+0.26.0 (2 Jun 2025)
+======================
+
+Major Features and Improvements
+-------------------------------
+- asymptotic uncertainties for weighted fits have been optimized and fixed, working for yields and constraints correctly
+
+Breaking changes
+------------------
+- renamed ``effsize`` weight corretion to actual ``sumw2``
+
+
+Bug fixes and small changes
+---------------------------
+- Allow BinnedSamplerData to be instantiated from a histogram and fix variance handling if not given.
+- Enhance the precision of binned loss functions
+- make adaptive bandwidth default in KDE
+
 0.2.7 (10 Jul 2025)
 ======================
 
