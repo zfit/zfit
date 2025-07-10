@@ -30,7 +30,7 @@ def get_value(cache: tf.Variable, flag: tf.Variable, func: Callable):
     def actual_func():
         def autoset_func():
             val = func()
-            tf.print(val)
+            # tf.print(val)
             return cache.assign(val, read_value=True)
 
         def use_cache():
