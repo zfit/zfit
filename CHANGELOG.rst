@@ -28,7 +28,7 @@ Requirement changes
 Thanks
 ------
 
-0.2.7 (10 Jul 2025)
+0.27.0 (10 Jul 2025)
 ======================
 
 Major Features and Improvements
