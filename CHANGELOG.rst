@@ -34,6 +34,7 @@ Thanks
 Major Features and Improvements
 -------------------------------
 - significantly improved performance, especially when using a GPU for certain fits.
+- Upgrade to Python 3.10+
 
 Breaking changes
 ------------------
