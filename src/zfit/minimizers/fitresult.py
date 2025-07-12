@@ -1643,13 +1643,16 @@ class FitResult(OptimizeResultMixin, ZfitResult):
             weightcorr = WeightCorr.ASYMPTOTIC
         weightcorr = WeightCorr(weightcorr)
 
-        if method not in self._covariance_dict:
+        cache_key = (method, weightcorr)
+        if cache_key not in self._covariance_dict:
             with self._input_check_reset_params(params) as checkedparams:
-                self._covariance_dict[method] = self._covariance(method=method, weightcorr=weightcorr)
+                self._covariance_dict[cache_key] = self._covariance(method=method, weightcorr=weightcorr)
 
         else:
             checkedparams = self._input_check_params(params)
-        covariance = {k: self._covariance_dict[method].get(k) for k in itertools.product(checkedparams, checkedparams)}
+        covariance = {
+            k: self._covariance_dict[cache_key].get(k) for k in itertools.product(checkedparams, checkedparams)
+        }
 
         if as_dict:
             return covariance
