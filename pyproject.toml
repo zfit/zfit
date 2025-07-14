@@ -74,6 +74,7 @@ ipyopt = ["ipyopt>=0.12 ; sys_platform == 'linux'"]
 nlopt = ["nlopt>=2.7.1 ; sys_platform == 'linux' or sys_platform == 'darwin' and platform_machine != 'arm64' or sys_platform == 'win32'"]
 hs3 = ["asdf<4.0.0"]
 uproot = ["awkward-pandas"]
+plot = ["matplotlib", "mplhep"]
 
 # Additional extras with platform-specific markers
 all = [
@@ -81,6 +82,7 @@ all = [
     "zfit[hs3]",
     "zfit[ipyopt]",
     "zfit[nlopt]",
+    "zfit[plot]",
 ]
 
 test = [
@@ -95,12 +97,12 @@ test = [
     "matplotlib",
     "mplhep",
     # all aspects of zfit
-        "zfit[all]",  # TODO: we cannot have platform specific deps in here? A bug?
+    "zfit[all]", # TODO: we cannot have platform specific deps in here? A bug?
 
-#    "zfit[uproot]",
-#    "zfit[hs3]",
-#    "zfit[ipyopt] ; sys_platform == 'linux'",
-#    "zfit[nlopt] ; sys_platform == 'linux' or sys_platform == 'darwin' and platform_machine != 'arm64' or sys_platform == 'win32'",
+    #    "zfit[uproot]",
+    #    "zfit[hs3]",
+    #    "zfit[ipyopt] ; sys_platform == 'linux'",
+    #    "zfit[nlopt] ; sys_platform == 'linux' or sys_platform == 'darwin' and platform_machine != 'arm64' or sys_platform == 'win32'",
     # pytest related
     "pytest>=3.4.2",
     "pytest-runner>=2.11.1",
@@ -159,8 +161,6 @@ dev = [
     "twine>=1.10.0",
     "wheel>=0.29.0",
 ]
-
-
 
 alldev = ["zfit[dev]"]  # backwards compatibility
 

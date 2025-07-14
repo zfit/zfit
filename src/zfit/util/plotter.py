@@ -4,7 +4,6 @@ from __future__ import annotations
 import typing
 from collections.abc import Callable, Mapping
 
-import mplhep
 import numpy as np
 
 from zfit._interfaces import ZfitBinnedData, ZfitData, ZfitPDF, ZfitUnbinnedData
@@ -21,6 +20,11 @@ try:
     import matplotlib.pyplot as plt
 except ImportError as error:
     plt = RuntimeDependency("plt", error_msg=str(error))
+
+try:
+    import mplhep
+except ImportError as error:
+    mplhep = RuntimeDependency("mplhep", error_msg=str(error))
 
 
 def plot_sumpdf_components_pdfV1(
