@@ -36,10 +36,12 @@ Thanks
 Major Features and Improvements
 -------------------------------
 - significantly improved performance, especially when using a GPU for certain fits.
+- Upgrade to Python 3.10+
 
 Breaking changes
 ------------------
 - default padding of KDE switched to 0.1 instead of False. This should only improve KDEs at the boundary but technically changes the behavior
+- moved all the interfaces from zfit.core.interfaces to zfit.interface
 
 Bug fixes and small changes
 ---------------------------
