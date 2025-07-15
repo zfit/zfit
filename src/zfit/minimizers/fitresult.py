@@ -5,7 +5,6 @@ from __future__ import annotations
 import collections
 import contextlib
 import itertools
-import math
 import typing
 import warnings
 from collections.abc import Callable, Iterable, Mapping
@@ -698,7 +697,7 @@ class FitResult(OptimizeResultMixin, ZfitResult):
             errordict = self.params[p].get(method_name)
             # cl is < 1 and gets very close. The closer, the more it matters -> scale tolerance by it
             if errordict is not None:
-                if not math.isclose(errordict["cl"], cl, abs_tol=3e-3 * (1 - cl)):
+                if round(errordict["cl"], 3) != round(cl, 3):
                     msg = (
                         f"Error with name {method_name} already exists in {self!r} with a different"
                         f" convidence level of {errordict['cl']} instead of the requested {cl}."
@@ -1441,7 +1440,7 @@ class FitResult(OptimizeResultMixin, ZfitResult):
                 if any(val["error"] is None for val in error_dict.values()):
                     return {}
                 for p in error_dict:
-                    error_dict[p]["cl"] = cl
+                    error_dict[p]["cl"] = round(cl, 3)  # Round to 3 digits to avoid numerical issues
                     error_dict[p]["weightcorr"] = weightcorr
                 if name:
                     self._cache_errors(name=name, errors=error_dict)
@@ -1576,7 +1575,7 @@ class FitResult(OptimizeResultMixin, ZfitResult):
             if uncached_params:
                 error_dict, new_result = self._error(params=uncached_params, method=method, cl=cl)
                 for p in error_dict:
-                    error_dict[p]["cl"] = cl
+                    error_dict[p]["cl"] = round(cl, 3)  # Round to 3 digits to avoid numerical issues
                 self._cache_errors(name=name, errors=error_dict)
 
                 if new_result is not None:
@@ -1643,13 +1642,16 @@ class FitResult(OptimizeResultMixin, ZfitResult):
             weightcorr = WeightCorr.ASYMPTOTIC
         weightcorr = WeightCorr(weightcorr)
 
-        if method not in self._covariance_dict:
+        cache_key = (method, weightcorr)
+        if cache_key not in self._covariance_dict:
             with self._input_check_reset_params(params) as checkedparams:
-                self._covariance_dict[method] = self._covariance(method=method, weightcorr=weightcorr)
+                self._covariance_dict[cache_key] = self._covariance(method=method, weightcorr=weightcorr)
 
         else:
             checkedparams = self._input_check_params(params)
-        covariance = {k: self._covariance_dict[method].get(k) for k in itertools.product(checkedparams, checkedparams)}
+        covariance = {
+            k: self._covariance_dict[cache_key].get(k) for k in itertools.product(checkedparams, checkedparams)
+        }
 
         if as_dict:
             return covariance

@@ -52,13 +52,12 @@ print(result)
 result_dilled = zfit.dill.dumps(result)
 result_loaded = zfit.dill.loads(result_dilled)
 
+zfit.param.set_values(model.get_params(), result_loaded)
+
 # EXPERIMENTAL: we can serialize the model to a human-readable format with HS3
 # human readable representation
 hs3like = zfit.hs3.dumps(nll)
 # print(hs3like)
 # and we can load it again
 loaded = zfit.hs3.loads(hs3like)
-
-
-zfit.param.set_values(model.get_params(), loaded)
 print(loaded)

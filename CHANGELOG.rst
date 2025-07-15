@@ -18,6 +18,8 @@ Deprecations
 
 Bug fixes and small changes
 ---------------------------
+- move mplhep to optional dependency, as it is not needed for the core functionality of zfit
+- add zfit[plot] extra for plotting, including mplhep and matplotlib
 
 Experimental
 ------------
