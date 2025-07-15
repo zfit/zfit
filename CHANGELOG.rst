@@ -4,31 +4,13 @@ Changelog
 
 .. _newest-changelog:
 
-Develop
+0.27.0 (14 Jul 2025)
 ======================
-
-Major Features and Improvements
--------------------------------
-
-Breaking changes
-------------------
-
-Deprecations
--------------
 
 Bug fixes and small changes
 ---------------------------
 - move mplhep to optional dependency, as it is not needed for the core functionality of zfit
 - add zfit[plot] extra for plotting, including mplhep and matplotlib
-
-Experimental
-------------
-
-Requirement changes
--------------------
-
-Thanks
-------
 
 0.27.0 (10 Jul 2025)
 ======================
