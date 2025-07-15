@@ -17,29 +17,36 @@ Get Started!
 
 Ready to contribute? Here's how to set up *zfit* for local development.
 
-1. Fork the *zfit* repo on GitHub.
+1. [Fork](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo#forking-a-repository) the *zfit* repo on GitHub.
 2. Clone your fork locally:
 
 .. code-block::
 
     git clone git@github.com:your_name_here/zfit.git
 
-3. Install your local copy into a conda/mamba or other virtual environment. For example with conda, do
+3. Synchronise your fork with the official *zfit* tags (needed since zfit uses past tags to get an on-the-fly version when installing):
 
 .. code-block::
 
-    conda create -n zfit311 python=3.11
-    conda activate zfit311
-    pip install -e .[dev]  # . is the folder where setup.py is
+    cd zfit
+    git remote add upstream git@github.com:zfit/zfit.git
+    git fetch upstream --tags
 
-Further, you can install pre-commit locally to run the checks before you commit:
+4. Install your local copy into a conda/mamba or other virtual environment. For example with conda, do
 
 .. code-block::
 
-    pip install pre-commit
+    conda create -n zfit312 python=3.12
+    conda activate zfit312
+    python -m pip install -e .[dev]  # . is the the folder where pyproject.toml is 
+
+Further, you can install the *zfit* pre-commit hooks locally to run the checks before you commit:
+
+.. code-block::
+
     pre-commit install  # this will execute pre-commit checks before every commit
 
-4. Create a branch for local development
+5. Create a branch for local development
 
 .. code-block::
 
@@ -47,7 +54,7 @@ Further, you can install pre-commit locally to run the checks before you commit:
 
    Now you can make your changes locally.
 
-5. When you're done making changes, check that your changes pass the
+6. When you're done making changes, check that your changes pass the
    tests (this can take a while ~30 mins). You can run the tests in parallel by
    installing ``pytest-xdist`` and running ``pytest -n NUM`` where ``NUM`` is the number of cores
 
@@ -69,7 +76,7 @@ For example, to run the test ``test_dumpload_hs3_pdf`` in file ``tests/serialize
 
     pytest tests/serialize/test_hs3_user.py::test_dumpload_hs3_pdf -- --recreate-truth
 
-6. Commit your changes and push your branch to GitHub
+7. Commit your changes and push your branch to GitHub
 
 .. code-block::
 
@@ -77,7 +84,7 @@ For example, to run the test ``test_dumpload_hs3_pdf`` in file ``tests/serialize
     git commit -m "Your detailed description of your changes."
     git push origin name-of-your-bugfix-or-feature
 
-7. Submit a pull request through the GitHub website. The test suite is going
+8. Submit a pull request through the GitHub website. The test suite is going
    to run again, testing all the necessary Python versions.
 
 

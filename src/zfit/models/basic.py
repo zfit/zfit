@@ -7,20 +7,11 @@ Gauss, exponential... that can be used together with Functors to build larger mo
 
 from __future__ import annotations
 
-import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
-#  Copyright (c) 2023 zfit
 import contextlib
-from typing import TYPE_CHECKING, Literal
-
-if TYPE_CHECKING:
-    pass
+import typing
+from typing import Literal
 
 import numpy as np
-import tensorflow as tf
 from pydantic.v1 import Field
 
 import zfit.z.numpy as znp
@@ -35,6 +26,9 @@ from ..util import ztyping
 from ..util.exception import BreakingAPIChangeError
 from ..util.warnings import warn_advanced_feature
 from ..util.ztyping import ExtendedInputType, NormInputType
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 
 class Exponential(BasePDF, SerializableMixin):
@@ -119,7 +113,7 @@ class Exponential(BasePDF, SerializableMixin):
         lambda_ = params["lambda"]
         x = x.unstack_x()
         probs = znp.exp(lambda_ * (self._shift_x(x)))
-        tf.debugging.assert_all_finite(
+        z.assert_all_finite(
             probs,
             f"Exponential PDF {self} has non valid values. This is likely caused"
             f" by numerical problems: if the exponential is too steep, this will"

@@ -224,7 +224,7 @@ Poisson PDF
 
 The :py:class:`~zfit.pdf.Poisson` distribution is a discrete probability distribution that expresses the probability of a given number of events occurring in a fixed interval of time or space.
 
-.. image:: ../../images/_generated/pdfs/poisson_lambda.png
+.. image:: ../../images/_generated/pdfs/poisson_lamb.png
    :width: 80%
    :align: center
    :alt: Poisson PDF with different lambda values

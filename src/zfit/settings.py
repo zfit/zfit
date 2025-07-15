@@ -3,14 +3,14 @@ from __future__ import annotations
 
 import typing
 
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 import numpy as np
 import tensorflow as tf
 from dotmap import DotMap
 
 from .util.execution import RunManager
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 run = RunManager()
 
@@ -74,7 +74,7 @@ def set_seed(
     if backend is not None and backend is not False:
         tf.random.set_seed(backend)
 
-    from .z.random import get_prng
+    from .z.random import get_prng  # noqa: PLC0415
 
     if zfit is True:
         if seed is True:
@@ -92,7 +92,7 @@ def set_seed(
 
 
 def generate_urandom_seed() -> int:
-    import os
+    import os  # noqa: PLC0415
 
     random_data = os.urandom(4)
     backend_seed = int.from_bytes(random_data, byteorder="big")

@@ -4,14 +4,9 @@
 
 from __future__ import annotations
 
-import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 import collections
+import typing
 from collections.abc import Callable, Iterable, Mapping
-from typing import Optional
 
 import numpy as np
 import tensorflow as tf
@@ -19,12 +14,15 @@ import tensorflow_probability as tfp
 
 import zfit.z.numpy as znp
 from zfit import z
+from zfit._interfaces import ZfitModel, ZfitSpace
 
 from ..settings import ztypes
 from ..util import ztyping
 from ..util.exception import AnalyticIntegralNotImplemented, WorkInProgressError
-from .interfaces import ZfitModel, ZfitSpace
 from .space import MultiSpace, convert_to_space, supports
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 
 def auto_integrate(
@@ -135,8 +133,7 @@ def simpson(func, lower, upper, num_points=1001, dtype=None):
     num_points = tf.convert_to_tensor(num_points, dtype=tf.int32, name="num_points")
 
     assertions = [
-        tf.debugging.assert_greater_equal(num_points, 3),
-        tf.debugging.assert_equal(num_points % 2, 1),
+        op for op in (z.assert_greater_equal(num_points, 3), z.assert_equal(num_points % 2, 1)) if op is not None
     ]
 
     with tf.control_dependencies(assertions):
@@ -163,7 +160,7 @@ def simpson_integrate(func, limits, num_points):  # currently not vectorized
             raise ValueError(msg)
         lower = znp.array(lower)[0, 0]
         upper = znp.array(upper)[0, 0]
-        tf.debugging.assert_all_finite(
+        z.assert_all_finite(
             (lower, upper),
             "MC integration does (currently) not support unbound limits (np.infty) as given here:"
             f"\nlower: {lower}, upper: {upper}",
@@ -190,7 +187,7 @@ def mc_integrate(
     draws_per_dim: int = 40000,
     max_draws=800_000,
     tol: float = 1e-6,
-    method: Optional[str] = None,  # noqa: ARG001
+    method: str | None = None,  # noqa: ARG001
     xfixed: Mapping | None = None,
     dtype: type = ztypes.float,
     mc_sampler: Callable = tfp.mcmc.sample_halton_sequence,  # noqa: ARG001
@@ -221,7 +218,7 @@ def mc_integrate(
     # if importance_sampling is not None:
     #     raise ValueError("Importance sampling is not yet implemented.")
 
-    import zfit
+    import zfit  # noqa: PLC0415
 
     if vectorizable is None:
         vectorizable = False
@@ -258,7 +255,7 @@ def mc_integrate(
 
         @z.function(wraps="tensor")
         def part_integrate_func(x):  # TODO: improve? as_tensormap or similar?
-            x = dict(zip(data_obs, tf.unstack(x, axis=0)))
+            x = dict(zip(data_obs, tf.unstack(x, axis=0), strict=True))
             return mc_integrate(
                 func=func,
                 limits=limits,
@@ -276,7 +273,7 @@ def mc_integrate(
     integrals = []
     for space in limits:
         lower, upper = space.v1.limits
-        # tf.debugging.assert_all_finite(
+        # z.assert_all_finite(
         #     (lower, upper),
         #     "MC integration does (currently) not support unbound limits (np.infty) as given here:"
         #     f"\nlower: {lower}, upper: {upper}",
@@ -335,9 +332,9 @@ def mc_integrate(
                 if xfixed is not None:
                     shape = tf.shape(samples)[0]
                     xfixed_shaped = {key: znp.broadcast_to(val, shape) for key, val in xfixed.items()}
-                    samples_named = dict(zip(space.obs, tf.unstack(samples, axis=1)))
+                    samples_named = dict(zip(space.obs, tf.unstack(samples, axis=1), strict=True))
                     samples_tot = {**samples_named, **xfixed_shaped}
-                    obstot, samplestot = zip(*samples_tot.items())
+                    obstot, samplestot = zip(*samples_tot.items(), strict=True)
                     samplestot = tf.stack(samplestot, axis=-1)
                     samples = zfit.Data.from_tensor(tensor=samplestot, obs=obstot)
 
@@ -371,13 +368,13 @@ def mc_integrate(
                 avg, error, std, ntot, i = tf.while_loop(
                     cond=cond, body=body_integrate, loop_vars=[avg, error, std, ntot, i]
                 )
-                from zfit import settings
+                from zfit import settings  # noqa: PLC0415
 
                 if settings.get_verbosity() > 9:
                     tf.print("i:", i, "   ntot:", ntot)
 
             def print_none_return(error=error):
-                from zfit import settings
+                from zfit import settings  # noqa: PLC0415
 
                 if settings.get_verbosity() >= 0:
                     tf.print(

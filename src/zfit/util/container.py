@@ -3,28 +3,21 @@
 from __future__ import annotations
 
 import typing
+from collections.abc import Callable
+from typing import Any
+
+import numpy as np
+import pandas as pd
+import tensorflow as tf
+from uhi.typing.plottable import PlottableHistogram
 
 if typing.TYPE_CHECKING:
     import zfit  # noqa: F401
 
-from typing import TYPE_CHECKING
-
-import numpy as np
-import pandas as pd
-
-if TYPE_CHECKING:
-    pass
-
-from collections.abc import Callable, Iterable
-from typing import Any
-
-import tensorflow as tf
-from uhi.typing.plottable import PlottableHistogram
-
 
 def convert_to_container(
     value: Any, container: Callable = list, non_containers=None, ignore=None, convert_none=False
-) -> None | Iterable:
+) -> None | typing.Collection:
     """Convert `value` into a `container` storing `value` if `value` is not yet a python container.
 
     Args:
@@ -41,7 +34,7 @@ def convert_to_container(
 
     Returns:
     """
-    from ..core.interfaces import (  # here due to dependency
+    from zfit._interfaces import (  # here due to dependency   # noqa: PLC0415
         ZfitBinnedData,
         ZfitBinning,
         ZfitData,
@@ -59,7 +52,7 @@ def convert_to_container(
     if value is None and not convert_none:
         return value
     if type(value) is not container and non_containers is not False:
-        import hist
+        import hist  # noqa: PLC0415
 
         non_containers.extend(
             [
@@ -101,4 +94,4 @@ def is_container(obj):
     Returns:
         True if it is a *container*, otherwise False
     """
-    return isinstance(obj, (list, tuple))
+    return isinstance(obj, list | tuple)

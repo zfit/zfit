@@ -2,14 +2,10 @@
 
 from __future__ import annotations
 
-import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 import copy
 import inspect
 import math
+import typing
 from collections.abc import Callable, Mapping
 
 import numpy as np
@@ -29,6 +25,9 @@ from .baseminimizer import (
 from .fitresult import FitResult
 from .strategy import ZfitStrategy
 from .termination import CRITERION_NOT_AVAILABLE, ConvergenceCriterion
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 
 class ScipyBaseMinimizer(BaseMinimizer):
@@ -649,7 +648,6 @@ class ScipyBFGS(ScipyBaseMinimizer):
                 hess_inv0 = init.approx.inv_hessian()
             elif stepsize is not None:
                 hess_inv0 = np.diag(np.array(stepsize) ** 2)
-            # if False: HACK
             options["hess_inv0"] = hess_inv0
             return options
 

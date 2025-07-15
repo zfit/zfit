@@ -2,12 +2,8 @@
 
 from __future__ import annotations
 
-import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 import contextlib
+import typing
 from collections.abc import Callable
 from functools import partial
 
@@ -15,13 +11,17 @@ import numpy as np
 import tensorflow as tf
 import texttable as tt
 
-from ..core.interfaces import ZfitLoss
+from zfit._interfaces import ZfitLoss
+
 from ..core.parameter import assign_values_jit
 from ..util import ztyping
 from ..util.container import convert_to_container
 from ..util.exception import DerivativeCalculationError, MaximumIterationReached
 from ..z import numpy as znp
 from .strategy import ZfitStrategy
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 
 def assign_values_func(params, values):
@@ -38,7 +38,7 @@ def check_derivative_none_raise(values, params) -> None:
         params: Parameter that correspond to the values.
     """
     if None in values:
-        none_params = [p for p, grad in zip(params, values) if grad is None]
+        none_params = [p for p, grad in zip(params, values, strict=True) if grad is None]
         msg = (
             f"The derivative of the following parameters is None: {none_params}."
             f" This is usually caused by either the function not depending on the"
@@ -230,6 +230,10 @@ class LossEval:
             gradient = self.numpy_converter(gradient)
         return loss_value, gradient
 
+    def _assign_and_value(self, values: np.ndarray) -> tuple[np.float64, np.ndarray]:
+        assign_values_func(self.params, values=values)
+        return self.loss.value(full=self.full)
+
     def value(self, values: np.ndarray) -> np.float64:
         """Calculate the value like :py:meth:`~ZfitLoss.value`.
 
@@ -245,11 +249,10 @@ class LossEval:
         if not self._ignoring_maxiter:
             self.nfunc_eval += 1
         params = self.params
-        assign_values_func(params, values=values)
         is_nan = False
         loss_value = None
         try:
-            loss_value = self.loss.value(full=self.full)
+            loss_value = self._assign_and_value(znp.asarray(values))
             loss_value, _, _ = self.strategy.callback(
                 value=loss_value,
                 gradient=None,

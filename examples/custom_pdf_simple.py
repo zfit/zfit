@@ -10,9 +10,11 @@ class CustomPDF(zfit.pdf.ZPDF):
 
     _PARAMS = ("alpha",)  # specify which parameters to take
 
-    def _unnormalized_pdf(self, x):  # implement function
+    @zfit.supports(norm=False)
+    def _pdf(self, x, norm, params):  # implement function
+        del norm
         data = x[0]  # axis 0
-        alpha = self.params["alpha"]
+        alpha = params["alpha"]
 
         return znp.exp(alpha * data)
 

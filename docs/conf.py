@@ -5,13 +5,17 @@
 from __future__ import annotations
 
 import atexit
+import hashlib
 
 # disable gpu for TensorFlow
 import os
+import pickle
 import shutil
 import subprocess
 import sys
+from collections.abc import Callable
 from pathlib import Path
+from typing import Any
 
 import pygit2
 import yaml
@@ -26,7 +30,109 @@ project_dir = Path(__file__).parents[1]
 # -- General configuration ---------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
-#
+
+
+# caching for plots, todo: factore out and move somewhere else
+class PlotCache:
+    """A caching mechanism for plot generation that checks file hashes."""
+
+    def __init__(self, cache_dir: Path):
+        """Initialize the plot cache.
+
+        Args:
+            cache_dir: Directory to store cache metadata
+        """
+        self.cache_dir = Path(cache_dir)
+        self.cache_dir.mkdir(parents=True, exist_ok=True)
+        self.cache_file = self.cache_dir / "plot_cache.pkl"
+        self.cache_data = self._load_cache()
+
+    def _load_cache(self) -> dict:
+        """Load cache data from disk."""
+        if self.cache_file.exists():
+            try:
+                with open(self.cache_file, "rb") as f:
+                    return pickle.load(f)
+            except (pickle.PickleError, EOFError):
+                return {}
+        return {}
+
+    def _save_cache(self):
+        """Save cache data to disk."""
+        with open(self.cache_file, "wb") as f:
+            pickle.dump(self.cache_data, f)
+
+    def _get_file_hash(self, file_path: Path) -> str:
+        """Get MD5 hash of a file."""
+        if not file_path.exists():
+            return ""
+
+        hash_md5 = hashlib.md5()
+        with open(file_path, "rb") as f:
+            for chunk in iter(lambda: f.read(4096), b""):
+                hash_md5.update(chunk)
+        return hash_md5.hexdigest()
+
+    def should_regenerate(self, source_file: Path, output_files: list[Path]) -> bool:
+        """Check if plots should be regenerated.
+
+        Args:
+            source_file: The source file that generates the plots
+            output_files: List of output image files
+
+        Returns:
+            True if plots should be regenerated, False otherwise
+        """
+        # Check if any output files are missing
+        if not all(output_file.exists() for output_file in output_files):
+            return True
+
+        # Get current hash of source file
+        current_hash = self._get_file_hash(source_file)
+
+        # Check if hash has changed
+        cache_key = str(source_file)
+        if cache_key not in self.cache_data:
+            return True
+
+        cached_hash = self.cache_data[cache_key].get("hash", "")
+        return current_hash != cached_hash
+
+    def mark_generated(self, source_file: Path, output_files: list[Path]):
+        """Mark plots as generated and update cache.
+
+        Args:
+            source_file: The source file that generates the plots
+            output_files: List of output image files that were generated
+        """
+        current_hash = self._get_file_hash(source_file)
+        cache_key = str(source_file)
+
+        self.cache_data[cache_key] = {"hash": current_hash, "output_files": [str(f) for f in output_files]}
+
+        self._save_cache()
+
+    def cached_generation(self, source_file: Path, output_files: list[Path], generate_func: Callable[[], Any]) -> bool:
+        """Execute generation function only if cache is invalid.
+
+        Args:
+            source_file: The source file that generates the plots
+            output_files: List of output image files
+            generate_func: Function to call to generate the plots
+
+        Returns:
+            True if plots were generated, False if cache was used
+        """
+        if self.should_regenerate(source_file, output_files):
+            print(f"Regenerating plots for {source_file.name}")
+            generate_func()
+            self.mark_generated(source_file, output_files)
+            return True
+        else:
+            print(f"Using cached plots for {source_file.name}")
+            return False
+
+
 needs_sphinx = "3.0.0"
 
 # Add any Sphinx extension module names here, as strings. They can be
@@ -78,6 +184,9 @@ myst_enable_extensions = [
 bibtex_bibfiles = ["refs.bib"]  # str(project_dir.joinpath("docs", "refs.bib"))]
 bibtex_default_style = "plain"
 
+# Import plot cache utility
+
+
 # run the generate_pdf_plots.py script to generate the pdf plots
 docsdir = project_dir / "docs"
 plotscript = docsdir / "utils" / "generate_pdf_plots.py"
@@ -85,25 +194,49 @@ minimizerscript = docsdir / "utils" / "generate_minimizer_plots.py"
 plot_output_dir = docsdir / "_static" / "plots"
 plot_output_dir.mkdir(parents=True, exist_ok=True)
 
+# Initialize plot cache
+cache_dir = docsdir / ".cache" / "plots"
+plot_cache = PlotCache(cache_dir)
 
-def is_up_to_date(script, output_dir):
-    """Check if the output directory is up-to-date with the script."""
-    if not output_dir.exists() or not any(output_dir.iterdir()):
-        return False
-    script_mtime = script.stat().st_mtime
-    return all(file.stat().st_mtime >= script_mtime for file in output_dir.iterdir())
-
-
-plotrerun = True
+# PDF plots generation with caching
+pdf_images_dir = docsdir / "images" / "_generated" / "pdfs"
+pdf_images_dir.mkdir(parents=True, exist_ok=True)
 
 
-if (plotrerun and not is_up_to_date(plotscript, plot_output_dir)) or plotrerun == "force":
+def generate_pdf_plots():
+    """Generate PDF plots."""
     subprocess.run([sys.executable, str(plotscript)], check=True, stdout=subprocess.PIPE)
 
+
+# Check if PDF plots need regeneration
+pdf_output_files = list(pdf_images_dir.glob("*.png"))
+if plot_cache.should_regenerate(plotscript, pdf_output_files):
+    print("Regenerating PDF plots...")
+    generate_pdf_plots()
+    plot_cache.mark_generated(plotscript, pdf_output_files)
+else:
+    print("Using cached PDF plots")
+
+# Minimizer plots generation with caching
 minimizer_output_dir = docsdir / "_static" / "minimizer_plots"
 minimizer_output_dir.mkdir(parents=True, exist_ok=True)
-if (plotrerun and not is_up_to_date(minimizerscript, minimizer_output_dir)) or plotrerun == "force":
+minimizer_images_dir = docsdir / "images" / "_generated" / "minimizers"
+minimizer_images_dir.mkdir(parents=True, exist_ok=True)
+
+
+def generate_minimizer_plots():
+    """Generate minimizer plots."""
     subprocess.run([sys.executable, str(minimizerscript)], check=True, stdout=subprocess.PIPE)
+
+
+# Check if minimizer plots need regeneration
+minimizer_output_files = list(minimizer_images_dir.glob("*.png")) + list(minimizer_images_dir.glob("*.gif"))
+if plot_cache.should_regenerate(minimizerscript, minimizer_output_files):
+    print("Regenerating minimizer plots...")
+    generate_minimizer_plots()
+    plot_cache.mark_generated(minimizerscript, minimizer_output_files)
+else:
+    print("Using cached minimizer plots")
 # Temporarily disabled for faster build
 zfit_tutorials_path = project_dir.joinpath("docs", "_tmp", "zfit-tutorials")
 atexit.register(lambda path=zfit_tutorials_path: shutil.rmtree(path))

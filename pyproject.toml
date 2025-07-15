@@ -7,7 +7,7 @@ build-backend = "hatchling.build"
 name = "zfit"
 description = "scalable pythonic model fitting for high energy physics"
 readme = "README.rst"
-requires-python = ">=3.9, <3.13"
+requires-python = ">=3.10, <3.13"
 license = { text = "BSD-3-Clause" }
 authors = [
     { name = "Jonas Eschle", email = "Jonas.Eschle@cern.ch" },
@@ -27,7 +27,6 @@ classifiers = [
     "Operating System :: Unix",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -75,6 +74,7 @@ ipyopt = ["ipyopt>=0.12 ; sys_platform == 'linux'"]
 nlopt = ["nlopt>=2.7.1 ; sys_platform == 'linux' or sys_platform == 'darwin' and platform_machine != 'arm64' or sys_platform == 'win32'"]
 hs3 = ["asdf<4.0.0"]
 uproot = ["awkward-pandas"]
+plot = ["matplotlib", "mplhep"]
 
 # Additional extras with platform-specific markers
 all = [
@@ -82,6 +82,7 @@ all = [
     "zfit[hs3]",
     "zfit[ipyopt]",
     "zfit[nlopt]",
+    "zfit[plot]",
 ]
 
 test = [
@@ -96,12 +97,12 @@ test = [
     "matplotlib",
     "mplhep",
     # all aspects of zfit
-        "zfit[all]",  # TODO: we cannot have platform specific deps in here? A bug?
+    "zfit[all]", # TODO: we cannot have platform specific deps in here? A bug?
 
-#    "zfit[uproot]",
-#    "zfit[hs3]",
-#    "zfit[ipyopt] ; sys_platform == 'linux'",
-#    "zfit[nlopt] ; sys_platform == 'linux' or sys_platform == 'darwin' and platform_machine != 'arm64' or sys_platform == 'win32'",
+    #    "zfit[uproot]",
+    #    "zfit[hs3]",
+    #    "zfit[ipyopt] ; sys_platform == 'linux'",
+    #    "zfit[nlopt] ; sys_platform == 'linux' or sys_platform == 'darwin' and platform_machine != 'arm64' or sys_platform == 'win32'",
     # pytest related
     "pytest>=3.4.2",
     "pytest-runner>=2.11.1",
@@ -160,8 +161,6 @@ dev = [
     "twine>=1.10.0",
     "wheel>=0.29.0",
 ]
-
-
 
 alldev = ["zfit[dev]"]  # backwards compatibility
 
@@ -263,7 +262,6 @@ extend-select = [
     "PD", # pandas-vet
 ]
 ignore = [
-    "UP007", # type annotation upgrade, breaks pydantic for Python 3.9 (remove once above)
     "PLR09", # Too many <...>
     "PLR2004", # Magic value used in comparison
     "ISC001", # Conflicts with formatter

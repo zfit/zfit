@@ -3,23 +3,20 @@
 from __future__ import annotations
 
 import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 from collections.abc import Iterable
 from functools import wraps
 
 import tensorflow as tf
 import tensorflow_probability as tfp
 
-from .zextension import function
-
-__all__ = ["counts_multinomial", "sample_with_replacement"]
-
 from ..settings import ztypes
 from ..z import numpy as _znp
+from .zextension import function
 
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
+
+__all__ = ["counts_multinomial", "sample_with_replacement"]
 generator = None
 
 
@@ -82,7 +79,7 @@ def counts_multinomial(
     Returns:
         Shape (k,) tensor containing the number of draws.
     """
-    from .. import z
+    from .. import z  # noqa: PLC0415
 
     total_count = tf.convert_to_tensor(total_count)
     probs = z.convert_to_tensor(probs) if probs is not None else probs

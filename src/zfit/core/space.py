@@ -2,26 +2,10 @@
 
 from __future__ import annotations
 
-import typing
-
-if typing.TYPE_CHECKING:
-    import zfit
-
-from typing import TYPE_CHECKING, Union
-
-import pandas as pd
-from numpy import ndarray
-from pandas import DataFrame
-from tensorflow import Tensor
-
-from .serialmixin import SerializableMixin
-
-if TYPE_CHECKING:
-    import zfit
-
 import functools
 import inspect
 import itertools
+import typing
 import warnings
 from abc import abstractmethod
 from collections import defaultdict
@@ -29,10 +13,21 @@ from collections.abc import Callable, Iterable, Mapping
 from contextlib import suppress
 
 import numpy as np
+import pandas as pd
 import tensorflow as tf
+from numpy import ndarray
+from pandas import DataFrame
+from tensorflow import Tensor
 
 import zfit
 import zfit.z.numpy as znp
+from zfit._interfaces import (
+    ZfitData,
+    ZfitLimit,
+    ZfitOrderableDimensional,
+    ZfitPDF,
+    ZfitSpace,
+)
 
 from .. import z
 from .._variables.axis import Binnings, RegularBinning, histaxes_to_binning
@@ -70,13 +65,10 @@ from .coordinates import (
     convert_to_obs_str,
 )
 from .dimension import common_axes, common_obs, limits_overlap
-from .interfaces import (
-    ZfitData,
-    ZfitLimit,
-    ZfitOrderableDimensional,
-    ZfitPDF,
-    ZfitSpace,
-)
+from .serialmixin import SerializableMixin
+
+if typing.TYPE_CHECKING:
+    import zfit
 
 
 class LimitRangeDefinition:
@@ -275,7 +267,7 @@ def _sanitize_x_input(x, n_obs):
 
 
 def is_range_definition(limit):
-    if isinstance(limit, (LimitRangeDefinition, ZfitSpace)):
+    if isinstance(limit, LimitRangeDefinition | ZfitSpace):
         return True
     elif (isinstance(limit, np.ndarray) and limit.dtype != object) or tf.is_tensor(limit):
         return False
@@ -944,7 +936,7 @@ class BaseSpace(ZfitSpace, BaseObject):
             if missing_obs := set(self.obs) - set(x.columns):  # todo: expose the expression?
                 msg = f"Dataframe is missing the following observables: {missing_obs}"
                 raise ValueError(msg)
-            for ob, lower, upper in zip(self.obs, self.v1.lower, self.v1.upper):
+            for ob, lower, upper in zip(self.obs, self.v1.lower, self.v1.upper, strict=True):
                 expr = f"({lower} <= {ob} <= {upper})"
                 exprs.append(expr)
             expr = " & ".join(exprs)
@@ -1229,7 +1221,7 @@ def _legacy_get_arguments_space(obs, args, limits, binning, axes, rect_limits, l
         raise BreakingAPIChangeError(msg)
 
     if len(args) == 2:
-        if all(isinstance(lim, (int, float, Any)) for lim in args):
+        if all(isinstance(lim, int | float | Any) for lim in args):
             limits = args
         else:
             limits, binning = args
@@ -1264,7 +1256,7 @@ class Space(
         axes=None,
         rect_limits=None,
         name: str | None = None,
-        label: Union[str, Iterable[str]] | None = None,
+        label: str | Iterable[str] | None = None,
         lower: ztyping.LimitsTypeInputV1 | None = None,
         upper: ztyping.LimitsTypeInputV1 | None = None,
     ):
@@ -1317,7 +1309,7 @@ class Space(
             name = "Space"
         if binning is not False:
             integer_autobinning = isinstance(binning, int) or (
-                isinstance(binning, (list, tuple)) and all(isinstance(b, int) for b in binning)
+                isinstance(binning, list | tuple) and all(isinstance(b, int) for b in binning)
             )
             if not integer_autobinning:
                 if not isinstance(binning, Binnings):
@@ -1342,7 +1334,7 @@ class Space(
             elif len(label) != self.n_obs:
                 msg = f"Number of labels ({label}) does not match the number of observables ({self.obs})"
                 raise ValueError(msg)
-            label = dict(zip(self.obs, label))
+            label = dict(zip(self.obs, label, strict=True))
         self._labels = label
 
         if binning is not False and not isinstance(binning, int) and limits is None and rect_limits is None:
@@ -3474,7 +3466,7 @@ def add_spaces_old(spaces: Iterable[zfit.Space]):
         if not space.limits_are_set:
             continue
         for lower, upper in space:
-            for other_lower, other_upper in zip(lowers, uppers):
+            for other_lower, other_upper in zip(lowers, uppers, strict=True):
                 lower_same = np.allclose(lower, other_lower)
                 upper_same = np.allclose(upper, other_upper)
                 assert not lower_same ^ upper_same, "Bug, please report as issue. limits_overlap did not catch right."

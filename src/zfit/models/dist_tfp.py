@@ -22,10 +22,10 @@ from pydantic.v1 import Field
 
 import zfit.z.numpy as znp
 from zfit import z
+from zfit._interfaces import ZfitData
 from zfit.util.exception import AnalyticSamplingNotImplemented
 
 from ..core.basepdf import BasePDF
-from ..core.interfaces import ZfitData
 from ..core.parameter import convert_to_parameter
 from ..core.serialmixin import SerializableMixin
 from ..core.space import Space, supports
@@ -61,7 +61,7 @@ def tfd_analytic_sample(n: int, dist: tfd.Distribution, limits: ztyping.ObsTypeI
         sample = dist.quantile(prob_sample)
     except NotImplementedError:
         raise AnalyticSamplingNotImplemented from None
-    sample.set_shape((None, limits.n_obs))
+    sample.set_shape((None, limits.n_obs))  # n is possibly a tensor, needs a static shape
     return sample
 
 
@@ -116,7 +116,7 @@ class WrapDistribution(BasePDF):  # TODO: extend functionality of wrapper, like 
         lower, upper = limits._rect_limits_tf
         lower = z.unstack_x(lower)
         upper = z.unstack_x(upper)
-        tf.debugging.assert_all_finite((lower, upper), "Are infinite limits needed? Causes troubles with NaNs")
+        z.assert_all_finite((lower, upper), "Are infinite limits needed? Causes troubles with NaNs")
         return self.distribution.cdf(upper) - self.distribution.cdf(lower)
 
     def _analytic_sample(self, n, limits: Space):
@@ -284,9 +284,10 @@ class ExponentialTFP(WrapDistribution):
         tau: ztyping.ParamTypeInput,
         obs: ztyping.ObsTypeInput,
         name: str = "Exponential",
+        label: str | None = None,
     ):
         (tau,) = self._check_input_params_tfp(tau)
-        params = {"tau", tau}
+        params = {"tau": tau}
         dist_params = {"rate": tau}
         distribution = tfp.distributions.Exponential
         super().__init__(
@@ -295,6 +296,7 @@ class ExponentialTFP(WrapDistribution):
             obs=obs,
             params=params,
             name=name,
+            label=label,
         )
 
 
@@ -878,7 +880,7 @@ class QGauss(WrapDistribution, SerializableMixin):
                the PDF for a better description, to be used with plots etc.
                Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
         """
-        from zfit import run
+        from zfit import run  # noqa: PLC0415
 
         q, mu, sigma = self._check_input_params_tfp(q, mu, sigma)
         if run.executing_eagerly():
@@ -888,9 +890,8 @@ class QGauss(WrapDistribution, SerializableMixin):
             if q == 1:
                 msg = "q = 1 is a Gaussian, use Gauss instead."
                 raise ValueError(msg)
-        elif run.numeric_checks:
-            tf.debugging.assert_greater(q, znp.asarray(1.0), "q must be > 1")
-            tf.debugging.assert_less(q, znp.asarray(3.0), "q must be < 3")
+        z.assert_greater(q, znp.asarray(1.0), "q must be > 1")
+        z.assert_less(q, znp.asarray(3.0), "q must be < 3")
         params = {"q": q, "mu": mu, "sigma": sigma}
 
         # https://en.wikipedia.org/wiki/Q-Gaussian_distribution
@@ -901,9 +902,8 @@ class QGauss(WrapDistribution, SerializableMixin):
         # sigma = sqrt((3 - q)/2)
 
         def dist_params(q=q, mu=mu, sigma=sigma):
-            if run.numeric_checks:
-                tf.debugging.assert_greater(q, znp.asarray(1.0), "q must be > 1")
-                tf.debugging.assert_less(q, znp.asarray(3.0), "q must be < 3")
+            z.assert_greater(q, znp.asarray(1.0), "q must be > 1")
+            z.assert_less(q, znp.asarray(3.0), "q must be < 3")
             df = (3 - q.value()) / (q.value() - 1)
             scale = sigma.value() / tf.sqrt(0.5 * (3 - q.value()))
             return {"df": df, "loc": mu.value(), "scale": scale}

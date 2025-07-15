@@ -7,26 +7,22 @@ Handle integration and sampling
 
 from __future__ import annotations
 
-import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 import abc
 import builtins
 import contextlib
 import inspect
 import math
+import typing
 import warnings
 from collections.abc import Callable, Mapping
 from contextlib import suppress
-from typing import Optional
 
 import tensorflow as tf
 from dotmap import DotMap
 from tensorflow_probability.python import mcmc as mc
 
 import zfit.z.numpy as znp
+from zfit._interfaces import ZfitData, ZfitModel, ZfitParameter, ZfitSpace
 
 from .. import z
 from ..core.integration import Integration
@@ -53,10 +49,11 @@ from . import sample as zsample
 from .baseobject import BaseNumeric
 from .data import Data, SamplerData, convert_to_data
 from .dimension import BaseDimensional
-from .interfaces import ZfitData, ZfitModel, ZfitParameter, ZfitSpace
 from .sample import UniformSampleAndWeights
 from .space import Space, convert_to_space, supports
 
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 _BaseModel_USER_IMPL_METHODS_TO_CHECK = {}
 
 
@@ -237,11 +234,11 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         else:
             x = convert_to_data(x, obs=fallback_obs)
             if x.obs is not None:
-                x = x.with_obs(self.obs)
+                x = x.with_obs(self.obs, guarantee_limits=True)
                 # with x.sort_by_obs(obs=self.obs, allow_superset=True):
                 yield x
             elif x.axes is not None:
-                x = x.with_axes(self.space.axes)
+                x = x.with_axes(self.space.axes, guarantee_limits=True)
                 # with x.sort_by_axes(axes=self.axes):
                 yield x
             else:
@@ -1073,7 +1070,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         n: ztyping.nSamplingTypeIn = None,
         limits: ztyping.LimitsType = None,
         *,
-        fixed_params: Optional[bool | list[ZfitParameter] | tuple[ZfitParameter]] = None,
+        fixed_params: bool | list[ZfitParameter] | tuple[ZfitParameter] | None = None,
         params: ztyping.ParamTypeInput = None,
     ) -> SamplerData:
         """Create a :py:class:`SamplerData` that acts as `Data` but can be resampled, also with changed parameters and
@@ -1211,7 +1208,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         with self._convert_sort_x(x, allow_none=True) as xclean, self._check_set_input_params(params=params):
             new_obs = limits * xclean.data_range if xclean is not None else limits
             tensor = run_tf(n=n, limits=limits, x=xclean)
-        return Data.from_tensor(tensor=tensor, obs=new_obs)  # TODO: which limits?
+        return Data.from_tensor(tensor=tensor, obs=new_obs, guarantee_limits=True)  # TODO: which limits?
 
     @z.function(wraps="sample")
     def _single_hook_sample(self, n, limits, x=None):
@@ -1238,7 +1235,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             n_samples = tf.unstack(z.random.counts_multinomial(n, probs=fracs), axis=0)
 
             samples = []
-            for limit, n_sample in zip(limits, n_samples):
+            for limit, n_sample in zip(limits, n_samples, strict=True):
                 sub_sample = self._call_sample(n=n_sample, limits=limit)
                 if isinstance(sub_sample, ZfitData):
                     sub_sample = sub_sample.value()
@@ -1358,22 +1355,22 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         return func
 
     def __add__(self, other):
-        from . import operations
+        from . import operations  # noqa: PLC0415
 
         return operations.add(self, other)
 
     def __radd__(self, other):
-        from . import operations
+        from . import operations  # noqa: PLC0415
 
         return operations.add(other, self)
 
     def __mul__(self, other):
-        from . import operations
+        from . import operations  # noqa: PLC0415
 
         return operations.multiply(self, other)
 
     def __rmul__(self, other):
-        from . import operations
+        from . import operations  # noqa: PLC0415
 
         return operations.multiply(other, self)
 

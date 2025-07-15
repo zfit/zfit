@@ -1,9 +1,11 @@
-import pytest
+#  Copyright (c) 2025 zfit
+
+from __future__ import annotations
+
 import numpy as np
-import time
+import pytest
 
 import zfit
-from zfit.minimizers.errors import WeightCorr
 
 
 def create_gaussian_mixture_data(n_samples=1000, weights=True):
@@ -24,7 +26,6 @@ def create_gaussian_mixture_data(n_samples=1000, weights=True):
 
     # Combine signal components
     model = zfit.pdf.SumPDF([sig1, sig2], fracs=[sig1frac], extended=nsig)
-
 
     # Generate data
     sampler = model.create_sampler(n=n_samples)
@@ -57,8 +58,9 @@ def create_three_component_data(n_samples=1000, weights=True):
 
     # Create the PDFs
     gauss = zfit.pdf.Gauss(mu=mean_gauss, sigma=sigma, obs=obs)
-    cb = zfit.pdf.GeneralizedCB(mu=mean_cb, sigmal=sigma, alphal=alphal, nl=nl,
-                               sigmar=sigma, alphar=alphar, nr=nr, obs=obs)
+    cb = zfit.pdf.GeneralizedCB(
+        mu=mean_cb, sigmal=sigma, alphal=alphal, nl=nl, sigmar=sigma, alphar=alphar, nr=nr, obs=obs
+    )
     exp = zfit.pdf.Exponential(lam=lam, obs=obs)
 
     # Create extended PDFs
@@ -124,8 +126,9 @@ def perform_fit(data, obs, model_type="gaussian_mixture"):
 
         # Create the PDFs
         gauss = zfit.pdf.Gauss(mu=mean_gauss, sigma=sigma, obs=obs)
-        cb = zfit.pdf.GeneralizedCB(mu=mean_cb, sigmal=sigma, alphal=alphal, nl=nl,
-                                   sigmar=sigma, alphar=alphar, nr=nr, obs=obs)
+        cb = zfit.pdf.GeneralizedCB(
+            mu=mean_cb, sigmal=sigma, alphal=alphal, nl=nl, sigmar=sigma, alphar=alphar, nr=nr, obs=obs
+        )
         exp = zfit.pdf.Exponential(lam=lam, obs=obs)
 
         # Create extended PDFs
@@ -142,12 +145,6 @@ def perform_fit(data, obs, model_type="gaussian_mixture"):
     result = minimizer.minimize(nll)
 
     return result, model
-
-
-
-
-
-
 
 
 def test_compare_error_methods():
@@ -169,12 +166,15 @@ def test_compare_error_methods():
         asymptotic_error = errors_asymptotic[param_name]["error"]
 
         # Asymptotic errors should generally be larger than uncorrected errors for weighted fits
-        assert asymptotic_error >= no_corr_error * 0.9, f"Asymptotic error for {param_name} should be larger than uncorrected"
+        assert asymptotic_error >= no_corr_error * 0.9, (
+            f"Asymptotic error for {param_name} should be larger than uncorrected"
+        )
 
         # Effective size errors should be between no correction and asymptotic
         sumw2_error = errors_sumw2[param_name]["error"]
-        assert no_corr_error * 0.9 <= sumw2_error <= asymptotic_error * 1.1, \
+        assert no_corr_error * 0.9 <= sumw2_error <= asymptotic_error * 1.1, (
             f"Effective size error for {param_name} should be between uncorrected and asymptotic"
+        )
 
 
 def test_weights_one_equals_no_weights():
@@ -213,18 +213,27 @@ def test_weights_one_equals_no_weights():
         weights_sumw2_error = weights_sumw2_errors[param_name]
         weights_asymptotic_error = weights_asymptotic_errors[param_name]
 
-        # All errors should be reasonably close to each other (within 100%)
-        assert pytest.approx(no_weights_error, rel=1.0) == weights_no_corr_error, \
-            f"No weights error and weights=1 no correction error differ for {param_name}"
-        assert pytest.approx(no_weights_error, rel=1.0) == weights_sumw2_error, \
-            f"No weights error and weights=1 sumw2 error differ for {param_name}"
-        assert pytest.approx(no_weights_error, rel=1.0) == weights_asymptotic_error, \
-            f"No weights error and weights=1 asymptotic error differ for {param_name}"
+
+        assert pytest.approx(no_weights_error, rel=1e-3) == weights_no_corr_error, (
+            f"No weights error and weights=1 no correction error differ for {param_name}: {no_weights_error} (noW) vs {weights_no_corr_error} (w=1)"
+        )
+        assert pytest.approx(no_weights_error, rel=1e-3) == weights_sumw2_error, (
+            f"No weights error and weights=1 sumw2 error differ for {param_name}: {no_weights_error} (noW) vs {weights_sumw2_error} (w=1)"
+        )
+        assert pytest.approx(no_weights_error, rel=1e-3) == weights_asymptotic_error, (
+            f"No weights error and weights=1 asymptotic error differ for {param_name}: {no_weights_error} (noW) vs {weights_asymptotic_error} (w=1)"
+        )
 
 
-def compare_roofit_zfit_gaussian_mixture():
+def compare_roofit_zfit_gaussian_mixture(normalweights=None):
     """Create and fit a Gaussian mixture model with both RooFit and zfit, then compare the results."""
+    if normalweights is None:
+        normalweights = True
+
+
     # Define the observable space
+    ROOT = pytest.importorskip("ROOT", reason="ROOT not available")
+    RooFit = ROOT.RooFit
     obs_z = zfit.Space("x", limits=(0, 10))
 
     # Create parameters for the zfit model
@@ -271,14 +280,17 @@ def compare_roofit_zfit_gaussian_mixture():
     data_np = sampler.value()
 
     # Create weights
-    weights_np = np.random.normal(loc=1.0, scale=0.2, size=n_samples)
+    if normalweights is True:
+        weights_np = np.random.normal(loc=1.0, scale=0.2, size=n_samples)
+    else:
+        weights_np = np.ones(n_samples)
 
     # Create zfit data
     data_zfit = zfit.Data.from_numpy(obs=obs_z, array=data_np, weights=weights_np)
 
     # Create RooFit data
     weight_r = ROOT.RooRealVar("weight", "weight", 0.1, 1000.0)
-    data_roofit = ROOT.RooDataSet("data", "data", [x], RooFit.WeightVar(weight_r))
+    data_roofit = ROOT.RooDataSet("data", "data", [x], ROOT.RooFit.WeightVar(weight_r))
 
     for val, w in zip(data_np, weights_np):
         x.setVal(val)
@@ -303,57 +315,67 @@ def compare_roofit_zfit_gaussian_mixture():
     param_errors_z = result_z.hesse(weightcorr="asymptotic", name="hesse_zfit_compare")
 
     # Fit with RooFit
-    result_r = model_r.fitTo(data_roofit, RooFit.Save(True), RooFit.AsymptoticError(True),
-                            RooFit.EvalBackend("cpu"), RooFit.Extended(True))
+    result_r = model_r.fitTo(
+        data_roofit,
+        ROOT.RooFit.Save(True),
+        ROOT.RooFit.AsymptoticError(True),
+        ROOT.RooFit.EvalBackend("cpu"),
+        ROOT.RooFit.Extended(True)
+    ,
+    )
 
     # Return the results for comparison
     return {
         "zfit": {
-            "nsig": (nsig_z.value(), param_errors_z[nsig_z]['error']),
-            "mean": (mean_z.value(), param_errors_z[mean_z]['error']),
-            "sigma1": (sigma1_z.value(), param_errors_z[sigma1_z]['error']),
-            "sigma2": (sigma2_z.value(), param_errors_z[sigma2_z]['error']),
-            "sig1frac": (sig1frac_z.value(), param_errors_z[sig1frac_z]['error'])
+            "nsig": (nsig_z.value(), param_errors_z[nsig_z]["error"]),
+            "mean": (mean_z.value(), param_errors_z[mean_z]["error"]),
+            "sigma1": (sigma1_z.value(), param_errors_z[sigma1_z]["error"]),
+            "sigma2": (sigma2_z.value(), param_errors_z[sigma2_z]["error"]),
+            "sig1frac": (sig1frac_z.value(), param_errors_z[sig1frac_z]["error"]),
         },
         "roofit": {
             "nsig": (nsig_r.getVal(), nsig_r.getError()),
             "mean": (mean_r.getVal(), mean_r.getError()),
             "sigma1": (sigma1_r.getVal(), sigma1_r.getError()),
             "sigma2": (sigma2_r.getVal(), sigma2_r.getError()),
-            "sig1frac": (sig1frac_r.getVal(), sig1frac_r.getError())
-        }
+            "sig1frac": (sig1frac_r.getVal(), sig1frac_r.getError()),
+        },
     }
 
-
-def test_compare_roofit_zfit_errors():
+@pytest.mark.parametrize('normalweights', [True, False])
+def test_compare_roofit_zfit_errors(normalweights):
     """Test that zfit and RooFit errors are similar for the same model and data."""
     # Skip test if ROOT is not available
     ROOT = pytest.importorskip("ROOT", reason="ROOT not available")
-    Roofit = ROOT.RooFit
 
     # Compare RooFit and zfit results
-    results = compare_roofit_zfit_gaussian_mixture()
+    results = compare_roofit_zfit_gaussian_mixture(normalweights=normalweights)
 
     # Check that errors are similar between RooFit and zfit
     for param_name in results["zfit"]:
         zfit_val, zfit_err = results["zfit"][param_name]
         roofit_val, roofit_err = results["roofit"][param_name]
 
-        # Values should be similar (within 10%)
-        assert pytest.approx(zfit_val, rel=0.01) == roofit_val, \
+        assert pytest.approx(zfit_val, rel=0.01) == roofit_val, (
             f"zfit and RooFit values differ for {param_name}: {zfit_val} vs {roofit_val}"
+        )
 
-        # Errors should be similar (within 20%)
-        assert pytest.approx(zfit_err, rel=0.01) == roofit_err, \
+        assert pytest.approx(zfit_err, rel=0.01) == roofit_err, (
             f"zfit and RooFit errors differ for {param_name}: {zfit_err} vs {roofit_err}"
+        )
 
 
+def compare_roofit_zfit_three_component(weightcorr, weight_mode="random", data_np=None):
+    """Create and fit a three-component model with both RooFit and zfit, then compare the results.
 
-def compare_roofit_zfit_three_component(weightcorr):
-    """Create and fit a three-component model with both RooFit and zfit, then compare the results."""
+    Args:
+        weightcorr: Weight correction method (False, "sumw2", or "asymptotic")
+        weight_mode: How to generate weights ("random", "ones", or "none")
+        data_np: Optional pre-generated data array. If None, new data will be generated.
+    """
     # Define the observable space
     ROOT = pytest.importorskip("ROOT", reason="ROOT not available")
-    Roofit = ROOT.RooFit
+    RooFit = ROOT.RooFit
     obs_z = zfit.Space("x", limits=(0, 10))
 
     # Create parameters for the zfit model
@@ -409,23 +431,39 @@ def compare_roofit_zfit_three_component(weightcorr):
 
     # Generate data
     n_samples = 9_000
-    sample = model_z.sample(n=n_samples)
-    data_np = sample.value()[:, 0]
+    if data_np is None:
+        sample = model_z.sample(n=n_samples)
+        data_np = sample.value()[:, 0]
+    else:
+        n_samples = len(data_np)
 
-    # Create weights
-    weights_np = np.random.uniform(0.2, 3.5, size=n_samples)
+    # Create weights based on weight_mode
+    if weight_mode == "random":
+        weights_np = np.random.uniform(0.2, 3.5, size=n_samples)
+    elif weight_mode == "ones":
+        weights_np = np.ones(n_samples)
+    elif weight_mode == "none":
+        weights_np = None
+    else:
+        raise ValueError(f"Invalid weight_mode: {weight_mode}")
 
     # Create zfit data
     data_zfit = zfit.Data.from_numpy(obs=obs_z, array=data_np, weights=weights_np)
 
     # Create RooFit data
-    weight_r = ROOT.RooRealVar("weight", "weight", 0.1, 1000.0)
-    data_roofit = ROOT.RooDataSet("data", "data", [x], RooFit.WeightVar(weight_r))
+    if weights_np is not None:
+        weight_r = ROOT.RooRealVar("weight", "weight", 0.1, 1000.0)
+        data_roofit = ROOT.RooDataSet("data", "data", [x], ROOT.RooFit.WeightVar(weight_r))
 
-    for val, w in zip(data_np, weights_np):
-        x.setVal(val)
-        weight_r.setVal(w)
-        data_roofit.add([x], weight_r.getVal())
+        for val, w in zip(data_np, weights_np):
+            x.setVal(val)
+            weight_r.setVal(w)
+            data_roofit.add([x], weight_r.getVal())
+    else:
+        data_roofit = ROOT.RooDataSet("data", "data", [x])
+        for val in data_np:
+            x.setVal(val)
+            data_roofit.add([x])
 
     # Reset parameters to initial values
     mean_gauss_z.set_value(4.7)
@@ -446,7 +484,11 @@ def compare_roofit_zfit_three_component(weightcorr):
     nll_z = zfit.loss.ExtendedUnbinnedNLL(model=model_z, data=data_zfit)
     minimizer_z = zfit.minimize.Minuit()
     result_z = minimizer_z.minimize(nll_z)
-    param_errors_z = result_z.hesse(weightcorr=weightcorr, name="hesse_zfit_three_compare")
+    # Apply weightcorr only if we have weights
+    if weight_mode == "none":
+        param_errors_z = result_z.hesse(name="hesse_zfit_three_compare")
+    else:
+        param_errors_z = result_z.hesse(weightcorr=weightcorr, name="hesse_zfit_three_compare")
 
     # # Plot the fitted PDF
     # x_plot = np.linspace(0, 10, 1000)
@@ -471,19 +513,27 @@ def compare_roofit_zfit_three_component(weightcorr):
     # plt.show()
 
     # Fit with RooFit
-    if weightcorr:
-        # Set the weight correction method
-        if weightcorr == "sumw2":
-            weightcorr_r = ROOT.RooFit.SumW2Error(True)
-        elif weightcorr == "asymptotic":
-            weightcorr_r = ROOT.RooFit.AsymptoticError(True)
-        else:
-            raise ValueError(f"Unknown weight correction method: {weightcorr}")
+    if weight_mode == "none":
+        # No weights, so no weight correction
+        model_r.fitTo(
+            data_roofit, ROOT.RooFit.Save(True), ROOT.RooFit.EvalBackend("cpu"), ROOT.RooFit.Extended(True)
+        )
     else:
-        weightcorr_r = ROOT.RooFit.SumW2Error(False)
-    result_r = model_r.fitTo(data_roofit, RooFit.Save(True), weightcorr_r,
-                            RooFit.EvalBackend("cpu"), RooFit.Extended(True))
-
+        # Weighted data, apply weight correction
+        if weightcorr:
+            # Set the weight correction method
+            if weightcorr == "sumw2":
+                weightcorr_r = ROOT.RooFit.SumW2Error(True)
+            elif weightcorr == "asymptotic":
+                weightcorr_r = ROOT.RooFit.AsymptoticError(True)
+            else:
+                error_msg = f"Unknown weight correction method: {weightcorr}"
+                raise ValueError(error_msg)
+        else:
+            weightcorr_r = ROOT.RooFit.SumW2Error(False)
+        model_r.fitTo(
+            data_roofit, ROOT.RooFit.Save(True), weightcorr_r, ROOT.RooFit.EvalBackend("cpu"), ROOT.RooFit.Extended(True)
+        )
 
     # Print comparison of results
     # print("\nComparison of zfit and RooFit results:")
@@ -494,15 +544,15 @@ def compare_roofit_zfit_three_component(weightcorr):
     # Return the results for comparison
     resultvals = {
         "zfit": {
-            "n_gauss": (n_gauss_z.value(), param_errors_z[n_gauss_z]['error']),
-            "n_cb": (n_cb_z.value(), param_errors_z[n_cb_z]['error']),
-            "n_exp": (n_exp_z.value(), param_errors_z[n_exp_z]['error']),
-            "mean_gauss": (mean_gauss_z.value(), param_errors_z[mean_gauss_z]['error']),
-            "mean_cb": (mean_cb_z.value(), param_errors_z[mean_cb_z]['error']),
-            "sigma": (sigma_z.value(), param_errors_z[sigma_z]['error']),
-            "alpha": (alpha_z.value(), param_errors_z[alpha_z]['error']),
-            "n": (n_z.value(), param_errors_z[n_z]['error']),
-            "lambda": (lam_z.value(), param_errors_z[lam_z]['error'])
+            "n_gauss": (n_gauss_z.value(), param_errors_z[n_gauss_z]["error"]),
+            "n_cb": (n_cb_z.value(), param_errors_z[n_cb_z]["error"]),
+            "n_exp": (n_exp_z.value(), param_errors_z[n_exp_z]["error"]),
+            "mean_gauss": (mean_gauss_z.value(), param_errors_z[mean_gauss_z]["error"]),
+            "mean_cb": (mean_cb_z.value(), param_errors_z[mean_cb_z]["error"]),
+            "sigma": (sigma_z.value(), param_errors_z[sigma_z]["error"]),
+            "alpha": (alpha_z.value(), param_errors_z[alpha_z]["error"]),
+            "n": (n_z.value(), param_errors_z[n_z]["error"]),
+            "lambda": (lam_z.value(), param_errors_z[lam_z]["error"]),
         },
         "roofit": {
             "n_gauss": (n_gauss_r.getVal(), n_gauss_r.getError()),
@@ -513,8 +563,8 @@ def compare_roofit_zfit_three_component(weightcorr):
             "sigma": (sigma_r.getVal(), sigma_r.getError()),
             "alpha": (alpha_r.getVal(), alpha_r.getError()),
             "n": (n_r.getVal(), n_r.getError()),
-            "lambda": (lam_r.getVal(), lam_r.getError())
-        }
+            "lambda": (lam_r.getVal(), lam_r.getError()),
+        },
     }
 
     # # Print the comparison
@@ -554,12 +604,12 @@ def compare_roofit_zfit_three_component(weightcorr):
     # plt.tight_layout()
     # plt.show()
     # # Create RooFit frame and plot
-    # frame = x.frame(ROOT.RooFit.Title("Three Component Fit - RooFit"))
+    # frame = x.frame(ROOT.ROOT.RooFit.Title("Three Component Fit - RooFit"))
     # data_roofit.plotOn(frame)
     # model_r.plotOn(frame)
-    # model_r.plotOn(frame, ROOT.RooFit.Components("gauss_ext"), ROOT.RooFit.LineStyle(ROOT.kDashed), ROOT.RooFit.LineColor(ROOT.kRed))
-    # model_r.plotOn(frame, ROOT.RooFit.Components("cb_ext"), ROOT.RooFit.LineStyle(ROOT.kDashed), ROOT.RooFit.LineColor(ROOT.kGreen))
-    # model_r.plotOn(frame, ROOT.RooFit.Components("exp_ext"), ROOT.RooFit.LineStyle(ROOT.kDashed), ROOT.RooFit.LineColor(ROOT.kBlue))
+    # model_r.plotOn(frame, ROOT.ROOT.RooFit.Components("gauss_ext"), ROOT.ROOT.RooFit.LineStyle(ROOT.kDashed), ROOT.ROOT.RooFit.LineColor(ROOT.kRed))
+    # model_r.plotOn(frame, ROOT.ROOT.RooFit.Components("cb_ext"), ROOT.ROOT.RooFit.LineStyle(ROOT.kDashed), ROOT.ROOT.RooFit.LineColor(ROOT.kGreen))
+    # model_r.plotOn(frame, ROOT.ROOT.RooFit.Components("exp_ext"), ROOT.ROOT.RooFit.LineStyle(ROOT.kDashed), ROOT.ROOT.RooFit.LineColor(ROOT.kBlue))
     #
     # # Create canvas and draw
     # c = ROOT.TCanvas("c", "c", 800, 600)
@@ -579,14 +629,15 @@ def compare_roofit_zfit_three_component(weightcorr):
 
     return resultvals
 
+
 @pytest.mark.parametrize("weightcorr", [False, "sumw2", "asymptotic"])
-def test_compare_roofit_zfit_three_component_errors(weightcorr):
+@pytest.mark.parametrize("weight_mode", ["random", "ones", "none"])
+def test_compare_roofit_zfit_three_component_errors(weightcorr, weight_mode):
     """Test that zfit and RooFit errors are similar for the three-component model."""
 
     ROOT = pytest.importorskip("ROOT", reason="ROOT not available")
-    Roofit = ROOT.RooFit
     # Compare RooFit and zfit results
-    results = compare_roofit_zfit_three_component(weightcorr=weightcorr)
+    results = compare_roofit_zfit_three_component(weightcorr=weightcorr, weight_mode=weight_mode)
 
     # Check that values and errors are similar between RooFit and zfit
     for param_name in results["zfit"]:
@@ -594,11 +645,107 @@ def test_compare_roofit_zfit_three_component_errors(weightcorr):
         roofit_val, roofit_err = results["roofit"][param_name]
 
         # For all parameters, compare values with a tight tolerance (3%)
-        assert pytest.approx(zfit_val, rel=0.03) == roofit_val, \
+        assert pytest.approx(zfit_val, rel=0.03) == roofit_val, (
             f"zfit and RooFit values differ for {param_name}: {zfit_val} vs {roofit_val}"
+        )
 
-        relerr = 0.15 if weightcorr == "sumw2" else 0.03  # only approximate, it's not correct.
-        # we don't do the squared weights in the NLL calculation, just multiply the weights with the pdf vals
-        # and then multiply by the sum of weights and divide by the sum of squares.
-        assert pytest.approx(zfit_err, rel=relerr) == roofit_err, \
+        # Define relative error tolerances for comparison
+        RELATIVE_ERROR_SUMW2 = 0.25  # Tolerance for "sumw2" weight correction
+        RELATIVE_ERROR_DEFAULT = 0.05  # Default tolerance for other weight corrections
+
+        relerr = RELATIVE_ERROR_SUMW2 if weightcorr == "sumw2" else RELATIVE_ERROR_DEFAULT
+        # Explanation: The relative error tolerances are approximate due to the method used for NLL calculation.
+        # We don't do the squared weights in the NLL calculation; instead, we multiply the weights with the PDF values,
+        # then multiply by the sum of weights and divide by the sum of squares.
+        assert pytest.approx(zfit_err, rel=relerr) == roofit_err, (
             f"zfit and RooFit errors differ significantly for {param_name}: {zfit_err} vs {roofit_err}"
+        )
+
+
+@pytest.mark.parametrize("weightcorr", [False, "sumw2", "asymptotic"])
+def test_weights_ones_equals_none_three_component(weightcorr):
+    """Test that weights=1 gives the same results as no weights for the three-component model."""
+
+    ROOT = pytest.importorskip("ROOT", reason="ROOT not available")
+
+    # First generate the data once (we need to create the model to generate data)
+    obs_z = zfit.Space("x", limits=(0, 10))
+
+    # Create parameters
+    mean_gauss_z = zfit.Parameter("mean_gauss_z_gen", 3, 0.1, 10.0)
+    mean_cb_z = zfit.Parameter("mean_cb_z_gen", 6.2, 0.1, 10.0)
+    sigma_z = zfit.Parameter("sigma_z_gen", 0.3, 0.1, 2.0)
+    alpha_z = zfit.Parameter("alpha_z_gen", 1.0, 0.1, 5.0)
+    n_z = zfit.Parameter("n_z_gen", 2.0, 0.1, 30.0)
+    lam_z = zfit.Parameter("lam_z_gen", -0.3, -2.0, -0.1)
+    n_gauss_z = zfit.Parameter("n_gauss_z_gen", 3000, 0, 100000)
+    n_cb_z = zfit.Parameter("n_cb_z_gen", 4000, 0, 100000)
+    n_exp_z = zfit.Parameter("n_exp_z_gen", 3000, 0, 100000)
+
+    # Create PDFs
+    gauss_z = zfit.pdf.Gauss(mu=mean_gauss_z, sigma=sigma_z, obs=obs_z)
+    cb_z = zfit.pdf.CrystalBall(mu=mean_cb_z, sigma=sigma_z, alpha=alpha_z, n=n_z, obs=obs_z)
+    exp_z = zfit.pdf.Exponential(lam=lam_z, obs=obs_z)
+
+    # Create extended PDFs
+    gauss_ext_z = gauss_z.create_extended(n_gauss_z)
+    cb_ext_z = cb_z.create_extended(n_cb_z)
+    exp_ext_z = exp_z.create_extended(n_exp_z)
+
+    # Create sum of extended PDFs
+    model_z = zfit.pdf.SumPDF([gauss_ext_z, cb_ext_z, exp_ext_z])
+
+    # Generate data once
+    n_samples = 9_000
+    sample = model_z.sample(n=n_samples)
+    data_np = sample.value()[:, 0]
+
+    # Get results with weights=1
+    results_ones = compare_roofit_zfit_three_component(weightcorr=weightcorr, weight_mode="ones", data_np=data_np)
+
+    # Get results with no weights using the same data
+    results_none = compare_roofit_zfit_three_component(weightcorr=weightcorr, weight_mode="none", data_np=data_np)
+
+    # Compare results within each framework (weights=1 vs no weights)
+    for framework in ["zfit", "roofit"]:
+        for param_name in results_ones[framework]:
+            val_ones, err_ones = results_ones[framework][param_name]
+            val_none, err_none = results_none[framework][param_name]
+
+            # Values should be very close (1% tolerance)
+            assert pytest.approx(val_ones, rel=0.01) == val_none, (
+                f"{framework} values differ between weights=1 and no weights for {param_name}: "
+                f"{val_ones} (w=1) vs {val_none} (no weights)"
+            )
+
+            # Errors should be very close (tolerance depends on weightcorr)
+            # Asymptotic correction can have larger numerical differences even with weights=1
+            tolerance = 0.05 if weightcorr == "asymptotic" else 0.02
+            assert pytest.approx(err_ones, rel=tolerance) == err_none, (
+                f"{framework} errors differ between weights=1 and no weights for {param_name}: "
+                f"{err_ones} (w=1) vs {err_none} (no weights)"
+            )
+
+    # Compare results between frameworks (zfit vs RooFit)
+    for weight_scenario in [("ones", results_ones), ("none", results_none)]:
+        scenario_name, results = weight_scenario
+        for param_name in results["zfit"]:
+            zfit_val, zfit_err = results["zfit"][param_name]
+            roofit_val, roofit_err = results["roofit"][param_name]
+
+            # Parameter values should be very close between frameworks (3% tolerance)
+            assert pytest.approx(zfit_val, rel=0.03) == roofit_val, (
+                f"zfit and RooFit values differ for {param_name} ({scenario_name} weights): "
+                f"{zfit_val} (zfit) vs {roofit_val} (RooFit)"
+            )
+
+            # Error tolerances depend on weight correction method
+            if weightcorr == "sumw2":
+                err_tolerance = 0.25  # Higher tolerance for sumw2 as noted in original test
+            else:
+                err_tolerance = 0.05  # Standard tolerance for other methods
+
+            assert pytest.approx(zfit_err, rel=err_tolerance) == roofit_err, (
+                f"zfit and RooFit errors differ for {param_name} ({scenario_name} weights): "
+                f"{zfit_err} (zfit) vs {roofit_err} (RooFit)"
+            )

@@ -3,14 +3,6 @@
 from __future__ import annotations
 
 import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
-import typing
-
-if typing.TYPE_CHECKING:
-    pass
 from typing import Literal
 
 import numpy as np
@@ -27,6 +19,9 @@ from ..serialization import Serializer, SpaceRepr
 from ..serialization.pdfrepr import BasePDFRepr
 from ..util import ztyping
 from ..util.ztyping import ExtendedInputType, NormInputType
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 
 def _powerlaw(x, a, k):
@@ -143,7 +138,7 @@ def crystalball_integral_func(mu, sigma, alpha, n, lower, upper):
     # if_false_4()
     result = tf.where(tf.greater_equal(tmin, -abs_alpha), if_true_4, if_false_4)
     if result.shape.rank != 0:
-        result = tf.gather(result, 0, axis=-1)  # remove last dim, should vanish
+        result = result[..., 0]  # remove last dim, should vanish
     return result
 
 
@@ -681,7 +676,7 @@ def gaussexptail_integral_func(mu, sigma, alpha, lower, upper):
     conditional_integral = tf.where(tf.less_equal(tmax, -abs_alpha), exp_tmin_tmax_integral, integral_sum)
     result = tf.where(tf.greater_equal(tmin, -abs_alpha), gauss_tmin_tmax_integral, conditional_integral)
     if result.shape.rank != 0:
-        result = tf.gather(result, 0, axis=-1)
+        result = result[..., 0]
     return result
 
 

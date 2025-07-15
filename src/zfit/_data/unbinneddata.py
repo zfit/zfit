@@ -3,16 +3,11 @@ from __future__ import annotations
 
 import typing
 
-if typing.TYPE_CHECKING:
-    import zfit
-
-import typing
+import tensorflow_probability as tfp
+from zfit_interface.data import ZfitData
 
 if typing.TYPE_CHECKING:
     import zfit  # noqa: F401
-
-import tensorflow_probability as tfp
-from zfit_interface.data import ZfitData
 
 
 @tfp.experimental.auto_composite_tensor()

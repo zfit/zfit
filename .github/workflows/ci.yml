@@ -43,11 +43,11 @@ jobs:
           fi
           
           # Check if [full ci] or similar is in the commit message
-          COMMIT_MSG=$(git log -1 --pretty=%B)
-          if [[ "$COMMIT_MSG" == *"[full ci]"* || "$COMMIT_MSG" == *"[ci full]"* || "$COMMIT_MSG" == *"[cifull]"* || "$COMMIT_MSG" == *"[fullci]"* ]]; then
-            echo "run-full-ci=true" >> $GITHUB_OUTPUT
-            echo "Running full CI because @fullci was found in the commit message"
-            exit 0
+          COMMIT_MSGS=$(git log --pretty=%B ${{ github.event.before }}..${{ github.sha }})
+          if echo "$COMMIT_MSGS" | grep -E '\[full ci\]|\[ci full\]|\[cifull\]|\[fullci\]'; then
+          echo "run-full-ci=true" >> $GITHUB_OUTPUT
+          echo "Running full CI because [full ci] (or similar) was found in the commit messages"
+          exit 0
           fi
           
           # Otherwise, run limited CI
@@ -83,7 +83,7 @@ jobs:
       fail-fast: false
       matrix:
         use-graph: [ 1 ]
-        python-version: [ "3.9" ]  # omit "3.10", "3.11" to save compute time
+        python-version: [ "3.10" ]  # omit "3.11" to save compute time
         os: [ ubuntu-latest ]
         extras: [ test ]
         run: [ true ]
@@ -135,10 +135,16 @@ jobs:
           create-args: >-
             python=${{ matrix.python-version }}
             uv
-      - name: Install dependencies
+      - name: Install minimal dependencies
+        run: |
+          uv pip install .
+      - name: Check imports  # run a small piece of code to ensure imports work
+        run: python -c "import zfit; from zfit import *; import zfit.z.numpy as znp; assert znp.random.uniform(0, 1) is not None; zfit.Parameter('test', 1.0, 0.0, 2.0)"
+
+      - name: Install full dependencies
         run: |
           uv pip install coverage-lcov pytest-xdist pytest-cov
-          uv pip install .[${{ matrix.extras }}]
+          uv pip install .[${{ matrix.extras }}] --force-reinstall
       - name: Check imports
         run: python -c "import zfit; from zfit import *"
       - name: Test with pytest
@@ -160,7 +166,7 @@ jobs:
     timeout-minutes: 10
     strategy:
       matrix:
-        python-version: [ "3.9" ]
+        python-version: [ "3.10" ]
     name: Testbuild docs
     steps:
       - uses: actions/checkout@v4
@@ -194,7 +200,7 @@ jobs:
       fail-fast: False
       matrix:
         use-graph: [ 1 ]
-        python-version: [ "3.9" ]
+        python-version: [ "3.10" ]
         run: [ true ]
         extras: [ all ]
         include:
@@ -249,7 +255,7 @@ jobs:
       fail-fast: False
       matrix:
         use-graph: [ 1 ]
-        python-version: [ "3.9" ]
+        python-version: [ "3.10" ]
         run: [ true ]
         include:
           - python-version: "3.12"

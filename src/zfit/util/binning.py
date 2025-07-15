@@ -3,14 +3,14 @@ from __future__ import annotations
 
 import typing
 
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 import tensorflow as tf
 
 import zfit.z.numpy as znp
 
 from ..settings import ztypes
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 
 def generate_1d_grid(data, num_grid_points, absolute_boundary=0.0, relative_boundary=0.05):
