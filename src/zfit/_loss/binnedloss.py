@@ -97,6 +97,14 @@ class BaseBinned(BaseLoss):
         data = convert_to_container(data)
         from zfit._data.binneddatav1 import BinnedData  # noqa: PLC0415
 
+        # Check for empty model or data lists
+        if not model:
+            msg = "At least one model must be provided to create a binned loss."
+            raise ValueError(msg)
+        if not data:
+            msg = "At least one dataset must be provided to create a binned loss."
+            raise ValueError(msg)
+
         data = [
             (
                 BinnedData.from_hist(d)
@@ -105,6 +113,27 @@ class BaseBinned(BaseLoss):
             )
             for d in data
         ]
+
+        # Check for empty datasets
+        for i, dat in enumerate(data):
+            if hasattr(dat, "num_entries"):
+                try:
+                    n_entries = dat.num_entries
+                    if tf.is_tensor(n_entries):
+                        from zfit import run  # noqa: PLC0415
+
+                        if run.executing_eagerly():
+                            n_entries = int(n_entries)
+
+                    if n_entries == 0:
+                        msg = (
+                            f"Dataset at index {i} is empty (has 0 entries). Cannot create binned loss with empty data."
+                        )
+                        raise ValueError(msg)
+                except Exception:
+                    # Continue if we can't determine entries
+                    pass
+
         not_binned_pdf = [mod for mod in model if not isinstance(mod, ZfitBinnedPDF)]
         not_binned_data = [dat for dat in data if not isinstance(dat, ZfitBinnedData)]
         not_binned_pdf_msg = (

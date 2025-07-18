@@ -8,7 +8,14 @@ import shutil
 import numpy as np
 import pytest
 from matplotlib import pyplot as plt
-from PIL import Image
+from PIL import Image, ImageChops, ImageDraw
+
+try:
+    from skimage.metrics import structural_similarity as ssim
+    HAS_SKIMAGE = True
+except ImportError:
+    HAS_SKIMAGE = False
+    ssim = None
 
 import zfit
 
@@ -72,6 +79,14 @@ def get_truth_image_path(test_name):
     return truth_dir / f"{test_name}.png"
 
 
+def get_diff_image_path(test_name):
+    """Get the path for difference images"""
+    here = pathlib.Path(__file__).parent
+    diff_dir = here.parent / "truth" / "image_diffs" / folder
+    diff_dir.mkdir(parents=True, exist_ok=True)
+    return diff_dir / f"{test_name}_diff.png"
+
+
 def save_plot_as_truth_if_needed(test_name, recreate_truth):
     """Save current plot as truth reference if --recreate-truth flag is given"""
     if recreate_truth:
@@ -79,8 +94,105 @@ def save_plot_as_truth_if_needed(test_name, recreate_truth):
         plt.savefig(truth_path, dpi=100, bbox_inches='tight')
 
 
-def compare_images(test_name, tolerance=0.01):
-    """Compare generated image with truth reference"""
+def create_diff_visualization(truth_img, test_img, diff_path, test_name):
+    """Create a visualization showing the differences between truth and test images"""
+    # Convert numpy arrays to PIL Images
+    truth_pil = Image.fromarray(truth_img.astype(np.uint8))
+    test_pil = Image.fromarray(test_img.astype(np.uint8))
+
+    # Calculate the difference
+    diff = ImageChops.difference(truth_pil, test_pil)
+
+    # Enhance the difference for better visibility
+    # Convert to numpy for processing
+    diff_np = np.array(diff).astype(float)
+
+    # Amplify differences for visibility (but cap at 255)
+    diff_enhanced = np.clip(diff_np * 10, 0, 255).astype(np.uint8)
+
+    # Create a composite image showing: truth | test | diff | enhanced_diff
+    width = truth_img.shape[1]
+    height = truth_img.shape[0]
+
+    # Create new image with 4x width to show all comparisons
+    composite = Image.new('RGB', (width * 4, height + 60), 'white')
+
+    # Paste the images
+    composite.paste(truth_pil, (0, 60))
+    composite.paste(test_pil, (width, 60))
+    composite.paste(diff, (width * 2, 60))
+    composite.paste(Image.fromarray(diff_enhanced), (width * 3, 60))
+
+    # Add labels
+    draw = ImageDraw.Draw(composite)
+    try:
+        # Try to use a better font if available
+        from PIL import ImageFont
+        font = ImageFont.load_default()
+    except:
+        font = None
+
+    labels = ["Truth", "Test", "Difference", "Enhanced Diff (10x)"]
+    for i, label in enumerate(labels):
+        x = i * width + width // 2 - len(label) * 3
+        draw.text((x, 10), label, fill='black', font=font)
+
+    # Add test name and metrics at the top
+    draw.text((10, 40), f"Test: {test_name}", fill='black', font=font)
+
+    # Save the composite image
+    composite.save(diff_path)
+
+    return diff_enhanced
+
+
+def calculate_image_metrics(truth_img, test_img):
+    """Calculate various image comparison metrics"""
+    metrics = {}
+
+    # Ensure images are in the same format
+    if len(truth_img.shape) == 3 and truth_img.shape[2] == 4:
+        # RGBA to RGB
+        truth_img = truth_img[:, :, :3]
+    if len(test_img.shape) == 3 and test_img.shape[2] == 4:
+        test_img = test_img[:, :, :3]
+
+    # 1. Pixel-wise maximum difference
+    diff = np.abs(truth_img.astype(float) - test_img.astype(float))
+    metrics['max_diff'] = np.max(diff) / 255.0
+    metrics['mean_diff'] = np.mean(diff) / 255.0
+    metrics['rms_diff'] = np.sqrt(np.mean(diff**2)) / 255.0
+
+    # 2. Structural Similarity Index (SSIM) if available
+    if HAS_SKIMAGE:
+        # Convert to grayscale for SSIM
+        if len(truth_img.shape) == 3:
+            truth_gray = np.mean(truth_img, axis=2)
+            test_gray = np.mean(test_img, axis=2)
+        else:
+            truth_gray = truth_img
+            test_gray = test_img
+
+        # Calculate SSIM
+        ssim_score, ssim_diff = ssim(truth_gray, test_gray, full=True,
+                                     data_range=truth_gray.max() - truth_gray.min())
+        metrics['ssim'] = ssim_score
+        metrics['ssim_diff'] = ssim_diff
+    else:
+        metrics['ssim'] = None
+        metrics['ssim_diff'] = None
+
+    # 3. Count of significantly different pixels (threshold: 5% difference)
+    significant_diff = diff > (255 * 0.05)
+    if len(significant_diff.shape) == 3:
+        significant_diff = np.any(significant_diff, axis=2)
+    metrics['percent_different_pixels'] = np.sum(significant_diff) / significant_diff.size * 100
+
+    return metrics
+
+
+def compare_images(test_name, tolerance=0.01, ssim_tolerance=0.95):
+    """Compare generated image with truth reference using multiple metrics"""
     truth_path = get_truth_image_path(test_name)
 
     if not truth_path.exists():
@@ -96,13 +208,59 @@ def compare_images(test_name, tolerance=0.01):
         test_img = np.array(Image.open(temp_path))
 
         # Images must have same shape
-        assert truth_img.shape == test_img.shape, f"Image shapes differ: {truth_img.shape} vs {test_img.shape}"
+        if truth_img.shape != test_img.shape:
+            # Try to provide more info about the difference
+            diff_path = get_diff_image_path(test_name)
+            # Create a simple error image showing the shape difference
+            error_img = Image.new('RGB', (800, 200), 'white')
+            draw = ImageDraw.Draw(error_img)
+            draw.text((10, 50), f"Shape mismatch for test: {test_name}", fill='red')
+            draw.text((10, 80), f"Truth shape: {truth_img.shape}", fill='black')
+            draw.text((10, 110), f"Test shape: {test_img.shape}", fill='black')
+            error_img.save(diff_path)
 
-        # Calculate normalized difference
-        diff = np.abs(truth_img.astype(float) - test_img.astype(float))
-        max_diff = np.max(diff) / 255.0
+            raise AssertionError(
+                f"Image shapes differ: {truth_img.shape} vs {test_img.shape}\n"
+                f"See diff visualization at: {diff_path}"
+            )
 
-        assert max_diff < tolerance, f"Images differ too much: max difference {max_diff:.4f} > {tolerance}"
+        # Calculate metrics
+        metrics = calculate_image_metrics(truth_img, test_img)
+
+        # Check if images are within tolerances
+        failures = []
+
+        # Pixel difference check
+        if metrics['max_diff'] >= tolerance:
+            failures.append(f"Max pixel difference {metrics['max_diff']:.4f} >= {tolerance}")
+
+        # RMS difference check (more lenient than max)
+        if metrics['rms_diff'] >= tolerance * 2:
+            failures.append(f"RMS difference {metrics['rms_diff']:.4f} >= {tolerance * 2}")
+
+        # SSIM check if available
+        if HAS_SKIMAGE and metrics['ssim'] is not None:
+            if metrics['ssim'] < ssim_tolerance:
+                failures.append(f"SSIM {metrics['ssim']:.4f} < {ssim_tolerance}")
+
+        # If we have failures, create diff visualization
+        if failures:
+            diff_path = get_diff_image_path(test_name)
+            create_diff_visualization(truth_img, test_img, diff_path, test_name)
+
+            # Build detailed error message
+            error_msg = f"Images differ too much for test '{test_name}':\n"
+            error_msg += "\n".join(f"  - {failure}" for failure in failures)
+            error_msg += "\n\nMetrics:"
+            error_msg += f"\n  - Max diff: {metrics['max_diff']:.4f}"
+            error_msg += f"\n  - Mean diff: {metrics['mean_diff']:.4f}"
+            error_msg += f"\n  - RMS diff: {metrics['rms_diff']:.4f}"
+            error_msg += f"\n  - Different pixels: {metrics['percent_different_pixels']:.1f}%"
+            if metrics['ssim'] is not None:
+                error_msg += f"\n  - SSIM: {metrics['ssim']:.4f}"
+            error_msg += f"\n\nDiff visualization saved to: {diff_path}"
+
+            raise AssertionError(error_msg)
 
     finally:
         # Clean up temporary file
@@ -297,3 +455,8 @@ def test_plot_consistency_with_example():
         plt.title(title)
         model.plot(data, extended=extended, density=density)
         pytest.zfit_savefig(folder=folder)
+
+
+# Add a note about installing scikit-image for better comparisons
+if not HAS_SKIMAGE:
+    print("Note: Install scikit-image for SSIM-based image comparison: pip install scikit-image")
