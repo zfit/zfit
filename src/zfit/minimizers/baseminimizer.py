@@ -197,8 +197,28 @@ class BaseMinimizer(ZfitMinimizer):
         super().__init__()
         self._n_iter_per_param = 3000
 
-        self.tol = self._DEFAULTS["tol"] if tol is None else tol
-        self.verbosity = self._DEFAULTS["verbosity"] if verbosity is None else verbosity
+        # Validate and set tolerance
+        if tol is None:
+            tol = self._DEFAULTS["tol"]
+        elif not isinstance(tol, (int, float)):
+            msg = f"tol must be numeric, got {type(tol).__name__}"
+            raise TypeError(msg)
+        elif tol <= 0:
+            msg = f"tol must be positive, got {tol}"
+            raise ValueError(msg)
+        self.tol = float(tol)
+
+        # Validate and set verbosity
+        if verbosity is None:
+            verbosity = self._DEFAULTS["verbosity"]
+        elif not isinstance(verbosity, int):
+            msg = f"verbosity must be an integer, got {type(verbosity).__name__}"
+            raise TypeError(msg)
+        elif not 0 <= verbosity <= 10:
+            msg = f"verbosity must be between 0 and 10, got {verbosity}"
+            raise ValueError(msg)
+        self.verbosity = verbosity
+
         self.minimizer_options = {} if minimizer_options is None else minimizer_options
         self.criterion = self._DEFAULTS["criterion"] if criterion is None else criterion
 
@@ -220,7 +240,25 @@ class BaseMinimizer(ZfitMinimizer):
 
         self._strategy = strategy
         self._state = None
-        self._maxiter = self._DEFAULTS["maxiter"] if maxiter is None else maxiter
+
+        # Validate and set maxiter
+        if maxiter is None:
+            maxiter = self._DEFAULTS["maxiter"]
+        elif maxiter != "auto":
+            if not isinstance(maxiter, (int, float)):
+                msg = f"maxiter must be numeric or 'auto', got {type(maxiter).__name__}"
+                raise TypeError(msg)
+            if maxiter <= 0:
+                msg = f"maxiter must be positive, got {maxiter}"
+                raise ValueError(msg)
+            # Convert float to int if it's a whole number
+            if isinstance(maxiter, float):
+                if maxiter == float("inf") or maxiter > 1e15:
+                    maxiter = int(1e15)  # Set a reasonable maximum
+                else:
+                    maxiter = int(maxiter)
+        self._maxiter = maxiter
+
         self.name = repr(self.__class__)[:-2].split(".")[-1] if name is None else name
 
     @classmethod

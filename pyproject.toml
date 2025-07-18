@@ -96,6 +96,7 @@ test = [
     "pyyaml",
     "matplotlib",
     "mplhep",
+    "scikit-image",  # for better error reporting if plots disagree, not mandatory
     # all aspects of zfit
     "zfit[all]", # TODO: we cannot have platform specific deps in here? A bug?
 
