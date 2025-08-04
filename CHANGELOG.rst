@@ -4,6 +4,31 @@ Changelog
 
 .. _newest-changelog:
 
+Develop
+======================
+
+Major Features and Improvements
+-------------------------------
+- add ``ExpModGauss`` PDF, the exponentially modified gaussian distribution, taken from `the tensorflow-probability implementation <https://www.tensorflow.org/probability/api_docs/python/tfp/distributions/ExponentiallyModifiedGaussian>`_.
+
+Breaking changes
+------------------
+
+Deprecations
+-------------
+
+Bug fixes and small changes
+---------------------------
+
+Experimental
+------------
+
+Requirement changes
+-------------------
+
+Thanks
+------
+
 0.27.0 (14 Jul 2025)
 ======================
 
