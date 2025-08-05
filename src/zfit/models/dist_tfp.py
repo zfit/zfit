@@ -1388,7 +1388,7 @@ class ExpModGauss(WrapDistribution, SerializableMixin):
         Args:
             mu: Mean of the gaussian
             sigma: Standard deviation of the gaussian
-            rate: Rate parameter of the exponential
+            lambd: Rate parameter of the exponential
             obs: |@doc:pdf.init.obs| Observables of the
                model. This will be used as the default space of the PDF and,
                if not given explicitly, as the normalization range.
