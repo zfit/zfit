@@ -24,19 +24,46 @@ if typing.TYPE_CHECKING:
     import zfit  # noqa: F401
 
 
-def constant(value, dtype=ztypes.float, shape=None, name="Const", verify_shape=None):
+def constant(value, dtype=ztypes.float, shape=None, name=None, verify_shape=None):
+    """Create a constant tensor.
+
+    Args:
+        value: The constant value.
+        dtype: The data type. Defaults to ztypes.float.
+        shape: Shape of the tensor.
+        name: Name for the operation. Defaults to "Const" if None.
+        verify_shape: Shape verification (deprecated).
+    """
     del verify_shape
+    if name is None:
+        name = "Const"
     return tf.constant(value, dtype=dtype, shape=shape, name=name)
 
 
 pi = np.float64(_mt.pi)
 
 
-def to_complex(number, dtype=ztypes.complex):
+def to_complex(number, dtype=None):
+    """Convert number to complex tensor.
+
+    Args:
+        number: Number to convert.
+        dtype: Complex data type. Defaults to ztypes.complex if None.
+    """
+    if dtype is None:
+        dtype = ztypes.complex
     return znp.asarray(number, dtype=dtype)
 
 
-def to_real(x, dtype=ztypes.float):
+def to_real(x, dtype=None):
+    """Convert to real tensor.
+
+    Args:
+        x: Value to convert.
+        dtype: Real data type. Defaults to ztypes.float if None.
+    """
+    if dtype is None:
+        dtype = ztypes.float
     return znp.asarray(x, dtype=dtype)
 
 
@@ -99,7 +126,16 @@ def unstack_x(
     return unstacked_x
 
 
-def stack_x(values, axis: int = -1, name: str = "stack_x"):
+def stack_x(values, axis: int = -1, name: str | None = None):
+    """Stack values along the specified axis.
+
+    Args:
+        values: Values to stack.
+        axis: Axis to stack along. Defaults to -1.
+        name: Name for the operation. Defaults to "stack_x" if None.
+    """
+    if name is None:
+        name = "stack_x"
     return tf.stack(values=values, axis=axis, name=name)
 
 
@@ -180,7 +216,7 @@ class FunctionWrapperRegistry:
             "tensor": True,
         }
     )
-    DEFAULT_TF_FUNCTION_KWARGS = {
+    DEFAULT_TF_FUNCTION_KWARGS: typing.ClassVar = {
         "model": DEFAULT_NOXLAJIT_KWARGS.copy(),
         "loss": DEFAULT_NOXLAJIT_KWARGS.copy(),
         "sample": DEFAULT_NOXLAJIT_KWARGS.copy(),
@@ -246,7 +282,7 @@ class FunctionWrapperRegistry:
     def do_jit(self):
         return self.do_jit_types[self.wraps] and self.allow_jit and not self.force_eager
 
-    def reset(self, **kwargs_user):
+    def reset(self, **_):
         self.function_cache.clear()
 
     def set_graph_cache_size(self, cachesize: int | None = None):

@@ -104,7 +104,7 @@ Here's a complete example of Bayesian inference with zfit:
 Posterior Analysis
 ----------------
 
-The `PosteriorSamples` object returned by the sampler provides methods for analyzing the posterior distribution:
+The ``PosteriorSamples`` object returned by the sampler provides methods for analyzing the posterior distribution:
 
 .. code-block:: python
 

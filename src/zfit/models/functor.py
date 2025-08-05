@@ -20,6 +20,7 @@ if typing.TYPE_CHECKING:
     import zfit
 
 import typing
+from typing import Literal
 
 import pydantic.v1 as pydantic
 import tensorflow as tf

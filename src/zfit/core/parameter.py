@@ -14,6 +14,7 @@ from collections.abc import Callable, Iterable, Mapping
 from contextlib import suppress
 from inspect import signature
 from typing import Literal
+from typing import Literal, Union
 from weakref import WeakSet
 
 import dill
@@ -945,11 +946,19 @@ class BaseComposedParameter(ZfitParameterMixin, OverloadableMixin, BaseParameter
         msg = "Cannot set value of a composed parameter. Set the value on its components."
         raise LogicalUndefinedOperationError(msg)
 
-    def randomize(self, minval=None, maxval=None, sampler=np.random.uniform):  # noqa: ARG002
+    def randomize(self, minval=None, maxval=None, sampler=None):  # noqa: ARG002
         """Randomize the value of the parameter.
 
         Cannot be used for composed parameters!
+
+        Args:
+            minval: The lower bound of the sampler. If not given, ``lower_limit`` is used.
+            maxval: The upper bound of the sampler. If not given, ``upper_limit`` is used.
+            sampler: A sampler with the same interface as ``np.random.uniform``.
+                    Defaults to np.random.uniform if None.
         """
+        if sampler is None:
+            sampler = np.random.uniform
         msg = "Cannot randomize a composed parameter."
         raise LogicalUndefinedOperationError(msg)
 

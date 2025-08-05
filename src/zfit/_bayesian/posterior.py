@@ -4,7 +4,6 @@
 
 from __future__ import annotations
 
-import functools
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -162,9 +161,9 @@ class PosteriorSamples:
         # Convert to float
         try:
             sigma = float(sigma)
-        except (TypeError, ValueError):
+        except (TypeError, ValueError) as error:
             msg = f"sigma must be convertible to float, got {sigma}"
-            raise TypeError(msg)
+            raise TypeError(msg) from error
 
         if sigma <= 0:
             msg = f"sigma must be positive, got {sigma}"
@@ -245,9 +244,9 @@ class PosteriorSamples:
             # Convert to float
             try:
                 sigma = float(sigma)
-            except (TypeError, ValueError):
+            except (TypeError, ValueError) as error:
                 msg = f"sigma must be convertible to float, got {sigma}"
-                raise TypeError(msg)
+                raise TypeError(msg) from error
 
             if sigma <= 0:
                 msg = f"sigma must be positive, got {sigma}"
@@ -261,9 +260,9 @@ class PosteriorSamples:
             # Convert to float
             try:
                 alpha = float(alpha)
-            except (TypeError, ValueError):
+            except (TypeError, ValueError) as error:
                 msg = f"alpha must be convertible to float, got {alpha}"
-                raise TypeError(msg)
+                raise TypeError(msg) from error
 
             if not 0 < alpha < 1:
                 msg = f"alpha must be between 0 and 1, got {alpha}"
@@ -364,7 +363,6 @@ class PosteriorSamples:
         return KDE(samples, name=f"{param_name}_posterior_prior")
 
     # ArviZ integration
-    @functools.cache
     def to_arviz(self) -> az.InferenceData:
         """Convert to ArviZ InferenceData format.
 
@@ -373,9 +371,9 @@ class PosteriorSamples:
         """
         try:
             import arviz as az
-        except ImportError:
+        except ImportError as error:
             msg = "ArviZ is required for to_arviz(). Install with 'pip install arviz'."
-            raise ImportError(msg)
+            raise ImportError(msg) from error
 
         # Get samples as numpy array
         samples_np = self.samples
@@ -606,7 +604,18 @@ class PosteriorSamples:
         string = Style.BRIGHT + "PosteriorSamples" + Style.NORMAL + f" from\n{self.loss} \nwith\n{self.sampler}\n\n"
 
         # Convergence summary table
-        def color_on_bool(value, on_true=colored.bg("green"), on_false=colored.bg("red")):
+        def color_on_bool(value, on_true=None, on_false=None):
+            """Color boolean values.
+
+            Args:
+                value: Boolean value to color
+                on_true: Color for True values. Defaults to green background.
+                on_false: Color for False values. Defaults to red background.
+            """
+            if on_true is None:
+                on_true = colored.bg("green")
+            if on_false is None:
+                on_false = colored.bg("red")
             if on_false is False:
                 on_false = ""
             text = "True" if value else "False"

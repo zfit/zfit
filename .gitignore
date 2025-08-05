@@ -20,3 +20,5 @@ tmp/*
 /tests/.benchmarks/
 /.claude/agents/tensorflow-jit-expert.md
 /examples/.ipynb_checkpoints/
+/CLAUDE.md
+/.claude/

@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import typing
 from collections.abc import Callable
+from typing import TYPE_CHECKING
 
 import boost_histogram as bh
 import hist

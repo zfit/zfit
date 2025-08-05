@@ -10,6 +10,7 @@ from collections.abc import Callable, Iterable, Mapping
 from contextlib import suppress
 from functools import partial
 from typing import Literal
+from typing import TYPE_CHECKING, Literal, Union
 
 import pydantic.v1 as pydantic
 import tensorflow as tf

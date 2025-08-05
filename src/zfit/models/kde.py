@@ -5,6 +5,7 @@ from __future__ import annotations
 import typing
 from collections.abc import Callable
 from typing import ClassVar, Literal
+from typing import ClassVar, Literal, Union
 
 import numpy as np
 import pydantic.v1 as pydantic

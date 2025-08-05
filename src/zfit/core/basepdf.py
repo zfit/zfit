@@ -2,7 +2,15 @@
 
 from __future__ import annotations
 
-import typing
+from collections.abc import Iterable
+from typing import TYPE_CHECKING
+
+from ..util.plotter import PDFPlotter
+from ..util.ztyping import ExtendedInputType, NormInputType
+
+if TYPE_CHECKING:
+    pass
+
 import warnings
 from collections.abc import Iterable
 from contextlib import suppress
