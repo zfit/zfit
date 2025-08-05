@@ -1,4 +1,4 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2025 zfit
 import numpy as np
 import pytest
 from scipy.stats import crystalball
@@ -144,7 +144,7 @@ def test_cb_dcb(doublecb):
 
     kwargs = dict(limits=(-5.0, mu), norm=lbounds)
     intl = cbl.integrate(**kwargs) - dcb.integrate(**kwargs)
-    assert pytest.approx(intl, abs=1e-3) == 0.0
+    assert intl == pytest.approx(0.0, abs=1e-3)
     intl = cbr.integrate(**kwargs) - dcb.integrate(**kwargs)
     assert pytest.approx(intl, abs=1e-3) != 0
 
@@ -152,9 +152,9 @@ def test_cb_dcb(doublecb):
     kwargs = dict(limits=(mu, 2.0), norm=rbounds)
     dcb_integr1 = dcb.integrate(**kwargs)
     intr = cbr.integrate(**kwargs) - dcb_integr1
-    assert pytest.approx(intr, abs=1e-3) == 0.0
+    assert intr == pytest.approx(0.0, abs=1e-3)
     intr = cbl.integrate(**kwargs) - dcb.integrate(**kwargs)
-    assert pytest.approx(intr, abs=1e-3) != 0.0
+    assert intr != pytest.approx(0.0, abs=1e-3)
 
     xl = x[x <= mu]
     xr = x[x > mu]

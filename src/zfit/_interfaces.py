@@ -1057,7 +1057,7 @@ class ZfitRectBinning(ZfitBinning):
 
 
 class ZfitSampler(ZfitObject):
-    """Base class for MCMC _mcmc in Bayesian inference."""
+    """Base class for MCMC samplers in Bayesian inference."""
 
     def __init__(self, name=None):
         """Initialize a sampler.

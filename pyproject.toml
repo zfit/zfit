@@ -77,16 +77,10 @@ hs3 = ["asdf<4.0.0"]
 uproot = ["awkward-pandas"]
 
 emcee = ["emcee>=3.0.0"]
-# the following implementations don't work currently
-#nuts = ["pymc"]
-#ultranest = ["ultranest"]
-#pt = ["ptemcee"]
 
 bayes = [
     "zfit[emcee]",
-    "zfit[nuts]",
-    "zfit[ultranest]",
-    "zfit[pt]"
+    "arviz>=0.14.0"
 ]
 
 # Test requirements
@@ -209,9 +203,12 @@ testpaths = [
 ]
 markers = [
     "plots: create and safe plots",
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
 ]
 console_output_style = "progress"
 collect_ignore = "setup.py"
+timeout = 300
+timeout_method = "thread"
 
 [tool.coverage.run]
 branch = true

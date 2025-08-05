@@ -1,4 +1,5 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2025 zfit
+import numpy as np
 import pytest
 import tensorflow as tf
 
@@ -77,14 +78,14 @@ def test_parameter_caching(function):
     y1_jit = jitted_grad(x1)
     assert ncompgrad1_after1 == ncompgrad1
 
-    assert abs(y1 - 1.0) < 1e-5  # because d x1 / dx1 = 1
-    assert abs(y1_jit - 1.0) < 1e-5
+    np.testing.assert_allclose(y1, 1.0, atol=1e-5)  # because d x1 / dx1 = 1
+    np.testing.assert_allclose(y1_jit, 1.0, atol=1e-5)
     y2 = grad(x2)
     y2_jit = jitted_grad(x2)
 
-    assert abs(y2 - 4.0) < 1e-5  # because d / dx x**2/2 = x -> 4
-    assert abs(y2_jit - y2) < 1e-5
-    assert abs(y2_jit - 4.0) < 1e-5
+    np.testing.assert_allclose(y2, 4.0, atol=1e-5)  # because d / dx x**2/2 = x -> 4
+    np.testing.assert_allclose(y2_jit, y2, atol=1e-5)
+    np.testing.assert_allclose(y2_jit, 4.0, atol=1e-5)
 
     # use both parameters
     y = grad([x1, x2])
@@ -92,10 +93,10 @@ def test_parameter_caching(function):
     assert ncompgrad1_after2 > ncompgrad1_after1
     y_jit = jitted_grad([x1, x2])
 
-    assert abs(y[0] - 1.0) < 1e-5
-    assert abs(y[1] - 4.0) < 1e-5
-    assert abs(y_jit[0] - 1.0) < 1e-5
-    assert abs(y_jit[1] - 4.0) < 1e-5
+    np.testing.assert_allclose(y[0], 1.0, atol=1e-5)
+    np.testing.assert_allclose(y[1], 4.0, atol=1e-5)
+    np.testing.assert_allclose(y_jit[0], 1.0, atol=1e-5)
+    np.testing.assert_allclose(y_jit[1], 4.0, atol=1e-5)
 
     # use both parameters, swap order
     y = grad([x2, x1])

@@ -160,6 +160,10 @@ class DoNotCompile(Exception):
     """Raise this error if the function is being jitted but should not be (yet)."""
 
 
+DEFAULT_XLAJIT_KWARGS = {"autograph": False, "reduce_retracing": True, "jit_compile": True}
+DEFAULT_NOXLAJIT_KWARGS = {"autograph": False, "reduce_retracing": True, "jit_compile": False}
+
+
 class FunctionWrapperRegistry:
     registries = WeakSet()
     allow_jit = True
@@ -176,6 +180,14 @@ class FunctionWrapperRegistry:
             "tensor": True,
         }
     )
+    DEFAULT_TF_FUNCTION_KWARGS = {
+        "model": DEFAULT_NOXLAJIT_KWARGS.copy(),
+        "loss": DEFAULT_NOXLAJIT_KWARGS.copy(),
+        "sample": DEFAULT_NOXLAJIT_KWARGS.copy(),
+        "model_sampling": DEFAULT_NOXLAJIT_KWARGS.copy(),
+        "zfit_tensor": DEFAULT_NOXLAJIT_KWARGS.copy(),
+        "tensor": DEFAULT_NOXLAJIT_KWARGS.copy(),
+    }
 
     do_jit_types = _DEFAULT_DO_JIT_TYPES.copy()
 
@@ -225,7 +237,7 @@ class FunctionWrapperRegistry:
         self.stateless_args = stateless_args
 
         self.function_cache = deque()
-        self.reset(**self._initial_user_kwargs)
+        self.reset()
         self.currently_traced = set()
         self.cachesize = cachesize
         self.keepalive = keepalive
@@ -235,10 +247,6 @@ class FunctionWrapperRegistry:
         return self.do_jit_types[self.wraps] and self.allow_jit and not self.force_eager
 
     def reset(self, **kwargs_user):
-        kwargs = {"autograph": False, "reduce_retracing": True, "jit_compile": False}
-        kwargs.update(self._initial_user_kwargs)
-        kwargs.update(kwargs_user)
-        self.tf_function_kwargs = kwargs
         self.function_cache.clear()
 
     def set_graph_cache_size(self, cachesize: int | None = None):
@@ -255,7 +263,10 @@ class FunctionWrapperRegistry:
 
     @property
     def tf_function(self):
-        return tf.function(**self.tf_function_kwargs)
+        kwargs = self.DEFAULT_TF_FUNCTION_KWARGS.get(self.wraps, DEFAULT_NOXLAJIT_KWARGS).copy()
+        kwargs.update(self._initial_user_kwargs)
+
+        return tf.function(**kwargs)
 
     def __call__(self, func):
         keepalive = self.keepalive

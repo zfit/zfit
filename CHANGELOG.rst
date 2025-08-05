@@ -11,6 +11,8 @@ Major Features and Improvements
 -------------------------------
 - add ``ExpModGauss`` PDF, the exponentially modified gaussian distribution, taken from `the tensorflow-probability implementation <https://www.tensorflow.org/probability/api_docs/python/tfp/distributions/ExponentiallyModifiedGaussian>`_.
 - **Python 3.13 Support**: Add full support for Python 3.13, expanding compatibility from Python 3.10-3.12 to Python 3.10-3.13.
+- **Bayesian inference module**: Streamlined implementation focusing on robust, working samplers
+- **ArviZ integration**: Full diagnostic suite with R̂, ESS, trace plots, corner plots, and autocorrelation analysis
 
 Breaking changes
 ------------------
@@ -21,9 +23,12 @@ Deprecations
 Bug fixes and small changes
 ---------------------------
 - ComposedParameter now ignores keyword-only arguments when deciding whether to unpack_params
+- Allow BinnedSamplerData to be instantiated from a histogram and fix variance handling if not given.
+- Enhance the precision of binned loss functions
 
 Experimental
 ------------
+- **Jupyter notebook tutorial for Bayesian inference**: Interactive tutorial covering modern Bayesian workflows in zfit
 
 Requirement changes
 -------------------

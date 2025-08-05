@@ -409,7 +409,7 @@ class Parameter(
         value = znp.asarray(value, dtype=ztypes.float)
 
         if prior is not None:
-            warn_once("Prior and _bayesian inference is EXPERIMENTAL and may change!", "_bayesian")
+            warn_once("Prior and bayesian inference is EXPERIMENTAL and may change!", "bayesian")
 
             if not isinstance(prior, ZfitPrior):
                 msg = f"prior has to be a ZfitPrior, got {type(prior)}"
@@ -478,6 +478,28 @@ class Parameter(
     @property
     def prior(self):
         return self._prior
+
+    def set_prior(self, prior: ZfitPrior | None):
+        """Set or update the prior distribution for this parameter.
+
+        Args:
+            prior: ZfitPrior distribution or None to remove the prior
+
+        Raises:
+            TypeError: If prior is not a ZfitPrior instance
+        """
+        if prior is not None:
+            if not isinstance(prior, ZfitPrior):
+                msg = f"prior has to be a ZfitPrior, got {type(prior)}"
+                raise TypeError(msg)
+            prior._register_default_param(self)
+
+        # Remove from old prior's parameter list if changing
+        if self._prior is not None and hasattr(self._prior, "_params"):
+            with suppress(ValueError):
+                self._prior._params.remove(self)
+
+        self._prior = prior
 
     @property
     def has_limits(self) -> bool:

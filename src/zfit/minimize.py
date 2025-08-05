@@ -10,10 +10,6 @@ from .minimizers.baseminimizer import (
 )
 from .minimizers.ipopt import Ipyopt
 from .minimizers.minimizer_lm import (
-    AdvancedLevenbergMarquardt,
-    EnhancedLevenbergMarquardt,
-    EnhancedLevenbergMarquardt2,
-    JittableLevenbergMarquardt,
     LevenbergMarquardt,
 )
 from .minimizers.minimizer_minuit import Minuit

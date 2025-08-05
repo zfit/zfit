@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import math
-
 import numpy as np
 import pytest
 import tensorflow as tf
@@ -27,7 +26,7 @@ def test_complex_param():
     )
     some_value = 3.0 * param1**2 - 1.2j
     true_value = 3.0 * complex_value**2 - 1.2j
-    assert pytest.approx(some_value, rel=1e-7) == true_value
+    np.testing.assert_allclose(some_value, true_value, rtol=1e-7)
     assert not param1.get_params()
 
     # Cartesian complex
@@ -36,10 +35,10 @@ def test_complex_param():
     param2 = ComplexParameter.from_cartesian("param2_compl", real_part_param, imag_part_param)
     part1, part2 = param2.get_params()
     part1_val, part2_val = [part1.value(), part2.value()]
-    if pytest.approx(real_part) == part1_val:
-        assert pytest.approx(imag_part) == part2_val
-    elif pytest.approx(real_part) == part2_val:
-        assert pytest.approx(imag_part) == part1_val
+    if np.allclose(part1_val, real_part):
+        np.testing.assert_allclose(part2_val, imag_part)
+    elif np.allclose(part2_val, real_part):
+        np.testing.assert_allclose(part1_val, imag_part)
     else:
         assert False, "one of the if or elif should be the case"
 
@@ -51,10 +50,10 @@ def test_complex_param():
     param3 = ComplexParameter.from_polar("param3_compl", mod_part_param, arg_part_param)
     part1, part2 = param3.get_params()
     part1_val, part2_val = [part1.value(), part2.value()]
-    if pytest.approx(mod_val) == part1_val:
-        assert pytest.approx(arg_val) == part2_val
-    elif pytest.approx(arg_val) == part1_val:
-        assert pytest.approx(mod_val) == part2_val
+    if np.allclose(part1_val, mod_val):
+        np.testing.assert_allclose(part2_val, arg_val)
+    elif np.allclose(part1_val, arg_val):
+        np.testing.assert_allclose(part2_val, mod_val)
     else:
         assert False, "one of the if or elif should be the case"
 
@@ -69,18 +68,18 @@ def test_complex_param():
     param5 = param2.conj
 
     # Test properties (1e-8 is too precise)
-    assert pytest.approx(real_part, rel=1e-6) == param1.real
-    assert pytest.approx(imag_part, rel=1e-6) == param1.imag
-    assert pytest.approx(real_part, rel=1e-6) == param2.real
-    assert pytest.approx(imag_part, rel=1e-6) == param2.imag
-    assert pytest.approx(np.abs(complex_value)) == param2.mod
-    assert pytest.approx(np.angle(complex_value)) == param2.arg
-    assert pytest.approx(mod_val, rel=1e-6) == param3.mod
-    assert pytest.approx(arg_val, rel=1e-6) == param3.arg
-    assert pytest.approx(mod_val * np.cos(arg_val), rel=1e-6) == param3.real
-    assert pytest.approx(mod_val * np.sin(arg_val), rel=1e-6) == param3.imag
-    assert pytest.approx(real_part) == param5.real
-    assert pytest.approx(-imag_part) == param5.imag
+    np.testing.assert_allclose(param1.real, real_part, rtol=1e-6)
+    np.testing.assert_allclose(param1.imag, imag_part, rtol=1e-6)
+    np.testing.assert_allclose(param2.real, real_part, rtol=1e-6)
+    np.testing.assert_allclose(param2.imag, imag_part, rtol=1e-6)
+    np.testing.assert_allclose(param2.mod, np.abs(complex_value))
+    np.testing.assert_allclose(param2.arg, np.angle(complex_value))
+    np.testing.assert_allclose(param3.mod, mod_val, rtol=1e-6)
+    np.testing.assert_allclose(param3.arg, arg_val, rtol=1e-6)
+    np.testing.assert_allclose(param3.real, mod_val * np.cos(arg_val), rtol=1e-6)
+    np.testing.assert_allclose(param3.imag, mod_val * np.sin(arg_val), rtol=1e-6)
+    np.testing.assert_allclose(param5.real, real_part)
+    np.testing.assert_allclose(param5.imag, -imag_part)
 
 
 def test_repr():

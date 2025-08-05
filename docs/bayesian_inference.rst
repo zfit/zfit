@@ -4,48 +4,15 @@ Bayesian Inference
 Introduction
 -----------
 
-zfit provides a comprehensive Bayesian inference framework that allows you to perform parameter estimation and model comparison using various MCMC (Markov Chain Monte Carlo) samplers. This functionality complements the frequentist approach of maximum likelihood estimation.
+zfit provides a Bayesian inference framework that allows you to perform parameter estimation using MCMC (Markov Chain Monte Carlo) sampling. This functionality complements the frequentist approach of maximum likelihood estimation by incorporating prior knowledge and providing full posterior distributions for parameters.
 
 Key Components
 -------------
 
 - **Priors**: Define prior distributions for parameters
-- **MCMC Samplers**: Different algorithms for sampling from posterior distributions
-- **BayesianResult**: Class for analyzing and visualizing posterior distributions
-- **Posterior Analysis**: Tools for analyzing and visualizing posterior distributions
-
-BayesianResult and ZfitResult
----------------------------
-
-The `BayesianResult` class is the main interface for working with results from Bayesian inference in zfit. It implements the `ZfitResult` interface, making it compatible with the rest of the zfit ecosystem, while providing additional functionality specific to Bayesian inference.
-
-This means you can use a `BayesianResult` in the same way as a `FitResult` from frequentist inference:
-
-.. code-block:: python
-
-    # Use as a context manager to temporarily set parameters to posterior means
-    with result:
-        # Parameters are set to posterior means
-        # Do something with the model
-        pass
-    # Parameters are restored to their original values
-
-    # Update parameters to posterior means
-    result.update_params()
-
-    # Access parameter values (posterior means)
-    values = result.values
-
-    # Access parameter errors (posterior standard deviations)
-    errors = result.hesse()
-
-    # Calculate covariance matrix
-    cov = result.covariance()
-
-    # Calculate correlation matrix
-    corr = result.correlation()
-
-For backward compatibility, the `Posteriors` class is still available and is now a subclass of `BayesianResult`. However, new code should use `BayesianResult` directly.
+- **EmceeSampler**: MCMC sampler based on the emcee ensemble sampler
+- **PosteriorSamples**: Result object for analyzing posterior distributions
+- **ArviZ Integration**: Advanced diagnostics and visualization through ArviZ
 
 Priors
 ------
@@ -55,166 +22,222 @@ zfit provides several built-in prior distributions that can be attached to param
 .. code-block:: python
 
     import zfit
-    from zfit.prior import NormalPrior, HalfNormalPrior, UniformPrior
+    from zfit import prior
 
     # Create parameters with priors
-    mu = zfit.Parameter("mu", 0.0, -5.0, 10.0, prior=NormalPrior(mu=0.0, sigma=2.0))
-    sigma = zfit.Parameter("sigma", 1.0, 0.1, 5.0, prior=HalfNormalPrior(mu=0, sigma=2.0))
-    frac = zfit.Parameter("frac", 0.5, 0.0, 1.0, prior=UniformPrior(lower=0.0, upper=1.0))
+    mu = zfit.Parameter("mu", 0.0, -5.0, 10.0, prior=prior.Normal(mu=0.0, sigma=2.0))
+    sigma = zfit.Parameter("sigma", 1.0, 0.1, 5.0, prior=prior.HalfNormal(sigma=2.0))
+    frac = zfit.Parameter("frac", 0.5, 0.0, 1.0, prior=prior.Uniform(lower=0.0, upper=1.0))
 
-MCMC Samplers
+Available Prior Distributions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- **Normal**: Gaussian prior (automatically becomes TruncatedGauss when parameter has bounds)
+- **Uniform**: Flat prior that adapts to parameter bounds
+- **HalfNormal**: Positive-constrained normal for scale parameters
+- **Gamma**: Flexible positive prior for rates and scales
+- **Beta**: For parameters bounded between 0 and 1
+- **LogNormal**: For positive parameters with log-normal uncertainty
+- **Cauchy**: Heavy-tailed robust prior
+- **StudentT**: Heavy-tailed alternative to normal with df parameter
+- **Exponential**: For rates and waiting times
+- **Poisson**: Discrete prior for count parameters
+- **KDE**: Non-parametric kernel density estimate from samples
+
+MCMC Sampling
 ------------
 
-zfit implements several MCMC samplers:
+zfit currently implements the EmceeSampler, which uses the emcee ensemble sampler algorithm:
 
-1. **EmceeSampler**: Ensemble sampler based on the emcee package
-2. **NUTSSampler**: No-U-Turn Sampler, an efficient variant of Hamiltonian Monte Carlo
-3. **PTSampler**: Parallel Tempering MCMC using ptemcee
-4. **SMCSampler**: Sequential Monte Carlo sampler
-5. **UltraNestSampler**: Nested sampling using UltraNest
+.. code-block:: python
 
-Basic Usage
-----------
+    from zfit.mcmc import EmceeSampler
 
-Here's a simple example of Bayesian inference with zfit:
+    # Create sampler with custom settings
+    sampler = EmceeSampler(
+        nwalkers=32,      # Number of walkers (default: 2 × n_params)
+        verbosity=8       # Show progress bar
+    )
+
+    # Sample from the posterior
+    posterior = sampler.sample(
+        loss=nll,
+        params=params,    # Optional: specify which parameters to sample
+        n_samples=1000,   # Number of samples to draw
+        n_warmup=500      # Number of warm-up steps
+    )
+
+Basic Usage Example
+-----------------
+
+Here's a complete example of Bayesian inference with zfit:
 
 .. code-block:: python
 
     import zfit
     from zfit.mcmc import EmceeSampler
-    from zfit.prior import NormalPrior, HalfNormalPrior
+    import numpy as np
 
     # Create parameters with priors
-    mu = zfit.Parameter("mu", 0.0, -5.0, 10.0, prior=NormalPrior(mu=0.0, sigma=2.0))
-    sigma = zfit.Parameter("sigma", 1.0, 0.1, 5.0, prior=HalfNormalPrior(mu=0, sigma=2.0))
+    mu = zfit.Parameter("mu", 5.0, 4.5, 5.5, 
+                        prior=zfit.prior.Uniform(lower=4.8, upper=5.2))
+    sigma = zfit.Parameter("sigma", 0.1, 0.05, 0.3, 
+                          prior=zfit.prior.HalfNormal(sigma=0.1))
 
     # Create a model
     obs = zfit.Space("x", -10, 10)
     gauss = zfit.pdf.Gauss(mu=mu, sigma=sigma, obs=obs)
 
     # Create some data
-    data = zfit.Data.from_numpy(obs=obs, array=[1.0, 2.0, 3.0, 1.5, 2.5])
+    data = zfit.Data.from_numpy(obs=obs, array=np.random.normal(5.0, 0.12, 1000))
 
     # Create negative log-likelihood loss
     nll = zfit.loss.UnbinnedNLL(model=gauss, data=data)
 
     # Sample from the posterior
-    sampler = EmceeSampler()
+    sampler = EmceeSampler(nwalkers=32, verbosity=8)
     posterior = sampler.sample(nll, n_samples=1000, n_warmup=500)
 
-    # Analyze the results
-    posterior.print_summary()
-
-    # Access posterior statistics
-    mu_mean = posterior.mean(mu)
-    sigma_std = posterior.std(sigma)
+    # Display results
+    print(posterior)
 
 Posterior Analysis
 ----------------
 
-The `BayesianResult` object returned by samplers provides methods for analyzing the posterior distribution:
+The `PosteriorSamples` object returned by the sampler provides methods for analyzing the posterior distribution:
 
 .. code-block:: python
 
     # Get posterior statistics
-    mu_mean = posterior.mean(mu)
-    mu_median = posterior.median(mu)
-    mu_std = posterior.std(mu)
-
+    mu_mean = posterior.mean("mu")
+    mu_std = posterior.std("mu")
+    
     # Get credible intervals
-    lower, upper = posterior.credible_interval(mu, alpha=0.05)  # 95% credible interval
-
-    # Get highest density interval
-    hdi_lower, hdi_upper = posterior.highest_density_interval(mu, alpha=0.05)
-
+    lower, upper = posterior.credible_interval("mu", alpha=0.05)  # 95% CI
+    
     # Get posterior samples for a parameter
-    mu_samples = posterior.sample(mu)
+    mu_samples = posterior.get_samples("mu")
+    
+    # Get covariance matrix
+    cov = posterior.covariance()
+    
+    # Check convergence
+    converged = posterior.converged  # Checks R̂ < 1.1 and ESS > 100
+    
+    # Access convergence diagnostics
+    rhat = posterior.rhat  # Gelman-Rubin statistic
+    ess = posterior.ess    # Effective sample size
 
-    # Access all posterior samples directly
-    all_samples = posterior.posterior  # Same as posterior.samples
+Using Posterior Samples
+~~~~~~~~~~~~~~~~~~~~~
 
-    # Plot posterior distribution
-    posterior.plot_posterior(mu)
+The posterior samples integrate with zfit's parameter system:
 
-    # Plot trace (sampling history)
-    posterior.plot_trace(mu)
+.. code-block:: python
 
-    # Plot joint posterior (2D)
-    posterior.plot_pair(mu, sigma)
+    # Set parameters to posterior means
+    posterior.update_params()
+    
+    # Use as context manager to temporarily set parameters
+    with posterior:
+        # Parameters are set to posterior means
+        model_prediction = model.sample(100)
+    # Parameters are restored to original values
 
-    # Get a summary of the posterior
-    summary = posterior.summary()
-    posterior.print_summary()
+ArviZ Integration
+---------------
 
-Model Comparison
+For advanced diagnostics and visualization, zfit integrates with ArviZ:
+
+.. code-block:: python
+
+    import arviz as az
+    
+    # Convert to ArviZ InferenceData
+    idata = posterior.to_arviz()
+    
+    # Use ArviZ for visualization
+    az.plot_trace(idata)            # Trace plots
+    az.plot_posterior(idata)        # Posterior distributions
+    az.plot_pair(idata)            # Corner plots
+    az.plot_autocorr(idata)        # Autocorrelation
+    
+    # Get summary statistics
+    summary = az.summary(idata)
+
+Hierarchical Modeling
+-------------------
+
+You can use posterior samples as priors for hierarchical modeling:
+
+.. code-block:: python
+
+    # Convert posterior to KDE prior
+    mu_posterior_prior = posterior.as_prior("mu")
+    
+    # Use in a new parameter
+    mu_new = zfit.Parameter("mu_new", 5.0, 4.5, 5.5, 
+                           prior=mu_posterior_prior)
+
+Warm Starting
+-----------
+
+You can continue sampling from a previous run:
+
+.. code-block:: python
+
+    # First run
+    posterior1 = sampler.sample(nll, n_samples=500, n_warmup=200)
+    
+    # Continue from previous state
+    posterior2 = sampler.sample(nll, n_samples=1000, init=posterior1)
+
+Extended Models
 --------------
 
-zfit allows for Bayesian model comparison using Bayes factors:
+For models with yields (extended PDFs):
 
 .. code-block:: python
 
-    from zfit.mcmc import BayesianResult
+    # Create parameters with priors
+    n_sig = zfit.Parameter("n_sig", 1000, 0, 5000, 
+                          prior=zfit.prior.Normal(mu=1000, sigma=100))
+    n_bkg = zfit.Parameter("n_bkg", 500, 0, 2000, 
+                          prior=zfit.prior.Normal(mu=500, sigma=50))
+    
+    # Create extended PDFs
+    signal = zfit.pdf.Gauss(obs=obs, mu=mu, sigma=sigma, extended=n_sig)
+    background = zfit.pdf.Exponential(obs=obs, lambda_=lambda_bkg, extended=n_bkg)
+    model = zfit.pdf.SumPDF([signal, background])
+    
+    # Use ExtendedUnbinnedNLL
+    nll = zfit.loss.ExtendedUnbinnedNLL(model=model, data=data)
 
-    # Sample from two different models
-    posterior1 = sampler1.sample(nll1, n_samples=1000, n_warmup=500)
-    posterior2 = sampler2.sample(nll2, n_samples=1000, n_warmup=500)
+Convergence Diagnostics
+---------------------
 
-    # Compute Bayes factor
-    log_bf = BayesianResult.bayes_factor(posterior1, posterior2)
+Monitor convergence using built-in diagnostics:
 
-    if log_bf > 0:
-        print(f"Evidence favors model 1 with exp({log_bf:.2f}) = {np.exp(log_bf):.1f} times more support")
+.. code-block:: python
+
+    # Quick convergence check
+    if posterior.converged:
+        print("Chains have converged!")
     else:
-        print(f"Evidence favors model 2 with exp({-log_bf:.2f}) = {np.exp(-log_bf):.1f} times more support")
+        print(f"R-hat: {posterior.rhat}")
+        print(f"ESS: {posterior.ess}")
+    
+    # Check for invalid samples
+    if not posterior.valid:
+        print("Warning: Some samples contain NaN or inf values")
 
-Posterior Predictive Distributions
--------------------------------
+Best Practices
+------------
 
-You can generate posterior predictive distributions to check model fit:
+1. **Start with conservative settings**: Use more walkers and longer warm-up periods initially
+2. **Check convergence**: Always verify R̂ < 1.1 and ESS > 100 for all parameters
+3. **Visual inspection**: Use ArviZ trace plots to visually check for convergence
+4. **Prior sensitivity**: Test how sensitive your results are to prior choices
+5. **Model checking**: Use posterior predictive checks to validate your model
 
-.. code-block:: python
-
-    # Generate posterior predictive samples
-    predictive_samples = posterior.predictive_distribution(
-        lambda: model.sample(100).value()
-    )
-
-Advanced Sampling Options
------------------------
-
-Each sampler has specific configuration options:
-
-.. code-block:: python
-
-    # NUTS sampler with custom settings
-    nuts_sampler = NUTSSampler(
-        step_size=0.1,
-        adapt_step_size=True,
-        target_accept=0.8,
-        max_tree_depth=10
-    )
-
-    # Parallel Tempering sampler
-    pt_sampler = PTSampler(
-        nwalkers=20,
-        ntemps=5,
-        adaptation_lag=1000,
-        adaptation_time=100
-    )
-
-    # Sequential Monte Carlo sampler
-    smc_sampler = SMCSampler(
-        n_particles=1000,
-        n_mcmc_steps=2,
-        ess_threshold=0.5,
-        resampling_method="systematic"
-    )
-
-    # UltraNest sampler
-    ultranest_sampler = UltraNestSampler(
-        min_num_live_points=400,
-        cluster_num_live_points=40,
-        dlogz=0.5
-    )
-
-For more detailed examples, see the `examples/bayesian_inference.py` file in the zfit repository.
+For a complete working example, see `examples/bayesian_inference.py` in the zfit repository.

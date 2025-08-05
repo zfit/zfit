@@ -16,6 +16,7 @@ if typing.TYPE_CHECKING:
 # @tfp.experimental.auto_composite_tensor()
 # class Regular(hist.axis.Regular, tfp.experimental.AutoCompositeTensor, family='zfit'):
 #     pass
+from ..core.interfaces import ZfitBinning
 
 
 class Variable(zinterface.variables.ZfitVar):
