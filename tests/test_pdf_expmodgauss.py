@@ -1,8 +1,6 @@
 #  Copyright (c) 2024 zfit
 import pytest
 import numpy as np
-#from scipy.special import gamma as gamma_scipy
-
 import zfit
 import zfit.z.numpy as znp
 
