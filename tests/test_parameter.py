@@ -671,4 +671,3 @@ def test_composed_parameter_unpacking():
     assert prod_10.value() == 24
     assert prod_12.value() == 24
 
-    pass
