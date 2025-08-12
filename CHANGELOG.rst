@@ -11,7 +11,9 @@ Major Features and Improvements
 -------------------------------
 - add ``ExpModGauss`` PDF, the exponentially modified gaussian distribution, taken from `the tensorflow-probability implementation <https://www.tensorflow.org/probability/api_docs/python/tfp/distributions/ExponentiallyModifiedGaussian>`_.
 - **Python 3.13 Support**: Add full support for Python 3.13, expanding compatibility from Python 3.10-3.12 to Python 3.10-3.13.
-- **Bayesian inference module**: Streamlined implementation focusing on robust, working samplers
+- **Bayesian inference module**: Complete Bayesian inference module with
+  - **Sampling**: Use MCMC sampling methods like NUTS and HMC
+  - **Posterior analysis**: Analyze posterior distributions with diagnostics and visualization
 - **ArviZ integration**: Full diagnostic suite with R̂, ESS, trace plots, corner plots, and autocorrelation analysis
 
 Breaking changes
@@ -28,7 +30,6 @@ Bug fixes and small changes
 
 Experimental
 ------------
-- **Jupyter notebook tutorial for Bayesian inference**: Interactive tutorial covering modern Bayesian workflows in zfit
 
 Requirement changes
 -------------------
