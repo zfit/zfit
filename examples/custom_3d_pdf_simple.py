@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import zfit
 import zfit.z.numpy as znp
-from zfit import z
 
 # IMPORTANT! The communication of which axis corresponds to which data point happens here. So the user knows now that
 # he should create this pdf with a space in the obs (x, y, z).
@@ -16,7 +15,6 @@ class CustomPDF(zfit.pdf.ZPDF):
     _N_OBS = 3
 
     @zfit.supports()
-    @z.function(autograph=False, jit_compile=True)
     def _unnormalized_pdf(self, x, params):  # implement function
         x0 = x[0]
         x1 = x[1]

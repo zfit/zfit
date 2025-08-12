@@ -55,7 +55,6 @@ __all__ = [
     "supports",
     "result",
     "run",
-    "mcmc",
     "settings",
     "ztypes",
     "prior",
