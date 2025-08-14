@@ -1143,7 +1143,7 @@ class ExtendedUnbinnedNLL(BaseUnbinnedNLL):
 
         .. math::
             \mathcal{L}_{extended term} = poiss(N_{tot}, N_{data})
-            = N_{data}^{N_{tot}} \frac{e^{- N_{data}}}{N_{tot}!}
+            = N_{tot}^{N_{data}} \frac{e^{- N_{tot}}}{N_{data}!}
 
         and the extended likelihood is the product of both. |@docend:loss.init.explain.extendedterm|
 
