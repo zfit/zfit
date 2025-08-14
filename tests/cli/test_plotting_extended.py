@@ -129,7 +129,7 @@ def create_diff_visualization(truth_img, test_img, diff_path, test_name):
         # Try to use a better font if available
         from PIL import ImageFont
         font = ImageFont.load_default()
-    except:
+    except (ImportError, OSError):
         font = None
 
     labels = ["Truth", "Test", "Difference", "Enhanced Diff (10x)"]
