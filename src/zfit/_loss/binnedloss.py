@@ -250,8 +250,8 @@ class ExtendedBinnedNLL(BaseBinned):
             The binned likelihood is defined as
 
             .. math::
-                \mathcal{L} = \product \mathcal{poiss}(N_{modelbin_i}, N_{databin_i})
-                = N_{databin_i}^{N_{modelbin_i}} \frac{e^{- N_{databin_i}}}{N_{modelbin_i}!}
+                \mathcal{L} = \prod_{i} \mathcal{poiss}(N_{databin_i}, N_{modelbin_i})
+                = N_{modelbin_i}^{N_{databin_i}} \frac{e^{- N_{modelbin_i}}}{N_{databin_i}!}
 
 
             where :math:`databin_i` is the :math:`i^{th}` bin in the data and
