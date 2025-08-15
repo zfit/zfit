@@ -9,13 +9,14 @@ import zfit.z.numpy as znp
     ("mu_true", "sigma_true", "lambd_true", "obs_limits_low", "obs_limits_high"),
     [
         (2, 1, 0.5, -15, 30),
-        pytest.param(2, 1, 0.1, -15, 30, marks=pytest.mark.xfail(reason='distribution truncated')), # Larger tail than previous, limits not large enough
         (-2, 0.5, 0.1, -15, 90),
         (-5, 3, 1, -25, 15),
+        (10_000, 1, 1, 9_070, 10_030), # Large positive mu
+        (-10_000, 1, 1, -10_030, -9_070), # Large negative mu
         (0, 0.0001, 1, -10, 10), # Test small sigma value, distribution ~= exponential in this case
         (0, 0.000001, 1, -10, 10), # Test small sigma value, distribution ~= exponential in this case
         (0, 1, 0.001, -10, 10_000), # Test small rate = very large right tail
-        pytest.param(0, 1, 0.001, -10, 1000, marks=pytest.mark.xfail(reason='distribution truncated')), # Same test, but with bad limits
+        (0, 1, 0.0001, -10, 100_000), # Test small rate = very large right tail
         (1, 1, 1_000, -10, 15), # Test large lambd value, distribution =~ gaussian in this case
         (1, 1, 100_000, -10, 15), # Test large lambd value, distribution =~ gaussian in this case
         (1, 1, 10_000_000, -10, 15), # Test large lambd value, distribution =~ gaussian in this case
