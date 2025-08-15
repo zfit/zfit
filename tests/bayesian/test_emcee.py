@@ -201,7 +201,7 @@ def test_emcee_sampler_posterior_samples_methods(simple_gaussian_setup):
     for param in setup['params']:
         # Basic statistics
         mean_val = posterior.mean(param)
-        symerr_val = posterior.symerror(param)
+        symerr_val = posterior.symerr(param)
 
         assert np.isfinite(mean_val)
         assert symerr_val > 0

@@ -79,8 +79,8 @@ def test_posterior_samples_basic(nll, model_params):
     assert result.loss is not None
 
     # Test modern methods
-    symerror_mu = result.symerror("mu")
-    symerror_sigma = result.symerror("sigma")
+    symerror_mu = result.symerr("mu")
+    symerror_sigma = result.symerr("sigma")
     assert symerror_mu > 0
     assert symerror_sigma > 0
 

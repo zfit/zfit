@@ -65,8 +65,6 @@ __all__ = [
 ]
 
 
-#  Copyright (c) 2019 zfit
-
 
 @_contextlib.contextmanager
 def _suppress_stderr():

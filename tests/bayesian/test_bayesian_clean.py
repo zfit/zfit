@@ -181,7 +181,7 @@ def test_posterior_samples_has_required_interface(simple_posterior):
 
     # Test statistical methods
     mean_val = posterior.mean(mu)
-    error_val = posterior.symerror(mu)
+    error_val = posterior.symerr(mu)
     std_val = posterior.std(mu)
     ci_lower, ci_upper = posterior.credible_interval(mu)
 

@@ -90,13 +90,10 @@ class PosteriorSamples:
         self.raw_result = raw_result
         self.info = info
 
-        # Create parameter mappings - this is the new structure
+        # Create parameter mappings
         # Map both name->param and param->name for efficient lookup
         self._param_by_name = {param.name: param for param in self._params}
         self._name_by_param = {param: param.name for param in self._params}
-
-        # Store param names for backward compatibility
-        self.param_names = [param.name for param in self._params]
 
         # Create position mapping for internal numpy operations
         self._position_by_name = {param.name: i for i, param in enumerate(self._params)}
@@ -114,31 +111,41 @@ class PosteriorSamples:
             params: Parameter name, object, index, or list thereof. If None, return all means.
 
         Returns:
-            Mean value(s) as float or array.
+            Mean value(s).
+            - Single parameter: returns float.
+            - Collection of parameters: returns array.
         """
         # Validate that we have samples
         if len(self.samples) == 0:
             msg = "Cannot compute mean of empty samples"
             raise ValueError(msg)
 
-        # If params is None, use all parameters
+        # If params is None, use all parameters (treat as collection)
         if params is None:
-            params = self.param_names
+            params = [param.name for param in self._params]
+            was_container = True
+        else:
+            # Check if original input was a container before conversion
+            was_container = is_container(params)
 
         indices = self._get_param_positions(params)
 
+        # Validate indices
+        if not indices:
+            msg = "No valid parameters specified for mean calculation"
+            raise ValueError(msg)
+
         # Select samples for the requested parameters
-        # Convert to numpy for indexing, then back to znp
         samples_np = np.asarray(self.samples)
         selected_samples = samples_np[:, indices]
         means = np.mean(selected_samples, axis=0)
 
-        # Return scalar for single parameter
-        if len(indices) == 1:
+        # Single param not in container -> scalar, collection -> array
+        if not was_container:
             return float(means[0])
         return means
 
-    def symerror(
+    def symerr(
         self,
         params: str | ZfitParameter | Iterable[str | ZfitParameter] | None = None,
         *,
@@ -179,13 +186,15 @@ class PosteriorSamples:
         self,
         params: str | ZfitParameter | Iterable[str | ZfitParameter] | None = None,
     ) -> float | npt.NDArray[np.float64]:
-        """Standard deviation of posterior samples.
+        """Standard deviation of posterior samples
 
         Args:
             params: Parameter name, object, index, or list thereof. If None, return all stds.
 
         Returns:
-            Standard deviation(s) as float or array.
+            Standard deviation(s).
+            - Single parameter: returns float.
+            - Collection of parameters: returns array.
 
         Examples:
             >>> result.std()  # All parameters
@@ -193,26 +202,40 @@ class PosteriorSamples:
 
             >>> result.std(['mu', 'sigma'])  # Multiple parameters
             array([0.102, 0.234])
+
+            >>> result.std('mu')  # Single parameter
+            0.102
+
+            >>> result.std(['mu'])  # Single parameter in list
+            array([0.102])
         """
         # Validate that we have samples
         if len(self.samples) == 0:
             msg = "Cannot compute standard deviation of empty samples"
             raise ValueError(msg)
 
-        # If params is None, use all parameters
+        # If params is None, use all parameters (treat as collection)
         if params is None:
-            params = self.param_names
+            params = [param.name for param in self._params]
+            was_container = True
+        else:
+            # Check if original input was a container before conversion
+            was_container = is_container(params)
 
         indices = self._get_param_positions(params)
 
+        # Validate indices
+        if not indices:
+            msg = "No valid parameters specified for std calculation"
+            raise ValueError(msg)
+
         # Select samples for the requested parameters
-        # Convert to numpy for indexing
         samples_np = np.asarray(self.samples)
         selected_samples = samples_np[:, indices]
         stds = np.std(selected_samples, axis=0)
 
-        # Return scalar for single parameter
-        if len(indices) == 1:
+        # Single param not in container -> scalar, collection -> array
+        if not was_container:
             return float(stds[0])
         return stds
 
@@ -231,9 +254,11 @@ class PosteriorSamples:
             sigma: Number of standard deviations (e.g., 1 for ~68%, 2 for ~95%). Overrides alpha if given.
 
         Returns:
-            Tuple (lower, upper) or arrays of intervals.
+            Tuple (lower, upper).
+            - Single parameter: returns tuple of floats.
+            - Collection of parameters: returns tuple of arrays.
         """
-        import scipy.stats
+        import scipy.stats  # noqa: PLC0415
 
         # Validate inputs
         if sigma is not None and alpha is not None:
@@ -272,9 +297,13 @@ class PosteriorSamples:
         lower_percentile = 100 * alpha / 2
         upper_percentile = 100 * (1 - alpha / 2)
 
-        # If params is None, use all parameters
+        # If params is None, use all parameters (treat as collection)
         if params is None:
-            params = self.param_names
+            params = [param.name for param in self._params]
+            was_container = True
+        else:
+            # Check if original input was a container before conversion
+            was_container = is_container(params)
 
         # Handle single parameter or list of parameters
         indices = self._get_param_positions(params)
@@ -283,7 +312,6 @@ class PosteriorSamples:
             raise ValueError(msg)
 
         # Extract samples for selected parameters
-        # Convert to numpy for indexing
         samples_np = np.asarray(self.samples)
         selected_samples = samples_np[:, indices]
 
@@ -291,8 +319,8 @@ class PosteriorSamples:
         lowers = np.percentile(selected_samples, lower_percentile, axis=0)
         uppers = np.percentile(selected_samples, upper_percentile, axis=0)
 
-        # Return scalar for single parameter, array for multiple
-        if len(indices) == 1:
+        # Single param not in container -> scalar tuple, collection -> array tuple
+        if not was_container:
             return float(lowers[0]), float(uppers[0])
         return lowers, uppers
 
@@ -306,17 +334,22 @@ class PosteriorSamples:
             params: Parameter name, object, index, or list thereof. If None, return all samples.
 
         Returns:
-            Array of samples. For single parameter, returns 1D array.
-            For multiple parameters, returns 2D array with shape (n_samples, n_params).
+            Array of samples.
+            - Single parameter: returns 1D array.
+            - Collection of parameters: returns 2D array with shape (n_samples, n_params).
         """
         # Validate that we have samples
         if len(self.samples) == 0:
             msg = "Cannot get samples from empty posterior"
             raise ValueError(msg)
 
-        # If params is None, use all parameters
+        # If params is None, use all parameters (treat as collection)
         if params is None:
-            params = self.param_names
+            params = [param.name for param in self._params]
+            was_container = True
+        else:
+            # Check if original input was a container before conversion
+            was_container = is_container(params)
 
         indices = self._get_param_positions(params)
 
@@ -328,11 +361,9 @@ class PosteriorSamples:
         # Convert to numpy for indexing
         samples_np = np.asarray(self.samples)
 
-        # For single parameter, return 1D array
-        if len(indices) == 1:
+        # Single param not in container -> 1D, collection -> 2D
+        if not was_container:
             return samples_np[:, indices[0]]
-
-        # For multiple parameters, return 2D array
         return samples_np[:, indices]
 
     def as_prior(self, param: str | ZfitParameter | int) -> KDE:
@@ -357,7 +388,7 @@ class PosteriorSamples:
         samples = self.get_samples(param)
 
         # Import here to avoid circular imports
-        from .priors import KDE
+        from .priors import KDE  # noqa: PLC0415
 
         param_name = param if isinstance(param, str) else param.name if hasattr(param, "name") else f"param_{param}"
         return KDE(samples, name=f"{param_name}_posterior_prior")
@@ -370,7 +401,7 @@ class PosteriorSamples:
             ArviZ InferenceData object for advanced analysis.
         """
         try:
-            import arviz as az
+            import arviz as az  # noqa: PLC0415
         except ImportError as error:
             msg = "ArviZ is required for to_arviz(). Install with 'pip install arviz'."
             raise ImportError(msg) from error
@@ -398,7 +429,7 @@ class PosteriorSamples:
 
         # Use az.from_dict for simpler conversion
         return az.from_dict(
-            {param_name: samples_reshaped[:, :, i] for i, param_name in enumerate(self.param_names)},
+            {param.name: samples_reshaped[:, :, i] for i, param in enumerate(self._params)},
             coords={"chain": range(nwalkers), "draw": range(ndraws)},
         )
 
@@ -457,7 +488,7 @@ class PosteriorSamples:
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         """Context manager: restore original parameter values."""
-        from zfit.core.parameter import set_values
+        from zfit.core.parameter import set_values  # noqa: PLC0415
 
         set_values(self._params, self._old_values)
 
@@ -466,6 +497,11 @@ class PosteriorSamples:
     def params(self) -> list[ZfitParameter]:
         """Parameters used in the sampling."""
         return self._params
+
+    @property
+    def param_names(self) -> list[str]:
+        """Names of the parameters used in the sampling."""
+        return [param.name for param in self._params]
 
     @property
     def sampler(self) -> MCMCSampler:
@@ -504,6 +540,8 @@ class PosteriorSamples:
 
         Returns:
             Covariance matrix as numpy array.
+            - Single parameter: returns scalar (variance).
+            - Collection of parameters: returns matrix.
         """
         # Validate that we have samples
         if len(self.samples) == 0:
@@ -515,9 +553,13 @@ class PosteriorSamples:
             msg = f"Need at least 2 samples to compute covariance, got {len(self.samples)}"
             raise ValueError(msg)
 
-        # If params is None, use all parameters
+        # If params is None, use all parameters (treat as collection)
         if params is None:
-            params = self.param_names
+            params = [param.name for param in self._params]
+            was_container = True
+        else:
+            # Check if original input was a container before conversion
+            was_container = is_container(params)
 
         indices = self._get_param_positions(params)
 
@@ -527,11 +569,17 @@ class PosteriorSamples:
             raise ValueError(msg)
 
         # Select columns for specified parameters
-        # Convert to numpy for indexing
         samples_np = np.asarray(self.samples)
         selected_samples = samples_np[:, indices]
 
-        return np.cov(selected_samples, rowvar=False)
+        # Single param not in container -> scalar variance, collection -> matrix
+        if len(indices) == 1 and not was_container:
+            variance = np.var(selected_samples, axis=0, ddof=1)
+            return float(variance[0]) if variance.ndim > 0 else float(variance)
+
+        # For collection of parameters, return covariance matrix
+        cov_matrix = np.cov(selected_samples, rowvar=False)
+        return np.atleast_2d(cov_matrix)
 
     # Utility methods
     def summary(self, round_to: int | None = None) -> pd.DataFrame:
@@ -543,7 +591,7 @@ class PosteriorSamples:
         Returns:
             ArviZ summary DataFrame.
         """
-        import arviz as az
+        import arviz as az  # noqa: PLC0415
 
         idata = self.to_arviz()
 
@@ -592,13 +640,13 @@ class PosteriorSamples:
         return positions
 
     def __repr__(self) -> str:
-        return f"PosteriorSamples(n_samples={len(self.samples)}, params={self.param_names})"
+        return f"PosteriorSamples(n_samples={len(self.samples)}, params={[param.name for param in self._params]})"
 
     def __str__(self) -> str:
         """Nice string representation of posterior results."""
-        import colored
-        from colorama import Style
-        from tabulate import tabulate
+        import colored  # noqa: PLC0415
+        from colorama import Style  # noqa: PLC0415
+        from tabulate import tabulate  # noqa: PLC0415
 
         # Header
         string = Style.BRIGHT + "PosteriorSamples" + Style.NORMAL + f" from\n{self.loss} \nwith\n{self.sampler}\n\n"
@@ -671,7 +719,7 @@ class PosteriorSamples:
 
         # Determine the width needed for credible intervals
         all_ci_values = []
-        for i in range(len(self.param_names)):
+        for i in range(len(self._params)):
             ci_lower = lower[i] if hasattr(lower, "__len__") else lower
             ci_upper = upper[i] if hasattr(upper, "__len__") else upper
             all_ci_values.extend([ci_lower, ci_upper])
@@ -685,7 +733,8 @@ class PosteriorSamples:
             ci_width = 7  # For small numbers like mu, sigma
 
         # Second pass: format data with proper alignment
-        for i, param_name in enumerate(self.param_names):
+        for i, param in enumerate(self._params):
+            param_name = param.name
             mean_val = means[i]
             std_val = stds[i]
             ci_lower = lower[i] if hasattr(lower, "__len__") else lower
@@ -742,7 +791,7 @@ class PosteriorSamples:
             return
 
         # Try to use ArviZ for better diagnostics if available
-        import arviz as az
+        import arviz as az  # noqa: PLC0415
 
         idata = self.to_arviz()
 
@@ -751,8 +800,8 @@ class PosteriorSamples:
         ess_data = az.ess(idata)
 
         # Extract values for each parameter
-        self._rhat = np.array([rhat_data[param].values for param in self.param_names])
-        self._ess = np.array([ess_data[param].values for param in self.param_names])
+        self._rhat = np.array([rhat_data[param.name].values for param in self._params])
+        self._ess = np.array([ess_data[param.name].values for param in self._params])
 
         # Check convergence criteria
         rhat_converged = bool(np.all(self._rhat < 1.1))
@@ -779,7 +828,7 @@ class PosteriorSamples:
 
     def convergence_summary(self) -> dict:
         """Summary of convergence diagnostics."""
-        import arviz as az
+        import arviz as az  # noqa: PLC0415
 
         idata = self.to_arviz()
 
@@ -801,7 +850,7 @@ class PosteriorSamples:
             Dictionary with all available diagnostics.
         """
 
-        import arviz as az
+        import arviz as az  # noqa: PLC0415  # noqa
 
         idata = self.to_arviz()
 

@@ -104,7 +104,7 @@ def test_emcee_physics_fit_comparison(physics_model_high_stats_posterior):
 
     # Calculate mean and std from posterior using new API
     mcmc_means = {param.name: posterior.mean(param) for param in model.get_params()}
-    mcmc_stds = {param.name: posterior.symerror(param) for param in model.get_params()}
+    mcmc_stds = {param.name: posterior.symerr(param) for param in model.get_params()}
 
     # Basic validation of high-stats results
     for param_name in mcmc_means:
@@ -238,7 +238,7 @@ def test_credible_intervals_physics(physics_model_high_stats_posterior):
         assert lower <= mean_val <= upper
 
         # Test symmetric error
-        symerr = posterior.symerror(param)
+        symerr = posterior.symerr(param)
         assert symerr > 0
         assert np.isfinite(symerr)
 

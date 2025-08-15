@@ -184,7 +184,7 @@ def test_emcee_sampler_credible_intervals(simple_model):
         assert lower <= mean_val <= upper
 
         # Test symmetric error
-        symerr = posterior.symerror(param)
+        symerr = posterior.symerr(param)
         assert symerr > 0
         assert np.isfinite(symerr)
 
