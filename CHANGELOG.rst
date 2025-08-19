@@ -19,6 +19,7 @@ Deprecations
 
 Bug fixes and small changes
 ---------------------------
+- ComposedParameter now ignores keyword-only arguments when deciding whether to unpack_params
 
 Experimental
 ------------
@@ -28,6 +29,7 @@ Requirement changes
 
 Thanks
 ------
+
 
 0.27.0 (14 Jul 2025)
 ======================
