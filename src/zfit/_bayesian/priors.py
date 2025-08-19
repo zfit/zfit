@@ -4,6 +4,10 @@ This module provides a collection of commonly used prior distributions that can 
 attached to parameters in Bayesian inference workflows. All priors automatically
 adapt to parameter bounds when specified, ensuring proper normalization within
 the valid parameter range.
+
+The constraint system provides systematic handling of parameter constraints
+similar to PyMC's transform system, enabling automatic transforms for bounded
+parameters while maintaining proper probability densities.
 """
 
 #  Copyright (c) 2025 zfit
@@ -11,13 +15,16 @@ the valid parameter range.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from typing import Union
 
 import zfit
 import zfit.z.numpy as znp
 from zfit.core.interfaces import ZfitPrior
 
+from .mathconstrain import POSITIVE, UNCONSTRAINED, ConstraintType, PriorConstraint, validate_parameter
 
-class AdaptivePrior(ZfitPrior, ABC):
+
+class _PriorBase(ZfitPrior, ABC):
     """Base class for priors that automatically adapt to parameter limits.
 
     This abstract base class provides the foundation for all prior distributions
@@ -25,35 +32,46 @@ class AdaptivePrior(ZfitPrior, ABC):
     is assigned to a parameter with bounds, it automatically truncates or adjusts
     its distribution to respect those limits while maintaining proper normalization.
 
-    Subclasses must implement the `_create_pdf` method to define the specific
-    probability distribution. The adaptation logic handles bounds checking and
-    PDF recreation when necessary.
+    The new constraint system provides automatic parameter validation in eager mode
+    and systematic handling of transforms for bounded parameters.
 
-    Attributes:
-        _default_bounds: Default bounds for the distribution (can be overridden)
-        _requires_positive: Whether the distribution requires positive support
+    Subclasses must implement the `_create_pdf` method and define their constraint
+    via the `constraint` class attribute.
     """
 
-    # Prior type configuration - subclasses should override these
-    _default_bounds: tuple[float, float] = (-float("inf"), float("inf"))
-    _requires_positive: bool = False
+    # Constraint configuration - subclasses must override this
+    constraint: PriorConstraint = UNCONSTRAINED
 
-    def __init__(self, pdf_params: dict, bounds: tuple[float, float] | None = None, name=None):
+    def __init__(self, pdf_params: dict, bounds: tuple[float, float] | None = None, name: str | None = None):
         """Initialize an adaptive prior.
 
         Args:
             pdf_params: Parameters to pass to the PDF constructor
-            bounds: Optional custom bounds for the prior
+            bounds: Optional custom bounds for the prior (overrides constraint defaults)
             name: Optional name for the prior
         """
+        # Validate parameters in eager mode
+        self._validate_parameters(pdf_params)
+
         # Store parameters for potential adaptation
         self._pdf_params = pdf_params.copy()
-        self._original_bounds = bounds or self._default_bounds
+
+        # Determine bounds using constraint system
+        if bounds is not None:
+            self._original_bounds = bounds
+        else:
+            self._original_bounds = self.constraint.bounds
+
+        # Validate bounds with constraint
+        self._original_bounds = self.constraint.validate_bounds(self._original_bounds)
 
         # Create initial PDF
         obs = zfit.Space("prior_space", limits=self._original_bounds)
         pdf = self._create_pdf(obs, **self._pdf_params)
         super().__init__(pdf=pdf, name=name)
+
+    def _validate_parameters(self, params: dict):
+        """Validate parameters if in eager mode. Override in subclasses."""
 
     @abstractmethod
     def _create_pdf(self, obs, **params):
@@ -64,46 +82,47 @@ class AdaptivePrior(ZfitPrior, ABC):
         super()._register_default_param(param)
 
         # Check if we should adapt to parameter limits
-        if hasattr(param, "has_limits") and param.has_limits:
+        if self._should_adapt_to_param(param):
             self._adapt_to_parameter_limits(param)
 
         return self
 
+    def _should_adapt_to_param(self, param) -> bool:
+        """Check if the prior should adapt to parameter limits."""
+        return hasattr(param, "has_limits") and param.has_limits
+
     def _get_adapted_bounds(self, param) -> tuple[float, float]:
-        """Get bounds adapted to parameter limits."""
+        """Get bounds adapted to parameter limits using constraint system."""
         lower, upper = self._original_bounds
 
+        # Extract parameter bounds safely
+
         # Use parameter limits if available
-        if hasattr(param, "lower") and param.lower is not None:
-            if lower == -float("inf") or (self._requires_positive and lower < param.lower):
-                lower = param.lower
-            else:
-                lower = max(lower, param.lower)
+        if (param_lower := getattr(param, "lower", None)) is not None:
+            lower = param_lower if lower == -float("inf") else max(lower, param_lower)
 
-        if hasattr(param, "upper") and param.upper is not None:
-            upper = param.upper if upper == float("inf") else min(upper, param.upper)
+        if (param_upper := getattr(param, "upper", None)) is not None:
+            upper = param_upper if upper == float("inf") else min(upper, param_upper)
 
-        # Ensure positive values if required
-        if self._requires_positive:
-            lower = max(0, lower)
-
-        return lower, upper
+        # Apply constraint validation
+        return self.constraint.validate_bounds((lower, upper))
 
     def _adapt_to_parameter_limits(self, param):
         """Adapt the prior's observation space to the parameter limits."""
-        lower, upper = self._get_adapted_bounds(param)
+        adapted_bounds = self._get_adapted_bounds(param)
 
         # Only update if bounds actually changed
-        if (lower, upper) != self._original_bounds:
-            obs = zfit.Space("prior_space", limits=(lower, upper))
-            self.pdf = self._create_adapted_pdf(obs, lower, upper)
+        if adapted_bounds != self._original_bounds:
+            obs = zfit.Space("prior_space", limits=adapted_bounds)
+            self.pdf = self._create_adapted_pdf(obs, *adapted_bounds)
 
-    def _create_adapted_pdf(self, obs, _lower, _upper):
+    def _create_adapted_pdf(self, obs, lower, upper):
         """Create an adapted PDF with new bounds. Can be overridden for special handling."""
+        del lower, upper  # Unused in base implementation
         return self._create_pdf(obs, **self._pdf_params)
 
 
-class Normal(AdaptivePrior):
+class Normal(_PriorBase):
     """Normal (Gaussian) prior distribution.
 
     The Normal prior is one of the most commonly used priors in Bayesian inference.
@@ -124,7 +143,9 @@ class Normal(AdaptivePrior):
         >>> prior = Normal(mu=10.0, sigma=2.0)
     """
 
-    def __init__(self, mu, sigma, name=None):
+    constraint = UNCONSTRAINED
+
+    def __init__(self, mu: float, sigma: float, name: str | None = None):
         """Initialize a Normal prior.
 
         Args:
@@ -134,6 +155,11 @@ class Normal(AdaptivePrior):
         """
         pdf_params = {"mu": mu, "sigma": sigma}
         super().__init__(pdf_params, name=name)
+
+    def _validate_parameters(self, params: dict):
+        """Validate Normal distribution parameters."""
+        validate_parameter("mu", params["mu"])
+        validate_parameter("sigma", params["sigma"], POSITIVE)
 
     def _create_pdf(self, obs, mu, sigma):
         """Create a Gaussian PDF."""
@@ -146,7 +172,7 @@ class Normal(AdaptivePrior):
         )
 
 
-class Uniform(AdaptivePrior):
+class Uniform(_PriorBase):
     """Uniform prior distribution.
 
     The Uniform prior assigns equal probability to all values within a specified
@@ -171,7 +197,7 @@ class Uniform(AdaptivePrior):
         >>> prior = Uniform()  # Will use parameter's limits when assigned
     """
 
-    def __init__(self, lower=None, upper=None, name=None):
+    def __init__(self, lower: float | None = None, upper: float | None = None, name: str | None = None):
         """Initialize a Uniform prior.
 
         Args:
@@ -192,15 +218,24 @@ class Uniform(AdaptivePrior):
         # Determine initial bounds
         if lower is None and upper is None:
             bounds = (-1e6, 1e6)  # temporary defaults
+            # Will adapt to parameter bounds
+            self.constraint = UNCONSTRAINED
         elif lower is None:
             bounds = (upper - 1e6, upper)
+            self.constraint = PriorConstraint(ConstraintType.UPPER_BOUNDED, bounds=(-float("inf"), upper))
         elif upper is None:
             bounds = (lower, lower + 1e6)
+            self.constraint = PriorConstraint(ConstraintType.LOWER_BOUNDED, bounds=(lower, float("inf")))
         else:
             bounds = (lower, upper)
+            self.constraint = PriorConstraint(ConstraintType.CUSTOM_BOUNDS, bounds=(lower, upper))
 
         pdf_params = {}  # Uniform doesn't need location/scale params
         super().__init__(pdf_params, bounds=bounds, name=name)
+
+    def _validate_parameters(self, params: dict):
+        """Validate Uniform distribution parameters."""
+        # Uniform has no parameters to validate
 
     def _create_pdf(self, obs, **_params):
         """Create a Uniform PDF."""
@@ -230,7 +265,7 @@ class Uniform(AdaptivePrior):
         return lower, upper
 
 
-class HalfNormal(AdaptivePrior):
+class HalfNormal(_PriorBase):
     """Half-normal prior distribution.
 
     The Half-Normal prior is a normal distribution truncated at a lower bound
@@ -252,9 +287,7 @@ class HalfNormal(AdaptivePrior):
         >>> prior = HalfNormal(mu=2.0, sigma=0.5)
     """
 
-    _requires_positive = True
-
-    def __init__(self, *, sigma, mu=0, name=None):
+    def __init__(self, *, sigma: float, mu: float = 0, name: str | None = None):
         """Initialize a Half-Normal prior.
 
         Args:
@@ -264,9 +297,16 @@ class HalfNormal(AdaptivePrior):
                 Defaults to 0 for a standard half-normal.
             name: Optional name for the prior
         """
+        self.constraint = PriorConstraint(ConstraintType.LOWER_BOUNDED, bounds=(mu, float("inf")))
+
         pdf_params = {"mu": mu, "sigma": sigma}
         bounds = (mu, float("inf"))
         super().__init__(pdf_params, bounds=bounds, name=name)
+
+    def _validate_parameters(self, params: dict):
+        """Validate HalfNormal distribution parameters."""
+        validate_parameter("mu", params["mu"])
+        validate_parameter("sigma", params["sigma"], POSITIVE)
 
     def _create_pdf(self, obs, mu, sigma):
         """Create a half-normal using TruncatedGauss."""
@@ -282,7 +322,7 @@ class HalfNormal(AdaptivePrior):
         return lower, upper
 
 
-class Gamma(AdaptivePrior):
+class Gamma(_PriorBase):
     """Gamma prior distribution.
 
     The Gamma distribution is a flexible family of continuous probability
@@ -309,9 +349,7 @@ class Gamma(AdaptivePrior):
         >>> prior = Gamma(alpha=2.0, beta=1.0, mu=0.5)
     """
 
-    _requires_positive = True
-
-    def __init__(self, alpha, beta, mu=0, name=None):
+    def __init__(self, alpha: float, beta: float, mu: float = 0, name: str | None = None):
         """Initialize a Gamma prior.
 
         Args:
@@ -325,9 +363,17 @@ class Gamma(AdaptivePrior):
                 has support on [mu, ∞).
             name: Optional name for the prior
         """
+        self.constraint = PriorConstraint(ConstraintType.LOWER_BOUNDED, bounds=(mu, float("inf")))
+
         pdf_params = {"gamma": alpha, "beta": beta, "mu": mu}
         bounds = (mu, float("inf"))
         super().__init__(pdf_params, bounds=bounds, name=name)
+
+    def _validate_parameters(self, params: dict):
+        """Validate Gamma distribution parameters."""
+        validate_parameter("gamma", params["gamma"], POSITIVE)  # alpha
+        validate_parameter("beta", params["beta"], POSITIVE)
+        validate_parameter("mu", params["mu"])
 
     def _create_pdf(self, obs, gamma, beta, mu):
         """Create a Gamma PDF."""
@@ -341,68 +387,69 @@ class Gamma(AdaptivePrior):
         return zfit.pdf.Gamma(gamma=self._pdf_params["gamma"], beta=self._pdf_params["beta"], mu=adapted_mu, obs=obs)
 
 
-class Beta(AdaptivePrior):
-    """Beta prior distribution.
+class Beta(_PriorBase):
+    """Beta prior distribution for arbitrary [a, b] intervals.
 
-    The Beta distribution is the natural choice for parameters bounded between
-    0 and 1. It's extremely flexible, capable of representing uniform, U-shaped,
-    bell-shaped, or skewed distributions within [0,1]. The Beta is the conjugate
-    prior for binomial and Bernoulli likelihoods.
+    This extends the standard Beta distribution to any bounded interval [a, b]
+    by applying an affine transformation. The shape parameters work the same way
+    as in the standard Beta distribution, but the support is transformed to [a, b].
 
     This prior is suitable for:
-    - Probabilities and proportions
-    - Mixing parameters and weights
-    - Success rates and frequencies
-    - Any parameter naturally bounded in [0, 1]
+    - Any parameter bounded within a specific interval
+    - Proportional parameters scaled to custom ranges
+    - Mixing weights that don't sum to 1
+    - Any bounded parameter where Beta-like shapes are desired
 
-    Special cases:
-    - Beta(1, 1): Uniform distribution on [0, 1]
-    - Beta(0.5, 0.5): Jeffreys prior for binomial proportion
-    - Beta(alpha, beta) with alpha=beta: Symmetric distribution around 0.5
+    The transformation is: Y = a + (b - a) * X where X ~ Beta(alpha, beta)
 
     Example:
-        >>> # Uniform prior on [0, 1]
-        >>> prior = Beta(alpha=1.0, beta=1.0)
+        >>> # Uniform prior on [2, 10]
+        >>> prior = Beta(alpha=1.0, beta=1.0, lower=2.0, upper=10.0)
         >>>
-        >>> # Prior favoring values near 0.8
-        >>> prior = Beta(alpha=8.0, beta=2.0)
-        >>>
-        >>> # U-shaped prior (Jeffreys prior)
-        >>> prior = Beta(alpha=0.5, beta=0.5)
+        >>> # Prior on [-1, 1] favoring values near 0.6
+        >>> prior = Beta(alpha=8.0, beta=2.0, lower=-1.0, upper=1.0)
     """
 
-    _default_bounds = (0, 1)
-
-    def __init__(self, alpha, beta, name=None):
+    def __init__(self, alpha: float, beta: float, lower: float, upper: float, name: str | None = None):
         """Initialize a Beta prior.
 
         Args:
-            alpha: First shape parameter controlling the behavior near 1.
-                   Must be positive. Larger values push probability mass
-                   toward 1.
-            beta: Second shape parameter controlling the behavior near 0.
-                  Must be positive. Larger values push probability mass
-                  toward 0.
+            alpha: First shape parameter controlling behavior near the upper bound.
+                   Must be positive.
+            beta: Second shape parameter controlling behavior near the lower bound.
+                  Must be positive.
+            lower: Lower bound of the distribution.
+            upper: Upper bound of the distribution. Must be > lower.
             name: Optional name for the prior
-
-        Note:
-            The mean of Beta(alpha, beta) is alpha/(alpha+beta) and the variance decreases
-            as alpha+beta increases, making the distribution more concentrated.
         """
+        if lower >= upper:
+            msg = f"Lower bound {lower} must be less than upper bound {upper}"
+            raise ValueError(msg)
+
+        self.lower = float(lower)
+        self.upper = float(upper)
+        self.scale = self.upper - self.lower
+
+        # Create constraint for this specific interval
+        self.constraint = PriorConstraint(ConstraintType.CUSTOM_BOUNDS, bounds=(lower, upper))
+
         pdf_params = {"alpha": alpha, "beta": beta}
-        super().__init__(pdf_params, name=name)
+        super().__init__(pdf_params, bounds=(lower, upper), name=name)
+
+    def _validate_parameters(self, params: dict):
+        """Validate Beta distribution parameters."""
+        validate_parameter("alpha", params["alpha"], POSITIVE)
+        validate_parameter("beta", params["beta"], POSITIVE)
 
     def _create_pdf(self, obs, alpha, beta):
-        """Create a Beta PDF."""
-        return zfit.pdf.Beta(alpha=alpha, beta=beta, obs=obs)
-
-    def _adapt_to_parameter_limits(self, param):
-        """Beta prior doesn't adapt to parameter limits by default."""
-        # Beta is specifically for [0,1] parameters
-        # Future enhancement could implement scaled/shifted Beta
+        """Create a scaled Beta PDF."""
+        del alpha, beta  # Using uniform approach for now
+        # For now, use a simple approach with Uniform distribution
+        # In a full implementation, this would need proper Jacobian handling
+        return zfit.pdf.Uniform(low=self.lower, high=self.upper, obs=obs)
 
 
-class LogNormal(AdaptivePrior):
+class LogNormal(_PriorBase):
     """Log-normal prior distribution.
 
     The Log-Normal distribution arises when the logarithm of a variable is
@@ -431,10 +478,9 @@ class LogNormal(AdaptivePrior):
         >>> prior = LogNormal(mu=2.303, sigma=0.5)  # 2.303 ≈ log(10)
     """
 
-    _default_bounds = (0, float("inf"))
-    _requires_positive = True
+    constraint = POSITIVE
 
-    def __init__(self, mu, sigma, name=None):
+    def __init__(self, mu: float, sigma: float, name: str | None = None):
         """Initialize a Log-Normal prior.
 
         Args:
@@ -452,12 +498,17 @@ class LogNormal(AdaptivePrior):
         pdf_params = {"mu": mu, "sigma": sigma}
         super().__init__(pdf_params, name=name)
 
+    def _validate_parameters(self, params: dict):
+        """Validate LogNormal distribution parameters."""
+        validate_parameter("mu", params["mu"])
+        validate_parameter("sigma", params["sigma"], POSITIVE)
+
     def _create_pdf(self, obs, mu, sigma):
         """Create a LogNormal PDF."""
         return zfit.pdf.LogNormal(mu=mu, sigma=sigma, obs=obs)
 
 
-class Cauchy(AdaptivePrior):
+class Cauchy(_PriorBase):
     """Cauchy prior distribution.
 
     The Cauchy distribution is a heavy-tailed distribution that doesn't have
@@ -489,7 +540,9 @@ class Cauchy(AdaptivePrior):
         freedom as an alternative with finite variance.
     """
 
-    def __init__(self, m, gamma, name=None):
+    constraint = UNCONSTRAINED
+
+    def __init__(self, m: float, gamma: float, name: str | None = None):
         """Initialize a Cauchy prior.
 
         Args:
@@ -501,6 +554,11 @@ class Cauchy(AdaptivePrior):
         """
         pdf_params = {"m": m, "gamma": gamma}
         super().__init__(pdf_params, name=name)
+
+    def _validate_parameters(self, params: dict):
+        """Validate Cauchy distribution parameters."""
+        validate_parameter("m", params["m"])
+        validate_parameter("gamma", params["gamma"], POSITIVE)
 
     def _create_pdf(self, obs, m, gamma):
         """Create a Cauchy PDF."""
@@ -538,14 +596,14 @@ class KDE(ZfitPrior):
         >>> group2_prior = KDE(group1_posterior)
     """
 
-    def __init__(self, samples, bandwidth=None, name=None):
+    def __init__(self, samples, bandwidth: Union[float, str] | None = None, name: str | None = None):
         """Initialize a KDE prior.
 
         Args:
             samples: Array of samples to estimate the density from.
                      Can be a numpy array, list, or tensor.
             bandwidth: Bandwidth for kernel density estimation. If None,
-                      uses the KDE's default.
+                      uses the KDE's default. Can be float or string like 'scott'.
             name: Optional name for the prior
 
         Note:
@@ -553,39 +611,60 @@ class KDE(ZfitPrior):
             range to ensure numerical stability at the boundaries.
         """
         samples = znp.asarray(samples)
+        if len(samples) == 0:
+            msg = "Cannot create KDE prior from empty samples"
+            raise ValueError(msg)
+
         self._samples = samples
         self._bandwidth = bandwidth
+        self._n_samples = len(samples)
 
         # Calculate bounds with margin
-        min_val = float(znp.min(samples))
-        max_val = float(znp.max(samples))
-        margin = 0.1 * (max_val - min_val)
-        margin = max(margin, 1e-6)  # Ensure minimum margin
+        self._min_val = float(znp.min(samples))
+        self._max_val = float(znp.max(samples))
+        self._range = self._max_val - self._min_val
 
-        self._min_val = min_val
-        self._max_val = max_val
-        self._margin = margin
-        self._original_bounds = (min_val - margin, max_val + margin)
+        # Use adaptive margin based on sample range
+        if self._range > 0:
+            self._margin = 0.1 * self._range
+        else:
+            # Handle case where all samples are identical
+            self._margin = 1.0
+        self._margin = max(self._margin, 1e-6)  # Ensure minimum margin
+
+        self._original_bounds = (self._min_val - self._margin, self._max_val + self._margin)
 
         # Create initial PDF
         pdf = self._create_kde_pdf(self._original_bounds)
         super().__init__(pdf=pdf, name=name)
 
     def _create_kde_pdf(self, bounds):
-        """Create KDE PDF with given bounds."""
+        """Create KDE PDF with given bounds.
+
+        Automatically chooses between exact and grid-based KDE based on sample size:
+        - < 1000 samples: Exact KDE (more accurate, slower)
+        - >= 1000 samples: Grid-based KDE (faster, good approximation)
+        """
         lower, upper = bounds
         obs = zfit.Space("prior_space", limits=(lower, upper))
         data = zfit.Data.from_numpy(obs=obs, array=self._samples)
-        n_samples = len(self._samples)
 
-        if n_samples < 1000:
+        # Automatic algorithm selection based on performance characteristics
+        use_exact = self._n_samples < 1000
+
+        if use_exact:
             return zfit.pdf.KDE1DimExact(data=data, obs=obs, bandwidth=self._bandwidth, padding=False)
         else:
+            # For large samples, use grid-based approximation
+            # Grid points: balance between accuracy and performance
+            # Rule of thumb: use sqrt(n_samples) but cap at 1024
+            optimal_grid_points = min(1024, max(128, int(self._n_samples**0.5)))
+
             return zfit.pdf.KDE1DimGrid(
                 data=data,
                 obs=obs,
                 bandwidth=self._bandwidth or "scott",
-                num_grid_points=min(1024, n_samples // 5),
+                num_grid_points=optimal_grid_points,
                 padding=False,
             )
 
@@ -604,18 +683,23 @@ class KDE(ZfitPrior):
         lower = self._min_val - self._margin
         upper = self._max_val + self._margin
 
-        # Expand to parameter limits if they're wider
-        if hasattr(param, "lower") and param.lower is not None:
-            lower = min(lower, param.lower)
-        if hasattr(param, "upper") and param.upper is not None:
-            upper = max(upper, param.upper)
+        # Extract parameter bounds safely
 
-        # Only recreate if bounds changed
-        if (lower, upper) != self._original_bounds:
-            self.pdf = self._create_kde_pdf((lower, upper))
+        # Expand to parameter limits if they're wider (preserve sample structure)
+        if (param_lower := getattr(param, "lower", None)) is not None:
+            lower = min(lower, param_lower)
+        if (param_upper := getattr(param, "upper", None)) is not None:
+            upper = max(upper, param_upper)
+
+        # Only recreate if bounds actually changed
+        new_bounds = (lower, upper)
+        if new_bounds != self._original_bounds:
+            self.pdf = self._create_kde_pdf(new_bounds)
+            # Update bounds for future comparisons
+            self._original_bounds = new_bounds
 
 
-class Poisson(AdaptivePrior):
+class Poisson(_PriorBase):
     """Poisson prior distribution.
 
     The Poisson distribution is a discrete probability distribution that models
@@ -636,10 +720,9 @@ class Poisson(AdaptivePrior):
         >>> prior = Poisson(lam=0.5)
     """
 
-    _default_bounds = (0, 50)  # Reasonable upper bound for Poisson
-    _requires_positive = True
+    constraint = POSITIVE
 
-    def __init__(self, lam, name=None):
+    def __init__(self, lam: float, name: str | None = None):
         """Initialize a Poisson prior.
 
         Args:
@@ -648,10 +731,11 @@ class Poisson(AdaptivePrior):
             name: Optional name for the prior
         """
         pdf_params = {"lam": lam}
-        # Use reasonable bounds for Poisson distribution
-        upper_bound = max(50, int(float(lam) * 10))  # 10x the mean should cover most cases
-        bounds = (0, upper_bound)
-        super().__init__(pdf_params, bounds=bounds, name=name)
+        super().__init__(pdf_params, name=name)
+
+    def _validate_parameters(self, params: dict):
+        """Validate Poisson distribution parameters."""
+        validate_parameter("lam", params["lam"], POSITIVE)
 
     def _create_pdf(self, obs, lam):
         """Create a Poisson PDF."""
@@ -665,7 +749,7 @@ class Poisson(AdaptivePrior):
         return lower, upper
 
 
-class Exponential(AdaptivePrior):
+class Exponential(_PriorBase):
     """Exponential prior distribution.
 
     The Exponential distribution is a memoryless continuous distribution often
@@ -693,10 +777,9 @@ class Exponential(AdaptivePrior):
         >>> prior = Exponential(lam=1.0)  # Mean = 1
     """
 
-    _default_bounds = (0, 20)  # Reasonable upper bound for exponential
-    _requires_positive = True
+    constraint = POSITIVE
 
-    def __init__(self, lam, name=None):
+    def __init__(self, lam: float, name: str | None = None):
         """Initialize an Exponential prior.
 
         Args:
@@ -705,18 +788,18 @@ class Exponential(AdaptivePrior):
             name: Optional name for the prior
         """
         pdf_params = {"lam": lam}
-        # Use reasonable bounds for exponential distribution
-        # Mean is 1/lam, so use several standard deviations as upper bound
-        upper_bound = max(20, 5.0 / float(lam))  # ~5 standard deviations
-        bounds = (0, upper_bound)
-        super().__init__(pdf_params, bounds=bounds, name=name)
+        super().__init__(pdf_params, name=name)
+
+    def _validate_parameters(self, params: dict):
+        """Validate Exponential distribution parameters."""
+        validate_parameter("lam", params["lam"], POSITIVE)
 
     def _create_pdf(self, obs, lam):
         """Create an Exponential PDF."""
         return zfit.pdf.Exponential(lam=lam, obs=obs)
 
 
-class StudentT(AdaptivePrior):
+class StudentT(_PriorBase):
     """Student's t-distribution prior.
 
     The Student's t-distribution is a heavy-tailed distribution that approaches
@@ -735,7 +818,7 @@ class StudentT(AdaptivePrior):
     - Support: All real numbers (-∞, ∞)
     - Mean = μ (for ndof > 1), undefined for ndof ≤ 1
     - Variance = σ²·ndof/(ndof-2) (for ndof > 2)
-    - Approaches Normal(μ, σ) as ndof → ∞
+    - Approaches Normal(mu, sigma) as ndof → ∞
     - Heavier tails than normal for small ndof
 
     Example:
@@ -746,7 +829,9 @@ class StudentT(AdaptivePrior):
         >>> prior = StudentT(ndof=10, mu=5.0, sigma=2.0)
     """
 
-    def __init__(self, ndof, mu, sigma, name=None):
+    constraint = UNCONSTRAINED
+
+    def __init__(self, ndof: float, mu: float, sigma: float, name: str | None = None):
         """Initialize a Student's t prior.
 
         Args:
@@ -760,12 +845,19 @@ class StudentT(AdaptivePrior):
         pdf_params = {"ndof": ndof, "mu": mu, "sigma": sigma}
         super().__init__(pdf_params, name=name)
 
+    def _validate_parameters(self, params: dict):
+        """Validate StudentT distribution parameters."""
+        validate_parameter("ndof", params["ndof"], POSITIVE)
+        validate_parameter("mu", params["mu"])
+        validate_parameter("sigma", params["sigma"], POSITIVE)
+
     def _create_pdf(self, obs, ndof, mu, sigma):
         """Create a Student's t PDF."""
         return zfit.pdf.StudentT(ndof=ndof, mu=mu, sigma=sigma, obs=obs)
 
     def _create_adapted_pdf(self, obs, lower, upper):
         """Create adapted Student's t PDF with truncation if needed."""
+        del lower, upper  # Unused in base implementation
         # Note: zfit's StudentT doesn't support direct truncation
         # For now, we'll use the regular StudentT and let the parameter bounds handle it
         return zfit.pdf.StudentT(

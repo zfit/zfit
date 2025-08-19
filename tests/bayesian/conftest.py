@@ -25,7 +25,7 @@ DEFAULT_SEED = 42
 @pytest.fixture(scope="session", autouse=True)
 def global_seed():
     """Set global random seed for all tests to ensure reproducibility."""
-    import random
+    import random  # noqa: PLC0415
 
     random.seed(DEFAULT_SEED)
     np.random.seed(DEFAULT_SEED)
@@ -126,8 +126,8 @@ def make_gamma_prior():
 def make_beta_prior():
     """Factory for Beta priors."""
 
-    def _make(alpha=2.0, beta=2.0):
-        return zfit.prior.Beta(alpha=alpha, beta=beta)
+    def _make(alpha=2.0, beta=2.0, lower=0.0, upper=1.0):
+        return zfit.prior.Beta(alpha=alpha, beta=beta, lower=lower, upper=upper)
 
     return _make
 
@@ -274,7 +274,7 @@ def build_physics_model(
     make_halfnormal_prior,
     make_gaussian_pdf,
     make_exponential_pdf,
-    make_data,
+    make_data,  # noqa: ARG001
     make_loss,
 ):
     """Build a physics-inspired model with signal and background."""
@@ -440,7 +440,7 @@ def assert_posterior_valid():
 
 
 @pytest.fixture(scope="session")
-def gaussian_posterior_highstats(global_seed):
+def gaussian_posterior_highstats(global_seed):  # noqa: ARG001
     """Pre-computed high-statistics posterior for a simple Gaussian model."""
     # Build model
     obs = zfit.Space("x", lower=-5, upper=5)
@@ -469,7 +469,7 @@ def gaussian_posterior_highstats(global_seed):
 
 
 @pytest.fixture(scope="session")
-def physics_posterior_highstats(global_seed):
+def physics_posterior_highstats(global_seed):  # noqa: ARG001
     """Pre-computed high-statistics posterior for a physics model."""
     # This is expensive, so we compute it once
 
@@ -531,7 +531,7 @@ def physics_model_high_stats_posterior(physics_posterior_highstats):
     result = physics_posterior_highstats.copy()
     # Create loss if not present
     if "loss" not in result:
-        from zfit.loss import UnbinnedNLL
+        from zfit.loss import UnbinnedNLL  # noqa: PLC0415
 
         result["loss"] = UnbinnedNLL(model=result["model"], data=result["model"].sample(n=1000))
     # Add data if not present

@@ -44,9 +44,9 @@ def physics_model():
 
     # Fractions with beta priors
     frac1 = zfit.Parameter("frac1", 0.3, 0, 1,
-                          prior=zfit.prior.Beta(alpha=2, beta=5))
+                          prior=zfit.prior.Beta(alpha=2, beta=5, lower=0, upper=1))
     frac2 = zfit.Parameter("frac2", 0.2, 0, 1,
-                          prior=zfit.prior.Beta(alpha=2, beta=5))
+                          prior=zfit.prior.Beta(alpha=2, beta=5, lower=0, upper=1))
 
     # Create PDFs
     bkg = zfit.pdf.Chebyshev(obs=obs, coeffs=[coeff1, coeff2])

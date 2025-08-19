@@ -24,9 +24,35 @@ Example:
 #  Copyright (c) 2025 zfit
 
 from .posterior import PosteriorSamples
-from .priors import Normal, Uniform, HalfNormal, Gamma, Beta, LogNormal, Cauchy, KDE
+from .priors import Normal, Uniform, HalfNormal, Gamma, Beta, LogNormal, Cauchy, KDE, Exponential, Poisson, StudentT
+from .mathconstrain import (
+    IdentityTransform,
+    LogTransform,
+    SigmoidTransform,
+    AffineTransform,
+    LowerBoundTransform,
+    UpperBoundTransform,
+    ConstraintType,
+    PriorConstraint,
+    UNCONSTRAINED,
+    POSITIVE,
+    UNIT_INTERVAL,
+)
 
 __all__ = [
     "PosteriorSamples",
-    "Normal", "Uniform", "HalfNormal", "Gamma", "Beta", "LogNormal", "Cauchy", "KDE",
+    "Normal", "Uniform", "HalfNormal", "Gamma", "Beta", "LogNormal", "Cauchy", "KDE", "Exponential", "Poisson", "StudentT",
+    # Transformations
+    "IdentityTransform",
+    "LogTransform",
+    "SigmoidTransform",
+    "AffineTransform",
+    "LowerBoundTransform",
+    "UpperBoundTransform",
+    # Constraint system
+    "ConstraintType",
+    "PriorConstraint",
+    "UNCONSTRAINED",
+    "POSITIVE",
+    "UNIT_INTERVAL",
 ]

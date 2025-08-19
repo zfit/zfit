@@ -65,9 +65,9 @@ def physics_model():
 
     # Fractions with beta priors
     frac1 = zfit.Parameter("frac1", 0.3, 0, 1,
-                          prior=zfit.prior.Beta(alpha=2, beta=5))
+                          prior=zfit.prior.Beta(alpha=2, beta=5, lower=0, upper=1))
     frac2 = zfit.Parameter("frac2", 0.2, 0, 1,
-                          prior=zfit.prior.Beta(alpha=2, beta=5))
+                          prior=zfit.prior.Beta(alpha=2, beta=5, lower=0, upper=1))
 
     # Create PDFs
     bkg = zfit.pdf.Chebyshev(obs=obs, coeffs=[coeff1, coeff2])
@@ -118,7 +118,7 @@ def test_emcee_sampler_simple_sampling(simple_gaussian_high_stats_posterior):
     # Test posterior interface
     assert hasattr(posterior, 'get_samples')
     assert hasattr(posterior, 'mean')
-    assert hasattr(posterior, 'symerror')
+    assert hasattr(posterior, 'symerr')
     assert len(posterior.samples) > 0
     assert len(posterior.param_names) == 2
 

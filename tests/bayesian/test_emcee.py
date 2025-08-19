@@ -99,7 +99,7 @@ def test_emcee_sampler_basic_sampling(simple_gaussian_high_stats_posterior):
     # Test PosteriorSamples interface
     assert hasattr(posterior, 'get_samples')
     assert hasattr(posterior, 'mean')
-    assert hasattr(posterior, 'symerror')
+    assert hasattr(posterior, 'symerr')
     assert len(posterior.samples) > 0  # Has samples
     assert len(posterior.param_names) == 2
 
