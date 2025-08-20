@@ -1347,3 +1347,106 @@ class GeneralizedGaussPDFRepr(BasePDFRepr):
     mu: Serializer.types.ParamTypeDiscriminated
     sigma: Serializer.types.ParamTypeDiscriminated
     beta: Serializer.types.ParamTypeDiscriminated
+
+
+class ExpModGauss(WrapDistribution, SerializableMixin):
+    _N_OBS = 1
+
+    def __init__(
+        self,
+        mu: ztyping.ParamTypeInput,
+        sigma: ztyping.ParamTypeInput,
+        lambd: ztyping.ParamTypeInput,
+        obs: ztyping.ObsTypeInput,
+        *,
+        extended: ExtendedInputType = None,
+        norm: NormInputType = None,
+        name: str = "ExpModGauss",
+        label=None,
+    ):
+        """
+        Exponentially modified Gaussian distribution with a mean (mu), a standard deviation (sigma),
+        and an exponential rate parameter (lambd).
+
+        The shape results from adding an exponentially distributed variable to a normally distributed variable.
+        The probability density resulting for the sum is the convolution of the gaussian and exponential pdfs.
+
+        An explicit form is given by
+
+        .. math::
+
+             f(x \\mid \\mu, \\sigma, \\lambda) = exp\\left(\\frac{1}{2}\\sigma^2\\lambda^2 - \\lambda\\left(x - \\mu\\right)\\right) erfc\\left(\\frac{1}{\\sqrt{2}}\\left(\\sigma\\lambda - \\frac{x - \\mu}{\\sigma}\\right)\\right) / Z
+
+        with the normalization over [-inf, inf] of
+
+        .. math::
+
+            Z = 2 / \\lambda
+
+        The normalization changes for different normalization ranges
+
+        Args:
+            mu: Mean of the gaussian
+            sigma: Standard deviation of the gaussian
+            lambd: Rate parameter of the exponential
+            obs: |@doc:pdf.init.obs| Observables of the
+               model. This will be used as the default space of the PDF and,
+               if not given explicitly, as the normalization range.
+
+               The default space is used for example in the sample method: if no
+               sampling limits are given, the default space is used.
+
+               If the observables are binned and the model is unbinned, the
+               model will be a binned model, by wrapping the model in a
+               :py:class:`~zfit.pdf.BinnedFromUnbinnedPDF`, equivalent to
+               calling :py:meth:`~zfit.pdf.BasePDF.to_binned`.
+
+               If the observables are binned and the model is unbinned, the
+               model will be a binned model, by wrapping the model in a
+               :py:class:`~zfit.pdf.BinnedFromUnbinnedPDF`, equivalent to
+               calling :py:meth:`~zfit.pdf.BasePDF.to_binned`.
+
+               The observables are not equal to the domain as it does not restrict or
+               truncate the model outside this range. |@docend:pdf.init.obs|
+            extended: |@doc:pdf.init.extended| The overall yield of the PDF.
+               If this is parameter-like, it will be used as the yield,
+               the expected number of events, and the PDF will be extended.
+               An extended PDF has additional functionality, such as the
+               ``ext_*`` methods and the ``counts`` (for binned PDFs). |@docend:pdf.init.extended|
+            norm: |@doc:pdf.init.norm| Normalization of the PDF.
+               By default, this is the same as the default space of the PDF. |@docend:pdf.init.norm|
+            name: |@doc:pdf.init.name| Name of the PDF.
+               Maybe has implications on the serialization and deserialization of the PDF.
+               For a human-readable name, use the label. |@docend:pdf.init.name|
+            label: |@doc:pdf.init.label| Human-readable name
+               or label of
+               the PDF for a better description, to be used with plots etc.
+               Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
+        """
+
+        mu, sigma, lambd = self._check_input_params_tfp(mu, sigma, lambd)
+        params = {"mu": mu, "sigma": sigma, "lambd": lambd}
+
+        def dist_params():
+            return {"loc": mu.value(), "scale": sigma.value(), "rate": lambd.value()}
+
+        distribution = tfp.distributions.ExponentiallyModifiedGaussian
+        super().__init__(
+            distribution=distribution,
+            dist_params=dist_params,
+            obs=obs,
+            params=params,
+            name=name,
+            extended=extended,
+            norm=norm,
+            label=label,
+        )
+
+
+class ExpModGaussPDFRepr(BasePDFRepr):
+    _implementation = ExpModGauss
+    hs3_type: Literal["ExpModGauss"] = Field("ExpModGauss", alias="type")
+    x: SpaceRepr
+    mu: Serializer.types.ParamTypeDiscriminated
+    sigma: Serializer.types.ParamTypeDiscriminated
+    lambd: Serializer.types.ParamTypeDiscriminated

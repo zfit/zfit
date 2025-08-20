@@ -9,6 +9,7 @@ Develop
 
 Major Features and Improvements
 -------------------------------
+- add ``ExpModGauss`` PDF, the exponentially modified gaussian distribution, taken from `the tensorflow-probability implementation <https://www.tensorflow.org/probability/api_docs/python/tfp/distributions/ExponentiallyModifiedGaussian>`_.
 
 Breaking changes
 ------------------

@@ -357,6 +357,20 @@ def plot_generalizedgauss():
     plot_multiple_configs(configs, obs)
 
 
+def plot_expmodgauss():
+    obs = zfit.Space("x", limits=(-4, 8))
+    config = PDFConfig(
+        pdf_class=zfit.pdf.ExpModGauss,
+        param_name="lambd",
+        param_values=[0.2, 0.4, 0.6, 0.8, 1.0, 10.0],
+        fixed_params={"mu": 0, "sigma": 1},
+        title="ExpModGauss PDF with different lambd values",
+        filename="expmodgauss_lambd.png",
+        x_range=(-4, 8),
+    )
+    plot_pdf(config, obs)
+
+
 def plot_truncatedgauss():
     """Plot TruncatedGauss PDF with different parameters."""
     obs = zfit.Space("x", limits=(-5, 5))
@@ -1653,6 +1667,7 @@ def main():
         plot_johnsonsu,
         plot_generalizedgauss,
         plot_truncatedgauss,
+        plot_expmodgauss,
     ]
 
     with tqdm(total=len(basic_pdfs), desc="Generating basic PDF plots") as pbar:
