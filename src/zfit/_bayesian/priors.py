@@ -24,7 +24,7 @@ from zfit.core.interfaces import ZfitPrior
 from .mathconstrain import POSITIVE, UNCONSTRAINED, ConstraintType, PriorConstraint, validate_parameter
 
 
-class _PriorBase(ZfitPrior, ABC):
+class BasePrior(ZfitPrior, ABC):
     """Base class for priors that automatically adapt to parameter limits.
 
     This abstract base class provides the foundation for all prior distributions
@@ -122,7 +122,7 @@ class _PriorBase(ZfitPrior, ABC):
         return self._create_pdf(obs, **self._pdf_params)
 
 
-class Normal(_PriorBase):
+class Normal(BasePrior):
     """Normal (Gaussian) prior distribution.
 
     The Normal prior is one of the most commonly used priors in Bayesian inference.
@@ -172,7 +172,7 @@ class Normal(_PriorBase):
         )
 
 
-class Uniform(_PriorBase):
+class Uniform(BasePrior):
     """Uniform prior distribution.
 
     The Uniform prior assigns equal probability to all values within a specified
@@ -265,7 +265,7 @@ class Uniform(_PriorBase):
         return lower, upper
 
 
-class HalfNormal(_PriorBase):
+class HalfNormal(BasePrior):
     """Half-normal prior distribution.
 
     The Half-Normal prior is a normal distribution truncated at a lower bound
@@ -322,7 +322,7 @@ class HalfNormal(_PriorBase):
         return lower, upper
 
 
-class Gamma(_PriorBase):
+class Gamma(BasePrior):
     """Gamma prior distribution.
 
     The Gamma distribution is a flexible family of continuous probability
@@ -387,7 +387,7 @@ class Gamma(_PriorBase):
         return zfit.pdf.Gamma(gamma=self._pdf_params["gamma"], beta=self._pdf_params["beta"], mu=adapted_mu, obs=obs)
 
 
-class Beta(_PriorBase):
+class Beta(BasePrior):
     """Beta prior distribution for arbitrary [a, b] intervals.
 
     This extends the standard Beta distribution to any bounded interval [a, b]
@@ -449,7 +449,7 @@ class Beta(_PriorBase):
         return zfit.pdf.Uniform(low=self.lower, high=self.upper, obs=obs)
 
 
-class LogNormal(_PriorBase):
+class LogNormal(BasePrior):
     """Log-normal prior distribution.
 
     The Log-Normal distribution arises when the logarithm of a variable is
@@ -508,7 +508,7 @@ class LogNormal(_PriorBase):
         return zfit.pdf.LogNormal(mu=mu, sigma=sigma, obs=obs)
 
 
-class Cauchy(_PriorBase):
+class Cauchy(BasePrior):
     """Cauchy prior distribution.
 
     The Cauchy distribution is a heavy-tailed distribution that doesn't have
@@ -699,7 +699,7 @@ class KDE(ZfitPrior):
             self._original_bounds = new_bounds
 
 
-class Poisson(_PriorBase):
+class Poisson(BasePrior):
     """Poisson prior distribution.
 
     The Poisson distribution is a discrete probability distribution that models
@@ -749,7 +749,7 @@ class Poisson(_PriorBase):
         return lower, upper
 
 
-class Exponential(_PriorBase):
+class Exponential(BasePrior):
     """Exponential prior distribution.
 
     The Exponential distribution is a memoryless continuous distribution often
@@ -799,7 +799,7 @@ class Exponential(_PriorBase):
         return zfit.pdf.Exponential(lam=lam, obs=obs)
 
 
-class StudentT(_PriorBase):
+class StudentT(BasePrior):
     """Student's t-distribution prior.
 
     The Student's t-distribution is a heavy-tailed distribution that approaches

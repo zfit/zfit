@@ -511,8 +511,7 @@ def test_callable_loss(create_loss):
         true_val = zfit.run(loss.value(full=True))
         _ = zfit.run(loss.value(full=True))
         assert pytest.approx(value_loss) == true_val
-        with pytest.raises(BehaviorUnderDiscussion):
-            assert pytest.approx(loss()) == true_val
+        assert pytest.approx(loss()) == true_val
 
     with pytest.raises(ValueError):
         loss(x[:-1])

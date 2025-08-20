@@ -523,7 +523,7 @@ def test_create_binned_space():
     obs_bin = zfit.Space("x", binning=binning)
     assert obs_bin.binning["x"] == binning
     assert obs_bin.v1.lower[0] == 1
-    assert obs_bin.v1.upper[0] == pytest.approx(11.2)
+    assert float(obs_bin.v1.upper[0]) == pytest.approx(11.2)
 
 
 def test_create_binned_raises():

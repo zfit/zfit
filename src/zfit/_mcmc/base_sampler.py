@@ -1,7 +1,6 @@
 #  Copyright (c) 2025 zfit
 from __future__ import annotations
 
-from abc import abstractmethod
 from typing import TYPE_CHECKING
 
 from zfit.core.interfaces import ZfitParameter, ZfitSampler
@@ -25,7 +24,8 @@ class BaseMCMCSampler(ZfitSampler):
     def __init__(
         self,
         *args: Any,
-        n_samples: int = 1000,
+        n_samples: int | None = None,
+        n_warmup: int | None,
         verbosity: int | None = None,
         **kwargs: Any,
     ) -> None:
@@ -45,6 +45,11 @@ class BaseMCMCSampler(ZfitSampler):
         if verbosity is None:
             verbosity = 0
         self.verbosity = verbosity
+        if n_warmup is None:
+            n_warmup = 200
+        self._default_n_warmup = n_warmup
+        if n_samples is None:
+            n_samples = 1000
         self._default_n_samples = n_samples
 
     def _print(self, *args: Any, level: int = 7, **kwargs: Any) -> None:
@@ -56,7 +61,7 @@ class BaseMCMCSampler(ZfitSampler):
         loss: ZfitLoss,
         params: Iterable[ZfitParameter] | None = None,
         n_samples: int | None = None,
-        n_warmup: int = 200,
+        n_warmup: int | None = None,
         init: PosteriorSamples | None = None,
     ) -> PosteriorSamples:
         """Sample from the posterior distribution using MCMC.
@@ -78,7 +83,7 @@ class BaseMCMCSampler(ZfitSampler):
             n_warmup: Number of burn-in steps. These samples
                 are discarded and used only to allow the chains to converge.
                 If init is provided with PosteriorSamples, n_warmup can be 0
-                to skip burn-in.
+                to skip burn-in (default behavior).
             init: Previous posterior samples to initialize
                 the sampler from. This allows warm-starting from a previous
                 run, potentially skipping burn-in.
@@ -132,6 +137,9 @@ class BaseMCMCSampler(ZfitSampler):
         if n_samples is None:
             n_samples = self._default_n_samples
 
+        if n_warmup is None:
+            n_warmup = self._default_n_warmup if init is None else 0
+
         # Get and validate parameters
         if params is None:
             params = loss.get_params(floating=True)
@@ -151,7 +159,6 @@ class BaseMCMCSampler(ZfitSampler):
         # Delegate to concrete implementation
         return self._sample(loss=loss, params=params, n_samples=n_samples, n_warmup=n_warmup, init=init)
 
-    @abstractmethod
     def _sample(
         self,
         loss: ZfitLoss,
@@ -176,3 +183,5 @@ class BaseMCMCSampler(ZfitSampler):
         Returns:
             PosteriorSamples object.
         """
+        msg = "_sample method not implemented, needs to be implemented in subclass. Don't call this method directly."
+        raise RuntimeError(msg)

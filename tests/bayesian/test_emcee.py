@@ -77,8 +77,7 @@ def test_emcee_sampler_custom_initialization(nwalkers, verbosity):
     """Test EmceeSampler custom initialization."""
     from zfit._mcmc.emcee import EmceeSampler
 
-    sampler = EmceeSampler(nwalkers=nwalkers, verbosity=verbosity,
-                          name="CustomSampler")
+    sampler = EmceeSampler(nwalkers=nwalkers, name="CustomSampler", verbosity=verbosity)
     assert sampler.nwalkers == nwalkers
     assert sampler.name == "CustomSampler"
 

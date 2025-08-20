@@ -186,7 +186,7 @@ def test_params_as_args_loss(loss):
     loss = loss()
     params = loss.get_params()
     param1 = list(params)[0]
-    loss_values = loss.value()
+    loss_values = loss.value().numpy()
     assert np.isfinite(loss_values)
     loss_values_params = loss.value(params={param1.name: param1 * 1.15})
     assert loss_values != pytest.approx(loss_values_params, abs=0.1)

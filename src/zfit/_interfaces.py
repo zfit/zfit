@@ -720,6 +720,10 @@ class ZfitParameter(ZfitNumericParametrized):
     def independent(self) -> bool:
         raise NotImplementedError
 
+    @property
+    def stepsize(self) -> float:
+        raise NotImplementedError
+
 
 class ZfitIndependentParameter(ZfitParameter, metaclass=ABCMeta):
     @abstractmethod

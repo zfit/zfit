@@ -35,15 +35,6 @@ def global_seed():
     return DEFAULT_SEED
 
 
-@pytest.fixture(scope="session", autouse=True)
-def disable_numeric_checks():
-    """Disable numeric checks for all Bayesian tests."""
-    original = zfit.run.numeric_checks
-    zfit.run.numeric_checks = False
-    yield
-    zfit.run.numeric_checks = original
-
-
 # =====================================================================
 # Basic Components
 # =====================================================================
@@ -348,7 +339,7 @@ def make_sampler():
     """Factory for creating EmceeSampler instances."""
 
     def _make(nwalkers=16, verbosity=0, backend=None):
-        return zfit.mcmc.EmceeSampler(nwalkers=nwalkers, verbosity=verbosity, backend=backend)
+        return zfit.mcmc.EmceeSampler(nwalkers=nwalkers, backend=backend, verbosity=verbosity)
 
     return _make
 

@@ -42,11 +42,7 @@ class EmceeSampler(BaseMCMCSampler):
 
         >>> import emcee
         >>> custom_moves = [(emcee.moves.DEMove(), 0.8), (emcee.moves.DESnookerMove(), 0.2)]
-        >>> sampler = zfit.mcmc.EmceeSampler(
-        ...     nwalkers=50,
-        ...     moves=custom_moves,
-        ...     verbosity=8
-        ... )
+        >>> sampler = zfit.mcmc.EmceeSampler(nwalkers=50,moves=custom_moves,verbosity=8)
         >>> result = sampler.sample(loss=nll, params=params,
         ...                        n_samples=2000, n_warmup=500)
     """
@@ -54,11 +50,13 @@ class EmceeSampler(BaseMCMCSampler):
     def __init__(
         self,
         nwalkers: int | None = None,
+        *,
+        n_samples: int | None = None,
+        n_warmup: int | None = None,
         moves: list[tuple[emcee.moves.Move, float]] | None = None,
         backend: emcee.backends.Backend | None = None,
-        pool: object | None = None,
+        # pool: object | None = None,  # not possible?
         name: str = "EmceeSampler",
-        *,
         verbosity: int | None = None,
     ):
         """Initialize an EmceeSampler.
@@ -67,14 +65,15 @@ class EmceeSampler(BaseMCMCSampler):
             nwalkers: Number of walkers to use. If None, will use
                 max(2 * n_dims, 5) where n_dims is the number of parameters.
                 Must be at least twice the number of dimensions.
+            n_warmup: Default value for number of samples for warmup. The number of warmup points that will be
+                discarded.
+            n_samples: Default value for number of samples. The number of points to sample.
             moves: The proposal moves to use. Can be a single move
                 or a list of (move, weight) tuples. If None, uses emcee's default
                 StretchMove. See emcee documentation for available moves.
             backend: Backend to store the chain
                 state and samples. Useful for checkpointing long runs. If None,
                 samples are stored in memory only.
-            pool: Pool object for parallel sampling (e.g.,
-                multiprocessing.Pool). Must implement map() method.
             name: Name of the sampler for identification.
             verbosity: Verbosity level:
                 - 0-6: No progress bars
@@ -94,11 +93,10 @@ class EmceeSampler(BaseMCMCSampler):
         except ImportError:
             msg = "emcee is required for EmceeSampler. Install with 'pip install emcee'."
             raise ImportError(msg)
-        super().__init__(name=name, verbosity=verbosity, n_samples=1000)
+        super().__init__(name=name, verbosity=verbosity, n_samples=n_samples, n_warmup=n_warmup)
         self.nwalkers = nwalkers
         self.moves = moves
         self.backend = backend
-        self.pool = pool
 
     def _sample(
         self,
@@ -287,12 +285,7 @@ class EmceeSampler(BaseMCMCSampler):
                 # Use small perturbations around current value, clipped to bounds
                 center = initial_positions[i]
 
-                if param.has_limits:
-                    # Scale perturbation based on parameter range
-                    param_range = (param.upper or center + 1) - (param.lower or center - 1)
-                    scale = min(1e-4, param_range * 0.01)  # 1% of range or 1e-4, whichever is smaller
-                else:
-                    scale = 1e-4
+                scale = param.stepsize
 
                 # Generate perturbations
                 perturbations = center + scale * np.random.randn(nwalkers)
@@ -313,7 +306,6 @@ class EmceeSampler(BaseMCMCSampler):
             log_prob,
             moves=self.moves,
             backend=self.backend,
-            pool=self.pool,
             vectorize=False,
         )
         oldvals = np.array(params)

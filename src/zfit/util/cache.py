@@ -237,7 +237,7 @@ class FunctionCacheHolder(GraphCachable):
             stateless_args: If `True`, the arguments that are normally stateful, such as `tf.Variable`s, are regarded
                 as stateless.
         """
-        xla = True if xla is None else xla
+        xla = False if xla is None else xla
         self.xla = xla
         if keepalive is None:
             keepalive = False

@@ -261,15 +261,10 @@ def validate_parameter(name: str, value, constraint: PriorConstraint | None = No
         value: Parameter value to validate
         constraint: Optional constraint to check against
     """
-    # Import run locally to avoid circular import
-    try:
-        from zfit import run  # noqa: PLC0415
+    from zfit import run  # noqa: PLC0415
 
-        if not run.executing_eagerly():
-            return  # Skip validation in graph mode
-    except ImportError:
-        # If zfit.run is not available, assume eager mode for validation
-        pass
+    if not run.executing_eagerly():
+        return  # Skip validation in graph mode
 
     try:
         val = float(value)
