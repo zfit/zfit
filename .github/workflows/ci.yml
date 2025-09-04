@@ -90,26 +90,26 @@ jobs:
         include:
           - os: ubuntu-latest
             extras: test
-            python-version: "3.12"
+            python-version: "3.13"
             run: ${{ needs.check-ci-scope.outputs.run-full-ci == 'true' }}
             use-graph: 1
           - os: ubuntu-latest
             extras: test
-            python-version: "3.12"
+            python-version: "3.13"
             use-graph: 0
             run: ${{ needs.check-ci-scope.outputs.run-full-ci == 'true' }}
           - os: macos-latest
-            python-version: "3.12"
+            python-version: "3.13"
             use-graph: 1
             extras: test
             run: ${{ needs.check-ci-scope.outputs.run-full-ci == 'true' }}
           - os: windows-latest
-            python-version: "3.12"
+            python-version: "3.13"
             use-graph: 1
             extras: test
             run: ${{ needs.check-ci-scope.outputs.run-full-ci == 'true' }}
           - os: macos-14  # Apple silicon runner
-            python-version: '3.12'
+            python-version: '3.13'
             use-graph: 1
             extras: test
             run: ${{ needs.check-ci-scope.outputs.run-full-ci == 'true' }}
@@ -166,7 +166,7 @@ jobs:
     timeout-minutes: 10
     strategy:
       matrix:
-        python-version: [ "3.10" ]
+        python-version: [ "3.13" ]
     name: Testbuild docs
     steps:
       - uses: actions/checkout@v5
@@ -208,7 +208,7 @@ jobs:
             use-graph: 0
             extras: all
             run: ${{ needs.check-ci-scope.outputs.run-full-ci == 'true' }}
-          - python-version: "3.12"
+          - python-version: "3.13"
             use-graph: 0
             extras: all
             run: ${{ needs.check-ci-scope.outputs.run-full-ci == 'true' }}
@@ -258,10 +258,10 @@ jobs:
         python-version: [ "3.10" ]
         run: [ true ]
         include:
-          - python-version: "3.12"
+          - python-version: "3.13"
             use-graph: 1
             run: ${{ needs.check-ci-scope.outputs.run-full-ci == 'true' }}
-          - python-version: "3.12"
+          - python-version: "3.13"
             use-graph: 0
             run: ${{ needs.check-ci-scope.outputs.run-full-ci == 'true' }}
     name: Run examples, Python ${{ matrix.python-version }}, compiled = ${{ matrix.use-graph }}

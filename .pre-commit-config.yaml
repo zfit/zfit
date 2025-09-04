@@ -69,7 +69,7 @@ repos:
     rev: v2.8.0
     hooks:
       - id: setup-cfg-fmt
-        args: [ --max-py-version=3.12, --include-version-classifiers ]
+        args: [ --max-py-version=3.13, --include-version-classifiers ]
 
   # Notebook formatting
   - repo: https://github.com/nbQA-dev/nbQA
