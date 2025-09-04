@@ -27,7 +27,7 @@ Experimental
 
 Requirement changes
 -------------------
-- **TensorFlow 2.20 Support**: Upgrade minimum TensorFlow version to 2.16.2 and add support for TensorFlow 2.20+ (up to <3.0)
+- **TensorFlow 2.20 Support**: Add support for TensorFlow 2.20+ (up to <3.0)
 - **TensorFlow Probability**: Expand compatibility range from <0.27 to <1.0 for better future compatibility
 - **Python Version Range**: Update supported Python versions from ">=3.10, <3.13" to ">=3.10, <3.14"
 
