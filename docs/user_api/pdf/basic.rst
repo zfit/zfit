@@ -329,6 +329,20 @@ The :py:class:`~zfit.pdf.TruncatedGauss` distribution is a Gaussian distribution
 
     zfit.pdf.TruncatedGauss
 
+ExpModGauss PDF
+---------------------------------------------------------------------------------------------------------------------
+
+The :py:class:`~zfit.pdf.ExpModGauss` distribution is a Gaussian distribution convolved with an exponential distribution.
+
+.. image:: ../../images/_generated/pdfs/expmodgauss_lambd.png
+   :width: 80%
+   :align: center
+   :alt: ExpModGauss PDF with different lambda values
+
+.. autosummary::
+
+    zfit.pdf.ExpModGauss
+
 .. autosummary::
     :toctree: _generated/basic
 
