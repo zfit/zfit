@@ -152,10 +152,10 @@ jobs:
         run: |
           if [ ${{ needs.check-ci-scope.outputs.run-full-ci }} == "true" ]; then
             echo "Running full tests"
-            pytest --doctest-modules --cov=. --cov-config=pyproject.toml -n 1 --longtests --longtests-kde --cov-report=xml --cov-report=term-missing
+            pytest --doctest-modules --cov=. --cov-config=pyproject.toml  --longtests --longtests-kde --cov-report=xml --cov-report=term-missing
           else
             echo "Running limited tests"
-            pytest --doctest-modules --cov=. --cov-config=pyproject.toml -n 1 --cov-report=xml --cov-report=term-missing
+            pytest --doctest-modules --cov=. --cov-config=pyproject.toml  --cov-report=xml --cov-report=term-missing
           fi
 
   docs:
@@ -241,7 +241,7 @@ jobs:
       - name: Run notebooks
         if: ${{ matrix.run }}
         run: |
-          pytest --nbval-lax zfit-tutorials --dist loadscope --ignore=zfit-tutorials/experimental --ignore=zfit-tutorials/_unused --ignore=zfit-tutorials/_website -n 1
+          pytest --nbval-lax zfit-tutorials --dist loadscope --ignore=zfit-tutorials/experimental --ignore=zfit-tutorials/_unused --ignore=zfit-tutorials/_website 
 
   examples:
     needs: check-ci-scope
