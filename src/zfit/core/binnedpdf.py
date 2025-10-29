@@ -54,7 +54,7 @@ from .interfaces import (
     ZfitSpace,
     ZfitUnbinnedData,
 )
-from .parameter import convert_to_parameter
+from .parameter import ComposedParameter, convert_to_parameter, get_auto_number
 from .space import convert_to_space, supports
 from .tensorlike import OverloadableMixinValues
 
@@ -111,8 +111,18 @@ class BaseBinnedPDF(
         self._space = self._check_convert_obs_init(obs)
         self._yield = None
         self._norm = self._check_convert_norm_init(norm)
+        self._autoextended_requires_counts = False
         if extended is None:
             extended = False
+        if extended is True:  # TODO: how to get the dependent parameters already?
+            self._autoextended_requires_counts = True
+
+            def _auto_yield(params):
+                return znp.sum(self.counts())
+
+            extended = ComposedParameter(
+                f"AUTOYIELD_{get_auto_number()}", func=_auto_yield, params=self.get_params(floating=None)
+            )
         if extended is not False:
             self._set_yield(extended)
 
@@ -889,7 +899,8 @@ class BaseBinnedPDF(
 
         if n is None:
             if self.is_extended:
-                n = znp.random.poisson(self.get_yield(), size=1)
+                # n = znp.random.poisson(self.get_yield(), size=1)
+                n = None  # handled later? TODO run unittests
             else:
                 msg = f"n cannot be None for sampling of {self} or needs to be extended."
                 raise ValueError(msg)
@@ -1232,6 +1243,12 @@ class BaseBinnedPDF(
 
     @_BinnedPDF_register_check_support(True)
     def _counts(self, x, norm):  # noqa: ARG002
+        if self._autoextended_requires_counts:
+            msg = (
+                "Automatic extension (using `extended=True` in the constructor) requires the `_counts` method to be"
+                " implemented in the BinnedPDF subclass."
+            )
+            raise NotImplementedError(msg)
         raise SpecificFunctionNotImplemented
 
     def rel_counts(

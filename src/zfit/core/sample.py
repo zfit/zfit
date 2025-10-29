@@ -520,7 +520,6 @@ def extract_extended_pdfs(pdfs: Iterable[ZfitPDF] | ZfitPDF) -> list[ZfitPDF]:
     Returns:
         List[pdfs]:
     """
-    from ..models.functor import BaseFunctor
 
     pdfs = convert_to_container(pdfs)
     indep_pdfs = []
@@ -528,7 +527,11 @@ def extract_extended_pdfs(pdfs: Iterable[ZfitPDF] | ZfitPDF) -> list[ZfitPDF]:
     for pdf in pdfs:
         if not pdf.is_extended:
             continue
-        if isinstance(pdf, BaseFunctor):
+        from zfit.models.functor import SumPDF
+
+        from ..models.binned_functor import BinnedSumPDF
+
+        if isinstance(pdf, (SumPDF, BinnedSumPDF)):
             if all(pdf.pdfs_extended):
                 indep_pdfs.extend(extract_extended_pdfs(pdfs=pdf.pdfs))
             elif not any(pdf.pdfs_extended):
