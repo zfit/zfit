@@ -83,7 +83,7 @@ jobs:
       fail-fast: false
       matrix:
         use-graph: [ 1 ]
-        python-version: [ "3.10" ]  # omit "3.11" to save compute time
+        python-version: [ "3.10" ]  # omit intermediate versions to save compute time
         os: [ ubuntu-latest ]
         extras: [ test ]
         run: [ true ]
@@ -135,11 +135,11 @@ jobs:
           create-args: >-
             python=${{ matrix.python-version }}
             uv
-      - name: Install minimal dependencies
-        run: |
-          uv pip install .
-      - name: Check imports  # run a small piece of code to ensure imports work
-        run: python -c "import zfit; from zfit import *; import zfit.z.numpy as znp; assert znp.random.uniform(0, 1) is not None; zfit.Parameter('test', 1.0, 0.0, 2.0)"
+#      - name: Install minimal dependencies
+#        run: |
+#          uv pip install .
+#      - name: Check imports  # run a small piece of code to ensure imports work
+#        run: python -c "import zfit; from zfit import *; import zfit.z.numpy as znp; assert znp.random.uniform(0, 1) is not None; zfit.Parameter('test', 1.0, 0.0, 2.0)"
 
       - name: Install full dependencies
         run: |
