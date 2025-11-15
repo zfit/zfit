@@ -127,7 +127,7 @@ jobs:
           create-args: >-
             python=${{ matrix.python-version }}
             uv
-            root
+#            root
       - uses: mamba-org/setup-micromamba@v2
         if: runner.os == 'Windows'
         with:
