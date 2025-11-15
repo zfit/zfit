@@ -127,7 +127,7 @@ jobs:
           create-args: >-
             python=${{ matrix.python-version }}
             uv
-#            root
+#            root  # TODO: installing root makes the tests fail, i.e. crash (with 139
       - uses: mamba-org/setup-micromamba@v2
         if: runner.os == 'Windows'
         with:
@@ -135,11 +135,11 @@ jobs:
           create-args: >-
             python=${{ matrix.python-version }}
             uv
-#      - name: Install minimal dependencies
-#        run: |
-#          uv pip install .
-#      - name: Check imports  # run a small piece of code to ensure imports work
-#        run: python -c "import zfit; from zfit import *; import zfit.z.numpy as znp; assert znp.random.uniform(0, 1) is not None; zfit.Parameter('test', 1.0, 0.0, 2.0)"
+      - name: Install minimal dependencies
+        run: |
+          uv pip install .
+      - name: Check imports  # run a small piece of code to ensure imports work
+        run: python -c "import zfit; from zfit import *; import zfit.z.numpy as znp; assert znp.random.uniform(0, 1) is not None; zfit.Parameter('test', 1.0, 0.0, 2.0)"
 
       - name: Install full dependencies
         run: |
