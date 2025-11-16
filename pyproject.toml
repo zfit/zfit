@@ -7,7 +7,7 @@ build-backend = "hatchling.build"
 name = "zfit"
 description = "scalable pythonic model fitting for high energy physics"
 readme = "README.rst"
-requires-python = ">=3.10, <3.13"
+requires-python = ">=3.10, <3.14"
 license = { text = "BSD-3-Clause" }
 authors = [
     { name = "Jonas Eschle", email = "Jonas.Eschle@cern.ch" },
@@ -30,6 +30,7 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Topic :: Scientific/Engineering :: Physics"
 ]
 keywords = ["TensorFlow", "model", "fitting", "scalable", "HEP", "likelihood"]
@@ -56,8 +57,8 @@ dependencies = [
     "pyyaml",
     "scipy>=1.2",
     "tabulate",
-    "tensorflow>=2.16.2, <2.20",
-    "tensorflow-probability[tf]>=0.24, <0.27",
+    "tensorflow>=2.16.2, <3.0",
+    "tensorflow-probability[tf]>=0.24, <1.0",
     "texttable",
     "uhi",
     "uproot>=4",

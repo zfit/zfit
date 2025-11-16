@@ -16,3 +16,4 @@ tmp/*
 /images/_generated
 /src/zfit/_version.py
 /tests/.benchmarks/
+/.claude/agents/tensorflow-jit-expert.md
