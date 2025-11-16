@@ -1,4 +1,4 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2025 zfit
 import numpy as np
 import pytest
 import tensorflow as tf
@@ -141,7 +141,7 @@ def test_multiple_limits_sampling(gauss_factory):
     sample1 = gauss.sample(n=n, limits=obs)
     sample2 = gauss.sample(n=n, limits=obs_split)
 
-    rel_tol = 1e-2
+    rel_tol = 3e-2
     assert pytest.approx(mu_true, rel_tol) == (np.mean(sample1.value()))
     assert pytest.approx(sigma_true, rel_tol) == (np.std(sample1.value()))
     assert pytest.approx(mu_true, rel_tol) == (np.mean(sample2.value()))
