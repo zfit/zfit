@@ -596,7 +596,7 @@ class KDE(ZfitPrior):
         >>> group2_prior = KDE(group1_posterior)
     """
 
-    def __init__(self, samples, bandwidth: Union[float, str] | None = None, name: str | None = None):
+    def __init__(self, samples, bandwidth: float | str | None = None, name: str | None = None):
         """Initialize a KDE prior.
 
         Args:
