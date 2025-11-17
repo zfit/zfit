@@ -40,7 +40,7 @@ def test_simpleloss_unique_param_names():
 
 def test_minimizer_duplicate_param_names():
     """Test that minimizer raises error for parameters with duplicate names.
-    
+
     Since SimpleLoss now validates parameters at construction, this tests that
     the check happens early and provides a clear error message.
     """
