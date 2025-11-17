@@ -17,6 +17,7 @@ tmp/*
 /.junie/
 /examples/plots/
 /src/zfit/_version.py
+/examples/plots/*
 /tests/.benchmarks/
 /tests/truth/image_diffs/plotting_extended/extended_False_density_False_diff.png
 /tests/truth/image_diffs/plotting_extended/extended_False_density_True_diff.png

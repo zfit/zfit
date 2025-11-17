@@ -630,6 +630,8 @@ class Parameter(
             ValueError: If the value is not inside the limits (in normal Python/eager mode) and clip is False/None
             InvalidArgumentError: If the value is not inside the limits (in JIT/traced/graph mode) and clip is False/None
         """
+        if clip is None:
+            clip = False  # default behavior is to raise an error if out of bounds
 
         def getter():
             return self.value()
