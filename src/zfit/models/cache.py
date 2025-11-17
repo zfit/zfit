@@ -199,8 +199,7 @@ class CachedPDF(BaseFunctor, SerializableMixin):
 
         # tf.print(self._pdf_cache)
         with tf.control_dependencies([assign1]):
-            returnval = get_value(self._pdf_cache, self._pdf_cache_valid, value_update_func)
-        return returnval
+            return get_value(self._pdf_cache, self._pdf_cache_valid, value_update_func)
 
     @supports(norm="space")
     def _integrate(self, limits, norm, options=None):

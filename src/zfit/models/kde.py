@@ -1646,7 +1646,7 @@ class KDE1DimFFT(KDEHelper, BasePDF, SerializableMixin):
         )
         self._padding = padding
 
-        bandwidth, bandwidth_param = self._convert_input_bandwidth(
+        bandwidth, _bandwidth_param = self._convert_input_bandwidth(
             bandwidth=bandwidth,
             data=data,
             padding=False,

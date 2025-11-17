@@ -414,7 +414,7 @@ def test_importance_sampling_uniform():
     expected_per_bin = n_sample / n_bins
 
     assert np.std(bin_counts) < np.sqrt(expected_per_bin) * 2
-    assert all(abs(bin_counts - expected_per_bin) < np.sqrt(expected_per_bin) * 5)
+    np.testing.assert_allclose(bin_counts, expected_per_bin, atol=np.sqrt(expected_per_bin) * 5)
 
 
 def test_sampling_fixed_eventlimits():

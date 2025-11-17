@@ -17,3 +17,4 @@ Following and introduction to the elements of zfit
     minimize
     result
     toy_studies
+    bayesian_inference

@@ -341,7 +341,7 @@ def plot_minimizer_paths(minimizer_classes, starting_points, meshgrid_arrays, fu
 @ray.remote
 def create_fake_animation(filename):
     """Create a fake animation for testing purposes."""
-    base_name, ext = filename.rsplit(".", 1)
+    base_name, _ext = filename.rsplit(".", 1)
     savepath = outpath / f"{base_name}.gif"
 
     # create a fake animation with a static image
@@ -473,7 +473,7 @@ def create_animation(
     )
 
     # Save the animation
-    base_name, ext = filename.rsplit(".", 1)
+    base_name, _ext = filename.rsplit(".", 1)
     anim.save(outpath / f"{base_name}.gif", writer="pillow", fps=fps, dpi=160)
     plt.close()
 

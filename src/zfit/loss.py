@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import typing
 
+from ._interfaces import ZfitLoss
 from ._loss.binnedloss import (
     BinnedChi2,
     BinnedNLL,
@@ -24,4 +25,5 @@ __all__ = [
     "ExtendedUnbinnedNLL",
     "SimpleLoss",
     "UnbinnedNLL",
+    "ZfitLoss",
 ]

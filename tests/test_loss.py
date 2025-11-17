@@ -411,19 +411,19 @@ def test_simple_loss_addition():
     loss12 = loss1 + loss2
 
     assert set(loss12.get_params()) == {pa, pb, pc}
-    assert loss12.errordef == 0.5
+    assert loss12.errordef == pytest.approx(0.5)
     assert loss12.value() == loss1.value() + loss2.value()
     assert loss12.value(full=True) == loss1.value(full=True) + loss2.value(full=True)
 
     loss123 = loss1 + loss2 + loss3
     assert set(loss123.get_params()) == {pa, pb, pc}
-    assert loss123.errordef == 0.5
+    assert loss123.errordef == pytest.approx(0.5)
     assert loss123.value() == loss1.value() + loss2.value() + 0.25 * loss3.value()
     assert loss123.value(full=True) == loss1.value(full=True) + loss2.value(full=True) + 0.25 * loss3.value(full=True)
 
     loss1234 = loss1 + loss2 + loss3 + loss4
     assert set(loss1234.get_params()) == {pa, pb, pc, pd, pe}
-    assert loss1234.errordef == 0.5
+    assert loss1234.errordef == pytest.approx(0.5)
     assert loss1234.value() == loss1.value() + loss2.value() + 0.25 * loss3.value() + loss4.value()
     assert loss1234.value(full=True) == loss1.value(full=True) + loss2.value(full=True) + 0.25 * loss3.value(full=True) + loss4.value(full=True)
 
@@ -511,8 +511,7 @@ def test_callable_loss(create_loss):
         true_val = zfit.run(loss.value(full=True))
         _ = zfit.run(loss.value(full=True))
         assert pytest.approx(value_loss) == true_val
-        with pytest.raises(BehaviorUnderDiscussion):
-            assert pytest.approx(loss()) == true_val
+        assert pytest.approx(loss()) == true_val
 
     with pytest.raises(ValueError):
         loss(x[:-1])

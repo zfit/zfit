@@ -50,7 +50,7 @@ LimitsTypeInput = tuple[tuple[tuple[float, ...]]] | tuple[float, float] | bool  
 LimitsTypeReturn = tuple[tuple[tuple[float, ...]], tuple[tuple[float, ...]]] | None | bool  #:
 
 NumericalType = int | float | np.ndarray | TensorLike  #:
-LimitsTypeInput = Union["zfit.core.interfaces.ZfitLimit", RectLimitsInputType, bool, None]  #:
+LimitsTypeInput = Union["zfit.interface.ZfitLimit", RectLimitsInputType, bool, None]  #:
 LimitsTypeInputV1 = Iterable[NumericalType] | NumericalType | bool | None  #:
 LimitsFuncTypeInput = LimitsTypeInput | Callable  #:
 LimitsTypeReturn = tuple[np.ndarray, np.ndarray] | None | bool  #:
@@ -85,59 +85,53 @@ WeightsStrInputType = tf.Tensor | None | np.ndarray | str  #:
 WeightsInputType = tf.Tensor | None | np.ndarray  #:
 
 # Models
-ModelsInputType = Union["zfit.core.interfaces.ZfitModel", Iterable["zfit.core.interfaces.ZfitModel"]]  #:
+ModelsInputType = Union["zfit.interface.ZfitModel", Iterable["zfit.interface.ZfitModel"]]  #:
 
-PDFInputType = Union["zfit.core.interfaces.ZfitPDF", Iterable["zfit.core.interfaces.ZfitPDF"]]  #:
-BinnedPDFInputType = Union["zfit.core.interfaces.ZfitBinnedPDF", Iterable["zfit.core.interfaces.ZfitBinnedPDF"]]  #:
+PDFInputType = Union["zfit.interface.ZfitPDF", Iterable["zfit.interface.ZfitPDF"]]  #:
+BinnedPDFInputType = Union["zfit.interface.ZfitBinnedPDF", Iterable["zfit.interface.ZfitBinnedPDF"]]  #:
 BinnedHistPDFInputType = BinnedPDFInputType | PlottableHistogram | Iterable[PlottableHistogram]  #:
 
-FuncInputType = Union["zfit.core.interfaces.ZfitFunc", Iterable["zfit.core.interfaces.ZfitFunc"]]  #:
+FuncInputType = Union["zfit.interface.ZfitFunc", Iterable["zfit.interface.ZfitFunc"]]  #:
 
-NumericalScalarType = Union[int, float, complex, tf.Tensor, "zfit.core.interfaces.ZfitParameter"]  #:
-NumericalType = Union[int, float, np.ndarray, tf.Tensor, "zfit.core.interfaces.ZfitParameter"]  #:
+NumericalScalarType = Union[int, float, complex, tf.Tensor, "zfit.interface.ZfitParameter"]  #:
+NumericalType = Union[int, float, np.ndarray, tf.Tensor, "zfit.interface.ZfitParameter"]  #:
 
 # Integer sampling
 nSamplingTypeIn = int | tf.Tensor | str  #:
 
 ConstraintsTypeInput = Union[
-    Iterable[Union["zfit.core.interfaces.ZfitConstraint", Callable]],
-    "zfit.core.interfaces.ZfitConstraint",
+    Iterable[Union["zfit.interface.ZfitConstraint", Callable]],
+    "zfit.interface.ZfitConstraint",
     Callable,
     None,
 ]  #:
 
 # Parameter
-ParamsTypeOpt = Iterable["zfit.core.interfaces.ZfitParameter"] | None  #:
+ParamsTypeOpt = Iterable["zfit.interface.ZfitParameter"] | None  #:
 ParamsNameOpt = str | list[str] | None  #:
 ParamsOrNameType = ParamsTypeOpt | Iterable[str] | None  #:
-ParameterType = TypeVar("ParameterType", bound=dict[str, "zfit.core.interfaces.ZfitParameter"])  #:
+ParameterType = TypeVar("ParameterType", bound=dict[str, "zfit.interface.ZfitParameter"])  #:
 ParametersType = Iterable[ParameterType]
-ParamTypeInput = TypeVar("ParamTypeInput", "zfit.core.interfaces.ZfitParameter", NumericalScalarType)  #:
-ParamsTypeInput = Mapping[Union[str, "zfit.core.interfaces.ZfitParameter"], ParamTypeInput]  #:
+ParamTypeInput = TypeVar("ParamTypeInput", "zfit.interface.ZfitParameter", NumericalScalarType)  #:
+ParamsTypeInput = Mapping[Union[str, "zfit.interface.ZfitParameter"], ParamTypeInput]  #:
 
 ExtendedInputType = bool | ParamTypeInput | None  #:
 
 # Zfit Structure
-BaseObjectType = Union[
-    "zfit.core.interfaces.ZfitParameter", "zfit.core.interfaces.ZfitFunction", "zfit.core.interfaces.ZfitPDF"
-]  #:
+BaseObjectType = Union["zfit.interface.ZfitParameter", "zfit.interface.ZfitFunction", "zfit.interface.ZfitPDF"]  #:
 DependentsType = OrderedSet  #:
 
 # Caching
-CacherOrCachersType = Union[
-    "zfit.core.interfaces.ZfitGraphCachable", Iterable["zfit.core.interfaces.ZfitGraphCachable"]
-]  #:
+CacherOrCachersType = Union["zfit.interface.ZfitGraphCachable", Iterable["zfit.interface.ZfitGraphCachable"]]  #:
 
-LimitsDictAxes = dict[tuple[int], "zfit.core.interfaces.ZfitLimit"]  #:
-LimitsDictObs = dict[tuple[str], "zfit.core.interfaces.ZfitLimit"]  #:
+LimitsDictAxes = dict[tuple[int], "zfit.interface.ZfitLimit"]  #:
+LimitsDictObs = dict[tuple[str], "zfit.interface.ZfitLimit"]  #:
 LimitsDictNoCoords = LimitsDictAxes | LimitsDictObs  #:
 LimitsDictWithCoords = dict[str, LimitsDictNoCoords]  #:
 
 BinningTypeInput = Union[Iterable["ZfitBinning"], "ZfitBinning", int]  #:
 OptionsInputType = Mapping[str, object] | None  #:
-ConstraintsInputType = Union[
-    "zfit.core.interfaces.ZfitConstraint", Iterable["zfit.core.interfaces.ZfitConstraint"], None
-]  #:
+ConstraintsInputType = Union["zfit.interface.ZfitConstraint", Iterable["zfit.interface.ZfitConstraint"], None]  #:
 ArrayLike = tf.types.experimental.TensorLike  #:
 
-ParamValuesMap = Mapping[Union[str, "zfit.core.interfaces.ZfitParameter"], NumericalScalarType | None]  #:
+ParamValuesMap = Mapping[Union[str, "zfit.interface.ZfitParameter"], NumericalScalarType | None]  #:

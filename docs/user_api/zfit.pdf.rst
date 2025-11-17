@@ -11,3 +11,14 @@ PDF
     pdf/composed_pdf
     pdf/custom_base
     pdf/physics
+
+
+Special PDFs
+##############
+
+Special PDFs are PDFs that are not directly related to the basic PDFs but add functionality in one way or another
+
+.. toctree::
+    :maxdepth: 2
+
+    pdf/special

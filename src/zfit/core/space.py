@@ -30,7 +30,6 @@ from zfit._interfaces import (
 )
 
 from .. import z
-from .._variables.axis import Binnings, RegularBinning, histaxes_to_binning
 from ..settings import ztypes
 from ..util import ztyping
 from ..util.container import convert_to_container
@@ -1301,6 +1300,8 @@ class Space(
         self.v0 = V0Space(self)
         self.vec = VectorizeLimits(self)
 
+        from .._variables.axis import Binnings, RegularBinning, histaxes_to_binning
+
         limits, binning = _legacy_get_arguments_space(obs, args, limits, binning, axes, rect_limits, lower, upper)
         # limits = [lower, upper]  # temporary
         if binning is None:
@@ -2315,6 +2316,8 @@ def combine_spaces(*spaces: Iterable[Space]):
         LimitsIncompatibleError: If the limits of one or more spaces (or within a space) overlap
         LimitsNotSpecifiedError: If the limits for one or more obs but not all are None or False.
     """
+    from .._variables.axis import Binnings
+
     spaces = convert_to_container(spaces, container=tuple)
     # if len(spaces) <= 1:
     #     return spaces

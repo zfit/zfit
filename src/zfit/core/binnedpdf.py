@@ -1178,6 +1178,22 @@ class BaseBinnedPDF(
             return self._auto_counts(x, norm)
         return self._fallback_counts(x, norm)
 
+    def _auto_counts(self, x, norm):
+        try:
+            counts = self._counts(x, norm=norm)
+        except NormNotImplemented:
+            unnormed_counts = self._counts(x, norm=False)
+            normalization = self.normalization(norm)
+            counts = unnormed_counts / normalization
+        return counts
+
+    def _fallback_counts(self, x, norm):
+        return self._auto_rel_counts(x, norm) * self.get_yield()
+
+    @_BinnedPDF_register_check_support(True)
+    def _counts(self, x, norm):  # noqa: ARG002
+        raise SpecificFunctionNotImplemented
+
     def ext_normalization(
         self, norm: ztyping.NormInputType, *, options=None, params: ztyping.ParamTypeInput = None
     ) -> ztyping.NumericalTypeReturn:
@@ -1216,22 +1232,6 @@ class BaseBinnedPDF(
         return self.normalization(norm, options=options) / self.get_yield()
 
     def _ext_normalization(self, norm, *, options):  # noqa: ARG002
-        raise SpecificFunctionNotImplemented
-
-    def _auto_counts(self, x, norm):
-        try:
-            counts = self._counts(x, norm=norm)
-        except NormNotImplemented:
-            unnormed_counts = self._counts(x, norm=False)
-            normalization = self.normalization(norm)
-            counts = unnormed_counts / normalization
-        return counts
-
-    def _fallback_counts(self, x, norm):
-        return self._auto_rel_counts(x, norm) * self.get_yield()
-
-    @_BinnedPDF_register_check_support(True)
-    def _counts(self, x, norm):  # noqa: ARG002
         raise SpecificFunctionNotImplemented
 
     def rel_counts(
@@ -1312,7 +1312,7 @@ class BaseBinnedPDF(
 
     def _fallback_rel_counts(self, x, norm):
         density = self._call_pdf(x, norm)
-        return density * np.prod(self.space.binning.widths, axis=0)
+        return density * np.prod(self.space.binning.widths, axis=0)  # TODO: znp.prod?
 
     def set_norm_range(self):
         msg = "set_norm_range is removed and should not be used anymore."
