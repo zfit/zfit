@@ -15,3 +15,9 @@ tmp/*
 /utils/ci/.test_docs_env/
 /images/_generated
 /src/zfit/_version.py
+/examples/plots/bayesian/autocorr_plots.png
+/examples/plots/bayesian/corner_plot.png
+/examples/plots/bayesian/model_fit.png
+/examples/plots/bayesian/posterior_distributions.png
+/examples/plots/bayesian/posterior_plots.png
+/examples/plots/bayesian/trace_plots.png
