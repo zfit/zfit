@@ -466,13 +466,13 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             func: A function that calculates the (partial) integral over the axes ``limits``.
                 The signature has to be the following:
 
-                    * x (:py:class:`~zfit.core.interfaces.ZfitData`, None): the data for the remaining axes in a partial
+                    * x (:py:class:`~zfit.interface.ZfitData`, None): the data for the remaining axes in a partial
                         integral. If it is not a partial integral, this will be None.
                     * limits (:py:class:`~zfit.ZfitSpace`): the limits to integrate over.
                     * norm_range (:py:class:`~zfit.ZfitSpace`, None): Normalization range of the integral.
                         If not ``supports_supports_norm_range``, this will be None.
                     * params (Dict[param_name, :py:class:`zfit.Parameters`]): The parameters of the model.
-                    * model (:py:class:`~zfit.core.interfaces.ZfitModel`):The model that is being integrated.
+                    * model (:py:class:`~zfit.interface.ZfitModel`):The model that is being integrated.
 
             limits: |@doc:pdf.integrate.limits| Limits of the integration. |@docend:pdf.integrate.limits|
             priority: Priority of the function. If multiple functions cover the same space, the one with the

@@ -24,19 +24,46 @@ if typing.TYPE_CHECKING:
     import zfit  # noqa: F401
 
 
-def constant(value, dtype=ztypes.float, shape=None, name="Const", verify_shape=None):
+def constant(value, dtype=ztypes.float, shape=None, name=None, verify_shape=None):
+    """Create a constant tensor.
+
+    Args:
+        value: The constant value.
+        dtype: The data type. Defaults to ztypes.float.
+        shape: Shape of the tensor.
+        name: Name for the operation. Defaults to "Const" if None.
+        verify_shape: Shape verification (deprecated).
+    """
     del verify_shape
+    if name is None:
+        name = "Const"
     return tf.constant(value, dtype=dtype, shape=shape, name=name)
 
 
 pi = np.float64(_mt.pi)
 
 
-def to_complex(number, dtype=ztypes.complex):
+def to_complex(number, dtype=None):
+    """Convert number to complex tensor.
+
+    Args:
+        number: Number to convert.
+        dtype: Complex data type. Defaults to ztypes.complex if None.
+    """
+    if dtype is None:
+        dtype = ztypes.complex
     return znp.asarray(number, dtype=dtype)
 
 
-def to_real(x, dtype=ztypes.float):
+def to_real(x, dtype=None):
+    """Convert to real tensor.
+
+    Args:
+        x: Value to convert.
+        dtype: Real data type. Defaults to ztypes.float if None.
+    """
+    if dtype is None:
+        dtype = ztypes.float
     return znp.asarray(x, dtype=dtype)
 
 
@@ -99,7 +126,16 @@ def unstack_x(
     return unstacked_x
 
 
-def stack_x(values, axis: int = -1, name: str = "stack_x"):
+def stack_x(values, axis: int = -1, name: str | None = None):
+    """Stack values along the specified axis.
+
+    Args:
+        values: Values to stack.
+        axis: Axis to stack along. Defaults to -1.
+        name: Name for the operation. Defaults to "stack_x" if None.
+    """
+    if name is None:
+        name = "stack_x"
     return tf.stack(values=values, axis=axis, name=name)
 
 
@@ -160,6 +196,10 @@ class DoNotCompile(Exception):
     """Raise this error if the function is being jitted but should not be (yet)."""
 
 
+DEFAULT_XLAJIT_KWARGS = {"autograph": False, "reduce_retracing": True, "jit_compile": True}
+DEFAULT_NOXLAJIT_KWARGS = {"autograph": False, "reduce_retracing": True, "jit_compile": False}
+
+
 class FunctionWrapperRegistry:
     registries = WeakSet()
     allow_jit = True
@@ -176,6 +216,14 @@ class FunctionWrapperRegistry:
             "tensor": True,
         }
     )
+    DEFAULT_TF_FUNCTION_KWARGS: typing.ClassVar = {
+        "model": DEFAULT_NOXLAJIT_KWARGS.copy(),
+        "loss": DEFAULT_NOXLAJIT_KWARGS.copy(),
+        "sample": DEFAULT_NOXLAJIT_KWARGS.copy(),
+        "model_sampling": DEFAULT_NOXLAJIT_KWARGS.copy(),
+        "zfit_tensor": DEFAULT_NOXLAJIT_KWARGS.copy(),
+        "tensor": DEFAULT_NOXLAJIT_KWARGS.copy(),
+    }
 
     do_jit_types = _DEFAULT_DO_JIT_TYPES.copy()
 
@@ -225,7 +273,7 @@ class FunctionWrapperRegistry:
         self.stateless_args = stateless_args
 
         self.function_cache = deque()
-        self.reset(**self._initial_user_kwargs)
+        self.reset()
         self.currently_traced = set()
         self.cachesize = cachesize
         self.keepalive = keepalive
@@ -234,11 +282,7 @@ class FunctionWrapperRegistry:
     def do_jit(self):
         return self.do_jit_types[self.wraps] and self.allow_jit and not self.force_eager
 
-    def reset(self, **kwargs_user):
-        kwargs = {"autograph": False, "reduce_retracing": True}
-        kwargs.update(self._initial_user_kwargs)
-        kwargs.update(kwargs_user)
-        self.tf_function_kwargs = kwargs
+    def reset(self, **_):
         self.function_cache.clear()
 
     def set_graph_cache_size(self, cachesize: int | None = None):
@@ -255,7 +299,10 @@ class FunctionWrapperRegistry:
 
     @property
     def tf_function(self):
-        return tf.function(**self.tf_function_kwargs)
+        kwargs = self.DEFAULT_TF_FUNCTION_KWARGS.get(self.wraps, DEFAULT_NOXLAJIT_KWARGS).copy()
+        kwargs.update(self._initial_user_kwargs)
+
+        return tf.function(**kwargs)
 
     def __call__(self, func):
         keepalive = self.keepalive
@@ -265,7 +312,7 @@ class FunctionWrapperRegistry:
         from ..util.cache import FunctionCacheHolder  # noqa: PLC0415
 
         def concrete_func(*args, **kwargs):
-            if self.force_eager and not run.executing_eagerly():
+            if self.force_eager and not run.executing_eagerly():  # if we're executing eagerly, let's be graceful
                 raise DoNotCompile
             # skip JIT in certain situations
             if not self.do_jit or func in self.currently_traced or not run.executing_eagerly():
@@ -287,12 +334,7 @@ class FunctionWrapperRegistry:
                     cache.remove(function_holder)
 
             function_holder = FunctionCacheHolder(
-                func,
-                wrapped_func,
-                args,
-                kwargs,
-                deleter=deleter,
-                stateless_args=self.stateless_args,
+                func, wrapped_func, args, kwargs, deleter=deleter, stateless_args=self.stateless_args, xla=True
             )
             try:
                 func_holder_index = cache.index(function_holder)
@@ -339,6 +381,18 @@ class FunctionWrapperRegistry:
                         stacklevel=3,
                     )
                     result = func_to_run(*args, **kwargs)
+                # TODO: the following automatically tries again with XLA disabled. But currently, just rerunning will not work well.
+                # except Exception as error:
+                #     function_kwargs = self.tf_function_kwargs.copy()
+                #     if function_kwargs.get("jit_compile"):
+                #         function_kwargs["jit_compile"] = False
+                #         wrapped_func = tf.function(func, **function_kwargs)
+                #         function_holder.wrapped_func = wrapped_func
+                #         func_to_run = function_holder.execute_func
+                #         print(f"Tried to XLA, falling back {error}")
+                #         result = func_to_run(*args, **kwargs)
+                #     else:
+                #         raise
             except DoNotCompile:
                 function_holder.do_jit = False
                 if not run.executing_eagerly():

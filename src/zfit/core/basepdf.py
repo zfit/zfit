@@ -3,8 +3,16 @@
 from __future__ import annotations
 
 import typing
-import warnings
 from collections.abc import Iterable
+from typing import TYPE_CHECKING
+
+from ..util.plotter import PDFPlotter
+from ..util.ztyping import ExtendedInputType, NormInputType
+
+if TYPE_CHECKING:
+    pass
+
+import warnings
 from contextlib import suppress
 
 import tensorflow as tf
@@ -25,8 +33,6 @@ from ..util.exception import (
     NotExtendedPDFError,
     SpecificFunctionNotImplemented,
 )
-from ..util.plotter import PDFPlotter
-from ..util.ztyping import ExtendedInputType, NormInputType
 from .basemodel import BaseModel
 from .baseobject import extract_filter_params
 from .parameter import Parameter, convert_to_parameter
@@ -647,7 +653,7 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
             name: New name of the PDF. If ``None``, the name of the PDF with a trailing "_ext" is used.
 
         Returns:
-            :py:class:`~zfit.core.interfaces.ZfitPDF`: a new PDF that is extended
+            :py:class:`~zfit.interface.ZfitPDF`: a new PDF that is extended
         """
         # TODO(Mayou36): fix copy
         if name_addition is not None:
@@ -697,7 +703,7 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
             name: New name of the PDF. If ``None``, the name of the PDF with a trailing "_positive" is used.
 
         Returns:
-            :py:class:`~zfit.core.interfaces.ZfitPDF`: a new PDF that is always positive
+            :py:class:`~zfit.interface.ZfitPDF`: a new PDF that is always positive
         """
         from zfit.models.postprocess import PositivePDF  # noqa: PLC0415
 
@@ -727,7 +733,7 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
             name: New name of the PDF. If ``None``, the name of the PDF with a trailing "_cached" is used.
 
         Returns:
-            :py:class:`~zfit.core.interfaces.ZfitPDF`: a new PDF that caches evaluation results
+            :py:class:`~zfit.interface.ZfitPDF`: a new PDF that caches evaluation results
         """
         from zfit.models.cache import CachedPDF  # noqa: PLC0415
 

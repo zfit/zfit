@@ -140,7 +140,7 @@ class LevenbergMarquardt(BaseMinimizer, GraphCachable):
 
     @staticmethod
     def _damped_hess0(hess, L):
-        I = znp.eye(hess.shape[0])  # noqa: E741
+        I = znp.eye(hess.shape[0])
         D = znp.ones_like(hess) - I
         return hess * (I + D / (1 + L)) + L * I * (1 + znp.diag(hess))
 

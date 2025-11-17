@@ -14,6 +14,11 @@ tmp/*
 /utils/ci/.test_examples_env/
 /utils/ci/.test_docs_env/
 /images/_generated
+/.junie/
+/examples/plots/
 /src/zfit/_version.py
 /tests/.benchmarks/
 /.claude/agents/tensorflow-jit-expert.md
+/examples/.ipynb_checkpoints/
+/CLAUDE.md
+/.claude/
