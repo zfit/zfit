@@ -31,7 +31,6 @@ __all__ = [
     "BinnedNLL",
     "ExtendedBinnedChi2",
     "ExtendedBinnedNLL",
-    "ExtendedBinnedNLL",
     "ExtendedUnbinnedNLL",
     "SimpleLoss",
     "UnbinnedNLL",
