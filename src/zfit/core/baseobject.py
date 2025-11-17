@@ -52,7 +52,7 @@ def validate_preprocess_name(name: str) -> str:
     """
     from zfit.exception import InvalidNameError  # noqa: PLC0415
 
-    arbitrary_name_message = "To use arbitrary characters in the name, for a human readable lable, use `label` instead."
+    arbitrary_name_message = "To use arbitrary characters in the name, for a human readable label, use `label` instead."
 
     # Check for underscore at the beginning (TensorFlow compatibility - strict error)
     if name and name.startswith("_"):
