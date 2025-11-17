@@ -140,9 +140,9 @@ class LevenbergMarquardt(BaseMinimizer, GraphCachable):
 
     @staticmethod
     def _damped_hess0(hess, L):
-        I = znp.eye(hess.shape[0])
-        D = znp.ones_like(hess) - I
-        return hess * (I + D / (1 + L)) + L * I * (1 + znp.diag(hess))
+        identity = znp.eye(hess.shape[0])
+        D = znp.ones_like(hess) - identity
+        return hess * (identity + D / (1 + L)) + L * identity * (1 + znp.diag(hess))
 
     def _mode0_step(self, loss, params, L):
         init_chi2, grad = loss.value_gradient(params)

@@ -144,10 +144,7 @@ class BinnedFromUnbinnedPDF(BaseBinnedFunctorPDF):
                 # also, the map_fn is slower...
                 msg = "Just stearing the eager execution"
                 raise MapNotVectorized(msg)
-            if vectorized:
-                values = tf.vectorized_map(integrate_one, limits)[:, 0]
-            else:
-                values = tf.map_fn(integrate_one, limits)  # this works
+            values = tf.vectorized_map(integrate_one, limits)[:, 0] if vectorized else tf.map_fn(integrate_one, limits)
         except (ValueError, MapNotVectorized):
             values = znp.asarray(tuple(map(integrate_one, limits)))
         values = znp.reshape(values, shape)
@@ -206,10 +203,7 @@ class BinnedFromUnbinnedPDF(BaseBinnedFunctorPDF):
                 # also, the map_fn is slower...
                 msg = "Just stearing the eager execution"
                 raise MapNotVectorized(msg)
-            if vectorized:
-                values = tf.vectorized_map(integrate_one, limits)[:, 0]
-            else:
-                values = tf.map_fn(integrate_one, limits)  # this works
+            values = tf.vectorized_map(integrate_one, limits)[:, 0] if vectorized else tf.map_fn(integrate_one, limits)
         except (ValueError, MapNotVectorized):
             values = znp.asarray(tuple(map(integrate_one, limits)))
         values = znp.reshape(values, shape)

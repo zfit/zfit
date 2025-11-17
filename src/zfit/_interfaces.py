@@ -1117,6 +1117,14 @@ class ZfitPrior(ZfitObject):
             return False
         return self.pdf == other.pdf and self.name == other.name
 
+    def __hash__(self):
+        """Return hash of the prior based on pdf and name.
+
+        Returns:
+            int: Hash value for the prior
+        """
+        return hash((self.pdf, self.name))
+
     def log_pdf(self, value=None):
         """Return the log probability of the prior at the given value(s).
 

@@ -8,6 +8,7 @@ import os as _os
 import sys as _sys
 import typing
 from importlib.metadata import version as _importlib_version
+from io import UnsupportedOperation
 
 if typing.TYPE_CHECKING:
     import zfit  # noqa: F401
@@ -114,12 +115,6 @@ def _maybe_disable_warnings() -> None:
         os.close(saved_stdout_fd)
         os.close(saved_stderr_fd)
         tf.get_logger().setLevel("ERROR")
-    # with redirect_stdout(None), redirect_stderr(None):
-    #
-    #     logging.getLogger("tensorflow").disabled = True
-    #     import tensorflow as tf
-    #
-    #     tf.constant(1)
 
 
     # os.environ["KMP_AFFINITY"] = "noverbose"
@@ -127,11 +122,14 @@ def _maybe_disable_warnings() -> None:
     _logging.getLogger("absl").setLevel(_logging.ERROR)
     _logging.getLogger("tensorflow").setLevel(_logging.FATAL)
     # raise RuntimeError
-    with _suppress_stderr():
-        import tensorflow as tf
-    #
-    tf.get_logger().setLevel("FATAL")
-    tf.autograph.set_verbosity(0)
+    try:
+        with _suppress_stderr():
+            import tensorflow as tf  # noqa: PLC0415
+    except UnsupportedOperation:  # can be within notebooks
+        pass
+    else:
+        tf.get_logger().setLevel("FATAL")
+        tf.autograph.set_verbosity(0)
 
 
 _maybe_disable_warnings()

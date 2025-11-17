@@ -1300,7 +1300,7 @@ class Space(
         self.v0 = V0Space(self)
         self.vec = VectorizeLimits(self)
 
-        from .._variables.axis import Binnings, RegularBinning, histaxes_to_binning
+        from .._variables.axis import Binnings, RegularBinning, histaxes_to_binning  # noqa: PLC0415
 
         limits, binning = _legacy_get_arguments_space(obs, args, limits, binning, axes, rect_limits, lower, upper)
         # limits = [lower, upper]  # temporary
@@ -2316,7 +2316,7 @@ def combine_spaces(*spaces: Iterable[Space]):
         LimitsIncompatibleError: If the limits of one or more spaces (or within a space) overlap
         LimitsNotSpecifiedError: If the limits for one or more obs but not all are None or False.
     """
-    from .._variables.axis import Binnings
+    from .._variables.axis import Binnings  # noqa: PLC0415
 
     spaces = convert_to_container(spaces, container=tuple)
     # if len(spaces) <= 1:
