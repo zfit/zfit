@@ -54,6 +54,11 @@ def validate_preprocess_name(name: str) -> str:
 
     arbitrary_name_message = "To use arbitrary characters in the name, for a human readable lable, use `label` instead."
 
+    # Check for underscore at the beginning (TensorFlow compatibility - strict error)
+    if name and name.startswith("_"):
+        msg = "Name cannot start with '_' as it is incompatible with TensorFlow's name scope requirements. " + arbitrary_name_message
+        raise InvalidNameError(msg)
+
     try:
         # Check for empty string
         if not name:
