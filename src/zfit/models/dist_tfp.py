@@ -1473,11 +1473,11 @@ class Beta(WrapDistribution, SerializableMixin):
         .. math::
             f(x \\mid \\alpha, \\beta) = \\frac{x^{\\alpha-1}(1-x)^{\\beta-1}}{B(\\alpha,\\beta)}
 
-        where B(α,β) is the beta function.
+        where B(\\alpha,\\beta) is the beta function.
 
         Args:
-            alpha: First shape parameter (α > 0)
-            beta: Second shape parameter (β > 0)
+            alpha: First shape parameter (\\alpha > 0)
+            beta: Second shape parameter (\\beta > 0)
             obs: |@doc:pdf.init.obs| Observables of the
                model. This will be used as the default space of the PDF and,
                if not given explicitly, as the normalization range.
