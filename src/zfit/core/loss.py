@@ -413,9 +413,23 @@ class BaseLoss(ZfitLoss, BaseNumeric):
     def _check_convert_model_data(self, model, data, fit_range):
         model, data = tuple(convert_to_container(obj) for obj in (model, data))
 
+        # Check for empty model or data lists (but allow SimpleLoss to have empty lists)
+        if not model and not isinstance(self, SimpleLoss):
+            msg = "At least one model must be provided to create a loss."
+            raise ValueError(msg)
+        if not data and not isinstance(self, SimpleLoss):
+            msg = "At least one dataset must be provided to create a loss."
+            raise ValueError(msg)
+
         model_checked = []
         data_checked = []
-        for mod, dat in zip(model, data, strict=True):
+        for i, (mod, dat) in enumerate(zip(model, data, strict=True)):
+            # Check model is valid
+            if not isinstance(mod, ZfitPDF):
+                msg = f"Model at index {i} must be a ZfitPDF, got {type(mod).__name__}"
+                raise TypeError(msg)
+
+            # Convert and check data
             if not isinstance(dat, ZfitData | ZfitBinnedData):
                 if fit_range is not None:
                     msg = "Fit range should not be used if data is not ZfitData."
@@ -430,6 +444,37 @@ class BaseLoss(ZfitLoss, BaseNumeric):
                         f"or remove events outside the space"
                     )
                     raise IntentionAmbiguousError(msg) from error
+
+            # Check for empty dataset
+            if hasattr(dat, "num_entries"):
+                try:
+                    n_entries = dat.num_entries
+                    # Handle both eager and graph mode
+                    if tf.is_tensor(n_entries):
+                        from zfit import run  # noqa: PLC0415
+
+                        if run.executing_eagerly():
+                            n_entries = int(n_entries)
+
+                    if n_entries == 0:
+                        msg = f"Dataset at index {i} is empty (has 0 entries). Cannot create loss with empty data."
+                        raise ValueError(msg)
+                except Exception:
+                    # If we can't determine the number of entries, continue
+                    # This might happen for some custom data types
+                    pass
+
+            # Check observable compatibility
+            model_obs = mod.space.obs
+            data_obs = dat.space.obs if hasattr(dat, "space") else None
+
+            if data_obs is not None and model_obs != data_obs:
+                msg = (
+                    f"Model at index {i} has observables {model_obs} but data has "
+                    f"observables {data_obs}. The observables must match."
+                )
+                raise ValueError(msg)
+
             model_checked.append(mod)
             data_checked.append(dat)
         return model_checked, data_checked
