@@ -26,6 +26,8 @@ BinnedNLL.__module__ = "zfit.loss"
 ExtendedBinnedNLL.__module__ = "zfit.loss"
 BinnedChi2.__module__ = "zfit.loss"
 ExtendedBinnedChi2.__module__ = "zfit.loss"
+# Interface from zfit._interfaces
+ZfitLoss.__module__ = "zfit.loss"
 
 __all__ = [
     "BaseLoss",
