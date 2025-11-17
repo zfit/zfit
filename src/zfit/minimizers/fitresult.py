@@ -2,27 +2,13 @@
 
 from __future__ import annotations
 
-import typing
-
-if typing.TYPE_CHECKING:
-    import zfit
-
-import typing
-from typing import TYPE_CHECKING
-
-from ..util.exception import BreakingAPIChangeError
-
-if TYPE_CHECKING:
-    import zfit
-
-    from .evaluation import LossEval
-
 import collections
 import contextlib
 import itertools
-import math
+import typing
 import warnings
 from collections.abc import Callable, Iterable, Mapping
+from typing import TYPE_CHECKING
 
 import colored
 import iminuit
@@ -34,17 +20,25 @@ from ordered_set import OrderedSet
 from scipy.optimize import LbfgsInvHessProduct
 from tabulate import tabulate
 
+from ..util.exception import BreakingAPIChangeError
+
+if typing.TYPE_CHECKING:
+    import zfit
+
+    from .evaluation import LossEval
+
 if TYPE_CHECKING:
     with contextlib.suppress(ImportError):  # for type checking
         import ipyopt
 
-from ..core.interfaces import (
+from zfit._interfaces import (
     ZfitData,
     ZfitIndependentParameter,
     ZfitLoss,
     ZfitParameter,
     ZfitUnbinnedData,
 )
+
 from ..core.parameter import set_values
 from ..util.container import convert_to_container
 from ..util.deprecation import deprecated, deprecated_args
@@ -82,7 +76,7 @@ class Approximations:
         """
         if isinstance(params, dict):
             params = list(params)
-        if not isinstance(params, (list, tuple)):
+        if not isinstance(params, list | tuple):
             msg = f"params has to be a list or tuple, not {type(params)}"
             raise TypeError(msg)
         if gradient is not None:
@@ -266,7 +260,9 @@ def _covariance_approx(result, params):
     param_indices = [params_approx.index(p) for p in params]
     return {
         (p1, p2): inv_hessian[(p1_index, p2_index)]
-        for (p1, p1_index), (p2, p2_index) in itertools.product(zip(params, param_indices), zip(params, param_indices))
+        for (p1, p1_index), (p2, p2_index) in itertools.product(
+            zip(params, param_indices, strict=True), zip(params, param_indices, strict=True)
+        )
     }
 
 
@@ -304,7 +300,180 @@ class NameToParamGetitem:
             return True
 
 
-class FitResult(ZfitResult):
+class OptimizeResultMixin:
+    """Mixin that adds scipy.optimize.OptimizeResult compatibility to FitResult.
+
+    This mixin provides all the attributes that scipy.optimize.OptimizeResult has,
+    making FitResult instances compatible with code expecting OptimizeResult objects.
+
+    The mapping is as follows:
+    - success: Maps to the optimizer's success flag (simpler than FitResult.valid)
+    - fun: Maps to FitResult.fmin (full function value)
+    - jac: Maps to gradient from approximations
+    - hess: Maps to hessian from approximations
+    - hess_inv: Maps to inverse hessian from approximations
+    - nfev, njev, nhev: Maps to evaluation counts from info dict
+    - nit: Maps to iteration count from info dict
+    - maxcv: Not available in FitResult, returns None
+    """
+
+    @property
+    def success(self) -> bool:
+        """Whether the optimizer exited successfully.
+
+        This is different from FitResult.valid which includes additional checks
+        like parameter limits. This only reflects the optimizer's success flag.
+        """
+        # Try to get the optimizer success from converged first, fallback to valid
+        if hasattr(self, "_converged") and self._converged is not None:
+            return bool(self._converged)
+        # Fallback to checking status code (0 usually means success)
+        if hasattr(self, "_status") and self._status is not None:
+            return bool(self._status == 0)
+        # Final fallback to valid
+        return bool(getattr(self, "valid", False))
+
+    @property
+    def fun(self) -> float:
+        """Value of objective function at x.
+
+        Maps to FitResult.fmin (full function value).
+        """
+        return self.fmin
+
+    @property
+    def jac(self) -> np.ndarray | None:
+        """Jacobian (gradient) of objective function at x.
+
+        Returns the gradient from approximations if available.
+        """
+        if hasattr(self, "approx") and self.approx is not None:
+            return self.approx.gradient()
+        return None
+
+    @property
+    def hess(self) -> np.ndarray | None:
+        """Hessian of objective function at x.
+
+        Returns the hessian from approximations if available.
+        """
+        if hasattr(self, "approx") and self.approx is not None:
+            return self.approx.hessian()
+        return None
+
+    @property
+    def hess_inv(self) -> np.ndarray | None:
+        """Inverse of the objective function's Hessian at x.
+
+        Returns the inverse hessian from approximations if available.
+        """
+        if hasattr(self, "approx") and self.approx is not None:
+            return self.approx.inv_hessian()
+        return None
+
+    @property
+    def nfev(self) -> int | None:
+        """Number of evaluations of the objective function.
+
+        Maps to evaluation counts from info dict.
+        """
+        if hasattr(self, "info") and self.info is not None:
+            # Try different possible keys for function evaluations
+            return self.info.get("nfev") or self.info.get("n_eval")
+        return None
+
+    @property
+    def njev(self) -> int | None:
+        """Number of evaluations of the Jacobian.
+
+        Maps to Jacobian evaluation counts from info dict if available.
+        """
+        if hasattr(self, "info") and self.info is not None:
+            return self.info.get("njev")
+        return None
+
+    @property
+    def nhev(self) -> int | None:
+        """Number of evaluations of the Hessian.
+
+        Maps to Hessian evaluation counts from info dict if available.
+        """
+        if hasattr(self, "info") and self.info is not None:
+            return self.info.get("nhev")
+        return None
+
+    @property
+    def nit(self) -> int | None:
+        """Number of iterations performed by the optimizer.
+
+        Maps to iteration count from info dict.
+        """
+        if hasattr(self, "info") and self.info is not None:
+            # Try different possible keys for iterations
+            return self.info.get("nit") or self.info.get("n_iter") or self.info.get("niter")
+        return None
+
+    @property
+    def maxcv(self) -> float | None:
+        """The maximum constraint violation.
+
+        Not available in FitResult, always returns None.
+        """
+        return None
+
+
+class FitResult(OptimizeResultMixin, ZfitResult):
+    """Result of a minimization, providing comprehensive fitting information and scipy compatibility.
+
+    FitResult stores the outcome of a fit including parameter values, minimization statistics,
+    error estimates, and provides all attributes from scipy.optimize.OptimizeResult for
+    compatibility with scipy-based code.
+
+    The result can be used as a context manager to temporarily set parameters to their
+    fitted values:
+
+    .. code-block:: python
+
+        with result:
+            # parameters are set to fitted values
+            value = model.pdf(data)
+        # parameters restored to previous values
+
+    **scipy.optimize.OptimizeResult Compatibility**
+
+    This class provides all attributes found in scipy.optimize.OptimizeResult:
+
+    - ``x``: Array of parameter values at minimum
+    - ``fun``: Objective function value at minimum (maps to ``fmin``)
+    - ``success``: Whether optimizer converged successfully (simpler than ``valid``)
+    - ``status``: Termination status code
+    - ``message``: Human-readable termination message
+    - ``jac``: Jacobian (gradient) at minimum (from approximations)
+    - ``hess``: Hessian at minimum (from approximations)
+    - ``hess_inv``: Inverse Hessian at minimum (from approximations)
+    - ``nfev``: Number of function evaluations
+    - ``njev``: Number of Jacobian evaluations (if available)
+    - ``nhev``: Number of Hessian evaluations (if available)
+    - ``nit``: Number of iterations
+    - ``maxcv``: Maximum constraint violation (always None)
+
+    **Key Differences from scipy.optimize.OptimizeResult**
+
+    - ``success`` vs ``valid``: ``success`` reflects basic optimizer success, while
+      ``valid`` includes additional zfit-specific checks (parameters at limits, etc.)
+    - ``fun`` maps to ``fmin`` (full function value) rather than ``fminopt`` (optimized value)
+    - Additional zfit-specific attributes like ``params``, ``loss``, ``minimizer``
+
+    **Error Calculation**
+
+    Various error estimation methods are available:
+
+    - ``hesse()``: Symmetric errors from Hessian matrix
+    - ``errors()``: Asymmetric errors (Minos-like)
+    - ``covariance()``: Full covariance matrix
+    - ``correlation()``: Correlation matrix
+    """
+
     _default_hesse = "minuit_hesse"
     _hesse_methods: typing.ClassVar = {
         "minuit_hesse": _covariance_minuit,
@@ -528,7 +697,7 @@ class FitResult(ZfitResult):
             errordict = self.params[p].get(method_name)
             # cl is < 1 and gets very close. The closer, the more it matters -> scale tolerance by it
             if errordict is not None:
-                if not math.isclose(errordict["cl"], cl, abs_tol=3e-3 * (1 - cl)):
+                if round(errordict["cl"], 3) != round(cl, 3):
                     msg = (
                         f"Error with name {method_name} already exists in {self!r} with a different"
                         f" convidence level of {errordict['cl']} instead of the requested {cl}."
@@ -552,7 +721,7 @@ class FitResult(ZfitResult):
 
     def _create_minuit_instance(self):
         minuit = self._cache_minuit
-        from zfit.minimizers.minimizer_minuit import Minuit
+        from zfit.minimizers.minimizer_minuit import Minuit  # noqa: PLC0415
 
         if minuit is None:
             if isinstance(self.minimizer, Minuit):
@@ -641,7 +810,7 @@ class FitResult(ZfitResult):
             ``zfit.minimize.FitResult``:
         """
         info = {"problem": problem}
-        params = dict(zip(params, values))
+        params = dict(zip(params, values, strict=True))
         valid = valid if converged is None else valid and converged
         if evaluator is not None:
             valid = valid and not evaluator.maxiter_reached
@@ -732,8 +901,8 @@ class FitResult(ZfitResult):
             Returns:
                 ``zfit.minimize.FitResult``: A `FitResult` as if zfit Minuit was used.
         """
-        from .minimizer_minuit import Minuit
-        from .termination import EDM
+        from .minimizer_minuit import Minuit  # noqa: PLC0415
+        from .termination import EDM  # noqa: PLC0415
 
         if not isinstance(minimizer, Minuit):
             if isinstance(minimizer, iminuit.Minuit):
@@ -771,7 +940,7 @@ class FitResult(ZfitResult):
             valid = valid and not evaluator.maxiter_reached
         if values is None:
             values = tuple(res.value for res in params_result)
-        params = dict(zip(params, values))
+        params = dict(zip(params, values, strict=True))
         return cls(
             params=params,
             edm=edm,
@@ -885,7 +1054,7 @@ class FitResult(ZfitResult):
             approx["inv_hessian"] = inv_hesse
 
         fminopt = result["fun"]
-        params = dict(zip(params, result_values))
+        params = dict(zip(params, result_values, strict=True))
         if evaluator is not None:
             valid = valid and not evaluator.maxiter_reached
 
@@ -988,7 +1157,7 @@ class FitResult(ZfitResult):
             zfit.minimizers.fitresult.FitResult:
         """
         converged = converged if converged is None else bool(converged)
-        param_dict = dict(zip(params, values))
+        param_dict = dict(zip(params, values, strict=True))
         if fminopt is None:
             fminopt = opt.last_optimum_value()
         status_nlopt = opt.last_optimize_result()
@@ -1133,11 +1302,15 @@ class FitResult(ZfitResult):
 
     @property
     def converged(self) -> bool:
-        return self._converged
+        return bool(self._converged)
 
     @property
     def valid(self) -> bool:
-        return self._valid and not self.params_at_limit and self.converged
+        return bool(self._valid and not self.params_at_limit and self.converged)
+
+    @property
+    def x(self):
+        return znp.array(self.values)
 
     @property
     def params_at_limit(self) -> bool:
@@ -1234,7 +1407,7 @@ class FitResult(ZfitResult):
         if method is None:
             # LEGACY START
             method = self._default_hesse
-            from zfit.minimizers.minimizer_minuit import Minuit
+            from zfit.minimizers.minimizer_minuit import Minuit  # noqa: PLC0415
 
             if isinstance(self.minimizer, Minuit):
                 method = "minuit_hesse"
@@ -1267,7 +1440,7 @@ class FitResult(ZfitResult):
                 if any(val["error"] is None for val in error_dict.values()):
                     return {}
                 for p in error_dict:
-                    error_dict[p]["cl"] = cl
+                    error_dict[p]["cl"] = round(cl, 3)  # Round to 3 digits to avoid numerical issues
                     error_dict[p]["weightcorr"] = weightcorr
                 if name:
                     self._cache_errors(name=name, errors=error_dict)
@@ -1402,7 +1575,7 @@ class FitResult(ZfitResult):
             if uncached_params:
                 error_dict, new_result = self._error(params=uncached_params, method=method, cl=cl)
                 for p in error_dict:
-                    error_dict[p]["cl"] = cl
+                    error_dict[p]["cl"] = round(cl, 3)  # Round to 3 digits to avoid numerical issues
                 self._cache_errors(name=name, errors=error_dict)
 
                 if new_result is not None:
@@ -1469,13 +1642,16 @@ class FitResult(ZfitResult):
             weightcorr = WeightCorr.ASYMPTOTIC
         weightcorr = WeightCorr(weightcorr)
 
-        if method not in self._covariance_dict:
+        cache_key = (method, weightcorr)
+        if cache_key not in self._covariance_dict:
             with self._input_check_reset_params(params) as checkedparams:
-                self._covariance_dict[method] = self._covariance(method=method, weightcorr=weightcorr)
+                self._covariance_dict[cache_key] = self._covariance(method=method, weightcorr=weightcorr)
 
         else:
             checkedparams = self._input_check_params(params)
-        covariance = {k: self._covariance_dict[method].get(k) for k in itertools.product(checkedparams, checkedparams)}
+        covariance = {
+            k: self._covariance_dict[cache_key].get(k) for k in itertools.product(checkedparams, checkedparams)
+        }
 
         if as_dict:
             return covariance
@@ -1549,7 +1725,7 @@ class FitResult(ZfitResult):
             self.info["minuit"] = "Minuit_frozen"
         if "problem" in self.info:
             try:
-                import ipyopt
+                import ipyopt  # noqa: PLC0415
             except ImportError:
                 pass
             else:

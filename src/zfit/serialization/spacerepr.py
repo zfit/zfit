@@ -2,11 +2,7 @@
 from __future__ import annotations
 
 import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
-from typing import Literal, Optional, Union
+from typing import Literal
 
 from pydantic.v1 import Field, root_validator, validator
 
@@ -14,18 +10,21 @@ from ..core.space import Space
 from ..util.exception import WorkInProgressError
 from .serializer import BaseRepr
 
-NumericTyped = Union[float, int]
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
-NameObsTyped = Optional[Union[tuple[str], str]]
+NumericTyped = float | int
+
+NameObsTyped = tuple[str] | str | None
 
 
 class SpaceRepr(BaseRepr):
     _implementation = Space
     hs3_type: Literal["Space"] = Field("Space", alias="type")
     name: str
-    lower: Optional[NumericTyped] = Field(alias="min")
-    upper: Optional[NumericTyped] = Field(alias="max")
-    binning: Optional[float] = None  # TODO: binning
+    lower: NumericTyped | None = Field(alias="min")
+    upper: NumericTyped | None = Field(alias="max")
+    binning: float | None = None  # TODO: binning
 
     @root_validator(pre=True)
     def _validate_pre(cls, values):

@@ -4,13 +4,11 @@ from __future__ import annotations
 
 import typing
 
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 import numpy as np
 import tensorflow as tf
 
 from zfit import z
+from zfit._interfaces import ZfitData, ZfitDimensional, ZfitOrderableDimensional, ZfitSpace
 
 from ..util import ztyping
 from ..util.container import convert_to_container
@@ -22,7 +20,9 @@ from ..util.exception import (
     ObsIncompatibleError,
     OverdefinedError,
 )
-from .interfaces import ZfitData, ZfitDimensional, ZfitOrderableDimensional, ZfitSpace
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 
 class Coordinates(ZfitOrderableDimensional):

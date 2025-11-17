@@ -7,7 +7,7 @@ build-backend = "hatchling.build"
 name = "zfit"
 description = "scalable pythonic model fitting for high energy physics"
 readme = "README.rst"
-requires-python = ">=3.9, <3.13"
+requires-python = ">=3.10, <3.14"
 license = { text = "BSD-3-Clause" }
 authors = [
     { name = "Jonas Eschle", email = "Jonas.Eschle@cern.ch" },
@@ -27,10 +27,10 @@ classifiers = [
     "Operating System :: Unix",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Topic :: Scientific/Engineering :: Physics"
 ]
 keywords = ["TensorFlow", "model", "fitting", "scalable", "HEP", "likelihood"]
@@ -57,8 +57,8 @@ dependencies = [
     "pyyaml",
     "scipy>=1.2",
     "tabulate",
-    "tensorflow>=2.16.2, <2.20",
-    "tensorflow-probability[tf]>=0.24, <0.27",
+    "tensorflow>=2.16.2, <3.0",
+    "tensorflow-probability[tf]>=0.24, <1.0",
     "texttable",
     "uhi",
     "uproot>=4",
@@ -76,12 +76,23 @@ nlopt = ["nlopt>=2.7.1 ; sys_platform == 'linux' or sys_platform == 'darwin' and
 hs3 = ["asdf<4.0.0"]
 uproot = ["awkward-pandas"]
 
+emcee = ["emcee>=3.0.0"]
+
+bayes = [
+    "zfit[emcee]",
+    "arviz>=0.14.0"
+]
+
+plot = ["matplotlib", "mplhep"]
+
 # Additional extras with platform-specific markers
 all = [
     "zfit[uproot]",
     "zfit[hs3]",
     "zfit[ipyopt]",
     "zfit[nlopt]",
+    "zfit[plot]",
+    "zfit[bayes]",
 ]
 
 test = [
@@ -95,13 +106,14 @@ test = [
     "pyyaml",
     "matplotlib",
     "mplhep",
+    "scikit-image",  # for better error reporting if plots disagree, not mandatory
     # all aspects of zfit
-        "zfit[all]",  # TODO: we cannot have platform specific deps in here? A bug?
+    "zfit[all]", # TODO: we cannot have platform specific deps in here? A bug?
 
-#    "zfit[uproot]",
-#    "zfit[hs3]",
-#    "zfit[ipyopt] ; sys_platform == 'linux'",
-#    "zfit[nlopt] ; sys_platform == 'linux' or sys_platform == 'darwin' and platform_machine != 'arm64' or sys_platform == 'win32'",
+    #    "zfit[uproot]",
+    #    "zfit[hs3]",
+    #    "zfit[ipyopt] ; sys_platform == 'linux'",
+    #    "zfit[nlopt] ; sys_platform == 'linux' or sys_platform == 'darwin' and platform_machine != 'arm64' or sys_platform == 'win32'",
     # pytest related
     "pytest>=3.4.2",
     "pytest-runner>=2.11.1",
@@ -161,8 +173,6 @@ dev = [
     "wheel>=0.29.0",
 ]
 
-
-
 alldev = ["zfit[dev]"]  # backwards compatibility
 
 [tool.hatch]
@@ -182,9 +192,12 @@ testpaths = [
 ]
 markers = [
     "plots: create and safe plots",
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
 ]
 console_output_style = "progress"
 collect_ignore = "setup.py"
+timeout = 300
+timeout_method = "thread"
 
 [tool.coverage.run]
 branch = true
@@ -263,7 +276,6 @@ extend-select = [
     "PD", # pandas-vet
 ]
 ignore = [
-    "UP007", # type annotation upgrade, breaks pydantic for Python 3.9 (remove once above)
     "PLR09", # Too many <...>
     "PLR2004", # Magic value used in comparison
     "ISC001", # Conflicts with formatter

@@ -6,12 +6,12 @@ changelog:
       - dependabot
       - pre-commit-ci
   categories:
-    - title: 🏕 Features
+    - title: Features
       labels:
         - '*'
       exclude:
         labels:
           - dependencies
-    - title: 👒 Dependencies
+    - title: Dependencies
       labels:
         - dependencies

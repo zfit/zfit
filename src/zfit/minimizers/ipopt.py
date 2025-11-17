@@ -2,12 +2,8 @@
 
 from __future__ import annotations
 
-import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 import math
+import typing
 
 import numpy as np
 
@@ -17,6 +13,9 @@ from .baseminimizer import BaseMinimizer, minimize_supports, print_minimization_
 from .fitresult import FitResult
 from .strategy import ZfitStrategy
 from .termination import CRITERION_NOT_AVAILABLE, EDM, ConvergenceCriterion
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 
 class Ipyopt(BaseMinimizer):
@@ -220,7 +219,7 @@ class Ipyopt(BaseMinimizer):
             msg = "Cannot put 'hessian_approximation' into the options. Use `hessian` instead.`"
             raise ValueError(msg)
         if maxcor is None:
-            maxcor = 8
+            maxcor = 10
         options["limited_memory_max_history"] = maxcor
 
         minimizer_options["ipopt"] = options
@@ -233,7 +232,7 @@ class Ipyopt(BaseMinimizer):
         self._internal_maxiter = 5
 
         try:
-            import ipyopt
+            import ipyopt  # noqa: PLC0415
         except ImportError as error:
             msg = (
                 "This requires the ipyopt library (https://gitlab.com/g-braeunlich/ipyopt)"
@@ -259,7 +258,7 @@ class Ipyopt(BaseMinimizer):
 
     @minimize_supports(init=True)
     def _minimize(self, loss, params, init):
-        import ipyopt
+        import ipyopt  # noqa: PLC0415
 
         if init:
             assign_values(params=params, values=init)
@@ -325,10 +324,9 @@ class Ipyopt(BaseMinimizer):
         else:
             ipopt_options["hessian_approximation"] = "limited-memory"
             ipopt_options["limited_memory_update_type"] = hessian
-            ipopt_options["constr_viol_tol"] = 1e-15
+            # ipopt_options["constr_viol_tol"] = 1e-15
             # ipopt_options["limited_memory_initialization"] = "scalar2"
             # ipopt_options["limited_memory_init_val"] = 0.1  # (np.min(stepsize) + np.mean(stepsize)) / 2
-            ipopt_options["limited_memory_max_history"] = minimizer_options.pop("limited_memory_max_history", 8)
         # ipopt_options['dual_inf_tol'] = TODO?
 
         minimizer = ipyopt.Problem(**minimizer_kwargs)
@@ -347,8 +345,8 @@ class Ipyopt(BaseMinimizer):
 
         warm_start_options = (  # TODO: what exactly here?
             "warm_start_init_point",
-            # "warm_start_same_structure",
-            # "warm_start_entire_iterate",
+            "warm_start_same_structure",
+            "warm_start_entire_iterate",
         )
 
         fmin = None

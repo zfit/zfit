@@ -230,7 +230,7 @@ These core ideas are supported by two basic pillars:
 Prerequisites
 =============
 
-``zfit`` works with Python versions 3.9 and above.
+``zfit`` works with Python versions 3.10 to 3.13.
 The main dependency is `tensorflow <https://www.tensorflow.org/>`_: zfit follows a close version compatibility with TensorFlow.
 
 

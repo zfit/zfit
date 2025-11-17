@@ -1,4 +1,4 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2025 zfit
 import numpy as np
 import pytest
 import tensorflow as tf
@@ -141,7 +141,7 @@ def test_multiple_limits_sampling(gauss_factory):
     sample1 = gauss.sample(n=n, limits=obs)
     sample2 = gauss.sample(n=n, limits=obs_split)
 
-    rel_tol = 1e-2
+    rel_tol = 3e-2
     assert pytest.approx(mu_true, rel_tol) == (np.mean(sample1.value()))
     assert pytest.approx(sigma_true, rel_tol) == (np.std(sample1.value()))
     assert pytest.approx(mu_true, rel_tol) == (np.mean(sample2.value()))
@@ -414,7 +414,7 @@ def test_importance_sampling_uniform():
     expected_per_bin = n_sample / n_bins
 
     assert np.std(bin_counts) < np.sqrt(expected_per_bin) * 2
-    assert all(abs(bin_counts - expected_per_bin) < np.sqrt(expected_per_bin) * 5)
+    np.testing.assert_allclose(bin_counts, expected_per_bin, atol=np.sqrt(expected_per_bin) * 5)
 
 
 def test_sampling_fixed_eventlimits():

@@ -224,7 +224,7 @@ Poisson PDF
 
 The :py:class:`~zfit.pdf.Poisson` distribution is a discrete probability distribution that expresses the probability of a given number of events occurring in a fixed interval of time or space.
 
-.. image:: ../../images/_generated/pdfs/poisson_lambda.png
+.. image:: ../../images/_generated/pdfs/poisson_lamb.png
    :width: 80%
    :align: center
    :alt: Poisson PDF with different lambda values
@@ -328,6 +328,20 @@ The :py:class:`~zfit.pdf.TruncatedGauss` distribution is a Gaussian distribution
 .. autosummary::
 
     zfit.pdf.TruncatedGauss
+
+ExpModGauss PDF
+---------------------------------------------------------------------------------------------------------------------
+
+The :py:class:`~zfit.pdf.ExpModGauss` distribution is a Gaussian distribution convolved with an exponential distribution.
+
+.. image:: ../../images/_generated/pdfs/expmodgauss_lambd.png
+   :width: 80%
+   :align: center
+   :alt: ExpModGauss PDF with different lambda values
+
+.. autosummary::
+
+    zfit.pdf.ExpModGauss
 
 .. autosummary::
     :toctree: _generated/basic
