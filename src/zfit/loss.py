@@ -16,10 +16,12 @@ if typing.TYPE_CHECKING:
     import zfit  # noqa: F401
 
 # Set __module__ to zfit.loss for proper documentation linking
+# Classes from zfit.core.loss
 UnbinnedNLL.__module__ = "zfit.loss"
 ExtendedUnbinnedNLL.__module__ = "zfit.loss"
 BaseLoss.__module__ = "zfit.loss"
 SimpleLoss.__module__ = "zfit.loss"
+# Classes from zfit._loss.binnedloss
 BinnedNLL.__module__ = "zfit.loss"
 ExtendedBinnedNLL.__module__ = "zfit.loss"
 BinnedChi2.__module__ = "zfit.loss"
