@@ -18,6 +18,7 @@ Major Features and Improvements
 
 Breaking changes
 ------------------
+- don't clip parameter values when retrieving them (i.e. with ``float(param)`` or ``param.numpy()`` etc.). This can greatly speed up computations and avoid unnecessary complications. Minimizers should still handle limits correctly, setting values outside limits will raise errors as before and be clipped when setting values with ``assign``.
 
 Deprecations
 -------------

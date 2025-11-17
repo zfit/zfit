@@ -51,7 +51,7 @@ class PlotCache:
         """Load cache data from disk."""
         if self.cache_file.exists():
             try:
-                with open(self.cache_file, "rb") as f:
+                with self.cache_file.open("rb") as f:
                     return pickle.load(f)
             except (pickle.PickleError, EOFError):
                 return {}
@@ -59,7 +59,7 @@ class PlotCache:
 
     def _save_cache(self):
         """Save cache data to disk."""
-        with open(self.cache_file, "wb") as f:
+        with self.cache_file.open("wb") as f:
             pickle.dump(self.cache_data, f)
 
     def _get_file_hash(self, file_path: Path) -> str:
@@ -68,7 +68,7 @@ class PlotCache:
             return ""
 
         hash_md5 = hashlib.md5()
-        with open(file_path, "rb") as f:
+        with file_path.open("rb") as f:
             for chunk in iter(lambda: f.read(4096), b""):
                 hash_md5.update(chunk)
         return hash_md5.hexdigest()
