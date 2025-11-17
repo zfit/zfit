@@ -15,12 +15,11 @@ parameters while maintaining proper probability densities.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Union
 
 import zfit
 import zfit.z.numpy as znp
-from zfit.core.interfaces import ZfitPrior
 
+from .._interfaces import ZfitPrior
 from .mathconstrain import POSITIVE, UNCONSTRAINED, ConstraintType, PriorConstraint, validate_parameter
 
 

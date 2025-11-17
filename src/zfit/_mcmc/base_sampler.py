@@ -3,15 +3,17 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from zfit.core.interfaces import ZfitParameter, ZfitSampler
 from zfit.util.container import convert_to_container
+
+from .._interfaces import ZfitParameter, ZfitSampler
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
     from typing import Any
 
     from zfit._bayesian.posterior import PosteriorSamples
-    from zfit.core.interfaces import ZfitLoss
+
+    from .._interfaces import ZfitLoss
 
 
 class BaseMCMCSampler(ZfitSampler):
@@ -126,7 +128,7 @@ class BaseMCMCSampler(ZfitSampler):
             - When using init, ensure the parameters match between runs
         """
         # Import here to avoid circular imports
-        from zfit.core.interfaces import ZfitLoss
+        from .._interfaces import ZfitLoss  # noqa: PLC0415
 
         # Validate inputs
         if not isinstance(loss, ZfitLoss):
@@ -183,5 +185,6 @@ class BaseMCMCSampler(ZfitSampler):
         Returns:
             PosteriorSamples object.
         """
+        del init, n_warmup, n_samples, params, loss  # unused args
         msg = "_sample method not implemented, needs to be implemented in subclass. Don't call this method directly."
         raise RuntimeError(msg)

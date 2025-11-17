@@ -5,7 +5,6 @@ from __future__ import annotations
 import typing
 from collections.abc import Callable
 from typing import ClassVar, Literal
-from typing import ClassVar, Literal, Union
 
 import numpy as np
 import pydantic.v1 as pydantic
@@ -1647,7 +1646,7 @@ class KDE1DimFFT(KDEHelper, BasePDF, SerializableMixin):
         )
         self._padding = padding
 
-        bandwidth, bandwidth_param = self._convert_input_bandwidth(
+        bandwidth, _bandwidth_param = self._convert_input_bandwidth(
             bandwidth=bandwidth,
             data=data,
             padding=False,

@@ -83,18 +83,6 @@ bayes = [
     "arviz>=0.14.0"
 ]
 
-# Test requirements
-tests = [
-    "pytest>=3.4.2",
-    "pytest-runner>=2.11.1",
-    "pytest-rerunfailures>=6",
-    "pytest-xdist",
-    "pytest-ordering",
-    "pytest-randomly",
-    "scikit-hep-testdata",
-    "pytest-timeout>=1",
-    "matplotlib",
-]
 plot = ["matplotlib", "mplhep"]
 
 # Additional extras with platform-specific markers

@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 
 from .. import z
-from ..core.interfaces import ZfitParameter
+from .._interfaces import ZfitParameter
 from ..z import numpy as znp
 from .base_sampler import BaseMCMCSampler
 
@@ -18,7 +18,8 @@ if TYPE_CHECKING:
     import numpy.typing as npt
 
     from zfit._bayesian.posterior import PosteriorSamples
-    from zfit.core.interfaces import ZfitLoss
+
+    from .._interfaces import ZfitLoss
 
 
 class EmceeSampler(BaseMCMCSampler):
@@ -89,10 +90,10 @@ class EmceeSampler(BaseMCMCSampler):
             computational cost linearly.
         """
         try:
-            import emcee
-        except ImportError:
+            import emcee  # noqa: PLC0415, F401
+        except ImportError as error:
             msg = "emcee is required for EmceeSampler. Install with 'pip install emcee'."
-            raise ImportError(msg)
+            raise ImportError(msg) from error
         super().__init__(name=name, verbosity=verbosity, n_samples=n_samples, n_warmup=n_warmup)
         self.nwalkers = nwalkers
         self.moves = moves
@@ -112,10 +113,12 @@ class EmceeSampler(BaseMCMCSampler):
             - The total number of samples in the result is n_samples * nwalkers
             - Sampling time scales linearly with nwalkers, n_samples, and n_warmup
         """
-        import emcee
+        import emcee  # noqa: PLC0415
+
+        import zfit  # noqa: PLC0415
 
         # Import here to avoid circular imports
-        from zfit._bayesian.posterior import PosteriorSamples
+        from zfit._bayesian.posterior import PosteriorSamples  # noqa: PLC0415
 
         n_dims = len(params)
         if (nwalkers := self.nwalkers) is None:
@@ -136,7 +139,7 @@ class EmceeSampler(BaseMCMCSampler):
             # with zfit.param.set_values(params, x):
             # Calculate log likelihood (negative of loss)
 
-            import zfit
+            import zfit  # noqa: PLC0415
 
             zfit.param.assign_values_jit(params, x)
             log_likelihood = -loss.value()
@@ -309,7 +312,6 @@ class EmceeSampler(BaseMCMCSampler):
             vectorize=False,
         )
         oldvals = np.array(params)
-        import zfit
 
         with zfit.param.set_values(params, oldvals):
             # Run burn-in
@@ -373,7 +375,7 @@ class EmceeSampler(BaseMCMCSampler):
             # Add small noise to duplicated walkers to break symmetry
             noise_mask = np.zeros(nwalkers, dtype=bool)
             unique_indices, counts = np.unique(indices, return_counts=True)
-            for idx, count in zip(unique_indices, counts):
+            for idx, count in zip(unique_indices, counts, strict=False):
                 if count > 1:
                     duplicates = np.where(indices == idx)[0][1:]  # Skip first occurrence
                     noise_mask[duplicates] = True
@@ -421,7 +423,7 @@ class EmceeSampler(BaseMCMCSampler):
             last_samples = init.samples[indices, :]
             # Add small noise to duplicated samples
             unique_indices, counts = np.unique(indices, return_counts=True)
-            for idx, count in zip(unique_indices, counts):
+            for idx, count in zip(unique_indices, counts, strict=False):
                 if count > 1:
                     duplicates = np.where(indices == idx)[0][1:]  # Skip first occurrence
                     last_samples[duplicates] += 1e-4 * np.random.randn(len(duplicates), n_dims)

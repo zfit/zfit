@@ -18,9 +18,9 @@ if TYPE_CHECKING:
     import numpy.typing as npt
     import pandas as pd
 
-    from zfit.core.interfaces import ZfitLoss, ZfitParameter
     from zfit.mcmc import MCMCSampler
 
+    from .._interfaces import ZfitLoss, ZfitParameter
     from .priors import KDE
 
 
@@ -475,7 +475,7 @@ class PosteriorSamples:
         if len(param_objects) == 1:
             param_objects[0].set_value(float(means))
         else:
-            for param_obj, mean_val in zip(param_objects, means):
+            for param_obj, mean_val in zip(param_objects, means, strict=False):
                 param_obj.set_value(float(mean_val))
 
         return self  # todo: improve, refactor?

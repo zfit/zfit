@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterable
-from typing import TYPE_CHECKING, Literal, Union
 import typing
 from collections import Counter
 from collections.abc import Callable, Iterable, Mapping

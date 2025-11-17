@@ -14,7 +14,6 @@ from collections.abc import Callable, Iterable, Mapping
 from contextlib import suppress
 from inspect import signature
 from typing import Literal
-from typing import Literal, Union
 from weakref import WeakSet
 
 import dill
@@ -35,7 +34,7 @@ from tensorflow.python.types.core import Tensor as TensorType
 
 from .. import _interfaces as zinterfaces
 from .. import z
-from .._interfaces import ZfitIndependentParameter, ZfitModel, ZfitParameter
+from .._interfaces import ZfitIndependentParameter, ZfitModel, ZfitParameter, ZfitPrior
 from ..core.baseobject import BaseNumeric, extract_filter_params, validate_preprocess_name
 from ..minimizers.interface import ZfitResult
 from ..serialization.paramrepr import make_param_constructor
@@ -54,8 +53,6 @@ from ..util.exception import (
 )
 from ..util.temporary import TemporarilySet
 from ..util.warnings import warn_once
-from . import interfaces as zinterfaces
-from .interfaces import ZfitIndependentParameter, ZfitModel, ZfitParameter, ZfitPrior
 from ..z import numpy as znp
 from .serialmixin import SerializableMixin
 
@@ -924,7 +921,6 @@ class BaseComposedParameter(ZfitParameterMixin, OverloadableMixin, BaseParameter
     def value(self):
         params = self.params
         return znp.asarray(self._func(params), dtype=self.dtype)
-
 
     @property
     def shape(self):

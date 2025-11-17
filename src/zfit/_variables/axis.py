@@ -8,15 +8,13 @@ from collections.abc import Iterable
 import hist
 import zfit_interface as zinterface
 
-from zfit._interfaces import ZfitBinning
-
 if typing.TYPE_CHECKING:
     import zfit  # noqa: F401
 
 # @tfp.experimental.auto_composite_tensor()
 # class Regular(hist.axis.Regular, tfp.experimental.AutoCompositeTensor, family='zfit'):
 #     pass
-from ..core.interfaces import ZfitBinning
+from .._interfaces import ZfitBinning
 
 
 class Variable(zinterface.variables.ZfitVar):

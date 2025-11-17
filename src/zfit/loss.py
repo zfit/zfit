@@ -3,13 +3,13 @@ from __future__ import annotations
 
 import typing
 
+from ._interfaces import ZfitLoss
 from ._loss.binnedloss import (
     BinnedChi2,
     BinnedNLL,
     ExtendedBinnedChi2,
     ExtendedBinnedNLL,
 )
-from .core.interfaces import ZfitLoss
 from .core.loss import BaseLoss, ExtendedUnbinnedNLL, SimpleLoss, UnbinnedNLL
 
 if typing.TYPE_CHECKING:
