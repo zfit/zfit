@@ -9,6 +9,8 @@ Papers and proceedings
 =======================
 
 - `Original zfit paper <https://www.sciencedirect.com/science/article/pii/S2352711019303851>`_
+
+- `Scipy 2025 talk recording: <https://www.youtube.com/watch?v=_Gu4mQNK96M>`_
 - `Computing in High Energy Physics (CHEP) 2019 <https://www.epj-conferences.org/articles/epjconf/ref/2020/21/epjconf_chep2020_06025/epjconf_chep2020_06025.html>`_
 - `PyHEP 2020 tutorial <https://zenodo.org/record/4147540#.YHSdF3UzZH4>`_
 - `PyHEP 2020 presentation <https://zenodo.org/record/4147528#.YHSdkHUzZH4>`_
@@ -17,7 +19,7 @@ Papers and proceedings
 Used by
 ========
 
-The following analysis have used zfit
+The following analysis (a selection) have used zfit
 
 - Search for long-lived particles decaying to :math:`$$e ^\pm $$$$\mu ^\mp $$$$\nu $$`,
   `Eur. Phys. J. C 81, 261 (2021) <https://doi.org/10.1140/epjc/s10052-021-08994-0>`_
@@ -25,6 +27,8 @@ The following analysis have used zfit
 - Angular analysis of
   :math:`$$ {B}^0\to {D}^{\ast -}{D}_s^{\ast +} $$with $$ {D}_s^{\ast +}\to {D}_s^{+}\gamma $$` decays,
   `J. High Energ. Phys. 2021, 177 (2021) <https://doi.org/10.1007/JHEP06(2021)177>`_
+
+- `Search for resonances decaying to photon pairs with masses between 4.9 and 19.4 GeV <https://arxiv.org/pdf/2507.14390>`_
 
 
 .. _section-citing:

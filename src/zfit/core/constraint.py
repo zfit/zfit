@@ -2,15 +2,11 @@
 
 from __future__ import annotations
 
-import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 import abc
 import collections
+import typing
 from collections.abc import Callable, Iterable, Mapping
-from typing import Literal, Optional
+from typing import Literal
 
 import numpy as np
 import pydantic.v1 as pydantic
@@ -19,6 +15,7 @@ import tensorflow_probability as tfp
 from ordered_set import OrderedSet
 
 import zfit.z.numpy as znp
+from zfit._interfaces import ZfitConstraint, ZfitParameter
 
 from .. import z
 from ..serialization.serializer import BaseRepr, Serializer
@@ -28,8 +25,10 @@ from ..util.container import convert_to_container
 from ..util.deprecation import deprecated_args
 from ..util.exception import ShapeIncompatibleError
 from .baseobject import BaseNumeric
-from .interfaces import ZfitConstraint, ZfitParameter
 from .serialmixin import SerializableMixin
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 tfd = tfp.distributions
 
@@ -308,7 +307,7 @@ class GaussianConstraint(TFProbabilityConstraint, SerializableMixin):
         # legacy start 1
         if legacy_uncertainty := uncertainty is not None:
             uncertainty = convert_to_container(uncertainty, tuple, ignore=np.ndarray)
-            if isinstance(uncertainty[0], (np.ndarray, tf.Tensor)) and len(uncertainty) == 1:
+            if isinstance(uncertainty[0], np.ndarray | tf.Tensor) and len(uncertainty) == 1:
                 uncertainty = tuple(uncertainty[0])
 
             def create_covariance_legacy(mu, sigma):
@@ -391,9 +390,9 @@ class GaussianConstraintRepr(BaseConstraintRepr):
 
     params: list[Serializer.types.ParamInputTypeDiscriminated]
     observation: list[Serializer.types.ParamInputTypeDiscriminated]
-    uncertainty: Optional[list[Serializer.types.ParamInputTypeDiscriminated]]
-    sigma: Optional[list[Serializer.types.ParamInputTypeDiscriminated]]
-    cov: Optional[list[Serializer.types.ParamInputTypeDiscriminated]]
+    uncertainty: list[Serializer.types.ParamInputTypeDiscriminated] | None
+    sigma: list[Serializer.types.ParamInputTypeDiscriminated] | None
+    cov: list[Serializer.types.ParamInputTypeDiscriminated] | None
 
     @pydantic.root_validator(pre=True)
     def get_init_args(cls, values):

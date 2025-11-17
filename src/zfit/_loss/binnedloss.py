@@ -3,18 +3,15 @@
 from __future__ import annotations
 
 import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 from collections.abc import Iterable
 
 import numpy as np
 import tensorflow as tf
 from uhi.typing.plottable import PlottableHistogram
 
+from zfit._interfaces import ZfitBinnedData, ZfitBinnedPDF, ZfitParameter
+
 from .. import z
-from ..core.interfaces import ZfitBinnedData, ZfitBinnedPDF, ZfitParameter
 from ..core.loss import BaseLoss
 from ..util import ztyping
 from ..util.checks import NONE
@@ -22,6 +19,9 @@ from ..util.container import convert_to_container
 from ..util.warnings import warn_advanced_feature
 from ..util.ztyping import ConstraintsInputType, OptionsInputType
 from ..z import numpy as znp
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 
 @z.function(wraps="tensor", keepalive=True)
@@ -95,7 +95,15 @@ class BaseBinned(BaseLoss):
     ):
         model = convert_to_container(model)
         data = convert_to_container(data)
-        from zfit._data.binneddatav1 import BinnedData
+        from zfit._data.binneddatav1 import BinnedData  # noqa: PLC0415
+
+        # Check for empty model or data lists
+        if not model:
+            msg = "At least one model must be provided to create a binned loss."
+            raise ValueError(msg)
+        if not data:
+            msg = "At least one dataset must be provided to create a binned loss."
+            raise ValueError(msg)
 
         data = [
             (
@@ -105,6 +113,27 @@ class BaseBinned(BaseLoss):
             )
             for d in data
         ]
+
+        # Check for empty datasets
+        for i, dat in enumerate(data):
+            if hasattr(dat, "num_entries"):
+                try:
+                    n_entries = dat.num_entries
+                    if tf.is_tensor(n_entries):
+                        from zfit import run  # noqa: PLC0415
+
+                        if run.executing_eagerly():
+                            n_entries = int(n_entries)
+
+                    if n_entries == 0:
+                        msg = (
+                            f"Dataset at index {i} is empty (has 0 entries). Cannot create binned loss with empty data."
+                        )
+                        raise ValueError(msg)
+                except Exception:
+                    # Continue if we can't determine entries
+                    pass
+
         not_binned_pdf = [mod for mod in model if not isinstance(mod, ZfitBinnedPDF)]
         not_binned_data = [dat for dat in data if not isinstance(dat, ZfitBinnedData)]
         not_binned_pdf_msg = (
@@ -221,8 +250,8 @@ class ExtendedBinnedNLL(BaseBinned):
             The binned likelihood is defined as
 
             .. math::
-                \mathcal{L} = \product \mathcal{poiss}(N_{modelbin_i}, N_{databin_i})
-                = N_{databin_i}^{N_{modelbin_i}} \frac{e^{- N_{databin_i}}}{N_{modelbin_i}!}
+                \mathcal{L} = \prod_{i} \mathcal{poiss}(N_{databin_i}, N_{modelbin_i})
+                = N_{modelbin_i}^{N_{databin_i}} \frac{e^{- N_{modelbin_i}}}{N_{databin_i}!}
 
 
             where :math:`databin_i` is the :math:`i^{th}` bin in the data and
@@ -310,7 +339,7 @@ class ExtendedBinnedNLL(BaseBinned):
     ):
         del fit_range
         poisson_terms = []
-        for mod, dat in zip(model, data):
+        for mod, dat in zip(model, data, strict=True):
             values = dat.values(  # TODO: right order of model and data?
                 # obs=mod.obs
             )
@@ -458,7 +487,7 @@ class BinnedNLL(BaseBinned):
     ):
         del fit_range
         poisson_terms = []
-        for mod, dat in zip(model, data):
+        for mod, dat in zip(model, data, strict=True):
             values = dat.values(  # TODO: right order of model and data?
                 # obs=mod.obs
             )
@@ -663,7 +692,7 @@ class BinnedChi2(BaseBinned):
         log_offset_val = 0.0 if log_offset is False else log_offset
         log_offset_val = znp.asarray(log_offset_val, dtype=znp.float64)
 
-        for mod, dat in zip(model, data):
+        for mod, dat in zip(model, data, strict=True):
             values = dat.values(  # TODO: right order of model and data?
                 # obs=mod.obs
             )
@@ -817,7 +846,7 @@ class ExtendedBinnedChi2(BaseBinned):
         chi2_terms = []
         log_offset_val = 0.0 if log_offset is False else log_offset
         log_offset_val = znp.asarray(log_offset_val, dtype=znp.float64)
-        for mod, dat in zip(model, data):
+        for mod, dat in zip(model, data, strict=True):
             values = dat.values(  # TODO: right order of model and data?
                 # obs=mod.obs
             )

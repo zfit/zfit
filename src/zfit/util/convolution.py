@@ -3,15 +3,15 @@ from __future__ import annotations
 
 import typing
 
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 import tensorflow as tf
 
 import zfit.z.numpy as znp
 
 from ..settings import ztypes
 from . import root_search
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 
 def find_practical_support_bandwidth(kernel, bandwidth, absolute_tolerance=10e-5):
@@ -29,7 +29,7 @@ def find_practical_support_bandwidth(kernel, bandwidth, absolute_tolerance=10e-5
     def objective_fn(x):
         return kernel_instance.prob(x) - znp.asarray(absolute_tolerance, ztypes.float)
 
-    roots, value_at_roots, num_iterations, converged = root_search.brentq(
+    roots, _value_at_roots, _num_iterations, _converged = root_search.brentq(
         objective_fn,
         tf.constant(0.0, dtype=ztypes.float),
         tf.constant(8.0, dtype=ztypes.float) * bandwidth,

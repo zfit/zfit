@@ -3,17 +3,28 @@ from __future__ import annotations
 
 import typing
 
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 import tensorflow as tf
 
 import zfit.z.numpy as znp
 
 from ..settings import ztypes
 
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
+
 
 def generate_1d_grid(data, num_grid_points, absolute_boundary=0.0, relative_boundary=0.05):
+    """Generate a 1D grid for binning data with boundary extensions.
+
+    Args:
+        data: The data to generate a grid for.
+        num_grid_points: Number of grid points to generate.
+        absolute_boundary: Absolute boundary extension. Defaults to 0.0.
+        relative_boundary: Relative boundary extension as fraction of data range. Defaults to 0.05.
+
+    Returns:
+        A 1D tensor representing the grid points.
+    """
     absolute_boundary = znp.asarray(absolute_boundary, ztypes.float)
     relative_boundary = znp.asarray(relative_boundary, ztypes.float)
     num_grid_points = znp.asarray(num_grid_points, ztypes.int)

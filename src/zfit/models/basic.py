@@ -7,17 +7,9 @@ Gauss, exponential... that can be used together with Functors to build larger mo
 
 from __future__ import annotations
 
-import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
-#  Copyright (c) 2023 zfit
 import contextlib
-from typing import TYPE_CHECKING, Literal
-
-if TYPE_CHECKING:
-    pass
+import typing
+from typing import Literal
 
 import numpy as np
 from pydantic.v1 import Field
@@ -34,6 +26,9 @@ from ..util import ztyping
 from ..util.exception import BreakingAPIChangeError
 from ..util.warnings import warn_advanced_feature
 from ..util.ztyping import ExtendedInputType, NormInputType
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 
 class Exponential(BasePDF, SerializableMixin):

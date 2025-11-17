@@ -1,4 +1,4 @@
-Run config
+Config
 ------------
 
 Settings for how to run zfit.

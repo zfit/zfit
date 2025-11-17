@@ -1,6 +1,7 @@
 #  Copyright (c) 2025 zfit
 from __future__ import annotations
 
+import math
 import numpy as np
 import pytest
 import tensorflow as tf
@@ -25,7 +26,7 @@ def test_complex_param():
     )
     some_value = 3.0 * param1**2 - 1.2j
     true_value = 3.0 * complex_value**2 - 1.2j
-    assert pytest.approx(some_value, rel=1e-7) == true_value
+    np.testing.assert_allclose(some_value, true_value, rtol=1e-7)
     assert not param1.get_params()
 
     # Cartesian complex
@@ -34,10 +35,10 @@ def test_complex_param():
     param2 = ComplexParameter.from_cartesian("param2_compl", real_part_param, imag_part_param)
     part1, part2 = param2.get_params()
     part1_val, part2_val = [part1.value(), part2.value()]
-    if pytest.approx(real_part) == part1_val:
-        assert pytest.approx(imag_part) == part2_val
-    elif pytest.approx(real_part) == part2_val:
-        assert pytest.approx(imag_part) == part1_val
+    if np.allclose(part1_val, real_part):
+        np.testing.assert_allclose(part2_val, imag_part)
+    elif np.allclose(part2_val, real_part):
+        np.testing.assert_allclose(part1_val, imag_part)
     else:
         assert False, "one of the if or elif should be the case"
 
@@ -49,10 +50,10 @@ def test_complex_param():
     param3 = ComplexParameter.from_polar("param3_compl", mod_part_param, arg_part_param)
     part1, part2 = param3.get_params()
     part1_val, part2_val = [part1.value(), part2.value()]
-    if pytest.approx(mod_val) == part1_val:
-        assert pytest.approx(arg_val) == part2_val
-    elif pytest.approx(arg_val) == part1_val:
-        assert pytest.approx(mod_val) == part2_val
+    if np.allclose(part1_val, mod_val):
+        np.testing.assert_allclose(part2_val, arg_val)
+    elif np.allclose(part1_val, arg_val):
+        np.testing.assert_allclose(part2_val, mod_val)
     else:
         assert False, "one of the if or elif should be the case"
 
@@ -67,18 +68,18 @@ def test_complex_param():
     param5 = param2.conj
 
     # Test properties (1e-8 is too precise)
-    assert pytest.approx(real_part, rel=1e-6) == param1.real
-    assert pytest.approx(imag_part, rel=1e-6) == param1.imag
-    assert pytest.approx(real_part, rel=1e-6) == param2.real
-    assert pytest.approx(imag_part, rel=1e-6) == param2.imag
-    assert pytest.approx(np.abs(complex_value)) == param2.mod
-    assert pytest.approx(np.angle(complex_value)) == param2.arg
-    assert pytest.approx(mod_val, rel=1e-6) == param3.mod
-    assert pytest.approx(arg_val, rel=1e-6) == param3.arg
-    assert pytest.approx(mod_val * np.cos(arg_val), rel=1e-6) == param3.real
-    assert pytest.approx(mod_val * np.sin(arg_val), rel=1e-6) == param3.imag
-    assert pytest.approx(real_part) == param5.real
-    assert pytest.approx(-imag_part) == param5.imag
+    np.testing.assert_allclose(param1.real, real_part, rtol=1e-6)
+    np.testing.assert_allclose(param1.imag, imag_part, rtol=1e-6)
+    np.testing.assert_allclose(param2.real, real_part, rtol=1e-6)
+    np.testing.assert_allclose(param2.imag, imag_part, rtol=1e-6)
+    np.testing.assert_allclose(param2.mod, np.abs(complex_value))
+    np.testing.assert_allclose(param2.arg, np.angle(complex_value))
+    np.testing.assert_allclose(param3.mod, mod_val, rtol=1e-6)
+    np.testing.assert_allclose(param3.arg, arg_val, rtol=1e-6)
+    np.testing.assert_allclose(param3.real, mod_val * np.cos(arg_val), rtol=1e-6)
+    np.testing.assert_allclose(param3.imag, mod_val * np.sin(arg_val), rtol=1e-6)
+    np.testing.assert_allclose(param5.real, real_part)
+    np.testing.assert_allclose(param5.imag, -imag_part)
 
 
 def test_repr():
@@ -595,3 +596,76 @@ def test_invalid_parameter_names():
     # Test that valid names don't raise warnings
     param_valid = zfit.Parameter("valid_name", 1.0)
     assert param_valid.name == "valid_name"
+
+
+def test_composed_parameter_unpacking():
+    """
+    Test ComposedParameter parameter unpacking.
+    """
+
+    # Define two base parameters
+    a = zfit.Parameter("a", 2.0, lower=0.0, upper=5.0)
+    b = zfit.Parameter("b", 3.0, lower=0.0, upper=5.0)
+
+    # These cases should all work with automatic unpack detection
+    prod_1 = zfit.ComposedParameter("prod_1", lambda x: math.prod(x), params=[a, b]) # Should not unpack
+    prod_2 = zfit.ComposedParameter("prod_2", math.prod, params=[a, b]) # Should not unpack
+    prod_3 = zfit.ComposedParameter("prod_3", lambda x, y: x * y, params=[a, b]) # Should unpack
+
+    # Manually set unpack_params to the wrong value, expect failure
+    prod_4 = zfit.ComposedParameter("prod_4", lambda x: math.prod(x), params=[a, b], unpack_params=True)
+    prod_5 = zfit.ComposedParameter("prod_5", math.prod, params=[a, b], unpack_params=True)
+    prod_6 = zfit.ComposedParameter("prod_6", lambda x, y: x * y, params=[a, b], unpack_params=False)
+
+    assert prod_1.value() == 6
+    assert prod_2.value() == 6
+    assert prod_3.value() == 6
+
+    with pytest.raises(TypeError, match="takes 1 positional argument but 2 were given"):
+        prod_4_value = prod_4.value()
+    with pytest.raises(TypeError, match=r"takes exactly 1 positional argument \(2 given\)"):
+        prod_5_value = prod_5.value()
+    with pytest.raises(TypeError, match="missing 1 required positional argument"):
+        prod_6_value = prod_6.value()
+
+    # The below function is ambiguous. Should we unpack into first two positional arguments?
+    # Should we not unpack and instead provide an iterator to first argument?
+    # Well from the naming provided a human can understand intention, but automatic unpack
+    # detection will decide to unpack here since there is 2 params and 2 positional arguments.
+    # The keyword only argument should be ignored.
+    # If we unpack the params vs not unpacking we will get a different mathematical result
+    def my_ambiguous_function(positional_iter, kw_or_positional_arg = 0, *, kw_only_arg=None):
+        # Coerce positional_iter to an iter if just a numeric
+        # Kind of pathological to do this, but it's to illustrate a point
+        try:
+            iter(positional_iter)
+        except:
+            positional_iter = [positional_iter]
+
+        return math.prod(positional_iter) + kw_or_positional_arg
+
+    # Function will work with unpack_params either True or False: try both cases and also try automatic
+    prod_7 = zfit.ComposedParameter("prod_7", my_ambiguous_function, params=[a, b], unpack_params=False)
+    prod_8 = zfit.ComposedParameter("prod_8", my_ambiguous_function, params=[a, b], unpack_params=True)
+    prod_9 = zfit.ComposedParameter("prod_9", my_ambiguous_function, params=[a, b])
+
+    # Result is 6 when not unpacking, multiplication happens as intended
+    # When we do unpack, we accidentally calculated instead 2 + 3
+    assert prod_7.value() == 6 # not unpacking
+    assert prod_8.value() == 5 # unpacking
+    # Automatic detection will decide to unpack!
+    assert prod_9.value() == 5
+
+    # Define three base parameters
+    x = zfit.Parameter("x", 2.0, lower=0.0, upper=5.0)
+    y = zfit.Parameter("y", 3.0, lower=0.0, upper=5.0)
+    z = zfit.Parameter("z", 4.0, lower=0.0, upper=5.0)
+
+    prod_10 = zfit.ComposedParameter("prod_10", math.prod, params=[x, y, z]) # Should not unpack
+    with pytest.raises(ValueError, match="Cannot determine if parameter should be unpacked or not. Please specify explicitly `unpack_params`"):
+        prod_11 = zfit.ComposedParameter("prod_11", my_ambiguous_function, params=[x, y, z])
+    prod_12 = zfit.ComposedParameter("prod_12", my_ambiguous_function, params=[x, y, z], unpack_params=False)
+
+
+    assert prod_10.value() == 24
+    assert prod_12.value() == 24

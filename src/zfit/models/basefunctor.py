@@ -4,15 +4,15 @@ from __future__ import annotations
 
 import typing
 from collections.abc import Iterable
-from typing import Optional
 
 import pydantic.v1 as pydantic
 import tensorflow as tf
 
+from zfit._interfaces import ZfitFunctorMixin, ZfitModel, ZfitParameter, ZfitSpace
+
 from .. import z
 from ..core.coordinates import convert_to_obs_str
 from ..core.dimension import get_same_obs
-from ..core.interfaces import ZfitFunctorMixin, ZfitModel, ZfitParameter, ZfitSpace
 from ..core.parameter import convert_to_parameter
 from ..core.space import Space, combine_spaces
 from ..serialization import SpaceRepr
@@ -135,7 +135,7 @@ class FunctorMixin(ZfitFunctorMixin):
 class FunctorPDFRepr(BasePDFRepr):
     _implementation = None
     pdfs: list[Serializer.types.PDFTypeDiscriminated]
-    obs: Optional[SpaceRepr] = None
+    obs: SpaceRepr | None = None
 
     @pydantic.root_validator(pre=True)
     def validate_all_functor(cls, values):

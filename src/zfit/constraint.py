@@ -3,9 +3,6 @@ from __future__ import annotations
 
 import typing
 
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 from .core.constraint import (
     GaussianConstraint,
     LogNormalConstraint,
@@ -14,6 +11,9 @@ from .core.constraint import (
 )
 from .util import ztyping
 from .util.deprecation import deprecated
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 __all__ = [
     "GaussianConstraint",

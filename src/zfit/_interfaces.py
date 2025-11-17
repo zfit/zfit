@@ -2,31 +2,23 @@
 
 from __future__ import annotations
 
-import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
-from collections.abc import Callable
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    pass
-
 import abc
+import typing
 from abc import ABCMeta, abstractmethod
+from collections.abc import Callable
 
 import numpy as np
 import tensorflow as tf
 from uhi.typing.plottable import PlottableHistogram
 
-from ..util import ztyping
+if typing.TYPE_CHECKING:
+    import zfit
+    from zfit.util import ztyping
 
 
 class ZfitObject:
     # TODO: make abstractmethod?
-    def __eq__(self, other: object) -> bool:
-        raise NotImplementedError
+    pass
 
 
 class ZfitDimensional(ZfitObject):
@@ -248,6 +240,10 @@ class ZfitData(ZfitDimensional):
     def num_entries(self) -> int:
         raise NotImplementedError
 
+    @abstractmethod
+    def to_binned(self, binning: ztyping.BinningTypeInput):
+        raise NotImplementedError
+
 
 class ZfitUnbinnedData(ZfitData):
     @property
@@ -412,7 +408,7 @@ class ZfitLimit(abc.ABC, metaclass=ABCMeta):
 
     # TODO: remove from API?
     def get_subspace(self, *_, **__):
-        from zfit.util.exception import InvalidLimitSubspaceError
+        from zfit.util.exception import InvalidLimitSubspaceError  # noqa: PLC0415
 
         msg = "ZfitLimits does not suppoert subspaces"
         raise InvalidLimitSubspaceError(msg)
@@ -501,6 +497,11 @@ class ZfitLimit(abc.ABC, metaclass=ABCMeta):
         Returns:
             The sublimits if it was able to split.
         """
+        raise NotImplementedError
+
+    @abstractmethod
+    def __hash__(self):
+        """Hash the limits, so they can be used in sets and as keys in dictionaries."""
         raise NotImplementedError
 
 
@@ -717,6 +718,10 @@ class ZfitParameter(ZfitNumericParametrized):
     @property
     @abstractmethod
     def independent(self) -> bool:
+        raise NotImplementedError
+
+    @property
+    def stepsize(self) -> float:
         raise NotImplementedError
 
 
@@ -971,6 +976,11 @@ class ZfitPDF(ZfitModel):
     def as_func(self, norm: ztyping.LimitsType = False):
         raise NotImplementedError
 
+    @property
+    def plot(self) -> zfit.util.plotter.ZfitPDFPlotter:
+        """Plot the PDF using the :py:class:`~zfit.PDFPlotter`."""
+        return self._plot
+
 
 class ZfitFunctorMixin:
     @property
@@ -1016,9 +1026,10 @@ class ZfitBinnedData(ZfitDimensional, ZfitMinimalHist, metaclass=ABCMeta):
     # def counts(self):  # TODO: name?
     #     raise NotImplementedError
 
-    # @abstractmethod
-    # def binning(self):
-    #     return self.space.binning
+    @abstractmethod
+    def binning(self):
+        return self.space.binning
+
     @abstractmethod
     def to_hist(self):
         """Convert the binned data to a :py:class:`~hist.NamedHist`.
@@ -1047,3 +1058,96 @@ class ZfitRectBinning(ZfitBinning):
     @abstractmethod
     def get_edges(self):
         raise NotImplementedError
+
+
+class ZfitSampler(ZfitObject):
+    """Base class for MCMC samplers in Bayesian inference."""
+
+    def __init__(self, name=None):
+        """Initialize a sampler.
+
+        Args:
+            name: Optional name for the sampler
+        """
+        self.name = name
+
+    def sample(self, loss, params=None, n_samples=1000, n_warmup=100, **kwargs):
+        """Sample from the posterior distribution.
+
+        Args:
+            loss: The ZfitLoss to sample from
+            params: The parameters to sample. If None, use all free parameters
+            n_samples: Number of posterior samples to generate
+            n_warmup: Number of warmup/burn-in steps
+            **kwargs: Additional sampler-specific arguments
+
+        Returns:
+            A Posterior object
+        """
+        raise NotImplementedError
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}(name='{self.name}')"
+
+
+class ZfitPrior(ZfitObject):
+    """Base class for parameter priors in Bayesian inference."""
+
+    def __init__(self, pdf, name=None):
+        """Initialize a prior distribution.
+
+        Args:
+            pdf: A ZfitPDF instance representing the prior distribution
+            name: Optional name for the prior
+        """
+        self.pdf = pdf
+        self.name = name
+        self._params = []
+
+    def __eq__(self, other):
+        """Compare two priors for equality.
+
+        Args:
+            other: Another ZfitPrior instance to compare with
+
+        Returns:
+            bool: True if the priors are equal
+        """
+        if not isinstance(other, ZfitPrior):
+            return False
+        return self.pdf == other.pdf and self.name == other.name
+
+    def log_pdf(self, value=None):
+        """Return the log probability of the prior at the given value(s).
+
+        Args:
+            value: The parameter value(s) to evaluate the log probability at
+
+        Returns:
+            The log probability
+        """
+        if value is None:
+            if len(self._params) == 1:
+                value = self._params[0]
+            else:
+                msg = "value must be provided if the prior depends on more than one parameter"
+                raise ValueError(msg)
+        return self.pdf.log_pdf(value)
+
+    def sample(self, n):
+        """Sample n values from the prior distribution.
+
+        Args:
+            n: Number of samples to draw
+
+        Returns:
+            An array of samples
+        """
+        return self.pdf.sample(n).value()
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}(name='{self.name}')"
+
+    def _register_default_param(self, param):
+        self._params.append(param)
+        return self

@@ -2,10 +2,6 @@
 from __future__ import annotations
 
 import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 import weakref
 
 import pydantic.v1 as pydantic
@@ -13,13 +9,16 @@ import yaml
 
 from zfit.util.warnings import warn_experimental_feature
 
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
+
 
 class ZfitSerializable:
     hs3_type: str = None
 
     @classmethod
     def get_repr(cls) -> pydantic.BaseModel:
-        from zfit.serialization import Serializer
+        from zfit.serialization import Serializer  # noqa: PLC0415
 
         return Serializer.type_repr[cls.hs3_type]
 
@@ -55,7 +54,7 @@ class SerializableMixin(ZfitSerializable):
     def to_asdf(self):
         """Convert the object to an asdf file."""
         try:
-            import asdf
+            import asdf  # noqa: PLC0415
         except ImportError as error:
             msg = "The asdf module is not installed. Please install zfit with the extra `hs3` (i.e. `pip install zfit[sh3]` or asdf directry to use this feature."
             raise ImportError(msg) from error
@@ -76,7 +75,7 @@ class SerializableMixin(ZfitSerializable):
                    parameter will be created. |@docend:hs3.ini.reuse_params|
         """
 
-        from zfit.serialization import Serializer
+        from zfit.serialization import Serializer  # noqa: PLC0415
 
         with Serializer.initialize(reuse_params=reuse_params):
             asdf_tree = asdf_obj.tree
@@ -92,7 +91,7 @@ class SerializableMixin(ZfitSerializable):
         Returns:
             str: The json string.
         """
-        from zfit.serialization import Serializer
+        from zfit.serialization import Serializer  # noqa: PLC0415
 
         with Serializer.initialize():
             repr = self.get_repr()
@@ -125,7 +124,7 @@ class SerializableMixin(ZfitSerializable):
         Returns:
             The deserialized object.
         """
-        from zfit.serialization import Serializer
+        from zfit.serialization import Serializer  # noqa: PLC0415
 
         with Serializer.initialize(reuse_params=reuse_params):
             parsed = cls.get_repr().parse_raw(json)
@@ -138,7 +137,7 @@ class SerializableMixin(ZfitSerializable):
         Returns:
                dict: The dictionary structure.
         """
-        from zfit.serialization import Serializer
+        from zfit.serialization import Serializer  # noqa: PLC0415
 
         with Serializer.initialize():
             repr = self.get_repr()
@@ -161,7 +160,7 @@ class SerializableMixin(ZfitSerializable):
         Returns:
             The deserialized object.
         """
-        from zfit.serialization import Serializer
+        from zfit.serialization import Serializer  # noqa: PLC0415
 
         with Serializer.initialize(reuse_params=reuse_params):
             parsed = cls.get_repr().parse_obj(dict_)
@@ -178,7 +177,7 @@ class SerializableMixin(ZfitSerializable):
             pydantic.BaseModel: The representation of the object.
         """
         try:
-            from ..serialization import Serializer
+            from ..serialization import Serializer  # noqa: PLC0415
         except ImportError:
             return None
         return Serializer.constructor_repr.get(cls)
@@ -229,7 +228,7 @@ class HS3:
         Returns:
             object:
         """
-        from zfit.serialization import Serializer
+        from zfit.serialization import Serializer  # noqa: PLC0415
 
         with Serializer.initialize(reuse_params=reuse_params):
             parsed = cls.implementation.get_repr().parse_raw(json)

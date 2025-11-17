@@ -13,6 +13,7 @@ __all__ = [
     "BaseFunctor",
     "BasePDF",
     "Bernstein",
+    "Beta",
     "BifurGauss",
     "BinnedFromUnbinnedPDF",
     "BinnedSumPDF",
@@ -25,6 +26,7 @@ __all__ = [
     "ConditionalPDFV1",
     "CrystalBall",
     "DoubleCB",
+    "ExpModGauss",
     "Exponential",
     "FFTConvPDFV1",
     "Gamma",
@@ -45,6 +47,7 @@ __all__ = [
     "Legendre",
     "LogNormal",
     "Poisson",
+    "PositivePDF",
     "ProductPDF",
     "QGauss",
     "RecursivePolynomial",
@@ -70,9 +73,11 @@ from .models.cache import CachedPDF
 from .models.conditional import ConditionalPDFV1
 from .models.convolution import FFTConvPDFV1
 from .models.dist_tfp import (
+    Beta,
     BifurGauss,
     Cauchy,
     ChiSquared,
+    ExpModGauss,
     Gamma,
     Gauss,
     GeneralizedGauss,
@@ -113,6 +118,7 @@ from .models.polynomials import (
     Legendre,
     RecursivePolynomial,
 )
+from .models.postprocess import PositivePDF
 from .models.special import ZPDF, SimpleFunctorPDF, SimplePDF
 from .models.tobinned import BinnedFromUnbinnedPDF
 from .models.truncated import TruncatedPDF

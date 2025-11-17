@@ -8,15 +8,15 @@ Contains a singleton instance to register new PDFs and let them be tested.
 from __future__ import annotations
 
 import typing
-if typing.TYPE_CHECKING:
-    import zfit     # noqa: F401
-
-from collections.abc import Iterable, Callable
+from collections.abc import Callable, Iterable
 
 import scipy.stats
 
-from .interfaces import ZfitPDF
 from ..util.container import convert_to_container
+from zfit._interfaces import ZfitPDF
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 __all__ = ["tester"]
 

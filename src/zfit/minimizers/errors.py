@@ -2,36 +2,29 @@
 
 from __future__ import annotations
 
-import typing
-
-if typing.TYPE_CHECKING:
-    import zfit
-
-import warnings
-from enum import Enum
-from typing import TYPE_CHECKING
-
-import jacobi
-
-if TYPE_CHECKING:
-    import zfit
-
 import logging
+import typing
+import warnings
 from collections.abc import Callable
+from enum import Enum
 from functools import lru_cache, wraps
 
+import jacobi
 import numpy as np
 import scipy.stats
 import tensorflow as tf
 from scipy import optimize
 
 import zfit.z.numpy as znp
+from zfit._interfaces import ZfitIndependentParameter
 
 from .. import z
-from ..core.interfaces import ZfitIndependentParameter
 from ..core.parameter import assign_values
 from ..util.container import convert_to_container
 from ..util.exception import BreakingAPIChangeError
+
+if typing.TYPE_CHECKING:
+    import zfit
 
 
 class NewMinimum(Exception):
@@ -172,7 +165,7 @@ def compute_errors(
                     assert isinstance(index, int)
                     assign_values(all_params, values)
                     loss_value, gradient = loss.value_gradient(params=all_params, full=False)
-                    if isinstance(gradient, (tuple, list)):
+                    if isinstance(gradient, tuple | list):
                         gradient = znp.asarray(gradient)
                     gradient = znp.concatenate([gradient[:index_poi], gradient[index_poi + 1 :]])
                     return loss_value, gradient
@@ -263,7 +256,7 @@ def compute_errors(
         assign_values(all_params, result)
 
     except NewMinimum:
-        from .. import settings
+        from .. import settings  # noqa: PLC0415
 
         if settings.get_verbosity() >= 5:
             pass
@@ -363,7 +356,7 @@ def covariance_with_weights(hinv, result, params, *, weightcorr: WeightCorr = No
                        likelihood fits
                        `Eur. Phys. J. C 82, 393 (2022). <https://doi.org/10.1140/epjc/s10052-022-10254-8>`_. |@docend:result.hesse.weightcorr.method|
     """
-    from .. import run
+    from .. import run  # noqa: PLC0415
 
     if weightcorr == "sumw2":
         msg = "The 'sumw2' option has been renamed to 'sumw2'."
@@ -413,7 +406,7 @@ def covariance_with_weights(hinv, result, params, *, weightcorr: WeightCorr = No
     def func():
         values = []
 
-        for i, (m, d) in enumerate(zip(model, data)):
+        for i, (m, d) in enumerate(zip(model, data, strict=True)):
             v = m.log_pdf(d)
             # we calculate the unweighted likelihood, correct?
             # weights = d.weights

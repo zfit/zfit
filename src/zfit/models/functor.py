@@ -9,30 +9,27 @@ Their implementation is often non-trivial.
 
 from __future__ import annotations
 
-import typing
-
-if typing.TYPE_CHECKING:
-    import zfit
-
 import functools
 import operator
 import typing
 from collections import Counter
 from collections.abc import Iterable
-from typing import Literal, Optional
+from typing import Literal
 
 if typing.TYPE_CHECKING:
     import zfit
+
+import typing
 
 import pydantic.v1 as pydantic
 import tensorflow as tf
 
 import zfit.data
 import zfit.z.numpy as znp
+from zfit._interfaces import ZfitData, ZfitPDF, ZfitSpace
 
 from .. import z
 from ..core.basepdf import BasePDF
-from ..core.interfaces import ZfitData, ZfitPDF, ZfitSpace
 from ..core.serialmixin import SerializableMixin
 from ..core.space import supports
 from ..models.basefunctor import FunctorMixin, extract_daughter_input_obs
@@ -48,6 +45,9 @@ from ..util.plotter import PDFPlotter, SumCompPlotter
 from ..util.ztyping import ExtendedInputType, NormInputType
 from ..z.random import counts_multinomial
 from .basefunctor import FunctorPDFRepr, _preprocess_init_sum
+
+if typing.TYPE_CHECKING:
+    import zfit
 
 
 # TODO: order of spaces if the obs is different from the wrapped pdf
@@ -153,7 +153,7 @@ class SumPDF(BaseFunctor, SerializableMixin):  # TODO: add extended argument
         self._fracs = None
 
         pdfs = convert_to_container(pdfs)
-        self.pdfs = pdfs
+        self.pdfs: typing.Collection = pdfs
         (
             all_extended,
             fracs_cleaned,
@@ -174,7 +174,7 @@ class SumPDF(BaseFunctor, SerializableMixin):  # TODO: add extended argument
             extended = sum_yields
         super().__init__(pdfs=pdfs, obs=obs, params=params, name=name, extended=extended, norm=norm, label=label)
         self.hs3.original_init.update(original_init)
-        self.plot = PDFPlotter(self, componentplotter=SumCompPlotter(self))
+        self._plot = PDFPlotter(self, componentplotter=SumCompPlotter(self))
 
     @property
     def fracs(self):
@@ -190,7 +190,7 @@ class SumPDF(BaseFunctor, SerializableMixin):  # TODO: add extended argument
     def _unnormalized_pdf(self, x, params):  # NOT _pdf, as the normalization range can differ
         pdfs = self.pdfs
         fracs = params.values()
-        probs = [pdf.pdf(x) * frac for pdf, frac in zip(pdfs, fracs)]
+        probs = [pdf.pdf(x) * frac for pdf, frac in zip(pdfs, fracs, strict=True)]
         prob = sum(probs)  # to keep the broadcasting ability
         return z.convert_to_tensor(prob)
 
@@ -201,7 +201,7 @@ class SumPDF(BaseFunctor, SerializableMixin):  # TODO: add extended argument
             raise SpecificFunctionNotImplemented
         pdfs = self.pdfs
         fracs = self.params.values()
-        probs = [pdf.pdf(x) * frac for pdf, frac in zip(pdfs, fracs)]
+        probs = [pdf.pdf(x) * frac for pdf, frac in zip(pdfs, fracs, strict=True)]
         prob = sum(probs)
         return z.convert_to_tensor(prob)
 
@@ -224,7 +224,7 @@ class SumPDF(BaseFunctor, SerializableMixin):  # TODO: add extended argument
         # assert norm_range not in (None, False), "Bug, who requested an unnormalized integral?"
         integrals = [
             frac * pdf.integrate(limits=limits, options=options)  # do NOT propagate the norm_range!
-            for pdf, frac in zip(pdfs, fracs)
+            for pdf, frac in zip(pdfs, fracs, strict=True)
         ]
         return znp.sum(integrals, axis=0)
 
@@ -250,7 +250,7 @@ class SumPDF(BaseFunctor, SerializableMixin):  # TODO: add extended argument
         try:
             integrals = [
                 frac * pdf.analytic_integrate(limits=limits)  # do NOT propagate the norm!
-                for pdf, frac in zip(pdfs, fracs)
+                for pdf, frac in zip(pdfs, fracs, strict=True)
             ]
         except AnalyticIntegralNotImplemented as error:
             msg = (
@@ -270,7 +270,8 @@ class SumPDF(BaseFunctor, SerializableMixin):  # TODO: add extended argument
 
         # do NOT propagate the norm!
         partial_integral = [
-            pdf.partial_integrate(x=x, limits=limits, options=options) * frac for pdf, frac in zip(pdfs, fracs)
+            pdf.partial_integrate(x=x, limits=limits, options=options) * frac
+            for pdf, frac in zip(pdfs, fracs, strict=True)
         ]
         partial_integral = sum(partial_integral)
         return z.convert_to_tensor(partial_integral)
@@ -284,7 +285,7 @@ class SumPDF(BaseFunctor, SerializableMixin):  # TODO: add extended argument
             partial_integral = [
                 pdf.partial_analytic_integrate(x=x, limits=limits) * frac
                 # do NOT propagate the norm!
-                for pdf, frac in zip(pdfs, fracs)
+                for pdf, frac in zip(pdfs, fracs, strict=True)
             ]
         except AnalyticIntegralNotImplemented as error:
             msg = (
@@ -303,7 +304,7 @@ class SumPDF(BaseFunctor, SerializableMixin):  # TODO: add extended argument
             n = tf.unstack(counts_multinomial(total_count=n, probs=self.fracs), axis=0)
 
         samples = []
-        for pdf, n_sample in zip(self.pdfs, n):
+        for pdf, n_sample in zip(self.pdfs, n, strict=True):
             sub_sample = pdf.sample(n=n_sample, limits=limits)
             if isinstance(sub_sample, ZfitData):
                 sub_sample = sub_sample.value()
@@ -315,7 +316,7 @@ class SumPDF(BaseFunctor, SerializableMixin):  # TODO: add extended argument
 class SumPDFRepr(FunctorPDFRepr):
     _implementation = SumPDF
     hs3_type: Literal["SumPDF"] = pydantic.Field("SumPDF", alias="type")
-    fracs: Optional[list[Serializer.types.ParamInputTypeDiscriminated]] = None
+    fracs: list[Serializer.types.ParamInputTypeDiscriminated] | None = None
 
     @pydantic.root_validator(pre=True)
     def validate_all_sumpdf(cls, values):

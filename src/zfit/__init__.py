@@ -1,13 +1,16 @@
 """Top-level package for zfit."""
 #  Copyright (c) 2025 zfit
+from __future__ import annotations
 
-import logging
-#  Copyright (c) 2025 zfit
-
-from contextlib import redirect_stdout, redirect_stderr
-#  Copyright (c) 2025 zfit
-
+import contextlib as _contextlib
+import logging as _logging
+import os as _os
+import sys as _sys
+import typing
 from importlib.metadata import version as _importlib_version
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 __version__ = _importlib_version(__name__)
 
@@ -33,12 +36,16 @@ __all__ = [
     "loss",
     "dill",
     "data",
+    "Data",
     "func",
+    "binned",
     "dimension",
     "exception",
+    "interface",
     "sample",
     "binned",
     "hs3",
+    'param',
     "Parameter",
     "ComposedParameter",
     "ComplexParameter",
@@ -49,14 +56,36 @@ __all__ = [
     "result",
     "run",
     "settings",
+    "ztypes",
+    "prior",
+    "mcmc",
+    "Data",
+    "ztypes",
+    "param",
 ]
 
 
-#  Copyright (c) 2019 zfit
+
+@_contextlib.contextmanager
+def _suppress_stderr():
+    original_stderr_fd = _sys.stderr.fileno()
+    # Duplicate the original stderr file descriptor
+    saved_stderr_fd = _os.dup(original_stderr_fd)
+    try:
+        # Open /dev/null and redirect stderr to it
+        devnull_fd = _os.open(_os.devnull, _os.O_WRONLY)
+        _os.dup2(devnull_fd, original_stderr_fd)
+        _os.close(devnull_fd)
+        yield
+    finally:
+        # Restore the original stderr
+        _os.dup2(saved_stderr_fd, original_stderr_fd)
+        _os.close(saved_stderr_fd)
 
 
 def _maybe_disable_warnings() -> None:
-    import os, warnings
+    import os
+    import warnings
 
     disable_warnings = os.environ.get("ZFIT_DISABLE_TF_WARNINGS")
     if disable_warnings is None:
@@ -93,6 +122,16 @@ def _maybe_disable_warnings() -> None:
     #     tf.constant(1)
 
 
+    # os.environ["KMP_AFFINITY"] = "noverbose"
+    os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
+    _logging.getLogger("absl").setLevel(_logging.ERROR)
+    _logging.getLogger("tensorflow").setLevel(_logging.FATAL)
+    # raise RuntimeError
+    with _suppress_stderr():
+        import tensorflow as tf
+    #
+    tf.get_logger().setLevel("FATAL")
+    tf.autograph.set_verbosity(0)
 
 
 _maybe_disable_warnings()
@@ -103,23 +142,26 @@ if int(_tf.__version__[0]) < 2:
     raise RuntimeError(
         f"You are using TensorFlow version {_tf.__version__}. This zfit version ({__version__}) works only with TF >= 2"
     )
-from . import z  # initialize first
 from . import (
+    binned,
     constraint,
     data,
+    dill,
     dimension,
+interface,
     exception,
     func,
-    dill,
+    hs3,
     loss,
-    binned,
     minimize,
+    mcmc,
     param,
     pdf,
+    prior,
     result,
     sample,
     settings,
-    hs3,
+    z,  # initialize first
 )
 from .core.data import Data
 from .core.parameter import (
@@ -133,7 +175,8 @@ from .settings import run, ztypes
 
 
 def _maybe_disable_jit() -> None:
-    import os, warnings
+    import os
+    import warnings
 
     arg1 = os.environ.get("ZFIT_DO_JIT")
     arg2 = os.environ.get("ZFIT_EXPERIMENTAL_DO_JIT")
