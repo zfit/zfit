@@ -64,11 +64,11 @@ def test_johnsonsu_name_validation():
     # Names starting with underscore should be rejected
     with pytest.raises(InvalidNameError, match="cannot start with '_'"):
         create_johnsonsu(mu=mu_true, lambd=lambd_true, gamma=gamma_true, delta=delta_true, limits=(1, 10), name="_invalid")
-    
+
     # Normal names should work
     johnsonsu, _ = create_johnsonsu(mu=mu_true, lambd=lambd_true, gamma=gamma_true, delta=delta_true, limits=(1, 10), name="valid_name")
     assert johnsonsu.name == "valid_name"
-    
+
     # Names with underscore inside should work
     johnsonsu2, _ = create_johnsonsu(mu=mu_true, lambd=lambd_true, gamma=gamma_true, delta=delta_true, limits=(1, 10), name="my_name")
     assert johnsonsu2.name == "my_name"
