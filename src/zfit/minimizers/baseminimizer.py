@@ -405,6 +405,18 @@ class BaseMinimizer(ZfitMinimizer):
             msg = "No parameter for minimization given/found. Cannot minimize."
             raise RuntimeError(msg)
         params = list(params)
+        
+        # Check for duplicate parameter names
+        param_names = [p.name for p in params]
+        if len(param_names) != len(set(param_names)):
+            duplicates = [name for name in param_names if param_names.count(name) > 1]
+            unique_duplicates = sorted(set(duplicates))
+            msg = (
+                f"Parameters with duplicate names found: {unique_duplicates}. "
+                f"Each parameter must have a unique name."
+            )
+            raise ValueError(msg)
+        
         return loss, params, init
 
     @staticmethod
