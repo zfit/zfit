@@ -25,6 +25,7 @@ Deprecations
 
 Bug fixes and small changes
 ---------------------------
+- Add validation for duplicate parameter names in ``SimpleLoss`` and minimizers to prevent cryptic TensorFlow errors during minimization
 - ComposedParameter now ignores keyword-only arguments when deciding whether to unpack_params
 - Allow BinnedSamplerData to be instantiated from a histogram and fix variance handling if not given.
 - Enhance the precision of binned loss functions
