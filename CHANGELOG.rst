@@ -25,6 +25,7 @@ Deprecations
 
 Bug fixes and small changes
 ---------------------------
+- Names starting with ``_`` (underscore) are not allowed anymore. Instead, the ``label`` parameter can be used for arbitrary characters.
 - Add missing ``nentries`` property to ``Data`` class, which was referenced in documentation but not implemented
 - Fix KDE serialization to support ``padding`` parameter as dict or float types in addition to bool, str, and None. Previously, serialization would fail with a validation error when padding was specified as ``{'lowermirror': 0.1, 'uppermirror': 0.2}`` or as a float value.
 - ComposedParameter now ignores keyword-only arguments when deciding whether to unpack_params
