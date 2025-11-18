@@ -4,25 +4,21 @@ Changelog
 
 .. _newest-changelog:
 
-Develop
+0.28.0 (18 Nov 2025)
 ======================
 
 Major Features and Improvements
 -------------------------------
-- add ``ExpModGauss`` PDF, the exponentially modified gaussian distribution, taken from `the tensorflow-probability implementation <https://www.tensorflow.org/probability/api_docs/python/tfp/distributions/ExponentiallyModifiedGaussian>`_.
 - **Python 3.13 Support**: Add full support for Python 3.13, expanding compatibility from Python 3.10-3.12 to Python 3.10-3.13.
-- **Bayesian inference module**: Complete Bayesian inference module with
-  - **Sampling**: Use MCMC sampling methods like NUTS and HMC
-  - **Posterior analysis**: Analyze posterior distributions with diagnostics and visualization
+- **Bayesian inference module**: Complete Bayesian inference module with MCMC sampling, prior and posterior handling, and credible interval estimation
 - **ArviZ integration**: Full diagnostic suite with R̂, ESS, trace plots, corner plots, and autocorrelation analysis
+- add ``ExpModGauss`` PDF, the exponentially modified gaussian distribution, taken from `the tensorflow-probability implementation <https://www.tensorflow.org/probability/api_docs/python/tfp/distributions/ExponentiallyModifiedGaussian>`_.
 
 Breaking changes
 ------------------
 - don't clip parameter values when retrieving them (i.e. with ``float(param)`` or ``param.numpy()`` etc.). This can greatly speed up computations and avoid unnecessary complications. Minimizers should still handle limits correctly, setting values outside limits will raise errors as before and be clipped when setting values with ``assign``.
 - use ``padding=None`` as the default for KDE instead of ``padding=0.1``. This reverts the previous change in 0.27.0 and should not affect most use cases, as the automatic padding was not very robust.
 
-Deprecations
--------------
 
 Bug fixes and small changes
 ---------------------------
@@ -36,18 +32,16 @@ Bug fixes and small changes
 
 Experimental
 ------------
+- add Bayesian inference, feedback highly welcome.
 
 Requirement changes
 -------------------
-- **TensorFlow 2.20 Support**: Add support for TensorFlow 2.20+ (up to <3.0)
-- **TensorFlow Probability**: Expand compatibility range from <0.27 to <1.0 for better future compatibility
-- **Python Version Range**: Update supported Python versions from ">=3.10, <3.13" to ">=3.10, <3.14"
-
-Thanks
-------
+- TensorFlow 2.20 Support: Add support for TensorFlow 2.16+ (up to <3.0)
+- TensorFlow Probability: Expand compatibility range from >0.24 to <1.0 for better future compatibility
 
 
-0.27.0 (14 Jul 2025)
+
+0.27.1 (14 Jul 2025)
 ======================
 
 Bug fixes and small changes
