@@ -25,7 +25,7 @@ Deprecations
 
 Bug fixes and small changes
 ---------------------------
-- Names starting with ``_`` (underscore) are now rejected for all zfit objects (PDFs, Parameters, Spaces, etc.) to prevent TensorFlow scope errors. The error message directs users to use the ``label`` parameter for arbitrary characters.
+- Names starting with ``_`` (underscore) are now rejected for all zfit objects. Instead, the ``label`` parameter can be used for arbitrary characters.
 - ComposedParameter now ignores keyword-only arguments when deciding whether to unpack_params
 - Allow BinnedSamplerData to be instantiated from a histogram and fix variance handling if not given.
 - Enhance the precision of binned loss functions
