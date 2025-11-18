@@ -250,6 +250,15 @@ class Data(
         return nentries
 
     @property
+    def nentries(self) -> int:
+        """Number of entries in the dataset.
+
+        Returns:
+            Number of entries/events in the dataset.
+        """
+        return self.num_entries
+
+    @property
     @deprecated(
         None, "Use `nentries` (for an int) or `samplesize` for a float corresponding to the sum of weights) instead."
     )
