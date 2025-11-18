@@ -3,39 +3,27 @@
 from __future__ import annotations
 
 import typing
+from collections import Counter
+from collections.abc import Callable, Iterable, Mapping
+from typing import Literal
 
-if typing.TYPE_CHECKING:
-    import zfit
-
-from collections.abc import Iterable
-from typing import TYPE_CHECKING, Literal, Optional, Union
-
+import numpy as np
+import pandas as pd
 import pydantic.v1 as pydantic
+import tensorflow as tf
+import uproot
 import xxhash
 from pydantic.v1 import Field
 from tensorflow.python.types.core import TensorLike
 from tensorflow.python.util.deprecation import deprecated, deprecated_args
 
+import zfit.z.numpy as znp
+from zfit._interfaces import ZfitBinnedData, ZfitSpace, ZfitUnbinnedData
+
+from .. import z
 from ..exception import OutsideLimitsError
 from ..serialization import SpaceRepr
 from ..serialization.serializer import BaseRepr, to_orm_init
-from .serialmixin import SerializableMixin, ZfitSerializable
-
-if TYPE_CHECKING:
-    import zfit
-
-from collections import Counter
-from collections.abc import Callable, Mapping
-
-import numpy as np
-import pandas as pd
-import tensorflow as tf
-import uproot
-
-import zfit
-import zfit.z.numpy as znp
-
-from .. import z
 from ..settings import run, ztypes
 from ..util import ztyping
 from ..util.cache import GraphCachable, invalidate_graph
@@ -50,8 +38,11 @@ from ..util.temporary import TemporarilySet
 from .baseobject import BaseObject, convert_param_values
 from .coordinates import convert_to_obs_str
 from .dimension import BaseDimensional
-from .interfaces import ZfitBinnedData, ZfitSpace, ZfitUnbinnedData
+from .serialmixin import SerializableMixin, ZfitSerializable
 from .space import Space, convert_to_space
+
+if typing.TYPE_CHECKING:
+    import zfit
 
 
 def convert_to_data(data, obs=None, *, check_limits=False):
@@ -77,13 +68,13 @@ def convert_to_data(data, obs=None, *, check_limits=False):
     if obs is None:
         msg = f"If data is not a Data-like object, obs has to be specified. Data is {data} and obs is {obs}."
         raise ValueError(msg)
-    if isinstance(data, (int, float)):
+    if isinstance(data, int | float):
         data = znp.array([data])
     if isinstance(data, Iterable):
         data = znp.array(data)
     if isinstance(data, np.ndarray):
         return Data.from_numpy(obs=obs, array=data)
-    if isinstance(data, (tf.Tensor, znp.ndarray, tf.Variable)):
+    if isinstance(data, tf.Tensor | znp.ndarray | tf.Variable):
         return Data.from_tensor(obs=obs, tensor=data)
 
     msg = f"Cannot convert {data} to a Data object."
@@ -226,7 +217,7 @@ class Data(
         self._original_space = self.space
         self._data_range = self.space
 
-        if not guarantee_limits:
+        if not guarantee_limits:  # TODO: find correct observables
             tensormap = data._tensormap if (ismap := data._tensor is None) else data.value()
             value, weights = check_cut_data_weights(limits=self.space, data=tensormap, weights=weights)
             if ismap:
@@ -259,6 +250,15 @@ class Data(
         return nentries
 
     @property
+    def nentries(self) -> int:
+        """Number of entries in the dataset.
+
+        Returns:
+            Number of entries/events in the dataset.
+        """
+        return self.num_entries
+
+    @property
     @deprecated(
         None, "Use `nentries` (for an int) or `samplesize` for a float corresponding to the sum of weights) instead."
     )
@@ -282,7 +282,7 @@ class Data(
         all. For example, if an object was already called before with the data object, the hash will probably not be
         used, as the object is already compiled.
         """
-        from zfit import run
+        from zfit import run  # noqa: PLC0415
 
         run.assert_executing_eagerly()
         self._use_hash = True
@@ -356,10 +356,8 @@ class Data(
             **overwrite_params,
         }
         newpar["guarantee_limits"] = (
-            "obs" not in overwrite_params
-            and "data" not in overwrite_params
-            and overwrite_params.get("guarantee_limits") is not False
-        )
+            "obs" not in overwrite_params and "data" not in overwrite_params
+        ) or overwrite_params.get("guarantee_limits")
         if "tensor" in overwrite_params:
             msg = "do not give tensor in copy, instead give a LightDataset."
             raise BreakingAPIChangeError(msg)
@@ -761,7 +759,7 @@ class Data(
         #     warn_once("The order of the arguments `obs` and `array` has been swapped, array goes first (as any other `from_` constructor.", identifier="data_from_numpy")
         #     obs, array = array, obs
         # # legacy end
-        if isinstance(array, (float, int)):
+        if isinstance(array, float | int):
             array = np.array([array])
         if not isinstance(array, (np.ndarray)) and not (tf.is_tensor(array) and hasattr(array, "numpy")):
             msg = f"`array` has to be a `np.ndarray`. Is currently {type(array)}"
@@ -888,7 +886,7 @@ class Data(
             ``zfit.Data``: A new ``Data`` object containing the subset of the data.
         """
         if not isinstance(obs, ZfitSpace):
-            if not isinstance(obs, (list, tuple)):
+            if not isinstance(obs, list | tuple):
                 obs = [obs]
             if isinstance(obs[0], str):
                 obs = self.space.with_obs(obs)
@@ -979,7 +977,7 @@ class Data(
         else:
             indices = self.space.with_obs(obs=obs).axes
         out = self.dataset.value(indices)
-        if isinstance(obs, str) or axis is not None:
+        if isinstance(obs, str) or (axis is not None and isinstance(axis, int)):
             out = znp.squeeze(out, axis=-1)
         return out
 
@@ -1091,7 +1089,7 @@ class Data(
         Returns:
             ``zfit.BinnedData``: A new ``BinnedData`` object containing the binned data.
         """
-        from zfit._data.binneddatav1 import BinnedData
+        from zfit._data.binneddatav1 import BinnedData  # noqa: PLC0415
 
         return BinnedData.from_unbinned(
             space=space,
@@ -1136,9 +1134,9 @@ class DataRepr(BaseRepr):
     hs3_type: Literal["Data"] = Field("Data", alias="type")
 
     data: np.ndarray
-    space: Union[SpaceRepr, list[SpaceRepr]]
-    name: Optional[str] = None
-    weights: Optional[np.ndarray] = None
+    space: SpaceRepr | list[SpaceRepr]
+    name: str | None = None
+    weights: np.ndarray | None = None
 
     @pydantic.root_validator(pre=True)
     def extract_data(cls, values):
@@ -1382,8 +1380,8 @@ class SamplerData(Data):
     def from_sampler(
         cls,
         *,
-        sample_func: Optional[Callable] = None,
-        sample_and_weights_func: Optional[Callable] = None,
+        sample_func: Callable | None = None,
+        sample_and_weights_func: Callable | None = None,
         n: ztyping.NumericalScalarType,
         obs: ztyping.ObsTypeInput,
         params: ztyping.ParamValuesMap = None,
@@ -1704,7 +1702,7 @@ def concat_data_obs(datasets, obs, name, label, use_hash):
         if data.has_weights:
             weights_new.append(data.weights)
 
-    tf.debugging.assert_equal(
+    z.assert_equal(
         tf.reduce_all(tf.equal(nevents, nevents[0])),
         True,
         message=f"Number of events in the datasets {datasets} have to be equal.",
@@ -1781,14 +1779,23 @@ class LightDataset:
                 assumed to be the data.
             ndims: The number of dimensions of the data. If `None`, it is inferred from the tensor or the tensormap.
         """
-        if tensor is None and isinstance(tensormap, Mapping):
-            tensormap = tensormap.copy()
-            for _key, value in tensormap.items():
-                if value.dtype not in (ztypes.float, znp.float32, znp.float64, znp.int32, znp.int64):
-                    msg = f"Value of tensormap has to be a float, not {value.dtype}."
-                    raise TypeError(msg)
-                if value.dtype != ztypes.float:
-                    value = znp.array(value, dtype=ztypes.float)
+        if isinstance(tensormap, Mapping):
+            if tensor is None:
+                tensormapnew = tensormap.copy()
+                for key, value in tensormap.items():
+                    if value.dtype not in (ztypes.float, znp.float32, znp.float64, znp.int32, znp.int64):
+                        msg = f"Value of tensormap has to be a float, not {value.dtype}."
+                        raise TypeError(msg)
+                    if value.dtype != ztypes.float:
+                        tensormapnew[key] = znp.asarray(value, dtype=ztypes.float)
+                tensormap = tensormapnew
+            elif (tensorshape := tensor.shape[-1]) != len(tensormap):  # we need to reduce the dimensions
+                if tensorshape < len(tensormap):
+                    msg = "More dimensions requested than available in data"
+                    raise ValueError(msg)
+                tensormap = {k: znp.asarray(tensor[..., v], dtype=ztypes.float) for k, v in tensormap.items()}
+                tensor = None
+
         elif tensormap is None:  # the actual preprocessing, otherwise we pass it through
             if not isinstance(tensor, tf.Variable):
                 tensor = znp.asarray(tensor)
@@ -1829,12 +1836,10 @@ class LightDataset:
 
     @classmethod
     def from_tensor(cls, tensor, ndims):
-        if run.executing_eagerly():
-            if tensor.shape[1] != ndims:
-                msg = f"Second dimension of {tensor} has to be {ndims} but is {tensor.shape[1]}"
-                raise ShapeIncompatibleError(msg)
-        elif run.numeric_checks:
-            tf.debugging.assert_equal(tf.shape(tensor)[1], ndims)
+        if run.executing_eagerly() and tensor.shape[1] != ndims:
+            msg = f"Second dimension of {tensor} has to be {ndims} but is {tensor.shape[1]}"
+            raise ShapeIncompatibleError(msg)
+        z.assert_equal(tf.shape(tensor)[1], ndims)
         return cls(tensor=tensor, ndims=None)
 
     def with_indices(self, indices: int | tuple[int] | list[int]):
@@ -1845,7 +1850,7 @@ class LightDataset:
         """
         if isinstance(indices, int):
             indices = (indices,)
-        if not isinstance(indices, (list, tuple)):
+        if not isinstance(indices, list | tuple):
             msg = f"Indices have to be an int, list or tuple, not {indices}"
             raise TypeError(msg)
 
@@ -1890,7 +1895,7 @@ class LightDataset:
         if index is None:
             index = trivial_index
         else:  # convert tensor to tensormap, if needed
-            if not isinstance(index, (int, tuple, list)):
+            if not isinstance(index, int | tuple | list):
                 msg = f"Index has to be an integer or a tuple/list of integers, not {index}"
                 raise TypeError(msg)
             forcemap = len(set(index)) < self.ndims  # we will need a subset
@@ -1899,14 +1904,14 @@ class LightDataset:
         if tensor is None:
             # tensormap is filled, we can now return the values, either a single one or a stacked tensor
             if isinstance(index, int):
-                return tensormap[index]
+                return tensormap[index]  # todo: add case for single index in tuple?
             return znp.stack([tensormap[i] for i in index], axis=-1)
         else:
             if isint := isinstance(index, int):
                 index = (index,)
-            newindex = [tensormap[i] for i in index]
+            newindex = tuple([tensormap[i] for i in index])
             if newindex != trivial_index:
-                tensor = tf.gather(tensor, newindex, axis=-1)
+                tensor = znp.take(tensor, newindex, axis=-1)
             if isint:
                 tensor = znp.squeeze(tensor, axis=-1)
             return tensor

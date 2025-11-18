@@ -2,10 +2,6 @@
 from __future__ import annotations
 
 import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 import warnings
 
 import hist
@@ -14,7 +10,10 @@ import tensorflow as tf
 import tensorflow_probability as tfp
 
 import zfit.z.numpy as znp
-from zfit.core.interfaces import ZfitSpace
+from zfit._interfaces import ZfitSpace
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 
 def unbinned_to_hist_eager_edgesweightsargs(values, *edges_weights):
@@ -65,7 +64,7 @@ def unbinned_to_binned(data, space, binned_class=None, initkwargs=None):
         binned_data: Binned dataset of type `binned_class`.
     """
     if binned_class is None:
-        from zfit._data.binneddatav1 import BinnedData
+        from zfit._data.binneddatav1 import BinnedData  # noqa: PLC0415
 
         binned_class = BinnedData
     if not isinstance(space, ZfitSpace):
@@ -109,7 +108,7 @@ def unbinned_to_binindex(data, space, flow=False):
         )
     values = [znp.reshape(data.value(ob), (-1,)) for ob in space.obs]
     edges = [znp.reshape(edge, (-1,)) for edge in space.binning.edges]
-    bins = [tfp.stats.find_bins(x=val, edges=edge) for val, edge in zip(values, edges)]
+    bins = [tfp.stats.find_bins(x=val, edges=edge) for val, edge in zip(values, edges, strict=True)]
     stacked_bins = znp.stack(bins, axis=-1)
     if flow:
         stacked_bins += 1

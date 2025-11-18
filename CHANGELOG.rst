@@ -4,6 +4,81 @@ Changelog
 
 .. _newest-changelog:
 
+0.28.0 (18 Nov 2025)
+======================
+
+Major Features and Improvements
+-------------------------------
+- **Python 3.13 Support**: Add full support for Python 3.13, expanding compatibility from Python 3.10-3.12 to Python 3.10-3.13.
+- **Bayesian inference module**: Complete Bayesian inference module with MCMC sampling, prior and posterior handling, and credible interval estimation
+- **ArviZ integration**: Full diagnostic suite with R̂, ESS, trace plots, corner plots, and autocorrelation analysis
+- add ``ExpModGauss`` PDF, the exponentially modified gaussian distribution, taken from `the tensorflow-probability implementation <https://www.tensorflow.org/probability/api_docs/python/tfp/distributions/ExponentiallyModifiedGaussian>`_.
+
+Breaking changes
+------------------
+- don't clip parameter values when retrieving them (i.e. with ``float(param)`` or ``param.numpy()`` etc.). This can greatly speed up computations and avoid unnecessary complications. Minimizers should still handle limits correctly, setting values outside limits will raise errors as before and be clipped when setting values with ``assign``.
+- use ``padding=None`` as the default for KDE instead of ``padding=0.1``. This reverts the previous change in 0.27.0 and should not affect most use cases, as the automatic padding was not very robust.
+
+
+Bug fixes and small changes
+---------------------------
+- Add validation for duplicate parameter names in ``SimpleLoss`` and minimizers.
+- Names starting with ``_`` (underscore) are not allowed anymore. Instead, the ``label`` parameter can be used for arbitrary characters.
+- Add missing ``nentries`` property to ``Data`` class, which was referenced in documentation but not implemented
+- Fix KDE serialization to support ``padding`` parameter as dict or float types in addition to bool, str, and None. Previously, serialization would fail with a validation error when padding was specified as ``{'lowermirror': 0.1, 'uppermirror': 0.2}`` or as a float value.
+- ComposedParameter now ignores keyword-only arguments when deciding whether to unpack_params
+- Allow BinnedSamplerData to be instantiated from a histogram and fix variance handling if not given.
+- Enhance the precision of binned loss functions
+
+Experimental
+------------
+- add Bayesian inference, feedback highly welcome.
+
+Requirement changes
+-------------------
+- TensorFlow 2.20 Support: Add support for TensorFlow 2.16+ (up to <3.0)
+- TensorFlow Probability: Expand compatibility range from >0.24 to <1.0 for better future compatibility
+
+
+
+0.27.1 (14 Jul 2025)
+======================
+
+Bug fixes and small changes
+---------------------------
+- move mplhep to optional dependency, as it is not needed for the core functionality of zfit
+- add zfit[plot] extra for plotting, including mplhep and matplotlib
+
+0.27.0 (10 Jul 2025)
+======================
+
+Major Features and Improvements
+-------------------------------
+- significantly improved performance, especially when using a GPU for certain fits.
+- Upgrade to Python 3.10+
+
+Breaking changes
+------------------
+- default padding of KDE switched to 0.1 instead of False. This should only improve KDEs at the boundary but technically changes the behavior
+- moved all the interfaces from zfit.core.interfaces to zfit.interface
+
+Bug fixes and small changes
+---------------------------
+- Fix ``KDE1DimExact`` and ``ExponentialTFP`` incorrectly handling label parameter: both classes now properly store and return the ``label`` attribute separately from ``name``
+- Fix AttributeError when calling ``freeze()`` method twice on FitResult
+- Add ``PositivePDF`` functor and ``to_positive()`` method to ``BasePDF`` for ensuring PDF output values are always positive with a minimum epsilon (default is 1e-100). This also handles NaN values by replacing them with epsilon.
+- Add clipping functionality to parameter setting methods: ``set_value`` and ``set_values`` now accept a ``clip`` parameter that clips values to parameter limits instead of raising errors when values are outside bounds
+- Remove conditional numeric checks in favor of unconditional assertions: some internal checks that were only performed when ``run.numeric_checks=True`` are now always performed. To re-enable the old conditional behavior, set ``zfit.run.numeric_checks = True`` for debugging numerical issues
+- Clean up code by removing commented debug code, unused variables, and duplicate imports
+- Simplify assertion handling in numerical integration to properly filter out None operations
+- Add ``FitResult.x`` attribute to access the best fit values of the parameters directly.
+- Add ``OptimizeResultMixin`` to ``FitResult`` providing full ``scipy.optimize.OptimizeResult`` compatibility with attributes like ``success``, ``fun``, ``x``, ``jac``, ``hess``, ``hess_inv``, ``nfev``, ``njev``, ``nhev``, ``nit``, and ``maxcv``
+- Fix critical bugs in binned PDF extended normalization methods:
+
+  - ``_auto_ext_pdf`` incorrectly used ``ext_normalization()`` instead of ``normalization()``, causing extended PDF values to be multiplied by yield squared instead of yield
+  - ``_auto_ext_log_pdf`` incorrectly used ``znp.log(ext_normalization(norm))`` instead of ``log_normalization(norm)``
+- add ``to_cached`` to unbinned PDFs, returning a cached PDF. These do not support analytic gradients, an error will be raised if attempted.
+
 
 0.26.0 (2 Jun 2025)
 ======================

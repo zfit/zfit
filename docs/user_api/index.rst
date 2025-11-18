@@ -6,6 +6,7 @@ This is the API reference for the zfit fitting package.
 Most classes and functions are documented with docstrings, but don't hesitate to contact us if this documentation is
 insufficient!
 
+
 .. toctree::
     :maxdepth: 3
 
@@ -20,6 +21,8 @@ insufficient!
     zfit.constraint
     zfit.minimize
     zfit.result
+    zfit.prior
+    zfit.mcmc
     zfit.settings
     zfit.hs3
     zfit.dill

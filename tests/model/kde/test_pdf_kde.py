@@ -1,4 +1,4 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2025 zfit
 import itertools
 
 import hist
@@ -11,7 +11,7 @@ from matplotlib import pyplot as plt
 import zfit
 from zfit import z
 import zfit.z.numpy as znp
-from zfit.core.interfaces import ZfitParameter
+from zfit._interfaces import ZfitParameter
 
 
 @pytest.mark.skip()  # copy not yet implemented
@@ -49,6 +49,24 @@ def test_exact_kde():
     data, obs, pdf = create_pdf_sample()
     with pytest.raises(ValueError):
         zfit.pdf.KDE1DimExact(obs=obs, data=data, bandwidth="eoaue")
+
+
+def test_default_padding():
+    """Test that KDE implementations have default padding of None."""
+    data, obs, pdf = create_pdf_sample(npoints=100)
+
+    # Test that all KDE implementations have the correct default padding
+    kde_exact = zfit.pdf.KDE1DimExact(data=data, obs=obs, bandwidth="silverman")
+    assert kde_exact._default_padding == None
+
+    kde_grid = zfit.pdf.KDE1DimGrid(data=data, obs=obs, bandwidth="silverman")
+    assert kde_grid._default_padding == None
+
+    kde_fft = zfit.pdf.KDE1DimFFT(data=data, obs=obs, bandwidth="silverman")
+    assert kde_fft._default_padding == None
+
+    kde_isj = zfit.pdf.KDE1DimISJ(data=data, obs=obs)
+    assert kde_isj._default_padding == None
 
 
 def create_kde(
@@ -384,8 +402,6 @@ def _run(kdetype, full, upper=None, legacy=True, padding=False):
 @pytest.mark.parametrize("npoints", [1100, 500_000])
 @pytest.mark.parametrize("upper", [-4, -1, 3])
 def test_kde_border(kdetype, npoints, upper):
-    import zfit
-
     cfg = create_kde(
         kdetype=kdetype, npoints=npoints, cfgonly=True, full=False, legacy=False
     )
@@ -456,3 +472,73 @@ def test_kde_border(kdetype, npoints, upper):
     )
     rtol = 0.05
     np.testing.assert_allclose(prob, prob_true, rtol=rtol, atol=0.07)
+
+
+def test_kde_negative_weights():
+    """Test KDE with negative weights to ensure no NaN values are produced."""
+    limits = (-4, 3)
+    obs = zfit.Space("obs1", limits=limits)
+
+    # Test case 1: Small negative weight that doesn't cause negative variance
+    data_vals = np.array([[0.0], [1.0], [2.0]])
+    weights = np.array([1.0, 1.0, 0.8])  # All positive, sum > 0
+
+    data = zfit.data.Data.from_numpy(obs=obs, array=data_vals, weights=weights)
+    kde = zfit.pdf.KDE1DimExact(data, bandwidth='silverman')
+
+    # Test evaluation
+    test_x = np.array([[0.0], [1.0], [2.0]])
+    pdf_vals = kde.pdf(test_x, norm=False).numpy()
+
+    # Check that no NaN values are produced
+    assert not np.any(np.isnan(pdf_vals)), "KDE should not produce NaN values"
+
+    # Test case 2: Weights that sum to zero - should raise ValueError
+    weights_zero = np.array([1.0, 1.0, -2.0])
+    data_zero = zfit.data.Data.from_numpy(obs=obs, array=data_vals, weights=weights_zero)
+
+    with pytest.raises(ValueError, match="Sum of weights must be positive"):
+        kde_zero = zfit.pdf.KDE1DimExact(data_zero, bandwidth='silverman')
+
+    # Test case 3: With explicit bandwidth, negative weights work even with extreme values
+    weights_neg = np.array([1.0, 1.0, -0.9])
+    data_neg = zfit.data.Data.from_numpy(obs=obs, array=data_vals, weights=weights_neg)
+
+    # With explicit bandwidth, it should work
+    kde_explicit = zfit.pdf.KDE1DimExact(data_neg, bandwidth=0.5)
+    pdf_vals_explicit = kde_explicit.pdf(test_x, norm=False).numpy()
+    assert not np.any(np.isnan(pdf_vals_explicit)), "KDE with explicit bandwidth should not produce NaN"
+    # Note: With negative weights, KDE can produce negative PDF values, which is mathematically correct
+
+    # Test that bandwidth is reasonable for the first case
+    bandwidth = kde.params['bandwidth'].value()
+    assert bandwidth > 0, "Bandwidth should be positive"
+    assert not np.isnan(bandwidth), "Bandwidth should not be NaN"
+
+
+def test_kde_negative_weights_adaptive():
+    """Test adaptive KDE with negative weights."""
+    limits = (-4, 3)
+    obs = zfit.Space("obs1", limits=limits)
+
+    # Test with explicit bandwidth - should work even with negative weights
+    data_vals = np.array([[0.0], [1.0], [2.0], [1.5], [0.5]])
+    weights = np.array([1.0, 1.0, -0.5, 0.5, -0.2])
+
+    data = zfit.data.Data.from_numpy(obs=obs, array=data_vals, weights=weights)
+
+    # Should work with explicit bandwidth
+    kde_explicit = zfit.pdf.KDE1DimExact(data, bandwidth=0.5)
+    test_x = np.array([[0.0], [1.0], [2.0]])
+    pdf_vals = kde_explicit.pdf(test_x, norm=False).numpy()
+    assert not np.any(np.isnan(pdf_vals)), "KDE with explicit bandwidth should not produce NaN"
+
+    # Test that works with positive weights
+    weights_positive = np.array([1.0, 1.0, 0.8, 0.9, 0.5])
+    data_positive = zfit.data.Data.from_numpy(obs=obs, array=data_vals, weights=weights_positive)
+
+    # All methods should work with positive weights
+    for bandwidth in ['silverman', 'scott']:
+        kde = zfit.pdf.KDE1DimExact(data_positive, bandwidth=bandwidth)
+        pdf_vals = kde.pdf(test_x, norm=False).numpy()
+        assert not np.any(np.isnan(pdf_vals)), f"KDE ({bandwidth}) should not produce NaN with positive weights"

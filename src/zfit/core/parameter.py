@@ -4,11 +4,6 @@
 
 from __future__ import annotations
 
-import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 import abc
 import collections
 import copy
@@ -18,34 +13,28 @@ import weakref
 from collections.abc import Callable, Iterable, Mapping
 from contextlib import suppress
 from inspect import signature
-from typing import TYPE_CHECKING, Literal, Optional, Union
-
-if TYPE_CHECKING:
-    pass
+from typing import Literal
 from weakref import WeakSet
 
 import dill
 import numpy as np
 import pydantic.v1 as pydantic
 import tensorflow as tf
-import tensorflow_probability as tfp
-
-# TF backwards compatibility
 from ordered_set import OrderedSet
 from pydantic.v1 import Field, validator
-from tensorflow.python.ops import tensor_getitem_override
+from tensorflow.python.ops import tensor_getitem_override  # TF backwards compatibility
 from tensorflow.python.ops.resource_variable_ops import (
-    ResourceVariable as TFVariable,
+    ResourceVariable as TFVariable,  # TF backwards compatibility
 )
 from tensorflow.python.ops.resource_variable_ops import (
-    VariableSpec,
+    VariableSpec,  # TF backwards compatibility
 )
-from tensorflow.python.ops.variables import Variable
+from tensorflow.python.ops.variables import Variable  # TF backwards compatibility
 from tensorflow.python.types.core import Tensor as TensorType
 
-import zfit.z.numpy as znp
-
+from .. import _interfaces as zinterfaces
 from .. import z
+from .._interfaces import ZfitIndependentParameter, ZfitModel, ZfitParameter, ZfitPrior
 from ..core.baseobject import BaseNumeric, extract_filter_params, validate_preprocess_name
 from ..minimizers.interface import ZfitResult
 from ..serialization.paramrepr import make_param_constructor
@@ -63,9 +52,13 @@ from ..util.exception import (
     ParameterNotIndependentError,
 )
 from ..util.temporary import TemporarilySet
-from . import interfaces as zinterfaces
-from .interfaces import ZfitIndependentParameter, ZfitModel, ZfitParameter
+from ..util.warnings import warn_once
+from ..z import numpy as znp
 from .serialmixin import SerializableMixin
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
+
 
 # todo add type hints in this module for api
 
@@ -303,32 +296,32 @@ class ZfitParameterMixin(BaseNumeric):
         return label
 
     def __add__(self, other):
-        if isinstance(other, (ZfitModel, ZfitParameter)):
-            from . import operations
+        if isinstance(other, ZfitModel | ZfitParameter):
+            from . import operations  # noqa: PLC0415
 
             with suppress(FunctionNotImplemented):
                 return operations.add(self, other)
         return super().__add__(other)
 
     def __radd__(self, other):
-        if isinstance(other, (ZfitModel, ZfitParameter)):
-            from . import operations
+        if isinstance(other, ZfitModel | ZfitParameter):
+            from . import operations  # noqa: PLC0415
 
             with suppress(FunctionNotImplemented):
                 return operations.add(other, self)
         return super().__radd__(other)
 
     def __mul__(self, other):
-        if isinstance(other, (ZfitModel, ZfitParameter)):
-            from . import operations
+        if isinstance(other, ZfitModel | ZfitParameter):
+            from . import operations  # noqa: PLC0415
 
             with suppress(FunctionNotImplemented):
                 return operations.multiply(self, other)
         return super().__mul__(other)
 
     def __rmul__(self, other):
-        if isinstance(other, (ZfitModel, ZfitParameter)):
-            from . import operations
+        if isinstance(other, ZfitModel | ZfitParameter):
+            from . import operations  # noqa: PLC0415
 
             with suppress(FunctionNotImplemented):
                 return operations.multiply(other, self)
@@ -372,6 +365,7 @@ class Parameter(
         stepsize: ztyping.NumericalScalarType | None = None,
         floating: bool = True,
         *,
+        prior: None | ZfitPrior = None,
         label: str | None = None,
         # legacy
         dtype: tf.DType = None,
@@ -412,6 +406,15 @@ class Parameter(
             self._upper_limit_neg_inf = znp.asarray(np.inf, dtype)
         value = znp.asarray(value, dtype=ztypes.float)
 
+        if prior is not None:
+            warn_once("Prior and bayesian inference is EXPERIMENTAL and may change!", "bayesian")
+
+            if not isinstance(prior, ZfitPrior):
+                msg = f"prior has to be a ZfitPrior, got {type(prior)}"
+                raise TypeError(msg)
+            prior._register_default_param(self)
+        self._prior = prior
+
         super().__init__(
             initial_value=value,
             dtype=dtype,
@@ -439,14 +442,14 @@ class Parameter(
         raise ValueError(msg)
 
     @property
-    def lower(self):
+    def lower(self) -> tf.Tensor | None:
         limit = self._lower
         if limit is None:
             limit = self._lower_limit_neg_inf
         return limit
 
     @lower.setter
-    # @invalidate_graph
+    # @deprecated(None, "Do not change the limits of a parameter, create a new one instead")
     def lower(self, value):
         if value is None and self._lower_limit_neg_inf is None:
             self._lower_limit_neg_inf = znp.asarray(-np.inf, dtype=ztypes.float)
@@ -455,7 +458,7 @@ class Parameter(
         self._lower = value
 
     @property
-    def upper(self):
+    def upper(self) -> tf.Tensor | None:
         limit = self._upper
         if limit is None:
             limit = self._upper_limit_neg_inf
@@ -469,6 +472,32 @@ class Parameter(
         elif value is not None:
             value = znp.asarray(value, dtype=ztypes.float)
         self._upper = value
+
+    @property
+    def prior(self):
+        return self._prior
+
+    def set_prior(self, prior: ZfitPrior | None):
+        """Set or update the prior distribution for this parameter.
+
+        Args:
+            prior: ZfitPrior distribution or None to remove the prior
+
+        Raises:
+            TypeError: If prior is not a ZfitPrior instance
+        """
+        if prior is not None:
+            if not isinstance(prior, ZfitPrior):
+                msg = f"prior has to be a ZfitPrior, got {type(prior)}"
+                raise TypeError(msg)
+            prior._register_default_param(self)
+
+        # Remove from old prior's parameter list if changing
+        if self._prior is not None and hasattr(self._prior, "_params"):
+            with suppress(ValueError):
+                self._prior._params.remove(self)
+
+        self._prior = prior
 
     @property
     def has_limits(self) -> bool:
@@ -502,8 +531,8 @@ class Parameter(
             reltol = 0.005
             abstol = 1e-5
         else:
-            reltol = 1e-5
-            abstol = 1e-7
+            reltol = 1e-7
+            abstol = 1e-15  # floats
         tol = znp.minimum(diff * reltol, abstol)  # if one limit is inf we would get inf
         if not exact:  # if exact, we wanna allow to set it slightly over the limit.
             tol = -tol  # If not, we wanna make sure it's inside
@@ -511,9 +540,12 @@ class Parameter(
         at_upper = z.unstable.greater_equal(value, self.upper + tol)
         return z.unstable.logical_or(at_lower, at_upper)
 
-    def value(self):
+    def value(self) -> tf.Tensor:
         value = super().value()
+        # We don't need to preserve this, right?
         if self.has_limits:
+            import tensorflow_probability as tfp  # noqa: PLC0415
+
             value = tfp.math.clip_by_value_preserve_gradient(
                 value, clip_value_min=self.lower, clip_value_max=self.upper
             )
@@ -524,7 +556,7 @@ class Parameter(
     #     return self.value()
 
     @property
-    def floating(self):
+    def floating(self) -> bool:
         if self._floating and (hasattr(self, "trainable") and not self.trainable):
             msg = "Floating is set to true but tf Variable is not trainable."
             raise RuntimeError(msg)
@@ -538,11 +570,11 @@ class Parameter(
         self._floating = value
 
     @property
-    def independent(self):
+    def independent(self) -> bool:
         return self._independent
 
     @property
-    def has_stepsize(self):
+    def has_stepsize(self) -> bool:
         return self._stepsize is not None
 
     @property
@@ -583,7 +615,7 @@ class Parameter(
     def step_size(self, value):
         self.stepsize = value
 
-    def set_value(self, value: ztyping.NumericalScalarType):
+    def set_value(self, value: ztyping.NumericalScalarType, *, clip: bool | None = None):
         """Set the :py:class:`~zfit.Parameter` to `value` (temporarily if used in a context manager).
 
         This operation won't, compared to the assign, return the read value but an object that *can* act as a context
@@ -591,37 +623,51 @@ class Parameter(
 
         Args:
             value: The value the parameter will take on.
+            clip: If True, clip the value to be within the parameter limits instead of raising an error.
+                If False, raise an error if the value is outside limits (default behavior).
+                If None, use the default behavior (raise error).
         Raises:
-            ValueError: If the value is not inside the limits (in normal Python/eager mode)
-            InvalidArgumentError: If the value is not inside the limits (in JIT/traced/graph mode)
+            ValueError: If the value is not inside the limits (in normal Python/eager mode) and clip is False/None
+            InvalidArgumentError: If the value is not inside the limits (in JIT/traced/graph mode) and clip is False/None
         """
+        if clip is None:
+            clip = False  # default behavior is to raise an error if out of bounds
 
         def getter():
             return self.value()
 
         def setter(value):
             if self.has_limits:
-                message = (
-                    f"Setting value {value} invalid for parameter {self.name} with limits "
-                    f"{self.lower} - {self.upper}. This is changed."
-                    f" In order to silence this and clip the value, you can use (with caution,"
-                    f" advanced) `Parameter.assign`"
-                )
-                if run.executing_eagerly():
-                    if self._check_at_limit(value, exact=True):
-                        raise ValueError(message)
+                if clip:
+                    # Clip the value to be within bounds using TensorFlow/znp functions
+                    if self.lower is not None and self.upper is not None:
+                        value = znp.clip(value, self.lower, self.upper)
+                    elif self.lower is not None:
+                        value = znp.maximum(value, self.lower)
+                    elif self.upper is not None:
+                        value = znp.minimum(value, self.upper)
                 else:
-                    tf.debugging.assert_greater(
-                        znp.asarray(value, tf.float64),
-                        znp.asarray(self.lower, tf.float64),
-                        message=message,
+                    # Original behavior: raise error if out of bounds
+                    message = (
+                        f"Setting value {value} invalid for parameter {self.name} with limits "
+                        f"{self.lower} - {self.upper}. This is changed."
+                        f" In order to silence this and clip the value, you can use clip=True"
                     )
-                    tf.debugging.assert_less(
-                        znp.asarray(value, tf.float64),
-                        znp.asarray(self.upper, tf.float64),
-                        message=message,
-                    )
-            #     tf.debugging.Assert(self._check_at_limit(value), [value])
+                    if run.executing_eagerly():
+                        if self._check_at_limit(value, exact=True):
+                            raise ValueError(message)
+                    else:
+                        z.assert_greater(
+                            znp.asarray(value, tf.float64),
+                            znp.asarray(self.lower, tf.float64),
+                            message=message,
+                        )
+                        z.assert_less(
+                            znp.asarray(value, tf.float64),
+                            znp.asarray(self.upper, tf.float64),
+                            message=message,
+                        )
+            #     z.Assert(self._check_at_limit(value), [value])
             self.assign(value=value, read_value=False)
 
         return TemporarilySet(value=value, setter=setter, getter=getter)
@@ -641,9 +687,9 @@ class Parameter(
         self,
         minval: ztyping.NumericalScalarType | None = None,
         maxval: ztyping.NumericalScalarType | None = None,
-        sampler: Callable = np.random.uniform,
+        sampler: Callable | None = None,
     ) -> tf.Tensor:
-        """Update the parameter with a randomised value between minval and maxval and return it.
+        """Update the parameter with a sampled value between minval and maxval and return it.
 
         Args:
             minval: The lower bound of the sampler. If not given, ``lower_limit`` is used.
@@ -653,15 +699,21 @@ class Parameter(
         Returns:
             The sampled value
         """
-        if not tf.executing_eagerly():
-            msg = "Randomizing values in a parameter within Graph mode is most probably not what is "
-            raise IllegalInGraphModeError(msg)
-        minval = self.lower if minval is None else znp.asarray(minval, dtype=self.dtype)
-        maxval = self.upper if maxval is None else znp.asarray(maxval, dtype=self.dtype)
-        if maxval is None or minval is None:
-            msg = "Cannot randomize a parameter without limits or limits given."
-            raise RuntimeError(msg)
-        value = sampler(size=self.shape, low=minval, high=maxval)
+        if sampler is None:
+            sampler = self.prior if self.prior is not None else znp.random.uniform
+
+        if isinstance(sampler, ZfitPrior):
+            value = sampler.sample(1)
+        else:
+            if not tf.executing_eagerly():
+                msg = "Randomizing values in a parameter within Graph mode is most probably not what is wanted."
+                raise IllegalInGraphModeError(msg)
+            minval = self.lower if minval is None else znp.asarray(minval, dtype=self.dtype)
+            maxval = self.upper if maxval is None else znp.asarray(maxval, dtype=self.dtype)
+            if maxval is None or minval is None:
+                msg = "Cannot randomize a parameter without limits or limits given."
+                raise RuntimeError(msg)
+            value = sampler(size=self.shape, low=minval, high=maxval)
 
         self.set_value(value=value)
         return value
@@ -698,6 +750,15 @@ class Parameter(
         except Exception as err:
             name = f"errored {err}"
         return f"<zfit.{self.__class__.__name__} '{name}' floating={floating} value={value}>"
+
+    def __str__(self) -> str:
+        """Simple user-friendly string representation."""
+        try:
+            name = self.name
+            value = f"{self.numpy():.4g}" if tf.executing_eagerly() else "symbolic"
+            return f"{name}={value}"
+        except Exception:
+            return f"{self.__class__.__name__}(?)"
 
     # LEGACY, deprecate?
 
@@ -815,11 +876,11 @@ class ParameterRepr(BaseRepr):  # add label?
     hs3_type: Literal["Parameter"] = Field("Parameter", alias="type")
     name: str
     value: float
-    lower: Optional[float] = Field(None, alias="min")
-    upper: typing.Optional[float] = Field(None, alias="max")
-    stepsize: Optional[float] = None
-    floating: Optional[bool] = None
-    label: Optional[str] = None
+    lower: float | None = Field(None, alias="min")
+    upper: float | None = Field(None, alias="max")
+    stepsize: float | None = None
+    floating: bool | None = None
+    label: str | None = None
 
     @validator("value", pre=True)
     def _validate_value(cls, v):
@@ -863,12 +924,6 @@ class BaseComposedParameter(ZfitParameterMixin, OverloadableMixin, BaseParameter
         params = self.params
         return znp.asarray(self._func(params), dtype=self.dtype)
 
-        # return tf.convert_to_tensor(value, dtype=self.dtype)
-
-    # @deprecated(None, "Use `value` instead.")
-    # def read_value(self):  # keep! Needed by TF internally
-    #     return self.value()
-
     @property
     def shape(self):
         return self.value().shape
@@ -889,11 +944,19 @@ class BaseComposedParameter(ZfitParameterMixin, OverloadableMixin, BaseParameter
         msg = "Cannot set value of a composed parameter. Set the value on its components."
         raise LogicalUndefinedOperationError(msg)
 
-    def randomize(self, minval=None, maxval=None, sampler=np.random.uniform):  # noqa: ARG002
+    def randomize(self, minval=None, maxval=None, sampler=None):  # noqa: ARG002
         """Randomize the value of the parameter.
 
         Cannot be used for composed parameters!
+
+        Args:
+            minval: The lower bound of the sampler. If not given, ``lower_limit`` is used.
+            maxval: The upper bound of the sampler. If not given, ``upper_limit`` is used.
+            sampler: A sampler with the same interface as ``np.random.uniform``.
+                    Defaults to np.random.uniform if None.
         """
+        if sampler is None:
+            sampler = np.random.uniform
         msg = "Cannot randomize a composed parameter."
         raise LogicalUndefinedOperationError(msg)
 
@@ -977,7 +1040,7 @@ class ConstantParamRepr(BaseRepr):
     name: str
     value: float
     floating: bool = False
-    label: Optional[str] = None
+    label: str | None = None
 
     @validator("value", pre=True)
     def _validate_value(cls, value):
@@ -997,9 +1060,9 @@ class ComposedParameter(SerializableMixin, BaseComposedParameter):
     def __init__(
         self,
         name: str,
-        func: Optional[Callable] = None,
+        func: Callable | None = None,
         *,
-        value_fn: Optional[Callable] = None,
+        value_fn: Callable | None = None,
         params: (dict[str, ZfitParameter] | Iterable[ZfitParameter] | ZfitParameter) = NotSpecified,
         label: str | None = None,
         unpack_params: bool | None = None,
@@ -1070,7 +1133,12 @@ class ComposedParameter(SerializableMixin, BaseComposedParameter):
             raise BreakingAPIChangeError(msg)
         takes_no_params = False
         if unpack_params is None:
-            parameters = signature(func).parameters
+            parameters_with_keyword_only = signature(func).parameters.values()
+            parameters = {
+                parameter.name: parameter
+                for parameter in parameters_with_keyword_only
+                if parameter.kind != parameter.KEYWORD_ONLY
+            }
             if isinstance(params, ZfitParameter):
                 params = [params]
                 unpack_params = True
@@ -1147,15 +1215,13 @@ class ComposedParameterRepr(BaseRepr):
     name: str
     func: str
     params: dict[str, Serializer.types.ParamTypeDiscriminated]
-    unpack_params: Optional[bool]
-    label: Optional[str] = None
-    internal_params: Optional[
-        Union[
-            Serializer.types.ParamTypeDiscriminated,
-            list[Serializer.types.ParamTypeDiscriminated],
-            dict[str, Serializer.types.ParamTypeDiscriminated],
-        ]
-    ]
+    unpack_params: bool | None
+    label: str | None = None
+    internal_params: (
+        Serializer.types.ParamTypeDiscriminated
+        | list[Serializer.types.ParamTypeDiscriminated]
+        | dict[str, Serializer.types.ParamTypeDiscriminated]
+    ) | None
 
     @validator("func", pre=True)
     def _validate_value_pre(cls, value):
@@ -1342,6 +1408,9 @@ def _reset_auto_number():
     _auto_number = 0
 
 
+ALLOWED_KEYS = {"name", "value", "lower", "upper", "stepsize"}
+
+
 def convert_to_parameters(
     value,
     name: str | list[str] | None = None,
@@ -1353,7 +1422,26 @@ def convert_to_parameters(
     if prefer_constant is None:
         prefer_constant = True
     if isinstance(value, collections.abc.Mapping):
-        return convert_to_parameters(**value, prefer_constant=False)
+        if not value:
+            msg = "Cannot convert an empty mapping to parameters."
+            raise ValueError(msg)
+        if all(k in ALLOWED_KEYS for k in value):
+            return convert_to_parameters(**value, prefer_constant=False)
+        else:
+            # convert it to correct dictionary
+            newvalues = collections.defaultdict(list)
+            for k, v in value.items():
+                newvalues["name"].append(k)
+                if isinstance(v, collections.abc.Mapping):
+                    for k2, v2 in v.items():
+                        if k2 not in ALLOWED_KEYS:
+                            msg = f"Invalid key {k2} in mapping {value}. Allowed keys are {ALLOWED_KEYS}."
+                            raise ValueError(msg)
+                        newvalues[k2].append(v2)
+                else:
+                    newvalues["value"].append(v)
+
+            return convert_to_parameters(**newvalues, prefer_constant=False)
     value = convert_to_container(value)
     is_param_already = [isinstance(val, ZfitParameter) for val in value]
     if all(is_param_already):
@@ -1482,7 +1570,7 @@ def assign_values_jit(
     for i, param in enumerate(params):
         value = values[i]
         if value.dtype != param.dtype:
-            value = znp.cast(value, param.dtype)
+            value = znp.array(value, param.dtype)
         param.assign(value, read_value=False, use_locking=use_locking)
 
 
@@ -1525,6 +1613,8 @@ def set_values(
         | None,
     ) = None,
     allow_partial: bool | None = None,
+    *,
+    clip: bool | None = None,
 ):
     """Set the values (using a context manager or not) of multiple parameters.
 
@@ -1535,11 +1625,14 @@ def set_values(
             and not all are present in the
             *values*. If False, *params* not in *values* will raise an error.
             Note that setting this to true will also go with an empty values container.
+        clip: If True, clip values to be within parameter limits instead of raising an error.
+            If False, raise an error if values are outside limits (default behavior).
+            If None, use the default behavior (raise error).
 
     Returns:
         An object for a context manager (but can also be used without), can be ignored.
     Raises:
-        ValueError: If the value is not between the limits of the parameter.
+        ValueError: If the value is not between the limits of the parameter and clip is False/None.
         ValueError: If not all *params* are in *values* if *values* is a `FitResult` and `allow_partial` is `False`.
     """
     if allow_partial is None:
@@ -1548,7 +1641,7 @@ def set_values(
 
     def setter(values):
         for i, param in enumerate(params):
-            param.set_value(values[i])
+            param.set_value(values[i], clip=clip)
 
     def getter():
         return [param.value() for param in params]

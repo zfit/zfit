@@ -1,4 +1,4 @@
-#  Copyright (c) 2024 zfit
+#  Copyright (c) 2025 zfit
 from contextlib import suppress
 
 import numpy as np
@@ -10,7 +10,7 @@ import zfit.core.integration as zintegrate
 import zfit.z.numpy as znp
 from zfit import z
 from zfit.core.basepdf import BasePDF
-from zfit.core.interfaces import ZfitData
+from zfit._interfaces import ZfitData
 from zfit.core.parameter import Parameter
 from zfit.core.space import Space
 from zfit.models.dist_tfp import Gauss

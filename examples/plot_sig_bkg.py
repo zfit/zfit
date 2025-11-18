@@ -76,7 +76,6 @@ def plot_pdf(title):
 # plot the pdf BEFORE fitting
 plot_pdf("Before fitting")
 
-
 # create NLL
 nll = zfit.loss.UnbinnedNLL(model=model, data=data)
 

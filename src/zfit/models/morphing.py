@@ -2,11 +2,6 @@
 
 from __future__ import annotations
 
-import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 from collections.abc import Iterable, Mapping
 from typing import TYPE_CHECKING
 
@@ -20,11 +15,17 @@ from zfit.core.binnedpdf import BaseBinnedPDF
 if TYPE_CHECKING:
     pass
 
+import typing
+
+from zfit._interfaces import ZfitBinnedPDF
+
 from ..core import parameter
-from ..core.interfaces import ZfitBinnedPDF
 from ..util import ztyping
 from ..util.exception import SpecificFunctionNotImplemented
 from ..z.interpolate_spline import interpolate_spline
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 
 @z.function(wraps="tensor", keepalive=True)
@@ -80,7 +81,7 @@ class SplineMorphingPDF(BaseBinnedPDF):
                the PDF for a better description, to be used with plots etc.
                Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
         """
-        if isinstance(hists, (list, tuple)):
+        if isinstance(hists, list | tuple):
             if len(hists) != 3:
                 msg = (
                     "If hists is a list, it is assumed to correspond to an alpha of -1, 0 and 1."
@@ -91,7 +92,7 @@ class SplineMorphingPDF(BaseBinnedPDF):
 
         for a, hist in hists.items():
             if isinstance(hist, PlottableHistogram):
-                from zfit.models.histogram import HistogramPDF
+                from zfit.models.histogram import HistogramPDF  # noqa: PLC0415
 
                 hist = HistogramPDF(hist)
             if isinstance(hist, ZfitBinnedPDF):

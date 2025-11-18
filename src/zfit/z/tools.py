@@ -3,16 +3,16 @@ from __future__ import annotations
 
 import typing
 
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 import tensorflow as tf
 
 from zfit.settings import upcast_ztypes
 
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
+
 
 def _auto_upcast(tensor: tf.Tensor) -> tf.Tensor:
-    import zfit.z.numpy as znp
+    import zfit.z.numpy as znp  # noqa: PLC0415
 
     if isinstance(tensor, tf.Tensor):
         new_dtype = upcast_ztypes[tensor.dtype]

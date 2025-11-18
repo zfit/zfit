@@ -430,28 +430,29 @@ Another technique, as we may don't have more data on the edges, is to mirror
 the existing data at the boundaries, which is equivalent to a boundary condition
 with a zero derivative. This is a padding technique and can improve the boundaries.
 
-.. jupyter-execute::
-
-    kde = zfit.pdf.KDE1DimExact(data_narrow, obs=obs, padding=0.2)
-
-    plt.plot(x, kde.pdf(x), label='Padded KDE')
-    plt.plot(x, gauss.pdf(x, obs), label='True PDF')
-    plt.legend()
-
-
+KDE implementations use padding with a default value of 0.1
+by default to improve boundary behavior. This means that even without explicitly
+specifying padding, KDEs will automatically apply boundary mirroring.
 However, one important drawback of this method is to keep in mind that this will actually
 alter the PDF *to look mirrored*. Plotting the PDF in a larger range makes this
 clear.
 
 .. jupyter-execute::
-    :hide-code:
 
-    x = np.linspace(-5, 5, 200)
-    plt.plot(x, kde.pdf(x), label='Padded KDE')
+    kde_default = zfit.pdf.KDE1DimExact(data_narrow, obs=obs)  # Uses default padding=0.1
+
+    plt.plot(x, kde_default.pdf(x), label='Default KDE (padding=0.1)')
     plt.plot(x, gauss.pdf(x, obs), label='True PDF')
     plt.legend()
 
+You can still customize the padding value or disable it entirely:
 
+.. jupyter-execute::
 
-Download this tutorial :jupyter-download-notebook:`notebook <zfit_kde_introduction.ipynb>`,
-:jupyter-download-script:`script <zfit_kde_introduction.ipynb>`
+    kde_custom = zfit.pdf.KDE1DimExact(data_narrow, obs=obs, padding=0.2)  # Custom padding
+    kde_no_padding = zfit.pdf.KDE1DimExact(data_narrow, obs=obs, padding=False)  # Disable padding
+
+    plt.plot(x, kde_custom.pdf(x), label='Custom padding (0.2)')
+    plt.plot(x, kde_no_padding.pdf(x), label='No padding')
+    plt.plot(x, gauss.pdf(x, obs), label='True PDF')
+    plt.legend()

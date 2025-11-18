@@ -218,7 +218,7 @@ def plot_minimizer_paths(minimizer_classes, starting_points, meshgrid_arrays, fu
 
             # Minimize the function
             try:
-                for param, value in zip(params, start_point):
+                for param, value in zip(params, start_point, strict=True):
                     param.set_value(value)
                 start_time = time.time()
                 #     # Start bar as a process
@@ -341,7 +341,7 @@ def plot_minimizer_paths(minimizer_classes, starting_points, meshgrid_arrays, fu
 @ray.remote
 def create_fake_animation(filename):
     """Create a fake animation for testing purposes."""
-    base_name, ext = filename.rsplit(".", 1)
+    base_name, _ext = filename.rsplit(".", 1)
     savepath = outpath / f"{base_name}.gif"
 
     # create a fake animation with a static image
@@ -443,14 +443,14 @@ def create_animation(
 
     # Animation initialization function
     def init():
-        for line, point in zip(lines, points):
+        for line, point in zip(lines, points, strict=True):
             line.set_data([], [])
             point.set_data([], [])
         return lines + points
 
     # Animation update function
     def update(frame):
-        for _i, (line, point, path) in enumerate(zip(lines, points, all_paths)):
+        for _i, (line, point, path) in enumerate(zip(lines, points, all_paths, strict=True)):
             if frame < len(path):
                 line.set_data(path[: frame + 1, 0], path[: frame + 1, 1])
                 point.set_data([path[frame, 0]], [path[frame, 1]])
@@ -473,7 +473,7 @@ def create_animation(
     )
 
     # Save the animation
-    base_name, ext = filename.rsplit(".", 1)
+    base_name, _ext = filename.rsplit(".", 1)
     anim.save(outpath / f"{base_name}.gif", writer="pillow", fps=fps, dpi=160)
     plt.close()
 

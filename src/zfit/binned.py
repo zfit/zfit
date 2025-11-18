@@ -3,9 +3,9 @@ from __future__ import annotations
 
 import typing
 
+from ._variables.axis import Binnings, RegularBinning, VariableBinning
+
 if typing.TYPE_CHECKING:
     import zfit  # noqa: F401
-
-from ._variables.axis import Binnings, RegularBinning, VariableBinning
 
 __all__ = ["Binnings", "RegularBinning", "VariableBinning"]

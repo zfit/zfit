@@ -2,23 +2,23 @@
 
 from __future__ import annotations
 
-import typing
-
-if typing.TYPE_CHECKING:
-    import zfit
-
+import abc
 import copy
 import typing
+import warnings
+from collections.abc import Callable, Iterable, Mapping
 from contextlib import suppress
 from functools import partial
-from typing import TYPE_CHECKING, Literal, Optional, Union
+from typing import TYPE_CHECKING, Literal
 
 import pydantic.v1 as pydantic
+import tensorflow as tf
 import tensorflow_probability as tfp
+from ordered_set import OrderedSet
 from pydantic.v1 import Field
 from tensorflow.python.util.deprecation import deprecated
 
-from ..exception import AutogradNotSupported, OutsideLimitsError, SpecificFunctionNotImplemented
+from ..exception import AutogradNotSupported, OutsideLimitsError
 from ..serialization.serializer import BaseRepr, Serializer
 from .data import convert_to_data
 from .serialmixin import SerializableMixin
@@ -26,14 +26,18 @@ from .serialmixin import SerializableMixin
 if TYPE_CHECKING:
     import zfit
 
-import abc
-import warnings
-from collections.abc import Callable, Iterable, Mapping
-
-import tensorflow as tf
-from ordered_set import OrderedSet
 
 import zfit.z.numpy as znp
+from zfit._interfaces import (
+    ZfitBinnedData,
+    ZfitData,
+    ZfitIndependentParameter,
+    ZfitLoss,
+    ZfitParameter,
+    ZfitPDF,
+    ZfitSpace,
+    ZfitUnbinnedData,
+)
 
 from .. import settings, z
 from ..util import ztyping
@@ -41,10 +45,10 @@ from ..util.checks import NONE
 from ..util.container import convert_to_container, is_container
 from ..util.deprecation import deprecated_args
 from ..util.exception import (
-    BehaviorUnderDiscussion,
     BreakingAPIChangeError,
     IntentionAmbiguousError,
     NotExtendedPDFError,
+    SpecificFunctionNotImplemented,
 )
 from ..util.warnings import warn_advanced_feature
 from ..z.math import (
@@ -59,18 +63,10 @@ from ..z.math import (
 )
 from .baseobject import BaseNumeric, extract_filter_params
 from .constraint import BaseConstraint
-from .interfaces import (
-    ZfitBinnedData,
-    ZfitData,
-    ZfitIndependentParameter,
-    ZfitLoss,
-    ZfitParameter,
-    ZfitPDF,
-    ZfitSpace,
-    ZfitUnbinnedData,
-)
 from .parameter import convert_to_parameters, set_values
 
+if typing.TYPE_CHECKING:
+    import zfit
 DEFAULT_FULL_ARG = True
 
 
@@ -105,7 +101,7 @@ def _unbinned_nll_tf(
     if is_container(model):
         nlls = [
             _unbinned_nll_tf(model=p, data=d, fit_range=r, log_offset=log_offset, kahan=kahan)
-            for p, d, r in zip(model, data, fit_range)
+            for p, d, r in zip(model, data, fit_range, strict=True)
         ]
         nlls, nlls_corr = [nll[0] for nll in nlls], [nll[1] for nll in nlls]
         nll_corrs = znp.sum(nlls_corr, axis=0)
@@ -165,16 +161,10 @@ class BaseLossRepr(BaseRepr):
     _implementation = None
     _owndict = pydantic.PrivateAttr(default_factory=dict)
     hs3_type: Literal["BaseLoss"] = Field("BaseLoss", alias="type")
-    model: Union[
-        Serializer.types.PDFTypeDiscriminated,
-        list[Serializer.types.PDFTypeDiscriminated],
-    ]
-    data: Union[
-        Serializer.types.DataTypeDiscriminated,
-        list[Serializer.types.DataTypeDiscriminated],
-    ]
-    constraints: Optional[list[Serializer.types.ConstraintTypeDiscriminated]] = Field(default_factory=list)
-    options: Optional[Mapping] = Field(default_factory=dict)
+    model: Serializer.types.PDFTypeDiscriminated | list[Serializer.types.PDFTypeDiscriminated]
+    data: Serializer.types.DataTypeDiscriminated | list[Serializer.types.DataTypeDiscriminated]
+    constraints: list[Serializer.types.ConstraintTypeDiscriminated] | None = Field(default_factory=list)
+    options: Mapping | None = Field(default_factory=dict)
 
     @pydantic.validator("model", "data", "constraints", pre=True)
     def _check_container(cls, v):
@@ -256,7 +246,10 @@ class BaseLoss(ZfitLoss, BaseNumeric):
 
     @property
     def is_precompiled(self):
-        for data, h in zip(self.data, self._precompiled_hashes):
+        if len(self._precompiled_hashes) != len(self.data):
+            self._is_precompiled = False
+            return self._is_precompiled
+        for data, h in zip(self.data, self._precompiled_hashes, strict=True):
             if data.hashint != h:
                 self.is_precompiled = False
                 break
@@ -333,7 +326,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
             if len(params) != len(all_params):
                 msg = "Length of params does not match the length of all parameters or provide a Mapping."
                 raise ValueError(msg)
-            params = dict(zip(all_params, params))
+            params = dict(zip(all_params, params, strict=True))
         return super()._check_set_input_params(params, guarantee_checked)
 
     def _input_check(self, pdf, data, fit_range):
@@ -350,7 +343,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         if fit_range is None:
             fit_range = []
             non_consistent = {"data": [], "model": [], "range": []}
-            for p, d in zip(pdf, data):
+            for p, d in zip(pdf, data, strict=True):
                 if p.norm != d.data_range:
                     non_consistent["data"].append(d)
                     non_consistent["model"].append(p)
@@ -379,7 +372,8 @@ class BaseLoss(ZfitLoss, BaseNumeric):
 
         # sanitize fit_range
         fit_range = [
-            p._convert_sort_space(limits=range_) if range_ is not None else None for p, range_ in zip(pdf, fit_range)
+            p._convert_sort_space(limits=range_) if range_ is not None else None
+            for p, range_ in zip(pdf, fit_range, strict=True)
         ]
         # TODO: sanitize pdf, data?
         self.add_cache_deps(cache_deps=pdf)
@@ -387,7 +381,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         return pdf, data, fit_range
 
     def check_precompile(self, *, params=None, force=False):
-        from zfit import run
+        from zfit import run  # noqa: PLC0415
 
         if (not run.executing_eagerly()) or (self.is_precompiled and not force):
             return params, False
@@ -419,10 +413,24 @@ class BaseLoss(ZfitLoss, BaseNumeric):
     def _check_convert_model_data(self, model, data, fit_range):
         model, data = tuple(convert_to_container(obj) for obj in (model, data))
 
+        # Check for empty model or data lists (but allow SimpleLoss to have empty lists)
+        if not model and not isinstance(self, SimpleLoss):
+            msg = "At least one model must be provided to create a loss."
+            raise ValueError(msg)
+        if not data and not isinstance(self, SimpleLoss):
+            msg = "At least one dataset must be provided to create a loss."
+            raise ValueError(msg)
+
         model_checked = []
         data_checked = []
-        for mod, dat in zip(model, data):
-            if not isinstance(dat, (ZfitData, ZfitBinnedData)):
+        for i, (mod, dat) in enumerate(zip(model, data, strict=True)):
+            # Check model is valid
+            if not isinstance(mod, ZfitPDF):
+                msg = f"Model at index {i} must be a ZfitPDF, got {type(mod).__name__}"
+                raise TypeError(msg)
+
+            # Convert and check data
+            if not isinstance(dat, ZfitData | ZfitBinnedData):
                 if fit_range is not None:
                     msg = "Fit range should not be used if data is not ZfitData."
                     raise TypeError(msg)
@@ -436,6 +444,37 @@ class BaseLoss(ZfitLoss, BaseNumeric):
                         f"or remove events outside the space"
                     )
                     raise IntentionAmbiguousError(msg) from error
+
+            # Check for empty dataset
+            if hasattr(dat, "num_entries"):
+                try:
+                    n_entries = dat.num_entries
+                    # Handle both eager and graph mode
+                    if tf.is_tensor(n_entries):
+                        from zfit import run  # noqa: PLC0415
+
+                        if run.executing_eagerly():
+                            n_entries = int(n_entries)
+
+                    if n_entries == 0:
+                        msg = f"Dataset at index {i} is empty (has 0 entries). Cannot create loss with empty data."
+                        raise ValueError(msg)
+                except Exception:
+                    # If we can't determine the number of entries, continue
+                    # This might happen for some custom data types
+                    pass
+
+            # Check observable compatibility
+            model_obs = mod.space.obs
+            data_obs = dat.space.obs if hasattr(dat, "space") else None
+
+            if data_obs is not None and model_obs != data_obs:
+                msg = (
+                    f"Model at index {i} has observables {model_obs} but data has "
+                    f"observables {data_obs}. The observables must match."
+                )
+                raise ValueError(msg)
+
             model_checked.append(mod)
             data_checked.append(dat)
         return model_checked, data_checked
@@ -511,13 +550,13 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         Returns:
             Calculated loss value as a scalar.
         """
-        if _x is None:
-            msg = (
-                "Currently, calling a loss requires to give the arguments explicitly."
-                " If you think this behavior should be changed, please open an issue"
-                " https://github.com/zfit/zfit/issues/new/choose"
-            )
-            raise BehaviorUnderDiscussion(msg)
+        # if _x is None:
+        #     msg = (
+        #         "Currently, calling a loss requires to give the arguments explicitly."
+        #         " If you think this behavior should be changed, please open an issue"
+        #         " https://github.com/zfit/zfit/issues/new/choose"
+        #     )
+        #     raise BehaviorUnderDiscussion(msg)
         if isinstance(_x, dict):
             msg = "Dicts are not supported when calling a loss, only array-like values."
             raise TypeError(msg)
@@ -1154,7 +1193,7 @@ class ExtendedUnbinnedNLL(BaseUnbinnedNLL):
 
         .. math::
             \mathcal{L}_{extended term} = poiss(N_{tot}, N_{data})
-            = N_{data}^{N_{tot}} \frac{e^{- N_{data}}}{N_{tot}!}
+            = N_{tot}^{N_{data}} \frac{e^{- N_{tot}}}{N_{data}!}
 
         and the extended likelihood is the product of both. |@docend:loss.init.explain.extendedterm|
 
@@ -1257,7 +1296,7 @@ class ExtendedUnbinnedNLL(BaseUnbinnedNLL):
 
         yields = []
         nevents_collected = []
-        for mod, dat in zip(model, data):
+        for mod, dat in zip(model, data, strict=True):
             if not mod.is_extended:
                 msg = f"The pdf {mod} is not extended but has to be (for an extended fit)"
                 raise NotExtendedPDFError(msg)
@@ -1307,7 +1346,7 @@ class SimpleLoss(BaseLoss):
         *,
         gradient: Callable | str | None = None,
         hessian: Callable | str | None = None,
-        jit: Optional[bool] = None,
+        jit: bool | None = None,
         # legacy
         deps: Iterable[zfit.Parameter] = NONE,
         dependents: Iterable[zfit.Parameter] = NONE,
@@ -1425,12 +1464,21 @@ class SimpleLoss(BaseLoss):
         self._grad_fn = gradient
         self._hess_fn = hessian
         params = convert_to_parameters(params, prefer_constant=False)
+
+        # Check for duplicate parameter names
+        param_names = [p.name for p in params]
+        if len(param_names) != len(set(param_names)):
+            duplicates = [name for name in param_names if param_names.count(name) > 1]
+            unique_duplicates = sorted(set(duplicates))
+            msg = f"Parameters with duplicate names found: {unique_duplicates}. Each parameter must have a unique name."
+            raise ValueError(msg)
+
         self._params = params
-        self._autograd_params = [p.name for p in params]
+        self._autograd_params = param_names
 
     def _check_jit_or_not(self):
         if not self._do_jit:
-            from zfit import run
+            from zfit import run  # noqa: PLC0415
 
             if not run.executing_eagerly():
                 raise z.DoNotCompile
@@ -1533,8 +1581,8 @@ class SimpleLoss(BaseLoss):
                 paramsself = {name: p for name, p in params if name in selfnames}
                 paramsother = {name: p for name, p in params.items() if name in othernames}
             elif len(params) == len(selfnames) + len(othernames):
-                paramsself = dict(zip(selfnames, params[: len(selfnames)]))
-                paramsother = dict(zip(othernames, params[len(selfnames) :]))
+                paramsself = dict(zip(selfnames, params[: len(selfnames)], strict=True))
+                paramsother = dict(zip(othernames, params[len(selfnames) :], strict=True))
             else:
                 msg = "The parameters do not match the sum of the parameters of the two losses."
                 raise ValueError(msg)

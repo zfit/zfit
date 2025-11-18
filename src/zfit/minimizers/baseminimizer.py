@@ -2,25 +2,22 @@
 
 from __future__ import annotations
 
-import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
-import collections
 import copy
 import functools
 import inspect
 import math
 import typing
 import warnings
+from collections import deque
 from collections.abc import Callable, Iterable, Mapping
 from contextlib import contextmanager
+from typing import ClassVar
 
 import numpy as np
 from ordered_set import OrderedSet
 
-from ..core.interfaces import ZfitLoss, ZfitParameter
+from zfit._interfaces import ZfitLoss, ZfitParameter
+
 from ..core.parameter import assign_values, convert_to_parameters, set_values
 from ..util import ztyping
 from ..util.container import convert_to_container
@@ -42,6 +39,9 @@ from .strategy import (
     ZfitStrategy,
 )
 from .termination import EDM, ConvergenceCriterion
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 DefaultStrategy = PushbackStrategy
 
@@ -134,7 +134,7 @@ def _Minimizer_register_check_support(has_support: bool):
 
 
 class BaseMinimizer(ZfitMinimizer):
-    _DEFAULTS: typing.ClassVar = {
+    _DEFAULTS: ClassVar = {
         "tol": 1e-3,
         "verbosity": 0,
         "strategy": DefaultStrategy,
@@ -197,8 +197,28 @@ class BaseMinimizer(ZfitMinimizer):
         super().__init__()
         self._n_iter_per_param = 3000
 
-        self.tol = self._DEFAULTS["tol"] if tol is None else tol
-        self.verbosity = self._DEFAULTS["verbosity"] if verbosity is None else verbosity
+        # Validate and set tolerance
+        if tol is None:
+            tol = self._DEFAULTS["tol"]
+        elif not isinstance(tol, (int, float)):
+            msg = f"tol must be numeric, got {type(tol).__name__}"
+            raise TypeError(msg)
+        elif tol <= 0:
+            msg = f"tol must be positive, got {tol}"
+            raise ValueError(msg)
+        self.tol = float(tol)
+
+        # Validate and set verbosity
+        if verbosity is None:
+            verbosity = self._DEFAULTS["verbosity"]
+        elif not isinstance(verbosity, int):
+            msg = f"verbosity must be an integer, got {type(verbosity).__name__}"
+            raise TypeError(msg)
+        elif not 0 <= verbosity <= 10:
+            msg = f"verbosity must be between 0 and 10, got {verbosity}"
+            raise ValueError(msg)
+        self.verbosity = verbosity
+
         self.minimizer_options = {} if minimizer_options is None else minimizer_options
         self.criterion = self._DEFAULTS["criterion"] if criterion is None else criterion
 
@@ -220,7 +240,25 @@ class BaseMinimizer(ZfitMinimizer):
 
         self._strategy = strategy
         self._state = None
-        self._maxiter = self._DEFAULTS["maxiter"] if maxiter is None else maxiter
+
+        # Validate and set maxiter
+        if maxiter is None:
+            maxiter = self._DEFAULTS["maxiter"]
+        elif maxiter != "auto":
+            if not isinstance(maxiter, (int, float)):
+                msg = f"maxiter must be numeric or 'auto', got {type(maxiter).__name__}"
+                raise TypeError(msg)
+            if maxiter <= 0:
+                msg = f"maxiter must be positive, got {maxiter}"
+                raise ValueError(msg)
+            # Convert float to int if it's a whole number
+            if isinstance(maxiter, float):
+                if maxiter == float("inf") or maxiter > 1e15:
+                    maxiter = int(1e15)  # Set a reasonable maximum
+                else:
+                    maxiter = int(maxiter)
+        self._maxiter = maxiter
+
         self.name = repr(self.__class__)[:-2].split(".")[-1] if name is None else name
 
     @classmethod
@@ -293,14 +331,19 @@ class BaseMinimizer(ZfitMinimizer):
                 params = list(init.params)
             elif not any(isinstance(p, ZfitParameter) for p in params):
                 params_init = init.loss.get_params()
-                to_set_param_values = dict(zip(params_init, params))
+                to_set_param_values = dict(zip(params_init, params, strict=True))
 
-        if isinstance(params, collections.abc.Mapping):
+        if isinstance(params, Mapping):
             if all(isinstance(p, ZfitParameter) for p in params):
                 to_set_param_values = {p: val for p, val in params.items() if val is not None}
                 params = list(params.keys())
             elif all(isinstance(p, str) for p in params):
                 params = convert_to_parameters(params, prefer_constant=False)
+
+                # TODO: simpleloss should take dicts of name to value?!
+                # if 'name' not in params and 'value' not in params:  # keep it a dictionary
+                #     cleanedparams = {p.name: p for p in cleanedparams}
+
             else:
                 msg = (
                     "if `params` argument is a dict, it must either contain parameters or fields"
@@ -310,11 +353,11 @@ class BaseMinimizer(ZfitMinimizer):
 
         # convert the function to a SimpleLoss
         if not isinstance(loss, ZfitLoss):
-            from zfit.loss import SimpleLoss
+            from zfit.loss import SimpleLoss  # noqa: PLC0415
 
             loss = SimpleLoss.from_any(loss, params=params)
 
-        if isinstance(params, (tuple, list)) and not any(isinstance(p, ZfitParameter) for p in params):
+        if isinstance(params, tuple | list) and not any(isinstance(p, ZfitParameter) for p in params):
             loss_params = loss.get_params()
             if len(params) != len(loss_params):
                 msg = (
@@ -322,7 +365,7 @@ class BaseMinimizer(ZfitMinimizer):
                     f" {len(params)} and {len(loss_params)} respectively."
                 )
                 raise ValueError(msg)
-            to_set_param_values = {p: val for p, val in zip(loss_params, params) if val is not None}
+            to_set_param_values = {p: val for p, val in zip(loss_params, params, strict=True) if val is not None}
             params = loss_params
 
         if params is None:
@@ -362,6 +405,15 @@ class BaseMinimizer(ZfitMinimizer):
             msg = "No parameter for minimization given/found. Cannot minimize."
             raise RuntimeError(msg)
         params = list(params)
+
+        # Check for duplicate parameter names
+        param_names = [p.name for p in params]
+        if len(param_names) != len(set(param_names)):
+            duplicates = [name for name in param_names if param_names.count(name) > 1]
+            unique_duplicates = sorted(set(duplicates))
+            msg = f"Parameters with duplicate names found: {unique_duplicates}. Each parameter must have a unique name."
+            raise ValueError(msg)
+
         return loss, params, init
 
     @staticmethod
@@ -557,10 +609,10 @@ class BaseMinimizer(ZfitMinimizer):
         """
         state = {"loss": loss, "params": params, "init": init}
         self._state = state
-        from zfit import settings
+        from zfit import settings  # noqa: PLC0415
 
         if no_update := not settings.options.auto_update_params:
-            import zfit.z.numpy as znp
+            import zfit.z.numpy as znp  # noqa: PLC0415
 
             old_params = list(loss.get_params())
             old_values = znp.asarray(old_params)
@@ -573,7 +625,12 @@ class BaseMinimizer(ZfitMinimizer):
         return copy.copy(self)
 
     def __str__(self) -> str:
-        return f"<{type(self).__name__} {self.name} tol={self.tol}>"
+        """User-friendly string representation."""
+        info = [f"{self.name}"]
+
+        # Add key configuration
+        info.append(f"tol={self.tol}")
+        return f"<{self.__class__.__name__} {', '.join(info)}>"
 
     def get_maxiter(self, n=None):
         if n is None:
@@ -715,7 +772,7 @@ class BaseStepMinimizer(BaseMinimizer):
         if init:
             assign_values(params=params, values=init)
         n_old_vals = 5
-        changes = collections.deque(np.ones(n_old_vals))
+        changes = deque(np.ones(n_old_vals))
         last_val = -10
         niter = 0
         criterion = self.criterion(tol=self.tol, loss=loss, params=params)
@@ -735,7 +792,7 @@ class BaseStepMinimizer(BaseMinimizer):
                 hesse = loss.hessian(params)
                 inv_hesse = np.linalg.inv(hesse)
                 status = 10
-                params_result = dict(zip(params, xvalues))
+                params_result = dict(zip(params, xvalues, strict=True))
 
                 message = "Unfinished, for criterion"
                 info = {
@@ -778,7 +835,7 @@ class BaseStepMinimizer(BaseMinimizer):
             "inv_hesse": inv_hesse,
         }
 
-        params = dict(zip(params, xvalues))
+        params = dict(zip(params, xvalues, strict=True))
         valid = converged
 
         return FitResult(

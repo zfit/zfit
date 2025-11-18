@@ -2,45 +2,28 @@
 from __future__ import annotations
 
 import typing
-
-if typing.TYPE_CHECKING:
-    import zfit
-
-import typing
-
-if typing.TYPE_CHECKING:
-    import zfit
-
-import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 from collections.abc import Callable
-from typing import TYPE_CHECKING, Optional
 
+import boost_histogram as bh
+import hist
 import numpy as np
+import tensorflow as tf
 import xxhash
 from tensorflow.python.util.deprecation import deprecated
 from uhi.typing.plottable import PlottableHistogram
 from zfit_interface.typing import TensorLike
 
+from .. import z
+from .._interfaces import ZfitBinnedData, ZfitData, ZfitSpace
+from .._variables.axis import binning_to_histaxes, histaxes_to_binning
 from ..core.baseobject import convert_param_values
 from ..settings import ztypes
-
-if TYPE_CHECKING:
-    pass
-
-import boost_histogram as bh
-import hist
-import tensorflow as tf
-
-from zfit.z import numpy as znp
-
-from .._variables.axis import binning_to_histaxes, histaxes_to_binning
-from ..core.interfaces import ZfitBinnedData, ZfitData, ZfitSpace
 from ..util import ztyping
 from ..util.exception import BreakingAPIChangeError, ShapeIncompatibleError
+from ..z import numpy as znp
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 
 def convert_hist2binneddata(data: ZfitBinnedData | PlottableHistogram, *, none_if_fail=None) -> ZfitBinnedData:
@@ -110,7 +93,7 @@ class BinnedHolder:
         Args:
             h: A NamedHist. The axes will be used as the binning in zfit.
         """
-        from zfit import Space
+        from zfit import Space  # noqa: PLC0415
 
         space = Space(binning=histaxes_to_binning(h.axes))
         values = znp.asarray(h.values(flow=flow))
@@ -140,14 +123,12 @@ class BinnedHolder:
         """
         if variances is not None:
             variances = znp.asarray(variances)
-            from zfit import run
 
-            if run.numeric_checks:
-                tf.debugging.assert_equal(
-                    tf.shape(variances),
-                    tf.shape(self.values),
-                    message=f"Variances {variances} and values {self.values} do not have the same shape",
-                )
+            z.assert_equal(
+                tf.shape(variances),
+                tf.shape(self.values),
+                message=f"Variances {variances} and values {self.values} do not have the same shape",
+            )
         return type(self)(space=self.space, values=self.values, variances=variances)
 
 
@@ -175,8 +156,8 @@ class BinnedData(
         *,
         h: BinnedHolder | hist.NamedHist | ZfitBinnedData,
         use_hash=None,
-        name: Optional[str] = None,
-        label: Optional[str] = None,
+        name: str | None = None,
+        label: str | None = None,
     ):
         """Create a binned data object from a histogram object.
 
@@ -218,7 +199,7 @@ class BinnedData(
         all. For example, if an object was already called before with the data object, the hash will probably not be
         used, as the object is already compiled.
         """
-        from zfit import run
+        from zfit import run  # noqa: PLC0415
 
         run.assert_executing_eagerly()
         self._use_hash = True
@@ -226,7 +207,7 @@ class BinnedData(
 
     @property
     def _using_hash(self):
-        from zfit import run
+        from zfit import run  # noqa: PLC0415
 
         return self._use_hash and run.hashing_data()
 
@@ -285,7 +266,7 @@ class BinnedData(
         Returns:
             ZfitBinnedData: The binned data
         """
-        from zfit.core.binning import unbinned_to_binned
+        from zfit.core.binning import unbinned_to_binned  # noqa: PLC0415
 
         return unbinned_to_binned(
             data,
@@ -320,7 +301,7 @@ class BinnedData(
         # no subclass, as this allows the sampler to be the same still and not reinitiated
 
     def _update_hash(self):
-        from zfit import run
+        from zfit import run  # noqa: PLC0415
 
         if not run.executing_eagerly() or not self._using_hash:
             self._hashint = None
@@ -473,19 +454,19 @@ class BinnedData(
         centers = znp.stack(flat_centers, axis=-1)
         flat_weights = znp.reshape(self.values(), (-1,))  # TODO: flow?
         space = self.space.copy(binning=None)
-        from zfit import Data
+        from zfit import Data  # noqa: PLC0415
 
         return Data.from_tensor(obs=space, tensor=centers, weights=flat_weights)
 
     def __str__(self):
-        import zfit
+        import zfit  # noqa: PLC0415
 
         if zfit.run.executing_eagerly():
             return self.to_hist().__str__()
         return f"Binned data {self.axes} (compiled, no preview)"
 
     def _repr_html_(self):
-        import zfit
+        import zfit  # noqa: PLC0415
 
         if zfit.run.executing_eagerly():
             return self.to_hist()._repr_html_()
@@ -657,11 +638,11 @@ class BinnedSamplerData(BinnedData):
 
             del sample_func
 
-        from ..core.space import convert_to_space
+        from ..core.space import convert_to_space  # noqa: PLC0415
 
         obs = convert_to_space(obs)
 
-        from .. import ztypes
+        from ..settings import ztypes  # noqa: PLC0415
 
         dtype = ztypes.float
 

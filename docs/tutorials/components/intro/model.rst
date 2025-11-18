@@ -276,6 +276,7 @@ CachedPDF will be useful in the case of composite pdfs when you want to fit only
 you can make another one cacheable so it's methods won't be recalculated when input arguments
 and pdf parameters stay the same.
 
+
 For example you have sum of Gaussian and exponential pdfs:
 
 .. jupyter-execute::
@@ -292,8 +293,25 @@ For example you have sum of Gaussian and exponential pdfs:
 
     # make exponential pdf cacheable
     cached_exponential = zfit.pdf.CachedPDF(exponential)
+    
+    # Alternative: use the convenient to_cached() method
+    cached_exponential = exponential.to_cached()
+    
+    # Customize caching behavior
+    cached_exponential = exponential.to_cached(
+        epsilon=1e-6,                 # Cache tolerance
+    )
 
     # create SumPDF with cacheable exponential pdf
     sum_pdf = zfit.pdf.SumPDF([gauss, cached_exponential], fracs=frac)
 
 Done! Your optimized SumPDF is ready for fitting.
+
+
+**When to Use CachedPDF:**
+
+- When the same PDF is evaluated multiple times with identical parameters
+- In composite models where one component remains fixed
+
+**Performance Tip:** The caching overhead is minimal, but for very simple PDFs (like a single Gaussian), 
+the native implementation might be faster than the cached version.

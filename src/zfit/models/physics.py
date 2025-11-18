@@ -3,14 +3,6 @@
 from __future__ import annotations
 
 import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
-import typing
-
-if typing.TYPE_CHECKING:
-    pass
 from typing import Literal
 
 import numpy as np
@@ -27,6 +19,9 @@ from ..serialization import Serializer, SpaceRepr
 from ..serialization.pdfrepr import BasePDFRepr
 from ..util import ztyping
 from ..util.ztyping import ExtendedInputType, NormInputType
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 
 def _powerlaw(x, a, k):
@@ -143,7 +138,7 @@ def crystalball_integral_func(mu, sigma, alpha, n, lower, upper):
     # if_false_4()
     result = tf.where(tf.greater_equal(tmin, -abs_alpha), if_true_4, if_false_4)
     if result.shape.rank != 0:
-        result = tf.gather(result, 0, axis=-1)  # remove last dim, should vanish
+        result = result[..., 0]  # remove last dim, should vanish
     return result
 
 
@@ -248,7 +243,7 @@ class CrystalBall(BasePDF, SerializableMixin):
         *,
         extended: ExtendedInputType = None,
         norm: NormInputType = None,
-        name: str = "CrystalBall",
+        name: str | None = None,
         label: str | None = None,
     ):
         r"""Crystal Ball shaped PDF. A combination of a Gaussian with a powerlaw tail.
@@ -310,6 +305,8 @@ class CrystalBall(BasePDF, SerializableMixin):
 
         .. _CBShape: https://en.wikipedia.org/wiki/Crystal_Ball_function
         """
+        if name is None:
+            name = "CrystalBall"
         params = {"mu": mu, "sigma": sigma, "alpha": alpha, "n": n}
         super().__init__(obs=obs, name=name, params=params, extended=extended, norm=norm, label=label)
 
@@ -354,7 +351,7 @@ class DoubleCB(BasePDF, SerializableMixin):
         *,
         extended: ExtendedInputType = None,
         norm: NormInputType = None,
-        name: str = "DoubleCB",
+        name: str | None = None,
         label: str | None = None,
     ):
         r"""Double-sided Crystal Ball shaped PDF. A combination of two CB using the **mu** (not a frac) on each side.
@@ -422,6 +419,8 @@ class DoubleCB(BasePDF, SerializableMixin):
                the PDF for a better description, to be used with plots etc.
                Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
         """
+        if name is None:
+            name = "DoubleCB"
         params = {
             "mu": mu,
             "sigma": sigma,
@@ -484,7 +483,7 @@ class GeneralizedCB(BasePDF, SerializableMixin):
         *,
         extended: ExtendedInputType = None,
         norm: NormInputType = None,
-        name: str = "GeneralizedCB",
+        name: str | None = None,
         label: str | None = None,
     ):
         r"""Generalized asymmetric double-sided Crystal Ball shaped PDF. A combination of two CB using the **mu** (not a
@@ -556,6 +555,8 @@ class GeneralizedCB(BasePDF, SerializableMixin):
                the PDF for a better description, to be used with plots etc.
                Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
         """
+        if name is None:
+            name = "GeneralizedCB"
         params = {
             "mu": mu,
             "sigmal": sigmal,
@@ -681,7 +682,7 @@ def gaussexptail_integral_func(mu, sigma, alpha, lower, upper):
     conditional_integral = tf.where(tf.less_equal(tmax, -abs_alpha), exp_tmin_tmax_integral, integral_sum)
     result = tf.where(tf.greater_equal(tmin, -abs_alpha), gauss_tmin_tmax_integral, conditional_integral)
     if result.shape.rank != 0:
-        result = tf.gather(result, 0, axis=-1)
+        result = result[..., 0]
     return result
 
 
@@ -735,7 +736,7 @@ class GaussExpTail(BasePDF, SerializableMixin):
         *,
         extended: ExtendedInputType = None,
         norm: NormInputType = None,
-        name: str = "GaussExpTail",
+        name: str | None = None,
         label: str | None = None,
     ):
         r"""GaussExpTail shaped PDF. A combination of a Gaussian with an exponential tail on one side.
@@ -786,6 +787,8 @@ class GaussExpTail(BasePDF, SerializableMixin):
                the PDF for a better description, to be used with plots etc.
                Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
         """
+        if name is None:
+            name = "GaussExpTail"
         params = {"mu": mu, "sigma": sigma, "alpha": alpha}
         super().__init__(obs=obs, name=name, params=params, extended=extended, norm=norm, label=label)
 
@@ -827,7 +830,7 @@ class GeneralizedGaussExpTail(BasePDF, SerializableMixin):
         *,
         extended: ExtendedInputType = None,
         norm: NormInputType = None,
-        name: str = "GeneralizedGaussExpTail",
+        name: str | None = None,
         label: str | None = None,
     ):
         r"""GeneralizedGaussedExpTail shaped PDF which is Generalized assymetric double-sided GaussExpTail shaped PDF. A
@@ -887,6 +890,8 @@ class GeneralizedGaussExpTail(BasePDF, SerializableMixin):
                the PDF for a better description, to be used with plots etc.
                Has no programmatical functional purpose as identification. |@docend:pdf.init.label|
         """
+        if name is None:
+            name = "GeneralizedGaussExpTail"
         params = {
             "mu": mu,
             "sigmal": sigmal,

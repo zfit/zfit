@@ -2,21 +2,20 @@
 
 from __future__ import annotations
 
-import typing
-
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 import abc
+import typing
 from abc import abstractmethod
 from collections.abc import Mapping
-from typing import Optional
 
 import numpy as np
 
-from ..core.interfaces import ZfitLoss, ZfitParameter
+from zfit._interfaces import ZfitLoss, ZfitParameter
+
 from ..util import ztyping
 from .fitresult import FitResult
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 
 class FailMinimizeNaN(Exception):
@@ -46,7 +45,7 @@ class BaseStrategy(ZfitStrategy):
         self.error = None
         super().__init__()
 
-    def minimize_nan(self, loss: ZfitLoss, params: ztyping.ParamTypeInput, values: Optional[Mapping] = None) -> float:  # noqa: ARG002
+    def minimize_nan(self, loss: ZfitLoss, params: ztyping.ParamTypeInput, values: Mapping | None = None) -> float:  # noqa: ARG002
         raise FailMinimizeNaN()
 
     def callback(self, value, gradient, hessian, params, loss):
@@ -78,7 +77,7 @@ class ToyStrategyFail(BaseStrategy):
     def minimize_nan(self, loss: ZfitLoss, params: ztyping.ParamTypeInput, values: Mapping | None = None) -> float:
         del values  # unused
         param_vals = np.asarray(params)
-        param_vals = dict(zip(params, param_vals))
+        param_vals = dict(zip(params, param_vals, strict=True))
         self.fit_result = FitResult(
             params=param_vals,
             edm=None,

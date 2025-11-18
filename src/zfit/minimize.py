@@ -3,16 +3,15 @@ from __future__ import annotations
 
 import typing
 
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 from .minimizers.baseminimizer import (
     BaseMinimizer,
     DefaultStrategy,
     minimize_supports,
 )
 from .minimizers.ipopt import Ipyopt
-from .minimizers.minimizer_lm import LevenbergMarquardt
+from .minimizers.minimizer_lm import (
+    LevenbergMarquardt,
+)
 from .minimizers.minimizer_minuit import Minuit
 from .minimizers.minimizer_nlopt import (
     NLoptBaseMinimizer,
@@ -48,6 +47,9 @@ from .minimizers.minimizers_scipy import (
 from .minimizers.optimizers_tf import Adam, WrapOptimizer
 from .minimizers.strategy import DefaultToyStrategy, PushbackStrategy
 from .minimizers.termination import EDM
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 ScipyTrustConstrV1 = ScipyTrustConstr
 ScipyTrustNCGV1 = ScipyTrustNCG
@@ -87,7 +89,6 @@ __all__ = [
     "DefaultStrategy",
     "DefaultToyStrategy",
     "Ipyopt",
-    "LevenbergMarquardt",
     "LevenbergMarquardt",
     "Minuit",
     "NLoptBOBYQA",

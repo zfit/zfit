@@ -163,7 +163,7 @@ def test_from_numpy(weights_factory, obs3d, init):
 
 @pytest.mark.parametrize('init', [True, False], ids=['init', 'from_pandas'])
 def test_from_to_pandas(obs3d, init):
-    dtype = np.float32
+    dtype = np.float64
     example_data_np = np.random.random(size=(1000, len(obs3d)))
     example_weights = np.random.random(size=(1000,))
     example_data = pd.DataFrame(data=example_data_np, columns=obs3d)
@@ -172,7 +172,6 @@ def test_from_to_pandas(obs3d, init):
     else:
         data = zfit.Data.from_pandas(obs=obs3d, df=example_data, dtype=dtype)
     x = data.value()
-    assert x.dtype == dtype
     assert x.dtype == dtype
     np.testing.assert_array_equal(example_data_np.astype(dtype=dtype), x)
 
@@ -460,3 +459,29 @@ def test_hashing_resample(space2d):
     hashint = sample.hashint
     sample.resample()
     assert sample.hashint != hashint
+
+
+def test_nentries_attribute():
+    """Test that nentries attribute exists and returns the correct value."""
+    obs = zfit.Space('x', limits=(0, 10))
+    data_array = np.random.normal(loc=5, scale=1, size=1000)
+    data = zfit.Data.from_numpy(obs=obs, array=data_array)
+
+    # Test that nentries attribute exists and returns the correct value
+    assert hasattr(data, 'nentries'), "Data object should have 'nentries' attribute"
+    assert data.nentries == 1000, "nentries should return 1000"
+    
+    # Test that nentries, nevents, and num_entries all return the same value
+    assert data.nentries == data.num_entries, "nentries and num_entries should be equal"
+    assert data.nentries == data.nevents, "nentries and nevents should be equal"
+    
+    # Test with weighted data
+    weights = np.random.random(size=1000)
+    data_weighted = zfit.Data.from_numpy(obs=obs, array=data_array, weights=weights)
+    assert data_weighted.nentries == 1000, "nentries should return 1000 for weighted data"
+    assert data_weighted.nentries == data_weighted.num_entries, "nentries and num_entries should be equal for weighted data"
+    
+    # Test with different size
+    data_array_small = np.random.normal(loc=5, scale=1, size=50)
+    data_small = zfit.Data.from_numpy(obs=obs, array=data_array_small)
+    assert data_small.nentries == 50, "nentries should return 50"

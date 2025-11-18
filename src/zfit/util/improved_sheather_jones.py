@@ -3,9 +3,6 @@ from __future__ import annotations
 
 import typing
 
-if typing.TYPE_CHECKING:
-    import zfit  # noqa: F401
-
 import numpy as np
 import tensorflow as tf
 
@@ -15,6 +12,9 @@ from .. import z
 from ..settings import ztypes
 from . import binning as binning_util
 from . import root_search
+
+if typing.TYPE_CHECKING:
+    import zfit  # noqa: F401
 
 
 @z.function(wraps="tensor", keepalive=True)
@@ -146,7 +146,7 @@ def _find_root(function, N, squared_integers, grid_data_dct2):
 
     def body(right_bracket, converged, t_star):
         del converged, t_star
-        t_star, value_at_t_star, num_iterations, converged = root_search.brentq(
+        t_star, value_at_t_star, _num_iterations, converged = root_search.brentq(
             fixed_point_function, left_bracket, right_bracket, None, None, 2e-12
         )
 
@@ -170,7 +170,7 @@ def _calculate_t_star(data, num_grid_points, binning_method, weights):
     R = znp.asarray(znp.max(data) - znp.min(data), ztypes.float)
 
     # dx = R / tf.constant((num_grid_points - 1), ztypes.float)
-    data_unique, data_unique_indexes = tf.unique(data)
+    data_unique, _data_unique_indexes = tf.unique(data)
     N = znp.asarray(znp.size(data_unique), ztypes.float)
 
     # Use linear binning to bin the data on an equidistant grid, this is a
@@ -213,7 +213,9 @@ def _calculate_density(t_star, R, squared_integers, grid_data_dct):
 def calculate_bandwidth(data, num_grid_points=1024, binning_method="linear", weights=None):
     data = znp.asarray(data, ztypes.float)
 
-    t_star, R, squared_integers, grid_data_dct, grid = _calculate_t_star(data, num_grid_points, binning_method, weights)
+    t_star, R, _squared_integers, _grid_data_dct, _grid = _calculate_t_star(
+        data, num_grid_points, binning_method, weights
+    )
 
     return znp.sqrt(t_star) * R
 
