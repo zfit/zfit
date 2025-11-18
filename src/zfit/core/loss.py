@@ -1464,8 +1464,17 @@ class SimpleLoss(BaseLoss):
         self._grad_fn = gradient
         self._hess_fn = hessian
         params = convert_to_parameters(params, prefer_constant=False)
+
+        # Check for duplicate parameter names
+        param_names = [p.name for p in params]
+        if len(param_names) != len(set(param_names)):
+            duplicates = [name for name in param_names if param_names.count(name) > 1]
+            unique_duplicates = sorted(set(duplicates))
+            msg = f"Parameters with duplicate names found: {unique_duplicates}. Each parameter must have a unique name."
+            raise ValueError(msg)
+
         self._params = params
-        self._autograd_params = [p.name for p in params]
+        self._autograd_params = param_names
 
     def _check_jit_or_not(self):
         if not self._do_jit:
