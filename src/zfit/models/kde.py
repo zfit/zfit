@@ -1124,7 +1124,7 @@ class KDE1DimExactRepr(BasePDFRepr):
     obs: SpaceRepr | None = None
     bandwidth: str | float | None = None
     kernel: None = None
-    padding: bool | str | None = None
+    padding: bool | str | float | dict | None = None
     weights: np.ndarray | tf.Tensor | None = None
     name: str | None = "KDE1DimExact"
 
@@ -1430,7 +1430,7 @@ class KDE1DimGridRepr(BasePDFRepr):
     num_grid_points: int | None = None
     binning_method: str | None = None
     kernel: None = None
-    padding: bool | str | None = None
+    padding: bool | str | float | dict | None = None
     weights: np.ndarray | tf.Tensor | None = None
     name: str | None = "GridKDE1DimV1"
 
@@ -1712,7 +1712,7 @@ class KDE1DimFFTRepr(BasePDFRepr):
     kernel: None = None
     support: float | None = None
     fft_method: str | None = None
-    padding: bool | str | None = None
+    padding: bool | str | float | dict | None = None
     weights: np.ndarray | tf.Tensor | None = None
     name: str | None = "KDE1DimFFT"
 
@@ -1924,7 +1924,7 @@ class KDE1DimISJRepr(BasePDFRepr):
     num_grid_points: int | None = None
     binning_method: str | None = None
     kernel: None = None
-    padding: bool | str | None = None
+    padding: bool | str | float | dict | None = None
     weights: np.ndarray | tf.Tensor | None = None
     name: str | None = "KDE1DimISJ"
 
