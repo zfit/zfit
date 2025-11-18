@@ -3,6 +3,7 @@ import numpy as np
 import pytest
 import zfit
 from zfit import z
+from zfit.exception import InvalidNameError
 import zfit.z.numpy as znp
 from scipy.stats import johnsonsu as johnsonsu_scipy
 import tensorflow as tf
@@ -12,9 +13,9 @@ lambd_true = 3.0
 gamma_true = 2.0
 delta_true = 3.0
 
-def create_johnsonsu(mu, lambd, gamma, delta, limits):
+def create_johnsonsu(mu, lambd, gamma, delta, limits, name="JohnsonSU"):
     obs = zfit.Space("obs1", limits)
-    johnsonsu = zfit.pdf.JohnsonSU(mu=mu, lambd=lambd, gamma=gamma, delta=delta, obs=obs)
+    johnsonsu = zfit.pdf.JohnsonSU(mu=mu, lambd=lambd, gamma=gamma, delta=delta, obs=obs, name=name)
     return johnsonsu, obs
 
 
@@ -56,3 +57,18 @@ def test_johnsonsu_integral():
     )
     assert pytest.approx(numeric_integral, 1e-5) == analytic_integral
     assert pytest.approx(scipy_integral, 1e-5) == analytic_integral
+
+
+def test_johnsonsu_name_validation():
+    """Test that JohnsonSU PDF rejects names starting with underscore."""
+    # Names starting with underscore should be rejected
+    with pytest.raises(InvalidNameError, match="cannot start with '_'"):
+        create_johnsonsu(mu=mu_true, lambd=lambd_true, gamma=gamma_true, delta=delta_true, limits=(1, 10), name="_invalid")
+
+    # Normal names should work
+    johnsonsu, _ = create_johnsonsu(mu=mu_true, lambd=lambd_true, gamma=gamma_true, delta=delta_true, limits=(1, 10), name="valid_name")
+    assert johnsonsu.name == "valid_name"
+
+    # Names with underscore inside should work
+    johnsonsu2, _ = create_johnsonsu(mu=mu_true, lambd=lambd_true, gamma=gamma_true, delta=delta_true, limits=(1, 10), name="my_name")
+    assert johnsonsu2.name == "my_name"
