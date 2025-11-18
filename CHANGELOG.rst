@@ -19,6 +19,7 @@ Major Features and Improvements
 Breaking changes
 ------------------
 - don't clip parameter values when retrieving them (i.e. with ``float(param)`` or ``param.numpy()`` etc.). This can greatly speed up computations and avoid unnecessary complications. Minimizers should still handle limits correctly, setting values outside limits will raise errors as before and be clipped when setting values with ``assign``.
+- use ``padding=None`` as the default for KDE instead of ``padding=0.1``. This reverts the previous change in 0.27.0 and should not affect most use cases, as the automatic padding was not very robust.
 
 Deprecations
 -------------

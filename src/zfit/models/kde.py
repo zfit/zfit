@@ -477,7 +477,7 @@ class KDEHelper:
         "scott": _bandwidth_scott_KDEV1,
         "silverman": _bandwidth_silverman_KDEV1,
     }
-    _default_padding = 0.1
+    _default_padding = None
     _default_num_grid_points = 1024
 
     def _convert_init_data_weights_size(self, data, weights, padding, limits=None, bandwidth=None):
