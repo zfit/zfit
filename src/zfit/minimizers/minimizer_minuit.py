@@ -37,6 +37,7 @@ class Minuit(BaseMinimizer, GraphCachable):
         tol: float | None = None,
         mode: int | None = None,
         gradient: bool | str | None = None,
+        hessian: bool | str | None = None,
         verbosity: int | None = None,
         options: Mapping[str, object] | None = None,
         maxiter: int | None = None,
@@ -81,6 +82,10 @@ class Minuit(BaseMinimizer, GraphCachable):
                 (analytic/numerical) gradient provided by TensorFlow/zfit. If False or ``'zfit'``, the latter
                 is used. For smaller datasets with less stable losses, the internal Minuit gradient often performs
                 better while the zfit provided gradient improves the convergence rate for larger (10'000+) datasets.
+            hessian: If False or ``'zfit'``, the Hessian matrix provided by zfit (computed via automatic differentiation
+                or numerical methods) is passed to iminuit. If True or None (default), iminuit uses its internal
+                numerical Hessian approximation. Providing the Hessian can improve convergence for functions with
+                many parameters or when the Hessian is expensive to compute numerically.
             verbosity: |@doc:minimizer.verbosity| Verbosity of the minimizer. Has to be between 0 and 10.
               The verbosity has the meaning:
 
@@ -140,6 +145,11 @@ class Minuit(BaseMinimizer, GraphCachable):
             gradient = False
         gradient = True if gradient is None else gradient
 
+        # Process hessian parameter: False or 'zfit' means use zfit hessian, True or None means don't
+        if hessian == "zfit":
+            hessian = False
+        hessian = True if hessian is None else hessian
+
         self._internal_maxiter = 20
 
         options = {} if options is None else options
@@ -163,6 +173,7 @@ class Minuit(BaseMinimizer, GraphCachable):
         self._minuit_minimizer = None
         self._use_tfgrad_internal = not gradient
         self.minuit_grad = gradient
+        self._use_zfit_hessian = not hessian
 
     # TODO 0.7: legacy, remove `_use_tfgrad`
     @property
@@ -282,10 +293,12 @@ class Minuit(BaseMinimizer, GraphCachable):
         params_name = [param.name for param in params]
         # TODO 0.7: legacy, remove `_use_tfgrad`
         grad_func = evaluator.gradient if self._use_tfgrad_internal or not self.minuit_grad else None
+        hess_func = evaluator.hessian if self._use_zfit_hessian else None
         minimizer = iminuit.Minuit(
             evaluator.value,
             init_values,
             grad=grad_func,
+            hessian=hess_func,
             name=params_name,
         )
         minimizer.precision = precision
