@@ -68,8 +68,8 @@ class MetaBaseParameter(type(tf.Variable), type(zinterfaces.ZfitParameter)):  # 
 
 
 def register_tensor_conversion(
-    convertable, name=None, overload_operators=True, priority=10
-):  # higher than any tf conversion
+    convertable, name: str | None = None, overload_operators: bool = True, priority: int = 10
+) -> None:  # higher than any tf conversion
     del name
 
     def _dense_var_to_tensor(var, dtype=None, name=None, as_ref=False):
@@ -84,7 +84,9 @@ def register_tensor_conversion(
 class OverloadableMixin(ZfitParameter):
     # Conversion to tensor.
     @staticmethod
-    def _TensorConversionFunction(v, dtype=None, name=None, as_ref=False):  # pylint: disable=invalid-name
+    def _TensorConversionFunction(
+        v, dtype: tf.DType | None = None, name: str | None = None, as_ref: bool = False
+    ) -> tf.Tensor:  # pylint: disable=invalid-name
         """Utility function for converting a Variable to a Tensor."""
         _ = name
         if dtype and not dtype.is_compatible_with(v.dtype):
@@ -95,7 +97,9 @@ class OverloadableMixin(ZfitParameter):
         else:
             return v.value()
 
-    def _dense_var_to_tensor(self, dtype=None, name=None, as_ref=False):
+    def _dense_var_to_tensor(
+        self, dtype: tf.DType | None = None, name: str | None = None, as_ref: bool = False
+    ) -> tf.Tensor:
         del name
         if dtype and not dtype.is_compatible_with(self.dtype):
             msg = (
@@ -112,11 +116,11 @@ class OverloadableMixin(ZfitParameter):
         else:
             return self.value()
 
-    def _AsTensor(self):
+    def _AsTensor(self) -> tf.Tensor:
         return self.value()
 
     @classmethod
-    def _OverloadAllOperators(cls):  # pylint: disable=invalid-name
+    def _OverloadAllOperators(cls) -> None:  # pylint: disable=invalid-name
         """Register overloads for all operators."""
         for operator in tf.Tensor.OVERLOADABLE_OPERATORS:
             cls._OverloadOperator(operator)
@@ -126,7 +130,7 @@ class OverloadableMixin(ZfitParameter):
         cls.__getitem__ = tensor_getitem_override._slice_helper_var
 
     @classmethod
-    def _OverloadOperator(cls, operator):  # pylint: disable=invalid-name
+    def _OverloadOperator(cls, operator: str) -> None:  # pylint: disable=invalid-name
         """Defer an operator overload to ``ops.Tensor``.
 
         We pull the operator out of ops.Tensor dynamically to avoid ordering issues.
@@ -434,7 +438,7 @@ class Parameter(
         cls._independent = True  # overwriting independent only for subclass/instance
 
     @classmethod
-    def _from_name(cls, name):
+    def _from_name(cls, name: str) -> Parameter:
         for param in cls._independent_params:
             if name == param.name:
                 return param
@@ -477,7 +481,7 @@ class Parameter(
     def prior(self) -> ZfitPrior | None:
         return self._prior
 
-    def set_prior(self, prior: ZfitPrior | None):
+    def set_prior(self, prior: ZfitPrior | None) -> None:
         """Set or update the prior distribution for this parameter.
 
         Args:

@@ -224,7 +224,7 @@ class TFProbabilityConstraint(ProbabilityConstraint):
         return self.distribution.sample(n)
 
 
-def _preprocess_gaussian_constr_sigma_var(cov, sigma, legacy_uncertainty):
+def _preprocess_gaussian_constr_sigma_var(cov, sigma, legacy_uncertainty) -> tf.Tensor:
     if sigma is not None:
         if legacy_uncertainty:
             msg = "Either `sigma` or `uncertainty` can be given, not both. Use `sigma`. `uncertainty` is deprecated."

@@ -868,7 +868,7 @@ class BaseSpace(ZfitSpace, BaseObject):
         self.coords = coords
 
     @property
-    def is_binned(self):
+    def is_binned(self) -> bool:
         return self.binning is not None
 
     def inside(self, x: ztyping.XTypeInput, guarantee_limits: bool = False) -> ztyping.XTypeReturn:
@@ -1389,26 +1389,26 @@ class Space(
         self._binning = None if binning is False else binning
 
     @property
-    def labels(self):
+    def labels(self) -> tuple[str, ...] | None:
         if (obs := self.obs) is not None:
             return tuple(self._labels[ob] for ob in obs)
         return None  # we have axis -> no labels
 
     @property
-    def label(self):
+    def label(self) -> str:
         if self.n_obs > 1:
             msg = f"{self} has more than one observable, use `labels` instead."
             raise ValueError(msg)
         return self.labels[0]
 
     @property
-    def binning(self):
+    def binning(self) -> zfit._variables.axis.Binnings | None:
         return self._binning
         # if binning_out is not None:
         #     binning_out =
 
     @property
-    def is_binned(self):
+    def is_binned(self) -> bool:
         return self.binning is not None
 
     def _check_convert_input_limits(

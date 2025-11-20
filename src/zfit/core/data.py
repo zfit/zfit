@@ -45,7 +45,7 @@ if typing.TYPE_CHECKING:
     import zfit
 
 
-def convert_to_data(data, obs=None, *, check_limits=False):
+def convert_to_data(data, obs=None, *, check_limits: bool = False) -> Data:
     if isinstance(data, ZfitUnbinnedData):
         return data
     elif isinstance(data, LightDataset):
@@ -235,15 +235,15 @@ class Data(
         self._update_hash()
 
     @property
-    def _using_hash(self):
+    def _using_hash(self) -> bool:
         return self._use_hash and run.hashing_data()
 
     @property
-    def label(self):
+    def label(self) -> str:
         return self._label
 
     @property
-    def num_entries(self):
+    def num_entries(self) -> int:
         nentries = self._nentries
         if nentries is None:
             nentries = self._get_nentries()
@@ -266,7 +266,7 @@ class Data(
         return self.num_entries
 
     @property
-    def samplesize(self) -> float:
+    def samplesize(self) -> tf.Tensor:
         """Effective sample size, sum of weights.
 
         To get the number of entries, use `nentries` instead.
@@ -274,7 +274,7 @@ class Data(
         samplesize = znp.sum(self.weights) if self.has_weights else self.num_entries
         return znp.asarray(samplesize, dtype=ztypes.float)
 
-    def enable_hashing(self):
+    def enable_hashing(self) -> None:
         """Enable hashing for this data object if it was disabled.
 
         A hash allows some objects to be cached and reused. If a hash is enabled, the data object will be hashed and the
@@ -295,22 +295,22 @@ class Data(
     # TODO: which naming? nevents or n_events
 
     @property
-    def _approx_nevents(self):
+    def _approx_nevents(self) -> int:
         return self.num_entries
 
     @property
-    def n_events(self):
+    def n_events(self) -> int:
         return self.num_entries
 
     @property
-    def has_weights(self):
+    def has_weights(self) -> bool:
         return self._weights is not None
 
     @property
-    def dtype(self):
+    def dtype(self) -> tf.DType:
         return self._dtype
 
-    def _set_space(self, obs: Space, autofill=True):
+    def _set_space(self, obs: Space, autofill: bool = True) -> None:
         obs = convert_to_space(obs)
         self._check_n_obs(space=obs)
         if autofill:
@@ -365,7 +365,7 @@ class Data(
         return Data(**newpar)
 
     @property
-    def weights(self):
+    def weights(self) -> tf.Tensor | None:
         """Get the weights of the data."""
         return self._weights
 
@@ -985,7 +985,7 @@ class Data(
         return self.to_numpy()
 
     @property
-    def shape(self):
+    def shape(self) -> int:
         return self.dataset.num_entries
 
     def to_numpy(self) -> np.ndarray:
@@ -1099,7 +1099,7 @@ class Data(
             use_hash=use_hash or self._use_hash,
         )
 
-    def __len__(self):
+    def __len__(self) -> int:
         return self.num_entries
 
     def __getitem__(self, item):

@@ -245,7 +245,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         return any(data.has_weights for data in self.data if isinstance(data, ZfitUnbinnedData))
 
     @property
-    def is_precompiled(self):
+    def is_precompiled(self) -> bool:
         if len(self._precompiled_hashes) != len(self.data):
             self._is_precompiled = False
             return self._is_precompiled
@@ -256,7 +256,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         return self._is_precompiled
 
     @is_precompiled.setter
-    def is_precompiled(self, value):
+    def is_precompiled(self, value: bool) -> None:
         self._is_precompiled = value
         if value:
             self._precompiled_hashes = [data.hashint for data in self.data]
@@ -289,7 +289,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         #     raise ValueError(f"Unrecognized options: {options}")
         return optionsclean
 
-    def __init_subclass__(cls, **kwargs):
+    def __init_subclass__(cls, **kwargs) -> None:
         super().__init_subclass__(**kwargs)
         cls._name = "UnnamedSubBaseLoss"
 
@@ -329,7 +329,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
             params = dict(zip(all_params, params, strict=True))
         return super()._check_set_input_params(params, guarantee_checked)
 
-    def _input_check(self, pdf, data, fit_range):
+    def _input_check(self, pdf, data, fit_range) -> tuple[list[ZfitPDF], list[ZfitData], list]:
         if isinstance(pdf, tuple):
             msg = "`pdf` has to be a pdf or a list of pdfs, not a tuple."
             raise TypeError(msg)
