@@ -219,7 +219,7 @@ class ZfitOrderableDimensional(ZfitDimensional, metaclass=ABCMeta):
 
 class ZfitData(ZfitDimensional):
     @abstractmethod
-    def value(self, obs: list[str] | None = None) -> ztyping.XType:
+    def value(self, obs: ztyping.ObsTypeInput = None, axis: int | None = None) -> ztyping.XType:
         raise NotImplementedError
 
     @property
@@ -805,7 +805,7 @@ class ZfitLoss(ZfitObject, metaclass=ABCMeta):
 
     @property
     @abstractmethod
-    def fit_range(self) -> list[ZfitSpace]:
+    def fit_range(self) -> list[ZfitSpace | None]:
         raise NotImplementedError
 
     @abstractmethod
@@ -825,7 +825,15 @@ class ZfitLoss(ZfitObject, metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def value_gradient_hessian(self, params, hessian=None):
+    def value_gradient_hessian(
+        self,
+        params: ztyping.ParamTypeInput = None,
+        *,
+        hessian=None,
+        full: bool | None = None,
+        numgrad=None,
+        paramvals: ztyping.ParamTypeInput = None,
+    ) -> tuple[tf.Tensor, tf.Tensor, tf.Tensor]:
         pass
 
     @abstractmethod

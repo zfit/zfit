@@ -927,6 +927,7 @@ class BaseUnbinnedNLL(BaseLoss, SerializableMixin):
         fit_range=NONE,
         constraints=NONE,
         options=NONE,
+        **kwargs,
     ):
         r"""Create a new loss from the current loss and replacing what is given as the arguments.
 
@@ -1010,6 +1011,7 @@ class BaseUnbinnedNLL(BaseLoss, SerializableMixin):
             fit_range=fit_range,
             constraints=constraints,
             options=options,
+            **kwargs,
         )
 
 
@@ -1616,7 +1618,9 @@ class SimpleLoss(BaseLoss):
         func: Callable = NONE,
         params: Iterable[zfit.Parameter] = NONE,
         errordef: float | None = NONE,
+        **kwargs,
     ):
+        del kwargs  # unused
         if func is NONE:
             func = self._simple_func
         if params is NONE:

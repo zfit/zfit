@@ -120,7 +120,9 @@ class BaseObject(ZfitObject):
         """The name of the object."""
         return self._name
 
-    def copy(self, deep: bool = False, name: str | None = None, **overwrite_params) -> ZfitObject:
+    def copy(self, **overwrite_params) -> ZfitObject:
+        deep = overwrite_params.pop("deep", False)
+        name = overwrite_params.pop("name", None)
         return self._copy(deep=deep, name=name, overwrite_params=overwrite_params)
 
     def _copy(self, deep, name, overwrite_params):

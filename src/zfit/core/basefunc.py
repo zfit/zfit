@@ -32,7 +32,8 @@ class BaseFuncV1(BaseModel, ZfitFunc):
         """TODO(docs): explain subclassing."""
         super().__init__(obs=obs, dtype=dtype, name=name, params=params)
 
-    def _func_to_integrate(self, x: ztyping.XType):
+    def _func_to_integrate(self, x: ztyping.XType, *, params=None):
+        del params  # unused
         return self.func(x=x)
 
     def _func_to_sample_from(self, x):

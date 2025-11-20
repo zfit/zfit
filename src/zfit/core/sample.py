@@ -99,7 +99,7 @@ class EventSpace(Space):
         return self.factory is not None
 
     @property
-    def limits(self) -> ztyping.LimitsTypeReturn:
+    def limits(self) -> ztyping.LimitsTypeReturn:  # type: ignore[override]
         limits = super().limits
         if (limits_tensor := self._limits_tensor) is not None:
             lower, upper = limits
@@ -130,7 +130,7 @@ class EventSpace(Space):
         msg = "Cannot be called with an event space."
         raise RuntimeError(msg)
 
-    def combine(self, other: ztyping.SpaceOrSpacesTypeInput):  # noqa: ARG002
+    def combine(self, other: ztyping.SpaceOrSpacesTypeInput):  # type: ignore[override]  # noqa: ARG002
         msg = "Cannot be called with an event space."
         raise RuntimeError(msg)
 

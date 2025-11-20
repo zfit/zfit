@@ -985,8 +985,8 @@ class Data(
         return self.to_numpy()
 
     @property
-    def shape(self) -> int:
-        return self.dataset.num_entries
+    def shape(self) -> tuple:
+        return self.num_entries, self.n_obs
 
     def to_numpy(self) -> np.ndarray:
         """Return the data as a numpy array.
