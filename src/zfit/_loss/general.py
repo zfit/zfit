@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from .. import z
-from ..core.interfaces import ZfitData, ZfitFunc, ZfitSpace
+from .._interfaces import ZfitData, ZfitFunc, ZfitSpace
 from ..core.space import convert_to_space
 
 

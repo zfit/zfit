@@ -5,7 +5,7 @@ import pytest
 
 import zfit
 import zfit.z.numpy as znp
-from zfit.core.interfaces import ZfitData
+from zfit._interfaces import ZfitData
 
 @pytest.mark.parametrize("uncertainty", [True, False])
 def test_funcloss_base(uncertainty):

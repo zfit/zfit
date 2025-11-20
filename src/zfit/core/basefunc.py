@@ -10,14 +10,13 @@ import abc
 import typing
 from typing import Any
 
-from zfit._interfaces import ZfitFunc
+from zfit._interfaces import ZfitData, ZfitFunc
 
 from ..settings import ztypes
 from ..util import ztyping
 from ..util.deprecation import deprecated
 from ..util.exception import ShapeIncompatibleError, SpecificFunctionNotImplemented, WorkInProgressError
 from .basemodel import BaseModel
-from .interfaces import ZfitData
 from .space import convert_to_space
 
 if typing.TYPE_CHECKING:
@@ -32,7 +31,6 @@ class BaseFuncV2(BaseModel, ZfitFunc):
         name: str = "BaseFunc",
         params: typing.Any = None,
     ):
-
         super().__init__(obs=obs, name=name, params=params)
         self._output = convert_to_space(output)
 
@@ -78,7 +76,7 @@ class BaseFuncV2(BaseModel, ZfitFunc):
         with self._convert_sort_x(x) as xconv, self._check_set_input_params(params=params):
             value = self._single_hook_value(x=xconv, params=None)
             if not isinstance(value, ZfitData):
-                from zfit import Data
+                from zfit import Data  # noqa: PLC0415
 
                 value = Data(obs=self.output, data=value)
             return value
@@ -100,13 +98,13 @@ class BaseFuncV2(BaseModel, ZfitFunc):
             )
             raise ShapeIncompatibleError(msg) from error
 
-    def as_pdf(self) -> zfit.core.interfaces.ZfitPDF:
+    def as_pdf(self) -> zfit._interfaces.ZfitPDF:
         """Create a PDF out of the function.
 
         Returns:
             A PDF with the current function as the unnormalized probability.
         """
-        from zfit.core.operations import convert_func_to_pdf
+        from zfit.core.operations import convert_func_to_pdf  # noqa: PLC0415
 
         return convert_func_to_pdf(func=self)
 
