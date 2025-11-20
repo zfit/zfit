@@ -9,6 +9,7 @@ from collections.abc import Callable
 
 import numpy as np
 import tensorflow as tf
+from ordered_set import OrderedSet
 from uhi.typing.plottable import PlottableHistogram
 
 if typing.TYPE_CHECKING:
@@ -646,7 +647,7 @@ class ZfitParametrized(ZfitObject):
         extract_independent: bool | None = True,
         *,
         autograd: bool | None = None,
-    ) -> set[ZfitParameter]:
+    ) -> OrderedSet[ZfitParameter]:
         """Recursively collect parameters that this object depends on according to the filter criteria.
 
         Which parameters should be included can be steered using the arguments as a filter.
@@ -673,7 +674,7 @@ class ZfitParametrized(ZfitObject):
 
     @property
     @abstractmethod
-    def params(self) -> ztyping.ParameterType:
+    def params(self) -> dict[str, ZfitParameter]:
         raise NotImplementedError
 
 

@@ -19,6 +19,7 @@ from functools import reduce
 import numpy as np
 import tensorflow as tf
 import tensorflow_probability as tfp
+from ordered_set import OrderedSet
 from uhi.typing.plottable import PlottableHistogram
 
 import zfit
@@ -220,7 +221,7 @@ class BaseBinnedPDF(
         extract_independent: bool | None,
         *,
         autograd: bool | None = None,
-    ) -> set[ZfitParameter]:
+    ) -> OrderedSet[ZfitParameter]:
         params = super()._get_params(
             floating, is_yield=is_yield, extract_independent=extract_independent, autograd=autograd
         )

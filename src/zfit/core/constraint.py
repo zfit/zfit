@@ -128,7 +128,7 @@ class ProbabilityConstraint(BaseConstraint):
             params = [p for name, p in params.items() if name.startswith("param_")]
         else:
             params = convert_to_container(params, ignore=np.ndarray, container=tuple)
-            params_dict = {f"param_{i}": p for i, p in enumerate(params)}
+            params_dict = {f"param_{i}": p for i, p in enumerate(params)}  # type: ignore[var-annotated]
         super().__init__(name=name, dtype=dtype, params=params_dict, **kwargs)
 
         observation = convert_to_container(observation, tuple, ignore=np.ndarray)
@@ -359,7 +359,7 @@ class GaussianConstraint(TFProbabilityConstraint, SerializableMixin):
 
         dist_kwargs = {"validate_args": True}
 
-        params = {f"param_{i}": p for i, p in enumerate(params)}
+        params = {f"param_{i}": p for i, p in enumerate(params)}  # type: ignore[var-annotated]
 
         super().__init__(
             name="GaussianConstraint",

@@ -222,7 +222,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
     @contextlib.contextmanager
     def _convert_sort_x(
         self, x: ztyping.XTypeInput, partial: bool = False, allow_none: bool = False, fallback_obs=None
-    ) -> Data:
+    ) -> typing.Generator[Data | None]:
         del partial  # TODO: implement partial
         fallback_obs = self.obs if fallback_obs is None else fallback_obs
         if x is None:

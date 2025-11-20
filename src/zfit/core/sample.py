@@ -36,6 +36,7 @@ class UniformSampleAndWeights:
         thresholds_unscaled_list = []
         weights = tf.broadcast_to(z.constant(1.0, shape=(1,)), shape=(n_to_produce,))
         n_produced = tf.constant(0, tf.int64)
+        space: Space
         for i, space in enumerate(limits):
             lower, upper = space.v0.limits  # TODO: remove new space
             if i == len(limits) - 1:

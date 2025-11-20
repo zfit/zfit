@@ -216,7 +216,7 @@ class BaseParametrized(BaseObject, ZfitParametrized):
         extract_independent: bool | None = True,
         *,
         autograd: bool | None = None,
-    ) -> set[ZfitParameter]:
+    ) -> OrderedSet[ZfitParameter]:
         """Recursively collect parameters that this object depends on according to the filter criteria.
 
         Which parameters should be included can be steered using the arguments as a filter.
@@ -257,7 +257,7 @@ class BaseParametrized(BaseObject, ZfitParametrized):
         extract_independent: bool | None,
         *,
         autograd: bool | None = None,
-    ) -> set[ZfitParameter]:
+    ) -> OrderedSet[ZfitParameter]:
         assert autograd is not True, "This should never be True, it's only for internal use."
         if is_yield is True:  # we want exclusively yields, we don't have them by default
             params: OrderedSet | list = OrderedSet()
@@ -272,7 +272,7 @@ class BaseParametrized(BaseObject, ZfitParametrized):
         return params
 
     @property
-    def params(self) -> ztyping.ParameterType:
+    def params(self) -> dict[str, ZfitParameter]:
         return self._params
 
     @contextlib.contextmanager

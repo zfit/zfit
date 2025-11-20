@@ -16,6 +16,7 @@ import warnings
 from contextlib import suppress
 
 import tensorflow as tf
+from ordered_set import OrderedSet
 
 import zfit.z.numpy as znp
 from zfit import z
@@ -831,7 +832,7 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
         extract_independent: bool | None,
         *,
         autograd: bool | None = None,
-    ) -> set[ZfitParameter]:
+    ) -> OrderedSet[ZfitParameter]:
         params = super()._get_params(
             floating, is_yield=is_yield, extract_independent=extract_independent, autograd=autograd
         )

@@ -300,7 +300,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         extract_independent: bool | None,
         *,
         autograd: bool | None = None,
-    ) -> set[ZfitParameter]:
+    ) -> OrderedSet[ZfitParameter]:
         params: OrderedSet[ZfitParameter] = OrderedSet()
         params = params.union(
             *(
@@ -1160,7 +1160,7 @@ class UnbinnedNLL(BaseUnbinnedNLL):
         extract_independent: bool | None,
         *,
         autograd: bool | None = None,
-    ) -> set[ZfitParameter]:
+    ) -> OrderedSet[ZfitParameter]:
         if not self.is_extended:
             is_yield = False  # the loss does not depend on the yields
         return super()._get_params(floating, is_yield, extract_independent, autograd=autograd)
@@ -1324,7 +1324,7 @@ class ExtendedUnbinnedNLL(BaseUnbinnedNLL):
         extract_independent: bool | None,
         *,
         autograd: bool | None = None,
-    ) -> set[ZfitParameter]:
+    ) -> OrderedSet[ZfitParameter]:
         return super()._get_params(floating, is_yield, extract_independent, autograd=autograd)
 
 
@@ -1490,7 +1490,7 @@ class SimpleLoss(BaseLoss):
         extract_independent: bool | None,
         *,
         autograd: bool | None = None,
-    ) -> set[ZfitParameter]:
+    ) -> OrderedSet[ZfitParameter]:
         # if autograd is not None:
         #     msg = "Cannot distinguish currently between autograd and not autograd."
         #     raise WorkInProgressError(msg)
