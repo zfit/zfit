@@ -126,7 +126,6 @@ jobs:
           environment-name: zfit
           create-args: >-
             python=${{ matrix.python-version }}
-            uv
 #            root  # TODO: installing root makes the tests fail, i.e. crash (with 139
       - uses: mamba-org/setup-micromamba@v2
         if: runner.os == 'Windows'
@@ -134,7 +133,10 @@ jobs:
           environment-name: zfit
           create-args: >-
             python=${{ matrix.python-version }}
-            uv
+      - uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          cache-dependency-glob: "pyproject.toml"
       - name: Install minimal dependencies
         run: |
           uv pip install .
@@ -179,8 +181,11 @@ jobs:
           environment-name: zfit
           create-args: >-
             python=${{ matrix.python-version }}
-            uv
             root
+      - uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          cache-dependency-glob: "pyproject.toml"
       - name: Install dependencies
         run: |
           uv pip install .[docs]
@@ -225,7 +230,11 @@ jobs:
           environment-name: zfit
           create-args: >-
             python=${{ matrix.python-version }}
-            uv
+      - uses: astral-sh/setup-uv@v7
+        if: ${{ matrix.run }}
+        with:
+          enable-cache: true
+          cache-dependency-glob: "pyproject.toml"
       - name: Clone Tutorials
         if: ${{ matrix.run }}
         run: |
@@ -277,7 +286,11 @@ jobs:
           environment-name: zfit
           create-args: >-
             python=${{ matrix.python-version }}
-            uv
+      - uses: astral-sh/setup-uv@v7
+        if: ${{ matrix.run }}
+        with:
+          enable-cache: true
+          cache-dependency-glob: "pyproject.toml"
       - name: Install dependencies
         if: ${{ matrix.run }}
         run: |
