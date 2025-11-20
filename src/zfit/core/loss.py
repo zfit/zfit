@@ -222,20 +222,20 @@ class BaseLoss(ZfitLoss, BaseNumeric):
             )
 
         model, data, fit_range = self._input_check(pdf=model, data=data, fit_range=fit_range)
-        self._model = model
-        self._data = data
-        self._fit_range = fit_range
+        self._model: list[ZfitPDF] = model
+        self._data: list[ZfitData] = data
+        self._fit_range: list[ZfitSpace | None] = fit_range
 
         options = self._check_init_options(options, data)
 
-        self._options = options
-        self._subtractions = {}
+        self._options: dict = options
+        self._subtractions: dict[str, tf.Tensor] = {}
         if constraints is None:
             constraints = []
-        self._constraints = _constraint_check_convert(convert_to_container(constraints, list))
+        self._constraints: list[BaseConstraint] = _constraint_check_convert(convert_to_container(constraints, list))
 
         self.is_precompiled = False
-        self._precompiled_hashes = []
+        self._precompiled_hashes: list[int] = []
 
         # not ideal, should be in parametrized. But we don't have too many base classes, so this should work
         self._assert_params_unique()

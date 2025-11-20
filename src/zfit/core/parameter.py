@@ -269,7 +269,7 @@ def _finalize_weakref(name):
 
 
 class ZfitParameterMixin(BaseNumeric):
-    _existing_params: typing.ClassVar = {}
+    _existing_params: typing.ClassVar[dict[str, WeakSet]] = {}
 
     def __init__(self, name, label=None, **kwargs):
         name = validate_preprocess_name(name)
@@ -356,9 +356,9 @@ class Parameter(
 ):
     """Class for fit parameters that has a default state."""
 
-    _independent = True
-    _independent_params = WeakSet()
-    DEFAULT_stepsize = 0.01
+    _independent: typing.ClassVar[bool] = True
+    _independent_params: typing.ClassVar[WeakSet] = WeakSet()
+    DEFAULT_stepsize: typing.ClassVar[float] = 0.01
 
     def __init__(
         self,
