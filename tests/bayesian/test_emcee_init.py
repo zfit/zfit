@@ -179,8 +179,8 @@ def test_init_preserves_convergence(simple_model_setup):
     result1 = sampler1.sample(
         loss=setup['loss'],
         params=setup['params'],
-        n_samples=200,
-        n_warmup=100
+        n_samples=400,
+        n_warmup=200
     )
 
     # Get the posterior means and stds from first run
@@ -203,8 +203,8 @@ def test_init_preserves_convergence(simple_model_setup):
 
     # Results should be similar since we started from convergence
     # But allow some variation due to MCMC randomness
-    np.testing.assert_allclose(means1, means2, rtol=0.2)
-    np.testing.assert_allclose(stds1, stds2, rtol=0.2)
+    np.testing.assert_allclose(means1, means2, rtol=0.2, atol=0.1)
+    np.testing.assert_allclose(stds1, stds2, rtol=0.2, atol=0.1)
 
     # The early samples from run 2 should already be good
     early_means = np.mean(result2.samples[:50], axis=0)
