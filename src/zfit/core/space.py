@@ -1193,7 +1193,15 @@ class BaseSpace(ZfitSpace, BaseObject):
         limits_frozen = tuple(((key, tuple(ldict.items())) for key, ldict in self._limits_dict.items()))
         return hash((limits_frozen, hash(self.coords), hash(self.binning)))
 
-    def reorder_x(self, x, x_obs, x_axes, func_obs, func_axes):
+    def reorder_x(
+        self,
+        x,
+        *,
+        x_obs=None,
+        x_axes=None,
+        func_obs=None,
+        func_axes=None,
+    ):
         return self.coords.reorder_x(x, x_obs=x_obs, x_axes=x_axes, func_obs=func_obs, func_axes=func_axes)
 
     @deprecated(

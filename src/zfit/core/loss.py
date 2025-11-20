@@ -991,6 +991,9 @@ class BaseUnbinnedNLL(BaseLoss, SerializableMixin):
                a new loss as the former will automatically overtake any relevant constants
                and behavior. |@docend:loss.init.options|
         """
+        if kwargs:
+            msg = f"Unexpected keyword arguments: {list(kwargs.keys())}"
+            raise TypeError(msg)
         if model is NONE:
             model = self.model
         if data is NONE:
@@ -1011,7 +1014,6 @@ class BaseUnbinnedNLL(BaseLoss, SerializableMixin):
             fit_range=fit_range,
             constraints=constraints,
             options=options,
-            **kwargs,
         )
 
 
