@@ -168,27 +168,27 @@ class WrappedVariable(metaclass=MetaBaseParameter):
         raise NotImplementedError
 
     @property
-    def constraint(self):
+    def constraint(self) -> Callable | None:
         return self.variable.constraint
 
     @property
-    def dtype(self):
+    def dtype(self) -> tf.DType:
         return self.variable.dtype
 
-    def value(self):
+    def value(self) -> tf.Tensor:
         return self.variable.value()
 
     # def read_value(self):  # keep! Needed by TF internally
     #     return self.variable.read_value()
 
     @property
-    def shape(self):
+    def shape(self) -> tf.TensorShape:
         return self.variable.shape
 
-    def numpy(self):
+    def numpy(self) -> np.ndarray:
         return self.variable.numpy()
 
-    def assign(self, value, use_locking=False, name=None, read_value=True):
+    def assign(self, value, use_locking: bool = False, name: str | None = None, read_value: bool = True) -> tf.Tensor:
         return self.variable.assign(value=value, use_locking=use_locking, name=name, read_value=read_value)
 
     def _dense_var_to_tensor(self, dtype=None, name=None, as_ref=False):
@@ -200,7 +200,7 @@ class WrappedVariable(metaclass=MetaBaseParameter):
         else:
             return self.variable.value()
 
-    def _AsTensor(self):
+    def _AsTensor(self) -> tf.Tensor:
         return self.variable.value()
 
     @staticmethod
@@ -254,7 +254,7 @@ class BaseParameter(Variable, ZfitParameter, TensorType, metaclass=MetaBaseParam
                 )
                 raise RuntimeError(msg) from error
 
-    def __len__(self):
+    def __len__(self) -> int:
         return 1
 
 
@@ -474,7 +474,7 @@ class Parameter(
         self._upper = value
 
     @property
-    def prior(self):
+    def prior(self) -> ZfitPrior | None:
         return self._prior
 
     def set_prior(self, prior: ZfitPrior | None):
@@ -514,14 +514,15 @@ class Parameter(
         """
         return self._check_at_limit(self.value())
 
-    def _check_at_limit(self, value, exact=False):
+    def _check_at_limit(self, value: ztyping.NumericalScalarType, exact: bool = False) -> tf.Tensor:
         """The precision is up to 1e-5 relative or 1e-8 absolute if exact is None.
 
         Args:
-            value ():
-            exact ():
+            value: The value to check against limits.
+            exact: If True, use exact comparison. If False, use tolerance-based comparison.
 
         Returns:
+            Boolean tensor indicating if value is at or beyond limits.
         """
         if not self.has_limits:
             return tf.constant(False)
@@ -672,7 +673,7 @@ class Parameter(
 
         return TemporarilySet(value=value, setter=setter, getter=getter)
 
-    def assign(self, value, use_locking: bool | None = None, read_value=False):
+    def assign(self, value, use_locking: bool | None = None, read_value: bool = False) -> tf.Tensor:
         """Set the :py:class:`~zfit.Parameter` to `value` without any checks.
 
         Compared to ``set_value``, this method cannot be used with a context manager and won't raise an
@@ -680,6 +681,11 @@ class Parameter(
 
         Args:
             value: The value the parameter will take on.
+            use_locking: If True, use locking during assignment. Defaults to None.
+            read_value: If True, return the new value. Defaults to False.
+
+        Returns:
+            The assigned tensor value.
         """
         return super().assign(value=value, use_locking=use_locking, read_value=read_value)
 
@@ -917,22 +923,22 @@ class BaseComposedParameter(ZfitParameterMixin, OverloadableMixin, BaseParameter
         raise LogicalUndefinedOperationError(msg)
 
     @property
-    def params(self):
+    def params(self) -> dict[str, ZfitParameter]:
         return self._params
 
-    def value(self):
+    def value(self) -> tf.Tensor:
         params = self.params
         return znp.asarray(self._func(params), dtype=self.dtype)
 
     @property
-    def shape(self):
+    def shape(self) -> tf.TensorShape:
         return self.value().shape
 
-    def numpy(self):
+    def numpy(self) -> np.ndarray:
         return self.value().numpy()
 
     @property
-    def independent(self):
+    def independent(self) -> bool:
         return False
 
     def set_value(self, value):  # noqa: ARG002
@@ -994,7 +1000,7 @@ class ConstantParameter(OverloadableMixin, ZfitParameterMixin, BaseParameter, Se
         self._value = tf.guarantee_const(znp.array(value, dtype=self.dtype))
 
     @property
-    def shape(self):
+    def shape(self) -> tf.TensorShape:
         return self.value().shape
 
     def value(self) -> tf.Tensor:
@@ -1018,10 +1024,10 @@ class ConstantParameter(OverloadableMixin, ZfitParameterMixin, BaseParameter, Se
         return False
 
     @property
-    def static_value(self):
+    def static_value(self) -> np.ndarray | None:
         return self._value_np
 
-    def numpy(self):
+    def numpy(self) -> np.ndarray | None:
         return self._value_np
 
     def __repr__(self):
@@ -1396,14 +1402,14 @@ register_tensor_conversion(ComposedParameter, "ComposedParameter", True)
 _auto_number = 0
 
 
-def get_auto_number():
+def get_auto_number() -> int:
     global _auto_number
     auto_number = _auto_number
     _auto_number += 1
     return auto_number
 
 
-def _reset_auto_number():
+def _reset_auto_number() -> None:
     global _auto_number
     _auto_number = 0
 
@@ -1418,7 +1424,7 @@ def convert_to_parameters(
     lower=None,
     upper=None,
     stepsize=None,
-):
+) -> list[ZfitParameter]:
     if prefer_constant is None:
         prefer_constant = True
     if isinstance(value, collections.abc.Mapping):
@@ -1577,9 +1583,9 @@ def assign_values_jit(
 def assign_values(
     params: Parameter | Iterable[Parameter],
     values: ztyping.NumericalScalarType | Iterable[ztyping.NumericalScalarType],
-    use_locking=False,
+    use_locking: bool = False,
     allow_partial: bool | None = None,
-):
+) -> None:
     """Set the values of multiple parameters in a fast way.
 
     In general, :meth:`set_values` is to be preferred. `assign_values` will ignore out-of-bounds errors,
@@ -1610,12 +1616,12 @@ def set_values(
         | Iterable[ztyping.NumericalScalarType]
         | ZfitResult
         | Mapping[str | ZfitParameter, ztyping.NumericalScalarType]
-        | None,
+        | None
     ) = None,
     allow_partial: bool | None = None,
     *,
     clip: bool | None = None,
-):
+) -> TemporarilySet:
     """Set the values (using a context manager or not) of multiple parameters.
 
     Args:
@@ -1649,16 +1655,20 @@ def set_values(
     return TemporarilySet(values, setter=setter, getter=getter)
 
 
-def check_convert_param_values_assign(params, values, allow_partial=False):
+def check_convert_param_values_assign(
+    params, values, allow_partial: bool = False
+) -> tuple[list[ZfitParameter], tf.Tensor, bool]:
     """Check if params are valid and convert them if necessary to be used with assign_values.
 
     Args:
         params: Parameters to set the values.
         values: List-like object that supports indexing or a `ZfitResult` or a `Mapping`.
-        allow_partial: Allow to set only parts of the parameters in case values is a `ZfitResult` or a `Mapping`. Other parameters will not be updated.
+        allow_partial: Allow to set only parts of the parameters in case values is a `ZfitResult` or a `Mapping`.
+            Other parameters will not be updated.
             More values than parameters, if they are given in a `Mapping` or `ZfitResult`, are allowed in any case.
+
     Returns:
-        A tuple of (params, values)
+        A tuple of (params, values, is_empty) where is_empty indicates if the params list is empty.
     """
     if isinstance(params, ZfitResult) and values is None:
         params, values = None, params
