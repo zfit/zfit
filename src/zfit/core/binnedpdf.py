@@ -1027,7 +1027,8 @@ class BaseBinnedPDF(
         msg = "set_norm should not be used anymore. Create a new PDF with the desired normalization."
         raise RuntimeError(msg)
 
-    def create_extended(self, yield_: ztyping.ParamTypeInput) -> ZfitPDF:  # noqa: ARG002
+    def create_extended(self, yield_: ztyping.ParamTypeInput, name: str | None = None) -> ZfitPDF:  # noqa: ARG002
+        del name  # unused
         msg = "create_extended not available for BinnedPDF. Use `extended` in the initialization instead."
         raise WorkInProgressError(msg)
 

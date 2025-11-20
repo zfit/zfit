@@ -795,7 +795,7 @@ class ZfitLoss(ZfitObject, metaclass=ABCMeta):
 
     @property
     @abstractmethod
-    def model(self) -> list[ZfitModel]:
+    def model(self) -> list[ZfitPDF]:
         raise NotImplementedError
 
     @property
@@ -1055,7 +1055,13 @@ class ZfitBinnedPDF(ZfitPDF, metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def rel_counts(self, x, norm):
+    def rel_counts(
+        self,
+        x: ztyping.BinnedDataInputType = None,
+        *,
+        norm: ztyping.NormInputType = None,
+        params: ztyping.ParamTypeInput = None,
+    ):
         pass
 
 
