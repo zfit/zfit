@@ -1051,7 +1051,7 @@ class BaseSpace(ZfitSpace, BaseObject):
         allow_superset: bool = True,
         allow_subset: bool = True,
     ):
-        to_check = []
+        to_check: list = []
         if obs is not None and self.obs is not None:
             to_check.append(obs, self.obs)
         if axes is not None and self.axes is not None:
@@ -1428,7 +1428,7 @@ class Space(
             Limits dictionary containing the observables and/or the axes as a key matching
                 `ZfitLimits` objects.
         """
-        limits_dict = defaultdict(dict)
+        limits_dict: defaultdict = defaultdict(dict)
         input_limits = limit
         if isinstance(input_limits, Space):
             space = input_limits
@@ -3463,8 +3463,8 @@ def add_spaces_old(spaces: Iterable[zfit.Space]):
         msg = "Limits of spaces overlap, cannot merge spaces."
         raise LimitsIncompatibleError(msg)
 
-    lowers = []
-    uppers = []
+    lowers: list = []
+    uppers: list = []
     for space in spaces:
         if not space.limits_are_set:
             continue

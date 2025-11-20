@@ -27,7 +27,7 @@ if typing.TYPE_CHECKING:
 
 
 class Integration:
-    _analytic_integrals: typing.ClassVar = {}
+    _analytic_integrals: typing.ClassVar[dict] = {}
 
     def __init__(self, mc_sampler=None, draws_per_dim=None, numeric_integrator=None):
         self._analytic_integrals = self._analytic_integrals.copy()

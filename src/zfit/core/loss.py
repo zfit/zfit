@@ -301,7 +301,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         *,
         autograd: bool | None = None,
     ) -> set[ZfitParameter]:
-        params = OrderedSet()
+        params: OrderedSet[ZfitParameter] = OrderedSet()
         params = params.union(
             *(
                 model.get_params(
@@ -342,7 +342,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         # TODO: data, range consistency?
         if fit_range is None:
             fit_range = []
-            non_consistent = {"data": [], "model": [], "range": []}
+            non_consistent: dict[str, list] = {"data": [], "model": [], "range": []}
             for p, d in zip(pdf, data, strict=True):
                 if p.norm != d.data_range:
                     non_consistent["data"].append(d)
@@ -1335,7 +1335,7 @@ class ExtendedUnbinnedNLLRepr(BaseLossRepr):
 
 class SimpleLoss(BaseLoss):
     _name = "SimpleLoss"
-    _convertable_funcs: typing.ClassVar = []
+    _convertable_funcs: typing.ClassVar[list] = []
 
     @deprecated_args(None, "Use params instead.", ("deps", "dependents"))
     def __init__(

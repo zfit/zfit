@@ -1491,7 +1491,7 @@ def cut_edges_and_bins(
         axis = convert_to_container(axis)
     if unscaled is None:
         unscaled = False
-    cut_unscaled_edges = [] if unscaled else None
+    cut_unscaled_edges: list | None = [] if unscaled else None
     cut_scaled_edges = []
 
     all_lower_bins = []

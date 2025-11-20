@@ -260,7 +260,7 @@ class BaseParametrized(BaseObject, ZfitParametrized):
     ) -> set[ZfitParameter]:
         assert autograd is not True, "This should never be True, it's only for internal use."
         if is_yield is True:  # we want exclusively yields, we don't have them by default
-            params = OrderedSet()
+            params: OrderedSet | list = OrderedSet()
         else:
             params = []
             for name, p in self.params.items():
