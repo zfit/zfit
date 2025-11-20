@@ -4,6 +4,32 @@ Changelog
 
 .. _newest-changelog:
 
+Develop
+======================
+
+Major Features and Improvements
+-------------------------------
+- Allow the automatic hessian in ``zfit.minimize.Minuit`` to be computed with TensorFlow's automatic differentiation instead of finite differences for better performance and accuracy. Use ``hessian='zfit'`` to enable this feature.
+
+Breaking changes
+------------------
+
+Deprecations
+-------------
+
+Bug fixes and small changes
+---------------------------
+
+Experimental
+------------
+
+Requirement changes
+-------------------
+
+Thanks
+------
+
+
 0.28.0 (18 Nov 2025)
 ======================
 
