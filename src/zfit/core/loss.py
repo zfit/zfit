@@ -142,7 +142,7 @@ def _nll_calc_unbinned_tf(log_probs, weights, log_offset, kahan=False):
     return -nll, -corr
 
 
-def _constraint_check_convert(constraints):
+def _constraint_check_convert(constraints) -> list[BaseConstraint]:
     checked_constraints = []
     for constr in constraints:
         if isinstance(constr, BaseConstraint):
@@ -241,7 +241,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         self._assert_params_unique()
 
     @property
-    def is_weighted(self):
+    def is_weighted(self) -> bool:
         return any(data.has_weights for data in self.data if isinstance(data, ZfitUnbinnedData))
 
     @property
@@ -261,7 +261,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         if value:
             self._precompiled_hashes = [data.hashint for data in self.data]
 
-    def _check_init_options(self, options, data):
+    def _check_init_options(self, options, data) -> dict:
         try:
             nevents = sum(d.num_entries for d in data)
         except RuntimeError:  # can happen if not yet sampled. What to do? Approx_nevents?
@@ -380,7 +380,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         self.add_cache_deps(cache_deps=data)
         return pdf, data, fit_range
 
-    def check_precompile(self, *, params=None, force=False):
+    def check_precompile(self, *, params=None, force: bool = False) -> tuple:
         from zfit import run  # noqa: PLC0415
 
         if (not run.executing_eagerly()) or (self.is_precompiled and not force):
@@ -479,7 +479,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
             data_checked.append(dat)
         return model_checked, data_checked
 
-    def _input_check_params(self, params, only_independent=False):
+    def _input_check_params(self, params, only_independent: bool = False) -> tuple[ZfitParameter, ...]:
         params_container = tuple(self.get_params()) if params is None else convert_to_container(params)
         if only_independent and (not_indep := {p for p in params_container if not p.independent}):
             msg = f"Parameters {not_indep} are not independent and `only_independent` is set to True."
@@ -496,29 +496,29 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         constraints = convert_to_container(constraints)
         return self._add_constraints(constraints)
 
-    def _add_constraints(self, constraints):
+    def _add_constraints(self, constraints) -> list[BaseConstraint]:
         constraints = _constraint_check_convert(convert_to_container(constraints, container=list))
         self._constraints.extend(constraints)
         return constraints
 
     @property
-    def name(self):
+    def name(self) -> str:
         return self._name
 
     @property
-    def model(self):
+    def model(self) -> list[ZfitPDF]:
         return self._model
 
     @property
-    def data(self):
+    def data(self) -> list[ZfitData]:
         return self._data
 
     @property
-    def fit_range(self):
+    def fit_range(self) -> list[ZfitSpace | None]:
         return self._fit_range
 
     @property
-    def constraints(self):
+    def constraints(self) -> list[BaseConstraint]:
         return self._constraints
 
     @abc.abstractmethod
@@ -912,7 +912,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
             raise AutogradNotSupported(msg)
 
 
-def one_two_many(values, n=3, many="multiple"):
+def one_two_many(values, n: int = 3, many: str = "multiple") -> list | str:
     values = convert_to_container(values)
     if len(values) > n:
         values = many
@@ -1139,7 +1139,7 @@ class UnbinnedNLL(BaseUnbinnedNLL):
         )
 
     @property
-    def is_extended(self):
+    def is_extended(self) -> bool:
         return False
 
     @z.function(wraps="loss")
@@ -1314,7 +1314,7 @@ class ExtendedUnbinnedNLL(BaseUnbinnedNLL):
         return nll - nll_corr
 
     @property
-    def is_extended(self):
+    def is_extended(self) -> bool:
         return True
 
     def _get_params(

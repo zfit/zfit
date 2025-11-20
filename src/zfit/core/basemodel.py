@@ -213,7 +213,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
     def space(self) -> ZfitSpace:
         return self._space
 
-    def _check_set_space(self, obs):
+    def _check_set_space(self, obs) -> None:
         if not isinstance(obs, ZfitSpace):
             obs = Space(obs=obs)
         self._check_n_obs(space=obs)
@@ -312,7 +312,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
 
         return self._convert_sort_space(limits=norm)
 
-    def _check_input_limits(self, limits, none_is_error=False):
+    def _check_input_limits(self, limits, none_is_error: bool = False) -> ZfitSpace | None:
         if (limits is None or (isinstance(limits, ZfitSpace) and not limits.has_limits)) and none_is_error:
             msg = "The `limits` have to be specified and not be None"
             raise ValueError(msg)

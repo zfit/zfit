@@ -57,11 +57,11 @@ class BaseConstraint(ZfitConstraint, BaseNumeric):
         """
         super().__init__(name=name, dtype=dtype, params=params, **kwargs)
 
-    def value(self):
+    def value(self) -> tf.Tensor:
         return self._value()
 
     @abc.abstractmethod
-    def _value(self):
+    def _value(self) -> tf.Tensor:
         raise NotImplementedError
 
 
@@ -97,7 +97,7 @@ class SimpleConstraint(BaseConstraint):
 
         super().__init__(name=name, params=params)
 
-    def _value(self):
+    def _value(self) -> tf.Tensor:
         if self._func_params is None:
             return self._simple_func()
         else:
@@ -148,33 +148,35 @@ class ProbabilityConstraint(BaseConstraint):
         self._ordered_params = params
 
     @property
-    def observation(self):
+    def observation(self) -> tuple:
         """Return the observed values of the parameters constrained."""
         return self._observation
 
-    def value(self):
+    def value(self) -> tf.Tensor:
         return self._value()
 
     @abc.abstractmethod
-    def _value(self):
+    def _value(self) -> tf.Tensor:
         raise NotImplementedError
 
-    def sample(self, n):
+    def sample(self, n: int) -> dict[ZfitParameter, tf.Tensor]:
         """Sample ``n`` points from the probability density function for the observed value of the parameters.
 
         Args:
             n: The number of samples to be generated.
+
         Returns:
+            Dictionary mapping parameters to their sampled values.
         """
         sample = self._sample(n=n)
         return {p: sample[:, i] for i, p in enumerate(self._ordered_params)}
 
     @abc.abstractmethod
-    def _sample(self, n):
+    def _sample(self, n: int) -> tf.Tensor:
         raise NotImplementedError
 
     @property
-    def _params_array(self):
+    def _params_array(self) -> tf.Tensor:
         return znp.asarray(self._ordered_params)
 
 
@@ -203,7 +205,7 @@ class TFProbabilityConstraint(ProbabilityConstraint):
         self.dist_kwargs = dist_kwargs if dist_kwargs is not None else {}
 
     @property
-    def distribution(self):
+    def distribution(self) -> tfd.Distribution:
         params = self.dist_params
         if callable(params):
             params = params(self.observation)
@@ -213,12 +215,12 @@ class TFProbabilityConstraint(ProbabilityConstraint):
         params = {k: znp.asarray(v, ztypes.float) for k, v in params.items()}
         return self._distribution(**params, **kwargs, name=f"{self.name}_tfp")
 
-    def _value(self):
+    def _value(self) -> tf.Tensor:
         array = znp.asarray(self._params_array, ztypes.float)
         value = -self.distribution.log_prob(array)
         return tf.reduce_sum(value)
 
-    def _sample(self, n):
+    def _sample(self, n: int) -> tf.Tensor:
         return self.distribution.sample(n)
 
 
@@ -375,7 +377,7 @@ class GaussianConstraint(TFProbabilityConstraint, SerializableMixin):
         self._legacy_uncertainty = legacy_uncertainty
 
     @property
-    def covariance(self):
+    def covariance(self) -> tf.Tensor:
         """Return the covariance matrix of the observed values of the parameters constrained."""
         # legacy start 2
         if self._legacy_uncertainty:
