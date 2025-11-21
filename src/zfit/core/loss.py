@@ -142,7 +142,7 @@ def _nll_calc_unbinned_tf(log_probs, weights, log_offset, kahan=False):
     return -nll, -corr
 
 
-def _constraint_check_convert(constraints):
+def _constraint_check_convert(constraints) -> list[BaseConstraint]:
     checked_constraints = []
     for constr in constraints:
         if isinstance(constr, BaseConstraint):
@@ -222,30 +222,30 @@ class BaseLoss(ZfitLoss, BaseNumeric):
             )
 
         model, data, fit_range = self._input_check(pdf=model, data=data, fit_range=fit_range)
-        self._model = model
-        self._data = data
-        self._fit_range = fit_range
+        self._model: list[ZfitPDF] = model
+        self._data: list[ZfitData] = data
+        self._fit_range: list[ZfitSpace | None] = fit_range
 
         options = self._check_init_options(options, data)
 
-        self._options = options
-        self._subtractions = {}
+        self._options: dict = options
+        self._subtractions: dict[str, tf.Tensor] = {}
         if constraints is None:
             constraints = []
-        self._constraints = _constraint_check_convert(convert_to_container(constraints, list))
+        self._constraints: list[BaseConstraint] = _constraint_check_convert(convert_to_container(constraints, list))
 
         self.is_precompiled = False
-        self._precompiled_hashes = []
+        self._precompiled_hashes: list[int] = []
 
         # not ideal, should be in parametrized. But we don't have too many base classes, so this should work
         self._assert_params_unique()
 
     @property
-    def is_weighted(self):
+    def is_weighted(self) -> bool:
         return any(data.has_weights for data in self.data if isinstance(data, ZfitUnbinnedData))
 
     @property
-    def is_precompiled(self):
+    def is_precompiled(self) -> bool:
         if len(self._precompiled_hashes) != len(self.data):
             self._is_precompiled = False
             return self._is_precompiled
@@ -256,12 +256,12 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         return self._is_precompiled
 
     @is_precompiled.setter
-    def is_precompiled(self, value):
+    def is_precompiled(self, value: bool) -> None:
         self._is_precompiled = value
         if value:
             self._precompiled_hashes = [data.hashint for data in self.data]
 
-    def _check_init_options(self, options, data):
+    def _check_init_options(self, options, data) -> dict:
         try:
             nevents = sum(d.num_entries for d in data)
         except RuntimeError:  # can happen if not yet sampled. What to do? Approx_nevents?
@@ -289,7 +289,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         #     raise ValueError(f"Unrecognized options: {options}")
         return optionsclean
 
-    def __init_subclass__(cls, **kwargs):
+    def __init_subclass__(cls, **kwargs) -> None:
         super().__init_subclass__(**kwargs)
         cls._name = "UnnamedSubBaseLoss"
 
@@ -300,8 +300,8 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         extract_independent: bool | None,
         *,
         autograd: bool | None = None,
-    ) -> set[ZfitParameter]:
-        params = OrderedSet()
+    ) -> OrderedSet[ZfitParameter]:
+        params: OrderedSet[ZfitParameter] = OrderedSet()
         params = params.union(
             *(
                 model.get_params(
@@ -329,7 +329,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
             params = dict(zip(all_params, params, strict=True))
         return super()._check_set_input_params(params, guarantee_checked)
 
-    def _input_check(self, pdf, data, fit_range):
+    def _input_check(self, pdf, data, fit_range) -> tuple[list[ZfitPDF], list[ZfitData], list]:
         if isinstance(pdf, tuple):
             msg = "`pdf` has to be a pdf or a list of pdfs, not a tuple."
             raise TypeError(msg)
@@ -342,7 +342,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         # TODO: data, range consistency?
         if fit_range is None:
             fit_range = []
-            non_consistent = {"data": [], "model": [], "range": []}
+            non_consistent: dict[str, list] = {"data": [], "model": [], "range": []}
             for p, d in zip(pdf, data, strict=True):
                 if p.norm != d.data_range:
                     non_consistent["data"].append(d)
@@ -380,7 +380,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         self.add_cache_deps(cache_deps=data)
         return pdf, data, fit_range
 
-    def check_precompile(self, *, params=None, force=False):
+    def check_precompile(self, *, params=None, force: bool = False) -> tuple:
         from zfit import run  # noqa: PLC0415
 
         if (not run.executing_eagerly()) or (self.is_precompiled and not force):
@@ -479,7 +479,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
             data_checked.append(dat)
         return model_checked, data_checked
 
-    def _input_check_params(self, params, only_independent=False):
+    def _input_check_params(self, params, only_independent: bool = False) -> tuple[ZfitParameter, ...]:
         params_container = tuple(self.get_params()) if params is None else convert_to_container(params)
         if only_independent and (not_indep := {p for p in params_container if not p.independent}):
             msg = f"Parameters {not_indep} are not independent and `only_independent` is set to True."
@@ -496,29 +496,29 @@ class BaseLoss(ZfitLoss, BaseNumeric):
         constraints = convert_to_container(constraints)
         return self._add_constraints(constraints)
 
-    def _add_constraints(self, constraints):
+    def _add_constraints(self, constraints) -> list[BaseConstraint]:
         constraints = _constraint_check_convert(convert_to_container(constraints, container=list))
         self._constraints.extend(constraints)
         return constraints
 
     @property
-    def name(self):
+    def name(self) -> str:
         return self._name
 
     @property
-    def model(self):
+    def model(self) -> list[ZfitPDF]:
         return self._model
 
     @property
-    def data(self):
+    def data(self) -> list[ZfitData]:
         return self._data
 
     @property
-    def fit_range(self):
+    def fit_range(self) -> list[ZfitSpace | None]:
         return self._fit_range
 
     @property
-    def constraints(self):
+    def constraints(self) -> list[BaseConstraint]:
         return self._constraints
 
     @abc.abstractmethod
@@ -912,7 +912,7 @@ class BaseLoss(ZfitLoss, BaseNumeric):
             raise AutogradNotSupported(msg)
 
 
-def one_two_many(values, n=3, many="multiple"):
+def one_two_many(values, n: int = 3, many: str = "multiple") -> list | str:
     values = convert_to_container(values)
     if len(values) > n:
         values = many
@@ -927,6 +927,7 @@ class BaseUnbinnedNLL(BaseLoss, SerializableMixin):
         fit_range=NONE,
         constraints=NONE,
         options=NONE,
+        **kwargs,
     ):
         r"""Create a new loss from the current loss and replacing what is given as the arguments.
 
@@ -990,6 +991,9 @@ class BaseUnbinnedNLL(BaseLoss, SerializableMixin):
                a new loss as the former will automatically overtake any relevant constants
                and behavior. |@docend:loss.init.options|
         """
+        if kwargs:
+            msg = f"Unexpected keyword arguments: {list(kwargs.keys())}"
+            raise TypeError(msg)
         if model is NONE:
             model = self.model
         if data is NONE:
@@ -1139,7 +1143,7 @@ class UnbinnedNLL(BaseUnbinnedNLL):
         )
 
     @property
-    def is_extended(self):
+    def is_extended(self) -> bool:
         return False
 
     @z.function(wraps="loss")
@@ -1160,7 +1164,7 @@ class UnbinnedNLL(BaseUnbinnedNLL):
         extract_independent: bool | None,
         *,
         autograd: bool | None = None,
-    ) -> set[ZfitParameter]:
+    ) -> OrderedSet[ZfitParameter]:
         if not self.is_extended:
             is_yield = False  # the loss does not depend on the yields
         return super()._get_params(floating, is_yield, extract_independent, autograd=autograd)
@@ -1314,7 +1318,7 @@ class ExtendedUnbinnedNLL(BaseUnbinnedNLL):
         return nll - nll_corr
 
     @property
-    def is_extended(self):
+    def is_extended(self) -> bool:
         return True
 
     def _get_params(
@@ -1324,7 +1328,7 @@ class ExtendedUnbinnedNLL(BaseUnbinnedNLL):
         extract_independent: bool | None,
         *,
         autograd: bool | None = None,
-    ) -> set[ZfitParameter]:
+    ) -> OrderedSet[ZfitParameter]:
         return super()._get_params(floating, is_yield, extract_independent, autograd=autograd)
 
 
@@ -1335,7 +1339,7 @@ class ExtendedUnbinnedNLLRepr(BaseLossRepr):
 
 class SimpleLoss(BaseLoss):
     _name = "SimpleLoss"
-    _convertable_funcs: typing.ClassVar = []
+    _convertable_funcs: typing.ClassVar[list] = []
 
     @deprecated_args(None, "Use params instead.", ("deps", "dependents"))
     def __init__(
@@ -1490,7 +1494,7 @@ class SimpleLoss(BaseLoss):
         extract_independent: bool | None,
         *,
         autograd: bool | None = None,
-    ) -> set[ZfitParameter]:
+    ) -> OrderedSet[ZfitParameter]:
         # if autograd is not None:
         #     msg = "Cannot distinguish currently between autograd and not autograd."
         #     raise WorkInProgressError(msg)
@@ -1616,7 +1620,9 @@ class SimpleLoss(BaseLoss):
         func: Callable = NONE,
         params: Iterable[zfit.Parameter] = NONE,
         errordef: float | None = NONE,
+        **kwargs,
     ):
+        del kwargs  # unused
         if func is NONE:
             func = self._simple_func
         if params is NONE:

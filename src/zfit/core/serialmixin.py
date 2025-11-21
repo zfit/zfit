@@ -41,11 +41,11 @@ class SerializableMixin(ZfitSerializable):
         cls.hs3 = create_HS3(cls)
 
     @warn_experimental_feature
-    def to_yaml(self):
+    def to_yaml(self) -> str:
         """Convert the object to a yaml string.
 
         Returns:
-            str: The yaml string.
+            The yaml string.
         """
         json_obj = self.to_json()
         return yaml.safe_dump(json_obj)
@@ -85,11 +85,11 @@ class SerializableMixin(ZfitSerializable):
             return cls.from_dict(asdf_tree)
 
     @warn_experimental_feature
-    def to_json(self):
+    def to_json(self) -> str:
         """Convert the object to a json string.
 
         Returns:
-            str: The json string.
+            The json string.
         """
         from zfit.serialization import Serializer  # noqa: PLC0415
 
@@ -131,11 +131,11 @@ class SerializableMixin(ZfitSerializable):
             return parsed.to_orm()
 
     @warn_experimental_feature
-    def to_dict(self):
+    def to_dict(self) -> dict:
         """Convert the object to a nested dictionary structure.
 
         Returns:
-               dict: The dictionary structure.
+            The dictionary structure.
         """
         from zfit.serialization import Serializer  # noqa: PLC0415
 

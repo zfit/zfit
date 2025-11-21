@@ -120,7 +120,9 @@ class BaseObject(ZfitObject):
         """The name of the object."""
         return self._name
 
-    def copy(self, deep: bool = False, name: str | None = None, **overwrite_params) -> ZfitObject:
+    def copy(self, **overwrite_params) -> ZfitObject:
+        deep = overwrite_params.pop("deep", False)
+        name = overwrite_params.pop("name", None)
         return self._copy(deep=deep, name=name, overwrite_params=overwrite_params)
 
     def _copy(self, deep, name, overwrite_params):
@@ -216,7 +218,7 @@ class BaseParametrized(BaseObject, ZfitParametrized):
         extract_independent: bool | None = True,
         *,
         autograd: bool | None = None,
-    ) -> set[ZfitParameter]:
+    ) -> OrderedSet[ZfitParameter]:
         """Recursively collect parameters that this object depends on according to the filter criteria.
 
         Which parameters should be included can be steered using the arguments as a filter.
@@ -257,10 +259,10 @@ class BaseParametrized(BaseObject, ZfitParametrized):
         extract_independent: bool | None,
         *,
         autograd: bool | None = None,
-    ) -> set[ZfitParameter]:
+    ) -> OrderedSet[ZfitParameter]:
         assert autograd is not True, "This should never be True, it's only for internal use."
         if is_yield is True:  # we want exclusively yields, we don't have them by default
-            params = OrderedSet()
+            params: OrderedSet | list = OrderedSet()
         else:
             params = []
             for name, p in self.params.items():
@@ -272,7 +274,7 @@ class BaseParametrized(BaseObject, ZfitParametrized):
         return params
 
     @property
-    def params(self) -> ztyping.ParameterType:
+    def params(self) -> dict[str, ZfitParameter]:
         return self._params
 
     @contextlib.contextmanager

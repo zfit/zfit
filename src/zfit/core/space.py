@@ -868,7 +868,7 @@ class BaseSpace(ZfitSpace, BaseObject):
         self.coords = coords
 
     @property
-    def is_binned(self):
+    def is_binned(self) -> bool:
         return self.binning is not None
 
     def inside(self, x: ztyping.XTypeInput, guarantee_limits: bool = False) -> ztyping.XTypeReturn:
@@ -1051,7 +1051,7 @@ class BaseSpace(ZfitSpace, BaseObject):
         allow_superset: bool = True,
         allow_subset: bool = True,
     ):
-        to_check = []
+        to_check: list = []
         if obs is not None and self.obs is not None:
             to_check.append(obs, self.obs)
         if axes is not None and self.axes is not None:
@@ -1193,7 +1193,15 @@ class BaseSpace(ZfitSpace, BaseObject):
         limits_frozen = tuple(((key, tuple(ldict.items())) for key, ldict in self._limits_dict.items()))
         return hash((limits_frozen, hash(self.coords), hash(self.binning)))
 
-    def reorder_x(self, x, x_obs, x_axes, func_obs, func_axes):
+    def reorder_x(
+        self,
+        x,
+        *,
+        x_obs=None,
+        x_axes=None,
+        func_obs=None,
+        func_axes=None,
+    ):
         return self.coords.reorder_x(x, x_obs=x_obs, x_axes=x_axes, func_obs=func_obs, func_axes=func_axes)
 
     @deprecated(
@@ -1389,26 +1397,26 @@ class Space(
         self._binning = None if binning is False else binning
 
     @property
-    def labels(self):
+    def labels(self) -> tuple[str, ...] | None:
         if (obs := self.obs) is not None:
             return tuple(self._labels[ob] for ob in obs)
         return None  # we have axis -> no labels
 
     @property
-    def label(self):
+    def label(self) -> str:
         if self.n_obs > 1:
             msg = f"{self} has more than one observable, use `labels` instead."
             raise ValueError(msg)
         return self.labels[0]
 
     @property
-    def binning(self):
+    def binning(self) -> zfit._variables.axis.Binnings | None:
         return self._binning
         # if binning_out is not None:
         #     binning_out =
 
     @property
-    def is_binned(self):
+    def is_binned(self) -> bool:
         return self.binning is not None
 
     def _check_convert_input_limits(
@@ -1428,7 +1436,7 @@ class Space(
             Limits dictionary containing the observables and/or the axes as a key matching
                 `ZfitLimits` objects.
         """
-        limits_dict = defaultdict(dict)
+        limits_dict: defaultdict = defaultdict(dict)
         input_limits = limit
         if isinstance(input_limits, Space):
             space = input_limits
@@ -3463,8 +3471,8 @@ def add_spaces_old(spaces: Iterable[zfit.Space]):
         msg = "Limits of spaces overlap, cannot merge spaces."
         raise LimitsIncompatibleError(msg)
 
-    lowers = []
-    uppers = []
+    lowers: list = []
+    uppers: list = []
     for space in spaces:
         if not space.limits_are_set:
             continue

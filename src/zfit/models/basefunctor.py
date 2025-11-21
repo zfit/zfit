@@ -108,7 +108,7 @@ class FunctorMixin(ZfitFunctorMixin):
         return list(self._models)
 
     @property
-    def _model_same_obs(self):
+    def _model_same_obs(self) -> bool:
         return get_same_obs(self._model_obs)
 
     def get_models(self, names=None) -> list[ZfitModel]:
@@ -147,7 +147,7 @@ class FunctorPDFRepr(BasePDFRepr):
         return values
 
 
-def _extract_common_obs(obs: tuple[tuple[str] | Space]) -> tuple[str]:
+def _extract_common_obs(obs: tuple[tuple[str, ...] | Space, ...]) -> tuple[str, ...]:
     obs_iter = [space.obs if isinstance(space, Space) else space for space in obs]
     unique_obs = []
     for currobs in obs_iter:
