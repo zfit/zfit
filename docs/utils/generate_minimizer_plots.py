@@ -496,7 +496,7 @@ def plot_minimizers():
     """Generate plots for different minimizers."""
     n_physical_cpus = psutil.cpu_count(logical=False)
 
-    ray.init(num_cpus=n_physical_cpus)
+    ray.init(num_cpus=max(n_physical_cpus - 1, 1))
     # ray.init(local_mode=True)
     # Define the function to minimize
     func = complex_rosenbrock
