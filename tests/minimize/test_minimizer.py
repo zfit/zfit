@@ -129,6 +129,18 @@ minimizers = [
         {"verbosity": verbosity},
         {"error": True, "longtests": True},
     ),  # works
+    # Minuit with zfit hessian
+    (
+        zfit.minimize.Minuit,
+        {"verbosity": verbosity, "hessian": False},
+        {"error": True, "longtests": True},
+    ),
+    # Minuit with zfit gradient and hessian
+    (
+        zfit.minimize.Minuit,
+        {"verbosity": verbosity, "gradient": False, "hessian": False},
+        {"error": True, "longtests": True},
+    ),
     # Ipyopt minimizer
     # TensorFlow Probability minimizer
     # (BFGS, {}, True),  # doesn't work as it uses the graph, violates assumption in minimizer
