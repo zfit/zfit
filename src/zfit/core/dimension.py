@@ -75,8 +75,8 @@ def limits_overlap(spaces: ztyping.SpaceOrSpacesTypeInput, allow_exact_match: bo
     spaces = convert_to_container(spaces, container=tuple)
     all_obs = common_obs(spaces=spaces)
     for obs in all_obs:
-        lowers = []
-        uppers = []
+        lowers: list = []
+        uppers: list = []
         for space in spaces:
             if not space.has_limits or obs not in space.obs:
                 continue
@@ -166,7 +166,7 @@ def obs_subsets(
     Returns:
         Dict with the keys being sets of observables and the values, an iterable, containing the ZfitDimensional
     """
-    obs_dims = {}
+    obs_dims: dict = {}
     for dim in dimensionals:
         for obs in obs_dims:
             if obs.intersection(dim.obs):

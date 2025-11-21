@@ -68,7 +68,7 @@ def generalized_crystalball_func(x, mu, sigmal, alphal, nl, sigmar, alphar, nr):
 
 
 # created with the help of TensorFlow autograph used on python code converted from ShapeCB of RooFit
-def crystalball_integral(limits, params, model):
+def crystalball_integral(limits, params, model) -> tf.Tensor:
     del model
     mu = params["mu"]
     sigma = params["sigma"]
@@ -142,7 +142,7 @@ def crystalball_integral_func(mu, sigma, alpha, n, lower, upper):
     return result
 
 
-def double_crystalball_mu_integral(limits, params, model):
+def double_crystalball_mu_integral(limits, params, model) -> tf.Tensor:
     del model
     mu = params["mu"]
     sigma = params["sigma"]
@@ -185,7 +185,7 @@ def double_crystalball_mu_integral_func(mu, sigma, alphal, nl, alphar, nr, lower
     return left + right
 
 
-def generalized_crystalball_mu_integral(limits, params, model):
+def generalized_crystalball_mu_integral(limits, params, model) -> tf.Tensor:
     del model
     mu = params["mu"]
     sigmal = params["sigmal"]

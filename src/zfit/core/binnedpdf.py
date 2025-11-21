@@ -19,6 +19,7 @@ from functools import reduce
 import numpy as np
 import tensorflow as tf
 import tensorflow_probability as tfp
+from ordered_set import OrderedSet
 from uhi.typing.plottable import PlottableHistogram
 
 import zfit
@@ -220,7 +221,7 @@ class BaseBinnedPDF(
         extract_independent: bool | None,
         *,
         autograd: bool | None = None,
-    ) -> set[ZfitParameter]:
+    ) -> OrderedSet[ZfitParameter]:
         params = super()._get_params(
             floating, is_yield=is_yield, extract_independent=extract_independent, autograd=autograd
         )
@@ -1026,7 +1027,8 @@ class BaseBinnedPDF(
         msg = "set_norm should not be used anymore. Create a new PDF with the desired normalization."
         raise RuntimeError(msg)
 
-    def create_extended(self, yield_: ztyping.ParamTypeInput) -> ZfitPDF:  # noqa: ARG002
+    def create_extended(self, yield_: ztyping.ParamTypeInput, name: str | None = None) -> ZfitPDF:  # noqa: ARG002
+        del name  # unused
         msg = "create_extended not available for BinnedPDF. Use `extended` in the initialization instead."
         raise WorkInProgressError(msg)
 
@@ -1491,7 +1493,7 @@ def cut_edges_and_bins(
         axis = convert_to_container(axis)
     if unscaled is None:
         unscaled = False
-    cut_unscaled_edges = [] if unscaled else None
+    cut_unscaled_edges: list | None = [] if unscaled else None
     cut_scaled_edges = []
 
     all_lower_bins = []

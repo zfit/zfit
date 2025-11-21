@@ -105,7 +105,7 @@ def minimize_supports(*, init: bool = False) -> Callable:
 _Minimizer_CHECK_HAS_SUPPORT = {}
 
 
-def _Minimizer_register_check_support(has_support: bool):
+def _Minimizer_register_check_support(has_support: bool) -> Callable:
     """Marks a method that the subclass either *has* to or *can't* use the ``@supports`` decorator.
 
     Args:
@@ -116,7 +116,7 @@ def _Minimizer_register_check_support(has_support: bool):
         msg = "Has to be boolean."
         raise TypeError(msg)
 
-    def register(func):
+    def register(func: Callable) -> Callable:
         """Register a method to be checked to (if True) *has* ``support`` or (if False) has *no* ``support``.
 
         Args:
@@ -262,7 +262,7 @@ class BaseMinimizer(ZfitMinimizer):
         self.name = repr(self.__class__)[:-2].split(".")[-1] if name is None else name
 
     @classmethod
-    def __init_subclass__(cls, **kwargs):
+    def __init_subclass__(cls, **kwargs) -> None:
         super().__init_subclass__(**kwargs)
         # check if subclass has decorator if required
         cls._subclass_check_support(
@@ -271,7 +271,7 @@ class BaseMinimizer(ZfitMinimizer):
         )
 
     @classmethod
-    def _subclass_check_support(cls, methods_to_check, wrapper_not_overwritten):
+    def _subclass_check_support(cls, methods_to_check: dict, wrapper_not_overwritten: Callable) -> None:
         for method_name, has_support in methods_to_check.items():
             if not hasattr(cls, method_name):
                 continue  # skip if only subclass requires it

@@ -79,7 +79,7 @@ def numerical_gradient(func: Callable, params: Iterable[zfit.Parameter]) -> tf.T
         return gradient
 
 
-def numerical_value_gradient(func: Callable, params: Iterable[zfit.Parameter]) -> [tf.Tensor, tf.Tensor]:
+def numerical_value_gradient(func: Callable, params: Iterable[zfit.Parameter]) -> tuple[tf.Tensor, tf.Tensor]:
     """Calculate numerically the gradients of ``func()`` with respect to ``params``, also returns the value of
     ``func()``.
 
@@ -156,7 +156,7 @@ def numerical_value_gradient_hessian(
     params: Iterable[zfit.Parameter],
     gradient: Callable | None = None,
     hessian: str | None = None,
-) -> [tf.Tensor, tf.Tensor, tf.Tensor]:
+) -> tuple[tf.Tensor, tf.Tensor, tf.Tensor]:
     """Calculate numerically the gradients and hessian matrix of ``func()`` wrt ``params``; also return ``func()``.
 
     Args:
@@ -233,7 +233,7 @@ def _extract_tfparams(
     # return tf_params
 
 
-def autodiff_value_gradient(func: Callable, params: Iterable[zfit.Parameter]) -> [tf.Tensor, tf.Tensor]:
+def autodiff_value_gradient(func: Callable, params: Iterable[zfit.Parameter]) -> tuple[tf.Tensor, tf.Tensor]:
     """Calculate using autodiff the gradients of ``func()`` wrt ``params``; also return ``func()``.
 
     Automatic differentiation (autodiff) is a way of retreiving the derivative of x wrt y. It works by consecutively
@@ -290,7 +290,7 @@ def automatic_value_gradient_hessian(
     params: Iterable[zfit.Parameter] | None = None,
     value_grad_func=None,
     hessian=None,
-) -> [tf.Tensor, tf.Tensor, tf.Tensor]:
+) -> tuple[tf.Tensor, tf.Tensor, tf.Tensor]:
     """Calculate using autodiff the gradients and hessian matrix of ``func()`` wrt ``params``; also return ``func()``.
 
     Automatic differentiation (autodiff) is a way of retrieving the derivative of x wrt y. It works by consecutively

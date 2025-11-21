@@ -32,7 +32,7 @@ def unbinned_to_hist_eager_edgesweightsargs(values, *edges_weights):
     return unbinned_to_hist_eager(values, edges, weights=weights)
 
 
-def unbinned_to_hist_eager(values, edges, weights=None):
+def unbinned_to_hist_eager(values, edges, weights=None) -> tuple[znp.ndarray, znp.ndarray]:
     """Convert an unbinned dataset to a binned dataset in eager mode.
 
     Args:
@@ -41,7 +41,7 @@ def unbinned_to_hist_eager(values, edges, weights=None):
         weights: Event weights.
 
     Returns:
-        binned_data: Binned dataset.
+        Tuple of (values, variances) as binned data.
     """
     if weights is not None and weights.shape == () and None in weights:
         weights = None
@@ -91,7 +91,7 @@ def unbinned_to_binned(data, space, binned_class=None, initkwargs=None):
     return binned_class.from_tensor(space=space, values=values, variances=variances, **(initkwargs or {}))
 
 
-def unbinned_to_binindex(data, space, flow=False):
+def unbinned_to_binindex(data, space, flow: bool = False) -> tf.Tensor:
     """Calculate the bin index of each data point.
 
     Args:
@@ -100,7 +100,7 @@ def unbinned_to_binindex(data, space, flow=False):
         flow: Whether to include the underflow and overflow bins.
 
     Returns:
-        binindex: Tensor with shape (ndata, n_obs) holding the bin index of each data point.
+        Tensor with shape (ndata, n_obs) holding the bin index of each data point.
     """
     if flow:
         warnings.warn(
