@@ -213,7 +213,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
     def space(self) -> ZfitSpace:
         return self._space
 
-    def _check_set_space(self, obs):
+    def _check_set_space(self, obs) -> None:
         if not isinstance(obs, ZfitSpace):
             obs = Space(obs=obs)
         self._check_n_obs(space=obs)
@@ -222,7 +222,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
     @contextlib.contextmanager
     def _convert_sort_x(
         self, x: ztyping.XTypeInput, partial: bool = False, allow_none: bool = False, fallback_obs=None
-    ) -> Data:
+    ) -> typing.Generator[Data | None]:
         del partial  # TODO: implement partial
         fallback_obs = self.obs if fallback_obs is None else fallback_obs
         if x is None:
@@ -312,7 +312,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
 
         return self._convert_sort_space(limits=norm)
 
-    def _check_input_limits(self, limits, none_is_error=False):
+    def _check_input_limits(self, limits, none_is_error: bool = False) -> ZfitSpace | None:
         if (limits is None or (isinstance(limits, ZfitSpace) and not limits.has_limits)) and none_is_error:
             msg = "The `limits` have to be specified and not be None"
             raise ValueError(msg)
@@ -404,10 +404,10 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         del x  # TODO HACK: how and what to pass through?
         return self._hook_integrate(limits=limits, norm=norm, options=options)
 
-    def _hook_integrate(self, limits, norm, *, options=None):
+    def _hook_integrate(self, limits, norm, *, options=None) -> tf.Tensor:
         return self._norm_integrate(limits=limits, norm=norm, options=options)
 
-    def _norm_integrate(self, limits, norm, *, options=None):
+    def _norm_integrate(self, limits, norm, *, options=None) -> tf.Tensor:
         try:
             integral = self._limits_integrate(limits=limits, norm=norm, options=options)
         except NormRangeNotImplemented:
@@ -416,7 +416,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             integral = unnormalized_integral / normalization
         return integral
 
-    def _limits_integrate(self, limits, norm, *, options=None):
+    def _limits_integrate(self, limits, norm, *, options=None) -> tf.Tensor:
         try:
             integral = self._call_integrate(limits=limits, norm=norm, options=options)
         except MultipleLimitsNotImplemented:
@@ -426,14 +426,14 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             integral = z.reduce_sum(znp.stack(integrals), axis=0)  # TODO: remove stack?
         return integral
 
-    def _call_integrate(self, limits, norm, options):
+    def _call_integrate(self, limits, norm, options) -> tf.Tensor:
         with suppress(FunctionNotImplemented):
             return self._integrate(limits, norm, options=options)
         with suppress(AnalyticIntegralNotImplemented):
             return self._hook_analytic_integrate(limits=limits, norm=norm)
         return self._fallback_integrate(limits=limits, norm=norm, options=options)
 
-    def _fallback_integrate(self, limits, norm, options):
+    def _fallback_integrate(self, limits, norm, options) -> tf.Tensor:
         max_axes = self._analytic_integral.get_max_axes(limits=limits)
 
         integral = None

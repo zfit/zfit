@@ -9,6 +9,7 @@ from collections.abc import Callable
 
 import numpy as np
 import tensorflow as tf
+from ordered_set import OrderedSet
 from uhi.typing.plottable import PlottableHistogram
 
 if typing.TYPE_CHECKING:
@@ -218,7 +219,7 @@ class ZfitOrderableDimensional(ZfitDimensional, metaclass=ABCMeta):
 
 class ZfitData(ZfitDimensional):
     @abstractmethod
-    def value(self, obs: list[str] | None = None) -> ztyping.XType:
+    def value(self, obs: ztyping.ObsTypeInput = None, axis: int | None = None) -> ztyping.XType:
         raise NotImplementedError
 
     @property
@@ -646,7 +647,7 @@ class ZfitParametrized(ZfitObject):
         extract_independent: bool | None = True,
         *,
         autograd: bool | None = None,
-    ) -> set[ZfitParameter]:
+    ) -> OrderedSet[ZfitParameter]:
         """Recursively collect parameters that this object depends on according to the filter criteria.
 
         Which parameters should be included can be steered using the arguments as a filter.
@@ -673,7 +674,7 @@ class ZfitParametrized(ZfitObject):
 
     @property
     @abstractmethod
-    def params(self) -> ztyping.ParameterType:
+    def params(self) -> dict[str, ZfitParameter]:
         raise NotImplementedError
 
 
@@ -794,7 +795,7 @@ class ZfitLoss(ZfitObject, metaclass=ABCMeta):
 
     @property
     @abstractmethod
-    def model(self) -> list[ZfitModel]:
+    def model(self) -> list[ZfitPDF]:
         raise NotImplementedError
 
     @property
@@ -804,7 +805,7 @@ class ZfitLoss(ZfitObject, metaclass=ABCMeta):
 
     @property
     @abstractmethod
-    def fit_range(self) -> list[ZfitSpace]:
+    def fit_range(self) -> list[ZfitSpace | None]:
         raise NotImplementedError
 
     @abstractmethod
@@ -824,7 +825,15 @@ class ZfitLoss(ZfitObject, metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def value_gradient_hessian(self, params, hessian=None):
+    def value_gradient_hessian(
+        self,
+        params: ztyping.ParamTypeInput = None,
+        *,
+        hessian=None,
+        full: bool | None = None,
+        numgrad=None,
+        paramvals: ztyping.ParamTypeInput = None,
+    ) -> tuple[tf.Tensor, tf.Tensor, tf.Tensor]:
         pass
 
     @abstractmethod
@@ -1046,7 +1055,13 @@ class ZfitBinnedPDF(ZfitPDF, metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def rel_counts(self, x, norm):
+    def rel_counts(
+        self,
+        x: ztyping.BinnedDataInputType = None,
+        *,
+        norm: ztyping.NormInputType = None,
+        params: ztyping.ParamTypeInput = None,
+    ):
         pass
 
 

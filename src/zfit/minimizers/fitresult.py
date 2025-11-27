@@ -110,7 +110,7 @@ class Approximations:
         super().__init__()
 
     @property
-    def params(self):
+    def params(self) -> list[ZfitParameter] | tuple[ZfitParameter]:
         return self._params
 
     def gradient(self, params: ZfitParameter | Iterable[ZfitParameter] | None = None) -> np.ndarray | None:
@@ -173,7 +173,7 @@ class Approximations:
         self._params = [p.name for p in self.params]
 
 
-def _minos_minuit(result, params, cl=None):
+def _minos_minuit(result, params, cl=None) -> tuple[dict, None]:
     minuit_minimizer = result._create_minuit_instance()
 
     try:
@@ -205,7 +205,7 @@ def _minos_minuit(result, params, cl=None):
     return errors, new_result
 
 
-def _covariance_minuit(result, params):
+def _covariance_minuit(result, params) -> dict:
     minuit = result._create_minuit_instance()
 
     _ = minuit.hesse()  # make sure to have an accurate covariance
@@ -231,7 +231,7 @@ def _covariance_minuit(result, params):
     return covariance_dict
 
 
-def _covariance_np(result, params):
+def _covariance_np(result, params) -> dict:
     if any(isinstance(data, ZfitData) and data.weights is not None for data in result.loss.data):
         warnings.warn(
             "The computation of the covariance matrix with weights is still experimental.",
@@ -244,7 +244,7 @@ def _covariance_np(result, params):
     return matrix_to_dict(params, covariance)
 
 
-def _covariance_approx(result, params):
+def _covariance_approx(result, params) -> dict:
     if any(isinstance(data, ZfitData) and data.weights is not None for data in result.loss.data):
         warnings.warn(
             "Approximate covariance/hesse estimation with weights is not supported, returning None",

@@ -79,13 +79,13 @@ class ValueHolder(tfp.experimental.AutoCompositeTensor):
         return item in self.names
 
     @property
-    def params(self):
+    def params(self) -> dict[str, ZfitParameter]:
         return {k: v for k, v in zip(self.names, self.args, strict=True) if isinstance(v, ZfitParameter)}
 
     @property
-    def space(self):
+    def space(self) -> dict[str, ZfitSpace]:
         return {k: v for k, v in zip(self.names, self.args, strict=True) if isinstance(v, ZfitSpace)}
 
     @property
-    def datasets(self):
+    def datasets(self) -> dict[str, ZfitData]:
         return {k: v for k, v in zip(self.names, self.args, strict=True) if isinstance(v, ZfitData)}

@@ -16,6 +16,7 @@ import warnings
 from contextlib import suppress
 
 import tensorflow as tf
+from ordered_set import OrderedSet
 
 import zfit.z.numpy as znp
 from zfit import z
@@ -128,7 +129,7 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
             wrapper_not_overwritten=_BasePDF_register_check_support,
         )
 
-    def _check_init_norm(self, norm):
+    def _check_init_norm(self, norm) -> ZfitSpace:
         if not isinstance(norm, ZfitSpace):
             norm = self.space if norm is None else self.space.with_limits(norm)
 
@@ -139,7 +140,7 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
             norm = norm.with_coords(self.space)
         return norm
 
-    def _check_input_norm(self, norm, none_is_error=False):
+    def _check_input_norm(self, norm, none_is_error: bool = False) -> ZfitSpace:
         if norm is None:
             norm = self.norm
         return super()._check_input_norm(norm=norm, none_is_error=none_is_error)
@@ -147,7 +148,8 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
     def _check_input_params_tfp(self, *params):
         return tuple(convert_to_parameter(p) for p in params)
 
-    def _func_to_integrate(self, x: ztyping.XType):
+    def _func_to_integrate(self, x: ztyping.XType, *, params=None):
+        del params  # unused
         return self.pdf(x, norm=False)
 
     def _func_to_sample_from(self, x):
@@ -831,7 +833,7 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
         extract_independent: bool | None,
         *,
         autograd: bool | None = None,
-    ) -> set[ZfitParameter]:
+    ) -> OrderedSet[ZfitParameter]:
         params = super()._get_params(
             floating, is_yield=is_yield, extract_independent=extract_independent, autograd=autograd
         )
@@ -860,7 +862,7 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
                 raise NotExtendedPDFError(msg)
         return params
 
-    def _get_autograd_params(self):
+    def _get_autograd_params(self) -> set[ZfitParameter]:
         params = super()._get_autograd_params()
         if self.is_extended and "yield" in self._autograd_params:
             params.update(self.get_params(floating=None, is_yield=True, extract_independent=True))

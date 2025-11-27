@@ -19,12 +19,15 @@ tmp/*
 /src/zfit/_version.py
 /examples/plots/*
 /tests/.benchmarks/
+/.claude/agents/tensorflow-jit-expert.md
 /tests/truth/image_diffs/plotting_extended/extended_False_density_False_diff.png
 /tests/truth/image_diffs/plotting_extended/extended_False_density_True_diff.png
 /tests/truth/image_diffs/plotting_extended/extended_True_density_False_diff.png
 /tests/truth/image_diffs/plotting_extended/extended_True_density_True_diff.png
 /tests/truth/image_diffs/plotting_extended/saved_data_extended_True_density_True_diff.png
-/.claude/agents/tensorflow-jit-expert.md
+# pixi environments
+.pixi
+*.egg-info
 /examples/.ipynb_checkpoints/
 /CLAUDE.md
 /.claude/

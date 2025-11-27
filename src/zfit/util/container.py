@@ -85,7 +85,7 @@ def convert_to_container(
     return value
 
 
-def is_container(obj):
+def is_container(obj) -> bool:
     """Check if `object` is a list or a tuple.
 
     Args:

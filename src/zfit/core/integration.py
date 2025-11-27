@@ -30,7 +30,7 @@ def auto_integrate(
     limits,
     n_axes=None,
     x=None,
-    method="AUTO",
+    method: str = "AUTO",
     dtype=ztypes.float,
     mc_sampler=tfp.mcmc.sample_halton_sequence,
     max_draws=None,
@@ -38,7 +38,7 @@ def auto_integrate(
     vectorizable=None,
     mc_options=None,
     simpsons_options=None,
-):
+) -> tf.Tensor:
     if vectorizable is None:
         vectorizable = False
     limits = convert_to_space(limits)
@@ -149,7 +149,7 @@ def simpson(func, lower, upper, num_points=1001, dtype=None):
     return znp.sum(func(grid) * weights, axis=-1) * dx / 3.0
 
 
-def simpson_integrate(func, limits, num_points):  # currently not vectorized
+def simpson_integrate(func, limits, num_points) -> tf.Tensor:  # currently not vectorized
     integrals = []
     num_points = znp.asarray(num_points, znp.int32)
     num_points += num_points % 2 + 1  # sanitize number of points
