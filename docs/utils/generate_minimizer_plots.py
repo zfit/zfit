@@ -205,7 +205,7 @@ def plot_minimizer_paths(minimizer_classes, starting_points, meshgrid_arrays, fu
             marker = markers[j % len(markers)]
 
             # Create the minimizer
-            minimizer = minimizer_class()
+            minimizer = minimizer_class(tol=0.1)
 
             # Reset the function wrapper
             func_wrapper.reset()
@@ -477,7 +477,7 @@ def create_animation(
     # Save the animation
     # Reduced DPI from 160 to 100 for memory optimization (~20% savings during save)
     base_name, _ext = filename.rsplit(".", 1)
-    anim.save(outpath / f"{base_name}.gif", writer="pillow", fps=fps, dpi=160)
+    anim.save(outpath / f"{base_name}.gif", writer="pillow", fps=fps, dpi=100)
     plt.close()
 
 
