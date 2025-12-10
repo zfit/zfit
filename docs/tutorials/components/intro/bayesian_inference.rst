@@ -55,11 +55,11 @@ We can sample from the posterior distribution using MCMC methods. zfit provides 
     # Create sampler with custom settings
     sampler = EmceeSampler(
         nwalkers=32,      # Number of walkers (default: 2 × n_params)
+        verbosity=0,      # Verbosity level (0-6: no progress, 7: phases, 8+: progress bars)
     )
-    
+
     print("EmceeSampler created with:")
     print(f"  - nwalkers: {sampler.nwalkers}")
-    print(f"  - verbosity: {sampler.verbosity}")
 
 Basic Usage Example
 -----------------
@@ -97,8 +97,9 @@ Here's a complete example of Bayesian inference with zfit:
 
     # Display results
     print("Posterior sampling completed:")
-    print(f"  - Parameters: {list(posterior.params.keys())}")
+    print(f"  - Parameters: {posterior.param_names}")
     print(f"  - Samples shape: {posterior.samples.shape}")
+    print(f"  - Total samples: {len(posterior.samples)} ({sampler.nwalkers} walkers × {100} steps)")
 
 Posterior Analysis
 ----------------
