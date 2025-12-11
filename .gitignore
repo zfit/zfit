@@ -31,3 +31,4 @@ tmp/*
 /examples/.ipynb_checkpoints/
 /CLAUDE.md
 /.claude/
+/tmp/
