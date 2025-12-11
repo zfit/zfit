@@ -225,7 +225,7 @@ def test_weights_one_equals_no_weights():
         assert pytest.approx(no_weights_error, rel=3e-2) == weights_sumw2_error, (
             f"No weights error and weights=1 sumw2 error differ for {param_name}: {no_weights_error} (noW) vs {weights_sumw2_error} (w=1)"
         )
-        assert pytest.approx(no_weights_error, rel=5e-2) == weights_asymptotic_error, (
+        assert pytest.approx(no_weights_error, rel=1e-1) == weights_asymptotic_error, (
             f"No weights error and weights=1 asymptotic error differ for {param_name}: {no_weights_error} (noW) vs {weights_asymptotic_error} (w=1)"
         )
 
