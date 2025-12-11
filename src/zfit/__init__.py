@@ -102,6 +102,7 @@ def _maybe_disable_warnings() -> None:
 
     os.environ["KMP_AFFINITY"] = "noverbose"
     os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
+
     saved_stdout_fd = os.dup(1)
     saved_stderr_fd = os.dup(2)
     with open(os.devnull, "w", encoding="utf-8") as devnull:
@@ -109,7 +110,8 @@ def _maybe_disable_warnings() -> None:
         os.dup2(devnull.fileno(), 2)
         import tensorflow as tf
 
-        tf.constant(1)
+        # Note: Don't call any TF operations here (like tf.constant(1))
+        # as they trigger initialization, preventing CPU config changes
         os.dup2(saved_stdout_fd, 1)
         os.dup2(saved_stderr_fd, 2)
         os.close(saved_stdout_fd)
