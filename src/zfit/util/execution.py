@@ -94,6 +94,15 @@ class RunManager:
     def set_cpus_explicit(self, intra: int, inter: int) -> None:
         """Set the number of threads (cpus) used for inter-op and intra-op parallelism.
 
+        This method should be called immediately after `import zfit`, before performing any operations
+        that would trigger TensorFlow initialization.
+
+        .. code-block:: python
+
+            import zfit
+            zfit.run.set_cpus_explicit(intra=2, inter=4)
+            # Now use zfit normally
+
         Args:
             intra: Number of threads used to perform an operation. For larger operations, e.g. large Tensors, this
                 is usually beneficial to have >= 2.
@@ -106,8 +115,10 @@ class RunManager:
             self._n_cpu = inter + intra
         except RuntimeError as err:
             msg = (
-                "Cannot set the number of cpus after initialization, has to be at the beginning."
-                f" Original message: {err}"
+                "Cannot set the number of CPUs after TensorFlow has been initialized.\n"
+                "Make sure to call set_cpus_explicit() immediately after 'import zfit', "
+                "before creating any PDFs, parameters, or performing any operations.\n"
+                f"Original error: {err}"
             )
             raise RuntimeError(msg) from err
 

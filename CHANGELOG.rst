@@ -19,6 +19,7 @@ Deprecations
 
 Bug fixes and small changes
 ---------------------------
+- Fix ``zfit.run.set_cpus_explicit()`` which was failing after ``import zfit`` due to premature TensorFlow initialization.
 
 Experimental
 ------------
