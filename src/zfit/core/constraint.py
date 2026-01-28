@@ -64,6 +64,24 @@ class BaseConstraint(ZfitConstraint, BaseNumeric):
     def _value(self) -> tf.Tensor:
         raise NotImplementedError
 
+    def __repr__(self) -> str:
+        """Return a detailed string representation of the constraint."""
+        class_name = type(self).__name__
+        params = self.get_params(floating=None, is_yield=None, extract_independent=True)
+        param_names = [p.name for p in params]
+        return f"<zfit.{class_name} params={param_names}>"
+
+    def __str__(self) -> str:
+        """Return a user-friendly string representation of the constraint."""
+        class_name = type(self).__name__
+        params = self.get_params(floating=None, is_yield=None, extract_independent=True)
+        if tf.executing_eagerly():
+            param_strs = [f"{p.name}={p.numpy():.4g}" for p in params]
+        else:
+            param_strs = [f"{p.name}=<symbolic>" for p in params]
+        params_str = ", ".join(param_strs) if param_strs else "none"
+        return f"{class_name}(params=[{params_str}])"
+
 
 # TODO: improve arbitrary constraints, should we allow only functions that have a `params` argument?
 class SimpleConstraint(BaseConstraint):
@@ -174,6 +192,45 @@ class ProbabilityConstraint(BaseConstraint):
     @abc.abstractmethod
     def _sample(self, n: int) -> tf.Tensor:
         raise NotImplementedError
+
+    def _format_observation(self) -> str:
+        """Format observation values for string representation."""
+        obs = self._observation
+        if len(obs) <= 3:
+            obs_strs = []
+            for o in obs:
+                if hasattr(o, "numpy") and tf.executing_eagerly():
+                    obs_strs.append(f"{o.numpy():.4g}")
+                elif hasattr(o, "value") and callable(o.value) and tf.executing_eagerly():
+                    obs_strs.append(f"{o.value():.4g}")
+                else:
+                    obs_strs.append(f"{o:.4g}" if isinstance(o, float | int) else str(o))
+            return ", ".join(obs_strs)
+        else:
+            return f"{len(obs)} values"
+
+    def __repr__(self) -> str:
+        """Return a detailed string representation of the probability constraint."""
+        class_name = type(self).__name__
+        params = self._ordered_params
+        param_names = [p.name if hasattr(p, "name") else str(p) for p in params]
+        return f"<zfit.{class_name} params={param_names} observation=[{self._format_observation()}]>"
+
+    def __str__(self) -> str:
+        """Return a user-friendly string representation of the probability constraint."""
+        class_name = type(self).__name__
+        params = self._ordered_params
+        if tf.executing_eagerly():
+            param_strs = []
+            for p in params:
+                if hasattr(p, "name") and hasattr(p, "numpy"):
+                    param_strs.append(f"{p.name}={p.numpy():.4g}")
+                else:
+                    param_strs.append(str(p))
+        else:
+            param_strs = [f"{p.name}=<symbolic>" if hasattr(p, "name") else str(p) for p in params]
+        params_str = ", ".join(param_strs) if param_strs else "none"
+        return f"{class_name}(params=[{params_str}], observation=[{self._format_observation()}])"
 
     @property
     def _params_array(self) -> tf.Tensor:
@@ -384,6 +441,41 @@ class GaussianConstraint(TFProbabilityConstraint, SerializableMixin):
             return self._covariance()
         # legacy end 2
         return self._covariance(cov=self.__cov)
+
+    def _format_sigma(self) -> str:
+        """Format sigma values for string representation."""
+        if self.__sigma is not None and not isinstance(self.__sigma, int):
+            sigma = self.__sigma
+            if hasattr(sigma, "numpy") and tf.executing_eagerly():
+                sigma_arr = sigma.numpy()
+                if sigma_arr.size <= 3:
+                    return ", ".join(f"{s:.4g}" for s in sigma_arr.flatten())
+                else:
+                    return f"{sigma_arr.size} values"
+            else:
+                return "<symbolic>"
+        return "from covariance"
+
+    def __repr__(self) -> str:
+        """Return a detailed string representation of the Gaussian constraint."""
+        params = self._ordered_params
+        param_names = [p.name if hasattr(p, "name") else str(p) for p in params]
+        return f"<zfit.GaussianConstraint params={param_names} observation=[{self._format_observation()}] sigma=[{self._format_sigma()}]>"
+
+    def __str__(self) -> str:
+        """Return a user-friendly string representation of the Gaussian constraint."""
+        params = self._ordered_params
+        if tf.executing_eagerly():
+            param_strs = []
+            for p in params:
+                if hasattr(p, "name") and hasattr(p, "numpy"):
+                    param_strs.append(f"{p.name}={p.numpy():.4g}")
+                else:
+                    param_strs.append(str(p))
+        else:
+            param_strs = [f"{p.name}=<symbolic>" if hasattr(p, "name") else str(p) for p in params]
+        params_str = ", ".join(param_strs) if param_strs else "none"
+        return f"GaussianConstraint(params=[{params_str}], observation=[{self._format_observation()}], sigma=[{self._format_sigma()}])"
 
 
 class GaussianConstraintRepr(BaseConstraintRepr):
