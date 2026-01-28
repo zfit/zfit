@@ -7,8 +7,13 @@ One example is a normal function `Function` that allows to simply define a non-n
 from __future__ import annotations
 
 import functools
+import sys
 import typing
-from typing import Self
+
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    from typing_extensions import Self
 
 from ..core.basemodel import SimpleModelSubclassMixin
 from ..core.basepdf import BasePDF

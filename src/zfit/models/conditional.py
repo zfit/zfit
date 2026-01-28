@@ -2,12 +2,17 @@
 
 from __future__ import annotations
 
+import sys
 import typing
+
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    from typing_extensions import Self
 
 from ordered_set import OrderedSet
 
 from ..util.ztyping import ExtendedInputType, NormInputType
-from typing import Self
 
 if typing.TYPE_CHECKING:
     pass

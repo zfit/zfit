@@ -60,6 +60,7 @@ dependencies = [
     "tensorflow>=2.16.2, <3.0",
     "tensorflow-probability[tf]>=0.24, <1.0",
     "texttable",
+    "typing_extensions>=4.0.0; python_version < '3.11'",
     "uhi",
     "uproot>=4",
     "xxhash",
