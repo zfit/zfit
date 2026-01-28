@@ -343,6 +343,25 @@ The :py:class:`~zfit.pdf.ExpModGauss` distribution is a Gaussian distribution co
 
     zfit.pdf.ExpModGauss
 
+Beta PDF
+---------------------------------------------------------------------------------------------------------------------
+
+The :py:class:`~zfit.pdf.Beta` distribution is defined on the interval [0, 1] and is characterized by two shape parameters ``alpha`` and ``beta``.
+
+.. image:: ../../images/_generated/pdfs/beta_alpha.png
+   :width: 80%
+   :align: center
+   :alt: Beta PDF with different alpha values
+
+.. image:: ../../images/_generated/pdfs/beta_beta.png
+   :width: 80%
+   :align: center
+   :alt: Beta PDF with different beta values
+
+.. autosummary::
+
+    zfit.pdf.Beta
+
 .. autosummary::
     :toctree: _generated/basic
 
@@ -366,3 +385,5 @@ The :py:class:`~zfit.pdf.ExpModGauss` distribution is a Gaussian distribution co
     zfit.pdf.Gamma
     zfit.pdf.JohnsonSU
     zfit.pdf.GeneralizedGauss
+    zfit.pdf.ExpModGauss
+    zfit.pdf.Beta
