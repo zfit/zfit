@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import typing
 from collections.abc import Iterable
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Self
 
 from ..util.plotter import PDFPlotter
 from ..util.ztyping import ExtendedInputType, NormInputType
@@ -956,7 +956,7 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
             norm=norm,
         )
 
-    def copy(self, **override_parameters) -> BasePDF:
+    def copy(self, **override_parameters) -> Self:
         """Creates a copy of the model.
 
         Note: the copy model may continue to depend on the original

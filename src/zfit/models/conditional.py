@@ -7,6 +7,7 @@ import typing
 from ordered_set import OrderedSet
 
 from ..util.ztyping import ExtendedInputType, NormInputType
+from typing import Self
 
 if typing.TYPE_CHECKING:
     pass
@@ -207,7 +208,7 @@ class ConditionalPDFV1(BaseFunctor):
         sample_rnd = tf_map(eval_sample, x_values)[..., 0]
         return znp.concatenate([sample_rnd, x_values], axis=-1)
 
-    def copy(self, **override_parameters) -> BasePDF:  # noqa: ARG002
+    def copy(self, **override_parameters) -> Self:  # noqa: ARG002
         msg = "Currently copying not possible. Use `set_yield` to set a yield inplace."
         raise WorkInProgressError(msg)
 
