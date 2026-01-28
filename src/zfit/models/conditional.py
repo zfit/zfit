@@ -27,7 +27,6 @@ from zfit._interfaces import (
 )
 
 from .. import z
-from ..core.basepdf import BasePDF
 from ..core.parameter import set_values
 from ..core.space import combine_spaces, convert_to_space, supports
 from ..util.exception import WorkInProgressError
