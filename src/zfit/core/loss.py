@@ -41,7 +41,7 @@ from zfit._interfaces import (
 
 from .. import settings, z
 from ..util import ztyping
-from ..util.checks import NONE
+from ..util.checks import NONE, NotSpecified
 from ..util.container import convert_to_container, is_container
 from ..util.deprecation import deprecated_args
 from ..util.exception import (
@@ -922,11 +922,11 @@ def one_two_many(values, n: int = 3, many: str = "multiple") -> list | str:
 class BaseUnbinnedNLL(BaseLoss, SerializableMixin):
     def create_new(
         self,
-        model: ZfitPDF | Iterable[ZfitPDF] | None = NONE,
-        data: ZfitData | Iterable[ZfitData] | None = NONE,
-        fit_range=NONE,
-        constraints=NONE,
-        options=NONE,
+        model: ZfitPDF | Iterable[ZfitPDF] | None | NotSpecified = NONE,
+        data: ZfitData | Iterable[ZfitData] | None | NotSpecified = NONE,
+        fit_range: ZfitSpace | None | NotSpecified = NONE,
+        constraints: ztyping.ConstraintsInputType | NotSpecified = NONE,
+        options: ztyping.OptionsInputType | NotSpecified = NONE,
         **kwargs,
     ):
         r"""Create a new loss from the current loss and replacing what is given as the arguments.
@@ -1352,8 +1352,8 @@ class SimpleLoss(BaseLoss):
         hessian: Callable | str | None = None,
         jit: bool | None = None,
         # legacy
-        deps: Iterable[zfit.Parameter] = NONE,
-        dependents: Iterable[zfit.Parameter] = NONE,
+        deps: Iterable[zfit.Parameter] | NotSpecified = NONE,
+        dependents: Iterable[zfit.Parameter] | NotSpecified = NONE,
     ):
         r"""Loss from a (function returning a) Tensor.
 
@@ -1617,9 +1617,9 @@ class SimpleLoss(BaseLoss):
 
     def create_new(
         self,
-        func: Callable = NONE,
-        params: Iterable[zfit.Parameter] = NONE,
-        errordef: float | None = NONE,
+        func: Callable | NotSpecified = NONE,
+        params: Iterable[zfit.Parameter] | NotSpecified = NONE,
+        errordef: float | None | NotSpecified = NONE,
         **kwargs,
     ):
         del kwargs  # unused

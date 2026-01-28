@@ -7,7 +7,13 @@ One example is a normal function `Function` that allows to simply define a non-n
 from __future__ import annotations
 
 import functools
+import sys
 import typing
+
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    from typing_extensions import Self
 
 from ..core.basemodel import SimpleModelSubclassMixin
 from ..core.basepdf import BasePDF
@@ -31,7 +37,7 @@ class SimplePDF(BasePDF):
         except TypeError:
             return self._unnormalized_prob_func(self, x)
 
-    def copy(self, **override_parameters) -> BasePDF:
+    def copy(self, **override_parameters) -> Self:
         override_parameters.update(func=self._unnormalized_prob_func)
         return super().copy(**override_parameters)
 

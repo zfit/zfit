@@ -14,7 +14,7 @@ from zfit._interfaces import ZfitBinnedData, ZfitBinnedPDF, ZfitParameter
 from .. import z
 from ..core.loss import BaseLoss
 from ..util import ztyping
-from ..util.checks import NONE
+from ..util.checks import NONE, NotSpecified
 from ..util.container import convert_to_container
 from ..util.warnings import warn_advanced_feature
 from ..util.ztyping import ConstraintsInputType, OptionsInputType
@@ -162,10 +162,10 @@ class BaseBinned(BaseLoss):
 
     def create_new(
         self,
-        model: ztyping.BinnedPDFInputType = NONE,
-        data: ztyping.BinnedDataInputType = NONE,
-        constraints: ConstraintsInputType = NONE,
-        options: OptionsInputType = NONE,
+        model: ztyping.BinnedPDFInputType | NotSpecified = NONE,
+        data: ztyping.BinnedDataInputType | NotSpecified = NONE,
+        constraints: ConstraintsInputType | NotSpecified = NONE,
+        options: OptionsInputType | NotSpecified = NONE,
     ):
         r"""Create a new binned loss of this type. This is preferrable over creating a new instance in most cases.
 
