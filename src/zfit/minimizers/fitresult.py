@@ -1319,6 +1319,10 @@ class FitResult(OptimizeResultMixin, ZfitResult):
     @contextlib.contextmanager
     def _input_check_reset_params(self, params):
         params = self._input_check_params(params=params)
+        # For frozen results, params are strings and we don't need to save/restore values
+        if self._is_frozen:
+            yield params
+            return
         old_values = np.asarray(params)
         try:
             yield params
@@ -1423,11 +1427,15 @@ class FitResult(OptimizeResultMixin, ZfitResult):
                 raise ValueError(msg)
             name = "hesse"
 
-        if weightcorr is None:
+        # Check if result is frozen - need to check before accessing self.loss.is_weighted
+        # which would fail for frozen results where self.loss is a string
+        if self._is_frozen and weightcorr is None:
+            weightcorr = WeightCorr.FALSE  # Default for frozen results
+        elif weightcorr is None:
             weightcorr = WeightCorr.ASYMPTOTIC if self.loss.is_weighted else WeightCorr.FALSE
         else:
             weightcorr = WeightCorr(weightcorr)
-        if weightcorr != WeightCorr.FALSE and not self.loss.is_weighted:
+        if weightcorr != WeightCorr.FALSE and not self._is_frozen and not self.loss.is_weighted:
             msg = "Weight correction is only available for weighted likelihoods, weightcorr cannot be given."
             raise ValueError(msg)
 
@@ -1658,6 +1666,13 @@ class FitResult(OptimizeResultMixin, ZfitResult):
         return dict_to_matrix(checkedparams, covariance)
 
     def _covariance(self, method, *, weightcorr: WeightCorr = None):
+        if self._is_frozen:
+            msg = (
+                "Cannot compute covariance on a frozen result. "
+                "The covariance must be computed before freezing the result. "
+                "Call `result.covariance()` before `result.freeze()`."
+            )
+            raise RuntimeError(msg)
         if not callable(method):
             if method not in self._hesse_methods:
                 msg = f"The following method is not a valid, implemented method: {method}. Use one of {self._hesse_methods.keys()}"

@@ -344,6 +344,59 @@ def test_double_freeze():
     assert result.edm is not None
 
 
+def test_covariance_on_frozen_result():
+    """Test that covariance is properly handled on frozen results.
+
+    - When covariance is computed before freezing, it should be retrievable after freezing.
+    - When covariance is requested after freezing without prior computation, a meaningful error should be raised.
+    """
+    loss, (param_a, param_b, param_c) = create_loss(n=5000)
+    minimizer = zfit.minimize.Minuit(gradient=True, tol=10.0)
+
+    # Test 1: Covariance computed before freezing should be retrievable after
+    result1 = minimizer.minimize(loss)
+    cov_before = result1.covariance(params=[param_a, param_b, param_c])
+    result1.freeze()
+    # Should still be accessible from cache
+    cov_after = result1.covariance(params=[param_a.name, param_b.name, param_c.name])
+    np.testing.assert_allclose(cov_before, cov_after)
+
+    # Test 2: Attempting to compute covariance after freezing (without prior cache) should raise an error
+    for param in (param_a, param_b, param_c):
+        param.assign(param.init_val)  # reset the value
+    result2 = minimizer.minimize(loss)
+    result2.freeze()
+    # This should raise a RuntimeError with a meaningful message
+    with pytest.raises(RuntimeError, match="frozen"):
+        result2.covariance()
+
+
+def test_hesse_on_frozen_result():
+    """Test that hesse is properly handled on frozen results.
+
+    - When hesse is computed before freezing, it should be retrievable after freezing.
+    - When hesse is requested after freezing without prior computation, a meaningful error should be raised.
+    """
+    loss, (param_a, param_b, param_c) = create_loss(n=5000)
+    minimizer = zfit.minimize.Minuit(gradient=True, tol=10.0)
+
+    # Test 1: Hesse computed before freezing should be retrievable after
+    result1 = minimizer.minimize(loss)
+    hesse_before = result1.hesse(params=[param_a, param_b, param_c])
+    result1.freeze()
+    # Should still be accessible from cache (params are now strings after freeze)
+    hesse_after = result1.hesse(params=[param_a.name, param_b.name, param_c.name])
+    assert hesse_before is not None
+    assert hesse_after is not None
+
+    # Test 2: Attempting to compute hesse after freezing (without prior cache) should raise an error
+    for param in (param_a, param_b, param_c):
+        param.assign(param.init_val)  # reset the value
+    result2 = minimizer.minimize(loss)
+    result2.freeze()
+    # This should raise a RuntimeError with a meaningful message
+    with pytest.raises(RuntimeError, match="frozen"):
+        result2.hesse()
 
 
 
