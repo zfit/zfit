@@ -1429,8 +1429,18 @@ class FitResult(OptimizeResultMixin, ZfitResult):
 
         # Check if result is frozen - need to check before accessing self.loss.is_weighted
         # which would fail for frozen results where self.loss is a string
-        if self._is_frozen and weightcorr is None:
-            weightcorr = WeightCorr.FALSE  # Default for frozen results
+        if self._is_frozen:
+            if weightcorr is None:
+                weightcorr = WeightCorr.FALSE  # Default for frozen results
+            else:
+                weightcorr = WeightCorr(weightcorr)
+                if weightcorr != WeightCorr.FALSE:
+                    msg = (
+                        "Cannot compute new hesse/covariance with weight correction on a frozen result. "
+                        "The result is frozen and no new calculations can be performed. "
+                        "Compute hesse/covariance before freezing the result, or use weightcorr=False to retrieve cached values."
+                    )
+                    raise RuntimeError(msg)
         elif weightcorr is None:
             weightcorr = WeightCorr.ASYMPTOTIC if self.loss.is_weighted else WeightCorr.FALSE
         else:

@@ -398,6 +398,15 @@ def test_hesse_on_frozen_result():
     with pytest.raises(RuntimeError, match="frozen"):
         result2.hesse()
 
+    # Test 3: Attempting to use weightcorr on a frozen result should raise a specific error
+    for param in (param_a, param_b, param_c):
+        param.assign(param.init_val)  # reset the value
+    result3 = minimizer.minimize(loss)
+    result3.freeze()
+    # Explicitly passing weightcorr != FALSE should raise a specific error
+    with pytest.raises(RuntimeError, match="weight correction.*frozen"):
+        result3.hesse(weightcorr="asymptotic")
+
 
 
 
