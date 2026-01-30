@@ -2,7 +2,13 @@
 
 from __future__ import annotations
 
+import sys
 import typing
+
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    from typing_extensions import Self
 
 from ordered_set import OrderedSet
 
@@ -206,7 +212,7 @@ class ConditionalPDFV1(BaseFunctor):
         sample_rnd = tf_map(eval_sample, x_values)[..., 0]
         return znp.concatenate([sample_rnd, x_values], axis=-1)
 
-    def copy(self, **override_parameters) -> BasePDF:  # noqa: ARG002
+    def copy(self, **override_parameters) -> Self:  # noqa: ARG002
         msg = "Currently copying not possible. Use `set_yield` to set a yield inplace."
         raise WorkInProgressError(msg)
 

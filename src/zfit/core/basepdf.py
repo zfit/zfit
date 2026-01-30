@@ -2,8 +2,15 @@
 
 from __future__ import annotations
 
+import sys
 import typing
 from collections.abc import Iterable
+
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    from typing_extensions import Self
+
 from typing import TYPE_CHECKING
 
 from ..util.plotter import PDFPlotter
@@ -956,7 +963,7 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
             norm=norm,
         )
 
-    def copy(self, **override_parameters) -> BasePDF:
+    def copy(self, **override_parameters) -> Self:
         """Creates a copy of the model.
 
         Note: the copy model may continue to depend on the original
