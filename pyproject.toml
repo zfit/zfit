@@ -101,6 +101,7 @@ test = [
     "jax ; sys_platform != 'win32'",
     "jaxlib ; sys_platform != 'win32'",
     "numba-stats",
+    "numba>=0.60",  # temporary fix for numba incompatibility of numpy, should be fixed with numba 0.64
     "pyhf>=0.7.0",
     "scikit-hep-testdata",
     # helpers
