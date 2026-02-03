@@ -1,4 +1,4 @@
-#  Copyright (c) 2025 zfit
+#  Copyright (c) 2026 zfit
 from __future__ import annotations
 
 from collections.abc import Callable
@@ -349,9 +349,9 @@ def plot_generalizedgauss():
         "GeneralizedGauss PDF",
         (-5, 5),
         [
-            ("mu", [-1.5, -0.75, 0.0, 0.75, 1.5], {"sigma": 1.0, "beta": 2.0}, r"\mu", lambda v: rf"\mu = {v}"),
-            ("sigma", [0.5, 0.75, 1.0, 1.5, 2.0], {"mu": 0.0, "beta": 2.0}, r"\sigma", lambda v: rf"\sigma = {v}"),
-            ("beta", [1.0, 1.5, 2.0, 3.0, 4.0], {"mu": 0.0, "sigma": 1.0}, r"\beta", lambda v: rf"\beta = {v}"),
+            ("mu", [-1.5, -0.75, 0.0, 0.75, 1.5], {"sigma": 1.0, "beta": 2.0}, r"$\mu$", lambda v: rf"$\mu = {v}$"),
+            ("sigma", [0.5, 0.75, 1.0, 1.5, 2.0], {"mu": 0.0, "beta": 2.0}, r"$\sigma$", lambda v: rf"$\sigma = {v}$"),
+            ("beta", [1.0, 1.5, 2.0, 3.0, 4.0], {"mu": 0.0, "sigma": 1.0}, r"$\beta$", lambda v: rf"$\beta = {v}$"),
         ],
     )
     plot_multiple_configs(configs, obs)
@@ -364,11 +364,27 @@ def plot_expmodgauss():
         param_name="lambd",
         param_values=[0.2, 0.4, 0.6, 0.8, 1.0, 10.0],
         fixed_params={"mu": 0, "sigma": 1},
-        title="ExpModGauss PDF with different lambd values",
+        title=r"ExpModGauss PDF with different $\lambda$ values",
         filename="expmodgauss_lambd.png",
         x_range=(-4, 8),
+        label_fn=lambda v: rf"$\lambda = {v}$",
     )
     plot_pdf(config, obs)
+
+
+def plot_beta():
+    obs = zfit.Space("x", limits=(0, 1))
+    configs = create_configs(
+        zfit.pdf.Beta,
+        "beta",
+        "Beta PDF",
+        (0.01, 0.99),
+        [
+            ("alpha", [0.5, 1.0, 2.0, 5.0], {"beta": 2.0}, r"$\alpha$", lambda v: rf"$\alpha = {v}$"),
+            ("beta", [0.5, 1.0, 2.0, 5.0], {"alpha": 2.0}, r"$\beta$", lambda v: rf"$\beta = {v}$"),
+        ],
+    )
+    plot_multiple_configs(configs, obs)
 
 
 def plot_truncatedgauss():
@@ -386,15 +402,15 @@ def plot_truncatedgauss():
                 "mu",
                 [-1.5, -0.75, 0.0, 0.75, 1.5],
                 {"sigma": 1.0, "low": -2.0, "high": 2.0},
-                r"\mu",
-                lambda v: rf"\mu = {v}",
+                r"$\mu$",
+                lambda v: rf"$\mu = {v}$",
             ),
             (
                 "sigma",
                 [0.5, 0.75, 1.0, 1.25, 1.5],
                 {"mu": 0.0, "low": -2.0, "high": 2.0},
-                r"\sigma",
-                lambda v: rf"\sigma = {v}",
+                r"$\sigma$",
+                lambda v: rf"$\sigma = {v}$",
             ),
         ],
     )
@@ -456,8 +472,8 @@ def plot_gamma():
         "Gamma PDF",
         (0.1, 10),
         [
-            ("gamma", [1.0, 1.5, 2.0, 3.5, 5.0], {"mu": 0.0, "beta": 1.0}, r"\gamma", lambda v: rf"\gamma = {v}"),
-            ("beta", [0.5, 0.75, 1.0, 1.5, 2.0], {"mu": 0.0, "gamma": 2.0}, r"\beta", lambda v: rf"\beta = {v}"),
+            ("gamma", [1.0, 1.5, 2.0, 3.5, 5.0], {"mu": 0.0, "beta": 1.0}, r"$\gamma$", lambda v: rf"$\gamma = {v}$"),
+            ("beta", [0.5, 0.75, 1.0, 1.5, 2.0], {"mu": 0.0, "gamma": 2.0}, r"$\beta$", lambda v: rf"$\beta = {v}$"),
         ],
     )
     plot_multiple_configs(configs, obs)
@@ -621,15 +637,15 @@ def plot_doublecb():
                 "alphal",
                 [0.5, 0.75, 1.0, 1.5, 2.0],
                 {"mu": 0.0, "sigma": 1.0, "nl": 2.0, "alphar": 1.0, "nr": 2.0},
-                r"\alpha_L",
-                lambda v: rf"\alpha_L = {v}",
+                r"$\alpha_L$",
+                lambda v: rf"$\alpha_L = {v}$",
             ),
             (
                 "alphar",
                 [0.5, 0.75, 1.0, 1.5, 2.0],
                 {"mu": 0.0, "sigma": 1.0, "nl": 2.0, "alphal": 1.0, "nr": 2.0},
-                r"\alpha_R",
-                lambda v: rf"\alpha_R = {v}",
+                r"$\alpha_R$",
+                lambda v: rf"$\alpha_R = {v}$",
             ),
         ],
     )
@@ -644,8 +660,8 @@ def plot_gaussexptail():
         "GaussExpTail PDF",
         (-5, 5),
         [
-            ("alpha", [0.5, 0.75, 1.0, 1.5, 2.0], {"mu": 0.0, "sigma": 1.0}, r"\alpha", lambda v: rf"\alpha = {v}"),
-            ("sigma", [0.5, 0.75, 1.0, 1.5, 2.0], {"mu": 0.0, "alpha": 1.0}, r"\sigma", lambda v: rf"\sigma = {v}"),
+            ("alpha", [0.5, 0.75, 1.0, 1.5, 2.0], {"mu": 0.0, "sigma": 1.0}, r"$\alpha$", lambda v: rf"$\alpha = {v}$"),
+            ("sigma", [0.5, 0.75, 1.0, 1.5, 2.0], {"mu": 0.0, "alpha": 1.0}, r"$\sigma$", lambda v: rf"$\sigma = {v}$"),
         ],
     )
     plot_multiple_configs(configs, obs)
@@ -663,22 +679,22 @@ def plot_generalizedcb():
                 "alphal",
                 [0.5, 0.75, 1.0, 1.5, 2.0],
                 {"mu": 0.0, "sigmal": 1.0, "nl": 2.0, "sigmar": 1.0, "alphar": 1.0, "nr": 2.0},
-                r"\alpha_L",
-                lambda v: rf"\alpha_L = {v}",
+                r"$\alpha_L$",
+                lambda v: rf"$\alpha_L = {v}$",
             ),
             (
                 "nl",
                 [1.0, 1.5, 2.0, 3.5, 5.0],
                 {"mu": 0.0, "sigmal": 1.0, "alphal": 1.0, "sigmar": 1.0, "alphar": 1.0, "nr": 2.0},
-                "nL",
-                lambda v: f"nL = {v}",
+                "$n_L$",
+                lambda v: f"$n_L = {v}$",
             ),
             (
                 "alphar",
                 [0.5, 0.75, 1.0, 1.5, 2.0],
                 {"mu": 0.0, "sigmal": 1.0, "alphal": 1.0, "nl": 2.0, "sigmar": 1.0, "nr": 2.0},
-                r"\alpha_R",
-                lambda v: rf"\alpha_R = {v}",
+                r"$\alpha_R$",
+                lambda v: rf"$\alpha_R = {v}$",
             ),
         ],
     )
@@ -697,22 +713,22 @@ def plot_generalizedgaussexptail():
                 "alphal",
                 [0.5, 0.75, 1.0, 1.5, 2.0],
                 {"mu": 0.0, "sigmal": 1.0, "sigmar": 1.0, "alphar": 1.0},
-                r"\alpha_L",
-                lambda v: rf"\alpha_L = {v}",
+                r"$\alpha_L$",
+                lambda v: rf"$\alpha_L = {v}$",
             ),
             (
                 "alphar",
                 [0.5, 0.75, 1.0, 1.5, 2.0],
                 {"mu": 0.0, "sigmal": 1.0, "alphal": 1.0, "sigmar": 1.0},
-                r"\alpha_R",
-                lambda v: rf"\alpha_R = {v}",
+                r"$\alpha_R$",
+                lambda v: rf"$\alpha_R = {v}$",
             ),
             (
                 "sigmal",
                 [0.5, 0.75, 1.0, 1.5, 2.0],
                 {"mu": 0.0, "alphal": 1.0, "sigmar": 1.0, "alphar": 1.0},
-                r"\sigma_L",
-                lambda v: rf"\sigma_L = {v}",
+                r"$\sigma_L$",
+                lambda v: rf"$\sigma_L = {v}$",
             ),
         ],
     )
@@ -1237,7 +1253,7 @@ def plot_fftconvpdf():
 
             conv = zfit.pdf.FFTConvPDFV1(signal, resolution)
             y_conv = conv.pdf(x)
-            plt.plot(x, y_conv, label=rf"Convolution with \sigma_res = {sigma_res_val}")
+            plt.plot(x, y_conv, label=rf"Convolution with $\sigma_{{\mathrm{{res}}}} = {sigma_res_val}$")
 
         plt.xlabel("x")
         plt.ylabel("Probability density")
@@ -1668,6 +1684,7 @@ def main():
         plot_generalizedgauss,
         plot_truncatedgauss,
         plot_expmodgauss,
+        plot_beta,
     ]
 
     with tqdm(total=len(basic_pdfs), desc="Generating basic PDF plots") as pbar:

@@ -11,8 +11,10 @@ should be the ``BasePDF``
     :toctree: _generated/custom_base
 
     zfit.pdf.BasePDF
+    zfit.pdf.BaseBinnedPDF
     zfit.pdf.ZPDF
     zfit.pdf.SimplePDF
     zfit.pdf.SimpleFunctorPDF
     zfit.pdf.WrapDistribution
     zfit.pdf.BaseFunctor
+    zfit.pdf.BaseBinnedFunctorPDF

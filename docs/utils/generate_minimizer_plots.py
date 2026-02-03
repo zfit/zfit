@@ -5,7 +5,7 @@ on a complex version of the Rosenbrock function, tracking their paths and metric
 like number of function evaluations and gradient calculations.
 """
 
-#  Copyright (c) 2025 zfit
+#  Copyright (c) 2026 zfit
 
 from __future__ import annotations
 

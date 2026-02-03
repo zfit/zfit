@@ -106,6 +106,16 @@ This is useful when you need to limit the domain of a PDF without changing its s
 
     zfit.pdf.TruncatedPDF
 
+Positive PDF
+--------------------------------------------
+
+The :py:class:`~zfit.pdf.PositivePDF` ensures the output of a PDF is always positive by clipping values below a minimum epsilon.
+This is useful for PDFs that can produce negative values (e.g., KDE with negative weights) or numerical instabilities.
+
+.. autosummary::
+
+    zfit.pdf.PositivePDF
+
 All Composed PDFs
 
 .. autosummary::
@@ -116,3 +126,4 @@ All Composed PDFs
     zfit.pdf.FFTConvPDFV1
     zfit.pdf.ConditionalPDFV1
     zfit.pdf.TruncatedPDF
+    zfit.pdf.PositivePDF
