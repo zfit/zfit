@@ -249,3 +249,137 @@ def test_str_performance():
     assert end_time - start_time < 1.0
     assert len(str_reprs) == 100
     assert all(isinstance(s, str) for s in str_reprs)
+
+
+# Constraint string representation tests
+def test_gaussian_constraint_str():
+    """Test GaussianConstraint string representation."""
+    param1 = zfit.Parameter("mu", 5.0)
+    param2 = zfit.Parameter("sigma_param", 1.0)
+    params = [param1, param2]
+
+    observed = [4.5, 1.1]
+    sigma = [0.5, 0.1]
+
+    constr = zfit.constraint.GaussianConstraint(params=params, observation=observed, sigma=sigma)
+
+    str_repr = str(constr)
+    repr_repr = repr(constr)
+
+    # Check str representation
+    assert "GaussianConstraint" in str_repr
+    assert "mu" in str_repr
+    assert "sigma_param" in str_repr
+    assert "observation" in str_repr
+    assert "sigma" in str_repr
+
+    # Check repr representation
+    assert "zfit.GaussianConstraint" in repr_repr
+    assert "mu" in repr_repr
+    assert "sigma_param" in repr_repr
+
+
+def test_gaussian_constraint_str_with_cov():
+    """Test GaussianConstraint string representation with covariance matrix."""
+    import numpy as np
+
+    param1 = zfit.Parameter("p1", 5.0)
+    param2 = zfit.Parameter("p2", 6.0)
+    params = [param1, param2]
+
+    observed = [4.5, 6.1]
+    cov = np.array([[1.0, 0.3], [0.3, 0.5]])
+
+    constr = zfit.constraint.GaussianConstraint(params=params, observation=observed, cov=cov)
+
+    str_repr = str(constr)
+    repr_repr = repr(constr)
+
+    # Should show covariance-derived sigma
+    assert "GaussianConstraint" in str_repr
+    assert "p1" in str_repr
+    assert "p2" in str_repr
+
+
+def test_poisson_constraint_str():
+    """Test PoissonConstraint string representation."""
+    import numpy as np
+
+    x = np.array([10, 20, 30])
+    lam = np.array([11, 21, 29])
+
+    constr = zfit.constraint.PoissonConstraint(params=x, observation=lam)
+
+    str_repr = str(constr)
+    repr_repr = repr(constr)
+
+    # Check str representation
+    assert "PoissonConstraint" in str_repr
+    assert "observation" in str_repr
+
+    # Check repr representation
+    assert "zfit.PoissonConstraint" in repr_repr
+
+
+def test_lognormal_constraint_str():
+    """Test LogNormalConstraint string representation."""
+    param = zfit.Parameter("rate", 44.0)
+
+    constr = zfit.constraint.LogNormalConstraint(
+        params=param,
+        observation=45.0,
+        uncertainty=6.7
+    )
+
+    str_repr = str(constr)
+    repr_repr = repr(constr)
+
+    # Check str representation
+    assert "LogNormalConstraint" in str_repr
+    assert "rate" in str_repr
+    assert "observation" in str_repr
+
+    # Check repr representation
+    assert "zfit.LogNormalConstraint" in repr_repr
+
+
+def test_simple_constraint_str():
+    """Test SimpleConstraint string representation."""
+    param1 = zfit.Parameter("x1", 5.0)
+    param2 = zfit.Parameter("x2", 6.0)
+    params = [param1, param2]
+
+    def func():
+        return param1**2 + param2**2
+
+    constr = zfit.constraint.SimpleConstraint(func=func, params=params)
+
+    str_repr = str(constr)
+    repr_repr = repr(constr)
+
+    # Check str representation
+    assert "SimpleConstraint" in str_repr
+    assert "x1" in str_repr
+    assert "x2" in str_repr
+
+    # Check repr representation
+    assert "zfit.SimpleConstraint" in repr_repr
+
+
+def test_constraint_str_many_params():
+    """Test constraint string representation with many parameters."""
+    import numpy as np
+
+    # Create many parameters
+    params = [zfit.Parameter(f"param_{i}", float(i)) for i in range(10)]
+    observed = [float(i + 0.1) for i in range(10)]
+
+    constr = zfit.constraint.PoissonConstraint(params=params, observation=observed)
+
+    str_repr = str(constr)
+    repr_repr = repr(constr)
+
+    # Should handle many params gracefully
+    assert "PoissonConstraint" in str_repr
+    assert isinstance(str_repr, str)
+    assert isinstance(repr_repr, str)
