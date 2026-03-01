@@ -30,7 +30,7 @@ jobs:
       - name: Check metadata
         run: pipx run twine check dist/*
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           path: dist/*
   publish:
