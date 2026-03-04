@@ -701,7 +701,7 @@ class BinnedChi2(BaseBinned):
 
             variance_method = self._options.get("errors")
             if variance_method == "expected":
-                variances = znp.sqrt(probs + znp.asarray(1e-307, dtype=znp.float64))
+                variances = probs + znp.asarray(1e-307, dtype=znp.float64)
             elif variance_method == "data":
                 variances = dat.variances()
             else:
@@ -853,7 +853,7 @@ class ExtendedBinnedChi2(BaseBinned):
             probs = mod.counts(dat)
             variance_method = self._options.get("errors")
             if variance_method == "expected":
-                variances = znp.sqrt(probs + znp.asarray(1e-307, dtype=znp.float64))
+                variances = probs + znp.asarray(1e-307, dtype=znp.float64)
             elif variance_method == "data":
                 variances = dat.variances()
             else:
