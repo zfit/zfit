@@ -229,9 +229,9 @@ class BinnedData(
             values: |@doc:binneddata.param.values| Corresponds to the counts of the histogram.
                Follows the definition of the
                `Unified Histogram Interface (UHI) <https://uhi.readthedocs.io/en/latest/plotting.html#plotting>`_. |@docend:binneddata.param.values|
-            variances: |@doc:binneddata.param.variances| Corresponds to the uncertainties of the histogram.
+            variances: |@doc:binneddata.param.variances| Corresponds to the variances (sigma**2) of the histogram.
                If ``True``, the uncertainties are created assuming that ``values``
-               have been drawn from a Poisson distribution. Follows the definition of the
+               have been drawn from a Poisson distribution (i.e. ``Var[N] = N`` for unweighted counts). Follows the definition of the
                `Unified Histogram Interface (UHI) <https://uhi.readthedocs.io/en/latest/plotting.html#plotting>`_. |@docend:binneddata.param.variances|
         """
         values = znp.asarray(values, znp.float64)
