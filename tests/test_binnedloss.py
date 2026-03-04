@@ -312,7 +312,7 @@ def loss_cls(request):
 
 def test_binned_chi2_expected_uses_variance_not_sigma_1(loss_cls):
     # bug: when using "errors=expected", the loss should use the expected counts as variances (i.e. Var = N_exp), but instead the sqrt(expected counts) were treated as variances, leading to wrong chi2 values for errors="expected".
-    
+
     # 2-bin toy: set model expected counts to [50., 80.], observed counts to [40., 90.]
     obs = zfit.Space("x", limits=(0.0, 2.0), binning=2)
 
