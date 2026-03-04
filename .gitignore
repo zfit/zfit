@@ -32,3 +32,4 @@ tmp/*
 /CLAUDE.md
 /.claude/
 /tmp/
+.venv/
