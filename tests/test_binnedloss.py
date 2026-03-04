@@ -303,6 +303,80 @@ def test_binned_chi2_loss(Loss, empty, errors):  # TODO: add test with zeros in 
     )
     loss.value_gradient(loss.get_params())
 
+### start
+LOSS_CLASSES = [zfit.loss.BinnedChi2, zfit.loss.ExtendedBinnedChi2]
+
+@pytest.fixture(params=LOSS_CLASSES, ids=["BinnedChi2", "ExtendedBinnedChi2"])
+def loss_cls(request):
+    return request.param
+
+def test_binned_chi2_expected_uses_variance_not_sigma_1(loss_cls):
+    # bug: when using "errors=expected", the loss should use the expected counts as variances (i.e. Var = N_exp), but instead the sqrt(expected counts) were treated as variances, leading to wrong chi2 values for errors="expected".
+    
+    # 2-bin toy: set model expected counts to [50., 80.], observed counts to [40., 90.]
+    obs = zfit.Space("x", limits=(0.0, 2.0), binning=2)
+
+    expected = znp.asarray([50.0, 80.0], dtype=znp.float64)
+    observed = znp.asarray([40.0, 90.0], dtype=znp.float64)
+
+    # model: template PDF from expected counts
+    model_data = BinnedData.from_tensor(space=obs, values=expected)
+    model = BinnedTemplatePDFV1(data=model_data)
+
+    # data: observed counts (variances not needed for errors="expected")
+    data = BinnedData.from_tensor(space=obs, values=observed,  variances=True)
+
+    loss = loss_cls(
+        model=model,
+        data=data,
+        options={"errors": "expected"},
+    )
+
+    # Pearson chi2 with Poisson variance: Var = N_exp
+    chi2_manual = float(znp.sum((expected -observed) ** 2 / expected))
+
+    # zfit returns a tensor-like; cast to float
+    chi2_val = float(loss.value())
+
+    assert chi2_val == pytest.approx(chi2_manual, rel=1e-9, abs=0.0)
+
+
+def test_binned_chi2_expected_uses_variance_not_sigma_2(loss_cls):
+    # bug: data variances were treated as sigma when "variances=True", where in loss they should be treated as variances (i.e. sigma^2), leading to wrong chi2 values for errors="data".
+    # For BinnedData.from_tensor, "variances=True" is documented as Poisson-based variances; by UHI semantics variances should be σ². Therefore for counts N, variances should be N (not √N).
+
+    # 2-bin toy: set model expected counts to [50., 80.], observed counts to [40., 90.]
+    obs = zfit.Space("x", limits=(0.0, 2.0), binning=2)
+
+    expected = znp.asarray([50.0, 80.0], dtype=znp.float64)
+    observed = znp.asarray([40.0, 90.0], dtype=znp.float64)
+
+    # model: template PDF from expected counts
+    model_data = BinnedData.from_tensor(space=obs, values=expected)
+    model = BinnedTemplatePDFV1(data=model_data)
+
+    # data: observed counts (variances not needed for errors="expected")
+    data = BinnedData.from_tensor(space=obs, values=observed,  variances=True)
+    # data = BinnedData.from_tensor(space=obs, values=observed,  variances=observed) ## the right way to set the data variances for loss when 'errors="data"'.
+
+    loss = loss_cls(
+        model=model,
+        data=data,
+        options={"errors": "data"},
+    )
+
+    # Neyman chi2 with Poisson variance: Var = N_obs
+    chi2_manual = float(znp.sum((expected -observed) ** 2 / observed))
+
+    # zfit returns a tensor-like; cast to float
+    chi2_val = float(loss.value())
+
+    assert chi2_val == pytest.approx(chi2_manual, rel=1e-9, abs=0.0)
+
+
+### end
+
+
 
 @pytest.mark.parametrize(
     "weights",
