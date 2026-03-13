@@ -58,9 +58,9 @@ binneddata.param.values: |1+
                 `Unified Histogram Interface (UHI) <https://uhi.readthedocs.io/en/latest/plotting.html#plotting>`_.
 
 binneddata.param.variances: |1+
-    Corresponds to the uncertainties of the histogram.
+    Corresponds to the variances (sigma**2) of the histogram.
                 If ``True``, the uncertainties are created assuming that ``values``
-                have been drawn from a Poisson distribution. Follows the definition of the
+                have been drawn from a Poisson distribution (i.e. ``Var[N] = N`` for unweighted counts). Follows the definition of the
                 `Unified Histogram Interface (UHI) <https://uhi.readthedocs.io/en/latest/plotting.html#plotting>`_.
 
 data.param.obs: |1+
