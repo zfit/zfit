@@ -120,14 +120,14 @@ jobs:
           git fetch --prune --unshallow
           git fetch --depth=1 origin +refs/tags/*:refs/tags/*
       # do not install ROOT on windows, fails
-      - uses: mamba-org/setup-micromamba@v2
+      - uses: mamba-org/setup-micromamba@v3
         if: runner.os != 'Windows'
         with:
           environment-name: zfit
           create-args: >-
             python=${{ matrix.python-version }}
 #            root  # TODO: installing root makes the tests fail, i.e. crash (with 139
-      - uses: mamba-org/setup-micromamba@v2
+      - uses: mamba-org/setup-micromamba@v3
         if: runner.os == 'Windows'
         with:
           environment-name: zfit
@@ -176,7 +176,7 @@ jobs:
         run: |
           git fetch --prune --unshallow
           git fetch --depth=1 origin +refs/tags/*:refs/tags/*
-      - uses: mamba-org/setup-micromamba@v2
+      - uses: mamba-org/setup-micromamba@v3
         with:
           environment-name: zfit
           create-args: >-
@@ -224,7 +224,7 @@ jobs:
         run: |
           git fetch --prune --unshallow
           git fetch --depth=1 origin +refs/tags/*:refs/tags/*
-      - uses: mamba-org/setup-micromamba@v2
+      - uses: mamba-org/setup-micromamba@v3
         if: ${{ matrix.run }}
         with:
           environment-name: zfit
@@ -280,7 +280,7 @@ jobs:
         run: |
           git fetch --prune --unshallow
           git fetch --depth=1 origin +refs/tags/*:refs/tags/*
-      - uses: mamba-org/setup-micromamba@v2
+      - uses: mamba-org/setup-micromamba@v3
         if: ${{ matrix.run }}
         with:
           environment-name: zfit
