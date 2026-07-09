@@ -428,10 +428,6 @@ class PosteriorSamples:
             samples_reshaped = samples_np[np.newaxis, :, :]  # Add chain dimension
 
         # Use az.from_dict for simpler conversion
-        """return az.from_dict(
-            {param.name: samples_reshaped[:, :, i] for i, param in enumerate(self._params)},
-            coords={"chain": range(nwalkers), "draw": range(ndraws)},
-        )"""
         return az.from_dict(
             {"posterior": {param.name: samples_reshaped[:, :, i] for i, param in enumerate(self._params)}},
             coords={"chain": range(nwalkers), "draw": range(ndraws)},
