@@ -81,7 +81,7 @@ emcee = ["emcee>=3.0.0"]
 
 bayes = [
     "zfit[emcee]",
-    "arviz>=0.14.0"
+    "arviz>=1.0.0"
 ]
 
 plot = ["matplotlib", "mplhep"]
