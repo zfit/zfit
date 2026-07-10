@@ -432,7 +432,7 @@ class PosteriorSamples:
             {"posterior": {param.name: samples_reshaped[:, :, i] for i, param in enumerate(self._params)}},
             coords={"chain": range(nwalkers), "draw": range(ndraws)},
         )
-    
+
     # Parameter management
     def update_params(
         self,

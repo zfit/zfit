@@ -378,13 +378,14 @@ class BinnedData(
             Tensor of shape (nbins0, nbins1, ...) with nbins the number of bins in each observable.
         """
         vals = self.holder.values
-        
+
         if flow:
             import tensorflow as tf
+
             rank = tf.rank(vals)
             paddings = tf.ones([rank, 2], dtype=tf.int32)
             vals = tf.pad(vals, paddings)
-            
+
         return vals
 
     def variances(self, flow: bool = False) -> None | znp.array:
@@ -397,13 +398,14 @@ class BinnedData(
             Tensor of shape (nbins0, nbins1, ...) with nbins the number of bins in each observable.
         """
         vals = self.holder.variances
-        
+
         if vals is not None and flow:
             import tensorflow as tf
+
             rank = tf.rank(vals)
             paddings = tf.ones([rank, 2], dtype=tf.int32)
             vals = tf.pad(vals, paddings)
-            
+
         return vals
 
     def counts(self):
@@ -772,7 +774,9 @@ class BinnedSamplerData(BinnedData):
         Returns:
             Tensor of shape (nbins0, nbins1, ...) with nbins the number of bins in each observable.
         """
-        return znp.asarray(super().values(flow=flow))  # otherwise, shape is not correct -> use handler if variable is needed
+        return znp.asarray(
+            super().values(flow=flow)
+        )  # otherwise, shape is not correct -> use handler if variable is needed
 
     def variances(self, flow: bool = False) -> znp.array:
         """Variances of the histogram as an ndim array or `None` if no variances are available.
