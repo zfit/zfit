@@ -84,7 +84,7 @@ print(f"Valid samples: {posterior.valid}")
 # ArviZ integration
 print("\nArviZ integration:")
 idata = posterior.to_arviz()
-print(f"InferenceData groups: {list(idata.groups())}")
+print(f"InferenceData groups: {list(idata.groups)}")
 print("\nArviZ summary (first 3 params):")
 print(az.summary(idata, var_names=["mu", "sigma", "lambda_bkg"]))
 

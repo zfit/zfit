@@ -114,7 +114,7 @@ test = [
     #    "zfit[ipyopt] ; sys_platform == 'linux'",
     #    "zfit[nlopt] ; sys_platform == 'linux' or sys_platform == 'darwin' and platform_machine != 'arm64' or sys_platform == 'win32'",
     # pytest related
-    "pytest>=3.4.2",
+    "pytest>=3.4.2, <8.1",                         # TODO: remove this restriction once pytest-cases is updated
     "pytest-runner>=2.11.1",
     "pytest-rerunfailures>=6",
     "pytest-xdist",
