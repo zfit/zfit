@@ -175,8 +175,8 @@ print(f"Saved trace plot to: {plotpath / 'trace_plots.png'}")
 plt.close()
 
 # Posterior distributions with credible intervals
-az.plot_posterior(idata, hdi_prob=0.95)
-plt.suptitle("Posterior Distributions with 95% HDI", fontsize=16)
+az.plot_dist(idata, ci_prob=0.95)
+plt.suptitle("Posterior Distributions with 95% CI", fontsize=16)
 plt.tight_layout()
 plt.savefig(plotpath / "posterior_plots.png", dpi=300, bbox_inches="tight")
 print(f"Saved posterior distributions to: {plotpath / 'posterior_plots.png'}")
