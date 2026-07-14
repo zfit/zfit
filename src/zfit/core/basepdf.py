@@ -2,13 +2,9 @@
 
 from __future__ import annotations
 
-import sys
 import typing
 from collections.abc import Iterable
-
-from typing import Self
-
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Self
 
 from ..util.plotter import PDFPlotter
 from ..util.ztyping import ExtendedInputType, NormInputType

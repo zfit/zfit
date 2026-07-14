@@ -7,9 +7,7 @@ One example is a normal function `Function` that allows to simply define a non-n
 from __future__ import annotations
 
 import functools
-import sys
 import typing
-
 from typing import Self
 
 from ..core.basemodel import SimpleModelSubclassMixin

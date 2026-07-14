@@ -2,9 +2,7 @@
 
 from __future__ import annotations
 
-import sys
 import typing
-
 from typing import Self
 
 from ordered_set import OrderedSet

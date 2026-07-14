@@ -398,7 +398,6 @@ class BinnedData(
         vals = self.holder.variances
 
         if vals is not None and flow:
-
             rank = tf.rank(vals)
             paddings = tf.ones([rank, 2], dtype=tf.int32)
             vals = tf.pad(vals, paddings)

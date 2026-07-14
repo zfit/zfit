@@ -176,11 +176,7 @@ print(f"Saved trace plot to: {plotpath / 'trace_plots.png'}")
 plt.close()
 
 # Posterior distributions with credible intervals
-arviz_plots.plot_dist(
-    idata, 
-    var_names=["mu"], 
-    ci_prob=0.95
-)
+arviz_plots.plot_dist(idata, var_names=["mu"], ci_prob=0.95)
 plt.suptitle("Posterior Distributions with 95% CI", fontsize=16)
 plt.tight_layout()
 plt.savefig(plotpath / "posterior_plots.png", dpi=300, bbox_inches="tight")
@@ -189,7 +185,7 @@ plt.close()
 
 # Parameter correlation corner plot
 arviz_plots.plot_pair(
-    idata, 
+    idata,
     var_names=["mu", "sigma"],
 )
 plt.suptitle("Parameter Correlations", fontsize=16)
