@@ -13,6 +13,8 @@ Major Features and Improvements
 
 Breaking changes
 ------------------
+- Drop support for Python 3.10 and 3.11; the minimum supported Python version is now 3.12.
+- ``zfit.binned.RegularBinning``/``VariableBinning`` no longer subclass ``hist.axis.Regular``/``Variable``, and ``Binnings`` no longer subclasses ``hist.axestuple.NamedAxesTuple``. They remain fully interoperable with ``hist``, ``boost_histogram``, and ``mplhep`` via duck-typing, but ``isinstance(x, hist.axis.Regular)`` (or ``hist.axestuple.NamedAxesTuple``) checks against zfit's binning objects no longer return ``True``.
 
 Deprecations
 -------------
@@ -30,6 +32,10 @@ Experimental
 
 Requirement changes
 -------------------
+- Bump minimum ``numpy`` to ``2.1`` (from ``1.16``).
+- Bump minimum ``arviz`` (``bayes`` extra) to ``1.0.0`` (from ``0.14.0``) for ArviZ 1.0+ compatibility.
+- Bump minimum ``pytest`` (``test`` extra) to ``8`` (from ``3.4.2``).
+- Drop the ``pytest-cases`` and ``typing_extensions`` dependencies; the latter is no longer needed now that Python 3.10/3.11 support has been dropped.
 
 Thanks
 ------
