@@ -7,6 +7,8 @@ import numpy as np
 
 import zfit
 
+zfit.settings.set_seed(42)
+
 plt.style.use(mplhep.style.LHCb2)
 n_bins = 50
 # create space
