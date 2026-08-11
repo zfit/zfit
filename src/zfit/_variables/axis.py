@@ -77,12 +77,18 @@ class HashableAxisMixin:
     """Validates the axis name and provides edges-based equality/hashing for zfit-native binnings."""
 
     def __init__(self, *, name: str) -> None:
+        """Store and validate the axis name.
+
+        Args:
+            name: Name of the axis; must be non-empty.
+        """
         if name == "":
             msg = "Currently, a binning has to have a name coinciding with the obs."
             raise ValueError(msg)
         self.name = name
 
     def __eq__(self, other):
+        """Compare by type, name, and edges."""
         if type(self) is not type(other):
             return NotImplemented
         return self.name == other.name and np.array_equal(self.edges, other.edges)
@@ -120,6 +126,7 @@ class BinningBase(HashableAxisMixin, ZfitRectBinning):
         return self.edges[i], self.edges[i + 1]
 
     def __repr__(self):
+        """String representation showing the name and edges."""
         return f"{type(self).__name__}(name={self.name!r}, edges={self.edges})"
 
 
@@ -136,7 +143,8 @@ class VariableBinning(BinningBase):
 
 
 class _ArrayTuple(tuple):
-    """Tuple of (possibly differently shaped, sparse-broadcastable) arrays.
+    """
+    Tuple of (possibly differently shaped, sparse-broadcastable) arrays.
 
     Mirrors ``boost_histogram``'s ``ArrayTuple``: reductions like ``np.prod(t, axis=0)`` dispatch to
     ``t.prod`` (numpy tries the method before falling back to ``np.multiply.reduce``), which here
@@ -168,6 +176,7 @@ class Binnings(tuple):
         raise KeyError(msg)
 
     def __getitem__(self, item):
+        """Index by position, slice, or axis name."""
         if isinstance(item, slice):
             item = slice(self._index_by_name(item.start), self._index_by_name(item.stop), item.step)
         else:
