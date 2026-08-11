@@ -21,7 +21,8 @@ def test_binned_rect_integration(edges_bins1):
 
     integral = binned_rect_integration(density=values, edges=edges, limits=limits)
     true_integral = limits_true.volume * value_scaling
-    assert pytest.approx(float(true_integral)) == float(integral)
+    # volume/integral are batch-shaped tensors; squeeze to a true scalar before float()
+    assert pytest.approx(float(np.asarray(true_integral).reshape(-1)[0])) == float(np.asarray(integral).reshape(-1)[0])
 
     # integral = binned_rect_integration(counts=values, edges=edges, limits=limits)
     # true_integral = value_scaling * np.prod([e.shape.num_elements()

@@ -106,7 +106,9 @@ def test_sampling():
 
     plt.figure()
     plt.title("Sampling of SumPDF")
-    axis = hist.axis.Regular(100, *obs.v1.limits)
+    # v1.limits returns batch-shaped tensors; squeeze to true scalars for hist.axis.Regular
+    lower, upper = obs.v1.limits
+    axis = hist.axis.Regular(100, float(np.asarray(lower).reshape(-1)[0]), float(np.asarray(upper).reshape(-1)[0]))
     sample_hist = hist.Hist(axis).fill(sample)
     sample_true_hist = hist.Hist(axis).fill(sample_true)
     mplhep.histplot(sample_hist, density=True, label="sampled")
