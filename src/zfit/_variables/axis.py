@@ -77,11 +77,7 @@ class HashableAxisMixin:
     """Validates the axis name and provides edges-based equality/hashing for zfit-native binnings."""
 
     def __init__(self, *, name: str) -> None:
-        """Store and validate the axis name.
-
-        Args:
-            name: Name of the axis; must be non-empty.
-        """
+        """Store and validate the (non-empty) axis name."""
         if name == "":
             msg = "Currently, a binning has to have a name coinciding with the obs."
             raise ValueError(msg)
@@ -143,15 +139,12 @@ class VariableBinning(BinningBase):
 
 
 class _ArrayTuple(tuple):
-    """
-    Tuple of (possibly differently shaped, sparse-broadcastable) arrays.
+    """Tuple of (possibly differently shaped, sparse-broadcastable) arrays."""
 
-    Mirrors ``boost_histogram``'s ``ArrayTuple``: reductions like ``np.prod(t, axis=0)`` dispatch to
-    ``t.prod`` (numpy tries the method before falling back to ``np.multiply.reduce``), which here
-    broadcasts the members to a common dense shape first -- required since e.g. ``binning.widths`` holds
-    per-axis arrays of shape ``(n_i, 1, ..., 1)`` that a plain tuple can't be turned into a single ndarray from.
-    """
-
+    # Mirrors boost_histogram's ArrayTuple: reductions like np.prod(t, axis=0) dispatch to
+    # t.prod (numpy tries the method before falling back to np.multiply.reduce), which here
+    # broadcasts the members to a common dense shape first -- required since e.g. binning.widths holds
+    # per-axis arrays of shape (n_i, 1, ..., 1) that a plain tuple can't be turned into a single ndarray from.
     __slots__ = ()
     _REDUCTIONS = frozenset(("sum", "any", "all", "min", "max", "prod"))
 
