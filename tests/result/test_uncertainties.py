@@ -10,6 +10,8 @@ import zfit
 
 def create_gaussian_mixture_data(n_samples=1000, weights=True):
     """Create data for a Gaussian mixture model similar to scratch_103.py."""
+    zfit.settings.set_seed(42)  # for reproducibility: downstream error comparisons are tolerance-based
+
     # Define the observable space
     obs = zfit.Space("x", limits=(0, 10))
 
