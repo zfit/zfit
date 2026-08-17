@@ -14,7 +14,6 @@ Major Features and Improvements
 Breaking changes
 ------------------
 - Drop support for Python 3.10 and 3.11; the minimum supported Python version is now 3.12.
-- ``zfit.binned.RegularBinning``/``VariableBinning`` no longer subclass ``hist.axis.Regular``/``Variable``, and ``Binnings`` no longer subclasses ``hist.axestuple.NamedAxesTuple``. They remain fully interoperable with ``hist``, ``boost_histogram``, and ``mplhep`` via duck-typing, but ``isinstance(x, hist.axis.Regular)`` (or ``hist.axestuple.NamedAxesTuple``) checks against zfit's binning objects no longer return ``True``.
 
 Deprecations
 -------------

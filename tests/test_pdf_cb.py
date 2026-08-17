@@ -144,18 +144,17 @@ def test_cb_dcb(doublecb):
 
     kwargs = dict(limits=(-5.0, mu), norm=lbounds)
     intl = cbl.integrate(**kwargs) - dcb.integrate(**kwargs)
-    # integrate() returns a batch-shaped tensor; squeeze to a true scalar before float()
-    assert float(np.asarray(intl).reshape(-1)[0]) == pytest.approx(0.0, abs=1e-3)
+    assert float(intl) == pytest.approx(0.0, abs=1e-3)
     intl = cbr.integrate(**kwargs) - dcb.integrate(**kwargs)
-    assert pytest.approx(float(np.asarray(intl).reshape(-1)[0]), abs=1e-3) != 0
+    assert pytest.approx(float(intl), abs=1e-3) != 0
 
     # TODO: update test to fixed DCB integral
     kwargs = dict(limits=(mu, 2.0), norm=rbounds)
     dcb_integr1 = dcb.integrate(**kwargs)
     intr = cbr.integrate(**kwargs) - dcb_integr1
-    assert float(np.asarray(intr).reshape(-1)[0]) == pytest.approx(0.0, abs=1e-3)
+    assert float(intr) == pytest.approx(0.0, abs=1e-3)
     intr = cbl.integrate(**kwargs) - dcb.integrate(**kwargs)
-    assert float(np.asarray(intr).reshape(-1)[0]) != pytest.approx(0.0, abs=1e-3)
+    assert float(intr) != pytest.approx(0.0, abs=1e-3)
 
     xl = x[x <= mu]
     xr = x[x > mu]
@@ -179,4 +178,4 @@ def test_cb_dcb(doublecb):
 
     integral = np.sum(integrals)
     integral_full = znp.asarray(dcb.integrate((bounds[0], up), norm=False))
-    assert pytest.approx(float(np.asarray(integral_full).reshape(-1)[0])) == float(np.asarray(integral).reshape(-1)[0])
+    assert pytest.approx(float(integral_full)) == float(integral)

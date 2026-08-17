@@ -48,8 +48,7 @@ def test_conditional_pdf_simple():
     prob_check2 = np.ones_like(prob2)
     for i, (xval, muval) in enumerate(data2d.value()):
         mu.assign(muval)
-        # pdf() returns a batch-shaped tensor; squeeze to a true scalar before scalar assignment
-        prob_check2[i] = np.asarray(gauss.pdf(xval)).reshape(-1)[0]
+        prob_check2[i] = gauss.pdf(xval)
     np.testing.assert_allclose(prob_check2, prob2, rtol=1e-5)
 
     cond_gauss1d = zfit.pdf.ConditionalPDFV1(pdf=gauss, cond={mu: xobs})
@@ -60,7 +59,7 @@ def test_conditional_pdf_simple():
     prob_check1 = np.ones_like(prob1)
     for i, xval in enumerate(data1d.value()[:, 0]):
         mu.assign(xval)
-        prob_check1[i] = np.asarray(gauss.pdf(xval)).reshape(-1)[0]
+        prob_check1[i] = gauss.pdf(xval)
     np.testing.assert_allclose(prob_check1, prob1, rtol=1e-5)
 
     cond_gauss3d = zfit.pdf.ConditionalPDFV1(
@@ -73,7 +72,7 @@ def test_conditional_pdf_simple():
     prob_check3 = np.ones_like(prob3)
     for i, (xval, muval, sigmaval) in enumerate(data3d.value()):
         zfit.param.assign_values([mu, sigma], [muval, sigmaval])
-        prob_check3[i] = np.asarray(gauss.pdf(xval)).reshape(-1)[0]
+        prob_check3[i] = gauss.pdf(xval)
     np.testing.assert_allclose(prob_check3, prob3, rtol=1e-5)
 
     nll = zfit.loss.UnbinnedNLL(model=cond_gauss2d, data=data2d)

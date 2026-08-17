@@ -173,8 +173,7 @@ def test_pdf_integration_edge_cases():
     integral = pdf.integrate(limits=obs)
 
     # Should be close to 1 for normalized PDF
-    # integrate() returns a batch-shaped tensor; squeeze to a true scalar before float()
-    np.testing.assert_allclose(float(np.asarray(integral).reshape(-1)[0]), 1.0, atol=0.1,
+    np.testing.assert_allclose(float(integral), 1.0, atol=0.1,
                              err_msg="Normalized PDF integral should be close to 1")
 
 
