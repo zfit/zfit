@@ -6,6 +6,7 @@ import typing
 from collections.abc import Iterable
 
 import hist
+import numpy as np
 import zfit_interface as zinterface
 
 if typing.TYPE_CHECKING:
@@ -80,6 +81,8 @@ class HashableAxisMixin:
 
 class RegularBinning(HashableAxisMixin, hist.axis.Regular, ZfitBinning, family="zfit"):
     def __init__(self, bins: int, start: float, stop: float, *, name: str) -> None:
+        start = float(np.asarray(start).reshape(-1)[0])
+        stop = float(np.asarray(stop).reshape(-1)[0])
         super().__init__(bins, start, stop, name=name, flow=False)
 
 
