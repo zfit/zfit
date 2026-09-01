@@ -106,8 +106,7 @@ def test_sampling():
 
     plt.figure()
     plt.title("Sampling of SumPDF")
-    _lo, _hi = obs.v1.limits
-    axis = hist.axis.Regular(100, float(np.asarray(_lo).reshape(-1)[0]), float(np.asarray(_hi).reshape(-1)[0]))
+    axis = hist.axis.Regular(100, *obs.v1.limits)
     sample_hist = hist.Hist(axis).fill(sample)
     sample_true_hist = hist.Hist(axis).fill(sample_true)
     mplhep.histplot(sample_hist, density=True, label="sampled")
