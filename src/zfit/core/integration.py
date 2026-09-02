@@ -72,7 +72,7 @@ def auto_integrate(
     else:
         msg = f"Method {method} not a legal choice for integration method."
         raise ValueError(msg)
-    return znp.atleast_1d(integral)
+    return znp.reshape(integral, []) if x is None else integral
 
 
 # TODO implement numerical integration method
@@ -268,7 +268,7 @@ def mc_integrate(
         return mapfn(
             part_integrate_func,
             integrate_data,
-        )[:, 0]
+        )
 
     integrals = []
     for space in limits:
@@ -398,7 +398,7 @@ def mc_integrate(
         integral = avg * znp.asarray(space.volume, dtype=avg.dtype)
         integrals.append(integral)
     integral = znp.sum(integrals, axis=0)
-    return znp.atleast_1d(integral)
+    return znp.reshape(integral, [])
 
 
 # TODO(Mayou36): Make more flexible for sampling

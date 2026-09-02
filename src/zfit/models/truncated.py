@@ -272,7 +272,7 @@ class TruncatedPDF(BaseFunctor, SerializableMixin):
         limits = self.limits
         # should be `self.integrate`, but as we do it numerically currently, more efficient to use pdf
         if len(limits) > 1:
-            integrals = znp.concatenate([pdf.integrate(limits=limit, norm=False) for limit in limits])
+            integrals = znp.stack([pdf.integrate(limits=limit, norm=False) for limit in limits])
             fracs = integrals / znp.sum(integrals, axis=0)  # norm
             fracs.set_shape([len(limits)])
             counts = tf.unstack(z.random.counts_multinomial(n, probs=fracs), axis=0)
