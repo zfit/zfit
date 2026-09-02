@@ -172,11 +172,11 @@ class TruncatedPDF(BaseFunctor, SerializableMixin):
         if extended is True and pdf.is_extended:
             paramname = "wrapped_yield"
 
-            def scaled_yield(params: dict[str, tf.Tensor]) -> tuple[tf.Tensor]:
+            def scaled_yield(params: dict[str, tf.Tensor]) -> tf.Tensor:
                 base_norm = pdf.integrate(limits=obs, norm=False)
                 piecewise_norms = znp.asarray([pdf.integrate(limits=limit, norm=False) for limit in self._limits])
                 relative_scale = znp.sum(piecewise_norms / base_norm)
-                return (params[paramname] * relative_scale,)
+                return params[paramname] * relative_scale
 
             import zfit  # noqa: PLC0415
 
