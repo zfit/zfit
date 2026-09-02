@@ -397,7 +397,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
             options = {}
         with self._convert_sort_x(var, allow_none=True) as varclean, self._check_set_input_params(params=params):
             integral = self._single_hook_integrate(limits=limits, norm=norm, x=varclean, options=options)
-        return znp.reshape(integral, -1)
+        return znp.reshape(integral, [])
 
     @z.function(wraps="model")
     def _single_hook_integrate(self, limits, norm, x, *, options):
