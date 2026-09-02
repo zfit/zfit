@@ -475,7 +475,7 @@ def func_integral_chebyshev1(limits, norm, params, model):
         integral += indefinite_integral(upper) - indefinite_integral(lower)
         integral = znp.reshape(integral, newshape=())
     integral *= 0.5 * model.space.volume  # rescale back to whole width
-    return integral[..., 0]
+    return integral
 
 
 chebyshev1_limits_integral = Space(axes=0, limits=(Space.ANY_LOWER, Space.ANY_UPPER))
