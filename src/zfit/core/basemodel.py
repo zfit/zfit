@@ -549,7 +549,7 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         limits = self._check_input_limits(limits=limits)
         with self._check_set_input_params(params=params):
             integral = self._single_hook_analytic_integrate(limits=limits, norm=norm)
-        return znp.atleast_1d(integral)
+        return znp.reshape(integral, [])
 
     @z.function(wraps="model")
     def _single_hook_analytic_integrate(self, limits, norm):
@@ -675,7 +675,8 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         if options is None:
             options = {}
         with self._check_set_input_params(params=params):
-            return self._single_hook_numeric_integrate(limits=limits, norm=norm, options=options)
+            integral = self._single_hook_numeric_integrate(limits=limits, norm=norm, options=options)
+        return znp.reshape(integral, [])
 
     @z.function(wraps="model")
     def _single_hook_numeric_integrate(self, limits, norm, options):
@@ -1224,9 +1225,8 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         except MultipleLimitsNotImplemented as error:
             try:
                 total_integral = self.analytic_integrate(limits, norm=False)
-                sub_integrals = znp.concatenate(
+                sub_integrals = znp.stack(
                     [self.analytic_integrate(limit, norm=False) for limit in limits],
-                    axis=0,
                 )
             except AnalyticIntegralNotImplemented:
                 msg = "Cannot autohandle multiple limits as the analytic integral is not available."
