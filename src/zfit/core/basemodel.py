@@ -387,22 +387,29 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
                typically :py:class:`~zfit.Parameter`, that
                the model was _initialized_ with, not the name of the models
                parametrization. |@docend:model.args.params|
+            var: Data used for models where the integral depends on additional, per-event
+               values (for example a conditional PDF). If given, the integral is computed
+               per-event and returned as an array instead of a scalar.
 
         Returns:
-            The integral value as a scalar with shape ()
+            The integral value as a scalar with shape (), or, if ``var`` is given, an array
+            with one integral value per event in ``var``.
         """
         norm = self._check_input_norm(norm)
         limits = self._check_input_limits(limits=limits)
         if options is None:
             options = {}
         with self._convert_sort_x(var, allow_none=True) as varclean, self._check_set_input_params(params=params):
-            integral = self._single_hook_integrate(limits=limits, norm=norm, x=varclean, options=options)
-        return znp.reshape(integral, [])
+            return self._single_hook_integrate(limits=limits, norm=norm, x=varclean, options=options)
 
     @z.function(wraps="model")
     def _single_hook_integrate(self, limits, norm, x, *, options):
         del x  # TODO HACK: how and what to pass through?
-        return self._hook_integrate(limits=limits, norm=norm, options=options)
+        integral = self._hook_integrate(limits=limits, norm=norm, options=options)
+        # this is the "aggregate, single-region" path: it always produces one number. A subclass
+        # that overrides this hook to compute a per-event/vectorized integral (e.g. a conditional
+        # PDF, driven by `x`) is responsible for its own output shape and does not go through here.
+        return znp.reshape(integral, [])
 
     def _hook_integrate(self, limits, norm, *, options=None) -> tf.Tensor:
         return self._norm_integrate(limits=limits, norm=norm, options=options)
@@ -548,12 +555,12 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         norm = self._check_input_norm(norm)
         limits = self._check_input_limits(limits=limits)
         with self._check_set_input_params(params=params):
-            integral = self._single_hook_analytic_integrate(limits=limits, norm=norm)
-        return znp.reshape(integral, [])
+            return self._single_hook_analytic_integrate(limits=limits, norm=norm)
 
     @z.function(wraps="model")
     def _single_hook_analytic_integrate(self, limits, norm):
-        return self._hook_analytic_integrate(limits=limits, norm=norm)
+        integral = self._hook_analytic_integrate(limits=limits, norm=norm)
+        return znp.reshape(integral, [])
 
     def _hook_analytic_integrate(self, limits, norm):
         return self._norm_analytic_integrate(limits=limits, norm=norm)
@@ -675,12 +682,12 @@ class BaseModel(BaseNumeric, GraphCachable, BaseDimensional, ZfitModel):
         if options is None:
             options = {}
         with self._check_set_input_params(params=params):
-            integral = self._single_hook_numeric_integrate(limits=limits, norm=norm, options=options)
-        return znp.reshape(integral, [])
+            return self._single_hook_numeric_integrate(limits=limits, norm=norm, options=options)
 
     @z.function(wraps="model")
     def _single_hook_numeric_integrate(self, limits, norm, options):
-        return self._hook_numeric_integrate(limits=limits, norm=norm, options=options)
+        integral = self._hook_numeric_integrate(limits=limits, norm=norm, options=options)
+        return znp.reshape(integral, [])
 
     def _hook_numeric_integrate(self, limits, norm, options):
         return self._norm_numeric_integrate(limits=limits, norm=norm, options=options)
