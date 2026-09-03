@@ -7,7 +7,7 @@ build-backend = "hatchling.build"
 name = "zfit"
 description = "scalable pythonic model fitting for high energy physics"
 readme = "README.rst"
-requires-python = ">=3.10, <3.14"
+requires-python = ">=3.12, <3.14"
 license = { text = "BSD-3-Clause" }
 authors = [
     { name = "Jonas Eschle", email = "Jonas.Eschle@cern.ch" },
@@ -27,8 +27,6 @@ classifiers = [
     "Operating System :: Unix",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Topic :: Scientific/Engineering :: Physics"
@@ -50,7 +48,7 @@ dependencies = [
     "iminuit>=2.3",
     "jacobi",
     "numdifftools",
-    "numpy>=1.16",
+    "numpy>=2.1",                   # Updated based on numpy recomendations: https://numpy.org/neps/nep-0029-deprecation_policy.html
     "ordered-set",
     "pandas",
     "pydantic>=2.0.0",
@@ -60,7 +58,6 @@ dependencies = [
     "tensorflow>=2.16.2, <3.0",
     "tensorflow-probability[tf]>=0.24, <1.0",
     "texttable",
-    "typing_extensions>=4.0.0; python_version < '3.11'",
     "uhi",
     "uproot>=4",
     "xxhash",
@@ -81,7 +78,7 @@ emcee = ["emcee>=3.0.0"]
 
 bayes = [
     "zfit[emcee]",
-    "arviz>=0.14.0"
+    "arviz>=1.0.0"
 ]
 
 plot = ["matplotlib", "mplhep"]
@@ -117,7 +114,7 @@ test = [
     #    "zfit[ipyopt] ; sys_platform == 'linux'",
     #    "zfit[nlopt] ; sys_platform == 'linux' or sys_platform == 'darwin' and platform_machine != 'arm64' or sys_platform == 'win32'",
     # pytest related
-    "pytest>=3.4.2",
+    "pytest>=8",
     "pytest-runner>=2.11.1",
     "pytest-rerunfailures>=6",
     "pytest-xdist",
@@ -125,7 +122,6 @@ test = [
     "pytest-randomly",
     "pytest-timeout>=1",
     "pytest-benchmark",
-    "pytest-cases",
     "pytest-helpers-namespace",
     "coverage>=4.5.1",
     "coverage-lcov",
@@ -193,7 +189,7 @@ testpaths = [
     "tests/*",
 ]
 markers = [
-    "plots: create and safe plots",
+    "plots: create and save plots",
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
 ]
 console_output_style = "progress"

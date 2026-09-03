@@ -769,7 +769,7 @@ class BaseBinnedPDF(
             integrals = []  # TODO: map?
             for sub_limits in limits:
                 integrals.append(self._auto_integrate(limits=sub_limits, norm=norm, options=options))
-            integral = z.reduce_sum(integrals, axis=0)  # TODO: remove stack?
+            integral = z.reduce_sum(znp.stack(integrals), axis=0)
         return integral
 
     @deprecated_norm_range
@@ -837,7 +837,7 @@ class BaseBinnedPDF(
             integrals = []  # TODO: map?
             for sub_limits in limits:
                 integrals.append(self._auto_integrate(limits=sub_limits, norm=norm, options=options))
-            integral = z.reduce_sum(integrals, axis=0)  # TODO: remove stack?
+            integral = z.reduce_sum(znp.stack(integrals), axis=0)
         return integral
 
     @_BinnedPDF_register_check_support(True)

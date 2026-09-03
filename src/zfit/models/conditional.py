@@ -2,13 +2,8 @@
 
 from __future__ import annotations
 
-import sys
 import typing
-
-if sys.version_info >= (3, 11):
-    from typing import Self
-else:
-    from typing_extensions import Self
+from typing import Self
 
 from ordered_set import OrderedSet
 
@@ -168,7 +163,8 @@ class ConditionalPDFV1(BaseFunctor):
         if self._use_vectorized_map and run.get_graph_mode() is not False:
             tf_map = tf.vectorized_map
         else:
-            output_signature = tf.TensorSpec(shape=(1, *x_values.shape[1:-1]), dtype=self.dtype)
+            # pdf.integrate() returns a true scalar (shape ()) per call, not shape (1,)
+            output_signature = tf.TensorSpec(shape=(), dtype=self.dtype)
             tf_map = functools.partial(tf.map_fn, fn_output_signature=output_signature)
 
         @z.function(wraps="vectorized_map")
@@ -178,8 +174,7 @@ class ConditionalPDFV1(BaseFunctor):
 
             return pdf.integrate(limits=limits, norm=norm, options=options)
 
-        integrals = tf_map(eval_int, x_values)
-        return integrals[:, 0]  # removing stack dimension, implicitly in map_fn
+        return tf_map(eval_int, x_values)
 
     @z.function(wraps="conditional_pdf")
     def _single_hook_sample(self, n, limits, x):
