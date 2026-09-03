@@ -27,7 +27,6 @@ Bug fixes and small changes
 - Fix ``BinnedChi2`` and ``ExtendedBinnedChi2`` to use expected Poisson variance in the ``errors="expected"`` path.
 - Make ``BinnedData.from_tensor(..., variances=True)`` return Poisson variances (``Var[N] = N``) for unweighted counts, aligning binned ``variances`` semantics with σ².
 - Fix ``TruncatedPDF``'s automatic extended yield scaling, which returned a 1-element array instead of a scalar.
-- Fix ``EmceeSampler`` raising ``ValueError: Probability function returned NaN`` when a walker proposed a point outside a parameter's prior support; it now correctly returns ``-inf`` for such points.
 
 Experimental
 ------------
