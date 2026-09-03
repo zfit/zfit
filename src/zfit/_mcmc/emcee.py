@@ -144,7 +144,13 @@ class EmceeSampler(BaseMCMCSampler):
             zfit.param.assign_values_jit(params, x)
             log_likelihood = -loss.value()
             log_prior = calculate_priors(x)
-            return log_likelihood + log_prior
+            log_prob = log_likelihood + log_prior
+            # a walker can propose a point the prior already rejects (log_prior = -inf);
+            # the likelihood may then be NaN there too (e.g. negative sigma), and
+            # NaN + (-inf) = NaN, which emcee refuses to accept. Once the prior has
+            # rejected a point, its verdict (-inf) is final regardless of what the
+            # likelihood evaluated to there.
+            return znp.where(znp.isfinite(log_prior), log_prob, -znp.inf)
 
         # Initialize walkers
 
