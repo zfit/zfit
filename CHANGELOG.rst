@@ -14,6 +14,7 @@ Major Features and Improvements
 Breaking changes
 ------------------
 - Drop support for Python 3.10 and 3.11; the minimum supported Python version is now 3.12.
+- ``PDF.integrate()``, ``analytic_integrate()``, ``numeric_integrate()``, and ``Space.volume`` (for a single-region space) now return a true scalar (``shape ()``) instead of ``shape (1,)``, fixed as part of restoring compatibility with numpy>=2.1 (which no longer silently converts non-0-d arrays to Python scalars). Code that indexes the result (``result[0]``) or checks ``result.shape == (1,)`` needs to be updated.
 
 Deprecations
 -------------
@@ -25,6 +26,8 @@ Bug fixes and small changes
 - Fix ``zfit.run.set_cpus_explicit()`` which was failing after ``import zfit`` due to premature TensorFlow initialization.
 - Fix ``BinnedChi2`` and ``ExtendedBinnedChi2`` to use expected Poisson variance in the ``errors="expected"`` path.
 - Make ``BinnedData.from_tensor(..., variances=True)`` return Poisson variances (``Var[N] = N``) for unweighted counts, aligning binned ``variances`` semantics with σ².
+- Fix ``TruncatedPDF``'s automatic extended yield scaling, which returned a 1-element array instead of a scalar.
+- Fix ``EmceeSampler`` raising ``ValueError: Probability function returned NaN`` when a walker proposed a point outside a parameter's prior support; it now correctly returns ``-inf`` for such points.
 
 Experimental
 ------------
