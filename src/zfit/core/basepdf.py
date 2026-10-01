@@ -2,16 +2,9 @@
 
 from __future__ import annotations
 
-import sys
 import typing
 from collections.abc import Iterable
-
-if sys.version_info >= (3, 11):
-    from typing import Self
-else:
-    from typing_extensions import Self
-
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Self
 
 from ..util.plotter import PDFPlotter
 from ..util.ztyping import ExtendedInputType, NormInputType

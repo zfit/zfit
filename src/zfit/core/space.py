@@ -212,7 +212,10 @@ def fail_not_rect(func):
 def calculate_rect_area(rect_limits):
     lower, upper = rect_limits
     diff = upper - lower
-    return z.unstable.reduce_prod(diff, axis=-1)
+    area = z.unstable.reduce_prod(diff, axis=-1)
+    if area.shape[0] == 1:
+        area = znp.reshape(area, [])
+    return area
 
 
 @z.function(wraps="tensor", keepalive=True)

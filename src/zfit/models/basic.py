@@ -215,7 +215,7 @@ def _exp_integral_from_any_to_any(limits, params, model):
     #     raise AnalyticIntegralNotImplemented
 
     integral = _exp_integral_func_shifting(lambd=lambda_, lower=lower, upper=upper, model=model)
-    return integral[0]
+    return znp.reshape(integral, [])
 
 
 def _exp_integral_func_shifting(lambd, lower, upper, model):

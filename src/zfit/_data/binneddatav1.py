@@ -368,7 +368,7 @@ class BinnedData(
     def binning(self):
         return self.space.binning
 
-    def values(self) -> znp.array:  # , flow=False
+    def values(self, flow: bool = False) -> znp.array:
         """Values of the histogram as an ndim array.
 
         Compared to ``hist``, zfit does not make a difference between a view and a copy; tensors are immutable.
@@ -377,12 +377,16 @@ class BinnedData(
         Returns:
             Tensor of shape (nbins0, nbins1, ...) with nbins the number of bins in each observable.
         """
-        return self.holder.values
-        # if not flow:  # TODO: flow?
-        #     shape = tf.shape(vals)
-        #     vals = tf.slice(vals, znp.ones_like(shape), shape - 2)
+        vals = self.holder.values
 
-    def variances(self) -> None | znp.array:  # , flow=False
+        if flow:
+            rank = tf.rank(vals)
+            paddings = tf.ones([rank, 2], dtype=tf.int32)
+            vals = tf.pad(vals, paddings)
+
+        return vals
+
+    def variances(self, flow: bool = False) -> None | znp.array:
         """Variances, if available, of the histogram as an ndim array.
 
         Compared to ``hist``, zfit does not make a difference between a view and a copy; tensors are immutable.
@@ -391,10 +395,14 @@ class BinnedData(
         Returns:
             Tensor of shape (nbins0, nbins1, ...) with nbins the number of bins in each observable.
         """
-        return self.holder.variances
-        # if not flow:  # TODO: flow?
-        #     shape = tf.shape(vals)
-        #     vals = tf.slice(vals, znp.ones_like(shape), shape - 2)
+        vals = self.holder.variances
+
+        if vals is not None and flow:
+            rank = tf.rank(vals)
+            paddings = tf.ones([rank, 2], dtype=tf.int32)
+            vals = tf.pad(vals, paddings)
+
+        return vals
 
     def counts(self):
         """Effective counts of the histogram as a ndim array.
@@ -756,21 +764,23 @@ class BinnedSamplerData(BinnedData):
         self._initial_resampled = True
         self._update_hash()
 
-    def values(self) -> znp.array:
+    def values(self, flow: bool = False) -> znp.array:
         """Values/counts of the histogram as an ndim array.
 
         Returns:
             Tensor of shape (nbins0, nbins1, ...) with nbins the number of bins in each observable.
         """
-        return znp.asarray(super().values())  # otherwise, shape is not correct -> use handler if variable is needed
+        return znp.asarray(
+            super().values(flow=flow)
+        )  # otherwise, shape is not correct -> use handler if variable is needed
 
-    def variances(self) -> znp.array:
+    def variances(self, flow: bool = False) -> znp.array:
         """Variances of the histogram as an ndim array or `None` if no variances are available.
 
         Returns:
             Tensor of shape (nbins0, nbins1, ...) with nbins the number of bins in each observable.
         """
-        if (variances := super().variances()) is not None:
+        if (variances := super().variances(flow=flow)) is not None:
             variances = znp.asarray(variances)
         return variances
 

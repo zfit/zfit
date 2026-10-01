@@ -6,6 +6,7 @@ import typing
 from collections.abc import Iterable
 
 import hist
+import numpy as np
 import zfit_interface as zinterface
 
 if typing.TYPE_CHECKING:
@@ -78,8 +79,23 @@ class HashableAxisMixin:
         return hash(tuple(self.edges))
 
 
+def _to_plain_float(value):
+    """Coerce a scalar-like value (Python number, numpy array, or TF tensor) to a plain float.
+
+    Fast path: if it's already a plain Python number, skip the numpy/TF conversion overhead
+    entirely (np.asarray on a tf.Tensor forces a device sync of ~1us, which is unnecessary
+    for the common case of literal numbers passed by the user).
+    """
+    if isinstance(value, (int, float)):
+        return float(value)
+    else:
+        return float(np.asarray(value).reshape(-1)[0])
+
+
 class RegularBinning(HashableAxisMixin, hist.axis.Regular, ZfitBinning, family="zfit"):
     def __init__(self, bins: int, start: float, stop: float, *, name: str) -> None:
+        start = _to_plain_float(start)
+        stop = _to_plain_float(stop)
         super().__init__(bins, start, stop, name=name, flow=False)
 
 

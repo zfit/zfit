@@ -13,21 +13,31 @@ Major Features and Improvements
 
 Breaking changes
 ------------------
+- Drop support for Python 3.10 and 3.11; the minimum supported Python version is now 3.12.
+- ``PDF.integrate()``, ``analytic_integrate()``, ``numeric_integrate()``, and ``Space.volume`` (for a single-region space) now return a true scalar (``shape ()``) instead of ``shape (1,)``, fixed as part of restoring compatibility with numpy>=2.1 (which no longer silently converts non-0-d arrays to Python scalars). Code that indexes the result (``result[0]``) or checks ``result.shape == (1,)`` needs to be updated. The one exception is ``integrate(..., var=...)`` (used for per-event conditional integrals, e.g. with ``ConditionalPDFV1``), which still returns an array with one value per event, since there is no single total integral in that case.
 
 Deprecations
 -------------
 
 Bug fixes and small changes
 ---------------------------
+- Fix ``mplhep`` compatibility: update ``BinnedData.values()`` and ``BinnedData.variances()`` to support the UHI ``flow`` keyword argument.
+- Fix ``ArviZ`` compatibility: update ``to_arviz`` conversion to align with 1.0+ API changes.
 - Fix ``zfit.run.set_cpus_explicit()`` which was failing after ``import zfit`` due to premature TensorFlow initialization.
 - Fix ``BinnedChi2`` and ``ExtendedBinnedChi2`` to use expected Poisson variance in the ``errors="expected"`` path.
 - Make ``BinnedData.from_tensor(..., variances=True)`` return Poisson variances (``Var[N] = N``) for unweighted counts, aligning binned ``variances`` semantics with σ².
+- Fix ``TruncatedPDF``'s automatic extended yield scaling, which returned a 1-element array instead of a scalar.
+- Fix ``ConditionalPDFV1.integrate()``, which still assumed the pre-numpy-2.1 ``shape (1,)`` convention for the wrapped PDF's ``integrate()`` output and raised a shape-mismatch error; the scalar-shape enforcement in ``BaseModel.integrate()``/``analytic_integrate()``/``numeric_integrate()`` was also moved to the default (non-vectorized) implementation so it no longer clobbers per-event results from subclasses like ``ConditionalPDFV1``.
 
 Experimental
 ------------
 
 Requirement changes
 -------------------
+- Bump minimum ``numpy`` to ``2.1`` (from ``1.16``).
+- Bump minimum ``arviz`` (``bayes`` extra) to ``1.0.0`` (from ``0.14.0``) for ArviZ 1.0+ compatibility.
+- Bump minimum ``pytest`` (``test`` extra) to ``8`` (from ``3.4.2``).
+- Drop the ``pytest-cases`` and ``typing_extensions`` dependencies; the latter is no longer needed now that Python 3.10/3.11 support has been dropped.
 
 Thanks
 ------

@@ -475,7 +475,7 @@ def func_integral_chebyshev1(limits, norm, params, model):
         integral += indefinite_integral(upper) - indefinite_integral(lower)
         integral = znp.reshape(integral, newshape=())
     integral *= 0.5 * model.space.volume  # rescale back to whole width
-    return integral[..., 0]
+    return integral
 
 
 chebyshev1_limits_integral = Space(axes=0, limits=(Space.ANY_LOWER, Space.ANY_UPPER))
@@ -1021,7 +1021,8 @@ def func_integral_bernstein(limits, params, model):
     upper_integral = bernstein_integral_from_xmin_to_x(upper, coeffs, model.space)
     lower_integral = bernstein_integral_from_xmin_to_x(lower, coeffs, model.space)
 
-    return upper_integral - lower_integral
+    integral = upper_integral - lower_integral
+    return znp.reshape(integral, newshape=())
 
 
 bernstein_limits_integral = Space(axes=0, limits=(Space.ANY_LOWER, Space.ANY_UPPER))

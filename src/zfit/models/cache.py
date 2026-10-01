@@ -213,7 +213,7 @@ class CachedPDF(BaseFunctor, SerializableMixin):
 
         if self._integral_cache is None:
             self._integral_cache = tf.Variable(
-                znp.zeros(shape=tf.shape([1])),
+                znp.zeros(shape=()),
                 trainable=False,
                 validate_shape=False,
                 dtype=ztypes.float,

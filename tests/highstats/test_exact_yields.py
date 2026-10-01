@@ -1,4 +1,5 @@
 #  Copyright (c) 2025 zfit
+import gc
 import pathlib
 
 import matplotlib.pyplot as plt
@@ -12,6 +13,7 @@ def test_yield_bias(exact_nsample, ntoys=300):
     import zfit
     import zfit.z.numpy as znp
     from zfit import z
+    from zfit.util.cache import clear_graph_cache
 
     plot_folder = pathlib.Path(
         f"{'exact' if exact_nsample else 'binomial_sum'}_yield_sampling"
@@ -53,7 +55,14 @@ def test_yield_bias(exact_nsample, ntoys=300):
     nbkgs = []
     minimizer = zfit.minimize.Minuit(gradient=False, tol=1e-05)
     failures = 0
-    for _ in tqdm(range(ntoys)):
+    for itoy in tqdm(range(ntoys)):
+        # The repeated minimize() calls below accumulate cached TF graphs over the many
+        # toys, growing memory unboundedly (verified: ~2-3 MB/toy) until eventually OOM
+        # on CI, which parallelizes several of these highstats tests via pytest-xdist.
+        # Periodically clearing the cache keeps memory flat at the cost of some retracing.
+        if itoy and itoy % 10 == 0:
+            clear_graph_cache()
+            gc.collect()
         zfit.param.set_values(params, true_vals)
         if exact_nsample:
             data.update_data(sample_func(), guarantee_limits=True)
