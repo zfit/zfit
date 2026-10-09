@@ -6,6 +6,7 @@ import typing
 from collections.abc import Iterable
 
 import hist
+import numpy as np
 import zfit_interface as zinterface
 
 if typing.TYPE_CHECKING:
@@ -78,9 +79,19 @@ class HashableAxisMixin:
         return hash(tuple(self.edges))
 
 
+def _limit_to_float(limit, which: str) -> float:
+    """Convert a limit to a float, also if it is an array or tensor with a single element like ``space.v1.lower``."""
+    limit = np.asarray(limit)
+    if limit.size != 1:
+        msg = f"`{which}` of a regular binning has to be a single number, got an array of shape {limit.shape}."
+        raise ValueError(msg)
+    # NumPy >= 2.4 does not convert arrays with ndim > 0 to a float implicitly anymore, which hist needs
+    return float(limit.reshape(()))
+
+
 class RegularBinning(HashableAxisMixin, hist.axis.Regular, ZfitBinning, family="zfit"):
     def __init__(self, bins: int, start: float, stop: float, *, name: str) -> None:
-        super().__init__(bins, start, stop, name=name, flow=False)
+        super().__init__(bins, _limit_to_float(start, "start"), _limit_to_float(stop, "stop"), name=name, flow=False)
 
 
 class VariableBinning(HashableAxisMixin, hist.axis.Variable, ZfitBinning, family="zfit"):
