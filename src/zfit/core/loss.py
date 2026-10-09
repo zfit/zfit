@@ -920,6 +920,20 @@ def one_two_many(values, n: int = 3, many: str = "multiple") -> list | str:
 
 
 class BaseUnbinnedNLL(BaseLoss, SerializableMixin):
+    def _input_check(self, pdf, data, fit_range):
+        pdf, data, fit_range = super()._input_check(pdf, data, fit_range)
+        for i, dat in enumerate(data):
+            if isinstance(dat, ZfitBinnedData):
+                msg = (
+                    f"{type(self).__name__} needs unbinned data, but the data at index {i} is binned "
+                    f"({type(dat).__name__}). A binned dataset does not contain the individual events anymore, "
+                    f"so an unbinned likelihood cannot be built from it. Either use unbinned data (a `Space` with a "
+                    f"`binning` makes PDFs, samplers and data binned, so create them with a `Space` without "
+                    f"binning), or use a binned loss such as `zfit.loss.BinnedNLL`."
+                )
+                raise TypeError(msg)
+        return pdf, data, fit_range
+
     def create_new(
         self,
         model: ZfitPDF | Iterable[ZfitPDF] | None | NotSpecified = NONE,
