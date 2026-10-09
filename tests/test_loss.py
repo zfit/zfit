@@ -616,7 +616,7 @@ def test_unbinned_nll_binned_data_fails():
     gauss_binned = zfit.pdf.Gauss(mu=1.0, sigma=2.0, obs=obs_binned)
     data_binned = gauss_binned.create_sampler(n=1000)
     for loss_class in (zfit.loss.UnbinnedNLL, zfit.loss.ExtendedUnbinnedNLL):
-        with pytest.raises(TypeError, match="needs unbinned data.*zfit.loss.BinnedNLL"):
+        with pytest.raises(TypeError, match=r"needs unbinned data.*zfit.loss.BinnedNLL"):
             loss_class(model=gauss_binned, data=data_binned)
 
     # binned data with an unbinned model
