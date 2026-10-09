@@ -52,3 +52,35 @@ def test_set_yield():
     assert not gauss6.is_extended
     gauss6.set_yield(yield1)
     assert gauss6.is_extended
+
+
+def test_create_extended_keeps_space_and_norm():
+    # the observable space must not be replaced by the normalization range
+    obs = zfit.Space("obs_ext_norm", limits=(-10, 10))
+    norm = zfit.Space("obs_ext_norm", limits=(0, 10))
+    x = np.array([-2.0, 1.0, 3.0])
+
+    gauss = zfit.pdf.Gauss(mu=0.0, sigma=1.0, obs=obs, norm=norm)
+    gauss_ext = gauss.create_extended(500)
+    assert gauss_ext.is_extended
+    assert gauss_ext.space == obs
+    assert gauss_ext.norm == norm
+    np.testing.assert_allclose(gauss_ext.pdf(x), gauss.pdf(x))
+    np.testing.assert_allclose(gauss_ext.ext_pdf(x), 500 * gauss.pdf(x))
+
+    gauss_copy = gauss.copy()
+    assert gauss_copy.space == obs
+    assert gauss_copy.norm == norm
+
+    # without a separate norm, space and norm stay the same
+    gauss_plain = zfit.pdf.Gauss(mu=0.0, sigma=1.0, obs=obs)
+    gauss_plain_ext = gauss_plain.create_extended(500)
+    assert gauss_plain_ext.space == obs
+    assert gauss_plain_ext.norm == obs
+
+    # also for a sum of PDFs
+    gauss2 = zfit.pdf.Gauss(mu=1.0, sigma=2.0, obs=obs, norm=norm)
+    sum_pdf = zfit.pdf.SumPDF([gauss, gauss2], fracs=0.3, norm=norm)
+    sum_ext = sum_pdf.create_extended(500)
+    assert sum_ext.space == sum_pdf.space
+    assert sum_ext.norm == norm
