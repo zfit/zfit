@@ -608,3 +608,23 @@ def test_loss_from_data_outside_fails():
     assert loss.value() ** 2 > -1  # just a sanity check
     loss2 = zfit.loss.UnbinnedNLL(model=pdf, data=zfit.Data(data, obs=obs))
     assert loss2.value() ** 2 > -1  # just a sanity check
+
+
+def test_unbinned_nll_binned_data_fails():
+    # a binned Space makes the model, the sampler and the data binned, which cannot give an unbinned likelihood
+    obs_binned = zfit.Space("obs_nll_binned", limits=(-10, 10), binning=100)
+    gauss_binned = zfit.pdf.Gauss(mu=1.0, sigma=2.0, obs=obs_binned)
+    data_binned = gauss_binned.create_sampler(n=1000)
+    for loss_class in (zfit.loss.UnbinnedNLL, zfit.loss.ExtendedUnbinnedNLL):
+        with pytest.raises(TypeError, match="needs unbinned data.*zfit.loss.BinnedNLL"):
+            loss_class(model=gauss_binned, data=data_binned)
+
+    # binned data with an unbinned model
+    obs = zfit.Space("obs_nll_binned", limits=(-10, 10))
+    gauss = zfit.pdf.Gauss(mu=1.0, sigma=2.0, obs=obs)
+    with pytest.raises(TypeError, match="needs unbinned data"):
+        zfit.loss.UnbinnedNLL(model=gauss, data=data_binned)
+
+    # unbinned data still works
+    data = gauss.sample(100)
+    assert zfit.loss.UnbinnedNLL(model=gauss, data=data).value() ** 2 > -1
