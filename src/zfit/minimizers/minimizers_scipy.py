@@ -46,7 +46,7 @@ class ScipyBaseMinimizer(BaseMinimizer):
         verbosity: int | None = None,
         strategy: ZfitStrategy | None = None,
         criterion: ConvergenceCriterion | None = None,
-        minimize_func: callable | None = None,
+        minimize_func: Callable | None = None,
         initializer: Callable | None = None,
         verbosity_setter: Callable | None = None,
         name: str = "ScipyMinimizer",
