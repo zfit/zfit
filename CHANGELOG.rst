@@ -22,6 +22,7 @@ Bug fixes and small changes
 - Fix ``zfit.run.set_cpus_explicit()`` which was failing after ``import zfit`` due to premature TensorFlow initialization.
 - Fix ``BinnedChi2`` and ``ExtendedBinnedChi2`` to use expected Poisson variance in the ``errors="expected"`` path.
 - Make ``BinnedData.from_tensor(..., variances=True)`` return Poisson variances (``Var[N] = N``) for unweighted counts, aligning binned ``variances`` semantics with σ².
+- Fix ``create_extended`` and ``copy`` of a PDF, which replaced the observable space with the normalization range. The space is now kept and the normalization is passed on separately.
 
 Experimental
 ------------

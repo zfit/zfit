@@ -978,7 +978,8 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
             of self.parameters and override_parameters, i.e.,
             `dict(self.parameters, **override_parameters)`.
         """
-        obs = self.norm
+        obs = self.space
+        norm = self.norm
 
         # HACK(Mayou36): remove once copy is proper implemented
         from ..models.dist_tfp import WrapDistribution  # noqa: PLC0415
@@ -1033,6 +1034,8 @@ class BasePDF(ZfitPDF, BaseModel, metaclass=PDFMeta):
             parameters.update(pdfs=self.pdfs)
 
         parameters.update(obs=obs, name=self.name)
+        if norm != obs:  # only pass it if it differs, not all PDFs take a ``norm`` argument
+            parameters.update(norm=norm)
         parameters.update(**override_parameters)
         # if hasattr(self, "distribution"):
         #     parameters.update(distribution=self.distribution)
