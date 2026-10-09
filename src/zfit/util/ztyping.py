@@ -46,8 +46,6 @@ RectLimitsInputType = LowerRectTypeInput | UpperRectTypeInput  #:
 
 LimitsType = Union[tuple[tuple[float, ...]], tuple[float, ...], bool, "zfit.Space"]  #:
 LimitsTypeSimpleInput = tuple[float, float] | bool  #:
-LimitsTypeInput = tuple[tuple[tuple[float, ...]]] | tuple[float, float] | bool  #:
-LimitsTypeReturn = tuple[tuple[tuple[float, ...]], tuple[tuple[float, ...]]] | None | bool  #:
 
 NumericalType = int | float | np.ndarray | TensorLike  #:
 LimitsTypeInput = Union["zfit.interface.ZfitLimit", RectLimitsInputType, bool, None]  #:

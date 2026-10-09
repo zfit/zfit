@@ -22,6 +22,7 @@ Bug fixes and small changes
 - Fix ``zfit.run.set_cpus_explicit()`` which was failing after ``import zfit`` due to premature TensorFlow initialization.
 - Fix ``BinnedChi2`` and ``ExtendedBinnedChi2`` to use expected Poisson variance in the ``errors="expected"`` path.
 - Make ``BinnedData.from_tensor(..., variances=True)`` return Poisson variances (``Var[N] = N``) for unweighted counts, aligning binned ``variances`` semantics with σ².
+- Remove the two overwritten first definitions of ``LimitsTypeInput`` and ``LimitsTypeReturn`` in ``zfit.util.ztyping``. The types that are exposed do not change.
 
 Experimental
 ------------
