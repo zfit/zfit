@@ -108,7 +108,7 @@ jobs:
             use-graph: 1
             extras: test
             run: ${{ needs.check-ci-scope.outputs.run-full-ci == 'true' }}
-          - os: macos-14  # Apple silicon runner
+          - os: macos-15  # Apple silicon runner
             python-version: '3.13'
             use-graph: 1
             extras: test
