@@ -46,7 +46,7 @@ class UniformSampleAndWeights:
                     frac = 1.0  # TODO(Mayou36): remove hack for Eventspace
                 else:
                     tot_area = limits.volume
-                    frac = (space.volume / tot_area)[0]
+                    frac = space.volume / tot_area
                 n_partial_to_produce = znp.asarray(
                     z.to_real(n_to_produce) * z.to_real(frac), dtype=tf.int64
                 )  # TODO(Mayou36): split right!

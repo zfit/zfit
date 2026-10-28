@@ -6,6 +6,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import arviz as az
+import arviz_plots
 
 # os.environ["CUDA_VISIBLE_DEVICES"] = "-1"  # disable GPU
 import matplotlib.pyplot as plt
@@ -84,7 +85,7 @@ print(f"Valid samples: {posterior.valid}")
 # ArviZ integration
 print("\nArviZ integration:")
 idata = posterior.to_arviz()
-print(f"InferenceData groups: {list(idata.groups())}")
+print(f"InferenceData groups: {list(idata.groups)}")
 print("\nArviZ summary (first 3 params):")
 print(az.summary(idata, var_names=["mu", "sigma", "lambda_bkg"]))
 
@@ -167,7 +168,7 @@ print("ARVIZ INTEGRATION")
 print("-" * 40)
 
 # Trace plots
-az.plot_trace(idata, figsize=(14, 8))
+arviz_plots.plot_trace(idata)
 plt.suptitle("MCMC Trace Plots", fontsize=16, y=0.98)
 plt.tight_layout()
 plt.savefig(plotpath / "trace_plots.png", dpi=300, bbox_inches="tight")
@@ -175,15 +176,18 @@ print(f"Saved trace plot to: {plotpath / 'trace_plots.png'}")
 plt.close()
 
 # Posterior distributions with credible intervals
-az.plot_posterior(idata, figsize=(12, 8), hdi_prob=0.95)
-plt.suptitle("Posterior Distributions with 95% HDI", fontsize=16)
+arviz_plots.plot_dist(idata, var_names=["mu"], ci_prob=0.95)
+plt.suptitle("Posterior Distributions with 95% CI", fontsize=16)
 plt.tight_layout()
 plt.savefig(plotpath / "posterior_plots.png", dpi=300, bbox_inches="tight")
 print(f"Saved posterior distributions to: {plotpath / 'posterior_plots.png'}")
 plt.close()
 
 # Parameter correlation corner plot
-az.plot_pair(idata, figsize=(12, 12), kind="scatter", marginals=True, textsize=12)
+arviz_plots.plot_pair(
+    idata,
+    var_names=["mu", "sigma"],
+)
 plt.suptitle("Parameter Correlations", fontsize=16)
 plt.tight_layout()
 plt.savefig(plotpath / "corner_plot.png", dpi=300, bbox_inches="tight")
@@ -191,7 +195,7 @@ print(f"Saved corner plot to: {plotpath / 'corner_plot.png'}")
 plt.close()
 
 # Autocorrelation diagnostics
-az.plot_autocorr(idata, figsize=(14, 6))
+arviz_plots.plot_autocorr(idata)
 plt.suptitle("Autocorrelation Functions", fontsize=16)
 plt.tight_layout()
 plt.savefig(plotpath / "autocorr_plots.png", dpi=300, bbox_inches="tight")

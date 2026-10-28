@@ -1,7 +1,6 @@
 #  Copyright (c) 2025 zfit
 import numpy as np
 import pytest
-from pytest_cases import parametrize, fixture
 
 import zfit
 import zfit.z.numpy as znp

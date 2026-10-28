@@ -33,3 +33,4 @@ tmp/*
 /.claude/
 /tmp/
 .venv/
+*.log

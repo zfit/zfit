@@ -429,7 +429,7 @@ class PosteriorSamples:
 
         # Use az.from_dict for simpler conversion
         return az.from_dict(
-            {param.name: samples_reshaped[:, :, i] for i, param in enumerate(self._params)},
+            {"posterior": {param.name: samples_reshaped[:, :, i] for i, param in enumerate(self._params)}},
             coords={"chain": range(nwalkers), "draw": range(ndraws)},
         )
 
