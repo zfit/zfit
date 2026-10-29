@@ -21,12 +21,12 @@ def test_binned_rect_integration(edges_bins1):
 
     integral = binned_rect_integration(density=values, edges=edges, limits=limits)
     true_integral = limits_true.volume * value_scaling
-    assert pytest.approx(float(true_integral)) == float(integral)
+    assert pytest.approx(np.asarray(true_integral).item()) == np.asarray(integral).item()
 
     # integral = binned_rect_integration(counts=values, edges=edges, limits=limits)
     # true_integral = value_scaling * np.prod([e.shape.num_elements()
     #                                                               for e in true_scaled_edges])
-    # assert pytest.approx(float(true_integral)) == float(integral)
+    # assert pytest.approx(np.asarray(true_integral).item()) == np.asarray(integral).item()
 
 
 def test_binned_simple():
@@ -40,12 +40,12 @@ def test_binned_simple():
     limits = lim1 * lim2
     integral = binned_rect_integration(density=values, edges=edges, limits=limits)
     true_integral = 5 * 8 * scaling  # area lim1, area lim2, scaling
-    assert pytest.approx(float(true_integral)) == float(integral)
+    assert pytest.approx(np.asarray(true_integral).item()) == np.asarray(integral).item()
 
     integral = binned_rect_integration(counts=values, edges=edges, limits=limits)
     true_integral = 4 * scaling  # 4 elements
 
-    assert pytest.approx(float(true_integral)) == float(integral)
+    assert pytest.approx(np.asarray(true_integral).item()) == np.asarray(integral).item()
 
 
 def test_binned_simple_too_large():
@@ -59,12 +59,12 @@ def test_binned_simple_too_large():
     limits = lim1 * lim2
     integral = binned_rect_integration(density=values, edges=edges, limits=limits)
     true_integral = 5 * 8 * scaling  # area lim1, area lim2, scaling
-    assert pytest.approx(float(true_integral)) == float(integral)
+    assert pytest.approx(np.asarray(true_integral).item()) == np.asarray(integral).item()
 
     integral = binned_rect_integration(counts=values, edges=edges, limits=limits)
     true_integral = 4 * scaling  # 4 elements
 
-    assert pytest.approx(float(true_integral)) == float(integral)
+    assert pytest.approx(np.asarray(true_integral).item()) == np.asarray(integral).item()
 
 
 def test_binned_simple_scaled():
@@ -79,12 +79,12 @@ def test_binned_simple_scaled():
     limits = lim1 * lim2
     integral = binned_rect_integration(density=values, edges=edges, limits=limits)
     true_integral = 5 * 8 * scaling * reducefac**2  # area lim1, area lim2, scaling
-    assert pytest.approx(float(true_integral)) == float(integral)
+    assert pytest.approx(np.asarray(true_integral).item()) == np.asarray(integral).item()
 
     integral = binned_rect_integration(counts=values, edges=edges, limits=limits)
     true_integral = (2 * reducefac) ** 2 * scaling  # 4 elements
 
-    assert pytest.approx(float(true_integral)) == float(integral)
+    assert pytest.approx(np.asarray(true_integral).item()) == np.asarray(integral).item()
 
 
 def test_binned_simple_scaled_asym():
@@ -99,12 +99,12 @@ def test_binned_simple_scaled_asym():
     limits = lim1 * lim2
     integral = binned_rect_integration(density=values, edges=edges, limits=limits)
     true_integral = 5 * 8 * scaling * reducefac**2  # area lim1, area lim2, scaling
-    assert pytest.approx(float(true_integral)) == float(integral)
+    assert pytest.approx(np.asarray(true_integral).item()) == np.asarray(integral).item()
 
     integral = binned_rect_integration(counts=values, edges=edges, limits=limits)
     true_integral = (2 * reducefac) ** 2 * scaling  # 4 elements
 
-    assert pytest.approx(float(true_integral)) == float(integral)
+    assert pytest.approx(np.asarray(true_integral).item()) == np.asarray(integral).item()
 
 
 def test_binned_scaled_asym():
@@ -128,7 +128,7 @@ def test_binned_scaled_asym():
         + 3 * binw11 * binw22
         + 4 * binw12 * binw22
     )
-    assert pytest.approx(float(true_integral)) == float(integral)
+    assert pytest.approx(np.asarray(true_integral).item()) == np.asarray(integral).item()
 
     # using counts
     integral = binned_rect_integration(counts=values, edges=edges, limits=limits)
@@ -139,7 +139,7 @@ def test_binned_scaled_asym():
         + 4 * binw12 * binw22
     )
     true_integral /= 10  # each bin has an area of 10
-    assert pytest.approx(float(true_integral)) == float(integral)
+    assert pytest.approx(np.asarray(true_integral).item()) == np.asarray(integral).item()
 
 
 def test_binned_partial_scaled_asym_axis0():
@@ -198,7 +198,7 @@ def test_binned_scaled_asym_one():
         + 3 * binw11 * binw22
         + 4 * binw12 * binw22
     )
-    assert pytest.approx(float(true_integral)) == float(integral)
+    assert pytest.approx(np.asarray(true_integral).item()) == np.asarray(integral).item()
 
     # integral = binned_rect_integration(counts=values, edges=edges, limits=limits)
     # true_integral = (2 * reducefac) ** 2 * scaling  # 4 e
@@ -217,7 +217,7 @@ def test_partial_binned_rect_integration(edges_bins1):
     full_integral = binned_rect_integration(
         density=values, edges=edges, limits=limits_full
     )
-    assert pytest.approx(np.sum(integral)) == float(full_integral)
+    assert pytest.approx(np.sum(integral)) == np.asarray(full_integral).item()
 
 
 @pytest.fixture()
